@@ -1,0 +1,85 @@
+/* ============================================= */
+/* LAB TEST INVOICES - RESPONSIVE STYLES        */
+/* ============================================= */
+
+.lab-test-invoices-container {
+  min-height: 80vh;
+}
+
+.invoice-card {
+  transition: all 0.3s ease;
+}
+
+.invoice-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .invoice-card .text-end {
+    text-align: left !important;
+    margin-top: 1rem;
+  }
+  
+  .invoice-card .d-flex.flex-column {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+  }
+  
+  .invoice-card .d-flex.flex-column .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .lab-test-invoices-container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .invoice-card code {
+    font-size: 1rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .invoice-card .btn-lg {
+    font-size: 1rem;
+    padding: 10px 20px !important;
+  }
+  
+  .invoice-card .d-flex.flex-column {
+    flex-direction: column !important;
+  }
+  
+  .invoice-card .d-flex.flex-column .btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .lab-test-invoices-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  .invoice-card .p-4 {
+    padding: 1rem !important;
+  }
+  
+  .invoice-card ul {
+    font-size: 0.9rem;
+  }
+  
+  .modal-body .p-4 {
+    padding: 1rem !important;
+  }
+  
+  .modal-body code {
+    font-size: 1rem !important;
+  }
+  
+  .modal-body .table {
+    font-size: 0.85rem;
+  }
+}
+

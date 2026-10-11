@@ -1,0 +1,149 @@
+{
+    "Routes": [
+      {
+        "DownstreamPathTemplate": "/IAM/auth/login",
+        "UpstreamPathTemplate": "/gateway/iam/auth/login",
+        "UpstreamHttpMethod": [ "POST" ],
+        "DownstreamScheme": "https",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 7020
+          }
+        ],
+        "TimeoutValue": 8000
+      },
+      
+      /*-----------------------------------------
+        NEW TestOrder Routes: Lab User Profile, Doctor Room, Lab Assignment, Lab Room
+      -------------------------------------------*/
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabUserProfile",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-user-profiles",
+        "UpstreamHttpMethod": [ "GET" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabUserProfile/{id}",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-user-profiles/{id}",
+        "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabUserProfile/email/{email}",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-user-profiles/email/{email}",
+        "UpstreamHttpMethod": [ "GET" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+
+      {
+        "DownstreamPathTemplate": "/TestOrder/DoctorRoom",
+        "UpstreamPathTemplate": "/gateway/testorder/doctor-rooms",
+        "UpstreamHttpMethod": [ "GET", "POST" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/DoctorRoom/{id}",
+        "UpstreamPathTemplate": "/gateway/testorder/doctor-rooms/{id}",
+        "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabAssignment",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-assignments",
+        "UpstreamHttpMethod": [ "GET", "POST" ],
+        "DownstreamScheme": "https",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 7105
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabAssignment/{id}",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-assignments/{id}",
+        "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+        "DownstreamScheme": "https",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 7105
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabAssignment/bulk",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-assignments/bulk",
+        "UpstreamHttpMethod": [ "POST" ],
+        "DownstreamScheme": "https",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 7105
+          }
+        ]
+      },
+
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabRoom",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-rooms",
+        "UpstreamHttpMethod": [ "GET", "POST" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      },
+      {
+        "DownstreamPathTemplate": "/TestOrder/LabRoom/{id}",
+        "UpstreamPathTemplate": "/gateway/testorder/lab-rooms/{id}",
+        "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ]
+      }
+
+    ],
+    "GlobalConfiguration": {
+      "BaseUrl": "https://localhost:7000",
+      "RequestIdKey": "OcRequestId"
+    }
+  }

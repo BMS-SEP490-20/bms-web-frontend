@@ -1,0 +1,537 @@
+Starting the development server...
+
+Compiled with warnings.
+
+Module not found: Error: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./src/index.js[39m[22m [1m[32m27:10-47[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/core-impl.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/factories.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/permissions.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/retriever.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/code-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/core.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode-scanner.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/image-assets.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/index.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/native-bar-code-detector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/state-manager.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/storage.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/strings.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/base.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-zoom-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/file-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/scan-type-selector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/torch-button.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/utils.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/zxing-html5-qrcode-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'[39m[22m
+
+webpack compiled with [1m[33m24 warnings[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: Expected double-quoted property name in JSON at position 1375 (line 46 column 5)
+[1m[31mERROR[39m[22m in [1m[32mmain[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: Expected double-quoted property name in JSON at position 1375 (line 46 column 5)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m[32m[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: Expected double-quoted property name in JSON at position 1375 (line 46 column 5)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m[32m[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: Expected double-quoted property name in JSON at position 1375 (line 46 column 5)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m[32m[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxError: Expected double-quoted property name in JSON at position 1375 (line 46 column 5)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m  [1m[31mError[39m[22m[1m: Child compilation [1m[31mfailed[39m[22m[1m:
+  Module [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproj  ect\fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\  Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description fil  e): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package  .json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_  TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxErro  r: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directo  ry description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMS  project\fe\package.json (directory description file): SyntaxError: C:\Users\AD  MIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description   file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\pac  kage.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ  _ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): Syntax  [1m[31mError[39m[22m[1m: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (dir  ectory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP  \BMSproject\fe\package.json (directory description file): SyntaxError: Expecte  d double-quoted property name in JSON at position 1375 (line 46 column 5)
+  ModuleNotFoundError: Module [1m[31mnot found[39m[22m[1m: SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_  ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): SyntaxE  rror: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (dire  ctory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\  BMSproject\fe\package.json (directory description file): SyntaxError: C:\Users  \ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory descript  ion file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\  package.json (directory description file): SyntaxError: C:\Users\ADMIN\Desktop  \ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file): Syn  taxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (  directory description file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGH  IỆP\BMSproject\fe\package.json (directory description file): SyntaxError: C:\U  sers\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory desc  ription file): SyntaxError: C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject  \fe\package.json (directory description file): SyntaxError: C:\Users\ADMIN\Des  ktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\package.json (directory description file):   SyntaxError: Expected double-quoted property name in JSON at position 1375 (l  ine 46 column 5)
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\Compilation.js:2349:28
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:1350:13
+      at eval (eval at create (C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSprojec  t\fe\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:722:22
+      at eval (eval at create (C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSprojec  t\fe\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:904:22
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:442:10
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:1152:23
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\webp  ack\lib\NormalModuleFactory.js:1885:5
+      at C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\neo-  async\async.js:2830:7
+  
+  - Compilation.js:2349 
+    [fe]/[webpack]/lib/Compilation.js:2349:28
+  
+  - NormalModuleFactory.js:1350 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:1350:13
+  
+  
+  - NormalModuleFactory.js:722 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:722:22
+  
+  
+  - NormalModuleFactory.js:904 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:904:22
+  
+  - NormalModuleFactory.js:442 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:442:10
+  
+  - NormalModuleFactory.js:1152 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:1152:23
+  
+  - NormalModuleFactory.js:1885 
+    [fe]/[webpack]/lib/NormalModuleFactory.js:1885:5
+  
+  - async.js:2830 
+    [fe]/[neo-async]/async.js:2830:7
+  
+  - child-compiler.js:211 
+    [fe]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:729 finalCallback
+    [fe]/[webpack]/lib/Compiler.js:729:5
+  
+  - Compiler.js:765 
+    [fe]/[webpack]/lib/Compiler.js:765:11
+  
+  - Compiler.js:1477 
+    [fe]/[webpack]/lib/Compiler.js:1477:17
+  
+  
+  - Hook.js:21 Hook.CALL_ASYNC_DELEGATE [as _callAsync]
+    [fe]/[tapable]/lib/Hook.js:21:14
+  
+  - Compiler.js:1473 
+    [fe]/[webpack]/lib/Compiler.js:1473:33
+  
+  - Compilation.js:3608 finalCallback
+    [fe]/[webpack]/lib/Compilation.js:3608:11
+  
+  - Compilation.js:3958 
+    [fe]/[webpack]/lib/Compilation.js:3958:12
+  
+  
+[39m[22m
+
+[1m[31m1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)[39m[22m
+webpack compiled with [1m[31m6 errors[39m[22m
+Compiling...
+Compiled with warnings.
+
+Module not found: Error: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./src/index.js[39m[22m [1m[32m27:10-47[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/core-impl.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/factories.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/permissions.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/retriever.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/code-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/core.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode-scanner.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/image-assets.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/index.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/native-bar-code-detector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/state-manager.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/storage.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/strings.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/base.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-zoom-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/file-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/scan-type-selector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/torch-button.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/utils.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/zxing-html5-qrcode-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'[39m[22m
+
+webpack compiled with [1m[33m24 warnings[39m[22m
+Compiling...
+Compiled with warnings.
+
+Module not found: Error: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'
+
+Failed to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: Error: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./src/index.js[39m[22m [1m[32m27:10-47[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve 'animate.css/animate.min.css' in 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\src'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/core-impl.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\core-impl.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/factories.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\factories.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/permissions.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\permissions.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/camera/retriever.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\camera\retriever.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/code-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\code-decoder.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/core.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\core.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode-scanner.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode-scanner.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/html5-qrcode.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\html5-qrcode.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/image-assets.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\image-assets.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/index.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\index.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/native-bar-code-detector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\native-bar-code-detector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/state-manager.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\state-manager.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/storage.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\storage.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/strings.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\strings.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/base.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\base.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/camera-zoom-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\camera-zoom-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/file-selection-ui.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\file-selection-ui.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/scan-type-selector.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\scan-type-selector.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/ui/scanner/torch-button.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\ui\scanner\torch-button.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/utils.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\utils.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/html5-qrcode/esm/zxing-html5-qrcode-decoder.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'C:\Users\ADMIN\Desktop\ĐỒ_ÁN_TỐT_NGHIỆP\BMSproject\fe\node_modules\src\zxing-html5-qrcode-decoder.ts'[39m[22m
+
+webpack compiled with [1m[33m24 warnings[39m[22m

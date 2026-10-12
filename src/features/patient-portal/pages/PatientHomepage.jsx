@@ -2,6 +2,10 @@ import "./PatientHomepage.css";
 import React, { useState } from "react";
 import "./PatientHomepage.css";
 import LoginPage from "../../auth/pages/LoginPage";
+import ServicePackagesPage from "../../admin/pages/ServicePackagesPage.jsx";
+import axios from "axios";
+import ForgotPassword from "../../auth/pages/ForgotPassword";
+
 
 const results = [
   { date: "28 Sep", name: "Complete Blood Count", id: "ORD-260927-0231", doctor: "Dr. Trần Thị Bình", flag: "PLT" },
@@ -28,7 +32,10 @@ function ActionButton({ icon, children, primary = false, onClick }) {
 
 export default function PatientHomepage() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [user, setUser] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const API_URL = "http://localhost:5000/api";
   function getInitials(fullName) {
     if (!fullName) return "U";
 
@@ -49,47 +56,79 @@ export default function PatientHomepage() {
 
     setUser(null);
   }
-  async function handleLogin(data) {
-    const response = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            usernameOrEmail: data.email,
-            password: data.password,
-          }),
-        }
-    );
+  async function handleLogin({ email, password, rememberMe }) {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        usernameOrEmail: email.trim(),
+        password,
+      });
 
-    const result = await response.json().catch(() => ({}));
+      const data = response.data;
 
-    if (!response.ok) {
-      throw new Error(
-          result.message ||
-          result.Message ||
-          result.title ||
-          result.detail ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra tài khoản và mật khẩu."
-      );
+      if (!data.accessToken) {
+        throw new Error("Backend không trả về access token.");
+      }
+
+      // Xóa phiên đăng nhập cũ.
+      localStorage.removeItem("bms_access_token");
+      localStorage.removeItem("bms_refresh_token");
+      localStorage.removeItem("bms_user");
+
+      sessionStorage.removeItem("bms_access_token");
+      sessionStorage.removeItem("bms_refresh_token");
+      sessionStorage.removeItem("bms_user");
+
+      // Lưu vào localStorage nếu chọn ghi nhớ,
+      // ngược lại chỉ lưu trong session hiện tại.
+      const storage = rememberMe ? localStorage : sessionStorage;
+
+      storage.setItem("bms_access_token", data.accessToken);
+
+      if (data.refreshToken) {
+        storage.setItem("bms_refresh_token", data.refreshToken);
+      }
+
+      if (data.user) {
+        storage.setItem("bms_user", JSON.stringify(data.user));
+      }
+
+      setUser(data.user || null);
+      setShowLogin(false);
+    } catch (error) {
+      const message =
+          error.response?.data?.message ||
+          error.response?.data?.Message ||
+          error.response?.data?.title ||
+          error.message ||
+          "Đăng nhập thất bại.";
+
+      throw new Error(message);
     }
-
-    // Lưu token theo lựa chọn Ghi nhớ đăng nhập
-    const storage = data.rememberMe
-        ? localStorage
-        : sessionStorage;
-
-    storage.setItem("bms_access_token", result.accessToken);
-    storage.setItem("bms_refresh_token", result.refreshToken);
-
-    // Lấy thông tin tài khoản thật từ Backend
-    setUser(result.user);
-
-    // Đóng trang Login, quay lại Home
-    setShowLogin(false);
   }
+if (showAdmin) {
+    return <ServicePackagesPage onBack={() => setShowAdmin(false)} />;
+}
+
+// Màn hình quên mật khẩu
+if (showForgotPassword) {
+    return (
+        <ForgotPassword
+            onBackToLogin={() => {
+                setShowForgotPassword(false);
+                setShowLogin(true);
+            }}
+            onRegister={() => {
+                setShowForgotPassword(false);
+                console.log("Navigate to Register");
+            }}
+            onOtpSent={(email, result) => {
+                console.log("OTP đã được yêu cầu cho:", email, result);
+            }}
+        />
+    );
+}
+
+
   if (showLogin) {
     return (
         <LoginPage
@@ -97,6 +136,10 @@ export default function PatientHomepage() {
             onLogin={handleLogin}
             onRegister={() => {
               console.log("Navigate to Register");
+            }}
+            onForgotPassword={() => {
+              setShowLogin(false);
+              setShowForgotPassword(true);
             }}
         />
     );
@@ -127,7 +170,14 @@ export default function PatientHomepage() {
           </span>
                   </div>
                 </div>
-
+                <button
+                    type="button"
+                    className="ph-login-button"
+                    onClick={() => setShowAdmin(true)}
+                >
+                  <i className="bi bi-box-seam" aria-hidden="true" />
+                  <span>Quản lý gói</span>
+                </button>
                 <button
                     type="button"
                     className="ph-logout-button"

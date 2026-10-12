@@ -2,7 +2,12 @@
 import React, { useState } from "react";
 import "./LoginPage.css";
 
-export default function LoginPage({ onBack, onLogin, onRegister }) {
+export default function LoginPage({
+                                      onBack,
+                                      onLogin,
+                                      onRegister,
+                                      onForgotPassword,
+                                  }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -140,15 +145,22 @@ export default function LoginPage({ onBack, onLogin, onRegister }) {
                             <div className="login-field">
                                 <div className="login-label-row">
                                     <label htmlFor="login-password">Mật khẩu</label>
+
                                     <button
                                         type="button"
                                         className="login-text-button"
-                                        onClick={() =>
-                                            setError("Chức năng quên mật khẩu sẽ được bổ sung sau.")
-                                        }
+                                        onClick={() => {
+                                            if (onForgotPassword) {
+                                                onForgotPassword();
+                                            } else {
+                                                console.error("onForgotPassword chưa được truyền từ component cha");
+                                            }
+                                        }}
                                     >
                                         Quên mật khẩu?
                                     </button>
+
+
                                 </div>
 
                                 <div className="login-input-wrap">

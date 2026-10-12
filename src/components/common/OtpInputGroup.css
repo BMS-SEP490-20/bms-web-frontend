@@ -1,0 +1,89 @@
+/* ==========================================================================
+   BMS OtpInputGroup Styles — Production-Grade 6-Digit PIN Component
+   Tuân thủ: AGENTS-DESIGN.md Rule 19 (Touch Target) & Rule 26 (Micro-animation)
+   ========================================================================== */
+
+.bms-otp-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.bms-otp-input {
+  width: 48px;
+  height: 56px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  border: 1.5px solid var(--bms-border, #e2e8f0);
+  border-radius: var(--bms-radius, 8px);
+  background-color: var(--bms-surface, #ffffff);
+  color: var(--bms-text-main, #0f172a);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--bms-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+  outline: none;
+  font-family: var(--bms-font-mono, monospace);
+  -moz-appearance: textfield;
+}
+
+.bms-otp-input::-webkit-outer-spin-button,
+.bms-otp-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* State: Focus & Active */
+.bms-otp-input:focus {
+  border-color: var(--bms-primary, #1e40af);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+  transform: translateY(-1px);
+}
+
+/* State: Filled value */
+.bms-otp-input.is-filled {
+  border-color: var(--bms-primary-600, #2563eb);
+  background-color: var(--bms-primary-light, #eff6ff);
+  color: var(--bms-primary-800, #1e40af);
+}
+
+/* State: Error with Shake */
+.bms-otp-container.has-error .bms-otp-input {
+  border-color: var(--bms-danger, #dc2626);
+  background-color: var(--bms-danger-light, #fef2f2);
+  color: var(--bms-danger, #dc2626);
+}
+
+.bms-otp-container.is-shaking {
+  animation: bms-otp-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes bms-otp-shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* State: Disabled */
+.bms-otp-input:disabled {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive for mobile screens */
+@media (max-width: 480px) {
+  .bms-otp-container {
+    gap: 6px;
+  }
+  .bms-otp-input {
+    width: 42px;
+    height: 50px;
+    font-size: 20px;
+  }
+}

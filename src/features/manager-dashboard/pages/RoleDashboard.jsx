@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button, Table, Spinner, Nav, Alert } from 'react-bootstrap';
-import api from '../../config/api';
+import api from '../../../config/api';
 
 const RoleBasedDashboard = () => {
   const [selectedRole, setSelectedRole] = useState('LaboratoryUser');

@@ -1,9 +1,18 @@
+/**
+ * @file App.jsx
+ * @description Main application routing configuration for BMS Web Frontend - Blood Laboratory Management System.
+ * Connects unauthenticated auth flows (Register, Login, Forgot Password / OTP) and protected medical portal layouts (Dashboard, Lab Queue, Change Password, User Profile).
+ * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ */
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
 import Register from './features/auth/Register';
 import ChangePassword from './features/auth/ChangePassword';
+import ForgotPasswordPage from './features/auth/pages/ForgotPasswordPage';
+import UserProfilePage from './features/patient-portal/pages/UserProfilePage';
 import RoleBasedDashboard from './features/manager-dashboard/pages/RoleDashboard';
 import SampleQueuePage from './features/laboratory/pages/SampleQueuePage';
 
@@ -11,16 +20,18 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Auth Routes */}
+        {/* Unauthenticated Authentication Workflows (UC02, UC03, UC05, UC10) */}
         <Route element={<AuthLayout />}>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
 
-        {/* Protected / Main Routes */}
+        {/* Authenticated Clinical & Patient Workflows (UC07, UC08, UC12, UC17) */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<RoleBasedDashboard />} />
           <Route path="/lab/queue" element={<SampleQueuePage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
           <Route path="/change-password" element={
             <div className="container py-4">
               <div className="row justify-content-center">
@@ -30,7 +41,8 @@ function App() {
               </div>
             </div>
           } />
-          {/* Default redirect to Dashboard */}
+
+          {/* Fallback Redirection */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

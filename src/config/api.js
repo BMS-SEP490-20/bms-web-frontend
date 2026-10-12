@@ -8,7 +8,7 @@
 
 import axios from 'axios';
 
-// Base URL connecting to the BMS Backend Web API (.NET)
+// Base URL connecting to the BMS Backend Web API (.NET) or local dev server
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -37,7 +37,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If the access token is invalid or expired (401), handle graceful logout
+    // If the access token is invalid or expired (401), handle graceful session notice
     if (error.response && error.response.status === 401) {
       console.warn('[BMS API] 401 Unauthorized: User session has expired or is invalid.');
     }

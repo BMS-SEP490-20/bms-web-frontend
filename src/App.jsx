@@ -1,7 +1,7 @@
 /**
  * @file App.jsx
- * @description Ứng dụng chính BMS Web Frontend - Blood Laboratory Management System.
- * Định tuyến các trang chức năng y tế và luồng xác thực người dùng.
+ * @description Main application component for BMS Web Frontend - Blood Laboratory Management System.
+ * Configures application routing for medical portal features and authentication workflows.
  */
 
 import React from 'react';

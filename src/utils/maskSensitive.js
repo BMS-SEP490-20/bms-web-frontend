@@ -1,17 +1,17 @@
 /**
  * @file maskSensitive.js
- * @description Hàm tiện ích làm mờ (mask) thông tin định danh cá nhân nhạy cảm (PII)
- * như Email và Số điện thoại trước khi hiển thị trên giao diện người dùng.
- * Tuân thủ: NIST SP 800-63B & AGENTS-DESIGN.md Rule 22 (Bảo vệ thông tin cá nhân).
+ * @description Utility functions for masking Personally Identifiable Information (PII),
+ * specifically email addresses and phone numbers, before rendering in user interfaces.
+ * Conforms to: NIST SP 800-63B & AGENTS-DESIGN.md Rule 22 (Privacy Protection).
  */
 
 /**
- * Che một phần địa chỉ email để bảo mật thông tin người dùng.
- * Ví dụ: "tanphat.nguyen@gmail.com" => "t***t@gmail.com"
- *        "phat@gmail.com" => "p***t@gmail.com"
+ * Masks an email address to protect user privacy.
+ * Example: "tanphat.nguyen@gmail.com" => "t***n@gmail.com"
+ *          "phat@gmail.com" => "p***t@gmail.com"
  * 
- * @param {string} email - Địa chỉ email cần che.
- * @returns {string} Địa chỉ email đã được che dấu.
+ * @param {string} email - The email address to mask.
+ * @returns {string} The masked email address.
  */
 export const maskEmail = (email) => {
   if (!email || typeof email !== 'string') return '';
@@ -29,11 +29,11 @@ export const maskEmail = (email) => {
 };
 
 /**
- * Che một phần số điện thoại để bảo mật thông tin liên lạc.
- * Ví dụ: "0901234567" => "090****567"
+ * Masks a telephone number to protect sensitive contact data.
+ * Example: "0901234567" => "090****567"
  * 
- * @param {string} phone - Số điện thoại cần che.
- * @returns {string} Số điện thoại đã được che dấu.
+ * @param {string} phone - The phone number to mask.
+ * @returns {string} The masked phone number.
  */
 export const maskPhone = (phone) => {
   if (!phone || typeof phone !== 'string') return '';
@@ -46,10 +46,10 @@ export const maskPhone = (phone) => {
 };
 
 /**
- * Tự động phát hiện email hoặc số điện thoại và áp dụng mask phù hợp.
+ * Automatically detects whether destination is an email or phone number and applies the correct mask.
  * 
- * @param {string} destination - Email hoặc số điện thoại.
- * @returns {string} Chuỗi thông tin đã được mask.
+ * @param {string} destination - Email address or phone number.
+ * @returns {string} Masked destination string.
  */
 export const maskDestination = (destination) => {
   if (!destination) return '';

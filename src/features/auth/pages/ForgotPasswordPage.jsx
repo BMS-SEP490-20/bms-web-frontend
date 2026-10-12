@@ -1,8 +1,8 @@
 /**
  * @file ForgotPasswordPage.jsx
- * @description Màn hình Quên mật khẩu & Đặt lại mật khẩu (UC10) tích hợp luồng Gửi & Xác thực OTP (UC03).
- * Trình diễn toàn bộ quy trình: Nhập Email/SĐT -> Nhận OTP (Modal 6 số với 60s cooldown) -> Đặt lại mật khẩu mới.
- * Tuân thủ: NIST SP 800-63B, OWASP ASVS & AGENTS-DESIGN.md Rules 01-28.
+ * @description Forgot Password & Password Reset screen (UC10) demonstrating end-to-end Send & Verify OTP (UC03).
+ * Workflow: Input Email/Phone -> Verify OTP (Modal with 60s cooldown) -> Set New Password (with Strength Meter).
+ * Conforms to: NIST SP 800-63B, OWASP ASVS & AGENTS-DESIGN.md Rules 01-28.
  */
 
 import React, { useState } from 'react';
@@ -12,7 +12,7 @@ import { sendOtp } from '../../../services/authService';
 import './ForgotPasswordPage.css';
 
 export const ForgotPasswordPage = () => {
-  // Trạng thái các bước: 1: Nhập email, 2: Xác thực OTP (Modal), 3: Nhập mật khẩu mới, 4: Thành công
+  // Step workflow state: 1: Enter email/phone, 2: OTP Modal verification, 3: Enter new password, 4: Done
   const [step, setStep] = useState(1);
   const [destination, setDestination] = useState('');
   const [channel, setChannel] = useState('Email');
@@ -21,19 +21,19 @@ export const ForgotPasswordPage = () => {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [verificationToken, setVerificationToken] = useState('');
 
-  // Form đặt lại mật khẩu mới
+  // Password reset form state
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
 
   /**
-   * Bước 1: Gửi yêu cầu mã OTP tới Backend
+   * Step 1: Request OTP dispatch from backend
    */
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     if (!destination.trim()) {
-      setErrorMessage('Vui lòng nhập địa chỉ Email hoặc Số điện thoại đăng ký.');
+      setErrorMessage('Please enter your registered email address or phone number.');
       return;
     }
 
@@ -50,42 +50,42 @@ export const ForgotPasswordPage = () => {
       if (result.isSuccess) {
         setShowOtpModal(true);
       } else {
-        setErrorMessage(result.message || 'Không thể gửi mã xác thực. Vui lòng kiểm tra lại thông tin.');
+        setErrorMessage(result.message || 'Unable to dispatch verification code. Please check your information.');
       }
     } catch (err) {
-      setErrorMessage('Lỗi hệ thống trong quá trình gửi mã OTP.');
+      setErrorMessage('A system error occurred while sending the OTP code.');
     } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * Bước 2 Callback: Khi người dùng hoàn tất xác thực OTP trong Modal
+   * Step 2 Callback: Triggered when OTP is verified successfully in modal
    */
   const handleOtpVerified = (token) => {
     setShowOtpModal(false);
     setVerificationToken(token);
-    setStep(3); // Chuyển sang bước đặt mật khẩu mới
+    setStep(3); // Transition to reset password step
   };
 
   /**
-   * Bước 3: Đặt lại mật khẩu mới
+   * Step 3: Submit new password to backend
    */
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (newPassword.length < 8) {
-      setErrorMessage('Mật khẩu mới phải có tối thiểu 8 ký tự.');
+      setErrorMessage('New password must contain at least 8 characters.');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+      setErrorMessage('Password confirmation does not match.');
       return;
     }
 
     setIsLoading(true);
     setErrorMessage('');
 
-    // Giả lập gửi token và mật khẩu mới lên backend
+    // Simulate sending token and new password to backend
     setTimeout(() => {
       setIsLoading(false);
       setResetSuccess(true);
@@ -93,19 +93,19 @@ export const ForgotPasswordPage = () => {
     }, 1000);
   };
 
-  // Tính độ mạnh mật khẩu (Password Strength)
+  // Evaluate password complexity score (0 to 4)
   const calculatePasswordStrength = (pwd) => {
     let score = 0;
     if (pwd.length >= 8) score++;
     if (/[A-Z]/.test(pwd)) score++;
     if (/[0-9]/.test(pwd)) score++;
     if (/[^A-Za-z0-9]/.test(pwd)) score++;
-    return score; // 0 đến 4
+    return score;
   };
 
   const strength = calculatePasswordStrength(newPassword);
   const strengthColors = ['#e2e8f0', '#dc2626', '#f59e0b', '#2563eb', '#16a34a'];
-  const strengthLabels = ['', 'Yếu', 'Trung bình', 'Khá mạnh', 'Rất an toàn'];
+  const strengthLabels = ['', 'Weak', 'Fair', 'Strong', 'Very Secure'];
 
   return (
     <div className="bms-auth-page">
@@ -114,13 +114,13 @@ export const ForgotPasswordPage = () => {
         <div className="bms-auth-card-header">
           <div className="bms-step-badge">
             <i className="bi bi-shield-lock"></i>
-            {step === 1 && 'Bước 1: Nhận mã xác thực OTP'}
-            {step === 3 && 'Bước 2: Tạo mật khẩu mới'}
-            {step === 4 && 'Hoàn tất quy trình'}
+            {step === 1 && 'Step 1: Request Security OTP'}
+            {step === 3 && 'Step 2: Create New Password'}
+            {step === 4 && 'Complete'}
           </div>
-          <h4 className="fw-bold mb-1">Cấp Lại Mật Khẩu</h4>
+          <h4 className="fw-bold mb-1">Reset Password</h4>
           <p className="mb-0 text-white-50 small">
-            Hệ thống Quản lý Phòng Xét nghiệm Y khoa BMS
+            BMS Blood Laboratory Management System
           </p>
         </div>
 
@@ -133,21 +133,21 @@ export const ForgotPasswordPage = () => {
             </Alert>
           )}
 
-          {/* BƯỚC 1: Form yêu cầu gửi OTP */}
+          {/* STEP 1: Enter email/phone to receive OTP */}
           {step === 1 && (
             <Form onSubmit={handleRequestOtp}>
               <p className="text-muted small mb-3">
-                Nhập địa chỉ Email hoặc Số điện thoại đã liên kết với tài khoản bệnh nhân/nhân viên y tế để nhận mã OTP xác minh danh tính.
+                Enter the email address or phone number associated with your account to receive a one-time verification code.
               </p>
 
               <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold small text-secondary">Phương thức nhận mã</Form.Label>
+                <Form.Label className="fw-semibold small text-secondary">Delivery Method</Form.Label>
                 <div className="d-flex gap-3 mb-2">
                   <Form.Check
                     type="radio"
                     id="channel-email"
                     name="channel"
-                    label="Hộp thư Email"
+                    label="Email Inbox"
                     checked={channel === 'Email'}
                     onChange={() => setChannel('Email')}
                     className="small fw-semibold"
@@ -156,7 +156,7 @@ export const ForgotPasswordPage = () => {
                     type="radio"
                     id="channel-sms"
                     name="channel"
-                    label="Tin nhắn SMS"
+                    label="SMS Message"
                     checked={channel === 'Sms'}
                     onChange={() => setChannel('Sms')}
                     className="small fw-semibold"
@@ -166,13 +166,13 @@ export const ForgotPasswordPage = () => {
 
               <Form.Group className="mb-4">
                 <Form.Label className="fw-semibold small text-secondary">
-                  {channel === 'Email' ? 'Địa chỉ Email' : 'Số điện thoại'} <span className="text-danger">*</span>
+                  {channel === 'Email' ? 'Email Address' : 'Phone Number'} <span className="text-danger">*</span>
                 </Form.Label>
                 <div className="bms-input-icon-group">
                   <i className={`bi ${channel === 'Email' ? 'bi-envelope' : 'bi-telephone'} bms-icon-addon`}></i>
                   <Form.Control
                     type={channel === 'Email' ? 'email' : 'tel'}
-                    placeholder={channel === 'Email' ? 'nhanvien@bmslab.vn' : '0901234567'}
+                    placeholder={channel === 'Email' ? 'patient@bmslab.vn' : '0901234567'}
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     required
@@ -185,47 +185,47 @@ export const ForgotPasswordPage = () => {
                   {isLoading ? (
                     <>
                       <Spinner animation="border" size="sm" className="me-2" />
-                      Đang xử lý gửi mã...
+                      Sending code...
                     </>
                   ) : (
-                    'Gửi Mã Xác Thực OTP (6 Số)'
+                    'Send Verification OTP (6 Digits)'
                   )}
                 </Button>
               </div>
 
               <div className="text-center">
                 <a href="#/login" className="small text-decoration-none text-muted">
-                  <i className="bi bi-arrow-left me-1"></i> Quay lại trang Đăng nhập
+                  <i className="bi bi-arrow-left me-1"></i> Back to Login
                 </a>
               </div>
             </Form>
           )}
 
-          {/* BƯỚC 3: Nhập mật khẩu mới sau khi OTP thành công */}
+          {/* STEP 3: Enter new password after OTP verified */}
           {step === 3 && (
             <Form onSubmit={handleResetPassword}>
               <Alert variant="info" className="py-2 small mb-3">
                 <i className="bi bi-check-circle-fill me-2"></i>
-                Đã xác thực OTP thành công. Vui lòng thiết lập mật khẩu mới có tính bảo mật cao.
+                OTP verified successfully. Please set a new strong password.
               </Alert>
 
               <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold small text-secondary">Mật khẩu mới <span className="text-danger">*</span></Form.Label>
+                <Form.Label className="fw-semibold small text-secondary">New Password <span className="text-danger">*</span></Form.Label>
                 <div className="bms-input-icon-group">
                   <i className="bi bi-lock bms-icon-addon"></i>
                   <Form.Control
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Tối thiểu 8 ký tự (chữ, số, ký tự đặc biệt)"
+                    placeholder="At least 8 characters (letters, numbers, symbols)"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
                   />
                 </div>
-                {/* Strength Bar */}
+                {/* Password Strength Meter */}
                 {newPassword && (
                   <div className="mt-2">
                     <div className="d-flex justify-content-between align-items-center small text-muted">
-                      <span>Độ an toàn:</span>
+                      <span>Strength:</span>
                       <strong style={{ color: strengthColors[strength] }}>{strengthLabels[strength]}</strong>
                     </div>
                     <div className="bms-password-strength-bar">
@@ -242,12 +242,12 @@ export const ForgotPasswordPage = () => {
               </Form.Group>
 
               <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold small text-secondary">Xác nhận mật khẩu <span className="text-danger">*</span></Form.Label>
+                <Form.Label className="fw-semibold small text-secondary">Confirm Password <span className="text-danger">*</span></Form.Label>
                 <div className="bms-input-icon-group">
                   <i className="bi bi-shield-check bms-icon-addon"></i>
                   <Form.Control
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Nhập lại chính xác mật khẩu trên"
+                    placeholder="Re-enter your new password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -260,17 +260,17 @@ export const ForgotPasswordPage = () => {
                   {isLoading ? (
                     <>
                       <Spinner animation="border" size="sm" className="me-2" />
-                      Đang cập nhật mật khẩu...
+                      Updating password...
                     </>
                   ) : (
-                    'Cập Nhật Mật Khẩu'
+                    'Update Password'
                   )}
                 </Button>
               </div>
             </Form>
           )}
 
-          {/* BƯỚC 4: Hoàn tất */}
+          {/* STEP 4: Success confirmation */}
           {step === 4 && (
             <div className="text-center py-3">
               <div
@@ -279,14 +279,14 @@ export const ForgotPasswordPage = () => {
               >
                 <i className="bi bi-check-lg"></i>
               </div>
-              <h5 className="fw-bold text-success mb-2">Đổi Mật Khẩu Thành Công!</h5>
+              <h5 className="fw-bold text-success mb-2">Password Reset Successfully!</h5>
               <p className="text-muted small mb-4">
-                Mật khẩu mới của bạn đã được cập nhật an toàn trong cơ sở dữ liệu. Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.
+                Your new password has been safely updated. You can now log into your account using your new credentials.
               </p>
               <div className="d-grid">
                 <Button variant="primary" className="bms-btn-primary" onClick={() => setStep(1)}>
                   <i className="bi bi-box-arrow-in-right me-2"></i>
-                  Đăng Nhập Ngay
+                  Go to Login
                 </Button>
               </div>
             </div>
@@ -294,7 +294,7 @@ export const ForgotPasswordPage = () => {
         </div>
       </div>
 
-      {/* Tích hợp SendOtpModal chuẩn UC03 */}
+      {/* Integrated SendOtpModal component */}
       <SendOtpModal
         show={showOtpModal}
         onHide={() => setShowOtpModal(false)}

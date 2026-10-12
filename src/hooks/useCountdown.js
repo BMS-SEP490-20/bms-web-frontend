@@ -1,18 +1,17 @@
 /**
  * @file useCountdown.js
- * @description Custom Hook quản lý bộ đếm ngược thời gian (Countdown timer).
- * Ứng dụng kiểm soát thời gian chờ gửi lại mã OTP (Resend Cooldown 60s) 
- * và thời gian hết hạn toàn phần của mã xác thực (TTL 300s = 5 phút).
- * Tuân thủ: RFC 6238 & AGENTS-CODE.md chuẩn React Hook.
+ * @description Custom React Hook managing countdown timers for OTP resend cooldown (60 seconds)
+ * and total OTP expiration lifecycle (300 seconds / 5 minutes).
+ * Conforms to: RFC 6238 TOTP Guidelines & Production Engineering Standards.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
- * Hook đếm ngược thời gian theo giây.
+ * Countdown timer hook with formatted time string and status callbacks.
  * 
- * @param {number} initialSeconds - Số giây ban đầu (mặc định 60 giây).
- * @param {Function} [onExpire] - Callback tùy chọn được kích hoạt khi đếm về 0.
+ * @param {number} initialSeconds - Starting seconds (default 60).
+ * @param {Function} [onExpire] - Optional callback triggered when timer hits 0.
  * @returns {object} { seconds, formattedTime, isActive, isExpired, start, reset, stop }
  */
 export const useCountdown = (initialSeconds = 60, onExpire = null) => {
@@ -24,7 +23,7 @@ export const useCountdown = (initialSeconds = 60, onExpire = null) => {
     onExpireRef.current = onExpire;
   }, [onExpire]);
 
-  // Khởi động đếm ngược
+  // Start the countdown timer with optional custom duration
   const start = useCallback((customSeconds = null) => {
     if (customSeconds !== null && !isNaN(customSeconds)) {
       setSeconds(customSeconds);
@@ -32,18 +31,18 @@ export const useCountdown = (initialSeconds = 60, onExpire = null) => {
     setIsActive(true);
   }, []);
 
-  // Tạm dừng bộ đếm
+  // Pause the countdown timer
   const stop = useCallback(() => {
     setIsActive(false);
   }, []);
 
-  // Thiết lập lại thời gian và tự động bắt đầu nếu autoStart = true
+  // Reset timer to specified seconds with optional auto-start
   const reset = useCallback((newSeconds = initialSeconds, autoStart = true) => {
     setSeconds(newSeconds);
     setIsActive(autoStart);
   }, [initialSeconds]);
 
-  // Vòng lặp đếm ngược mỗi 1 giây
+  // 1-second interval loop
   useEffect(() => {
     let intervalId = null;
 
@@ -68,7 +67,7 @@ export const useCountdown = (initialSeconds = 60, onExpire = null) => {
     };
   }, [isActive, seconds]);
 
-  // Định dạng chuỗi mm:ss (Ví dụ: "01:00", "00:45")
+  // Format as mm:ss string (e.g. "01:00", "00:45")
   const minutes = Math.floor(seconds / 60);
   const remainingSecs = seconds % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSecs).padStart(2, '0')}`;

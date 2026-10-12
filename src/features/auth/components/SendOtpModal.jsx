@@ -1,9 +1,9 @@
 /**
  * @file SendOtpModal.jsx
- * @description Modal xác thực mã OTP 2 lớp (2FA) bảo mật y tế chuyên biệt (UC03).
- * Tích hợp tự động đếm ngược 60 giây chống Spam/Rate Limit, hiển thị thông tin mask,
- * xử lý gửi lại mã (Resend) và xác thực hoàn tất quy trình.
- * Tuân thủ: RFC 6238, OWASP Authentication Rules & AGENTS-DESIGN.md Rules 01-28.
+ * @description Two-Factor Authentication (2FA) OTP Verification Modal component (UC03).
+ * Integrates 60-second anti-spam countdown, masked PII recipient badge,
+ * resilient resend protection, and 6-digit independent PIN input group.
+ * Conforms to: RFC 6238, OWASP Authentication Rules & AGENTS-DESIGN.md Rules 01-28.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -16,12 +16,12 @@ import './SendOtpModal.css';
 
 /**
  * @typedef {object} SendOtpModalProps
- * @property {boolean} show - Trạng thái hiển thị Modal.
- * @property {Function} onHide - Callback khi người dùng đóng modal.
- * @property {string} destination - Email hoặc Số điện thoại người nhận.
- * @property {'Registration'|'PasswordReset'|'Login'|'Transaction'} [purpose='PasswordReset'] - Mục đích nghiệp vụ OTP.
- * @property {'Email'|'Sms'} [channel='Email'] - Phương thức nhận mã.
- * @property {Function} onVerified - Callback được gọi khi OTP được xác thực thành công `(verificationToken: string) => void`.
+ * @property {boolean} show - Controls modal visibility.
+ * @property {Function} onHide - Invoked when closing or dismissing modal.
+ * @property {string} destination - Recipient email or phone number.
+ * @property {'Registration'|'PasswordReset'|'Login'|'Transaction'} [purpose='PasswordReset'] - Business purpose.
+ * @property {'Email'|'Sms'} [channel='Email'] - Communication channel.
+ * @property {Function} onVerified - Triggered upon successful verification `(verificationToken: string) => void`.
  */
 
 export const SendOtpModal = ({
@@ -38,7 +38,7 @@ export const SendOtpModal = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Bộ đếm ngược thời gian chờ gửi lại mã (60 giây mặc định)
+  // 60-second resend cooldown timer
   const {
     seconds: resendSeconds,
     formattedTime: resendFormattedTime,
@@ -47,23 +47,23 @@ export const SendOtpModal = ({
     reset: resetCountdown,
   } = useCountdown(60);
 
-  // Khi modal mở lên, bắt đầu đếm ngược thời gian và reset form
+  // Reset form state and start countdown when modal opens
   useEffect(() => {
     if (show) {
       setOtpValue('');
       setErrorMessage('');
-      setSuccessMessage('Mã OTP 6 chữ số đã được gửi. Vui lòng kiểm tra hộp thư của bạn.');
+      setSuccessMessage('A 6-digit verification code has been dispatched. Please check your inbox.');
       resetCountdown(60, true);
     }
   }, [show, resetCountdown]);
 
   /**
-   * Xử lý xác thực mã OTP khi người dùng bấm Xác nhận hoặc nhập đủ 6 số
+   * Handles OTP verification submission
    */
   const handleVerify = useCallback(async (codeToVerify = null) => {
     const finalOtp = codeToVerify || otpValue;
     if (finalOtp.length !== 6) {
-      setErrorMessage('Vui lòng nhập đủ 6 chữ số mã xác thực.');
+      setErrorMessage('Please enter all 6 digits of the verification code.');
       return;
     }
 
@@ -78,22 +78,22 @@ export const SendOtpModal = ({
       });
 
       if (result.isSuccess) {
-        setSuccessMessage('Xác thực danh tính thành công!');
+        setSuccessMessage('Identity verified successfully!');
         setTimeout(() => {
           onVerified?.(result.verificationToken);
         }, 600);
       } else {
-        setErrorMessage(result.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+        setErrorMessage(result.message || 'Verification code is invalid or has expired.');
       }
     } catch (err) {
-      setErrorMessage('Đã xảy ra sự cố mạng. Vui lòng thử lại sau.');
+      setErrorMessage('A network error occurred. Please try again.');
     } finally {
       setIsVerifying(false);
     }
   }, [destination, otpValue, purpose, onVerified]);
 
   /**
-   * Xử lý gửi lại mã OTP (Resend)
+   * Handles requesting a new OTP code (Resend)
    */
   const handleResendOtp = async () => {
     if (isCountdownActive || isResending) return;
@@ -109,14 +109,14 @@ export const SendOtpModal = ({
       });
 
       if (result.isSuccess) {
-        setSuccessMessage(result.message || 'Đã gửi lại mã OTP mới!');
+        setSuccessMessage(result.message || 'A new verification code has been dispatched!');
         setOtpValue('');
         resetCountdown(result.cooldownSeconds || 60, true);
       } else {
-        setErrorMessage(result.message || 'Không thể gửi lại mã OTP.');
+        setErrorMessage(result.message || 'Unable to resend verification code.');
       }
     } catch (err) {
-      setErrorMessage('Lỗi kết nối khi gửi lại mã. Vui lòng thử lại.');
+      setErrorMessage('Network connection error while resending code. Please retry.');
     } finally {
       setIsResending(false);
     }
@@ -134,7 +134,7 @@ export const SendOtpModal = ({
       <Modal.Header closeButton className="bms-otp-modal-header">
         <Modal.Title id="bms-otp-modal-title" className="h5 fw-bold m-0 d-flex align-items-center">
           <i className="bi bi-shield-lock-fill me-2 fs-5"></i>
-          Xác Thực Mã Bảo Mật (OTP)
+          Verify Security Code (OTP)
         </Modal.Title>
       </Modal.Header>
 
@@ -144,12 +144,12 @@ export const SendOtpModal = ({
           <i className="bi bi-shield-check"></i>
         </div>
 
-        <h5 className="fw-bold text-dark mb-1">Nhập mã xác nhận 6 chữ số</h5>
+        <h5 className="fw-bold text-dark mb-1">Enter 6-Digit Verification Code</h5>
         <p className="text-muted small mb-2">
-          Mã xác thực đã được gửi tới {channel === 'Email' ? 'hộp thư điện tử' : 'số điện thoại'}:
+          A secure code was sent to your {channel === 'Email' ? 'email inbox' : 'mobile phone'}:
         </p>
 
-        {/* Masked destination info */}
+        {/* Masked destination badge */}
         <div>
           <span className="bms-otp-destination-badge">
             <i className={`bi ${channel === 'Email' ? 'bi-envelope-at' : 'bi-phone'}`}></i>
@@ -172,7 +172,7 @@ export const SendOtpModal = ({
           </Alert>
         )}
 
-        {/* 6-Digit PIN input group with auto-advance and shake on error */}
+        {/* 6-Digit PIN input group with auto-advance and shake animation */}
         <OtpInputGroup
           length={6}
           value={otpValue}
@@ -188,7 +188,7 @@ export const SendOtpModal = ({
 
         <div className="small text-muted mb-3">
           <i className="bi bi-clock-history me-1"></i>
-          Mã có hiệu lực trong vòng <strong>5 phút</strong>.
+          Code remains valid for <strong>5 minutes</strong>.
         </div>
 
         {/* Action Button */}
@@ -203,17 +203,17 @@ export const SendOtpModal = ({
             {isVerifying ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
-                Đang xác thực...
+                Verifying...
               </>
             ) : (
-              'Xác Nhận & Tiếp Tục'
+              'Verify & Continue'
             )}
           </Button>
         </div>
 
         {/* Resend Cooldown Section */}
         <div className="bms-resend-wrapper">
-          <span>Chưa nhận được mã? </span>
+          <span>Didn't receive the code? </span>
           <button
             type="button"
             className="bms-resend-btn"
@@ -223,15 +223,15 @@ export const SendOtpModal = ({
             {isResending ? (
               <>
                 <Spinner animation="border" size="sm" className="me-1" />
-                Đang gửi...
+                Sending...
               </>
             ) : isCountdownActive ? (
               <>
-                Gửi lại sau
+                Resend in
                 <span className="bms-resend-countdown">({resendFormattedTime})</span>
               </>
             ) : (
-              'Gửi lại mã ngay'
+              'Resend code now'
             )}
           </button>
         </div>

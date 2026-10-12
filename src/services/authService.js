@@ -1,20 +1,20 @@
 /**
  * @file authService.js
- * @description Service xử lý các yêu cầu xác thực người dùng, gửi mã và xác thực mã OTP.
- * Giao tiếp trực tiếp với Backend Web API (IAM Service) tại endpoint /api/auth/otp/*.
- * Tuân thủ: RFC 6238 TOTP, OWASP ASVS v4.0 & AGENTS-CODE.md chuẩn Service Layer.
+ * @description Authentication service managing OTP generation and verification API calls.
+ * Communicates directly with the BMS Backend Web API (IAM Service) at endpoint /api/auth/otp/*.
+ * Conforms to: RFC 6238 TOTP, OWASP ASVS v4.0 & Production Engineering Standards.
  */
 
 import api from '../config/api';
 
 /**
- * Gửi yêu cầu sinh và phát tán mã xác thực OTP qua Email hoặc SMS.
+ * Sends a request to generate and dispatch an OTP verification code via Email or SMS.
  * 
  * @param {object} params
- * @param {string} params.destination - Địa chỉ Email hoặc Số điện thoại người nhận.
- * @param {'Email'|'Sms'} [params.channel='Email'] - Kênh truyền phát tin.
- * @param {'Registration'|'PasswordReset'|'Login'|'Transaction'} [params.purpose='PasswordReset'] - Mục đích nghiệp vụ.
- * @returns {Promise<{isSuccess: boolean, message: string, cooldownSeconds?: number}>}
+ * @param {string} params.destination - Recipient's email address or telephone number.
+ * @param {'Email'|'Sms'} [params.channel='Email'] - Transmission channel.
+ * @param {'Registration'|'PasswordReset'|'Login'|'Transaction'} [params.purpose='PasswordReset'] - Business purpose.
+ * @returns {Promise<{isSuccess: boolean, message: string, cooldownSeconds?: number, statusCode?: number}>}
  */
 export const sendOtp = async ({ destination, channel = 'Email', purpose = 'PasswordReset' }) => {
   try {
@@ -25,16 +25,16 @@ export const sendOtp = async ({ destination, channel = 'Email', purpose = 'Passw
     });
     return {
       isSuccess: true,
-      message: response.data?.message || 'Mã xác thực OTP đã được gửi thành công.',
+      message: response.data?.message || 'Verification OTP code has been dispatched successfully.',
       cooldownSeconds: response.data?.cooldownSeconds || 60,
     };
   } catch (error) {
-    // Nếu bms-backend chưa chạy hoặc trả lỗi kết nối, mô phỏng phản hồi an toàn cho môi trường test/demo
+    // If backend is unreachable, gracefully fallback to mock mode for offline dev/testing
     if (!error.response) {
-      console.warn('[authService] Backend offline, mô phỏng chế độ Mock OTP cho môi trường Dev.');
+      console.warn('[authService] Backend offline, falling back to mock OTP mode for local testing.');
       return {
         isSuccess: true,
-        message: `[MOCK MODE] Mã OTP thử nghiệm (123456) đã gửi tới ${destination}.`,
+        message: `[MOCK MODE] Demo OTP (123456) dispatched to ${destination}.`,
         cooldownSeconds: 60,
       };
     }
@@ -42,13 +42,13 @@ export const sendOtp = async ({ destination, channel = 'Email', purpose = 'Passw
     const statusCode = error.response?.status;
     const errorData = error.response?.data;
 
-    let errorMessage = 'Không thể gửi mã OTP. Vui lòng thử lại sau.';
+    let errorMessage = 'Unable to send OTP verification code. Please try again.';
     if (statusCode === 429) {
-      errorMessage = errorData?.message || 'Bạn đã yêu cầu gửi mã quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.';
+      errorMessage = errorData?.message || 'Too many requests. Please wait before requesting another code.';
     } else if (statusCode === 400) {
-      errorMessage = errorData?.message || 'Thông tin người nhận không hợp lệ.';
+      errorMessage = errorData?.message || 'Invalid recipient or format.';
     } else if (statusCode === 404) {
-      errorMessage = errorData?.message || 'Tài khoản hoặc địa chỉ liên lạc không tồn tại trong hệ thống.';
+      errorMessage = errorData?.message || 'The specified account or recipient was not found.';
     }
 
     return {
@@ -60,20 +60,20 @@ export const sendOtp = async ({ destination, channel = 'Email', purpose = 'Passw
 };
 
 /**
- * Xác thực mã OTP 6 chữ số người dùng nhập vào.
+ * Verifies a 6-digit OTP code submitted by the user.
  * 
  * @param {object} params
- * @param {string} params.destination - Địa chỉ Email hoặc Số điện thoại đã nhận mã.
- * @param {string} params.otp - Chuỗi mã xác thực 6 chữ số.
- * @param {'Registration'|'PasswordReset'|'Login'|'Transaction'} [params.purpose='PasswordReset'] - Mục đích nghiệp vụ.
- * @returns {Promise<{isSuccess: boolean, message: string, verificationToken?: string}>}
+ * @param {string} params.destination - Recipient's email address or telephone number.
+ * @param {string} params.otp - 6-digit numeric OTP string.
+ * @param {'Registration'|'PasswordReset'|'Login'|'Transaction'} [params.purpose='PasswordReset'] - Business purpose.
+ * @returns {Promise<{isSuccess: boolean, message: string, verificationToken?: string, statusCode?: number}>}
  */
 export const verifyOtp = async ({ destination, otp, purpose = 'PasswordReset' }) => {
-  // Client-side guard: kiểm tra định dạng 6 chữ số
+  // Client-side guard: enforce exact 6-digit numeric pattern
   if (!otp || !/^\d{6}$/.test(otp.trim())) {
     return {
       isSuccess: false,
-      message: 'Mã xác thực phải bao gồm chính xác 6 chữ số.',
+      message: 'Verification code must be exactly 6 numeric digits.',
     };
   }
 
@@ -86,33 +86,33 @@ export const verifyOtp = async ({ destination, otp, purpose = 'PasswordReset' })
 
     return {
       isSuccess: true,
-      message: response.data?.message || 'Xác thực mã OTP thành công!',
+      message: response.data?.message || 'OTP verification successful.',
       verificationToken: response.data?.verificationToken || 'mock-verification-token',
     };
   } catch (error) {
-    // Mô phỏng Mock test nếu backend chưa online: chấp nhận OTP demo "123456"
+    // Offline development fallback: accept demo OTP "123456"
     if (!error.response) {
       if (otp.trim() === '123456') {
         return {
           isSuccess: true,
-          message: '[MOCK MODE] Xác thực OTP thành công!',
+          message: '[MOCK MODE] OTP verified successfully!',
           verificationToken: 'mock-verification-token-123456',
         };
       }
       return {
         isSuccess: false,
-        message: 'Mã OTP không chính xác. (Gợi ý mã chạy thử nghiệm Mock: 123456)',
+        message: 'Invalid OTP code. (Hint for offline testing: 123456)',
       };
     }
 
     const statusCode = error.response?.status;
     const errorData = error.response?.data;
 
-    let errorMessage = 'Mã xác thực không hợp lệ hoặc đã hết hạn.';
+    let errorMessage = 'Invalid or expired verification code.';
     if (statusCode === 400) {
-      errorMessage = errorData?.message || 'Mã OTP không chính xác hoặc đã hết thời gian hiệu lực (5 phút).';
+      errorMessage = errorData?.message || 'Incorrect OTP code or expired code (5-minute TTL).';
     } else if (statusCode === 429) {
-      errorMessage = errorData?.message || 'Bạn đã nhập sai quá số lần cho phép. Vui lòng yêu cầu mã mới.';
+      errorMessage = errorData?.message || 'Maximum failed attempts reached. Please request a new code.';
     }
 
     return {

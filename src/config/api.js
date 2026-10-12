@@ -1,13 +1,14 @@
 /**
  * @file api.js
- * @description Axios HTTP client configuration cho toàn bộ hệ thống BMS Web Frontend.
- * Tích hợp base URL từ biến môi trường, tự động đính kèm JWT Bearer token và xử lý lỗi tập trung.
- * Tuân thủ: AGENTS-CODE.md chuẩn Comment và Architecture.
+ * @description Centralized Axios HTTP client configuration for the BMS Web Frontend.
+ * Integrates base URL from environment variables, automatically attaches JWT Bearer token,
+ * and handles centralized RFC 7807 problem details and unauthorized session expiries.
+ * Conforms to: Production Engineering Standards.
  */
 
 import axios from 'axios';
 
-// Base URL kết nối tới bms-backend Web API (.NET 8)
+// Base URL connecting to the BMS Backend Web API (.NET)
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -18,7 +19,7 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// Request interceptor: tự động gắn token xác thực vào Authorization header nếu có
+// Request interceptor: automatically attaches authorization bearer token if present in local storage
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('bms_token');
@@ -32,14 +33,13 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor: chuẩn hóa thông báo lỗi theo chuẩn RFC 7807 Problem Details
+// Response interceptor: handles common errors and session expiration
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Nếu token hết hạn (401), xử lý đăng xuất an toàn
+    // If the access token is invalid or expired (401), handle graceful logout
     if (error.response && error.response.status === 401) {
-      // Có thể dispatch logout hoặc redirect khi cần thiết
-      console.warn('[BMS API] 401 Unauthorized: Phiên làm việc đã hết hạn hoặc không hợp lệ.');
+      console.warn('[BMS API] 401 Unauthorized: User session has expired or is invalid.');
     }
     return Promise.reject(error);
   }

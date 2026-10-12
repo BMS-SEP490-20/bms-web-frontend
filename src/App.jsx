@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ForgotPasswordPage from './features/auth/pages/ForgotPasswordPage';
 import UserProfilePage from './features/patient-portal/pages/UserProfilePage';
 import RolesManagementPage from './features/user-management/pages/RolesManagementPage';
+import TestCriteriaPage from './features/laboratory/pages/TestCriteriaPage';
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<UserProfilePage />} />
         <Route path="/roles" element={<RolesManagementPage />} />
+        <Route path="/criteria" element={<TestCriteriaPage />} />
+        <Route path="/laboratory/criteria" element={<TestCriteriaPage />} />
         <Route path="*" element={<Navigate to="/profile" replace />} />
       </Routes>
     </BrowserRouter>

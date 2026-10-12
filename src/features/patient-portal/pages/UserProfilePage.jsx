@@ -9,12 +9,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button, Alert } from 'react-bootstrap';
 import { getUserProfile } from '../../../services/userService';
 import { SkeletonProfile } from '../../../components/common/SkeletonProfile';
+import UserQuickViewDrawer from '../components/UserQuickViewDrawer';
 import './UserProfilePage.css';
 
 export const UserProfilePage = () => {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -106,9 +108,12 @@ export const UserProfilePage = () => {
                 </div>
               </div>
 
-              <div className="d-grid mt-4">
+              <div className="d-grid gap-2 mt-4">
                 <Button variant="outline-primary" size="sm" onClick={fetchProfile}>
                   <i className="bi bi-arrow-clockwise me-1"></i>Refresh Profile
+                </Button>
+                <Button variant="primary" size="sm" onClick={() => setIsDrawerOpen(true)}>
+                  <i className="bi bi-layout-sidebar-inset-reverse me-1"></i>Quick View Drawer
                 </Button>
               </div>
             </div>
@@ -196,6 +201,12 @@ export const UserProfilePage = () => {
           </Col>
         </Row>
       )}
+
+      <UserQuickViewDrawer
+        isOpen={isDrawerOpen}
+        user={profile}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
 };

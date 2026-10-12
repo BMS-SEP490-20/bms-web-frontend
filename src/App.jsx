@@ -1,7 +1,7 @@
 /**
  * @file App.jsx
  * @description Main application routing configuration for BMS Web Frontend - Blood Laboratory Management System.
- * Connects unauthenticated auth flows (Register, Login, Forgot Password / OTP) and protected medical portal layouts (Dashboard, Lab Queue, Change Password, User Profile).
+ * Connects unauthenticated auth flows (Register, Login, Forgot Password / OTP) and protected medical portal layouts (Dashboard, Lab Queue, Change Password, User Profile, Roles Management).
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
  */
 
@@ -15,6 +15,7 @@ import ForgotPasswordPage from './features/auth/pages/ForgotPasswordPage';
 import UserProfilePage from './features/patient-portal/pages/UserProfilePage';
 import RoleBasedDashboard from './features/manager-dashboard/pages/RoleDashboard';
 import SampleQueuePage from './features/laboratory/pages/SampleQueuePage';
+import RolesManagementPage from './features/user-management/pages/RolesManagementPage';
 
 function App() {
   return (
@@ -27,11 +28,12 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
 
-        {/* Authenticated Clinical & Patient Workflows (UC07, UC08, UC12, UC17) */}
+        {/* Authenticated Clinical, Patient & Administrative Workflows (UC07, UC08, UC12, UC13, UC17) */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<RoleBasedDashboard />} />
           <Route path="/lab/queue" element={<SampleQueuePage />} />
           <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="/roles" element={<RolesManagementPage />} />
           <Route path="/change-password" element={
             <div className="container py-4">
               <div className="row justify-content-center">

@@ -31,6 +31,9 @@ const MainLayout = () => {
               <Nav.Link as={Link} to="/profile" className="fw-semibold">
                 <i className="bi bi-person me-1"></i>Hồ Sơ (UC08)
               </Nav.Link>
+              <Nav.Link as={Link} to="/roles" className="fw-semibold">
+                <i className="bi bi-shield-lock me-1"></i>Vai Trò (UC13)
+              </Nav.Link>
               <Nav.Link as={Link} to="/register" className="fw-semibold">
                 <i className="bi bi-person-plus me-1"></i>Đăng Ký (UC02)
               </Nav.Link>
@@ -49,6 +52,9 @@ const MainLayout = () => {
                 <Dropdown.Menu className="shadow border-0 rounded-3">
                   <Dropdown.Item as={Link} to="/profile">
                     <i className="bi bi-person me-2"></i>Hồ sơ cá nhân (UC08)
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/roles">
+                    <i className="bi bi-shield-lock me-2"></i>Quản lý vai trò (UC13)
                   </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/change-password">
                     <i className="bi bi-key me-2"></i>Đổi mật khẩu (UC07)

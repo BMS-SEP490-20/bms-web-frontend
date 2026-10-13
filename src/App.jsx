@@ -1,6 +1,9 @@
 /**
  * @file App.jsx
  * @description Main application routing configuration for BMS Web Frontend.
+ * Integrates public patient portal, service catalog (UC01), authentication workflows (UC02, UC03, UC05, UC10),
+ * and authenticated medical / administration modules (UC07, UC08, UC12, UC13, UC17, UC18).
+ * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
  */
 
 import React from "react";
@@ -20,12 +23,13 @@ import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
 import ChangePassword from "./features/auth/ChangePassword";
 
 import UserProfilePage from "./features/patient-portal/pages/UserProfilePage";
+import PatientHomepage from "./features/patient-portal/pages/PatientHomepage.jsx";
 import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
-
-import ServiceCatalogPage from './features/catalog/pages/ServiceCatalogPage';
+import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
+import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 
 import "./app.css";
 
@@ -44,9 +48,14 @@ function HomePage() {
                     </div>
                 </div>
 
-                <a className="bms-home-button" href="/login">
-                    Login <span aria-hidden="true">→</span>
-                </a>
+                <div className="d-flex align-items-center gap-2">
+                    <a className="bms-home-button" href="/services">
+                        Dịch vụ xét nghiệm
+                    </a>
+                    <a className="bms-home-button" href="/login">
+                        Login <span aria-hidden="true">→</span>
+                    </a>
+                </div>
             </header>
 
             <section className="bms-home-hero">
@@ -72,6 +81,15 @@ function HomePage() {
                         href="/login"
                     >
                         Đăng nhập hệ thống{" "}
+                        <span aria-hidden="true">→</span>
+                    </a>
+
+                    <a
+                        className="bms-home-button"
+                        href="/services"
+                        style={{ marginLeft: 12 }}
+                    >
+                        Tra cứu dịch vụ (UC01){" "}
                         <span aria-hidden="true">→</span>
                     </a>
 
@@ -123,7 +141,9 @@ function App() {
             <Routes>
                 {/* Public pages */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/patient" element={<PatientHomepage />} />
 
+                {/* Authentication Workflows */}
                 <Route element={<AuthLayout />}>
                     <Route
                         path="/login"
@@ -169,41 +189,63 @@ function App() {
                     />
                 </Route>
 
-                {/* Authenticated application pages */}
+                {/* Authenticated Clinical, Patient, Lab & Admin Workflows */}
                 <Route element={<MainLayout />}>
+                    {/* UC01 - Service Catalog */}
+                    <Route
+                        path="/services"
+                        element={<ServiceCatalogPage />}
+                    />
+                    <Route
+                        path="/catalog"
+                        element={<ServiceCatalogPage />}
+                    />
+
+                    {/* UC12 - Role-Based Dashboard */}
                     <Route
                         path="/dashboard"
                         element={<RoleBasedDashboard />}
                     />
 
+                    {/* UC17 - Sample Queue */}
                     <Route
                         path="/lab/queue"
                         element={<SampleQueuePage />}
                     />
 
+                    {/* UC18 - Test Criteria */}
                     <Route
                         path="/criteria"
                         element={<TestCriteriaPage />}
                     />
-
                     <Route
                         path="/laboratory/criteria"
                         element={<TestCriteriaPage />}
                     />
 
+                    {/* UC08 - User Profile */}
                     <Route
                         path="/profile"
                         element={<UserProfilePage />}
                     />
 
+                    {/* UC13 - Roles Management */}
                     <Route
                         path="/roles"
                         element={<RolesManagementPage />}
                     />
-                    <Route 
-                        path="/services" 
-                        element={<ServiceCatalogPage />} />
 
+                    {/* UC16 - Doctor Schedule */}
+                    <Route
+                        path="/schedule"
+                        element={<DoctorSchedulePage />}
+                    />
+                    <Route
+                        path="/doctor/schedule"
+                        element={<DoctorSchedulePage />}
+                    />
+
+                    {/* UC07 - Change Password */}
                     <Route
                         path="/change-password"
                         element={

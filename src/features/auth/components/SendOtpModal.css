@@ -1,0 +1,115 @@
+/* ==========================================================================
+   BMS SendOtpModal Component Styles
+   Medical Blue Styling & Glassmorphic Backdrop
+   Tuân thủ: AGENTS-DESIGN.md Rules 01-28
+   ========================================================================== */
+
+.bms-otp-modal .modal-content {
+  border: none;
+  border-radius: var(--bms-radius-lg, 12px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.bms-otp-modal-header {
+  background: linear-gradient(135deg, var(--bms-primary, #1e40af) 0%, var(--bms-primary-600, #2563eb) 100%);
+  color: var(--bms-text-inverse, #ffffff);
+  padding: 1.25rem 1.5rem;
+  border-bottom: none;
+}
+
+.bms-otp-modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.bms-otp-modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.bms-otp-shield-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--bms-primary-light, #eff6ff);
+  color: var(--bms-primary, #1e40af);
+  font-size: 26px;
+  margin-bottom: 1rem;
+}
+
+.bms-otp-destination-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--bms-radius-full, 9999px);
+  padding: 4px 14px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0.5rem 0 1rem;
+}
+
+.bms-resend-wrapper {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--bms-text-muted, #64748b);
+}
+
+.bms-resend-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--bms-primary, #1e40af);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.bms-resend-btn:hover:not(:disabled) {
+  color: var(--bms-primary-hover, #1d4ed8);
+}
+
+.bms-resend-btn:disabled {
+  color: var(--bms-text-disabled, #94a3b8);
+  text-decoration: none;
+  cursor: not-allowed;
+}
+
+.bms-resend-countdown {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--bms-primary, #1e40af);
+  margin-left: 4px;
+  font-family: var(--bms-font-mono, monospace);
+}
+
+.bms-otp-submit-btn {
+  background-color: var(--bms-primary, #1e40af);
+  border-color: var(--bms-primary, #1e40af);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--bms-radius, 8px);
+  transition: all 0.2s ease;
+}
+
+.bms-otp-submit-btn:hover:not(:disabled) {
+  background-color: var(--bms-primary-hover, #1d4ed8);
+  border-color: var(--bms-primary-hover, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: var(--bms-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+}
+
+.bms-otp-submit-btn:disabled {
+  background-color: #94a3b8;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+}

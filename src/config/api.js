@@ -1,19 +1,22 @@
-
 /**
  * @file api.js
  * @description Centralized HTTP client for BMS Web Frontend.
- * Supports JWT authentication, JSON responses, and DELETE requests
- * that return HTTP 204 No Content.
+ * Supports Axios client with JWT interceptors, as well as fetch-based apiRequest.
+ * Conforms to: RFC 7807 Problem Details and RESTful API standards.
  */
 
+import axios from 'axios';
+
 const API_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    "http://localhost:5000/api";
 
 /**
  * Lấy access token từ localStorage hoặc sessionStorage.
  * Hỗ trợ các key token hiện đang được sử dụng trong BMS.
  */
-function getToken() {
+export function getToken() {
     return (
         localStorage.getItem("bms_access_token") ||
         sessionStorage.getItem("bms_access_token") ||
@@ -23,7 +26,43 @@ function getToken() {
 }
 
 /**
- * Gửi HTTP request đến BMS Backend API.
+ * Axios instance with auth headers and normalized path handling
+ */
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    },
+});
+
+api.interceptors.request.use(
+    (config) => {
+        // Normalize if path already starts with /api/ to prevent /api/api/
+        if (config.url && config.url.startsWith('/api/')) {
+            config.url = config.url.substring(4);
+        }
+        const token = getToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            console.warn("[BMS API] 401 Unauthorized: Token không hợp lệ hoặc đã hết hạn.");
+        }
+        return Promise.reject(error);
+    }
+);
+
+/**
+ * Gửi HTTP request đến BMS Backend API qua fetch.
  *
  * @param {string} path API path, ví dụ: "/service-packages"
  * @param {object} options Request options
@@ -35,10 +74,17 @@ export async function apiRequest(
 ) {
     const token = getToken();
 
+    // Normalize path to avoid /api/api/ if API_URL ends with /api
+    let normalizedPath = path;
+    if (normalizedPath.startsWith('/api/')) {
+        normalizedPath = normalizedPath.substring(4);
+    }
+    const url = `${API_URL}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`;
+
     let response;
 
     try {
-        response = await fetch(`${API_URL}${path}`, {
+        response = await fetch(url, {
             method,
             headers: {
                 Accept: "application/json",
@@ -119,3 +165,5 @@ export function unwrapList(data) {
     return [];
 }
 
+export { API_URL, api };
+export default api;

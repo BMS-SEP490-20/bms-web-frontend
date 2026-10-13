@@ -22,6 +22,9 @@ const MainLayout = () => {
           <Navbar.Toggle aria-controls="main-navbar-nav" />
           <Navbar.Collapse id="main-navbar-nav">
             <Nav className="me-auto ms-3 gap-2">
+              <Nav.Link as={Link} to="/services" className="fw-semibold">
+                <i className="bi bi-collection me-1"></i>Dịch Vụ (UC01)
+              </Nav.Link>
               <Nav.Link as={Link} to="/dashboard" className="fw-semibold">
                 <i className="bi bi-speedometer2 me-1"></i>Dashboard (UC12)
               </Nav.Link>
@@ -36,6 +39,9 @@ const MainLayout = () => {
               </Nav.Link>
               <Nav.Link as={Link} to="/criteria" className="fw-semibold">
                 <i className="bi bi-card-checklist me-1"></i>Tiêu Chí (UC18)
+              </Nav.Link>
+              <Nav.Link as={Link} to="/schedule" className="fw-semibold">
+                <i className="bi bi-calendar3 me-1"></i>Lịch Trực (UC16)
               </Nav.Link>
               <Nav.Link as={Link} to="/register" className="fw-semibold">
                 <i className="bi bi-person-plus me-1"></i>Đăng Ký (UC02)
@@ -53,6 +59,9 @@ const MainLayout = () => {
                   <span className="fw-semibold small">Võ Gia Huy</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="shadow border-0 rounded-3">
+                  <Dropdown.Item as={Link} to="/services">
+                    <i className="bi bi-collection me-2"></i>Danh mục dịch vụ (UC01)
+                  </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/profile">
                     <i className="bi bi-person me-2"></i>Hồ sơ cá nhân (UC08)
                   </Dropdown.Item>

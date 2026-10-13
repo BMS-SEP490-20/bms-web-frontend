@@ -1,59 +1,228 @@
+
 /**
  * @file App.jsx
- * @description Main application routing configuration for BMS Web Frontend - Blood Laboratory Management System.
- * Connects unauthenticated auth flows (Register, Login, Forgot Password / OTP) and protected medical portal layouts (Dashboard, Lab Queue, Change Password, User Profile, Roles Management, Test Criteria).
- * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * @description Main application routing configuration for BMS Web Frontend.
  */
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './layouts/MainLayout';
-import AuthLayout from './layouts/AuthLayout';
-import Register from './features/auth/Register';
-import ChangePassword from './features/auth/ChangePassword';
-import ForgotPasswordPage from './features/auth/pages/ForgotPasswordPage';
-import UserProfilePage from './features/patient-portal/pages/UserProfilePage';
-import RoleBasedDashboard from './features/manager-dashboard/pages/RoleDashboard';
-import SampleQueuePage from './features/laboratory/pages/SampleQueuePage';
-import RolesManagementPage from './features/user-management/pages/RolesManagementPage';
-import TestCriteriaPage from './features/laboratory/pages/TestCriteriaPage';
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate,
+} from "react-router-dom";
+
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
+import Register from "./features/auth/Register";
+import LoginPage from "./features/auth/pages/LoginPage.jsx";
+import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
+import ChangePassword from "./features/auth/ChangePassword";
+
+import UserProfilePage from "./features/patient-portal/pages/UserProfilePage";
+import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
+import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
+import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
+import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+
+import "./app.css";
+
+function HomePage() {
+    return (
+        <main className="bms-home">
+            <header className="bms-home-header">
+                <div className="bms-home-brand">
+                    <span className="bms-home-logo">BMS</span>
+
+                    <div>
+                        <strong>BMS Health</strong>
+                        <small>
+                            Blood Laboratory Management System
+                        </small>
+                    </div>
+                </div>
+
+                <a className="bms-home-button" href="/login">
+                    Login <span aria-hidden="true">→</span>
+                </a>
+            </header>
+
+            <section className="bms-home-hero">
+                <div className="bms-home-tag">
+                    CLINICAL OPERATIONS SUITE
+                </div>
+
+                <h1>
+                    Blood laboratory
+                    <br />
+                    management, <span>made simple.</span>
+                </h1>
+
+                <p>
+                    Nền tảng quản lý phòng xét nghiệm máu và phòng khám,
+                    hỗ trợ theo dõi mẫu bệnh phẩm, kết quả xét nghiệm
+                    và quy trình làm việc trên cùng một hệ thống.
+                </p>
+
+                <div className="bms-home-actions">
+                    <a
+                        className="bms-home-button bms-home-button-primary"
+                        href="/login"
+                    >
+                        Đăng nhập hệ thống{" "}
+                        <span aria-hidden="true">→</span>
+                    </a>
+
+                    <span className="bms-home-caption">
+                        Dành cho bệnh nhân và nhân viên được cấp quyền
+                    </span>
+                </div>
+
+                <div className="bms-home-cards">
+                    <article>
+                        <span className="bms-home-card-icon">⌁</span>
+                        <h2>Quản lý mẫu xét nghiệm</h2>
+                        <p>
+                            Theo dõi trạng thái mẫu trong quy trình xét nghiệm.
+                        </p>
+                    </article>
+
+                    <article>
+                        <span className="bms-home-card-icon">▤</span>
+                        <h2>Quản lý kết quả</h2>
+                        <p>
+                            Hỗ trợ nhập, xem và duyệt kết quả theo phân quyền.
+                        </p>
+                    </article>
+
+                    <article>
+                        <span className="bms-home-card-icon">♙</span>
+                        <h2>Quản lý bệnh nhân</h2>
+                        <p>
+                            Hỗ trợ tra cứu hồ sơ và lịch sử xét nghiệm.
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <footer className="bms-home-footer">
+                <span>BMS Health</span>
+                <span>
+                    Blood Laboratory Management System · 2026
+                </span>
+            </footer>
+        </main>
+    );
+}
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Unauthenticated Authentication Workflows (UC02, UC03, UC05, UC10) */}
-        <Route element={<AuthLayout />}>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Route>
+    return (
+        <Router>
+            <Routes>
+                {/* Public pages */}
+                <Route path="/" element={<HomePage />} />
 
-        {/* Authenticated Clinical, Patient, Lab & Administrative Workflows (UC07, UC08, UC12, UC13, UC17, UC18) */}
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<RoleBasedDashboard />} />
-          <Route path="/lab/queue" element={<SampleQueuePage />} />
-          <Route path="/criteria" element={<TestCriteriaPage />} />
-          <Route path="/laboratory/criteria" element={<TestCriteriaPage />} />
-          <Route path="/profile" element={<UserProfilePage />} />
-          <Route path="/roles" element={<RolesManagementPage />} />
-          <Route path="/change-password" element={
-            <div className="container py-4">
-              <div className="row justify-content-center">
-                <div className="col-md-7">
-                  <ChangePassword />
-                </div>
-              </div>
-            </div>
-          } />
+                <Route element={<AuthLayout />}>
+                    <Route
+                        path="/login"
+                        element={
+                            <LoginPage
+                                onBack={() => {
+                                    window.location.href = "/";
+                                }}
+                                onRegister={() => {
+                                    window.location.href = "/register";
+                                }}
+                                onForgotPassword={() => {
+                                    window.location.href = "/forgot-password";
+                                }}
+                            />
+                        }
+                    />
 
-          {/* Fallback Redirection */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
+
+                    <Route
+                        path="/forgot-password"
+                        element={
+                            <ForgotPassword
+                                onBackToLogin={() => {
+                                    window.location.href = "/login";
+                                }}
+                                onRegister={() => {
+                                    window.location.href = "/register";
+                                }}
+                                onOtpSent={(email, result) => {
+                                    console.log(
+                                        "OTP đã được yêu cầu cho:",
+                                        email,
+                                        result
+                                    );
+                                }}
+                            />
+                        }
+                    />
+                </Route>
+
+                {/* Authenticated application pages */}
+                <Route element={<MainLayout />}>
+                    <Route
+                        path="/dashboard"
+                        element={<RoleBasedDashboard />}
+                    />
+
+                    <Route
+                        path="/lab/queue"
+                        element={<SampleQueuePage />}
+                    />
+
+                    <Route
+                        path="/criteria"
+                        element={<TestCriteriaPage />}
+                    />
+
+                    <Route
+                        path="/laboratory/criteria"
+                        element={<TestCriteriaPage />}
+                    />
+
+                    <Route
+                        path="/profile"
+                        element={<UserProfilePage />}
+                    />
+
+                    <Route
+                        path="/roles"
+                        element={<RolesManagementPage />}
+                    />
+
+                    <Route
+                        path="/change-password"
+                        element={
+                            <div className="container py-4">
+                                <div className="row justify-content-center">
+                                    <div className="col-md-7">
+                                        <ChangePassword />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    />
+                </Route>
+
+                {/* Unknown paths */}
+                <Route
+                    path="*"
+                    element={<Navigate to="/" replace />}
+                />
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
+

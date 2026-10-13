@@ -1,0 +1,58 @@
+/**
+ * @file SkeletonProfile.css
+ * @description Shimmer animation styles for profile skeleton loader.
+ * Conforms to: AGENTS-DESIGN.md Rule 23 (Skeleton Shimmer Loading).
+ */
+
+@keyframes bmsShimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.bms-skeleton {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0px,
+    #e2e8f0 50%,
+    #f1f5f9 100%
+  );
+  background-size: 800px 100%;
+  animation: bmsShimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+.bms-skeleton-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+}
+
+.bms-skeleton-title {
+  height: 24px;
+  width: 60%;
+  margin: 0 auto 10px;
+}
+
+.bms-skeleton-subtitle {
+  height: 16px;
+  width: 40%;
+  margin: 0 auto 20px;
+}
+
+.bms-skeleton-badge {
+  height: 28px;
+  width: 120px;
+  border-radius: 14px;
+  margin: 0 auto;
+}
+
+.bms-skeleton-field {
+  height: 42px;
+  width: 100%;
+  margin-bottom: 16px;
+}

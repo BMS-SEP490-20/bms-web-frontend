@@ -1,0 +1,409 @@
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    getPackages,
+    getTestCriteria,
+    deletePackage,
+} from "../api/packageApi.jsx";
+import PackageFormModal, {
+    getTestIds,
+    STATUS_OPTIONS,
+} from "../components/PackageFormModal.jsx";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
+import "../admin.css";
+
+function normalizeArray(response) {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.items)) return response.items;
+    if (Array.isArray(response?.data)) return normalizeArray(response.data);
+    if (Array.isArray(response?.result)) return normalizeArray(response.result);
+    if (Array.isArray(response?.results)) return response.results;
+    return [];
+}
+
+// Chuẩn hóa dữ liệu API về một cấu trúc thống nhất cho FE.
+function normalizePackage(pkg) {
+    return {
+        ...pkg,
+        _id: pkg._id || pkg.id,
+        code: pkg.code ?? pkg.Code ?? "",
+        name: pkg.name ?? pkg.Name ?? "",
+        description: pkg.description ?? pkg.Description ?? "",
+        price: pkg.price ?? pkg.Price ?? 0,
+        discountPrice: pkg.discountPrice ?? pkg.DiscountPrice ?? null,
+        tests: pkg.tests ?? pkg.Tests ?? [],
+        isActive: pkg.isActive ?? pkg.IsActive ?? (pkg.status === "ACTIVE"),
+        isDeleted: pkg.isDeleted ?? pkg.IsDeleted ?? false,
+        createdAt: pkg.createdAt ?? pkg.CreatedAt ?? null,
+        updatedAt: pkg.updatedAt ?? pkg.UpdatedAt ?? null,
+        deletedAt: pkg.deletedAt ?? pkg.DeletedAt ?? null,
+        deletedBy: pkg.deletedBy ?? pkg.DeletedBy ?? null,
+        createdBy: pkg.createdBy ?? pkg.CreatedBy ?? null,
+        updatedBy: pkg.updatedBy ?? pkg.UpdatedBy ?? null,
+    };
+}
+
+function formatDate(value) {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+
+    return date.toLocaleString("vi-VN");
+}
+
+function formatMoney(value) {
+    if (value === null || value === undefined || value === "") {
+        return "—";
+    }
+
+    return Number(value).toLocaleString("vi-VN") + " đ";
+}
+
+export default function ServicePackagesPage({ onBack }) {
+    const [packages, setPackages] = useState([]);
+    const [criteria, setCriteria] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("ALL");
+    const [formOpen, setFormOpen] = useState(false);
+    const [editing, setEditing] = useState(null);
+    const [deleting, setDeleting] = useState(null);
+
+    const load = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const [packagesResponse, criteriaResponse] = await Promise.all([
+                getPackages(),
+                getTestCriteria(),
+            ]);
+
+            console.log("Packages API:", packagesResponse);
+            console.log("Test criteria API:", criteriaResponse);
+
+            setPackages(
+                normalizeArray(packagesResponse).map(normalizePackage)
+            );
+            setCriteria(normalizeArray(criteriaResponse));
+        } catch (err) {
+            console.error("Lỗi tải gói dịch vụ:", err);
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.Message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Không tải được dữ liệu."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    const visible = useMemo(() => {
+        const query = search.trim().toLowerCase();
+
+        return packages.filter((pkg) => {
+            // Loại gói đã xóa mềm nếu API có trả về trường này.
+            if (pkg.isDeleted) return false;
+
+            const status = pkg.isActive ? "ACTIVE" : "DRAFT";
+
+            if (statusFilter !== "ALL" && status !== statusFilter) {
+                return false;
+            }
+
+            return (
+                !query ||
+                pkg.name.toLowerCase().includes(query) ||
+                pkg.code.toLowerCase().includes(query) ||
+                pkg.description.toLowerCase().includes(query) ||
+                pkg.tests.some((test) =>
+                    `${test.code || ""} ${test.name || ""}`
+                        .toLowerCase()
+                        .includes(query)
+                )
+            );
+        });
+    }, [packages, search, statusFilter]);
+
+    const countOf = useCallback(
+        (status) =>
+            packages.filter(
+                (pkg) =>
+                    !pkg.isDeleted &&
+                    (pkg.isActive ? "ACTIVE" : "DRAFT") === status
+            ).length,
+        [packages]
+    );
+
+    function openCreate() {
+        setEditing(null);
+        setFormOpen(true);
+    }
+
+    function openEdit(pkg) {
+        setEditing(pkg);
+        setFormOpen(true);
+    }
+
+    async function handleSaved() {
+        setFormOpen(false);
+        setEditing(null);
+        await load();
+    }
+
+    async function handleDelete(pkg) {
+        if (!pkg?._id) {
+            setError("Không tìm thấy ID gói dịch vụ cần xóa.");
+            return;
+        }
+
+        try {
+            setError("");
+            await deletePackage(pkg._id);
+            setDeleting(null);
+            await load();
+        } catch (err) {
+            console.error("Lỗi xóa gói dịch vụ:", err);
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.Message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Không thể xóa gói dịch vụ."
+            );
+            setDeleting(null);
+        }
+    }
+
+    function testCodes(pkg) {
+        // API list đã trả sẵn code và name trong tests.
+        if (pkg.tests?.length) {
+            return pkg.tests
+                .map((test) =>
+                    typeof test === "string"
+                        ? test
+                        : `${test.code || ""}${test.name ? ` - ${test.name}` : ""}`
+                )
+                .join(", ");
+        }
+
+        const ids = getTestIds(pkg, criteria);
+        const map = Object.fromEntries(
+            criteria.map((item) => [item._id || item.id, item])
+        );
+
+        return ids
+            .map((id) => map[id]?.code || id)
+            .join(", ");
+    }
+
+    const activePackages = packages.filter(
+        (pkg) => !pkg.isDeleted && pkg.isActive
+    ).length;
+
+    const deletedPackages = packages.filter(
+        (pkg) => pkg.isDeleted
+    ).length;
+
+    return (
+        <div className="adm-page">
+            <div className="adm-page-head">
+                <div>
+                    {onBack && (
+                        <button
+                            type="button"
+                            className="adm-link"
+                            onClick={onBack}
+                            style={{ marginBottom: 6 }}
+                        >
+                            ← Trang chủ
+                        </button>
+                    )}
+
+                    <h1>Service packages</h1>
+                    <div className="adm-sub">
+                        {packages.filter((p) => !p.isDeleted).length} gói dịch vụ
+                        {" · "}
+                        {activePackages} đang hoạt động
+                        {deletedPackages > 0 &&
+                            ` · ${deletedPackages} đã xóa`}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    className="adm-btn adm-btn-primary"
+                    onClick={openCreate}
+                >
+                    + Tạo gói
+                </button>
+            </div>
+
+            <div className="adm-card">
+                <div className="adm-toolbar">
+                    <input
+                        className="adm-input adm-search"
+                        placeholder="Tìm theo mã, tên, mô tả, xét nghiệm..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+
+                    <button
+                        type="button"
+                        className={`adm-chip ${statusFilter === "ALL" ? "on" : ""}`}
+                        onClick={() => setStatusFilter("ALL")}
+                    >
+                        Tất cả
+                        <span>{packages.filter((p) => !p.isDeleted).length}</span>
+                    </button>
+
+                    {STATUS_OPTIONS.map((status) => (
+                        <button
+                            type="button"
+                            key={status.value}
+                            className={`adm-chip ${
+                                statusFilter === status.value ? "on" : ""
+                            }`}
+                            onClick={() => setStatusFilter(status.value)}
+                        >
+                            {status.label}
+                            <span>{countOf(status.value)}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {error && (
+                    <div className="adm-error" style={{ margin: 16 }}>
+                        {error}{" "}
+                        <button
+                            type="button"
+                            className="adm-link"
+                            onClick={load}
+                        >
+                            Thử lại
+                        </button>
+                    </div>
+                )}
+
+                <div className="adm-table-wrap">
+                    <table className="adm-table">
+                        <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên gói / Mô tả</th>
+                            <th>Xét nghiệm</th>
+                            <th className="rt">Giá gốc</th>
+                            <th className="rt">Giá ưu đãi</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Cập nhật</th>
+                            <th />
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {loading && (
+                            <tr>
+                                <td colSpan={9} className="adm-empty">
+                                    Đang tải...
+                                </td>
+                            </tr>
+                        )}
+
+                        {!loading && !error && visible.length === 0 && (
+                            <tr>
+                                <td colSpan={9} className="adm-empty">
+                                    Không có gói nào.
+                                </td>
+                            </tr>
+                        )}
+
+                        {!loading &&
+                            visible.map((pkg) => (
+                                <tr key={pkg._id}>
+                                    <td className="adm-code">
+                                        {pkg.code}
+                                    </td>
+
+                                    <td>
+                                        <strong>{pkg.name}</strong>
+                                        <div className="adm-muted">
+                                            {pkg.description || "Không có mô tả"}
+                                        </div>
+                                    </td>
+
+                                    <td className="adm-muted">
+                                        {testCodes(pkg) || "—"}
+                                    </td>
+
+                                    <td className="rt">
+                                        {formatMoney(pkg.price)}
+                                    </td>
+
+                                    <td className="rt">
+                                        {formatMoney(pkg.discountPrice)}
+                                    </td>
+
+                                    <td>
+                                            <span
+                                                className={`adm-pill ${
+                                                    pkg.isActive ? "ok" : ""
+                                                }`}
+                                            >
+                                                {pkg.isActive
+                                                    ? "Active"
+                                                    : "Draft"}
+                                            </span>
+                                    </td>
+
+                                    <td>{formatDate(pkg.createdAt)}</td>
+                                    <td>{formatDate(pkg.updatedAt)}</td>
+
+                                    <td className="rt adm-actions">
+                                        <button
+                                            type="button"
+                                            className="adm-btn adm-btn-ghost adm-btn-sm"
+                                            onClick={() => openEdit(pkg)}
+                                        >
+                                            Sửa
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="adm-btn adm-btn-ghost adm-btn-sm adm-text-danger"
+                                            onClick={() => setDeleting(pkg)}
+                                        >
+                                            Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <PackageFormModal
+                open={formOpen}
+                pkg={editing}
+                criteria={criteria}
+                onClose={() => setFormOpen(false)}
+                onSaved={handleSaved}
+            />
+
+            <ConfirmDeleteModal
+                item={deleting}
+                onClose={() => setDeleting(null)}
+                onConfirm={handleDelete}
+            />
+        </div>
+    );
+}

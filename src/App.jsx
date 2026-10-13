@@ -1,73 +1,51 @@
 
-import React, { useState } from "react";
+/**
+ * @file App.jsx
+ * @description Main application routing configuration for BMS Web Frontend.
+ */
+
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate,
+} from "react-router-dom";
+
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
+import Register from "./features/auth/Register";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
+import ChangePassword from "./features/auth/ChangePassword";
+
+import UserProfilePage from "./features/patient-portal/pages/UserProfilePage";
+import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
+import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
+import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
+import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+
 import "./app.css";
 
-export default function App() {
-    const [page, setPage] = useState("home");
-
-    if (page === "login") {
-        return (
-            <LoginPage
-                onBack={() => setPage("home")}
-                onRegister={() => setPage("register")}
-                onForgotPassword={() => setPage("forgot-password")}
-            />
-        );
-    }
-
-    if (page === "forgot-password") {
-        return (
-            <ForgotPassword
-                onBackToLogin={() => setPage("login")}
-                onRegister={() => setPage("register")}
-                onOtpSent={(email, result) => {
-                    console.log("OTP đã được yêu cầu cho:", email, result);
-                    // Có thể chuyển sang trang xác thực OTP tại đây.
-                }}
-            />
-        );
-    }
-
-    if (page === "register") {
-        return (
-            <main className="bms-home">
-                <section className="bms-home-card">
-                    <div className="bms-home-logo">BMS</div>
-                    <h1>Đăng ký tài khoản</h1>
-                    <p>
-                        Trang đăng ký tài khoản sẽ được triển khai
-                        thành component React riêng.
-                    </p>
-                    <button
-                        className="bms-home-button"
-                        onClick={() => setPage("login")}
-                    >
-                        Quay lại đăng nhập
-                    </button>
-                </section>
-            </main>
-        );
-    }
-
+function HomePage() {
     return (
         <main className="bms-home">
             <header className="bms-home-header">
                 <div className="bms-home-brand">
                     <span className="bms-home-logo">BMS</span>
+
                     <div>
                         <strong>BMS Health</strong>
-                        <small>Blood Laboratory Management System</small>
+                        <small>
+                            Blood Laboratory Management System
+                        </small>
                     </div>
                 </div>
 
-                <button
-                    className="bms-home-button"
-                    onClick={() => setPage("login")}
-                >
+                <a className="bms-home-button" href="/login">
                     Login <span aria-hidden="true">→</span>
-                </button>
+                </a>
             </header>
 
             <section className="bms-home-hero">
@@ -88,13 +66,13 @@ export default function App() {
                 </p>
 
                 <div className="bms-home-actions">
-                    <button
+                    <a
                         className="bms-home-button bms-home-button-primary"
-                        onClick={() => setPage("login")}
+                        href="/login"
                     >
                         Đăng nhập hệ thống{" "}
                         <span aria-hidden="true">→</span>
-                    </button>
+                    </a>
 
                     <span className="bms-home-caption">
                         Dành cho bệnh nhân và nhân viên được cấp quyền
@@ -137,4 +115,114 @@ export default function App() {
         </main>
     );
 }
+
+function App() {
+    return (
+        <Router>
+            <Routes>
+                {/* Public pages */}
+                <Route path="/" element={<HomePage />} />
+
+                <Route element={<AuthLayout />}>
+                    <Route
+                        path="/login"
+                        element={
+                            <LoginPage
+                                onBack={() => {
+                                    window.location.href = "/";
+                                }}
+                                onRegister={() => {
+                                    window.location.href = "/register";
+                                }}
+                                onForgotPassword={() => {
+                                    window.location.href = "/forgot-password";
+                                }}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
+
+                    <Route
+                        path="/forgot-password"
+                        element={
+                            <ForgotPassword
+                                onBackToLogin={() => {
+                                    window.location.href = "/login";
+                                }}
+                                onRegister={() => {
+                                    window.location.href = "/register";
+                                }}
+                                onOtpSent={(email, result) => {
+                                    console.log(
+                                        "OTP đã được yêu cầu cho:",
+                                        email,
+                                        result
+                                    );
+                                }}
+                            />
+                        }
+                    />
+                </Route>
+
+                {/* Authenticated application pages */}
+                <Route element={<MainLayout />}>
+                    <Route
+                        path="/dashboard"
+                        element={<RoleBasedDashboard />}
+                    />
+
+                    <Route
+                        path="/lab/queue"
+                        element={<SampleQueuePage />}
+                    />
+
+                    <Route
+                        path="/criteria"
+                        element={<TestCriteriaPage />}
+                    />
+
+                    <Route
+                        path="/laboratory/criteria"
+                        element={<TestCriteriaPage />}
+                    />
+
+                    <Route
+                        path="/profile"
+                        element={<UserProfilePage />}
+                    />
+
+                    <Route
+                        path="/roles"
+                        element={<RolesManagementPage />}
+                    />
+
+                    <Route
+                        path="/change-password"
+                        element={
+                            <div className="container py-4">
+                                <div className="row justify-content-center">
+                                    <div className="col-md-7">
+                                        <ChangePassword />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    />
+                </Route>
+
+                {/* Unknown paths */}
+                <Route
+                    path="*"
+                    element={<Navigate to="/" replace />}
+                />
+            </Routes>
+        </Router>
+    );
+}
+
+export default App;
 

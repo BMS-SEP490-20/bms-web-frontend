@@ -1,0 +1,120 @@
+/**
+ * @file UserProfilePage.css
+ * @description Styling tokens and components for User Profile screen (UC08).
+ * Conforms to: AGENTS-DESIGN.md Rules 01-28 (Medical Blue #1e40af, Touch Targets, Shimmer).
+ */
+
+.bms-profile-page {
+  padding: 32px 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bms-profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.bms-profile-card-header {
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+  color: #ffffff;
+  padding: 20px 24px;
+}
+
+.bms-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.bms-avatar-img {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.bms-active-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #16a34a;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  animation: bmsPulse 2s infinite;
+}
+
+@keyframes bmsPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.bms-patient-code-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 10px;
+  margin-top: 6px;
+}
+
+.bms-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-top: 8px;
+}
+
+.bms-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.bms-field-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #0f172a;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-height: 42px;
+}
+
+.bms-blood-badge {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}

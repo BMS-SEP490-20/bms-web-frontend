@@ -1,0 +1,155 @@
+/* ==========================================================================
+   BMS Design System Tokens — Blood Laboratory Management System
+   Medical Blue Primary Color System | Production-Grade CSS Variables
+   Tuân thủ: AGENTS-DESIGN.md Rules 01-28
+   ========================================================================== */
+
+/* --- BMS Global Design Tokens --- */
+:root {
+  /* Primary Medical Blue Palette */
+  --bms-primary: #1e40af;
+  --bms-primary-hover: #1d4ed8;
+  --bms-primary-light: #eff6ff;
+  --bms-primary-50: #eff6ff;
+  --bms-primary-100: #dbeafe;
+  --bms-primary-600: #2563eb;
+  --bms-primary-700: #1d4ed8;
+  --bms-primary-800: #1e40af;
+
+  /* Clinical Teal / Cyan */
+  --bms-teal: #0ea5e9;
+  --bms-teal-light: #e0f2fe;
+
+  /* Semantic Colors */
+  --bms-success: #16a34a;
+  --bms-success-light: #f0fdf4;
+  --bms-warning: #f59e0b;
+  --bms-warning-light: #fffbeb;
+  --bms-danger: #dc2626;
+  --bms-danger-light: #fef2f2;
+  --bms-info: #0284c7;
+
+  /* Surface & Background */
+  --bms-surface: #ffffff;
+  --bms-background: #f8fafc;
+  --bms-border: #e2e8f0;
+  --bms-border-focus: #1e40af;
+
+  /* Text Hierarchy */
+  --bms-text-main: #0f172a;
+  --bms-text-secondary: #475569;
+  --bms-text-muted: #64748b;
+  --bms-text-disabled: #94a3b8;
+  --bms-text-inverse: #ffffff;
+
+  /* Typography */
+  --bms-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+  --bms-font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+
+  /* Spacing & Radius */
+  --bms-radius-sm: 4px;
+  --bms-radius: 8px;
+  --bms-radius-lg: 12px;
+  --bms-radius-xl: 16px;
+  --bms-radius-full: 9999px;
+
+  /* Shadows */
+  --bms-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --bms-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --bms-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --bms-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --bms-shadow-focus: 0 0 0 3px rgba(30, 64, 175, 0.15);
+
+  /* Transitions */
+  --bms-transition: all 0.2s ease-in-out;
+  --bms-transition-fast: all 0.15s ease-in-out;
+}
+
+/* --- CSS Reset & Base Styles --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--bms-font-family);
+  color: var(--bms-text-main);
+  background-color: var(--bms-background);
+  line-height: 1.6;
+}
+
+/* --- Shake Animation (OTP Error) --- */
+@keyframes bms-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.bms-shake {
+  animation: bms-shake 0.4s ease-in-out;
+}
+
+/* --- Skeleton Shimmer Loading (Rule 23) --- */
+@keyframes bms-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.bms-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: bms-shimmer 1.5s infinite ease-in-out;
+  border-radius: var(--bms-radius);
+}
+
+/* --- Toast Notification --- */
+.bms-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  min-width: 320px;
+  padding: 14px 20px;
+  border-radius: var(--bms-radius);
+  box-shadow: var(--bms-shadow-lg);
+  font-family: var(--bms-font-family);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(120%);
+  transition: transform 0.3s ease-out;
+}
+
+.bms-toast.show {
+  transform: translateX(0);
+}
+
+.bms-toast.bms-toast-success {
+  background: var(--bms-success-light);
+  color: var(--bms-success);
+  border-left: 4px solid var(--bms-success);
+}
+
+.bms-toast.bms-toast-error {
+  background: var(--bms-danger-light);
+  color: var(--bms-danger);
+  border-left: 4px solid var(--bms-danger);
+}
+
+.bms-toast.bms-toast-warning {
+  background: var(--bms-warning-light);
+  color: var(--bms-warning);
+  border-left: 4px solid var(--bms-warning);
+}

@@ -40,6 +40,9 @@ const MainLayout = () => {
               <Nav.Link as={Link} to="/criteria" className="fw-semibold">
                 <i className="bi bi-card-checklist me-1"></i>Tiêu Chí (UC18)
               </Nav.Link>
+              <Nav.Link as={Link} to="/schedule" className="fw-semibold">
+                <i className="bi bi-calendar3 me-1"></i>Lịch Trực (UC16)
+              </Nav.Link>
               <Nav.Link as={Link} to="/register" className="fw-semibold">
                 <i className="bi bi-person-plus me-1"></i>Đăng Ký (UC02)
               </Nav.Link>

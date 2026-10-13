@@ -29,8 +29,7 @@ import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
-
-import ServiceCatalogPage from './features/catalog/pages/ServiceCatalogPage';
+import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 
 import "./app.css";
 
@@ -235,9 +234,16 @@ function App() {
                         path="/roles"
                         element={<RolesManagementPage />}
                     />
-                    <Route 
-                        path="/services" 
-                        element={<ServiceCatalogPage />} />
+
+                    {/* UC16 - Doctor Schedule */}
+                    <Route
+                        path="/schedule"
+                        element={<DoctorSchedulePage />}
+                    />
+                    <Route
+                        path="/doctor/schedule"
+                        element={<DoctorSchedulePage />}
+                    />
 
                     {/* UC07 - Change Password */}
                     <Route

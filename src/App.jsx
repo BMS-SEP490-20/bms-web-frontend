@@ -30,6 +30,8 @@ import RolesManagementPage from "./features/user-management/pages/RolesManagemen
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 
+import ServiceCatalogPage from './features/catalog/pages/ServiceCatalogPage';
+
 import "./app.css";
 
 function HomePage() {
@@ -233,6 +235,9 @@ function App() {
                         path="/roles"
                         element={<RolesManagementPage />}
                     />
+                    <Route 
+                        path="/services" 
+                        element={<ServiceCatalogPage />} />
 
                     {/* UC07 - Change Password */}
                     <Route

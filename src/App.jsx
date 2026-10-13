@@ -1,4 +1,3 @@
-
 /**
  * @file App.jsx
  * @description Main application routing configuration for BMS Web Frontend.
@@ -25,6 +24,8 @@ import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+
+import ServiceCatalogPage from './features/catalog/pages/ServiceCatalogPage';
 
 import "./app.css";
 
@@ -199,6 +200,9 @@ function App() {
                         path="/roles"
                         element={<RolesManagementPage />}
                     />
+                    <Route 
+                        path="/services" 
+                        element={<ServiceCatalogPage />} />
 
                     <Route
                         path="/change-password"
@@ -225,4 +229,3 @@ function App() {
 }
 
 export default App;
-

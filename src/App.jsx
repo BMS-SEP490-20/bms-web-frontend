@@ -30,6 +30,7 @@ import RolesManagementPage from "./features/user-management/pages/RolesManagemen
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
+import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 
 import "./app.css";
 
@@ -233,6 +234,20 @@ function App() {
                     <Route
                         path="/roles"
                         element={<RolesManagementPage />}
+                    />
+
+                    {/* UC14 - CRUD Employee Accounts (Lâm Gia Bảo) */}
+                    <Route
+                        path="/admin/employees"
+                        element={<UserManagementPage />}
+                    />
+                    <Route
+                        path="/admin/users"
+                        element={<UserManagementPage />}
+                    />
+                    <Route
+                        path="/users"
+                        element={<UserManagementPage />}
                     />
 
                     {/* UC16 - Doctor Schedule */}

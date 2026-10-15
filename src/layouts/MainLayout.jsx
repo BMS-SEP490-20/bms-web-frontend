@@ -37,6 +37,9 @@ const MainLayout = () => {
               <Nav.Link as={Link} to="/roles" className="fw-semibold">
                 <i className="bi bi-shield-lock me-1"></i>Vai Trò (UC13)
               </Nav.Link>
+              <Nav.Link as={Link} to="/admin/employees" className="fw-semibold">
+                <i className="bi bi-people me-1"></i>Nhân Viên (UC14)
+              </Nav.Link>
               <Nav.Link as={Link} to="/criteria" className="fw-semibold">
                 <i className="bi bi-card-checklist me-1"></i>Tiêu Chí (UC18)
               </Nav.Link>
@@ -67,6 +70,9 @@ const MainLayout = () => {
                   </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/roles">
                     <i className="bi bi-shield-lock me-2"></i>Quản lý vai trò (UC13)
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/admin/employees">
+                    <i className="bi bi-people me-2"></i>Quản lý nhân viên (UC14)
                   </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/criteria">
                     <i className="bi bi-card-checklist me-2"></i>Quản lý tiêu chí (UC18)

@@ -1,6 +1,22 @@
+/**
+ * @file ConfirmDeleteModal.jsx
+ * @description Destructive action confirmation dialog for deleting service packages (UC15).
+ * Prevents accidental removals with explicit package name confirmation.
+ * @module features/admin/components/ConfirmDeleteModal
+ */
+
 import React, { useState } from "react";
 import Modal from "./Modal.jsx";
 
+/**
+ * Confirmation dialog for permanently deleting a laboratory service package.
+ *
+ * @param {object} props - Component properties.
+ * @param {object|null} props.item - Target package object to delete.
+ * @param {Function} props.onClose - Callback to dismiss the confirmation dialog.
+ * @param {Function} props.onConfirm - Async callback executing package deletion.
+ * @returns {JSX.Element} The rendered confirmation modal.
+ */
 export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");

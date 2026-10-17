@@ -1,6 +1,11 @@
+/**
+ * @file authApi.jsx
+ * @description Dedicated authentication HTTP client for password recovery endpoints.
+ * @module features/auth/api/authApi
+ */
+
 import axios from "axios";
 
-// Có thể đổi bằng VITE_API_BASE_URL trong file .env
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const authClient = axios.create({
@@ -11,9 +16,10 @@ const authClient = axios.create({
 });
 
 /**
- * Gửi OTP khôi phục mật khẩu.
- * Mặc định gọi POST /api/auth/forgot-password với body { email }.
- * Nếu backend dùng route/field khác, sửa tại hàm này.
+ * Dispatches a password recovery OTP code to the specified user email address.
+ *
+ * @param {string} email - Registered user email address.
+ * @returns {Promise<object>} Backend response payload containing dispatch status message.
  */
 export async function sendPasswordRecoveryOtp(email) {
     const response = await authClient.post("/api/auth/forgot-password", {
@@ -22,3 +28,7 @@ export async function sendPasswordRecoveryOtp(email) {
 
     return response.data;
 }
+
+export default {
+    sendPasswordRecoveryOtp,
+};

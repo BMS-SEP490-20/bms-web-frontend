@@ -1,8 +1,9 @@
 /**
  * @file api.js
- * @description Centralized HTTP client for BMS Web Frontend.
- * Supports Axios client with JWT interceptors, as well as fetch-based apiRequest.
- * Conforms to: RFC 7807 Problem Details and RESTful API standards.
+ * @description Centralized HTTP networking client for BMS Web Frontend.
+ * Provides both an Axios instance with request/response interceptors and a native fetch wrapper (apiRequest).
+ * Handles JWT bearer authentication injection, path normalization, and RFC 7807 problem details parsing.
+ * Conforms to: Production Engineering Standards & AGENTS-CODE.md.
  */
 
 import axios from 'axios';
@@ -13,8 +14,10 @@ const API_URL =
     "http://localhost:5000/api";
 
 /**
- * Lấy access token từ localStorage hoặc sessionStorage.
- * Hỗ trợ các key token hiện đang được sử dụng trong BMS.
+ * Retrieves the stored JWT access token from localStorage or sessionStorage.
+ * Checks known key variations to maintain backward compatibility across modules.
+ *
+ * @returns {string|null} The raw JWT access token or null if not authenticated.
  */
 export function getToken() {
     return (
@@ -26,7 +29,7 @@ export function getToken() {
 }
 
 /**
- * Axios instance with auth headers and normalized path handling
+ * Pre-configured Axios instance with authorization header interceptors and JSON defaults.
  */
 const api = axios.create({
     baseURL: API_URL,
@@ -36,9 +39,10 @@ const api = axios.create({
     },
 });
 
+// Request interceptor: attach bearer token and normalize duplicate /api prefixes
 api.interceptors.request.use(
     (config) => {
-        // Normalize if path already starts with /api/ to prevent /api/api/
+        // Prevent accidental '/api/api/' path doubling when baseUrl already ends with '/api'
         if (config.url && config.url.startsWith('/api/')) {
             config.url = config.url.substring(4);
         }
@@ -51,22 +55,27 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Response interceptor: log unauthenticated session expiries for telemetry
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.warn("[BMS API] 401 Unauthorized: Token không hợp lệ hoặc đã hết hạn.");
+            console.warn("[BMS API] 401 Unauthorized: Session token is missing, invalid, or expired.");
         }
         return Promise.reject(error);
     }
 );
 
 /**
- * Gửi HTTP request đến BMS Backend API qua fetch.
+ * Executes an HTTP fetch request against the BMS Backend API with automatic authorization.
  *
- * @param {string} path API path, ví dụ: "/service-packages"
- * @param {object} options Request options
- * @returns {Promise<any>} Parsed JSON response hoặc null
+ * @param {string} path - The relative endpoint path (e.g. "/service-packages").
+ * @param {object} [options] - Fetch request options.
+ * @param {string} [options.method='GET'] - HTTP verb (GET, POST, PUT, DELETE, PATCH).
+ * @param {*} [options.body] - Request body payload serialized to JSON.
+ * @param {Record<string, string>} [options.headers={}] - Custom HTTP headers.
+ * @returns {Promise<any>} The parsed JSON payload, plain text, or null for 204 No Content.
+ * @throws {Error} Human-readable error message parsed from backend problem details.
  */
 export async function apiRequest(
     path,
@@ -102,12 +111,12 @@ export async function apiRequest(
         });
     } catch (error) {
         throw new Error(
-            `Không thể kết nối BMS API tại ${API_URL}. ` +
-            "Hãy kiểm tra backend và cấu hình mạng."
+            `Cannot connect to BMS API at ${API_URL}. ` +
+            "Please check backend service availability and network configuration."
         );
     }
 
-    // Một số API, đặc biệt DELETE, trả về 204 No Content.
+    // Handle 204 No Content (typically returned by DELETE or empty operations)
     const contentType = response.headers.get("content-type") || "";
 
     let data = null;
@@ -127,11 +136,11 @@ export async function apiRequest(
             data?.title ||
             data?.detail ||
             (typeof data === "string" && data.trim()) ||
-            `Yêu cầu thất bại (${response.status})`;
+            `Request failed with status ${response.status}`;
 
         if (response.status === 401) {
             console.warn(
-                "[BMS API] 401 Unauthorized: Token không hợp lệ hoặc đã hết hạn."
+                "[BMS API] 401 Unauthorized: Session token is missing, invalid, or expired."
             );
         }
 
@@ -142,8 +151,11 @@ export async function apiRequest(
 }
 
 /**
- * Chuẩn hóa response danh sách từ backend.
- * Hỗ trợ mảng trực tiếp hoặc các wrapper phổ biến.
+ * Normalizes collection responses from diverse backend endpoint conventions into a clean array.
+ * Unwraps direct arrays, paged containers ({ data: [...] }), or envelope wrappers ({ items: [...] }).
+ *
+ * @param {any} data - Raw response object or array.
+ * @returns {any[]} Guaranteed JavaScript array of items.
  */
 export function unwrapList(data) {
     if (Array.isArray(data)) {

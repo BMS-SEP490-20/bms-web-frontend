@@ -1,7 +1,20 @@
+/**
+ * @file SampleQueuePage.jsx
+ * @description Laboratory Specimen Worklist Queue dashboard (UC17 - Võ Gia Huy / Phương Gia Lạc).
+ * Displays incoming specimens, STAT priority tags, accession timestamps, and sample rerun triggers (UC47).
+ * Conforms to: BR-LAB-01 (Turnaround Time SLA), BR-PHL-01 & AGENTS-DESIGN.md.
+ * @module features/laboratory/pages/SampleQueuePage
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Form, Row, Col, Modal, Spinner, InputGroup, Alert } from 'react-bootstrap';
 import api from '../../../config/api';
 
+/**
+ * Laboratory specimen tracking and turnaround queue management interface.
+ *
+ * @returns {JSX.Element} Rendered sample queue dashboard.
+ */
 const SampleQueuePage = () => {
   const [samples, setSamples] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,88 +44,18 @@ const SampleQueuePage = () => {
         }
       });
       if (res.data?.success) {
-        setSamples(res.data.data);
+        setSamples(res.data.data || []);
+      } else {
+        setSamples([]);
+        setErrorMsg(res.data?.message || 'Không thể tải hàng đợi xét nghiệm.');
       }
     } catch (err) {
-      // Demo fallback mock data matching backend seeds
-      setSamples(getMockSamples());
+      setSamples([]);
+      setErrorMsg('Không thể kết nối máy chủ phòng xét nghiệm: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
   };
-
-  const getMockSamples = () => [
-    {
-      id: 'SMP-001',
-      barcode: 'BC-20261011-0001',
-      patientName: 'Võ Gia Huy',
-      patientGender: 'Nam',
-      patientAge: 22,
-      testPackageName: 'Tổng phân tích tế bào máu ngoại vi (CBC)',
-      sampleType: 'Blood',
-      status: 'Received',
-      priority: 'Urgent',
-      labRoom: 'Phòng Lab Huyết Học 101',
-      collectedAt: new Date(Date.now() - 45 * 60000).toISOString(),
-      notes: 'Khách hàng cần kết quả trước 10h'
-    },
-    {
-      id: 'SMP-002',
-      barcode: 'BC-20261011-0002',
-      patientName: 'Nguyễn Thị Mai',
-      patientGender: 'Nữ',
-      patientAge: 35,
-      testPackageName: 'Sinh hóa máu cơ bản (Glucose, Ure, Creatinine)',
-      sampleType: 'Serum',
-      status: 'Processing',
-      priority: 'Normal',
-      labRoom: 'Phòng Lab Sinh Hóa 102',
-      collectedAt: new Date(Date.now() - 60 * 60000).toISOString(),
-      notes: ''
-    },
-    {
-      id: 'SMP-003',
-      barcode: 'BC-20261011-0003',
-      patientName: 'Trần Hoàng Long',
-      patientGender: 'Nam',
-      patientAge: 48,
-      testPackageName: 'Bộ xét nghiệm Men Gan (AST, ALT, GGT)',
-      sampleType: 'Serum',
-      status: 'Received',
-      priority: 'Normal',
-      labRoom: 'Phòng Lab Sinh Hóa 102',
-      collectedAt: new Date(Date.now() - 30 * 60000).toISOString(),
-      notes: ''
-    },
-    {
-      id: 'SMP-004',
-      barcode: 'BC-20261011-0004',
-      patientName: 'Đặng Thùy Dung',
-      patientGender: 'Nữ',
-      patientAge: 28,
-      testPackageName: 'Đông máu toàn bộ (PT, APTT, Fibrinogen)',
-      sampleType: 'Plasma',
-      status: 'RerunRequested',
-      priority: 'Stat',
-      labRoom: 'Phòng Lab Huyết Học 101',
-      collectedAt: new Date(Date.now() - 120 * 60000).toISOString(),
-      notes: 'APTT bất thường nghi đông dây máu'
-    },
-    {
-      id: 'SMP-005',
-      barcode: 'BC-20261011-0005',
-      patientName: 'Phạm Quốc Tuấn',
-      patientGender: 'Nam',
-      patientAge: 55,
-      testPackageName: 'Định lượng Lipid máu',
-      sampleType: 'Serum',
-      status: 'Completed',
-      priority: 'Normal',
-      labRoom: 'Phòng Lab Sinh Hóa 102',
-      collectedAt: new Date(Date.now() - 180 * 60000).toISOString(),
-      notes: 'Đã xuất PDF'
-    }
-  ];
 
   useEffect(() => {
     fetchQueue();
@@ -130,9 +73,7 @@ const SampleQueuePage = () => {
       // Optimistic update
       setSamples(prev => prev.map(s => s.id === sampleId ? { ...s, status: newStatus } : s));
     } catch (err) {
-      // Local state fallback
-      setSuccessMsg(`Đã cập nhật trạng thái mẫu sang: ${newStatus}`);
-      setSamples(prev => prev.map(s => s.id === sampleId ? { ...s, status: newStatus } : s));
+      setErrorMsg(err.response?.data?.message || err.message || 'Không thể cập nhật trạng thái mẫu trên cơ sở dữ liệu.');
     }
   };
 
@@ -156,9 +97,7 @@ const SampleQueuePage = () => {
       setShowRerunModal(false);
       setSamples(prev => prev.map(s => s.id === selectedSample.id ? { ...s, status: 'RerunRequested', priority: 'Stat' } : s));
     } catch (err) {
-      setSuccessMsg(`Đã gửi yêu cầu chạy lại cho mẫu ${selectedSample.barcode}`);
-      setShowRerunModal(false);
-      setSamples(prev => prev.map(s => s.id === selectedSample.id ? { ...s, status: 'RerunRequested', priority: 'Stat' } : s));
+      setErrorMsg(err.response?.data?.message || err.message || 'Không thể gửi yêu cầu chạy lại mẫu.');
     } finally {
       setRerunLoading(false);
     }
@@ -189,10 +128,10 @@ const SampleQueuePage = () => {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h3 className="fw-bold text-primary mb-1">
-            <i className="bi bi-list-check me-2"></i>Hàng Đợi Xét Nghiệm - Lab Queue (UC17)
+            <i className="bi bi-list-check me-2"></i>Hàng Đợi Xét Nghiệm Lâm Sàng (Lab Specimen Queue)
           </h3>
           <p className="text-muted small mb-0">
-            Theo dõi, quét mã barcode và điều phối ống mẫu máu trong phòng xét nghiệm
+            Theo dõi thời gian thực, quét mã barcode và điều phối ống mẫu máu phòng lab chuẩn ISO 15189
           </p>
         </div>
         <div className="d-flex gap-2">

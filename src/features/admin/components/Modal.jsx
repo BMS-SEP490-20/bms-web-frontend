@@ -1,13 +1,31 @@
+/**
+ * @file Modal.jsx
+ * @description Accessible generic modal backdrop dialog with Escape key listener and backdrop click dismiss.
+ * @module features/admin/components/Modal
+ */
+
 import React, { useEffect } from "react";
 
+/**
+ * Generic administrative modal dialog wrapper.
+ *
+ * @param {object} props - Component properties.
+ * @param {boolean} props.open - Whether the modal is currently visible.
+ * @param {string} props.title - Modal title text.
+ * @param {Function} props.onClose - Callback to dismiss the modal.
+ * @param {React.ReactNode} props.children - Modal content body.
+ * @param {React.ReactNode} [props.footer] - Optional modal footer action buttons.
+ * @param {boolean} [props.wide] - Whether to apply wider modal container layout.
+ * @returns {JSX.Element|null} The rendered modal or null if closed.
+ */
 export default function Modal({
-                                  open,
-                                  title,
-                                  onClose,
-                                  children,
-                                  footer,
-                                  wide,
-                              }) {
+    open,
+    title,
+    onClose,
+    children,
+    footer,
+    wide,
+}) {
     useEffect(() => {
         if (!open) return;
 

@@ -6,81 +6,79 @@
  */
 
 import React from "react";
-import { Navigate, Outlet, useLocation, Link } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getToken } from "../config/api";
+import Forbidden403 from "../components/errors/Forbidden403";
 
 /**
- * Lấy thông tin user hiện tại từ bộ nhớ cục bộ
+ * Normalizes role string to standard uppercase format.
+ *
+ * @param {string} role Raw role string
+ * @returns {string} Normalized role
  */
-function getCurrentUser() {
-    try {
-        const raw =
-            localStorage.getItem("bms_user") ||
-            sessionStorage.getItem("bms_user");
-        return raw ? JSON.parse(raw) : null;
-    } catch {
-        return null;
-    }
+function normalizeRole(role) {
+  if (!role) return "PATIENT";
+  const r = role.toString().trim().toUpperCase();
+  if (r.includes("ADMIN")) return "ADMIN";
+  if (r.includes("MANAGER")) return "MANAGER";
+  if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
+  if (r.includes("HEAD") || r.includes("TRUONGPHONG")) return "LABHEAD";
+  if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
+  if (r.includes("RECEPT") || r.includes("LETAN")) return "RECEPTIONIST";
+  if (r.includes("CASHIER") || r.includes("THUNGAN")) return "CASHIER";
+  return "PATIENT";
 }
 
 /**
- * Route guard bảo vệ các trang nội bộ của BMS.
+ * Retrieves the current authenticated user profile from browser storage.
  *
- * @param {object} props
- * @param {string[]} [props.allowedRoles] - Danh sách các vai trò được phép truy cập (vd: ['Admin', 'Manager'])
- * @param {React.ReactNode} [props.children] - Component con (nếu không dùng Outlet)
+ * @returns {object|null} The parsed user object if present, otherwise null.
+ */
+function getCurrentUser() {
+  try {
+    const raw =
+      localStorage.getItem("bms_user") ||
+      sessionStorage.getItem("bms_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Route guard component protecting private internal BMS application routes.
+ * Checks for authentication token and verifies whether current user role matches allowed roles.
+ *
+ * @param {object} props - Component properties.
+ * @param {string[]} [props.allowedRoles] - List of permitted role names (e.g. ['ADMIN', 'MANAGER', 'DOCTOR']).
+ * @param {React.ReactNode} [props.children] - Child elements if not using nested route Outlet.
+ * @returns {JSX.Element} Rendered child routes, redirect to login, or 403 Forbidden screen.
  */
 export default function ProtectedRoute({ allowedRoles, children }) {
-    const location = useLocation();
-    const token = getToken();
-    const user = getCurrentUser();
+  const location = useLocation();
+  const token = getToken();
+  const user = getCurrentUser();
 
-    // 1. Kiểm tra xác thực (Authentication)
-    if (!token && !user) {
-        // Chuyển hướng đến /login và lưu lại trang đang định vào
-        return <Navigate to="/login" state={{ from: location }} replace />;
+  // 1. Verify authentication status
+  if (!token && !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // 2. Verify Role-Based Access Control (RBAC) permissions
+  if (allowedRoles && allowedRoles.length > 0) {
+    const userRole = normalizeRole(user?.role || user?.roleName);
+    const normalizedAllowedRoles = allowedRoles.map(r => normalizeRole(r));
+    const hasPermission = normalizedAllowedRoles.includes(userRole);
+
+    if (!hasPermission) {
+      return (
+        <Forbidden403
+          requiredRole={allowedRoles.join(", ")}
+          userRole={userRole}
+        />
+      );
     }
+  }
 
-    // 2. Kiểm tra phân quyền vai trò (Role-Based Access Control - RBAC)
-    if (allowedRoles && allowedRoles.length > 0) {
-        const userRole = (user?.role || user?.roleName || "Patient").toLowerCase();
-        const hasPermission = allowedRoles.some(
-            (role) => role.toLowerCase() === userRole
-        );
-
-        if (!hasPermission) {
-            return (
-                <div className="container py-5 text-center">
-                    <div
-                        className="card shadow-sm p-4 mx-auto"
-                        style={{ maxWidth: 520, borderRadius: 16 }}
-                    >
-                        <div className="text-danger mb-3" style={{ fontSize: 48 }}>
-                            🚫
-                        </div>
-                        <h4 className="fw-bold text-dark">
-                            Truy Cập Bị Từ Chối (403 Forbidden)
-                        </h4>
-                        <p className="text-muted small mt-2">
-                            Tài khoản của bạn với vai trò{" "}
-                            <span className="badge bg-secondary">
-                                {user?.role || "Người dùng"}
-                            </span>{" "}
-                            không có quyền truy cập vào chức năng này.
-                        </p>
-                        <div className="d-flex justify-content-center gap-2 mt-3">
-                            <Link to="/dashboard" className="btn btn-primary px-4">
-                                Về Bảng Điều Khiển
-                            </Link>
-                            <Link to="/" className="btn btn-outline-secondary px-4">
-                                Về Trang Chủ
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-    }
-
-    return children ? children : <Outlet />;
+  return children ? children : <Outlet />;
 }

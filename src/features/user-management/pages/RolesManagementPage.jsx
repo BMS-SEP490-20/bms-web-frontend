@@ -96,15 +96,15 @@ export const RolesManagementPage = () => {
         <div>
           <h4 className="fw-bold m-0 text-dark">
             <i className="bi bi-shield-lock-fill text-primary me-2"></i>
-            Roles & Permissions Management
+            Quản Lý Phân Quyền Vai Trò (RBAC)
           </h4>
           <small className="text-muted">
-            Role-Based Access Control (RBAC) matrix for clinical and administrative personnel
+            Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02)
           </small>
         </div>
         <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold">
           <i className="bi bi-plus-circle-fill me-2"></i>
-          Add New Role
+          Thêm Vai Trò Mới
         </Button>
       </div>
 
@@ -127,7 +127,7 @@ export const RolesManagementPage = () => {
                 </InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Search by role code or name..."
+                  placeholder="Tìm theo mã hoặc tên vai trò..."
                   className="border-start-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -140,14 +140,14 @@ export const RolesManagementPage = () => {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="">All Statuses</option>
-                <option value="true">Active Only</option>
-                <option value="false">Inactive Only</option>
+                <option value="">Tất Cả Trạng Thái</option>
+                <option value="true">Đang Hoạt Động</option>
+                <option value="false">Tạm Khóa</option>
               </Form.Select>
             </div>
 
             <div className="col-6 col-md-4 text-end text-muted small">
-              Displaying <strong>{roles.length}</strong> of <strong>{totalCount}</strong> roles
+              Hiển thị <strong>{roles.length}</strong> trên tổng số <strong>{totalCount}</strong> vai trò
             </div>
           </div>
         </div>
@@ -157,13 +157,13 @@ export const RolesManagementPage = () => {
           <Table hover className="bms-roles-table m-0">
             <thead>
               <tr>
-                <th className="bms-align-center" style={{ width: '160px' }}>Role Code</th>
-                <th>Role Name</th>
-                <th>Description</th>
-                <th className="bms-align-center" style={{ width: '140px' }}>Permissions</th>
-                <th className="bms-align-right" style={{ width: '130px' }}>Employees</th>
-                <th className="bms-align-center" style={{ width: '120px' }}>Status</th>
-                <th className="bms-align-right" style={{ width: '150px' }}>Actions</th>
+                <th className="bms-align-center" style={{ width: '160px' }}>Mã Vai Trò</th>
+                <th>Tên Vai Trò</th>
+                <th>Mô Tả Chức Năng</th>
+                <th className="bms-align-center" style={{ width: '140px' }}>Quyền Hạn</th>
+                <th className="bms-align-right" style={{ width: '130px' }}>Nhân Sự</th>
+                <th className="bms-align-center" style={{ width: '140px' }}>Trạng Thái</th>
+                <th className="bms-align-right" style={{ width: '130px' }}>Thao Tác</th>
               </tr>
             </thead>
             <tbody>
@@ -171,14 +171,14 @@ export const RolesManagementPage = () => {
                 <tr>
                   <td colSpan="7" className="text-center py-5">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    Loading roles catalogue...
+                    Đang tải danh sách vai trò...
                   </td>
                 </tr>
               ) : roles.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center py-5 text-muted">
                     <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
-                    No roles matched your search criteria.
+                    Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
                   </td>
                 </tr>
               ) : (
@@ -191,26 +191,25 @@ export const RolesManagementPage = () => {
                       <div className="fw-bold text-dark">{role.roleName}</div>
                       {role.isSystemRole && (
                         <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: '10px' }}>
-                          <i className="bi bi-lock-fill me-1"></i>Core System
+                          <i className="bi bi-lock-fill me-1"></i>Hệ Thống Cốt Lõi
                         </Badge>
                       )}
                     </td>
                     <td className="text-muted small">
-                      {role.description || 'No description provided.'}
+                      {role.description || 'Không có mô tả chi tiết.'}
                     </td>
                     <td className="bms-align-center">
                       <Badge bg="secondary" className="px-2 py-1">
-                        {role.permissions?.length || 0} Grants
+                        {role.permissions?.length || 0} Quyền
                       </Badge>
                     </td>
-                    {/* Personnel count right-aligned per AGENTS-DESIGN.md */}
                     <td className="bms-align-right fw-semibold">
                       {role.userCount || 0}
                     </td>
                     <td className="bms-align-center">
                       <span className={`bms-status-pill ${role.isActive ? 'active' : 'inactive'}`}>
                         <i className="bi bi-circle-fill" style={{ fontSize: '7px' }}></i>
-                        {role.isActive ? 'Active' : 'Inactive'}
+                        {role.isActive ? 'Hoạt Động' : 'Tạm Khóa'}
                       </span>
                     </td>
                     <td className="bms-align-right">
@@ -218,7 +217,7 @@ export const RolesManagementPage = () => {
                         <Button
                           variant="outline-primary"
                           size="sm"
-                          title="Edit Role & Permissions"
+                          title="Chỉnh sửa vai trò & phân quyền"
                           onClick={() => handleOpenEditModal(role)}
                         >
                           <i className="bi bi-pencil"></i>
@@ -226,7 +225,7 @@ export const RolesManagementPage = () => {
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          title={role.isSystemRole ? 'Core System Roles Cannot Be Deleted' : 'Delete Role'}
+                          title={role.isSystemRole ? 'Vai trò hệ thống không được xóa' : 'Xóa vai trò'}
                           onClick={() => handleOpenDeleteModal(role)}
                           disabled={role.isSystemRole}
                         >

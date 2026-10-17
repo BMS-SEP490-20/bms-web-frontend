@@ -1,11 +1,29 @@
+/**
+ * @file UnifiedUserInfoModal.jsx
+ * @description Modal dialog for inspecting and modifying multi-role user accounts (UC14, UC08, UC09).
+ * Features dedicated tabs for Account Credentials, Clinical Doctor/Lab Profile details, and Administrative Password Reset.
+ * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * @module features/users/components/UnifiedUserInfoModal
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Tabs, Tab, Alert } from 'react-bootstrap';
 import { FaEdit, FaSave, FaTimes, FaLock } from 'react-icons/fa';
 
 /**
- * @file UnifiedUserInfoModal.jsx
- * @description Modal for viewing and editing multi-role user accounts (UC14, UC08, UC09).
- * Supports Account details, Doctor/Lab/Patient profile tabs, and Admin password change.
+ * Unified multi-tab user detail and credential modification dialog.
+ *
+ * @param {object} props - Component properties.
+ * @param {boolean} props.show - Visibility flag for the modal dialog.
+ * @param {Function} props.onHide - Callback to dismiss the modal dialog.
+ * @param {object} props.user - The target user object under inspection.
+ * @param {object[]} [props.labRooms=[]] - Available laboratory rooms for technician assignment.
+ * @param {Function} props.onSaveAccount - Callback to persist account metadata updates.
+ * @param {Function} props.onSaveProfile - Callback to persist clinical role profile updates.
+ * @param {Function} props.onSavePassword - Callback to execute administrative password reset.
+ * @param {object} [props.profileData] - Detailed profile payload fetched from backend.
+ * @param {boolean} [props.profileLoading] - Loading indicator state for profile fetch.
+ * @returns {JSX.Element} The rendered modal dialog.
  */
 const UnifiedUserInfoModal = ({ 
   show, 

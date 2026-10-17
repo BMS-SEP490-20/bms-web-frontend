@@ -2,11 +2,23 @@
  * @file UserQuickViewDrawer.jsx
  * @description Slide-in drawer component for quick user account inspection (UC08).
  * Triggered from top navigation avatar; displays summarized profile, role badges, and quick links.
+ * Conforms to: AGENTS-DESIGN.md.
+ * @module features/patient-portal/components/UserQuickViewDrawer
  */
 
 import React from 'react';
 import './UserQuickViewDrawer.css';
 
+/**
+ * Slide-in quick view drawer displaying summarized active session data and profile shortcuts.
+ *
+ * @param {object} props - Component properties.
+ * @param {boolean} props.isOpen - Whether the drawer is visible.
+ * @param {object|null} props.user - Active user profile payload.
+ * @param {Function} props.onClose - Callback to dismiss the drawer.
+ * @param {Function} [props.onNavigate] - Callback for internal navigation actions.
+ * @returns {JSX.Element|null} Rendered drawer or null when closed.
+ */
 export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate }) {
   if (!isOpen || !user) return null;
 
@@ -70,10 +82,10 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
               className="bms-drawer-item"
               onClick={() => {
                 onClose();
-                if (onNavigate) onNavigate('/forgot-password');
+                if (onNavigate) onNavigate('/change-password');
               }}
             >
-              <span>&#128273; Đổi Mật Khẩu (UC07)</span>
+              <span>&#128273; Đổi Mật Khẩu Bảo Mật</span>
               <span>&rarr;</span>
             </div>
 
@@ -84,7 +96,7 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/criteria');
               }}
             >
-              <span>&#129514; Danh Mục Xét Nghiệm (UC18)</span>
+              <span>&#129514; Danh Mục Chỉ Số Xét Nghiệm</span>
               <span>&rarr;</span>
             </div>
 
@@ -95,7 +107,7 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/roles');
               }}
             >
-              <span>&#128274; Quản Trị Vai Trò (UC13)</span>
+              <span>&#128274; Quản Trị Phân Quyền Vai Trò</span>
               <span>&rarr;</span>
             </div>
 

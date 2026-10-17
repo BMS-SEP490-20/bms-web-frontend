@@ -1,3 +1,12 @@
+/**
+ * @file UserManagementPage.jsx
+ * @description Master Employee & User Accounts Management Page (UC14 - Lâm Gia Bảo).
+ * Supports: View, Create, Update, Delete Employee Accounts, Lock/Unlock, Role Filtering & Search.
+ * Enforces BR-IAM-01 (Employee Codes & Password Policy) and BR-IAM-02 (RBAC Controls).
+ * Conforms to: Production Standards, RBAC Architecture & OWASP Top 10.
+ * @module features/users/pages/UserManagementPage
+ */
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Container, Row, Col, Card, Button, Table, Modal, Form,
@@ -10,10 +19,9 @@ import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService, ROLE_NAMES } from '../../../services/userManagementService';
 
 /**
- * @file UserManagementPage.jsx
- * @description Master Employee & User Accounts Management Page (UC14 - Lâm Gia Bảo).
- * Supports: View, Create, Update, Delete Employee Accounts, Lock/Unlock, Role Filtering & Search.
- * Conforms to: Production Standards, RBAC Architecture & OWASP Top 10.
+ * Unified administrative user and employee account management view.
+ *
+ * @returns {JSX.Element} Rendered user management dashboard.
  */
 export default function UserManagementPage() {
   const [users, setUsers] = useState([]);
@@ -164,8 +172,16 @@ export default function UserManagementPage() {
       setCreateError('Địa chỉ email không hợp lệ.');
       return;
     }
-    if (!createForm.password || createForm.password.length < 6) {
-      setCreateError('Mật khẩu tối thiểu 6 ký tự.');
+    if (!createForm.password || createForm.password.length < 8) {
+      setCreateError('Mật khẩu nhân viên phải có độ dài tối thiểu 8 ký tự (chuẩn BR-IAM-01).');
+      return;
+    }
+    const hasUpper = /[A-Z]/.test(createForm.password);
+    const hasLower = /[a-z]/.test(createForm.password);
+    const hasNumber = /[0-9]/.test(createForm.password);
+    const hasSpecial = /[!@#$%^&*]/.test(createForm.password);
+    if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+      setCreateError('Mật khẩu nhân viên phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (!@#$%^&*).');
       return;
     }
     if (createForm.password !== createForm.confirmPassword) {
@@ -262,10 +278,10 @@ export default function UserManagementPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-            <FaUserCog className="text-primary" /> Quản Lý Tài Khoản & Nhân Viên
+            <FaUserCog className="text-primary" /> Quản Lý Nhân Sự & Tài Khoản Y Tế
           </h2>
           <p className="text-muted mb-0 small">
-            Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ, kỹ thuật viên xét nghiệm và nhân viên y tế (UC14).
+            Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ, kỹ thuật viên xét nghiệm và nhân viên điều phối phòng lab.
           </p>
         </div>
         <div className="mt-2 mt-md-0">

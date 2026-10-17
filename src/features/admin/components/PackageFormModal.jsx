@@ -1,4 +1,12 @@
 
+/**
+ * @file PackageFormModal.jsx
+ * @description Administration modal form for composing, creating, and updating laboratory service packages (UC15).
+ * Allows clinical administrators to set package codes, names, promotional pricing, status, and associated test criteria.
+ * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * @module features/admin/components/PackageFormModal
+ */
+
 import React, { useEffect, useMemo, useState } from "react";
 import Modal from "./Modal.jsx";
 import { createPackage, updatePackage } from "../api/packageApi.jsx";
@@ -8,7 +16,13 @@ export const STATUS_OPTIONS = [
     { value: "DRAFT", label: "Draft" },
 ];
 
-// Hỗ trợ tests dạng ID hoặc object { code, name }.
+/**
+ * Normalizes test identifiers from package entities supporting both string IDs and test objects.
+ *
+ * @param {object} pkg - Service package entity.
+ * @param {object[]} [criteria=[]] - Master test criteria collection.
+ * @returns {string[]} List of resolved test criterion IDs.
+ */
 export function getTestIds(pkg, criteria = []) {
     const raw = pkg?.testIds || pkg?.tests || [];
 
@@ -47,13 +61,24 @@ const EMPTY = {
     testIds: [],
 };
 
+/**
+ * Service package form modal component supporting create and edit workflows.
+ *
+ * @param {object} props - Component properties.
+ * @param {boolean} props.open - Modal visibility state.
+ * @param {object|null} [props.pkg] - Package to edit, or null when creating.
+ * @param {object[]} [props.criteria=[]] - Available test criteria for multi-selection.
+ * @param {Function} props.onClose - Callback to dismiss the modal.
+ * @param {Function} props.onSaved - Callback triggered after successful creation or update.
+ * @returns {JSX.Element} Rendered form modal.
+ */
 export default function PackageFormModal({
-                                             open,
-                                             pkg,
-                                             criteria,
-                                             onClose,
-                                             onSaved,
-                                         }) {
+    open,
+    pkg,
+    criteria = [],
+    onClose,
+    onSaved,
+}) {
     const isEdit = Boolean(pkg);
 
     const [form, setForm] = useState(EMPTY);

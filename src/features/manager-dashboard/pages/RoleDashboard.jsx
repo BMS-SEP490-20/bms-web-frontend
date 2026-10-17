@@ -1,9 +1,42 @@
+/**
+ * @file RoleDashboard.jsx
+ * @description Role-Based Operational Dashboard (UC12 - Võ Gia Huy / Phương Gia Lạc).
+ * Dynamic metrics cockpit rendering customized cards and worklists based on active user role:
+ * Doctor (Queue/Approval), Lab Technician (Analyzers/Samples), Patient (Appointments/PDFs), and Receptionist.
+ * Conforms to: BR-IAM-02 (RBAC), BR-LAB-01 (TAT SLA) & AGENTS-DESIGN.md.
+ * @module features/manager-dashboard/pages/RoleDashboard
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button, Table, Spinner, Nav, Alert } from 'react-bootstrap';
 import api from '../../../config/api';
 
+/**
+ * Role-tailored clinical and administrative dashboard component.
+ *
+ * @returns {JSX.Element} Rendered role dashboard.
+ */
 const RoleBasedDashboard = () => {
-  const [selectedRole, setSelectedRole] = useState('LaboratoryUser');
+  const currentUser = React.useMemo(() => {
+    try {
+      const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const initialRole = React.useMemo(() => {
+    if (!currentUser) return 'Manager';
+    const r = (currentUser.role || currentUser.roleName || '').toString().trim().toLowerCase();
+    if (r.includes('pat')) return 'Patient';
+    if (r.includes('doc')) return 'Doctor';
+    if (r.includes('lab') || r.includes('tech')) return 'LaboratoryUser';
+    if (r.includes('rec')) return 'Receptionist';
+    return 'Manager';
+  }, [currentUser]);
+
+  const [selectedRole, setSelectedRole] = useState(initialRole);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,10 +48,13 @@ const RoleBasedDashboard = () => {
       const res = await api.get(`/dashboard/stats?role=${role}`);
       if (res.data?.success) {
         setStats(res.data.data);
+      } else {
+        setError(res.data?.message || 'Không thể tải số liệu thống kê.');
       }
     } catch (err) {
-      // Fallback local mock to ensure dashboard renders gracefully in offline demo
-      setStats(getMockData(role));
+      console.error('[RoleDashboard] API Error:', err);
+      setError(err.response?.data?.message || err.message || 'Lỗi kết nối tới dịch vụ cơ sở dữ liệu BMS.');
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -28,94 +64,13 @@ const RoleBasedDashboard = () => {
     fetchDashboardStats(selectedRole);
   }, [selectedRole]);
 
-  // Fallback mock function matching backend DTO
-  const getMockData = (role) => {
-    const roleLower = role.toLowerCase();
-    if (roleLower === 'patient') {
-      return {
-        role: 'Patient',
-        userName: 'Bệnh Nhân Võ Gia Huy',
-        summaryCards: [
-          { key: 'appts', title: 'Lịch hẹn sắp tới', value: '1', icon: 'bi-calendar-check', colorVariant: 'primary', subtitle: 'Ngày mai lúc 08:30' },
-          { key: 'results', title: 'Kết quả xét nghiệm', value: '3', icon: 'bi-file-earmark-medical', colorVariant: 'success', subtitle: 'Bản PDF đã ký số' },
-          { key: 'pending', title: 'Đang xét nghiệm', value: '1', icon: 'bi-hourglass-split', colorVariant: 'warning', subtitle: 'Dự kiến 11:30' },
-          { key: 'notifs', title: 'Thông báo', value: '2', icon: 'bi-bell', colorVariant: 'info', subtitle: 'Nhắc nhịn ăn sáng' }
-        ],
-        patientData: {
-          recentAppointments: [
-            { id: '1', appointmentCode: 'BMS-APT-20261012-01', packageName: 'Tổng phân tích tế bào máu (CBC)', appointmentTime: '2026-10-12 08:30', status: 'Đã xác nhận', doctorName: 'BS. Nguyễn Văn An' }
-          ],
-          recentResults: [
-            { testOrderId: 'ORD-099', packageName: 'Sinh hóa máu cơ bản', releasedAt: '2026-10-09', status: 'Đã duyệt', hasAbnormalFlag: false }
-          ]
-        }
-      };
-    } else if (roleLower === 'doctor') {
-      return {
-        role: 'Doctor',
-        userName: 'BS. Nguyễn Văn An',
-        summaryCards: [
-          { key: 'doc_today', title: 'Lịch khám hôm nay', value: '12', icon: 'bi-person-lines-fill', colorVariant: 'primary', subtitle: '4 bệnh nhân đang đợi' },
-          { key: 'doc_pending', title: 'Chờ duyệt kết quả', value: '5', icon: 'bi-clipboard-check', colorVariant: 'warning', subtitle: '2 ca có chỉ số cao' },
-          { key: 'doc_done', title: 'Đã duyệt hôm nay', value: '18', icon: 'bi-check-circle', colorVariant: 'success', subtitle: 'Hoàn tất trả kết quả' },
-          { key: 'doc_rerun', title: 'Yêu cầu chạy lại', value: '1', icon: 'bi-arrow-repeat', colorVariant: 'danger', subtitle: 'Mẫu nghi ngờ đông' }
-        ],
-        doctorData: {
-          todaySchedule: [
-            { id: '1', appointmentCode: 'BMS-APT-101', patientName: 'Trần Hoàng Long', packageName: 'Men Gan (AST, ALT, GGT)', appointmentTime: '09:00', status: 'Chờ khám' },
-            { id: '2', appointmentCode: 'BMS-APT-102', patientName: 'Nguyễn Thị Mai', packageName: 'Sinh hóa máu cơ bản', appointmentTime: '09:30', status: 'Đang khám' }
-          ]
-        }
-      };
-    } else if (roleLower === 'laboratoryuser' || roleLower === 'labuser') {
-      return {
-        role: 'LaboratoryUser',
-        userName: 'KTV. Lê Thị Bình',
-        summaryCards: [
-          { key: 'lab_waiting', title: 'Hàng đợi Lab chờ chạy', value: '4', icon: 'bi-inbox', colorVariant: 'primary', subtitle: 'Tại phòng Lab 101, 102' },
-          { key: 'lab_proc', title: 'Đang xử lý trên máy', value: '2', icon: 'bi-gear-wide-connected', colorVariant: 'warning', subtitle: 'Máy Sysmex & Roche' },
-          { key: 'lab_done', title: 'Đã nhập kết quả', value: '15', icon: 'bi-check2-all', colorVariant: 'success', subtitle: 'Chuyển bác sĩ duyệt' },
-          { key: 'lab_rerun', title: 'Mẫu yêu cầu chạy lại', value: '1', icon: 'bi-exclamation-triangle', colorVariant: 'danger', subtitle: 'Ưu tiên khẩn (STAT)' }
-        ],
-        labUserData: {
-          prioritySamples: [
-            { id: 'SMP-001', barcode: 'BC-20261011-0001', patientName: 'Võ Gia Huy', testPackageName: 'Tổng phân tích tế bào máu (CBC)', sampleType: 'Blood', priority: 'Urgent', status: 'Received', labRoom: 'Phòng 101' },
-            { id: 'SMP-004', barcode: 'BC-20261011-0004', patientName: 'Đặng Thùy Dung', testPackageName: 'Đông máu toàn bộ', sampleType: 'Plasma', priority: 'Stat', status: 'RerunRequested', labRoom: 'Phòng 101' }
-          ]
-        }
-      };
-    } else if (roleLower === 'receptionist') {
-      return {
-        role: 'Receptionist',
-        userName: 'Lễ Tân Mai Hoa',
-        summaryCards: [
-          { key: 'rec_checkin', title: 'Đã check-in hôm nay', value: '28', icon: 'bi-qr-code-scan', colorVariant: 'success', subtitle: 'Bệnh nhân có lịch' },
-          { key: 'rec_queue', title: 'Hàng đợi tiếp đón', value: '6', icon: 'bi-people', colorVariant: 'primary', subtitle: 'Số chờ gọi tiếp theo: 029' },
-          { key: 'rec_walkin', title: 'Khách vãng lai (Guest)', value: '9', icon: 'bi-person-plus', colorVariant: 'info', subtitle: 'Đã tạo hồ sơ tại quầy' },
-          { key: 'rec_cash', title: 'Tổng tiền đã thu', value: '14,500,000 đ', icon: 'bi-cash-coin', colorVariant: 'warning', subtitle: 'Tiền mặt & VNPay' }
-        ]
-      };
-    } else {
-      return {
-        role: 'Manager',
-        userName: 'Trần Quản Lý Lab',
-        summaryCards: [
-          { key: 'mng_orders', title: 'Tổng đơn xét nghiệm', value: '48', icon: 'bi-clipboard-data', colorVariant: 'primary', subtitle: '+12% so với hôm qua' },
-          { key: 'mng_rev', title: 'Doanh thu hôm nay', value: '22,800,000 đ', icon: 'bi-currency-dollar', colorVariant: 'success', subtitle: 'Đạt 114% chỉ tiêu' },
-          { key: 'mng_tat', title: 'Thời gian trả KQ (TAT)', value: '42 phút', icon: 'bi-stopwatch', colorVariant: 'info', subtitle: 'Mục tiêu < 60 phút' },
-          { key: 'mng_iot', title: 'Tủ lưu mẫu máu IoT', value: '3.8°C (Chuẩn)', icon: 'bi-thermometer-half', colorVariant: 'success', subtitle: 'Dải an toàn 2°C - 6°C' }
-        ]
-      };
-    }
-  };
-
   return (
     <div className="container-fluid py-4">
       {/* Header with Role Selector */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h3 className="fw-bold text-primary mb-1">
-            <i className="bi bi-speedometer2 me-2"></i>Bảng Điều Khiển Role-Based Dashboard (UC12)
+            <i className="bi bi-speedometer2 me-2"></i>Bảng Điều Khiển Vận Hành Y Tế (Role Dashboard)
           </h3>
           <p className="text-muted small mb-0">
             Hiển thị chỉ số KPI & dữ liệu theo vai trò người dùng trong phòng Lab
@@ -151,6 +106,13 @@ const RoleBasedDashboard = () => {
           </Nav.Item>
         </Nav>
       </div>
+
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {error}
+        </Alert>
+      )}
 
       {loading ? (
         <div className="text-center py-5">

@@ -1,7 +1,19 @@
+/**
+ * @file ChangePassword.jsx
+ * @description Authenticated user self-service password update screen (UC07).
+ * Validates current credentials and enforces password strength complexity (BR-IAM-01).
+ * Conforms to: OWASP Authentication Guidelines & AGENTS-DESIGN.md.
+ */
+
 import React, { useState } from 'react';
 import { Card, Form, Button, Alert, InputGroup, ProgressBar, Spinner } from 'react-bootstrap';
 import api from '../../config/api';
 
+/**
+ * Change password form component providing visual complexity meters and credential verification.
+ *
+ * @returns {JSX.Element} Rendered password change interface.
+ */
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -66,12 +78,8 @@ const ChangePassword = () => {
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      // Demo fallback success
-      setSuccessMsg('Đổi mật khẩu thành công! Vui lòng sử dụng mật khẩu mới cho lần đăng nhập tiếp theo.');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
+      const msg = err.response?.data?.message || err.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra mật khẩu hiện tại.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -81,9 +89,9 @@ const ChangePassword = () => {
     <Card className="shadow-sm border-0 rounded-4">
       <Card.Header className="bg-white border-bottom py-3 px-4">
         <h5 className="fw-bold mb-0 text-primary">
-          <i className="bi bi-key-fill me-2"></i>Đổi Mật Khẩu (UC07)
+          <i className="bi bi-key-fill me-2"></i>Thay Đổi Mật Khẩu Bảo Mật
         </h5>
-        <small className="text-muted">Bảo vệ tài khoản bằng mật khẩu an toàn và định kỳ</small>
+        <small className="text-muted">Bảo vệ tài khoản y tế BMS theo chuẩn định danh y khoa (BR-IAM-01)</small>
       </Card.Header>
       <Card.Body className="p-4">
         {errorMsg && <Alert variant="danger" dismissible onClose={() => setErrorMsg('')}>{errorMsg}</Alert>}

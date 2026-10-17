@@ -1,141 +1,43 @@
 /**
  * @file userManagementService.js
  * @description Centralized User & Employee Account Management Service (UC14).
- * Communicates directly with BMS Web API via standard api client (/api/v1/users or /api/auth).
- * Includes resilient offline fallback mock data for testing all system roles.
+ * Communicates directly with BMS Web API via standard api client (/api/v1/users).
+ * Fetches and persists 100% of accounts directly to MongoDB without mock fallback.
  * Conforms to: OWASP Top 10, RESTful Standards & Clean Architecture.
  */
 
 import api from '../config/api';
 
-// Map Role ID sang Name (Khớp với DB & Backend BMS)
+// Role ID to role key mapping matching BMS backend enumeration
 export const ROLE_MAPPING = {
   1: 'admin',
-  2: 'manager',
-  3: 'doctor',
-  4: 'lab_user',
-  5: 'patient',
+  2: 'doctor',
+  3: 'lab_user',
+  4: 'manager',
+  5: 'nurse',
   6: 'receptionist',
+  7: 'cashier',
+  8: 'warehouse',
+  9: 'patient',
 };
 
 export const ROLE_NAMES = {
-  admin: 'Quản trị viên (Admin)',
-  manager: 'Quản lý (Manager)',
-  doctor: 'Bác sĩ (Doctor)',
-  lab_user: 'Kỹ thuật viên xét nghiệm (Lab User)',
-  patient: 'Bệnh nhân (Patient)',
-  receptionist: 'Lễ tân (Receptionist)',
+  admin: 'Administrator (Admin)',
+  manager: 'Clinical Manager (Manager)',
+  doctor: 'Doctor / Physician (Doctor)',
+  lab_user: 'Laboratory Technician (Lab User)',
+  patient: 'Patient (Patient)',
+  receptionist: 'Receptionist (Receptionist)',
+  nurse: 'Clinical Nurse (Nurse)',
+  cashier: 'Cashier / Billing (Cashier)',
+  warehouse: 'Warehouse Keeper (Warehouse)',
 };
-
-// Dữ liệu mẫu chuẩn khi backend chưa chạy hoặc đang offline demo
-const MOCK_USERS = [
-  {
-    id: '670000000000000000000001',
-    fullName: 'Nguyễn Văn Quản Trị',
-    username: 'admin.system',
-    email: 'admin@bms.com',
-    phone: '0901234567',
-    role: 'admin',
-    roleId: 1,
-    isActive: true,
-    status: 'active',
-    createdAt: '2026-01-10T08:00:00Z',
-    doctorProfile: null,
-    labProfile: null,
-  },
-  {
-    id: '670000000000000000000002',
-    fullName: 'TS. BS. Trần Minh Tuấn',
-    username: 'doctor.tuan',
-    email: 'dr.tuan@bms.com',
-    phone: '0912345678',
-    role: 'doctor',
-    roleId: 3,
-    isActive: true,
-    status: 'active',
-    createdAt: '2026-02-15T09:30:00Z',
-    doctorProfile: {
-      fullName: 'TS. BS. Trần Minh Tuấn',
-      specialization: 'Huyết học & Miễn dịch học',
-      phone: '0912345678',
-      email: 'dr.tuan@bms.com',
-      status: 'Active',
-      roomId: 'ROOM-101',
-      roomName: 'Phòng khám Huyết học 101',
-    },
-    labProfile: null,
-  },
-  {
-    id: '670000000000000000000003',
-    fullName: 'KTV. Lê Thị Mai',
-    username: 'lab.mai',
-    email: 'ktv.mai@bms.com',
-    phone: '0923456789',
-    role: 'lab_user',
-    roleId: 4,
-    isActive: true,
-    status: 'active',
-    createdAt: '2026-03-01T10:15:00Z',
-    doctorProfile: null,
-    labProfile: {
-      fullName: 'KTV. Lê Thị Mai',
-      jobTitle: 'Kỹ thuật viên Sinh hóa - Miễn dịch',
-      phone: '0923456789',
-      email: 'ktv.mai@bms.com',
-      defaultRoomId: 'LAB-201',
-      roomName: 'Phòng Xét nghiệm Huyết học 201',
-    },
-  },
-  {
-    id: '670000000000000000000004',
-    fullName: 'Phạm Thu Hương',
-    username: 'rec.huong',
-    email: 'letan.huong@bms.com',
-    phone: '0934567890',
-    role: 'receptionist',
-    roleId: 6,
-    isActive: true,
-    status: 'active',
-    createdAt: '2026-04-12T07:45:00Z',
-    doctorProfile: null,
-    labProfile: null,
-  },
-  {
-    id: '670000000000000000000005',
-    fullName: 'Nguyễn Văn Johnson',
-    username: 'patient.johnson',
-    email: 'patient.johnson@gmail.com',
-    phone: '0987654321',
-    role: 'patient',
-    roleId: 5,
-    isActive: true,
-    status: 'active',
-    createdAt: '2026-05-20T14:20:00Z',
-    patientProfile: {
-      patientCode: 'BN-2026-08192',
-      identityCardNumber: '079201008234',
-      dateOfBirth: '1995-08-15',
-      gender: 'Male',
-      address: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. HCM',
-      bloodType: 'O+',
-    },
-    doctorProfile: null,
-    labProfile: null,
-  },
-];
-
-// Danh sách phòng lab mẫu
-const MOCK_LAB_ROOMS = [
-  { id: 'LAB-201', name: 'Phòng Xét nghiệm Huyết học 201', roomCode: 'LAB-201' },
-  { id: 'LAB-202', name: 'Phòng Xét nghiệm Sinh hóa 202', roomCode: 'LAB-202' },
-  { id: 'LAB-203', name: 'Phòng Miễn dịch & Vi sinh 203', roomCode: 'LAB-203' },
-];
 
 export const normalizeUser = (item = {}) => {
   if (!item) return null;
 
   let finalRole = '';
-  const roleId = item.roleId || item.RoleId;
+  const roleId = Number(item.roleId || item.RoleId);
 
   if (roleId && ROLE_MAPPING[roleId]) {
     finalRole = ROLE_MAPPING[roleId];
@@ -156,7 +58,7 @@ export const normalizeUser = (item = {}) => {
     email: item.email || '',
     phone: item.phoneNumber || item.phone || '',
     role: finalRole,
-    roleId: roleId || (finalRole === 'admin' ? 1 : finalRole === 'doctor' ? 3 : finalRole === 'lab_user' ? 4 : finalRole === 'receptionist' ? 6 : 5),
+    roleId: roleId || (finalRole === 'admin' ? 1 : finalRole === 'doctor' ? 2 : finalRole === 'lab_user' ? 3 : finalRole === 'manager' ? 4 : 9),
     isActive,
     status: isActive ? 'active' : 'inactive',
     createdAt: item.createdAt || null,
@@ -169,54 +71,58 @@ export const normalizeUser = (item = {}) => {
 
 export const userManagementService = {
   /**
-   * Lấy danh sách tất cả tài khoản người dùng / nhân viên (UC14)
+   * Retrieves all user and employee accounts directly from database (UC14).
+   *
+   * @param {object} [options] - Pagination and role filtering options.
+   * @param {number|string} [options.roleId] - Optional role ID filter.
+   * @param {object} [options.params] - Additional query parameters.
+   * @returns {Promise<{ success: boolean, data: object[] }>} Normalized user list.
    */
   getAllUsers: async (options = {}) => {
     try {
       const response = await api.get('/v1/users', {
-        params: { page: 1, pageSize: 50, ...options.params },
-      }).catch(() => api.get('/users', { params: options.params }));
+        params: { page: 1, pageSize: 100, roleId: options.roleId, ...options.params },
+      });
 
       let data = Array.isArray(response.data)
         ? response.data
         : (response.data?.data || response.data?.items || []);
 
-      if (data.length > 0) {
-        return {
-          success: true,
-          data: data.map(normalizeUser).filter(Boolean),
-        };
-      }
+      return {
+        success: true,
+        data: data.map(normalizeUser).filter(Boolean),
+      };
     } catch (err) {
-      console.warn('[UserManagementService] Backend not responding, utilizing local seeded dataset.');
+      console.error('[UserManagementService] Failed to load accounts from database:', err.message);
+      return {
+        success: false,
+        data: [],
+        message: err.response?.data?.message || err.message || 'Không thể kết nối máy chủ cơ sở dữ liệu.'
+      };
     }
-
-    // Fallback Mock Data đảm bảo UX không bao giờ crash
-    let resultData = [...MOCK_USERS];
-    if (options.roleId) {
-      resultData = resultData.filter(u => u.roleId === Number(options.roleId));
-    }
-    return {
-      success: true,
-      data: resultData.map(normalizeUser),
-    };
   },
 
   /**
-   * Lấy chi tiết tài khoản theo ID
+   * Retrieves account details by unique identifier from database.
+   *
+   * @param {string} id - The user ID.
+   * @returns {Promise<object|null>} The normalized user account object.
    */
   getUserById: async (id) => {
     try {
-      const response = await api.get(`/v1/users/${id}`).catch(() => api.get(`/users/${id}`));
+      const response = await api.get(`/v1/users/${id}`);
       return normalizeUser(response.data?.data || response.data);
     } catch (error) {
-      const found = MOCK_USERS.find(u => u.id === id);
-      return found ? normalizeUser(found) : null;
+      console.error('[UserManagementService] Failed to retrieve user by ID:', error.message);
+      return null;
     }
   },
 
   /**
-   * Tạo tài khoản nhân viên / người dùng mới (UC14)
+   * Creates a new employee or user account in MongoDB (UC14).
+   *
+   * @param {object} userData - Account payload including username, password, email, role.
+   * @returns {Promise<{ success: boolean, data?: object, message: string }>} Result message.
    */
   createUser: async (userData) => {
     const payload = {
@@ -225,28 +131,24 @@ export const userManagementService = {
       email: userData.email,
       phoneNumber: userData.phone || userData.phoneNumber,
       fullName: userData.fullName,
-      roleId: Number(userData.roleId) || 5,
-      status: userData.isActive ? 1 : 0,
+      roleId: Number(userData.roleId) || 9,
+      isActive: Boolean(userData.isActive),
     };
 
-    try {
-      const response = await api.post('/v1/users', payload).catch(() => api.post('/auth/register', payload));
-      return { success: true, data: response.data, message: 'Tạo tài khoản thành công.' };
-    } catch (err) {
-      // Mock creation for UI demo resilience
-      const newMock = {
-        id: `mock-${Date.now()}`,
-        ...userData,
-        status: userData.isActive ? 'active' : 'inactive',
-        createdAt: new Date().toISOString(),
-      };
-      MOCK_USERS.unshift(newMock);
-      return { success: true, data: newMock, message: 'Đã tạo tài khoản thành công (Offline Demo).' };
-    }
+    const response = await api.post('/v1/users', payload);
+    return {
+      success: true,
+      data: response.data?.data || response.data,
+      message: response.data?.message || 'Tài khoản người dùng đã được tạo thành công trên hệ thống.'
+    };
   },
 
   /**
-   * Cập nhật thông tin tài khoản (UC14, UC09)
+   * Updates an existing user account's demographic and role metadata in MongoDB (UC14, UC09).
+   *
+   * @param {string} id - Target user ID.
+   * @param {object} userData - Updated user fields.
+   * @returns {Promise<{ success: boolean, data?: object, message: string }>} Operation result.
    */
   updateUser: async (id, userData) => {
     const payload = {
@@ -255,69 +157,67 @@ export const userManagementService = {
       phoneNumber: userData.phone || userData.phoneNumber,
       fullName: userData.fullName,
       roleId: Number(userData.roleId),
-      status: userData.isActive ? 1 : 0,
-      ...(userData.password ? { password: userData.password } : {}),
+      isActive: userData.isActive !== undefined ? Boolean(userData.isActive) : undefined,
     };
 
-    try {
-      const response = await api.put(`/v1/users/${id}`, payload).catch(() => api.put(`/users/${id}`, payload));
-      return { success: true, data: response.data, message: 'Cập nhật tài khoản thành công.' };
-    } catch (err) {
-      const idx = MOCK_USERS.findIndex(u => u.id === id);
-      if (idx !== -1) {
-        MOCK_USERS[idx] = { ...MOCK_USERS[idx], ...userData };
-      }
-      return { success: true, message: 'Đã cập nhật tài khoản thành công (Offline Demo).' };
-    }
+    const response = await api.put(`/v1/users/${id}`, payload);
+    return {
+      success: true,
+      data: response.data,
+      message: response.data?.message || 'Thông tin tài khoản đã được cập nhật thành công.'
+    };
   },
 
   /**
-   * Xóa tài khoản (UC14)
+   * Deactivates or permanently removes a user account in MongoDB (UC14).
+   *
+   * @param {string} id - The user ID to delete.
+   * @returns {Promise<{ success: boolean, message: string }>} Operation result.
    */
   deleteUser: async (id) => {
-    try {
-      await api.delete(`/v1/users/${id}`).catch(() => api.delete(`/users/${id}`));
-      return { success: true, message: 'Đã xóa tài khoản thành công.' };
-    } catch (err) {
-      const idx = MOCK_USERS.findIndex(u => u.id === id);
-      if (idx !== -1) MOCK_USERS.splice(idx, 1);
-      return { success: true, message: 'Đã xóa tài khoản thành công (Offline Demo).' };
-    }
+    const response = await api.delete(`/v1/users/${id}`);
+    return {
+      success: true,
+      message: response.data?.message || 'Tài khoản đã được xoá an toàn khỏi cơ sở dữ liệu.'
+    };
   },
 
   /**
-   * Khóa hoặc Mở khóa tài khoản người dùng (UC14)
+   * Toggles user account active/locked status in MongoDB (BR-IAM-03 / UC14).
+   *
+   * @param {object} user - Target user object containing id.
+   * @param {boolean} isActive - New activation state.
+   * @returns {Promise<{ success: boolean, data?: object, message?: string }>} Operation result.
    */
   toggleUserStatus: async (user, isActive) => {
-    try {
-      const response = await api.patch(`/v1/users/${user.id}/status`, { isActive })
-        .catch(() => api.put(`/v1/users/${user.id}`, { status: isActive ? 1 : 0 }));
-      return { success: true, data: response.data };
-    } catch (err) {
-      const found = MOCK_USERS.find(u => u.id === user.id);
-      if (found) {
-        found.isActive = isActive;
-        found.status = isActive ? 'active' : 'inactive';
-      }
-      return { success: true, message: `Tài khoản đã được ${isActive ? 'kích hoạt' : 'tạm khóa'}.` };
-    }
+    const response = await api.patch(`/v1/users/${user.id}/status`, { isActive });
+    return {
+      success: true,
+      data: response.data,
+      message: response.data?.message || `Tài khoản đã được ${isActive ? 'kích hoạt' : 'khóa'} thành công.`
+    };
   },
 
   /**
-   * Đổi mật khẩu tài khoản bất kỳ (dành cho Admin / UC07)
+   * Administrative password reset for any system account (UC07 / UC14).
+   *
+   * @param {string} id - Target user ID.
+   * @param {string} newPassword - New plaintext password conforming to policy.
+   * @returns {Promise<{ success: boolean, data?: object, message: string }>} Operation result.
    */
-  changePassword: async (id, newPassword, currentUserData = {}) => {
-    try {
-      const response = await api.post(`/v1/users/${id}/change-password`, { newPassword })
-        .catch(() => api.put(`/v1/users/${id}`, { password: newPassword }));
-      return { success: true, data: response.data, message: 'Đổi mật khẩu thành công.' };
-    } catch (err) {
-      return { success: true, message: 'Mật khẩu đã được cập nhật thành công (Offline Demo).' };
-    }
+  changePassword: async (id, newPassword) => {
+    const response = await api.post(`/v1/users/${id}/reset-password`, { newPassword });
+    return {
+      success: true,
+      data: response.data,
+      message: response.data?.message || 'Mật khẩu tài khoản đã được thiết lập lại thành công.'
+    };
   },
 
   /**
-   * Lấy số liệu thống kê nhân sự theo vai trò
+   * Computes human resources headcount metrics grouped by role from live database accounts.
+   *
+   * @returns {Promise<{ success: boolean, data: object }>} Aggregated staff counts.
    */
   getUserStats: async () => {
     const usersResult = await userManagementService.getAllUsers();
@@ -326,30 +226,30 @@ export const userManagementService = {
     return {
       success: true,
       data: {
-        total: users.length,
-        active: users.filter(u => u.isActive).length,
-        inactive: users.filter(u => !u.isActive).length,
-        byRole: {
-          admin: users.filter(u => u.role === 'admin' || u.roleId === 1).length,
-          manager: users.filter(u => u.role === 'manager' || u.roleId === 2).length,
-          doctor: users.filter(u => u.role === 'doctor' || u.roleId === 3).length,
-          lab_user: users.filter(u => u.role === 'lab_user' || u.roleId === 4).length,
-          patient: users.filter(u => u.role === 'patient' || u.roleId === 5).length,
-          receptionist: users.filter(u => u.role === 'receptionist' || u.roleId === 6).length,
-        },
+        totalEmployees: users.filter(u => u.role !== 'patient').length,
+        doctors: users.filter(u => u.role === 'doctor').length,
+        labTechs: users.filter(u => u.role === 'lab_user').length,
+        receptionists: users.filter(u => u.role === 'receptionist').length,
+        managers: users.filter(u => u.role === 'manager' || u.role === 'admin').length,
+        patients: users.filter(u => u.role === 'patient').length,
+        activeAccounts: users.filter(u => u.isActive).length,
       },
     };
   },
 
   /**
-   * Lấy danh sách phòng xét nghiệm để gán cho nhân viên Lab
+   * Retrieves operational clinical laboratory rooms.
    */
-  getAllLabRooms: async () => {
+  getLabRooms: async () => {
     try {
-      const res = await api.get('/v1/lab-rooms').catch(() => api.get('/lab-rooms'));
-      if (res.data?.data) return res.data.data;
-    } catch {}
-    return MOCK_LAB_ROOMS;
+      const res = await api.get('/laboratory/rooms');
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        return res.data.data;
+      }
+    } catch (err) {
+      console.error('[userManagementService] Failed to load lab rooms from database:', err);
+    }
+    return [];
   },
 };
 

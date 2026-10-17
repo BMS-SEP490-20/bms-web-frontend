@@ -1,4 +1,12 @@
 
+/**
+ * @file ServicePackagesPage.jsx
+ * @description Master clinical service package management dashboard (UC15 - Hứa Khánh Duy / Võ Gia Huy).
+ * Enables clinical administrators to view, search, compose, update, and soft-delete test bundles and packages.
+ * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * @module features/admin/pages/ServicePackagesPage
+ */
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     getPackages,
@@ -12,6 +20,12 @@ import PackageFormModal, {
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
 import "../admin.css";
 
+/**
+ * Normalizes array payloads from diverse backend wrapper envelope formats.
+ *
+ * @param {any} response - Raw API response data.
+ * @returns {any[]} Guaranteed JavaScript array.
+ */
 function normalizeArray(response) {
     if (Array.isArray(response)) return response;
     if (Array.isArray(response?.items)) return response.items;
@@ -21,7 +35,12 @@ function normalizeArray(response) {
     return [];
 }
 
-// Chuẩn hóa dữ liệu API về một cấu trúc thống nhất cho FE.
+/**
+ * Normalizes package entity properties to uniform frontend field naming.
+ *
+ * @param {object} pkg - Raw package entity from API.
+ * @returns {object} Clean package model for rendering.
+ */
 function normalizePackage(pkg) {
     return {
         ...pkg,
@@ -60,6 +79,13 @@ function formatMoney(value) {
     return Number(value).toLocaleString("vi-VN") + " đ";
 }
 
+/**
+ * Service Packages administration page component.
+ *
+ * @param {object} props - Component properties.
+ * @param {Function} [props.onBack] - Callback when clicking return button.
+ * @returns {JSX.Element} Rendered service packages dashboard.
+ */
 export default function ServicePackagesPage({ onBack }) {
     const [packages, setPackages] = useState([]);
     const [criteria, setCriteria] = useState([]);
@@ -228,13 +254,13 @@ export default function ServicePackagesPage({ onBack }) {
                         </button>
                     )}
 
-                    <h1>Service packages</h1>
+                    <h1>Quản Lý Gói Dịch Vụ Xét Nghiệm</h1>
                     <div className="adm-sub">
                         {packages.filter((p) => !p.isDeleted).length} gói dịch vụ
                         {" · "}
                         {activePackages} đang hoạt động
                         {deletedPackages > 0 &&
-                            ` · ${deletedPackages} đã xóa`}
+                            ` · ${deletedPackages} đã lưu trữ`}
                     </div>
                 </div>
 
@@ -281,15 +307,26 @@ export default function ServicePackagesPage({ onBack }) {
                 </div>
 
                 {error && (
-                    <div className="adm-error" style={{ margin: 16 }}>
-                        {error}{" "}
-                        <button
-                            type="button"
-                            className="adm-link"
-                            onClick={load}
-                        >
-                            Thử lại
-                        </button>
+                    <div className="adm-error d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ margin: 16 }}>
+                        <div>
+                            {error.includes("401") || error.includes("Unauthorized")
+                                ? "Phiên làm việc hết hạn hoặc chưa được xác thực (Mã lỗi 401). Vui lòng đăng nhập lại tài khoản Quản trị viên để tiếp tục."
+                                : error}
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                            {(error.includes("401") || error.includes("Unauthorized")) && (
+                                <a href="/login" className="btn btn-sm btn-primary py-1 px-3 text-white text-decoration-none" style={{ borderRadius: 6, fontSize: '12px' }}>
+                                    Đăng nhập lại
+                                </a>
+                            )}
+                            <button
+                                type="button"
+                                className="adm-link"
+                                onClick={load}
+                            >
+                                Thử lại
+                            </button>
+                        </div>
                     </div>
                 )}
 

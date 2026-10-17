@@ -1,243 +1,1153 @@
+/* ==========================================================================
+   BMS Clinical Design System - Patient Landing Page (Non-AI Human-Centered)
+   Standard: Clinical Hospital Information System (HIS / LIS)
+   Primary Color: Medical Blue (#1E40AF), Slate (#F8FAFC), Sterile White (#FFFFFF)
+   ========================================================================== */
 
-.bms-home {
+.bms-landing-wrapper {
     min-height: 100vh;
-    color: #172b4d;
-    background:
-            radial-gradient(ellipse at 80% 15%, rgba(198, 40, 40, 0.06), transparent 36%),
-            #f7f9fc;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1e293b;
+    background-color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
-.bms-home-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    min-height: 82px;
-    padding: 16px clamp(22px, 6vw, 90px);
-    border-bottom: 1px solid #e8edf3;
-    background: rgba(255, 255, 255, 0.92);
-}
-
-.bms-home-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.bms-home-logo {
-    display: inline-flex;
-    flex: 0 0 43px;
-    align-items: center;
-    justify-content: center;
-    width: 43px;
-    height: 43px;
-    border-radius: 10px;
-    color: white;
-    background: #c62828;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.bms-home-brand strong,
-.bms-home-brand small {
-    display: block;
-}
-
-.bms-home-brand strong {
-    font-size: 15px;
-}
-
-.bms-home-brand small {
-    margin-top: 4px;
-    color: #75839a;
-    font-size: 10px;
-}
-
-.bms-home-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    min-height: 42px;
-    padding: 0 20px;
-    border: 1px solid #dbe3ef;
-    border-radius: 9px;
-    color: #334155;
-    background: #fff;
+/* Top Announcement & Emergency Contact Bar */
+.bms-topbar {
+    background-color: #0f172a;
+    color: #cbd5e1;
     font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    padding: 8px 0;
+    border-bottom: 1px solid #1e293b;
 }
 
-.bms-home-button:hover {
-    border-color: #c62828;
-    color: #c62828;
-}
-
-.bms-home-button-primary {
-    min-height: 48px;
-    border-color: #c62828;
-    color: white;
-    background: #c62828;
-}
-
-.bms-home-button-primary:hover {
-    border-color: #a91f26;
-    color: white;
-    background: #a91f26;
-}
-
-.bms-home-hero {
-    width: min(1120px, calc(100% - 48px));
+.bms-topbar-container {
+    width: min(1200px, calc(100% - 32px));
     margin: 0 auto;
-    padding: clamp(60px, 10vh, 105px) 0 70px;
-}
-
-.bms-home-tag {
-    color: #c62828;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.bms-home-hero > h1 {
-    margin: 22px 0 18px;
-    color: #102b49;
-    font-size: clamp(36px, 5.3vw, 64px);
-    font-weight: 750;
-    letter-spacing: -2.5px;
-    line-height: 1.12;
-}
-
-.bms-home-hero > h1 span {
-    color: #c62828;
-}
-
-.bms-home-hero > p {
-    max-width: 620px;
-    margin: 0;
-    color: #66758b;
-    font-size: 14px;
-    line-height: 1.9;
-}
-
-.bms-home-actions {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 30px;
+    gap: 12px;
 }
 
-.bms-home-caption {
-    color: #8290a3;
+.bms-topbar-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.bms-topbar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bms-topbar-item svg {
+    color: #38bdf8;
+}
+
+.bms-topbar-badge {
+    background-color: #1e3a8a;
+    color: #93c5fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
     font-size: 11px;
 }
 
-.bms-home-cards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 75px;
+/* Main Navigation Header */
+.bms-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
-.bms-home-cards article {
-    padding: 25px;
-    border: 1px solid #e4eaf2;
-    border-radius: 13px;
-    background: white;
-    box-shadow: 0 5px 18px rgba(15, 39, 67, 0.025);
+.bms-navbar-container {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-.bms-home-card-icon {
+.bms-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.bms-brand-logo {
+    width: 48px;
+    height: 48px;
+    background: #ffffff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.bms-brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.bms-brand-text h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.bms-brand-text p {
+    margin: 0;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.bms-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bms-nav-link {
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.bms-nav-link:hover {
+    color: #1e40af;
+}
+
+.bms-nav-btn {
+    background: transparent;
+    border: none;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    outline: none;
+}
+
+.bms-nav-btn:hover {
+    color: #1e40af;
+    background-color: #eff6ff;
+}
+
+.bms-nav-btn:focus,
+.bms-nav-btn.active {
+    color: #1e40af;
+    background-color: #dbeafe;
+}
+
+.bms-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bms-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 39px;
-    height: 39px;
-    border-radius: 10px;
-    color: #c62828;
-    background: #fff0f0;
-    font-size: 21px;
+    gap: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
 }
 
-.bms-home-cards h2 {
-    margin: 18px 0 8px;
-    font-size: 14px;
-    font-weight: 700;
+.bms-btn-outline {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    color: #334155;
 }
 
-.bms-home-cards p {
-    margin: 0;
-    color: #748197;
+.bms-btn-outline:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.bms-btn-primary {
+    background-color: #1e40af;
+    color: #ffffff;
+    border-color: #1e40af;
+}
+
+.bms-btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+/* Hero Section */
+.bms-hero-section {
+    padding: 48px 0 60px;
+    background: linear-gradient(180deg, #f0f7ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.bms-hero-container {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.bms-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    border-radius: 20px;
     font-size: 12px;
-    line-height: 1.8;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.bms-home-footer {
+.bms-hero-title {
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    letter-spacing: -0.8px;
+}
+
+.bms-hero-title span {
+    color: #1e40af;
+}
+
+.bms-hero-desc {
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+/* Hero Search Bar */
+.bms-search-bar {
+    display: flex;
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    margin-bottom: 28px;
+    transition: border-color 0.2s;
+}
+
+.bms-search-bar:focus-within {
+    border-color: #1e40af;
+}
+
+.bms-search-icon {
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    color: #64748b;
+    font-size: 16px;
+}
+
+.bms-search-input {
+    flex: 1;
+    border: none;
+    padding: 14px 12px;
+    font-size: 14px;
+    outline: none;
+    color: #0f172a;
+}
+
+.bms-search-btn {
+    background-color: #1e40af;
+    color: #ffffff;
+    border: none;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.bms-search-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Trust Metric Counter Pills */
+.bms-hero-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.bms-metric-item h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e40af;
+    font-variant-numeric: tabular-nums;
+}
+
+.bms-metric-item p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Hero Right Utility Card */
+.bms-utility-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+}
+
+.bms-utility-header {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+}
+
+.bms-utility-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bms-utility-header p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.bms-form-group {
+    margin-bottom: 16px;
+}
+
+.bms-form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.bms-form-control {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.bms-form-control:focus {
+    border-color: #1e40af;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.bms-utility-alert {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Clinical Workflow Section (4 Steps) */
+.bms-section {
+    padding: 64px 0;
+}
+
+.bms-section-alt {
+    background-color: #f1f5f9;
+}
+
+.bms-container {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+}
+
+.bms-section-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 48px;
+}
+
+.bms-section-subtitle {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #0284c7;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.bms-section-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+    margin: 0 0 12px;
+}
+
+.bms-section-desc {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.bms-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.bms-step-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.bms-step-number {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #e2e8f0;
+    font-variant-numeric: tabular-nums;
+}
+
+.bms-step-icon {
+    width: 44px;
+    height: 44px;
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 16px;
+}
+
+.bms-step-card h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.bms-step-card p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Service Packages Catalog (UC01 Grid) */
+.bms-packages-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.bms-package-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.bms-package-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.08);
+}
+
+.bms-package-card.featured {
+    border-color: #0284c7;
+    position: relative;
+}
+
+.bms-package-ribbon {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.bms-package-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.bms-package-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.bms-package-summary {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0 0 16px;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.bms-package-meta {
+    background-color: #f8fafc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+}
+
+.bms-meta-row {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
-    padding: 22px clamp(22px, 6vw, 90px);
-    border-top: 1px solid #e8edf3;
-    color: #8b98a9;
-    background: white;
-    font-size: 10px;
+    font-size: 11px;
+    padding: 2px 0;
 }
 
-.bms-home-card {
-    width: min(440px, calc(100% - 32px));
-    margin: 80px auto;
-    padding: 32px;
-    border: 1px solid #e4eaf2;
-    border-radius: 14px;
-    background: white;
+.bms-meta-label {
+    color: #64748b;
 }
 
-.bms-home-card h1 {
-    margin-bottom: 12px;
-    font-size: 24px;
+.bms-meta-val {
+    font-weight: 600;
+    color: #334155;
 }
 
-.bms-home-card p {
-    margin-bottom: 24px;
-    color: #718096;
+.bms-package-price {
+    margin-bottom: 16px;
+}
+
+.bms-price-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e40af;
+    font-variant-numeric: tabular-nums;
+}
+
+.bms-price-unit {
+    font-size: 12px;
+    color: #64748b;
+    margin-left: 4px;
+}
+
+/* Quality & Accreditation Section */
+.bms-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.bms-trust-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+}
+
+.bms-trust-icon {
+    width: 48px;
+    height: 48px;
+    background-color: #ecfdf5;
+    color: #059669;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.bms-trust-text h4 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.bms-trust-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Footer Section */
+.bms-footer {
+    background-color: #0f172a;
+    color: #94a3b8;
+    padding: 48px 0 24px;
     font-size: 13px;
-    line-height: 1.8;
 }
 
-@media (max-width: 650px) {
-    .bms-home-header {
-        min-height: 72px;
-        padding: 12px 18px;
-    }
+.bms-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 40px;
+}
 
-    .bms-home-brand small {
-        max-width: 180px;
-        line-height: 1.5;
-    }
+.bms-footer-col h4 {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    letter-spacing: -0.2px;
+}
 
-    .bms-home-hero {
-        width: calc(100% - 36px);
-        padding: 65px 0 45px;
-    }
+.bms-footer-col p {
+    margin: 0 0 12px;
+    line-height: 1.6;
+}
 
-    .bms-home-hero > h1 {
-        font-size: 39px;
-        letter-spacing: -1.5px;
-    }
+.bms-footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
 
-    .bms-home-cards {
+.bms-footer-links li {
+    margin-bottom: 8px;
+}
+
+.bms-footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.bms-footer-links a:hover {
+    color: #ffffff;
+}
+
+.bms-footer-bottom {
+    border-top: 1px solid #1e293b;
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .bms-hero-container {
         grid-template-columns: 1fr;
-        gap: 12px;
-        margin-top: 45px;
+        gap: 32px;
     }
+    .bms-steps-grid,
+    .bms-packages-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .bms-trust-grid {
+        grid-template-columns: 1fr;
+    }
+    .bms-footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
-    .bms-home-footer {
-        flex-direction: column;
-        gap: 8px;
-        padding: 20px 18px;
+@media (max-width: 640px) {
+    .bms-nav-links {
+        display: none;
     }
+    .bms-steps-grid,
+    .bms-packages-grid {
+        grid-template-columns: 1fr;
+    }
+    .bms-hero-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .bms-footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   BMS Management Portal Layout Shell (Unified Medical Standard)
+   ========================================================================== */
+
+.bms-sidebar {
+    background-color: #0f172a;
+    color: #f8fafc;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    user-select: none;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.bms-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.bms-sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+.bms-sidebar-brand {
+    padding: 16px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    background-color: #090e17;
+}
+
+.bms-brand-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.bms-brand-icon-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.bms-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.bms-brand-text span:first-child {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.bms-brand-subtext {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.bms-sidebar-role-indicator {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #162032;
+    border-bottom: 1px solid #1e293b;
+    font-size: 11px;
+}
+
+.bms-role-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+
+.bms-role-tag.admin { background: #581c87; color: #e9d5ff; }
+.bms-role-tag.manager { background: #3730a3; color: #c7d2fe; }
+.bms-role-tag.doctor { background: #1e40af; color: #bfdbfe; }
+.bms-role-tag.labhead { background: #155e75; color: #a5f3fc; }
+.bms-role-tag.labtech { background: #0f766e; color: #99f6e4; }
+.bms-role-tag.receptionist { background: #9a3412; color: #fed7aa; }
+.bms-role-tag.cashier { background: #065f46; color: #a7f3d0; }
+.bms-role-tag.patient { background: #334155; color: #e2e8f0; }
+
+.bms-sidebar-menu {
+    padding: 12px 8px;
+    gap: 4px;
+}
+
+.bms-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: #94a3b8 !important;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.bms-sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #ffffff !important;
+}
+
+.bms-sidebar-link.active {
+    background-color: #1e40af !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.4);
+}
+
+.bms-link-icon {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bms-menu-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+}
+
+.bms-sidebar.collapsed .bms-sidebar-link {
+    justify-content: center;
+    padding: 12px;
+}
+
+.bms-sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #1e293b;
+    background-color: #090e17;
+}
+
+.bms-collapse-btn {
+    border: 1px solid #334155;
+    background: transparent;
+    color: #94a3b8;
+    width: 100%;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.bms-collapse-btn:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+/* Header & Breadcrumb Styling */
+.bms-header {
+    height: 64px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.bms-header-title {
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.bms-header-breadcrumb {
+    font-size: 11px;
+}
+
+.bms-user-profile-btn {
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.bms-user-profile-btn:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+/* Medical Role Badges */
+.badge-admin { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+.badge-manager { background-color: #e0e7ff; color: #4338ca; border: 1px solid #a5b4fc; }
+.badge-doctor { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.badge-labhead { background-color: #cffafe; color: #0e7490; border: 1px solid #67e8f9; }
+.badge-labtech { background-color: #ccfbf1; color: #0f766e; border: 1px solid #5eead4; }
+.badge-receptionist { background-color: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+.badge-cashier { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.badge-patient { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+.bms-role-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+}
+
+/* Patient & User Header Styles */
+.bms-nav-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bms-nav-btn:hover {
+    color: #1e40af;
+}
+
+.bms-user-nav-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bms-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.bms-user-pill:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.bms-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.bms-user-meta {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.1;
+}
+
+.bms-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bms-user-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #2563eb;
+    text-transform: uppercase;
+}
+
+.bms-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.bms-btn-danger-outline {
+    background-color: transparent;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+.bms-btn-danger-outline:hover {
+    background-color: #fee2e2;
+    border-color: #f87171;
+    color: #b91c1c;
+}
+
+/* Modal overlay and card styling */
+.bms-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.bms-modal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    width: min(880px, 100%);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    animation: bmsModalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bmsModalFadeIn {
+    from { opacity: 0; transform: scale(0.97) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.bms-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.bms-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.bms-modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #64748b;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+
+.bms-modal-close:hover {
+    color: #0f172a;
+    background: #e2e8f0;
+}
+
+.bms-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.bms-modal-card-sm {
+    width: min(480px, 100%) !important;
+}
+
+.bms-modal-card-md {
+    width: min(650px, 100%) !important;
+}
+
+.bms-package-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.bms-package-actions .bms-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 13px;
 }

@@ -1,101 +1,135 @@
-import React from 'react';
-import { Navbar, Container, Nav, Dropdown } from 'react-bootstrap';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+/**
+ * @file MainLayout.jsx
+ * @description Primary authenticated application layout with global collapsible Sidebar, AppHeader and Footer.
+ * Unifies all clinical and administration modules in Iteration 1 into a consistent Hospital Management Shell.
+ * Conforms to: Production Medical Standards & AGENTS-DESIGN.md.
+ */
 
-const MainLayout = () => {
-  const navigate = useNavigate();
+import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../components/layout/Sidebar';
+import AppHeader from '../components/layout/AppHeader';
 
-  const handleLogout = () => {
-    localStorage.removeItem('bms_token');
-    localStorage.removeItem('bms_user');
-    navigate('/login');
+/**
+ * Main application layout enclosing authenticated screens with responsive navigation.
+ *
+ * @returns {JSX.Element} The rendered main layout.
+ */
+export default function MainLayout() {
+  // Mobile drawer state
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
+
+  // Desktop sidebar collapsed state (persisted in localStorage)
+  const [desktopCollapsed, setDesktopCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bms_sidebar_collapsed');
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  // Track window resize for responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 992;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setMobileSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Save desktop collapsed state
+  useEffect(() => {
+    try {
+      localStorage.setItem('bms_sidebar_collapsed', JSON.stringify(desktopCollapsed));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [desktopCollapsed]);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setMobileSidebarOpen(!mobileSidebarOpen);
+    } else {
+      setDesktopCollapsed(!desktopCollapsed);
+    }
   };
 
+  const closeMobileSidebar = () => {
+    setMobileSidebarOpen(false);
+  };
+
+  const sidebarWidth = desktopCollapsed ? '80px' : '260px';
+
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Navbar bg="white" expand="lg" className="border-bottom shadow-sm sticky-top py-2">
-        <Container fluid className="px-4">
-          <Navbar.Brand as={Link} to="/" className="fw-bold text-primary d-flex align-items-center">
-            <i className="bi bi-droplet-fill me-2 fs-4 text-danger"></i>
-            <span>BMS Laboratory</span>
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="main-navbar-nav" />
-          <Navbar.Collapse id="main-navbar-nav">
-            <Nav className="me-auto ms-3 gap-2">
-              <Nav.Link as={Link} to="/services" className="fw-semibold">
-                <i className="bi bi-collection me-1"></i>Dịch Vụ (UC01)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/dashboard" className="fw-semibold">
-                <i className="bi bi-speedometer2 me-1"></i>Dashboard (UC12)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/lab/queue" className="fw-semibold">
-                <i className="bi bi-inbox me-1"></i>Hàng Đợi Lab (UC17)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/profile" className="fw-semibold">
-                <i className="bi bi-person me-1"></i>Hồ Sơ (UC08)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/roles" className="fw-semibold">
-                <i className="bi bi-shield-lock me-1"></i>Vai Trò (UC13)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/criteria" className="fw-semibold">
-                <i className="bi bi-card-checklist me-1"></i>Tiêu Chí (UC18)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/schedule" className="fw-semibold">
-                <i className="bi bi-calendar3 me-1"></i>Lịch Trực (UC16)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/register" className="fw-semibold">
-                <i className="bi bi-person-plus me-1"></i>Đăng Ký (UC02)
-              </Nav.Link>
-              <Nav.Link as={Link} to="/change-password" className="fw-semibold">
-                <i className="bi bi-key me-1"></i>Đổi Mật Khẩu (UC07)
-              </Nav.Link>
-            </Nav>
-            <Nav className="align-items-center gap-3">
-              <Dropdown align="end">
-                <Dropdown.Toggle variant="light" id="user-dropdown" className="border-0 d-flex align-items-center gap-2">
-                  <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
-                    <i className="bi bi-person-fill"></i>
-                  </div>
-                  <span className="fw-semibold small">Võ Gia Huy</span>
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="shadow border-0 rounded-3">
-                  <Dropdown.Item as={Link} to="/services">
-                    <i className="bi bi-collection me-2"></i>Danh mục dịch vụ (UC01)
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/profile">
-                    <i className="bi bi-person me-2"></i>Hồ sơ cá nhân (UC08)
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/roles">
-                    <i className="bi bi-shield-lock me-2"></i>Quản lý vai trò (UC13)
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/criteria">
-                    <i className="bi bi-card-checklist me-2"></i>Quản lý tiêu chí (UC18)
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/change-password">
-                    <i className="bi bi-key me-2"></i>Đổi mật khẩu (UC07)
-                  </Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item onClick={handleLogout} className="text-danger">
-                    <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+    <div className="bms-app-layout min-vh-100 d-flex flex-column bg-light" style={{ overflowX: 'hidden' }}>
+      {/* Mobile Backdrop Overlay */}
+      {isMobile && mobileSidebarOpen && (
+        <div
+          className="bms-mobile-overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
+          style={{ zIndex: 1040 }}
+          onClick={closeMobileSidebar}
+          aria-hidden="true"
+        />
+      )}
 
-      <main className="flex-grow-1 bg-light">
-        <Outlet />
-      </main>
+      {/* Responsive Sidebar */}
+      <div
+        className={`bms-sidebar-container ${isMobile ? (mobileSidebarOpen ? 'd-block' : 'd-none') : 'd-block'}`}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          zIndex: isMobile ? 1050 : 1000,
+          width: isMobile ? '280px' : sidebarWidth,
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
+        <Sidebar
+          isCollapsed={isMobile ? false : desktopCollapsed}
+          onToggle={toggleSidebar}
+          isMobile={isMobile}
+          onCloseMobile={closeMobileSidebar}
+        />
+      </div>
 
-      <footer className="bg-white border-top py-3 text-center text-muted small">
-        <Container>
-          &copy; {new Date().getFullYear()} BMS - Blood Laboratory Management System. Graduation Capstone SEP490.
-        </Container>
-      </footer>
+      {/* Main Layout Area: Header + Content + Footer */}
+      <div
+        className="bms-main-content-wrapper d-flex flex-column flex-grow-1"
+        style={{
+          marginLeft: isMobile ? '0' : sidebarWidth,
+          transition: 'margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          minHeight: '100vh'
+        }}
+      >
+        {/* Unified Application Header */}
+        <AppHeader onToggleSidebar={toggleSidebar} />
+
+        {/* Dynamic Page Content Outlet */}
+        <main className="bms-page-content flex-grow-1 p-3 p-md-4">
+          <Outlet />
+        </main>
+
+        {/* Professional Clinical Footer */}
+        <footer className="bms-main-footer bg-white border-top py-3 px-4 text-muted small">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div>
+              &copy; {new Date().getFullYear()} <strong>BMS Healthcare Laboratory</strong> — Hệ Thống Quản Lý Phòng Xét Nghiệm Máu Tiêu Chuẩn Quốc Tế ISO 15189:2022.
+            </div>
+            <div className="d-flex align-items-center gap-3">
+              <span>Hotline Kỹ Thuật: <strong>1900 6868</strong></span>
+              <span className="text-secondary">•</span>
+              <span className="badge bg-success-subtle text-success">Phiên Bản 1.0 Production</span>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
-};
-
-export default MainLayout;
+}

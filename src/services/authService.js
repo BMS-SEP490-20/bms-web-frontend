@@ -29,13 +29,11 @@ export const sendOtp = async ({ destination, channel = 'Email', purpose = 'Passw
       cooldownSeconds: response.data?.cooldownSeconds || 60,
     };
   } catch (error) {
-    // If backend is unreachable, gracefully fallback to mock mode for offline dev/testing
     if (!error.response) {
-      console.warn('[authService] Backend offline, falling back to mock OTP mode for local testing.');
       return {
-        isSuccess: true,
-        message: `[MOCK MODE] Demo OTP (123456) dispatched to ${destination}.`,
-        cooldownSeconds: 60,
+        isSuccess: false,
+        message: 'Không thể kết nối đến máy chủ xác thực BMS. Vui lòng kiểm tra kết nối mạng.',
+        statusCode: 503,
       };
     }
 
@@ -87,21 +85,14 @@ export const verifyOtp = async ({ destination, otp, purpose = 'PasswordReset' })
     return {
       isSuccess: true,
       message: response.data?.message || 'OTP verification successful.',
-      verificationToken: response.data?.verificationToken || 'mock-verification-token',
+      verificationToken: response.data?.verificationToken || response.data?.data?.verificationToken,
     };
   } catch (error) {
-    // Offline development fallback: accept demo OTP "123456"
     if (!error.response) {
-      if (otp.trim() === '123456') {
-        return {
-          isSuccess: true,
-          message: '[MOCK MODE] OTP verified successfully!',
-          verificationToken: 'mock-verification-token-123456',
-        };
-      }
       return {
         isSuccess: false,
-        message: 'Invalid OTP code. (Hint for offline testing: 123456)',
+        message: 'Không thể kết nối đến máy chủ xác thực BMS. Vui lòng kiểm tra kết nối mạng.',
+        statusCode: 503,
       };
     }
 

@@ -91,29 +91,29 @@ export const UserProfilePage = () => {
 
               <div className="text-start small">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Status:</span>
+                  <span className="text-muted">Trạng thái tài khoản:</span>
                   <span className="text-success fw-semibold">
-                    <i className="bi bi-check-circle-fill me-1"></i>Active
+                    <i className="bi bi-check-circle-fill me-1"></i>Đang hoạt động
                   </span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Member Since:</span>
+                  <span className="text-muted">Ngày mở hồ sơ:</span>
                   <span className="text-dark fw-medium">{profile.createdAt}</span>
                 </div>
                 <div className="d-flex justify-content-between">
-                  <span className="text-muted">2FA Protection:</span>
+                  <span className="text-muted">Bảo mật 2 lớp:</span>
                   <span className="text-primary fw-semibold">
-                    <i className="bi bi-shield-lock-fill me-1"></i>Enabled (OTP)
+                    <i className="bi bi-shield-lock-fill me-1"></i>Đã kích hoạt (OTP)
                   </span>
                 </div>
               </div>
 
               <div className="d-grid gap-2 mt-4">
                 <Button variant="outline-primary" size="sm" onClick={fetchProfile}>
-                  <i className="bi bi-arrow-clockwise me-1"></i>Refresh Profile
+                  <i className="bi bi-arrow-clockwise me-1"></i>Làm Mới Hồ Sơ
                 </Button>
                 <Button variant="primary" size="sm" onClick={() => setIsDrawerOpen(true)}>
-                  <i className="bi bi-layout-sidebar-inset-reverse me-1"></i>Quick View Drawer
+                  <i className="bi bi-layout-sidebar-inset-reverse me-1"></i>Xem Nhanh Bệnh Án
                 </Button>
               </div>
             </div>
@@ -124,28 +124,28 @@ export const UserProfilePage = () => {
             <div className="bms-profile-card">
               <div className="bms-profile-card-header d-flex justify-content-between align-items-center">
                 <div>
-                  <h5 className="fw-bold m-0 text-white">Clinical Account Information</h5>
-                  <small className="text-white-50">Personal identity and medical records profile</small>
+                  <h5 className="fw-bold m-0 text-white">Hồ Sơ Sức Khỏe & Định Danh Cá Nhân</h5>
+                  <small className="text-white-50">Thông tin bảo mật và liên kết hồ sơ bệnh án điện tử BMS</small>
                 </div>
                 <Badge bg="light" text="dark" className="px-3 py-2 fw-semibold">
-                  <i className="bi bi-lock-fill me-1"></i>IDOR Protected
+                  <i className="bi bi-lock-fill me-1"></i>Bảo Mật Bệnh Án
                 </Badge>
               </div>
 
               <div className="p-4">
                 <Row className="g-3">
                   <Col md={6}>
-                    <div className="bms-field-label">Full Name</div>
+                    <div className="bms-field-label">Họ và tên bệnh nhân</div>
                     <div className="bms-field-value">{profile.fullName}</div>
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Citizen ID (CCCD/CMND)</div>
+                    <div className="bms-field-label">Số CCCD / Định danh (Đề án 06)</div>
                     <div className="bms-field-value">{profile.identityCardNumberMasked}</div>
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Date of Birth</div>
+                    <div className="bms-field-label">Ngày sinh</div>
                     <div className="bms-field-value">
                       <i className="bi bi-calendar-event me-2 text-muted"></i>
                       {profile.dateOfBirth}
@@ -153,12 +153,12 @@ export const UserProfilePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Gender</div>
+                    <div className="bms-field-label">Giới tính</div>
                     <div className="bms-field-value">{profile.gender}</div>
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Phone Number</div>
+                    <div className="bms-field-label">Số điện thoại liên hệ</div>
                     <div className="bms-field-value">
                       <i className="bi bi-telephone me-2 text-muted"></i>
                       {profile.phoneNumber}
@@ -166,7 +166,7 @@ export const UserProfilePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Email Address</div>
+                    <div className="bms-field-label">Địa chỉ Email nhận kết quả</div>
                     <div className="bms-field-value">
                       <i className="bi bi-envelope me-2 text-muted"></i>
                       {profile.email}
@@ -174,7 +174,7 @@ export const UserProfilePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">Blood Type</div>
+                    <div className="bms-field-label">Nhóm máu hệ ABO / Rh</div>
                     <div className="bms-field-value">
                       <span className="bms-blood-badge">
                         <i className="bi bi-droplet-fill me-1"></i>
@@ -184,12 +184,12 @@ export const UserProfilePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <div className="bms-field-label">System Role</div>
+                    <div className="bms-field-label">Vai trò trên hệ thống</div>
                     <div className="bms-field-value">{profile.role}</div>
                   </Col>
 
                   <Col xs={12}>
-                    <div className="bms-field-label">Registered Residential Address</div>
+                    <div className="bms-field-label">Địa chỉ thường trú đã đăng ký</div>
                     <div className="bms-field-value">
                       <i className="bi bi-geo-alt me-2 text-muted"></i>
                       {profile.address}

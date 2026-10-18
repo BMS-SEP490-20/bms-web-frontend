@@ -65,7 +65,7 @@ export default function ForgotPassword({
       setCountdown(60);
       onOtpSent?.(email.trim());
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Không thể gửi mã khôi phục. Vui lòng kiểm tra lại địa chỉ email.';
+      const msg = err.response?.data?.message || err.response?.data?.title || err.message || 'Không thể gửi mã khôi phục. Vui lòng kiểm tra lại địa chỉ email.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function ForgotPassword({
       });
       window.location.href = "/login?reset=true";
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.Message || 'Đặt lại mật khẩu thất bại. Vui lòng kiểm tra mã OTP.';
+      const msg = err.response?.data?.message || err.response?.data?.Message || err.response?.data?.title || 'Đặt lại mật khẩu thất bại. Vui lòng kiểm tra mã OTP.';
       setError(msg);
     } finally {
       setLoading(false);

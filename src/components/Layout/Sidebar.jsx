@@ -76,7 +76,7 @@ export default function Sidebar({
     return normalizeRole(user?.role || user?.roleName);
   }, [user]);
 
-  // Master menu registry across Iteration 1 clinical and admin workflows
+  // Master menu registry across clinical, laboratory, reception and admin workflows
   const allMenuItems = useMemo(() => [
     {
       id: 'dashboard',
@@ -87,27 +87,35 @@ export default function Sidebar({
       badge: null
     },
     {
-      id: 'lab-queue',
-      path: '/lab/queue',
-      label: 'Hàng Đợi Mẫu Lab',
-      icon: FaVial,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH'],
-      badge: { text: 'Realtime', bg: 'danger' }
+      id: 'patients',
+      path: '/patients',
+      label: 'Hồ Sơ Bệnh Nhân & Tiếp Đón',
+      icon: FaUserMd,
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER'],
+      badge: null
     },
     {
-      id: 'criteria',
-      path: '/criteria',
-      label: 'Chỉ Số Xét Nghiệm',
-      icon: FaNotesMedical,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      id: 'lab-queue',
+      path: '/lab/queue',
+      label: 'Mẫu Bệnh Phẩm & Hàng Đợi Lab',
+      icon: FaVial,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
+      badge: { text: 'ISO 15189', bg: 'danger' }
+    },
+    {
+      id: 'schedule',
+      path: '/schedule',
+      label: 'Quản Lý Ca Trực',
+      icon: FaCalendarAlt,
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'LABHEAD', 'LABTECH'],
       badge: null
     },
     {
       id: 'services',
       path: '/services',
-      label: 'Danh Mục Dịch Vụ',
+      label: 'Tra Cứu Gói Xét Nghiệm',
       icon: FaHospital,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'PATIENT', 'CASHIER'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'PATIENT', 'CASHIER'],
       badge: null
     },
     {
@@ -119,11 +127,11 @@ export default function Sidebar({
       badge: null
     },
     {
-      id: 'schedule',
-      path: '/schedule',
-      label: 'Lịch Trực Lâm Sàng',
-      icon: FaCalendarAlt,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST'],
+      id: 'criteria',
+      path: '/criteria',
+      label: 'Chỉ Số Xét Nghiệm',
+      icon: FaNotesMedical,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
       badge: null
     },
     {

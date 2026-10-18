@@ -208,21 +208,30 @@ export default function PackageFormModal({
 
         // Các trường dùng camelCase theo response API.
         // testIds cần khớp với DTO tạo/cập nhật của backend.
+        const existingTests = pkg?.tests || pkg?.Tests || [];
         const tests = form.testIds
-            .map((id) =>
-                criteria.find(
+            .map((id) => {
+                const found = criteria.find(
                     (c) =>
                         (c._id || c.id || c.code) === id ||
                         c.code === id
-                )
-            )
-            .filter(Boolean)
-            .map((test) => ({
-                code: test.code,
-                name: test.name,
-            }));
+                );
+                if (found) {
+                    return { code: found.code, name: found.name };
+                }
+                const prev = existingTests.find(
+                    (t) =>
+                        typeof t === "object" &&
+                        ((t._id || t.id || t.code) === id || t.code === id)
+                );
+                if (prev) {
+                    return { code: prev.code, name: prev.name || prev.code };
+                }
+                return null;
+            })
+            .filter(Boolean);
 
-        if (tests.length !== form.testIds.length) {
+        if (tests.length === 0) {
             setError("Một số xét nghiệm đã chọn không còn tồn tại. Vui lòng chọn lại.");
             return;
         }
@@ -238,6 +247,8 @@ export default function PackageFormModal({
                     : Number(form.discountPrice),
             isActive: form.status === "ACTIVE",
             tests,
+            ...(pkg?.category !== undefined ? { category: pkg.category } : {}),
+            ...(pkg?.preparationNotes !== undefined ? { preparationNotes: pkg.preparationNotes } : {}),
         };
 
         try {

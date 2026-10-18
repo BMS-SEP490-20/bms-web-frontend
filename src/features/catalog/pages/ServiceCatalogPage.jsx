@@ -1,13 +1,13 @@
 /**
  * @file ServiceCatalogPage.jsx
- * @description Patient & Public Clinical Laboratory Service Catalog page (UC01).
- * Features multi-facet search with 300ms debounce, health-oriented category chips,
- * clinical detail modals with ISO 15189 preparation guidelines, and appointment booking with home collection.
- * Conforms to: Production Medical Standards, ISO 15189, MOH & AGENTS-DESIGN.md.
+ * @description Patient & Public Clinical Laboratory Service Catalog & Search Test Packages page (UC01 & UC20).
+ * Features multi-facet search with 300ms debounce, category chips, sample tube filter, price range filter,
+ * sorting, pagination, Table/Grid toggle (matching screens/02-patient.html UC20),
+ * clinical detail modal with biomarker criteria table, and appointment booking.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Row, Col, Modal, Button, Form, Spinner, Alert } from 'react-bootstrap';
+import { Row, Col, Modal, Button, Form, Spinner, Alert, Table, Badge, Pagination } from 'react-bootstrap';
 import { 
   FaSearch, 
   FaTimes, 
@@ -21,20 +21,68 @@ import {
   FaArrowRight,
   FaCalendarCheck,
   FaHome,
-  FaUserMd,
   FaLock,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaThLarge,
+  FaListUl,
+  FaFilter,
+  FaSortAmountDown
 } from 'react-icons/fa';
-import { fetchServiceCatalog } from '../api/catalogApi';
+import { fetchServiceCatalog, searchTestPackages, fetchServiceById } from '../api/catalogApi';
 import ServiceCard from '../components/ServiceCard';
 
 const DEFAULT_HEALTH_CATEGORIES = [
   'Tất Cả Gói Khám',
-  'Sinh hóa',
-  'Huyết học',
-  'Miễn dịch',
-  'Đông máu'
+  'Hematology',
+  'Biochemistry',
+  'Immunology',
+  'Coagulation'
 ];
+
+const PRICE_RANGES = [
+  { id: 'all', label: 'Mọi mức giá', minPrice: '', maxPrice: '' },
+  { id: 'under200', label: 'Dưới 200.000 ₫', minPrice: '', maxPrice: 200000 },
+  { id: '200to350', label: '200.000 ₫ – 350.000 ₫', minPrice: 200000, maxPrice: 350000 },
+  { id: 'over350', label: 'Trên 350.000 ₫', minPrice: 350000, maxPrice: '' },
+];
+
+const SAMPLE_TUBES = [
+  { value: '', label: 'Tất cả ống mẫu (Specimen)' },
+  { value: 'EDTA', label: 'EDTA (Ống nắp tím - Huyết học)' },
+  { value: 'Serum', label: 'Serum / SST (Ống nắp vàng/đỏ - Sinh hóa)' },
+  { value: 'Heparin', label: 'Lithium Heparin (Ống nắp xanh lá)' },
+  { value: 'Citrate', label: 'Sodium Citrate (Ống nắp xanh dương - Đông máu)' },
+];
+
+function normalizePackageItem(p, idx = 0) {
+  const criteriaList = Array.isArray(p.criteria) ? p.criteria : [];
+  const testsFromCriteria = criteriaList.map(
+    (c) => `${c.code || ''}${c.name ? ` - ${c.name}` : ''}${c.unit ? ` (${c.unit})` : ''}`
+  );
+  const rawTests = Array.isArray(p.testsIncluded) && p.testsIncluded.length > 0
+    ? p.testsIncluded
+    : testsFromCriteria;
+
+  return {
+    id: p.id || p.packageCode || `PKG-${idx}`,
+    packageCode: p.packageCode || p.code || p.id || `PKG-${idx}`,
+    packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
+    category: p.category || 'Biochemistry',
+    price: typeof p.price === 'number' ? p.price : (Number(p.price) || 250000),
+    description: p.description || 'Gói xét nghiệm y khoa đạt chuẩn ISO 15189 tại phòng xét nghiệm BMS.',
+    sampleTube: p.sampleTube || 'Serum (SST)',
+    sampleVolumeMl: p.sampleVolumeMl || 3.0,
+    tat: p.tat || '60 - 90 Phút',
+    fastingRule: p.fastingRule || (String(p.category).toLowerCase().includes('hematology') ? 'Không cần nhịn ăn' : 'Nhịn ăn sáng 8 - 12 giờ'),
+    isPopular: p.isPopular ?? (idx === 0),
+    isActive: p.isActive ?? true,
+    targetAudience: p.targetAudience || 'Bệnh nhân và khách hàng kiểm tra sức khỏe tổng quát, tầm soát chuyên sâu.',
+    criteria: criteriaList,
+    testsIncluded: rawTests.length > 0
+      ? rawTests
+      : [p.packageName || 'Chỉ số xét nghiệm chuyên sâu']
+  };
+}
 
 export default function ServiceCatalogPage() {
   const [user, setUser] = useState(() => {
@@ -56,17 +104,39 @@ export default function ServiceCatalogPage() {
     setUser(null);
   };
 
-  const [packages, setPackages] = useState([]);
+  // Read initial ?search= param from URL
+  const [searchInput, setSearchInput] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('search') || params.get('keyword') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(searchInput);
   const [categories, setCategories] = useState(DEFAULT_HEALTH_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState('Tất Cả Gói Khám');
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sampleTube, setSampleTube] = useState('');
+  const [priceRangeId, setPriceRangeId] = useState('all');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sortBy, setSortBy] = useState('category');
+  const [sortDir, setSortDir] = useState('asc');
+  const [viewMode, setViewMode] = useState('table'); // 'table' (UC20 default) | 'grid'
+
+  // Pagination state
+  const [packages, setPackages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
   // Modal Detail State
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   // Booking Modal State
   const [bookingPackage, setBookingPackage] = useState(null);
@@ -103,71 +173,105 @@ export default function ServiceCatalogPage() {
     } catch {}
   }, []);
 
-  // Debounce search input by 300ms
+  // Load distinct categories once from catalog endpoint
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // Load packages directly from MongoDB via backend API
-  useEffect(() => {
-    let isCancelled = false;
-    setLoading(true);
-    setLoadError(null);
-
-    const queryParams = {
-      category: selectedCategory !== 'Tất Cả Gói Khám' ? selectedCategory : undefined,
-      search: debouncedSearch || undefined
-    };
-
-    fetchServiceCatalog(queryParams)
+    fetchServiceCatalog()
       .then((res) => {
-        if (isCancelled) return;
-        const rawPackages = res.packages || [];
-        const normalized = rawPackages.map((p, idx) => ({
-          id: p.id || p.packageCode || `PKG-${idx}`,
-          packageCode: p.packageCode || p.id || `PKG-${idx}`,
-          packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
-          category: p.category || 'Sinh hóa',
-          price: typeof p.price === 'number' ? p.price : (Number(p.price) || 250000),
-          description: p.description || 'Gói xét nghiệm y khoa đạt chuẩn ISO 15189 tại phòng xét nghiệm BMS.',
-          sampleTube: p.sampleTube || 'Serum (Nắp Vàng)',
-          sampleVolumeMl: p.sampleVolumeMl || 3,
-          tat: p.tat || '60 - 90 Phút',
-          fastingRule: p.fastingRule || 'Nhịn ăn sáng tối thiểu 8 giờ',
-          isPopular: p.isPopular ?? (idx === 0),
-          targetAudience: p.targetAudience || 'Bệnh nhân và khách hàng kiểm tra sức khỏe tổng quát định kỳ.',
-          testsIncluded: p.testsIncluded && p.testsIncluded.length > 0
-            ? p.testsIncluded
-            : [p.packageName || 'Chỉ số xét nghiệm chuyên sâu']
-        }));
-
-        setPackages(normalized);
-        if (res.categories && res.categories.length > 0) {
+        if (res?.categories && res.categories.length > 0) {
           const distinctCats = ['Tất Cả Gói Khám', ...res.categories.filter(c => c && c !== 'Tất Cả Gói Khám')];
           setCategories(distinctCats);
         }
       })
-      .catch((err) => {
-        if (isCancelled) return;
-        console.error('[ServiceCatalogPage] Failed to fetch live packages from backend:', err);
-        setLoadError(err.message || 'Không thể tải danh mục gói xét nghiệm từ máy chủ.');
-        setPackages([]);
-      })
-      .finally(() => {
-        if (!isCancelled) setLoading(false);
+      .catch(() => {});
+  }, []);
+
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Handle price range preset change
+  const handlePriceRangeChange = (rangeId) => {
+    setPriceRangeId(rangeId);
+    const found = PRICE_RANGES.find(r => r.id === rangeId);
+    if (found) {
+      setMinPrice(found.minPrice);
+      setMaxPrice(found.maxPrice);
+    }
+    setPage(1);
+  };
+
+  // Execute searchTestPackages against backend API (UC20)
+  const executeSearch = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const res = await searchTestPackages({
+        keyword: debouncedSearch || undefined,
+        category: selectedCategory !== 'Tất Cả Gói Khám' ? selectedCategory : undefined,
+        sampleTube: sampleTube || undefined,
+        minPrice: minPrice !== '' ? minPrice : undefined,
+        maxPrice: maxPrice !== '' ? maxPrice : undefined,
+        sortBy,
+        sortDir,
+        page,
+        pageSize,
       });
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [selectedCategory, debouncedSearch]);
+      const rawItems = res?.items || res?.packages || [];
+      const normalized = rawItems.map((p, idx) => normalizePackageItem(p, idx));
+      setPackages(normalized);
+      setTotalItems(res?.totalItems ?? res?.totalCount ?? normalized.length);
+      setTotalPages(res?.totalPages || Math.ceil((res?.totalItems || normalized.length) / pageSize) || 1);
+    } catch (err) {
+      console.error('[ServiceCatalogPage] Failed to search test packages:', err);
+      setLoadError(err.message || 'Không thể tìm kiếm danh mục gói xét nghiệm từ máy chủ.');
+      setPackages([]);
+      setTotalItems(0);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearch, selectedCategory, sampleTube, minPrice, maxPrice, sortBy, sortDir, page, pageSize]);
 
-  const handleOpenDetail = (pkg) => {
+  useEffect(() => {
+    executeSearch();
+  }, [executeSearch]);
+
+  const handleClearAllFilters = () => {
+    setSearchInput('');
+    setDebouncedSearch('');
+    setSelectedCategory('Tất Cả Gói Khám');
+    setSampleTube('');
+    setPriceRangeId('all');
+    setMinPrice('');
+    setMaxPrice('');
+    setSortBy('category');
+    setSortDir('asc');
+    setPage(1);
+  };
+
+  const handleOpenDetail = async (pkg) => {
     setSelectedPackage(pkg);
     setShowDetailModal(true);
+    if (pkg?.id || pkg?.packageCode) {
+      setDetailLoading(true);
+      try {
+        const detail = await fetchServiceById(pkg.id || pkg.packageCode);
+        if (detail) {
+          setSelectedPackage(normalizePackageItem(detail));
+        }
+      } catch {
+        // Keep existing package object if detail endpoint fails
+      } finally {
+        setDetailLoading(false);
+      }
+    }
   };
 
   const handleOpenBooking = (pkg) => {
@@ -196,6 +300,13 @@ export default function ServiceCatalogPage() {
     setBookingCode(genCode);
     setBookingSuccess(true);
   };
+
+  const hasActiveFilters =
+    Boolean(debouncedSearch) ||
+    selectedCategory !== 'Tất Cả Gói Khám' ||
+    Boolean(sampleTube) ||
+    minPrice !== '' ||
+    maxPrice !== '';
 
   return (
     <div className="bms-landing-wrapper">
@@ -232,25 +343,22 @@ export default function ServiceCatalogPage() {
           </a>
 
           <ul className="bms-nav-links">
-            <li><a className="bms-nav-link active" href="/services">Gói Xét Nghiệm</a></li>
+            <li><a className="bms-nav-link active" href="/services">Tìm Kiếm Gói Xét Nghiệm</a></li>
             {user ? (
               <>
+                <li>
+                  <a className="bms-nav-link" href="/dashboard">
+                    Bảng Điều Khiển
+                  </a>
+                </li>
                 <li>
                   <a className="bms-nav-link" href="/?tab=results">
                     Lịch Sử Xét Nghiệm
                   </a>
                 </li>
-                <li>
-                  <a className="bms-nav-link" href="/?tab=payments">
-                    Lịch Sử Thanh Toán
-                  </a>
-                </li>
               </>
             ) : null}
             <li><a className="bms-nav-link" href="/#tra-cuu">Tra Cứu Kết Quả</a></li>
-            {!user && (
-              <li><a className="bms-nav-link" href="/services">Bảng Giá Khám</a></li>
-            )}
           </ul>
 
           <div className="bms-header-actions">
@@ -292,78 +400,131 @@ export default function ServiceCatalogPage() {
       </header>
 
       {/* 3. CATALOG HERO SECTION */}
-      <section className="py-5" style={{ background: 'linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)', borderBottom: '1px solid #e2e8f0' }}>
+      <section className="py-4" style={{ background: 'linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)', borderBottom: '1px solid #e2e8f0' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
-          <div className="text-center mx-auto mb-4" style={{ maxWidth: 840 }}>
-            <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3"
+          <div className="text-center mx-auto mb-3" style={{ maxWidth: 840 }}>
+            <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2"
                  style={{ backgroundColor: '#dbeafe', color: '#1e40af', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
-              <FaShieldAlt /> TIÊU CHUẨN ISO 15189:2012 & CHỨNG NHẬN CAP
+              <FaShieldAlt /> TRA CỨU & TÌM KIẾM GÓI XÉT NGHIỆM (UC20 - ISO 15189:2012)
             </div>
-            <h2 className="fw-bold text-dark mb-3" style={{ fontSize: '32px', color: '#0f172a' }}>
-              Bảng Giá & Gói Xét Nghiệm Máu Chuẩn Quốc Tế
+            <h2 className="fw-bold text-dark mb-2" style={{ fontSize: '28px', color: '#0f172a' }}>
+              Tìm Kiếm Gói Xét Nghiệm & Chỉ Số Lâm Sàng
             </h2>
-            <p className="text-secondary leading-relaxed mb-4" style={{ fontSize: '16px' }}>
-              Hệ thống hơn 80+ chỉ số sinh hóa, huyết học và miễn dịch phục vụ tầm soát sớm, phát hiện nguy cơ tiềm ẩn và theo dõi điều trị.
-              Kết quả được kiểm chuẩn nghiêm ngặt và thẩm định bởi Bác sĩ Chuyên khoa với chữ ký số pháp lý.
+            <p className="text-secondary mb-3" style={{ fontSize: '15px' }}>
+              Tra cứu theo tên gói, mã gói (CBC, LIPID, LFT...), tên chỉ số sinh học (WBC, GLU, HbA1c, ALT...), loại ống mẫu hoặc khoảng giá.
             </p>
+          </div>
 
-            {/* In-Hero Search Input */}
-            <div className="mx-auto" style={{ maxWidth: 640 }}>
-              <div className="input-group input-group-lg shadow-sm rounded-pill overflow-hidden bg-white border">
-                <span className="input-group-text bg-white border-0 ps-4 text-primary">
-                  <FaSearch />
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-0 ps-2"
-                  placeholder="Tìm gói khám (Ví dụ: Tổng quát, Men gan, Thận, Tiểu đường, Ung thư...)"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  style={{ fontSize: '15px', boxShadow: 'none' }}
-                />
-                {searchInput && (
-                  <button
-                    className="btn btn-link text-muted border-0 pe-3 text-decoration-none"
-                    type="button"
-                    onClick={() => setSearchInput('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes />
-                  </button>
-                )}
-                <button
-                  className="btn btn-primary px-4 fw-semibold border-0"
-                  style={{ backgroundColor: '#1e40af' }}
-                  type="button"
+          {/* Advanced Multi-Facet Search Toolbar Card (matching UC20 screen) */}
+          <div className="bg-white p-3 rounded-4 shadow-sm border">
+            <Row className="g-2 align-items-center">
+              <Col xs={12} lg={4}>
+                <div className="input-group">
+                  <span className="input-group-text bg-white border-end-0 text-primary">
+                    <FaSearch />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control border-start-0"
+                    placeholder="Nhập từ khóa, mã gói, chỉ số (VD: Lipid, CBC, GLU, EDTA...)"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
+                  {searchInput && (
+                    <button
+                      className="btn btn-outline-secondary border-start-0"
+                      type="button"
+                      onClick={() => setSearchInput('')}
+                      title="Xóa từ khóa"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
+                </div>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
+                <Form.Select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setPage(1);
+                  }}
                 >
-                  Tìm Kiếm
-                </button>
-              </div>
-            </div>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat === 'Tất Cả Gói Khám' ? 'Tất cả chuyên khoa' : cat}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
 
-            {/* Quick Trust Highlights Strip */}
-            <div className="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4 pt-2 text-muted small">
-              <span className="d-flex align-items-center gap-1"><FaCheckCircle className="text-success" /> Ống chân không vô trùng 1 lần</span>
-              <span className="d-flex align-items-center gap-1"><FaCheckCircle className="text-success" /> Trả kết quả từ 90 phút có chữ ký số</span>
-              <span className="d-flex align-items-center gap-1"><FaCheckCircle className="text-success" /> Hỗ trợ lấy mẫu xét nghiệm tận nhà</span>
-              <span className="d-flex align-items-center gap-1"><FaCheckCircle className="text-success" /> Bác sĩ chuyên khoa tư vấn 1-1</span>
-            </div>
+              <Col xs={6} md={3} lg={2}>
+                <Form.Select
+                  value={sampleTube}
+                  onChange={(e) => {
+                    setSampleTube(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  {SAMPLE_TUBES.map((tube) => (
+                    <option key={tube.value} value={tube.value}>
+                      {tube.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
+                <Form.Select
+                  value={priceRangeId}
+                  onChange={(e) => handlePriceRangeChange(e.target.value)}
+                >
+                  {PRICE_RANGES.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
+                <div className="d-flex gap-1">
+                  <Form.Select
+                    value={`${sortBy}:${sortDir}`}
+                    onChange={(e) => {
+                      const [sb, sd] = e.target.value.split(':');
+                      setSortBy(sb);
+                      setSortDir(sd);
+                      setPage(1);
+                    }}
+                    title="Sắp xếp kết quả"
+                  >
+                    <option value="category:asc">Sắp xếp: Chuyên khoa</option>
+                    <option value="price:asc">Giá: Thấp → Cao</option>
+                    <option value="price:desc">Giá: Cao → Thấp</option>
+                    <option value="name:asc">Tên gói: A → Z</option>
+                    <option value="code:asc">Mã gói: A → Z</option>
+                  </Form.Select>
+                </div>
+              </Col>
+            </Row>
           </div>
         </div>
       </section>
 
       {/* 4. MAIN CATALOG BODY */}
-      <main className="py-5">
+      <main className="py-4">
         <div className="container" style={{ maxWidth: 1200 }}>
-          {/* Category Filter Chips Bar */}
-          <div className="mb-4 p-3 bg-white rounded-4 shadow-sm border d-flex flex-wrap align-items-center justify-content-between gap-2">
+          {/* Category Quick Chips + View Switcher Bar */}
+          <div className="mb-3 p-3 bg-white rounded-4 shadow-sm border d-flex flex-wrap align-items-center justify-content-between gap-2">
             <div className="d-flex flex-wrap align-items-center gap-2">
-              <span className="fw-bold small text-dark me-2">Nhu cầu sức khỏe:</span>
+              <span className="fw-bold small text-dark me-1"><FaFilter className="me-1 text-primary" />Chuyên khoa:</span>
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
-                  className={`btn btn-sm rounded-pill px-3 fw-semibold transition-all ${
+                  className={`btn btn-sm rounded-pill px-3 fw-semibold ${
                     selectedCategory === cat
                       ? 'btn-primary'
                       : 'btn-light text-secondary border'
@@ -373,23 +534,87 @@ export default function ServiceCatalogPage() {
                     borderColor: selectedCategory === cat ? '#1e40af' : '#e2e8f0',
                     fontSize: '12px'
                   }}
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setPage(1);
+                  }}
                 >
                   {cat}
                 </button>
               ))}
             </div>
 
-            <div className="text-muted small">
-              Hiển thị: <strong className="text-primary">{packages.length}</strong> gói xét nghiệm
+            <div className="d-flex align-items-center gap-3">
+              <div className="text-muted small">
+                Tìm thấy: <strong className="text-primary">{totalItems}</strong> gói xét nghiệm
+              </div>
+              <div className="btn-group btn-group-sm" role="group" aria-label="Chế độ hiển thị">
+                <Button
+                  variant={viewMode === 'table' ? 'primary' : 'outline-secondary'}
+                  onClick={() => setViewMode('table')}
+                  title="Hiển thị dạng bảng (Chuẩn UC20)"
+                >
+                  <FaListUl className="me-1" /> Bảng
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'}
+                  onClick={() => setViewMode('grid')}
+                  title="Hiển thị dạng thẻ"
+                >
+                  <FaThLarge className="me-1" /> Thẻ
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Cards Grid */}
+          {/* Active Filter Chips Banner */}
+          {hasActiveFilters && (
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 px-2">
+              <div className="d-flex flex-wrap align-items-center gap-2 small">
+                <span className="text-muted">Đang lọc theo:</span>
+                {debouncedSearch && (
+                  <Badge bg="primary" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                    Từ khóa: "{debouncedSearch}"
+                    <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSearchInput('')} />
+                  </Badge>
+                )}
+                {selectedCategory !== 'Tất Cả Gói Khám' && (
+                  <Badge bg="info" text="dark" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                    Chuyên khoa: {selectedCategory}
+                    <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('Tất Cả Gói Khám')} />
+                  </Badge>
+                )}
+                {sampleTube && (
+                  <Badge bg="secondary" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                    Ống mẫu: {sampleTube}
+                    <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSampleTube('')} />
+                  </Badge>
+                )}
+                {priceRangeId !== 'all' && (
+                  <Badge bg="warning" text="dark" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                    Giá: {PRICE_RANGES.find(r => r.id === priceRangeId)?.label}
+                    <FaTimes style={{ cursor: 'pointer' }} onClick={() => handlePriceRangeChange('all')} />
+                  </Badge>
+                )}
+              </div>
+              <Button variant="link" size="sm" className="text-decoration-none p-0" onClick={handleClearAllFilters}>
+                Xóa tất cả bộ lọc
+              </Button>
+            </div>
+          )}
+
+          {loadError && (
+            <Alert variant="danger" dismissible onClose={() => setLoadError(null)} className="mb-3">
+              <FaExclamationTriangle className="me-2" />
+              {loadError}
+            </Alert>
+          )}
+
+          {/* Results Body */}
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-5 bg-white rounded-4 shadow-sm border">
               <Spinner animation="border" variant="primary" role="status" />
-              <div className="mt-3 text-muted fw-semibold">Đang tải bảng giá dịch vụ xét nghiệm y tế...</div>
+              <div className="mt-3 text-muted fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</div>
             </div>
           ) : packages.length === 0 ? (
             <div className="card border-0 shadow-sm rounded-4 text-center p-5 mx-auto" style={{ maxWidth: 540 }}>
@@ -398,46 +623,155 @@ export default function ServiceCatalogPage() {
               </div>
               <h5 className="fw-bold text-dark">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</h5>
               <p className="text-muted small">
-                Không có gói xét nghiệm nào phù hợp với từ khóa "<strong>{debouncedSearch}</strong>" trong chuyên mục đã chọn.
+                Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
               </p>
               <div className="mt-2">
                 <Button
                   variant="outline-primary"
                   className="rounded-pill px-4"
-                  onClick={() => {
-                    setSearchInput('');
-                    setSelectedCategory('Tất Cả Gói Khám');
-                  }}
+                  onClick={handleClearAllFilters}
                 >
                   Xóa Bộ Lọc & Xem Tất Cả
                 </Button>
               </div>
             </div>
+          ) : viewMode === 'table' ? (
+            /* UC20 Table View (matching screens/02-patient.html #uc20) */
+            <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+              <div className="table-responsive">
+                <Table hover className="align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th className="ps-4">Tên Gói Xét Nghiệm & Mô Tả</th>
+                      <th style={{ width: '120px' }}>Mã Gói</th>
+                      <th style={{ width: '130px' }}>Chuyên Khoa</th>
+                      <th className="text-center" style={{ width: '120px' }}>Chỉ Số</th>
+                      <th style={{ width: '160px' }}>Ống Mẫu (Specimen)</th>
+                      <th style={{ width: '140px' }}>Chuẩn Bị</th>
+                      <th className="text-end" style={{ width: '140px' }}>Đơn Giá (₫)</th>
+                      <th className="text-end pe-4" style={{ width: '190px' }}>Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {packages.map((pkg) => (
+                      <tr key={pkg.id || pkg.packageCode}>
+                        <td className="ps-4">
+                          <div className="fw-bold text-dark">{pkg.packageName}</div>
+                          <div className="text-muted small text-truncate" style={{ maxWidth: '340px' }}>
+                            {pkg.criteria?.length > 0
+                              ? pkg.criteria.map(c => c.code || c.name).join(', ')
+                              : pkg.description}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="badge bg-light text-dark border font-monospace">
+                            {pkg.packageCode}
+                          </span>
+                        </td>
+                        <td>
+                          <Badge bg="primary" className="bg-opacity-10 text-primary fw-semibold px-2 py-1">
+                            {pkg.category}
+                          </Badge>
+                        </td>
+                        <td className="text-center">
+                          <Badge bg="info" text="dark" className="bg-opacity-15 fw-semibold">
+                            {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
+                          </Badge>
+                        </td>
+                        <td>
+                          <span className="badge bg-warning bg-opacity-15 text-dark border border-warning-subtle">
+                            <FaVial className="me-1 text-warning" />
+                            {pkg.sampleTube} ({pkg.sampleVolumeMl} mL)
+                          </span>
+                        </td>
+                        <td>
+                          <span className="small text-secondary">{pkg.fastingRule}</span>
+                        </td>
+                        <td className="text-end fw-bold font-monospace text-danger">
+                          {Number(pkg.price).toLocaleString('vi-VN')} ₫
+                        </td>
+                        <td className="text-end pe-4">
+                          <div className="d-inline-flex gap-1">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => handleOpenDetail(pkg)}
+                            >
+                              Chi tiết
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              style={{ backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+                              onClick={() => handleOpenBooking(pkg)}
+                            >
+                              Đặt lịch
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+              <div className="card-footer bg-light border-top p-3 d-flex flex-wrap justify-content-between align-items-center small text-muted">
+                <span>
+                  Hiển thị <strong>{packages.length}</strong> / <strong>{totalItems}</strong> gói xét nghiệm. Giá đã bao gồm phí lấy mẫu và phân tích chuẩn ISO 15189.
+                </span>
+                {totalPages > 1 && (
+                  <Pagination size="sm" className="m-0">
+                    <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                      <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
+                        {pNum}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
+                  </Pagination>
+                )}
+              </div>
+            </div>
           ) : (
-            <Row className="g-4">
-              {packages.map((pkg) => (
-                <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4} xl={3}>
-                  <ServiceCard
-                    package={pkg}
-                    onSelectDetail={handleOpenDetail}
-                    onBook={handleOpenBooking}
-                  />
-                </Col>
-              ))}
-            </Row>
+            /* Grid Card View */
+            <>
+              <Row className="g-4">
+                {packages.map((pkg) => (
+                  <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4} xl={3}>
+                    <ServiceCard
+                      package={pkg}
+                      onSelectDetail={handleOpenDetail}
+                      onBook={handleOpenBooking}
+                    />
+                  </Col>
+                ))}
+              </Row>
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Pagination>
+                    <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                      <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
+                        {pNum}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
 
-      {/* 5. CLINICAL SERVICE DETAIL MODAL */}
+      {/* 5. CLINICAL SERVICE DETAIL POPUP MODAL */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} centered size="lg">
         {selectedPackage && (
           <>
-            <Modal.Header closeButton className="border-bottom pb-3">
+            <Modal.Header closeButton className="border-bottom pb-3 bg-light">
               <Modal.Title className="fw-bold d-flex align-items-center gap-2 h5 mb-0 text-dark">
                 <div style={{
-                  width: 36,
-                  height: 36,
+                  width: 38,
+                  height: 38,
                   backgroundColor: '#eff6ff',
                   color: '#1e40af',
                   borderRadius: 8,
@@ -449,15 +783,24 @@ export default function ServiceCatalogPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: '18px' }}>{selectedPackage.packageName}</div>
-                  <div className="text-muted small fw-normal font-monospace">Mã dịch vụ: {selectedPackage.packageCode}</div>
+                  <div className="text-muted small fw-normal font-monospace">
+                    Mã gói: {selectedPackage.packageCode} · Chuyên khoa: {selectedPackage.category}
+                  </div>
                 </div>
               </Modal.Title>
             </Modal.Header>
             <Modal.Body className="p-4">
+              {detailLoading && (
+                <div className="text-center py-2 mb-3">
+                  <Spinner animation="border" size="sm" variant="primary" className="me-2" />
+                  <span className="small text-muted">Đang đồng bộ chi tiết chỉ số...</span>
+                </div>
+              )}
+
               {/* Meaning & Clinical Purpose */}
               <div className="mb-4">
-                <h6 className="fw-bold text-dark mb-2">Ý Nghĩa Y Khoa & Mục Đích Xét Nghiệm</h6>
-                <p className="text-secondary leading-relaxed" style={{ fontSize: '14px' }}>
+                <h6 className="fw-bold text-dark mb-2">Ý Nghĩa Y Khoa & Mô Tả Gói Xét Nghiệm</h6>
+                <p className="text-secondary mb-2" style={{ fontSize: '14px' }}>
                   {selectedPackage.description}
                 </p>
                 {selectedPackage.targetAudience && (
@@ -467,34 +810,63 @@ export default function ServiceCatalogPage() {
                 )}
               </div>
 
-              {/* Tests Included */}
-              {selectedPackage.testsIncluded && selectedPackage.testsIncluded.length > 0 && (
-                <div className="mb-4">
-                  <h6 className="fw-bold text-dark mb-2">Các Chỉ Số Được Định Lượng Trong Gói:</h6>
+              {/* Biomarker Criteria Table from BE */}
+              <div className="mb-4">
+                <h6 className="fw-bold text-dark mb-2">
+                  Danh Sách Chỉ Số Sinh Học Trong Gói ({selectedPackage.criteria?.length || selectedPackage.testsIncluded?.length || 0} chỉ số)
+                </h6>
+                {selectedPackage.criteria && selectedPackage.criteria.length > 0 ? (
+                  <div className="table-responsive border rounded-3">
+                    <Table size="sm" hover className="mb-0 align-middle">
+                      <thead className="table-light">
+                        <tr>
+                          <th className="ps-3">#</th>
+                          <th>Mã Chỉ Số</th>
+                          <th>Tên Chỉ Số Xét Nghiệm</th>
+                          <th>Đơn Vị Đo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedPackage.criteria.map((c, idx) => (
+                          <tr key={c.criterionId || c.code || idx}>
+                            <td className="ps-3 text-muted small">{c.displayOrder || idx + 1}</td>
+                            <td>
+                              <span className="badge bg-primary bg-opacity-10 text-primary font-monospace">
+                                {c.code}
+                              </span>
+                            </td>
+                            <td className="fw-medium text-dark">{c.name}</td>
+                            <td className="text-muted font-monospace small">{c.unit || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                ) : (
                   <div className="d-flex flex-wrap gap-2">
-                    {selectedPackage.testsIncluded.map((t, idx) => (
+                    {(selectedPackage.testsIncluded || []).map((t, idx) => (
                       <span key={idx} className="badge bg-white text-dark border px-3 py-2 fw-semibold" style={{ fontSize: '12px' }}>
                         <FaCheckCircle className="text-primary me-1" /> {t}
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Sample & TAT Specs */}
               <Row className="g-3 mb-4">
                 <Col md={6}>
                   <div className="p-3 bg-light rounded-3 border">
-                    <div className="small text-muted mb-1">Loại Ống & Bệnh Phẩm:</div>
+                    <div className="small text-muted mb-1">Loại Ống Mẫu & Thể Tích:</div>
                     <div className="fw-bold text-dark">{selectedPackage.sampleTube}</div>
-                    <div className="small text-muted mt-1">Thể tích tối thiểu: {selectedPackage.sampleVolumeMl || 2} ml máu</div>
+                    <div className="small text-muted mt-1">Thể tích yêu cầu: {selectedPackage.sampleVolumeMl || 2} mL</div>
                   </div>
                 </Col>
                 <Col md={6}>
                   <div className="p-3 bg-light rounded-3 border">
                     <div className="small text-muted mb-1">Thời Gian Trả Kết Quả (TAT):</div>
                     <div className="fw-bold text-success">{selectedPackage.tat || '90 - 120 Phút'}</div>
-                    <div className="small text-muted mt-1">Nhận file PDF có chữ ký số bác sĩ chuyên khoa</div>
+                    <div className="small text-muted mt-1">Trả kết quả trực tuyến kèm chữ ký số Bác sĩ</div>
                   </div>
                 </Col>
               </Row>
@@ -507,8 +879,7 @@ export default function ServiceCatalogPage() {
                 </div>
                 <ul className="small mb-0 ps-3">
                   <li><strong>Quy định nhịn ăn:</strong> {selectedPackage.fastingRule}. Được uống nước lọc bình thường.</li>
-                  <li><strong>Chất kích thích:</strong> Tuyệt đối không dùng rượu, bia, trà đậm đặc hoặc cà phê trong vòng 24 giờ trước khi lấy mẫu.</li>
-                  <li><strong>Thuốc điều trị:</strong> Nếu đang dùng thuốc kháng sinh hoặc thuốc hạ đường huyết, hãy thông báo cho điều dưỡng khi lấy máu.</li>
+                  <li><strong>Chất kích thích:</strong> Không dùng rượu, bia, cà phê trong vòng 12–24 giờ trước khi lấy mẫu.</li>
                 </ul>
               </div>
             </Modal.Body>
@@ -565,7 +936,7 @@ export default function ServiceCatalogPage() {
           <h5 className="fw-bold text-dark mb-2">Đăng Nhập Để Đặt Lịch</h5>
           <p className="text-secondary small mb-4">
             Quý khách đang chọn: <strong>{bookingPackage?.packageName || "Gói xét nghiệm y khoa"}</strong>.<br />
-            Để tiến hành đặt lịch lấy mẫu và quản lý kết quả xét nghiệm bảo mật theo quy định Bộ Y tế, vui lòng đăng nhập tài khoản Cổng Y Tế BMS.
+            Để tiến hành đặt lịch lấy mẫu và quản lý kết quả xét nghiệm bảo mật, vui lòng đăng nhập tài khoản BMS.
           </p>
           <div className="d-grid gap-2">
             <a
@@ -622,9 +993,6 @@ export default function ServiceCatalogPage() {
                     <div><strong>Ngày hẹn:</strong> {bookingForm.bookingDate} ({bookingForm.bookingSlot})</div>
                     <div><strong>Bệnh nhân:</strong> {bookingForm.patientName} ({bookingForm.phoneNumber})</div>
                   </div>
-                  <p className="text-muted small">
-                    Chuyên viên y tế BMS sẽ liên hệ qua số điện thoại <strong>{bookingForm.phoneNumber}</strong> trong vòng 15 phút để xác nhận khung giờ và hướng dẫn chuẩn bị nhịn ăn.
-                  </p>
                   <Button
                     variant="primary"
                     className="w-100 rounded-pill"
@@ -636,16 +1004,14 @@ export default function ServiceCatalogPage() {
                 </div>
               ) : (
                 <>
-                  {/* Selected Package Banner */}
                   <div className="p-3 rounded-3 border mb-3" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
                     <div className="small text-muted">Gói xét nghiệm đã chọn:</div>
-                    <div className="fw-bold text-dark">{bookingPackage.packageName}</div>
+                    <div className="fw-bold text-dark">{bookingPackage.packageName} ({bookingPackage.packageCode})</div>
                     <div className="fw-bold mt-1" style={{ color: '#1e40af' }}>
                       Giá niêm yết: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingPackage.price)}
                     </div>
                   </div>
 
-                  {/* Collection Location Choice */}
                   <div className="mb-3">
                     <Form.Label className="fw-bold small text-dark mb-2">Hình thức lấy mẫu:</Form.Label>
                     <div className="d-flex gap-2">
@@ -675,7 +1041,6 @@ export default function ServiceCatalogPage() {
                     </div>
                   </div>
 
-                  {/* Form fields */}
                   <Form.Group className="mb-3">
                     <Form.Label className="fw-semibold small">Họ và tên bệnh nhân <span className="text-danger">*</span></Form.Label>
                     <Form.Control
@@ -746,8 +1111,8 @@ export default function ServiceCatalogPage() {
                           value={bookingForm.bookingSlot}
                           onChange={(e) => setBookingForm(prev => ({ ...prev, bookingSlot: e.target.value }))}
                         >
-                          <option value="06:30 - 08:00">06:30 - 08:00 (Sáng sớm - Nhịn ăn tốt nhất)</option>
-                          <option value="08:00 - 09:30">08:00 - 09:30 (Khung giờ phổ biến)</option>
+                          <option value="06:30 - 08:00">06:30 - 08:00 (Sáng sớm)</option>
+                          <option value="08:00 - 09:30">08:00 - 09:30 (Buổi sáng)</option>
                           <option value="09:30 - 11:30">09:30 - 11:30 (Sáng muộn)</option>
                           <option value="13:30 - 16:30">13:30 - 16:30 (Buổi chiều)</option>
                         </Form.Select>
@@ -756,20 +1121,15 @@ export default function ServiceCatalogPage() {
                   </Row>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold small">Ghi chú lâm sàng (Dị ứng thuốc, bệnh nền...)</Form.Label>
+                    <Form.Label className="fw-semibold small">Ghi chú lâm sàng</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
-                      placeholder="Nếu bạn có tiền sử say kim tiêm hoặc bệnh mãn tính, vui lòng ghi chú tại đây..."
+                      placeholder="Ghi chú dị ứng hoặc bệnh nền (nếu có)..."
                       value={bookingForm.notes}
                       onChange={(e) => setBookingForm(prev => ({ ...prev, notes: e.target.value }))}
                     />
                   </Form.Group>
-
-                  <div className="d-flex align-items-center gap-2 text-muted small p-2 rounded-2 bg-light border">
-                    <FaLock className="text-success" />
-                    <span>Cam kết bảo mật thông tin bệnh án theo Luật Khám bệnh, chữa bệnh.</span>
-                  </div>
                 </>
               )}
             </Modal.Body>
@@ -794,47 +1154,6 @@ export default function ServiceCatalogPage() {
       {/* 7. MEDICAL FOOTER */}
       <footer className="bms-footer mt-5">
         <div className="bms-container">
-          <div className="bms-footer-grid">
-            <div className="bms-footer-col">
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <div style={{ width: 44, height: 44, background: '#fff', borderRadius: 8, padding: 3, overflow: 'hidden', flexShrink: 0 }}>
-                  <img src="/assets/bms-logo.png" alt="BMS Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                </div>
-                <h4 className="m-0 text-white" style={{ fontSize: '15px' }}>TRUNG TÂM XÉT NGHIỆM Y KHOA BMS</h4>
-              </div>
-              <p>Đơn vị y tế chuyên sâu trong lĩnh vực xét nghiệm huyết học, sinh hóa, miễn dịch và sàng lọc sớm bệnh lý theo tiêu chuẩn quốc tế ISO 15189:2022.</p>
-              <p><strong>Giấy phép hoạt động:</strong> 08892/BYT-GPHĐ cấp bởi Bộ Y tế.</p>
-              <p><strong>Địa chỉ:</strong> Tầng 1 - 2, Tòa nhà Kỹ thuật cao BMS, TP. Hồ Chí Minh.</p>
-            </div>
-            <div className="bms-footer-col">
-              <h4>Dịch Vụ Nổi Bật</h4>
-              <ul className="bms-footer-links">
-                <li><a href="/services">Tầm soát ung thư sớm</a></li>
-                <li><a href="/services">Gói khám sức khỏe tổng quát</a></li>
-                <li><a href="/services">Chức năng gan - mật - thận</a></li>
-                <li><a href="/services">Tiểu đường & Tim mạch</a></li>
-                <li><a href="/services">Dịch vụ lấy mẫu tại nhà</a></li>
-              </ul>
-            </div>
-            <div className="bms-footer-col">
-              <h4>Dành Cho Bệnh Nhân</h4>
-              <ul className="bms-footer-links">
-                <li><a href="/#tra-cuu">Tra cứu kết quả xét nghiệm</a></li>
-                <li><a href="/services">Quy chuẩn nhịn ăn trước khi lấy máu</a></li>
-                <li><a href="/login">Đăng nhập Cổng Y Tế BMS</a></li>
-                <li><a href="/register">Mở hồ sơ sức khỏe điện tử</a></li>
-                <li><a href="/#cam-ket">Chính sách bảo mật bệnh án (HIPAA)</a></li>
-              </ul>
-            </div>
-            <div className="bms-footer-col">
-              <h4>Tư Vấn & Hỗ Trợ 24/7</h4>
-              <p><strong>Hotline:</strong> 1900 6868</p>
-              <p><strong>Cấp cứu STAT:</strong> 028 3822 5588</p>
-              <p><strong>Email chuyên môn:</strong> bms.mec.lab@gmail.com</p>
-              <p><strong>Thời gian nhận mẫu:</strong> 06:00 - 20:00 (Hàng ngày)</p>
-            </div>
-          </div>
-
           <div className="bms-footer-bottom">
             <div>&copy; 2026 BMS Health - Biomedical Laboratory Management System. All rights reserved.</div>
             <div>Hệ thống đạt chuẩn kiểm chuẩn ISO 15189:2022 & Bảo mật thông tin Bộ Y tế</div>
@@ -843,4 +1162,4 @@ export default function ServiceCatalogPage() {
       </footer>
     </div>
   );
-}
+}

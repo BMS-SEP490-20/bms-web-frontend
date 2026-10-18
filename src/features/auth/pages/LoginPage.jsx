@@ -190,7 +190,11 @@ export default function LoginPage({
           throw new Error("Không thể kết nối đến máy chủ BMS. Vui lòng kiểm tra dịch vụ mạng hoặc kết nối cơ sở dữ liệu.");
         }
 
-        throw new Error(apiErr.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin tài khoản hoặc mật khẩu.");
+        throw new Error(
+          apiErr.response?.data?.message ||
+          apiErr.response?.data?.title ||
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin tài khoản hoặc mật khẩu."
+        );
       }
     } catch (err) {
       setError(err.message || "Đăng nhập không thành công. Vui lòng thử lại.");
@@ -236,7 +240,12 @@ export default function LoginPage({
       routeUserByRole(user);
     } catch (apiErr) {
       console.error("Quick login error:", apiErr);
-      setError(apiErr.response?.data?.message || apiErr.message || "Đăng nhập nhanh thất bại. Vui lòng thử lại.");
+      setError(
+        apiErr.response?.data?.message ||
+        apiErr.response?.data?.title ||
+        apiErr.message ||
+        "Đăng nhập nhanh thất bại. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }

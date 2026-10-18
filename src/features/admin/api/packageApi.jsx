@@ -12,8 +12,8 @@ import apiClient from "./apiClient.jsx";
  *
  * @returns {Promise<object[]>} List of service packages.
  */
-export async function getPackages() {
-    const response = await apiClient.get("/service-packages");
+export async function getPackages(params = { pageSize: 100 }) {
+    const response = await apiClient.get("/service-packages", { params });
     return response.data;
 }
 

@@ -7,8 +7,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/layout/Sidebar';
-import AppHeader from '../components/layout/AppHeader';
+import Sidebar from '../components/Layout/Sidebar';
+import AppHeader from '../components/Layout/AppHeader';
 
 /**
  * Main application layout enclosing authenticated screens with responsive navigation.

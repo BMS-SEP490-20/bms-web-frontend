@@ -1130,7 +1130,19 @@ function App() {
                         />
                     </Route>
 
-                    {/* Admin & Manager Only - Packages, Employees */}
+                    {/* Service Packages - Admin, Manager (Full CRUD) and Clinical Staff (Catalog Lookup) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "Receptionist", "Cashier"]} />}>
+                        <Route
+                            path="/admin/packages"
+                            element={<ServicePackagesPage />}
+                        />
+                        <Route
+                            path="/packages"
+                            element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                    {/* Admin & Manager Only - Employees */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
                         <Route
                             path="/admin/employees"
@@ -1143,14 +1155,6 @@ function App() {
                         <Route
                             path="/users"
                             element={<UserManagementPage />}
-                        />
-                        <Route
-                            path="/admin/packages"
-                            element={<ServicePackagesPage />}
-                        />
-                        <Route
-                            path="/packages"
-                            element={<ServicePackagesPage />}
                         />
                     </Route>
 

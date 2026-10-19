@@ -32,6 +32,7 @@ import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import BookAppointmentPage from "./features/appointments/pages/BookAppointmentPage";
+import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import RegisterWalkInPatientPage from "./features/reception/pages/RegisterWalkInPatientPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
@@ -1174,6 +1175,14 @@ function App() {
                         <Route
                             path="/packages"
                             element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                     {/* Admin & Doctor Only */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
+                        <Route
+                            path="/manage/schedule"
+                            element={<ScheduleManagementPage />}
                         />
                     </Route>
 

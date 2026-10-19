@@ -29,6 +29,7 @@ import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
+import CheckInSamplePage from "./features/laboratory/pages/CheckInSamplePage";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
@@ -1140,6 +1141,10 @@ function App() {
                         <Route
                             path="/laboratory/samples"
                             element={<SampleQueuePage />}
+                        />
+                        <Route
+                            path="/laboratory/checkinsample"
+                            element={<CheckInSamplePage />}
                         />
                     </Route>
 

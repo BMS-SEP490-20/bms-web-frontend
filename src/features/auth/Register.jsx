@@ -180,16 +180,34 @@ export default function Register() {
     setOtpLoading(true);
     setOtpError('');
     try {
-      await api.post('/auth/otp/send', {
-        destination: formData.email.trim(),
-        purpose: 'Registration'
-      });
+      const payload = {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        username: formData.username.trim(),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        phoneNumber: formData.phoneNumber.trim(),
+        address: formData.address?.trim() || undefined,
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString() : undefined
+      };
+      await api.post('/auth/register', payload);
       setCountdown(60);
       setOtpAttempts(0);
       setSuccessMsg('Mã OTP mới đã được gửi lại vào email của bạn.');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể gửi lại mã OTP. Vui lòng thử lại sau.';
-      setOtpError(msg);
+      try {
+        await api.post('/auth/otp/send', {
+          destination: formData.email.trim(),
+          purpose: 'Registration'
+        });
+        setCountdown(60);
+        setOtpAttempts(0);
+        setSuccessMsg('Mã OTP mới đã được gửi lại vào email của bạn.');
+      } catch (subErr) {
+        const msg = err.response?.data?.message || subErr.response?.data?.message || 'Không thể gửi lại mã OTP. Vui lòng thử lại sau.';
+        setOtpError(msg);
+      }
     } finally {
       setOtpLoading(false);
     }

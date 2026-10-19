@@ -97,6 +97,20 @@ export default function ServicePackagesPage({ onBack }) {
     const [editing, setEditing] = useState(null);
     const [deleting, setDeleting] = useState(null);
 
+    const userRole = useMemo(() => {
+        try {
+            const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user");
+            const parsed = raw ? JSON.parse(raw) : null;
+            const r = (parsed?.role || parsed?.roleName || "").toString().toUpperCase();
+            if (r.includes("ADMIN")) return "ADMIN";
+            if (r.includes("MANAGER")) return "MANAGER";
+            return "STAFF";
+        } catch {
+            return "STAFF";
+        }
+    }, []);
+    const canManage = userRole === "ADMIN" || userRole === "MANAGER";
+
     const load = useCallback(async () => {
         try {
             setLoading(true);
@@ -264,13 +278,37 @@ export default function ServicePackagesPage({ onBack }) {
                     </div>
                 </div>
 
-                <button
-                    type="button"
-                    className="adm-btn adm-btn-primary"
-                    onClick={openCreate}
-                >
-                    + Tạo gói
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                    <a
+                        href="/services"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="adm-btn adm-btn-ghost d-flex align-items-center gap-1 text-decoration-none"
+                        style={{
+                            border: "1px solid #cbd5e1",
+                            color: "#1e293b",
+                            background: "#ffffff",
+                            padding: "8px 14px",
+                            borderRadius: "6px",
+                            fontWeight: 500,
+                            fontSize: "13px",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                        }}
+                        title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
+                    >
+                        <span>👁 Xem Web Bệnh Nhân ↗</span>
+                    </a>
+
+                    {canManage && (
+                        <button
+                            type="button"
+                            className="adm-btn adm-btn-primary"
+                            onClick={openCreate}
+                        >
+                            + Tạo gói
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="adm-card">
@@ -405,21 +443,29 @@ export default function ServicePackagesPage({ onBack }) {
                                     <td>{formatDate(pkg.updatedAt)}</td>
 
                                     <td className="rt adm-actions">
-                                        <button
-                                            type="button"
-                                            className="adm-btn adm-btn-ghost adm-btn-sm"
-                                            onClick={() => openEdit(pkg)}
-                                        >
-                                            Sửa
-                                        </button>
+                                        {canManage ? (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    className="adm-btn adm-btn-ghost adm-btn-sm"
+                                                    onClick={() => openEdit(pkg)}
+                                                >
+                                                    Sửa
+                                                </button>
 
-                                        <button
-                                            type="button"
-                                            className="adm-btn adm-btn-ghost adm-btn-sm adm-text-danger"
-                                            onClick={() => setDeleting(pkg)}
-                                        >
-                                            Xóa
-                                        </button>
+                                                <button
+                                                    type="button"
+                                                    className="adm-btn adm-btn-ghost adm-btn-sm adm-text-danger"
+                                                    onClick={() => setDeleting(pkg)}
+                                                >
+                                                    Xóa
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <span className="adm-muted text-nowrap" style={{ fontSize: "12px" }}>
+                                                Chỉ xem
+                                            </span>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

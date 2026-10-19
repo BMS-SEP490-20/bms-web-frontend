@@ -72,20 +72,33 @@ export default function UserManagementPage() {
     setLoading(true);
     setError('');
     try {
-      const [usersRes, statsRes, rooms] = await Promise.all([
-        userManagementService.getAllUsers(),
-        userManagementService.getUserStats(),
-        userManagementService.getAllLabRooms(),
-      ]);
+      const usersRes = await userManagementService.getAllUsers();
+      if (usersRes?.success) {
+        setUsers(usersRes.data || []);
+      } else {
+        setError(usersRes?.message || 'Không thể tải danh sách tài khoản. Vui lòng thử lại.');
+      }
 
-      if (usersRes.success) {
-        setUsers(usersRes.data);
+      try {
+        const statsRes = await userManagementService.getUserStats();
+        if (statsRes?.success) {
+          setStats(statsRes.data);
+        }
+      } catch (e) {
+        console.warn('[UserManagementPage] Failed to load stats:', e);
       }
-      if (statsRes.success) {
-        setStats(statsRes.data);
+
+      try {
+        const roomsFn = userManagementService.getLabRooms || userManagementService.getAllLabRooms;
+        if (typeof roomsFn === 'function') {
+          const rooms = await roomsFn();
+          setLabRooms(rooms || []);
+        }
+      } catch (e) {
+        console.warn('[UserManagementPage] Failed to load lab rooms:', e);
       }
-      setLabRooms(rooms || []);
     } catch (err) {
+      console.error('[UserManagementPage] Error loading data:', err);
       setError('Không thể tải danh sách tài khoản. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -273,7 +286,7 @@ export default function UserManagementPage() {
   };
 
   return (
-    <Container fluid className="py-4">
+    <div className="w-100 py-2">
       {/* Page Header */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
@@ -666,6 +679,6 @@ export default function UserManagementPage() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }

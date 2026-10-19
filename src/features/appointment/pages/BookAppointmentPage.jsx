@@ -319,3 +319,5 @@ export function BookAppointmentPage({
     </div>
   );
 }
+
+export default BookAppointmentPage;

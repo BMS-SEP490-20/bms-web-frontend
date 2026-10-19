@@ -33,6 +33,7 @@ import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import BookAppointmentPage from "./features/appointments/pages/BookAppointmentPage";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
+import RegisterWalkInPatientPage from "./features/reception/pages/RegisterWalkInPatientPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -1117,6 +1118,10 @@ function App() {
                         <Route
                             path="/reception/patients"
                             element={<CheckInPage />}
+                        />
+                        <Route
+                            path="/reception/register-walkin"
+                            element={<RegisterWalkInPatientPage />}
                         />
                     </Route>
 

@@ -1,6 +1,6 @@
 /**
  * @file Sidebar.jsx
- * @description Role-based collapsible navigation sidebar for BMS Management Portal.
+ * @description Role-based collapsible navigation sidebar for BMS Management Portal (Refined UC01/UC15).
  * Filters menu items dynamically according to current user role (BR-IAM-02).
  * Conforms to: Production Medical Standards & AGENTS-DESIGN.md.
  */
@@ -111,19 +111,11 @@ export default function Sidebar({
       badge: null
     },
     {
-      id: 'services',
-      path: '/services',
-      label: 'Tra Cứu Gói Xét Nghiệm',
-      icon: FaHospital,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'PATIENT', 'CASHIER'],
-      badge: null
-    },
-    {
       id: 'packages',
       path: '/admin/packages',
       label: 'Quản Lý Gói Dịch Vụ',
       icon: FaBoxOpen,
-      allowedRoles: ['ADMIN', 'MANAGER'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'CASHIER'],
       badge: null
     },
     {

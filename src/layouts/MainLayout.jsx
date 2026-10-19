@@ -7,8 +7,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/layout/Sidebar';
-import AppHeader from '../components/layout/AppHeader';
+import Sidebar from '../components/Layout/Sidebar';
+import AppHeader from '../components/Layout/AppHeader';
 
 /**
  * Main application layout enclosing authenticated screens with responsive navigation.
@@ -111,8 +111,8 @@ export default function MainLayout() {
         {/* Unified Application Header */}
         <AppHeader onToggleSidebar={toggleSidebar} />
 
-        {/* Dynamic Page Content Outlet */}
-        <main className="bms-page-content flex-grow-1 p-3 p-md-4">
+        {/* Dynamic Page Content Outlet - 100% full width layout */}
+        <main className="bms-page-content flex-grow-1 px-3 py-3 px-xl-4 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
           <Outlet />
         </main>
 

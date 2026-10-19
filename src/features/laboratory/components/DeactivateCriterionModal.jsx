@@ -1,10 +1,12 @@
 /**
  * @file DeactivateCriterionModal.jsx
  * @description Confirmation modal for safely deactivating / soft-deleting laboratory criteria (UC18).
- * Enforces ISO 15189 compliance by preventing permanent deletion of historical clinical records.
+ * Built with React-Bootstrap Modal. Enforces ISO 15189 compliance by preventing permanent deletion of historical clinical records.
  */
 
 import React, { useState } from 'react';
+import { Modal, Button, Alert, Badge, Card, Spinner } from 'react-bootstrap';
+import { FaExclamationTriangle, FaTimes, FaShieldAlt } from 'react-icons/fa';
 
 export default function DeactivateCriterionModal({ isOpen, criterion, onClose, onConfirm }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,84 +27,71 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
   };
 
   return (
-    <div className="bms-modal-backdrop" onClick={onClose}>
-      <div
-        className="bms-modal-container"
-        style={{ maxWidth: '520px', width: '92%' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bms-modal-header" style={{ borderBottomColor: '#fecaca', background: '#fef2f2' }}>
+    <Modal 
+      show={isOpen} 
+      onHide={onClose} 
+      centered 
+      backdrop="static"
+      className="bms-medical-modal"
+    >
+      <Modal.Header closeButton className="bg-danger bg-opacity-10 border-danger border-opacity-25 py-3 px-4">
+        <div>
+          <Modal.Title className="h6 fw-bold mb-0 text-danger d-flex align-items-center gap-2">
+            <FaExclamationTriangle />
+            Ngưng Sử Dụng Chỉ Số Xét Nghiệm
+          </Modal.Title>
+          <small className="text-danger opacity-75">
+            Bảo toàn lịch sử hồ sơ bệnh án theo tiêu chuẩn ISO 15189:2022
+          </small>
+        </div>
+      </Modal.Header>
+
+      <Modal.Body className="p-4">
+        {errorMessage && (
+          <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="small mb-3">
+            {errorMessage}
+          </Alert>
+        )}
+
+        <Card className="bg-light border mb-3 rounded-3 shadow-none">
+          <Card.Body className="p-3 small">
+            <div className="d-flex justify-content-between mb-2">
+              <span className="text-muted">Mã chỉ số:</span>
+              <strong className="text-dark font-monospace">{criterion.criterionCode}</strong>
+            </div>
+            <div className="d-flex justify-content-between mb-2">
+              <span className="text-muted">Tên chỉ số:</span>
+              <strong className="text-dark">{criterion.criterionName}</strong>
+            </div>
+            <div className="d-flex justify-content-between">
+              <span className="text-muted">Chuyên khoa:</span>
+              <Badge bg="secondary">{criterion.category}</Badge>
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Alert variant="warning" className="small mb-0 d-flex align-items-start gap-2">
+          <FaShieldAlt className="mt-1 flex-shrink-0 text-warning" />
           <div>
-            <h3 className="bms-modal-title" style={{ color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>&#9888;</span> Ngưng Sử Dụng Chỉ Số Xét Nghiệm
-            </h3>
-            <p className="bms-modal-subtitle" style={{ color: '#b91c1c' }}>
-              Bảo toàn lịch sử hồ sơ bệnh án theo tiêu chuẩn ISO 15189:2022
-            </p>
+            <strong>Lưu ý bảo mật y tế:</strong> Chỉ số sẽ chuyển sang trạng thái <em>Ngưng Hoạt Động (Inactive)</em> và không xuất hiện khi chỉ định mới. Toàn bộ kết quả xét nghiệm lịch sử của bệnh nhân vẫn được bảo toàn nguyên vẹn 100%.
           </div>
-          <button type="button" className="bms-modal-close-btn" onClick={onClose} aria-label="Đóng">
-            &times;
-          </button>
-        </div>
+        </Alert>
+      </Modal.Body>
 
-        <div className="bms-modal-body">
-          {errorMessage && (
-            <div className="bms-alert-danger" style={{ marginBottom: '14px' }}>
-              <span>&#9888; {errorMessage}</span>
-            </div>
+      <Modal.Footer className="bg-light py-2 px-4 border-top">
+        <Button variant="secondary" size="sm" onClick={onClose} disabled={isSubmitting}>
+          <FaTimes className="me-1" /> Hủy Bỏ
+        </Button>
+        <Button variant="danger" size="sm" onClick={handleConfirm} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner size="sm" className="me-2" /> Đang Xử Lý...
+            </>
+          ) : (
+            'Xác Nhận Ngưng Sử Dụng'
           )}
-
-          <div
-            style={{
-              padding: '12px 16px',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              marginBottom: '16px',
-            }}
-          >
-            <div style={{ fontSize: '13px', color: '#64748b' }}>Chỉ số được chọn:</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginTop: '4px' }}>
-              [{criterion.criterionCode}] {criterion.criterionName}
-            </div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
-              Chuyên khoa: {criterion.category} | Đơn vị: {criterion.unit || 'N/A'}
-            </div>
-          </div>
-
-          <div style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
-            <p style={{ margin: '0 0 10px 0' }}>
-              <strong>Lưu ý quan trọng:</strong> Hệ thống thực hiện <em>Vô hiệu hóa an toàn (Soft Deactivation)</em>,
-              tuyệt đối không xóa cứng khỏi cơ sở dữ liệu.
-            </p>
-            <ul style={{ paddingLeft: '20px', margin: '0', color: '#64748b', fontSize: '13px' }}>
-              <li>Ẩn chỉ số khỏi danh sách tạo phiếu chỉ định và gói xét nghiệm mới.</li>
-              <li>Toàn bộ kết quả xét nghiệm lịch sử và báo cáo bệnh án cũ vẫn được bảo lưu nguyên vẹn.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bms-modal-footer">
-          <button type="button" className="bms-btn bms-btn-outline" onClick={onClose} disabled={isSubmitting}>
-            Hủy Bỏ
-          </button>
-          <button
-            type="button"
-            className="bms-btn bms-btn-danger"
-            onClick={handleConfirm}
-            disabled={isSubmitting}
-            style={{ background: '#dc2626', color: '#fff', border: 'none' }}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="bms-spinner-small" /> Đang Xử Lý...
-              </>
-            ) : (
-              'Xác Nhận Ngưng Dùng'
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }

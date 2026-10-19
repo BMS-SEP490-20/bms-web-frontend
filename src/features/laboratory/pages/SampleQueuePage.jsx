@@ -473,7 +473,7 @@ const SampleQueuePage = () => {
   const completedCount = samples.filter(s => s.status === 'Completed').length;
 
   return (
-    <div className="container-fluid py-3">
+    <div className="w-100 py-1">
       {/* Page Header */}
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
         <div>

@@ -22,8 +22,8 @@ import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
 import ChangePassword from "./features/auth/ChangePassword";
 
-import UserProfilePage from "./features/patient-portal/pages/UserProfilePage";
-import PatientHomepage from "./features/patient-portal/pages/PatientHomepage.jsx";
+import UserProfilePage from "./features/patient/pages/UserProfilePage";
+import PatientHomepage from "./features/patient/pages/PatientHomepage.jsx";
 import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
@@ -1155,7 +1155,19 @@ function App() {
                         />
                     </Route>
 
-                    {/* Admin & Manager Only - Packages, Employees */}
+                    {/* Service Packages - Admin, Manager (Full CRUD) and Clinical Staff (Catalog Lookup) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "Receptionist", "Cashier"]} />}>
+                        <Route
+                            path="/admin/packages"
+                            element={<ServicePackagesPage />}
+                        />
+                        <Route
+                            path="/packages"
+                            element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                    {/* Admin & Manager Only - Employees */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
                         <Route
                             path="/admin/employees"
@@ -1168,14 +1180,6 @@ function App() {
                         <Route
                             path="/users"
                             element={<UserManagementPage />}
-                        />
-                        <Route
-                            path="/admin/packages"
-                            element={<ServicePackagesPage />}
-                        />
-                        <Route
-                            path="/packages"
-                            element={<ServicePackagesPage />}
                         />
                     </Route>
 

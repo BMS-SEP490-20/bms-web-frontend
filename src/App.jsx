@@ -22,8 +22,8 @@ import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
 import ChangePassword from "./features/auth/ChangePassword";
 
-import UserProfilePage from "./features/patient-portal/pages/UserProfilePage";
-import PatientHomepage from "./features/patient-portal/pages/PatientHomepage.jsx";
+import UserProfilePage from "./features/patient/pages/UserProfilePage";
+import PatientHomepage from "./features/patient/pages/PatientHomepage.jsx";
 import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";

@@ -251,6 +251,13 @@ export const userManagementService = {
     }
     return [];
   },
+
+  /**
+   * Alias for getLabRooms to ensure backward compatibility across components.
+   */
+  getAllLabRooms: async () => {
+    return userManagementService.getLabRooms();
+  },
 };
 
 export default userManagementService;

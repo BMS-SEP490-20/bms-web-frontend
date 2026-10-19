@@ -118,7 +118,7 @@ export default function DoctorSchedulePage() {
   }, [scheduleList, debouncedSearch, selectedShift, selectedStatus]);
 
   return (
-    <div className="container-fluid py-2">
+    <div className="w-100 py-1">
       {/* Page Header */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>

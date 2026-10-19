@@ -1,0 +1,10 @@
+/* UC26 – Walk-in / reception */
+.walkin-page {
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.walkin-page .btn-primary {
+  background-color: #1e40af;
+  border-color: #1e40af;
+}

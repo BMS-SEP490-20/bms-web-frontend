@@ -376,3 +376,45 @@
     transform: translateY(0);
   }
 }
+
+/* Medical Form Modal Enhancements */
+.bms-medical-modal .modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+}
+
+.bms-medical-modal .modal-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.bms-medical-modal .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.bms-medical-modal .modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bms-medical-modal .modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.bms-medical-modal .modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.bms-medical-modal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.bms-medical-modal .form-control:focus,
+.bms-medical-modal .form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+

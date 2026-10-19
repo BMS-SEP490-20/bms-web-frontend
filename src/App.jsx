@@ -36,6 +36,7 @@ import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
 import BookAppointmentPage from "./features/appointments/pages/BookAppointmentPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
+import EnterTestResultsPage from "./features/test-results/pages/TestResultsPage.jsx";
 import RegisterWalkInPatientPage from "./features/reception/pages/RegisterWalkInPatientPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
@@ -1145,6 +1146,10 @@ function App() {
                         <Route
                             path="/laboratory/checkinsample"
                             element={<CheckInSamplePage />}
+                        />
+                        <Route
+                            path="/laboratory/enter-test-results"
+                            element={<EnterTestResultsPage />}
                         />
                     </Route>
 

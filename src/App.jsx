@@ -31,6 +31,7 @@ import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
+import BookAppointmentPage from "./features/appointments/pages/BookAppointmentPage";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
@@ -1096,6 +1097,10 @@ function App() {
                                     </div>
                                 </div>
                             }
+                        />
+                        <Route
+                            path="/appointments/book"
+                            element={<BookAppointmentPage />}
                         />
                     </Route>
 

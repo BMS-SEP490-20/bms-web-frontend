@@ -65,7 +65,7 @@ const RoleBasedDashboard = () => {
   }, [selectedRole]);
 
   return (
-    <div className="container-fluid py-4">
+    <div className="w-100 py-1">
       {/* Header with Role Selector */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>

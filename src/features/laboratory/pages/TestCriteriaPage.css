@@ -1,9 +1,10 @@
 /* TestCriteriaPage.css - Laboratory Master Data & Reference Ranges */
 
 .bms-criteria-container {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 12px 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   font-family: inherit;
 }
 

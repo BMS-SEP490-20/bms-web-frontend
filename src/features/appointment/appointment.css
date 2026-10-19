@@ -1,0 +1,19 @@
+/* UC21 – Book appointment feature styles */
+.appt-page {
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.appt-page .btn-primary {
+  background-color: #1e40af;
+  border-color: #1e40af;
+}
+
+.appt-page .btn-primary:hover {
+  background-color: #1e3a8a;
+  border-color: #1e3a8a;
+}
+
+.appt-guide-card {
+  background: #eff6ff;
+}

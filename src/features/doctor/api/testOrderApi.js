@@ -7,7 +7,7 @@
 import api from "../../../config/api";
 
 /**
- * Fetch available test catalog items with tube, pricing, and fasting specifications.
+ * Fetch available test catalog items directly from backend database.
  * @returns {Promise<Array>} List of test catalog items.
  */
 export const fetchTestCatalog = async () => {
@@ -15,100 +15,8 @@ export const fetchTestCatalog = async () => {
         const response = await api.get("/testorders/catalog");
         return response.data?.data || [];
     } catch (error) {
-        console.warn("Failed to fetch test catalog from backend, using clinical fallback catalog:", error);
-        return [
-            {
-                code: "SP-LIP-02",
-                name: "Lipid Profile Extended",
-                category: "Biochemistry",
-                tubeType: "SST 4mL",
-                tubeColor: "Gold",
-                volumeMl: 4.0,
-                turnaroundTime: "~4h",
-                preparationNotes: "Fast 12h",
-                fastingRequired: true,
-                fastingHours: 12,
-                price: 380000
-            },
-            {
-                code: "TST-GLU-F",
-                name: "Fasting Glucose",
-                category: "Biochemistry",
-                tubeType: "NaF 2mL",
-                tubeColor: "Green",
-                volumeMl: 2.0,
-                turnaroundTime: "~1h",
-                preparationNotes: "Fast 8h",
-                fastingRequired: true,
-                fastingHours: 8,
-                price: 80000
-            },
-            {
-                code: "SP-LFT-01",
-                name: "Liver Function Test (AST, ALT, GGT, Bili)",
-                category: "Biochemistry",
-                tubeType: "SST 3mL",
-                tubeColor: "Gold",
-                volumeMl: 3.0,
-                turnaroundTime: "~3h",
-                preparationNotes: "Fast 8h",
-                fastingRequired: true,
-                fastingHours: 8,
-                price: 280000
-            },
-            {
-                code: "TST-HBA1C",
-                name: "HbA1c (Glycated Hemoglobin)",
-                category: "Hematology",
-                tubeType: "EDTA 2mL",
-                tubeColor: "Lavender",
-                volumeMl: 2.0,
-                turnaroundTime: "~2h",
-                preparationNotes: "None",
-                fastingRequired: false,
-                fastingHours: 0,
-                price: 150000
-            },
-            {
-                code: "TST-CRP-H",
-                name: "hs-CRP (High-Sensitivity Cardiac CRP)",
-                category: "Immunology",
-                tubeType: "SST 1mL",
-                tubeColor: "Gold",
-                volumeMl: 1.0,
-                turnaroundTime: "~2h",
-                preparationNotes: "None",
-                fastingRequired: false,
-                fastingHours: 0,
-                price: 120000
-            },
-            {
-                code: "SP-CBC-01",
-                name: "Complete Blood Count (CBC 24-parameters)",
-                category: "Hematology",
-                tubeType: "EDTA 2mL",
-                tubeColor: "Lavender",
-                volumeMl: 2.0,
-                turnaroundTime: "~1h",
-                preparationNotes: "None",
-                fastingRequired: false,
-                fastingHours: 0,
-                price: 120000
-            },
-            {
-                code: "SP-KFT-01",
-                name: "Kidney Function Test (Urea, Creatinine)",
-                category: "Biochemistry",
-                tubeType: "SST 3mL",
-                tubeColor: "Gold",
-                volumeMl: 3.0,
-                turnaroundTime: "~2h",
-                preparationNotes: "None",
-                fastingRequired: false,
-                fastingHours: 0,
-                price: 180000
-            }
-        ];
+        console.error("Failed to fetch test catalog from backend API:", error);
+        return [];
     }
 };
 
@@ -122,8 +30,8 @@ export const fetchTestOrders = async (params = {}) => {
         const response = await api.get("/testorders", { params });
         return response.data?.data || [];
     } catch (error) {
-        console.error("Error fetching test orders:", error);
-        throw error;
+        console.error("Error fetching test orders from backend API:", error);
+        return [];
     }
 };
 

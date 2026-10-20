@@ -30,7 +30,7 @@ export default function CreateTestOrderPage() {
     const [catalog, setCatalog] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [selectedCodes, setSelectedCodes] = useState(new Set(["SP-LIP-02", "TST-GLU-F", "SP-LFT-01"]));
+    const [selectedCodes, setSelectedCodes] = useState(new Set());
 
     // Form details
     const [patient, setPatient] = useState({

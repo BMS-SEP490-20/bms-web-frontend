@@ -39,19 +39,17 @@ export default function SampleRerunPage() {
         }
     }, []);
 
-    const requestedBy = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên xét nghiệm";
+    const requestedBy = currentUser?.fullName || currentUser?.name || "";
 
     // Specimen & rerun context state directly from DB
     const [sampleDetails, setSampleDetails] = useState(null);
 
     // Form states
     const [reason, setReason] = useState("Delta check failed vs. previous result");
-    const [selectedParameters, setSelectedParameters] = useState(new Set(["LDL Cholesterol"]));
-    const [analyzerTarget, setAnalyzerTarget] = useState("Same analyzer (BC-01)");
-    const [priority, setPriority] = useState("High (delta verification)");
-    const [notes, setNotes] = useState(
-        "LDL value elevated vs. baseline. Requesting rerun to confirm before submitting for doctor approval."
-    );
+    const [selectedParameters, setSelectedParameters] = useState(new Set());
+    const [analyzerTarget, setAnalyzerTarget] = useState("Same analyzer");
+    const [priority, setPriority] = useState("Routine rerun");
+    const [notes, setNotes] = useState("");
 
     // Open reruns state
     const [openReruns, setOpenReruns] = useState([]);
@@ -104,6 +102,11 @@ export default function SampleRerunPage() {
 
         if (!sampleDetails) {
             setErrorMessage("No valid specimen loaded for rerun requisition.");
+            return;
+        }
+
+        if (!requestedBy) {
+            setErrorMessage("Authenticated laboratory technician is required.");
             return;
         }
 
@@ -289,9 +292,9 @@ export default function SampleRerunPage() {
                                             value={analyzerTarget}
                                             onChange={(e) => setAnalyzerTarget(e.target.value)}
                                         >
-                                            <option value="Same analyzer (BC-01)">Same analyzer (BC-01)</option>
-                                            <option value="Backup analyzer (BC-02)">Backup analyzer (BC-02)</option>
-                                            <option value="Reference instrument (Sysmex XN-1000)">Reference instrument (Sysmex XN-1000)</option>
+                                            <option value="Same analyzer">Same analyzer</option>
+                                            <option value="Backup analyzer">Backup analyzer</option>
+                                            <option value="Reference instrument">Reference instrument</option>
                                         </select>
                                     </div>
                                     <div className="col-md-6">
@@ -418,10 +421,10 @@ export default function SampleRerunPage() {
                                     <tbody>
                                         <tr>
                                             <td className="fw-semibold text-dark">
-                                                {sampleDetails.currentResult?.split("=")[0]?.trim() || "Analysis"}
+                                                {sampleDetails.currentResult?.split("=")[0]?.trim() || "—"}
                                             </td>
                                             <td className="text-end font-monospace">
-                                                {sampleDetails.currentResult?.split("=")[1]?.trim() || "Pending"}
+                                                {sampleDetails.currentResult?.split("=")[1]?.trim() || "—"}
                                             </td>
                                             <td className="text-end font-monospace fw-bold">—</td>
                                             <td className="text-end text-muted small">Pending rerun</td>

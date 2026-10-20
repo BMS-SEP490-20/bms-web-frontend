@@ -14,36 +14,18 @@ import { queueApi } from "../api/queueApi";
 
 export default function QueueBoardPage() {
   const [loading, setLoading] = useState(true);
+  const [selectedCounter, setSelectedCounter] = useState("");
   const [data, setData] = useState({
     currentQueue: [],
-    nextNumber: "Q-019",
+    nextNumber: "Q-001",
     stats: {
-      inQueueNow: 7,
-      avgWaitMinutes: 12,
-      longestWaitMinutes: 16,
-      servedToday: 18,
-      countersActive: "2 / 3",
+      inQueueNow: 0,
+      avgWaitMinutes: 0,
+      longestWaitMinutes: 0,
+      servedToday: 0,
+      countersActive: "0 / 0",
     },
-    counters: [
-      {
-        counterName: "Counter 1",
-        staffName: "Phạm Thu Dung",
-        status: "Active",
-        description: "Now serving Q-012",
-      },
-      {
-        counterName: "Counter 2",
-        staffName: "Lê Minh Châu",
-        status: "Active",
-        description: "Available",
-      },
-      {
-        counterName: "Counter 3",
-        staffName: "Vũ Đình Trọng",
-        status: "Closed",
-        description: "Opens at 13:00 (PM shift)",
-      },
-    ],
+    counters: [],
   });
 
   const [issuing, setIssuing] = useState(false);
@@ -54,9 +36,12 @@ export default function QueueBoardPage() {
       const res = await queueApi.fetchLiveQueue();
       if (res?.data) {
         setData(res.data);
+        if (res.data.counters && res.data.counters.length > 0) {
+          setSelectedCounter((prev) => prev || res.data.counters[0].counterName);
+        }
       }
     } catch {
-      // Fallback preserves rich layout even if API is starting up
+      // Retain existing state on network error
     } finally {
       setLoading(false);
     }
@@ -79,77 +64,39 @@ export default function QueueBoardPage() {
 
       const issuedCode = res?.data?.ticketNumber || data.nextNumber;
       setActionMessage(`Đã cấp số mới ${issuedCode} thành công!`);
-      await loadQueue();
-    } catch {
-      // Optimistic update
-      const curNum = parseInt(data.nextNumber.replace("Q-", ""), 10) || 19;
-      const nextNum = `Q-${String(curNum + 1).padStart(3, "0")}`;
-      const newTicket = {
-        id: `TKT-${curNum}`,
-        ticketNumber: data.nextNumber,
-        patientName: "Khách vãng lai",
-        patientCode: `PT-${Math.floor(100000 + Math.random() * 900000)}`,
-        packageName: "Tổng quát",
-        isWalkIn: true,
-        checkedInTime: new Date().toLocaleTimeString("vi-VN", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        waitTimeMinutes: 1,
-        priority: "Routine",
-        status: "Waiting",
-      };
-
-      setData((prev) => ({
-        ...prev,
-        nextNumber: nextNum,
-        currentQueue: [...prev.currentQueue, newTicket],
-        stats: {
-          ...prev.stats,
-          inQueueNow: prev.stats.inQueueNow + 1,
-        },
-      }));
-      setActionMessage(`Đã cấp số ${data.nextNumber} thành công!`);
+    } catch (err) {
+      setActionMessage(`Lỗi cấp số: ${err?.message || "Không thể cấp số lúc này"}`);
     } finally {
+      await loadQueue();
       setIssuing(false);
       setTimeout(() => setActionMessage(null), 4000);
     }
   };
 
   const handleCallNext = async (ticket) => {
+    const counterToUse = selectedCounter || data.counters?.[0]?.counterName || "Quầy Tiếp Nhận";
     try {
-      await queueApi.callQueueTicket(ticket.id, "Counter 2");
-      setActionMessage(`Đã gọi ${ticket.ticketNumber} vào Counter 2`);
+      await queueApi.callQueueTicket(ticket.id, counterToUse);
+      setActionMessage(`Đã gọi ${ticket.ticketNumber} vào ${counterToUse}`);
+    } catch (err) {
+      setActionMessage(`Lỗi gọi số: ${err?.message || "Không thể gọi số"}`);
+    } finally {
       await loadQueue();
-    } catch {
-      setData((prev) => ({
-        ...prev,
-        currentQueue: prev.currentQueue.map((t) =>
-          t.id === ticket.id
-            ? { ...t, status: "Called", counterName: "Counter 2" }
-            : t
-        ),
-      }));
-      setActionMessage(`Đã gọi ${ticket.ticketNumber} vào Counter 2`);
+      setTimeout(() => setActionMessage(null), 4000);
     }
-    setTimeout(() => setActionMessage(null), 4000);
   };
 
   const handleStartCollecting = async (ticket) => {
+    const counterToUse = selectedCounter || data.counters?.[0]?.counterName || "Phòng Lấy Mẫu";
     try {
-      await queueApi.updateQueueTicketStatus(ticket.id, 3, "Counter 1"); // 3 = Collecting
+      await queueApi.updateQueueTicketStatus(ticket.id, 3, counterToUse); // 3 = Collecting
       setActionMessage(`${ticket.ticketNumber} đang lấy mẫu tại phòng xét nghiệm`);
+    } catch (err) {
+      setActionMessage(`Lỗi cập nhật: ${err?.message || "Không thể cập nhật"}`);
+    } finally {
       await loadQueue();
-    } catch {
-      setData((prev) => ({
-        ...prev,
-        currentQueue: prev.currentQueue.map((t) =>
-          t.id === ticket.id ? { ...t, status: "Collecting" } : t
-        ),
-      }));
-      setActionMessage(`${ticket.ticketNumber} đang lấy mẫu`);
+      setTimeout(() => setActionMessage(null), 4000);
     }
-    setTimeout(() => setActionMessage(null), 4000);
   };
 
   const getPriorityBadge = (priority) => {
@@ -199,7 +146,24 @@ export default function QueueBoardPage() {
             Live queue · <span className="text-primary fw-bold">{data.stats.inQueueNow} waiting</span> · Avg wait {data.stats.avgWaitMinutes} min
           </div>
         </div>
-        <div className="d-flex gap-2 mt-2 mt-md-0">
+        <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
+          {data.counters?.length > 0 && (
+            <div className="d-flex align-items-center">
+              <span className="small text-muted me-2 fw-semibold">Quầy:</span>
+              <select
+                className="form-select form-select-sm"
+                value={selectedCounter}
+                onChange={(e) => setSelectedCounter(e.target.value)}
+                style={{ width: "160px" }}
+              >
+                {data.counters.map((c, i) => (
+                  <option key={i} value={c.counterName}>
+                    {c.counterName} {c.staffName ? `(${c.staffName})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <button
             onClick={loadQueue}
             className="btn btn-outline-secondary btn-sm"

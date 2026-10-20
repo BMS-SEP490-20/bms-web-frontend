@@ -43,6 +43,7 @@ import EnterTestResultsPage from "./features/test-results/pages/EnterTestResults
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
@@ -1299,6 +1300,22 @@ function App() {
                         <Route
                             path="/packages"
                             element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                    {/* Medical Billing & POS Receipts (UC43) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Cashier", "Receptionist"]} />}>
+                        <Route
+                            path="/billing/invoices"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/billing/receipts"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/invoices"
+                            element={<BillingInvoicesPage />}
                         />
                     </Route>
 

@@ -1,6 +1,7 @@
 /**
  * @file CheckInPage.jsx
  * @description Clinical Patient Directory, Walk-In Guest Registration (UC25 - Create Guest Profile),
+ * @issue I2-017 | BR-078 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
  * and Patient Information Viewer (UC30 - View Patient Information).
  * Follows the unified BMS dashboard & popup modal pattern.
  */

@@ -1,6 +1,7 @@
 /**
  * @file UserProfilePage.jsx
- * @description Patient & Clinical User Profile management screen (UC08).
+ * @description Patient & Clinical User Profile management screen (UC08 & UC30 - View Patient Information).
+ * @issue I2-032 | BR-093 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
  * Features: 2-column layout, PII masking, active session indicator, and Shimmer skeleton loading.
  * Conforms to: OWASP Top 10 (A01: IDOR Prevention) & AGENTS-DESIGN.md Rules 01-28.
  */

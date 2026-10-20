@@ -1,6 +1,7 @@
 /**
  * @file SampleQueuePage.jsx
  * @description Laboratory Specimen Queue, Record Sample Time, and Update Sample Status management page.
+ * @issue I2-062 | BR-123 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy (UC40 - Record Sample Time)
  * Connects to:
  * - GET  /api/laboratory/samples/queue
  * - GET  /api/laboratory/samples/{id}

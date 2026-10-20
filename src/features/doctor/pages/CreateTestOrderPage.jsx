@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
     FaSearch,
     FaClipboardList,
@@ -25,6 +25,7 @@ import { fetchTestCatalog, createTestOrder } from "../api/testOrderApi";
 
 export default function CreateTestOrderPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     // Catalog & filter states
     const [catalog, setCatalog] = useState([]);
@@ -32,16 +33,32 @@ export default function CreateTestOrderPage() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [selectedCodes, setSelectedCodes] = useState(new Set());
 
+    // Current logged-in doctor info
+    const currentUser = useMemo(() => {
+        try {
+            const raw = localStorage.getItem("user");
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const doctorId = currentUser?.id || currentUser?._id || "USR-DOC-01";
+    const doctorName = currentUser?.fullName || currentUser?.name || "BS. Bác sĩ Chỉ định";
+
     // Form details
+    const queryPatientName = searchParams.get("patientName");
+    const queryPatientId = searchParams.get("patientId");
+
     const [patient, setPatient] = useState({
-        id: "PT-004523",
-        name: "Nguyễn Văn An",
+        id: queryPatientId || "PT-2026-004523",
+        name: queryPatientName || "Bệnh nhân",
         gender: "Nam",
         age: 34,
-        bloodType: "O+",
-        allergies: "No known allergies",
-        lastVisit: "27 Sep 2026",
-        lastCbc: "PLT 135 (L)",
+        bloodType: "Chưa xác định",
+        allergies: "Không có",
+        lastVisit: "Hôm nay",
+        lastCbc: "Bình thường",
         activeOrders: 0
     });
 
@@ -149,8 +166,8 @@ export default function CreateTestOrderPage() {
                 patientName: patient.name,
                 patientGender: patient.gender,
                 patientAge: patient.age,
-                doctorId: "USR-DOC-01",
-                doctorName: "Dr. Trần Thị Bình",
+                doctorId: doctorId,
+                doctorName: doctorName,
                 priority: priority,
                 clinicalIndication: clinicalIndication,
                 specialInstructions: specialInstructions,
@@ -244,7 +261,13 @@ export default function CreateTestOrderPage() {
                             className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
                             style={{ width: "52px", height: "52px", background: "linear-gradient(135deg, #0369a1, #0284c7)" }}
                         >
-                            NA
+                            {(patient.name || "BN")
+                                .split(" ")
+                                .filter(Boolean)
+                                .map((w) => w[0])
+                                .slice(-2)
+                                .join("")
+                                .toUpperCase()}
                         </div>
                     </div>
                     <div className="col">

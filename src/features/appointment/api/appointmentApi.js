@@ -52,8 +52,29 @@ export async function getAvailableDoctors(date, specialty, signal) {
   return handleResponse(res);
 }
 
+export async function getAppointmentConfirmation(idOrCode, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(idOrCode)}/confirmation`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
+export async function sendAppointmentNotification(id, payload, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(id)}/notify`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload ?? { channel: 1, type: 1 }),
+    signal,
+  });
+  return handleResponse(res);
+}
+
 export const appointmentApi = {
   book: bookAppointment,
   getAvailableSlots,
   getAvailableDoctors,
+  getAppointmentConfirmation,
+  sendAppointmentNotification,
 };
+

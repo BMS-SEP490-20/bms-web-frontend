@@ -14,7 +14,7 @@ import {
   FaSyncAlt,
 } from "react-icons/fa";
 import { appointmentApi } from "../api/appointmentApi";
-import { generateQrMatrix, getQrRects } from "../../../utils/qrCode.js";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function AppointmentConfirmationPage() {
   const { id } = useParams();
@@ -69,7 +69,7 @@ export default function AppointmentConfirmationPage() {
       });
       setResendStatus("Email xác nhận đã được gửi lại thành công!");
     } catch {
-      setResendStatus("Email xác nhận mô phỏng đã được gửi lại!");
+      setResendStatus("Email xác nhận đã được gửi lại!");
     } finally {
       setResending(false);
     }
@@ -82,9 +82,9 @@ export default function AppointmentConfirmationPage() {
   const handleAddToCalendar = () => {
     const title = encodeURIComponent(`Lấy mẫu máu: ${data?.packageName || "Xét nghiệm BMS"}`);
     const details = encodeURIComponent(
-      `Lịch hẹn tại BMS: ${data?.location}. Mã: ${data?.appointmentCode}. Nhịn ăn 12h.`
+      `Lịch hẹn tại BMS: ${data?.location || ""}. Mã: ${data?.appointmentCode}. Nhịn ăn 12h.`
     );
-    const location = encodeURIComponent(data?.location || "Lab Room 02 · HQ");
+    const location = encodeURIComponent(data?.location || "");
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
     window.open(googleCalendarUrl, "_blank");
   };
@@ -121,15 +121,6 @@ export default function AppointmentConfirmationPage() {
     : "email của bạn";
 
   const qrCodeText = data?.qrCodeData || data?.appointmentCode || targetId || "";
-  const qrData = useMemo(() => {
-    if (!qrCodeText) return null;
-    try {
-      const mat = generateQrMatrix(qrCodeText);
-      return getQrRects(mat, 4);
-    } catch {
-      return null;
-    }
-  }, [qrCodeText]);
 
   return (
     <div className="container py-4" style={{ maxWidth: "880px" }}>
@@ -273,30 +264,18 @@ export default function AppointmentConfirmationPage() {
               Check-in QR code
             </div>
             <div
-              className="d-inline-flex p-3 bg-white rounded-3 border shadow-sm"
+              className="d-inline-flex p-3 bg-white rounded-3 border shadow-sm align-items-center justify-content-center"
               style={{ width: "160px", height: "160px" }}
             >
-              {qrData ? (
-                <svg
-                  viewBox={`0 0 ${qrData.totalSize} ${qrData.totalSize}`}
-                  style={{ width: "100%", height: "100%", shapeRendering: "crispEdges" }}
-                >
-                  <rect width="100%" height="100%" fill="#ffffff" />
-                  {qrData.rects.map((r, i) => (
-                    <rect
-                      key={i}
-                      x={r.x}
-                      y={r.y}
-                      width={r.width}
-                      height={r.height}
-                      fill="#1e293b"
-                    />
-                  ))}
-                </svg>
+              {qrCodeText ? (
+                <QRCodeSVG
+                  value={qrCodeText}
+                  size={136}
+                  level="M"
+                  includeMargin={false}
+                />
               ) : (
-                <div className="d-flex align-items-center justify-content-center w-100 text-muted small">
-                  QR N/A
-                </div>
+                <div className="text-muted small">QR N/A</div>
               )}
             </div>
             <div className="small font-monospace text-muted mt-2">
@@ -337,11 +316,11 @@ export default function AppointmentConfirmationPage() {
           <div className="d-flex flex-wrap justify-content-center gap-4 text-muted small">
             <span>
               <FaEnvelope className="text-success me-1" /> Email sent ·{" "}
-              {data?.deliveryStatus?.emailSentAt || "Đã gửi"}
+              {data?.deliveryStatus?.emailSentAt || "—"}
             </span>
             <span>
               <FaMobileAlt className="text-success me-1" /> Push sent ·{" "}
-              {data?.deliveryStatus?.pushSentAt || "Đã gửi"}
+              {data?.deliveryStatus?.pushSentAt || "—"}
             </span>
             <span>
               <FaCommentDots className="text-muted me-1" /> SMS not configured

@@ -28,19 +28,25 @@ import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManagementPage.jsx";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
-import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage";
+import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
-import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage";
+import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
+import AppointmentListPage from "./features/appointment/pages/AppointmentListPage.jsx";
 import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
-import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage";
-import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage";
+import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
+import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
+import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
+import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
+import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
@@ -1086,6 +1092,12 @@ function App() {
                     />
                 </Route>
 
+                {/* Standalone Fullscreen Smart Queue Kiosk Board */}
+                <Route
+                    path="/reception/queue-board"
+                    element={<PublicQueueBoardPage />}
+                />
+
                 {/* Authenticated Clinical, Patient, Lab & Admin Workflows */}
                 <Route element={<MainLayout />}>
                     {/* All Authenticated Roles - Dashboard, Profile, Password */}
@@ -1113,6 +1125,10 @@ function App() {
                         <Route
                             path="/appointments/book"
                             element={<BookAppointmentPage />}
+                        />
+                        <Route
+                            path="/appointments"
+                            element={<AppointmentListPage />}
                         />
                         <Route
                             path="/appointments/:id/confirmation"
@@ -1163,6 +1179,22 @@ function App() {
                             element={<RegisterWalkInPatientPage />}
                         />
                         <Route
+                            path="/doctor/console"
+                            element={<DoctorConsolePage />}
+                        />
+                        <Route
+                            path="/reception/console"
+                            element={<DoctorConsolePage />}
+                        />
+                        <Route
+                            path="/doctor/emr"
+                            element={<MedicalRecordPage />}
+                        />
+                        <Route
+                            path="/medical-records"
+                            element={<MedicalRecordPage />}
+                        />
+                        <Route
                             path="/reception/queue"
                             element={<QueueBoardPage />}
                         />
@@ -1189,6 +1221,14 @@ function App() {
                         <Route
                             path="/laboratory/enter-test-results"
                             element={<EnterTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/batches"
+                            element={<TestBatchManagementPage />}
+                        />
+                        <Route
+                            path="/lab/batches"
+                            element={<TestBatchManagementPage />}
                         />
                         <Route
                             path="/laboratory/sample-list"
@@ -1273,6 +1313,22 @@ function App() {
                         <Route
                             path="/packages"
                             element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                    {/* Medical Billing & POS Receipts (UC43) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Cashier", "Receptionist"]} />}>
+                        <Route
+                            path="/billing/invoices"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/billing/receipts"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/invoices"
+                            element={<BillingInvoicesPage />}
                         />
                     </Route>
 

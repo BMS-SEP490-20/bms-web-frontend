@@ -40,6 +40,7 @@ import EnterTestResultsPage from "./features/test-results/pages/TestResultsPage.
 import RegisterWalkInPatientPage from "./features/reception/pages/RegisterWalkInPatientPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound404 from "./components/errors/NotFound404";
 
@@ -1150,6 +1151,14 @@ function App() {
                         <Route
                             path="/laboratory/enter-test-results"
                             element={<EnterTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/sample-list"
+                            element={<SampleListPage />}
+                        />
+                        <Route
+                            path="/laboratory/sample-intake/create-list"
+                            element={<SampleListPage />}
                         />
                     </Route>
 

@@ -23,16 +23,19 @@ export default function TestReportPage() {
     const navigate = useNavigate();
 
     const [report, setReport] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(Boolean(orderId));
     const [copied, setCopied] = useState(false);
 
-    const activeOrderId = orderId || "ORD-260927-0231";
-
     useEffect(() => {
+        if (!orderId) {
+            setLoading(false);
+            return;
+        }
+
         const loadReport = async () => {
             setLoading(true);
             try {
-                const data = await fetchReportByOrder(activeOrderId);
+                const data = await fetchReportByOrder(orderId);
                 setReport(data);
             } catch (err) {
                 console.error("Failed to load test report:", err);
@@ -41,7 +44,7 @@ export default function TestReportPage() {
             }
         };
         loadReport();
-    }, [activeOrderId]);
+    }, [orderId]);
 
     const handleShare = () => {
         navigator.clipboard?.writeText(window.location.href);
@@ -52,6 +55,19 @@ export default function TestReportPage() {
     const handleDownloadPdf = () => {
         window.print();
     };
+
+    if (!orderId) {
+        return (
+            <div className="container py-5 text-center text-muted">
+                <FaExclamationCircle className="text-secondary fs-1 mb-3" />
+                <h5>No test order selected</h5>
+                <p className="small">Please select an order from your test results history to view the diagnostic report.</p>
+                <button className="btn btn-outline-primary mt-2" onClick={() => navigate(-1)}>
+                    Go Back
+                </button>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -66,7 +82,7 @@ export default function TestReportPage() {
         return (
             <div className="container py-5 text-center text-muted">
                 <FaExclamationCircle className="text-danger fs-1 mb-3" />
-                <h5>Diagnostic report not found for order #{activeOrderId}</h5>
+                <h5>Diagnostic report not found for order #{orderId}</h5>
                 <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
                     Go Back
                 </button>
@@ -133,7 +149,7 @@ export default function TestReportPage() {
                                 </div>
                                 <div>
                                     <h5 className="fw-bold mb-0 text-dark">BMS Blood Laboratory</h5>
-                                    <small className="text-muted">HCMC-Clinic-01 · 123 Nguyen Van Linh, Dist. 7, HCMC</small>
+                                    <small className="text-muted">{report.clinicAddress ? `HCMC-Clinic-01 · ${report.clinicAddress}` : "HCMC-Clinic-01"}</small>
                                 </div>
                             </div>
                             <div className="text-md-end small">

@@ -28,6 +28,7 @@ import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManagementPage.jsx";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
@@ -43,6 +44,8 @@ import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPag
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
+import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
+import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
@@ -1088,6 +1091,12 @@ function App() {
                     />
                 </Route>
 
+                {/* Standalone Fullscreen Smart Queue Kiosk Board */}
+                <Route
+                    path="/reception/queue-board"
+                    element={<PublicQueueBoardPage />}
+                />
+
                 {/* Authenticated Clinical, Patient, Lab & Admin Workflows */}
                 <Route element={<MainLayout />}>
                     {/* All Authenticated Roles - Dashboard, Profile, Password */}
@@ -1169,6 +1178,14 @@ function App() {
                             element={<RegisterWalkInPatientPage />}
                         />
                         <Route
+                            path="/doctor/console"
+                            element={<DoctorConsolePage />}
+                        />
+                        <Route
+                            path="/reception/console"
+                            element={<DoctorConsolePage />}
+                        />
+                        <Route
                             path="/doctor/emr"
                             element={<MedicalRecordPage />}
                         />
@@ -1203,6 +1220,14 @@ function App() {
                         <Route
                             path="/laboratory/enter-test-results"
                             element={<EnterTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/batches"
+                            element={<TestBatchManagementPage />}
+                        />
+                        <Route
+                            path="/lab/batches"
+                            element={<TestBatchManagementPage />}
                         />
                         <Route
                             path="/laboratory/sample-list"

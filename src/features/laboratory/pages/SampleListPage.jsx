@@ -31,7 +31,7 @@ export default function SampleListPage() {
 
     // Checked-in appointments state
     const [appointments, setAppointments] = useState([]);
-    const [selectedIds, setSelectedIds] = useState(new Set(["APT-342", "APT-343", "APT-344"]));
+    const [selectedIds, setSelectedIds] = useState(new Set());
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
 

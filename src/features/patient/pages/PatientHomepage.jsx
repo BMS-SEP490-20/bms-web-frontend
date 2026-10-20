@@ -1,6 +1,7 @@
 /**
  * @file PatientHomepage.jsx
- * @description Patient Portal Homepage interface (UC81 - Hứa Khánh Duy / Võ Gia Huy).
+ * @description Patient Portal Homepage interface (UC81 / UCA01 - View Patient Homepage).
+ * @issue I1-003 | BR-003 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
  * Displays recent clinical laboratory results, live timeline activity, and self-service quick actions.
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
  * @module features/patient-portal/pages/PatientHomepage

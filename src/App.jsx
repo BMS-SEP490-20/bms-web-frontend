@@ -50,6 +50,7 @@ import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPag
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
+import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResultsPage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
@@ -1292,6 +1293,18 @@ function App() {
                         <Route
                             path="/laboratory/specimens/:specimenId/notes"
                             element={<AddTestNotePage />}
+                        />
+                        <Route
+                            path="/laboratory/verify-results"
+                            element={<VerifyTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/verify-results/:specimenId"
+                            element={<VerifyTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/verification"
+                            element={<VerifyTestResultsPage />}
                         />
                     </Route>
 

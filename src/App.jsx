@@ -52,6 +52,7 @@ import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
+import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1367,6 +1368,18 @@ function App() {
                         <Route
                             path="/manage/schedule"
                             element={<ScheduleManagementPage />}
+                        />
+                        <Route
+                            path="/manager/iot-thresholds"
+                            element={<ConfigureIotThresholdsPage />}
+                        />
+                        <Route
+                            path="/monitoring/iot-thresholds"
+                            element={<ConfigureIotThresholdsPage />}
+                        />
+                        <Route
+                            path="/iot/thresholds"
+                            element={<ConfigureIotThresholdsPage />}
                         />
                     </Route>
 

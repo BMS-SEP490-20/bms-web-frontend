@@ -38,7 +38,20 @@ export default function SampleListPage() {
     // Collection batch settings
     const [location, setLocation] = useState("Lab Room 02 — Phlebotomy");
     const [targetTime, setTargetTime] = useState("08:30");
-    const [batchCode, setBatchCode] = useState("BATCH-261020-A1");
+    const [batchCode, setBatchCode] = useState("");
+
+    // Current logged-in collector
+    const currentUser = useMemo(() => {
+        try {
+            const raw = localStorage.getItem("user");
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const collectorId = currentUser?.id || currentUser?._id || "USR-LAB-01";
+    const collectorName = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên xét nghiệm";
 
     // Feedback & actions
     const [submitting, setSubmitting] = useState(false);
@@ -117,8 +130,8 @@ export default function SampleListPage() {
                 appointmentIds: Array.from(selectedIds),
                 location: location,
                 targetTime: targetTime,
-                collectorId: "USR-LAB-01",
-                collectorName: "Phạm Thu Dung"
+                collectorId: collectorId,
+                collectorName: collectorName
             };
 
             const response = await createCollectionBatch(payload);
@@ -357,7 +370,7 @@ export default function SampleListPage() {
                                                         </div>
                                                     </td>
                                                     <td className="text-secondary small">
-                                                        Phạm Thu Dung
+                                                        {collectorName}
                                                     </td>
                                                 </tr>
                                             );

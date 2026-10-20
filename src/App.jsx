@@ -41,6 +41,7 @@ import EnterTestResultsPage from "./features/test-results/pages/EnterTestResults
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound404 from "./components/errors/NotFound404";
@@ -1196,6 +1197,18 @@ function App() {
                         <Route
                             path="/doctor/schedule"
                             element={<DoctorSchedulePage />}
+                        />
+                        <Route
+                            path="/doctor/orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/doctor/test-orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/clinical/test-orders/create"
+                            element={<CreateTestOrderPage />}
                         />
                     </Route>
 

@@ -41,6 +41,7 @@ import EnterTestResultsPage from "./features/test-results/pages/EnterTestResults
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
@@ -1195,6 +1196,18 @@ function App() {
                         <Route
                             path="/laboratory/sample-intake/create-list"
                             element={<SampleListPage />}
+                        />
+                        <Route
+                            path="/laboratory/rerun-requests"
+                            element={<SampleRerunPage />}
+                        />
+                        <Route
+                            path="/laboratory/samples/request-rerun"
+                            element={<SampleRerunPage />}
+                        />
+                        <Route
+                            path="/laboratory/samples/:id/rerun"
+                            element={<SampleRerunPage />}
                         />
                     </Route>
 

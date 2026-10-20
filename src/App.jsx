@@ -44,6 +44,7 @@ import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPag
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
+import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
 import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
@@ -1157,6 +1158,18 @@ function App() {
                         <Route
                             path="/patient/results/:orderId"
                             element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/payments/checkout"
+                            element={<ProcessPaymentPage />}
+                        />
+                        <Route
+                            path="/payments/checkout/:invoiceId"
+                            element={<ProcessPaymentPage />}
+                        />
+                        <Route
+                            path="/patient/payments/checkout"
+                            element={<ProcessPaymentPage />}
                         />
                     </Route>
 

@@ -1,6 +1,7 @@
 /**
  * @file LoginPage.jsx
- * @description Authentication screen for patients and clinical staff (UC05).
+ * @description Authentication screen for patients and clinical staff (UC05 - Log In to System).
+ * @issue I1-018 | BR-018 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
  * Implements multi-identifier login (CCCD / Email / Phone / Employee Code), account lockout on 5 failed attempts (BR-IAM-03),
  * and dynamic role-based redirection to target clinical/admin portals.
  * Conforms to: BR-IAM-01, BR-IAM-02, BR-IAM-03 & AGENTS-DESIGN.md.

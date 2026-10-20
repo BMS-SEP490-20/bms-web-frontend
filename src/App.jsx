@@ -28,6 +28,7 @@ import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
+import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManagementPage.jsx";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
@@ -1150,6 +1151,14 @@ function App() {
                         <Route
                             path="/laboratory/enter-test-results"
                             element={<EnterTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/batches"
+                            element={<TestBatchManagementPage />}
+                        />
+                        <Route
+                            path="/lab/batches"
+                            element={<TestBatchManagementPage />}
                         />
                     </Route>
 

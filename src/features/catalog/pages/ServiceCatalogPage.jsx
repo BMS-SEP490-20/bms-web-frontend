@@ -1,6 +1,7 @@
 /**
  * @file ServiceCatalogPage.jsx
  * @description Patient & Public Clinical Laboratory Service Catalog & Search Test Packages page (UC01 & UC20).
+ * @issue I2-002 | BR-063 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
  * Features multi-facet search with 300ms debounce, category chips, sample tube filter, price range filter,
  * sorting, pagination, Table/Grid toggle (matching screens/02-patient.html UC20),
  * clinical detail modal with biomarker criteria table, and appointment booking.

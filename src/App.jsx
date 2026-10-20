@@ -40,6 +40,7 @@ import EnterTestResultsPage from "./features/test-results/pages/EnterTestResults
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound404 from "./components/errors/NotFound404";
 
@@ -1190,6 +1191,22 @@ function App() {
                         <Route
                             path="/packages"
                             element={<ServicePackagesPage />}
+                        />
+                    </Route>
+
+                    {/* Medical Billing & POS Receipts (UC43) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Cashier", "Receptionist"]} />}>
+                        <Route
+                            path="/billing/invoices"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/billing/receipts"
+                            element={<BillingInvoicesPage />}
+                        />
+                        <Route
+                            path="/invoices"
+                            element={<BillingInvoicesPage />}
                         />
                     </Route>
 

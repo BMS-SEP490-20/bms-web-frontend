@@ -17,7 +17,7 @@ export default function QueueBoardPage() {
   const [selectedCounter, setSelectedCounter] = useState("");
   const [data, setData] = useState({
     currentQueue: [],
-    nextNumber: "Q-001",
+    nextNumber: "",
     stats: {
       inQueueNow: 0,
       avgWaitMinutes: 0,
@@ -74,7 +74,11 @@ export default function QueueBoardPage() {
   };
 
   const handleCallNext = async (ticket) => {
-    const counterToUse = selectedCounter || data.counters?.[0]?.counterName || "Quầy Tiếp Nhận";
+    if (!selectedCounter) {
+      setActionMessage("Vui lòng chọn quầy làm việc trước khi gọi số.");
+      return;
+    }
+    const counterToUse = selectedCounter;
     try {
       await queueApi.callQueueTicket(ticket.id, counterToUse);
       setActionMessage(`Đã gọi ${ticket.ticketNumber} vào ${counterToUse}`);
@@ -87,7 +91,11 @@ export default function QueueBoardPage() {
   };
 
   const handleStartCollecting = async (ticket) => {
-    const counterToUse = selectedCounter || data.counters?.[0]?.counterName || "Phòng Lấy Mẫu";
+    if (!selectedCounter) {
+      setActionMessage("Vui lòng chọn quầy làm việc trước khi cập nhật.");
+      return;
+    }
+    const counterToUse = selectedCounter;
     try {
       await queueApi.updateQueueTicketStatus(ticket.id, 3, counterToUse); // 3 = Collecting
       setActionMessage(`${ticket.ticketNumber} đang lấy mẫu tại phòng xét nghiệm`);
@@ -261,6 +269,8 @@ export default function QueueBoardPage() {
                           {ticket.status === "Called" ? (
                             <button
                               onClick={() => handleStartCollecting(ticket)}
+                              disabled={!selectedCounter}
+                              title={!selectedCounter ? "Vui lòng chọn quầy trước khi cập nhật" : ""}
                               className="btn btn-success btn-sm px-2 py-1"
                             >
                               Collecting
@@ -270,6 +280,8 @@ export default function QueueBoardPage() {
                           ) : (
                             <button
                               onClick={() => handleCallNext(ticket)}
+                              disabled={!selectedCounter}
+                              title={!selectedCounter ? "Vui lòng chọn quầy trước khi gọi" : ""}
                               className="btn btn-primary btn-sm px-2 py-1"
                             >
                               <FaBullhorn className="me-1" /> Call next
@@ -306,7 +318,7 @@ export default function QueueBoardPage() {
                   letterSpacing: "-2px",
                 }}
               >
-                {data.nextNumber}
+                {data.nextNumber || "—"}
               </div>
               <div className="small text-muted mt-2">
                 Automatic ticket issuance for reception desk
@@ -317,7 +329,7 @@ export default function QueueBoardPage() {
                 className="btn btn-primary btn-lg w-100 mt-4 fw-bold shadow-sm"
               >
                 <FaPrint className="me-2" />
-                {issuing ? "Issuing ticket..." : `Issue ${data.nextNumber}`}
+                {issuing ? "Issuing ticket..." : (data.nextNumber ? `Issue ${data.nextNumber}` : "Issue ticket")}
               </button>
             </div>
           </div>

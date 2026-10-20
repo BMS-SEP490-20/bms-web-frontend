@@ -41,6 +41,7 @@ import EnterTestResultsPage from "./features/test-results/pages/EnterTestResults
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1122,6 +1123,22 @@ function App() {
                         <Route
                             path="/shifts/view"
                             element={<ViewShiftsPage />}
+                        />
+                        <Route
+                            path="/results/:orderId/report"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/reports/:orderId"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/reports"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/patient/results/:orderId"
+                            element={<TestReportPage />}
                         />
                     </Route>
 

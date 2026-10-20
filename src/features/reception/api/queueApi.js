@@ -44,7 +44,7 @@ export async function callQueueTicket(id, counterName, signal) {
   const res = await fetch(`${BASE_URL}/reception/queue/${encodeURIComponent(id)}/call`, {
     method: 'PUT',
     headers: authHeaders(),
-    body: JSON.stringify({ counterName: counterName || 'Counter 1' }),
+    body: JSON.stringify({ counterName: counterName || '' }),
     signal,
   });
   return handleResponse(res);

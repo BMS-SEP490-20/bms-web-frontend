@@ -34,6 +34,7 @@ import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
 import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage";
+import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage";
@@ -41,6 +42,8 @@ import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPag
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
+import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
+import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound404 from "./components/errors/NotFound404";
 
@@ -1109,6 +1112,14 @@ function App() {
                             element={<BookAppointmentPage />}
                         />
                         <Route
+                            path="/appointments/:id/confirmation"
+                            element={<AppointmentConfirmationPage />}
+                        />
+                        <Route
+                            path="/appointments/confirmation"
+                            element={<AppointmentConfirmationPage />}
+                        />
+                        <Route
                             path="/shifts/view"
                             element={<ViewShiftsPage />}
                         />
@@ -1131,6 +1142,14 @@ function App() {
                         <Route
                             path="/reception/register-walkin"
                             element={<RegisterWalkInPatientPage />}
+                        />
+                        <Route
+                            path="/reception/queue"
+                            element={<QueueBoardPage />}
+                        />
+                        <Route
+                            path="/queue"
+                            element={<QueueBoardPage />}
                         />
                     </Route>
 
@@ -1187,6 +1206,18 @@ function App() {
                         <Route
                             path="/doctor/schedule"
                             element={<DoctorSchedulePage />}
+                        />
+                        <Route
+                            path="/doctor/orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/doctor/test-orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/clinical/test-orders/create"
+                            element={<CreateTestOrderPage />}
                         />
                     </Route>
 

@@ -48,6 +48,7 @@ import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
+import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
@@ -1248,6 +1249,18 @@ function App() {
                         <Route
                             path="/laboratory/samples/:id/rerun"
                             element={<SampleRerunPage />}
+                        />
+                        <Route
+                            path="/laboratory/test-notes"
+                            element={<AddTestNotePage />}
+                        />
+                        <Route
+                            path="/laboratory/test-notes/add"
+                            element={<AddTestNotePage />}
+                        />
+                        <Route
+                            path="/laboratory/specimens/:specimenId/notes"
+                            element={<AddTestNotePage />}
                         />
                     </Route>
 

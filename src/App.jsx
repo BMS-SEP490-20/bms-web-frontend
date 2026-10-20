@@ -29,16 +29,17 @@ import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
-import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage";
+import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
-import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage";
+import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
+import AppointmentListPage from "./features/appointment/pages/AppointmentListPage.jsx";
 import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
-import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage";
-import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage";
+import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
+import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
@@ -1112,6 +1113,10 @@ function App() {
                         <Route
                             path="/appointments/book"
                             element={<BookAppointmentPage />}
+                        />
+                        <Route
+                            path="/appointments"
+                            element={<AppointmentListPage />}
                         />
                         <Route
                             path="/appointments/:id/confirmation"

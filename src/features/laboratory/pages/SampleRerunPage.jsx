@@ -27,7 +27,19 @@ import {
 export default function SampleRerunPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const targetSampleId = searchParams.get("sampleId") || "SMP-004";
+    const targetSampleId = searchParams.get("sampleId") || "";
+
+    // Logged-in technician user
+    const currentUser = React.useMemo(() => {
+        try {
+            const raw = localStorage.getItem("user");
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const requestedBy = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên xét nghiệm";
 
     // Specimen & rerun context state directly from DB
     const [sampleDetails, setSampleDetails] = useState(null);
@@ -107,7 +119,7 @@ export default function SampleRerunPage() {
         try {
             const payload = {
                 reason: reason,
-                requestedBy: "Phạm Thu Dung (MLT)",
+                requestedBy: requestedBy,
                 notes: notes,
                 analyzer: analyzerTarget,
                 priority: priority,

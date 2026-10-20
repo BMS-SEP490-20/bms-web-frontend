@@ -52,8 +52,47 @@ export async function getAvailableDoctors(date, specialty, signal) {
   return handleResponse(res);
 }
 
+export async function getAppointments(params = {}, signal) {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', params.page);
+  if (params.pageSize) query.set('pageSize', params.pageSize);
+  if (params.fromDate) query.set('fromDate', params.fromDate);
+  if (params.toDate) query.set('toDate', params.toDate);
+  if (params.doctorId) query.set('doctorId', params.doctorId);
+  if (params.status) query.set('status', params.status);
+  if (params.keyword) query.set('keyword', params.keyword);
+
+  const res = await fetch(`${BASE_URL}/appointments?${query.toString()}`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
+export async function getAppointmentDetail(id, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${id}/detail`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
+export async function getPatientAppointments(patientId, params = {}, signal) {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', params.page);
+  if (params.pageSize) query.set('pageSize', params.pageSize);
+  const res = await fetch(`${BASE_URL}/appointments/patient/${patientId}?${query.toString()}`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
 export const appointmentApi = {
   book: bookAppointment,
   getAvailableSlots,
   getAvailableDoctors,
+  getAppointments,
+  getAppointmentDetail,
+  getPatientAppointments,
 };

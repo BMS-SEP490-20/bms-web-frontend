@@ -69,6 +69,14 @@ export async function getAppointments(params = {}, signal) {
   return handleResponse(res);
 }
 
+export async function getAppointmentConfirmation(idOrCode, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(idOrCode)}/confirmation`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
 export async function getAppointmentDetail(id, signal) {
   const res = await fetch(`${BASE_URL}/appointments/${id}/detail`, {
     headers: authHeaders(),
@@ -88,6 +96,16 @@ export async function getPatientAppointments(patientId, params = {}, signal) {
   return handleResponse(res);
 }
 
+export async function sendAppointmentNotification(id, payload, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(id)}/notify`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload ?? { channel: 1, type: 1 }),
+    signal,
+  });
+  return handleResponse(res);
+}
+
 export const appointmentApi = {
   book: bookAppointment,
   getAvailableSlots,
@@ -95,4 +113,7 @@ export const appointmentApi = {
   getAppointments,
   getAppointmentDetail,
   getPatientAppointments,
+  getAppointmentConfirmation,
+  sendAppointmentNotification,
 };
+

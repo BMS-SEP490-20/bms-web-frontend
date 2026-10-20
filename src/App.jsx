@@ -51,6 +51,7 @@ import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
+import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1170,6 +1171,22 @@ function App() {
                         <Route
                             path="/patient/payments/checkout"
                             element={<ProcessPaymentPage />}
+                        />
+                        <Route
+                            path="/patient/results"
+                            element={<ExportTestResultPdfPage />}
+                        />
+                        <Route
+                            path="/patient/results/export"
+                            element={<ExportTestResultPdfPage />}
+                        />
+                        <Route
+                            path="/patient/results/export/:orderId"
+                            element={<ExportTestResultPdfPage />}
+                        />
+                        <Route
+                            path="/results/export/:orderId"
+                            element={<ExportTestResultPdfPage />}
                         />
                     </Route>
 

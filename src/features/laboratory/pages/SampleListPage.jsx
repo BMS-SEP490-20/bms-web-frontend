@@ -11,7 +11,7 @@ import {
     FaSearch,
     FaVial,
     FaCheckCircle,
-    FaPrinter,
+    FaPrint,
     FaBarcode,
     FaArrowLeft,
     FaClock,
@@ -36,7 +36,7 @@ export default function SampleListPage() {
     const [loading, setLoading] = useState(false);
 
     // Collection batch settings
-    const [location, setLocation] = useState("Lab Room 02 — Phlebotomy");
+    const [location, setLocation] = useState("Phlebotomy Station 1");
     const [targetTime, setTargetTime] = useState("08:30");
     const [batchCode, setBatchCode] = useState("");
 
@@ -50,8 +50,8 @@ export default function SampleListPage() {
         }
     }, []);
 
-    const collectorId = currentUser?.id || currentUser?._id || "USR-LAB-01";
-    const collectorName = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên xét nghiệm";
+    const collectorId = currentUser?.id || currentUser?._id || "";
+    const collectorName = currentUser?.fullName || currentUser?.name || "";
 
     // Feedback & actions
     const [submitting, setSubmitting] = useState(false);
@@ -397,7 +397,7 @@ export default function SampleListPage() {
                                         value={location}
                                         onChange={(e) => setLocation(e.target.value)}
                                     >
-                                        <option value="Lab Room 02 — Phlebotomy">Lab Room 02 — Phlebotomy</option>
+                                        <option value="Phlebotomy Station 1">Phlebotomy Station 1</option>
                                         <option value="Lab Room 01 — Emergency Intake">Lab Room 01 — Emergency Intake</option>
                                         <option value="Inpatient Ward 3 — Bedside">Inpatient Ward 3 — Bedside</option>
                                     </select>
@@ -431,7 +431,7 @@ export default function SampleListPage() {
                                     className="btn btn-outline-secondary d-flex align-items-center gap-2 fw-semibold"
                                     onClick={() => window.print()}
                                 >
-                                    <FaPrinter /> Print list
+                                    <FaPrint /> Print list
                                 </button>
                                 <button
                                     type="button"

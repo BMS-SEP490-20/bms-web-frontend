@@ -34,6 +34,7 @@ import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
 import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage";
+import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage";
@@ -1106,6 +1107,14 @@ function App() {
                         <Route
                             path="/appointments/book"
                             element={<BookAppointmentPage />}
+                        />
+                        <Route
+                            path="/appointments/:id/confirmation"
+                            element={<AppointmentConfirmationPage />}
+                        />
+                        <Route
+                            path="/appointments/confirmation"
+                            element={<AppointmentConfirmationPage />}
                         />
                         <Route
                             path="/shifts/view"

@@ -35,12 +35,18 @@ import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
 import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
+import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
+import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
+import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
+import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
+import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound404 from "./components/errors/NotFound404";
 
@@ -1109,8 +1115,32 @@ function App() {
                             element={<BookAppointmentPage />}
                         />
                         <Route
+                            path="/appointments/:id/confirmation"
+                            element={<AppointmentConfirmationPage />}
+                        />
+                        <Route
+                            path="/appointments/confirmation"
+                            element={<AppointmentConfirmationPage />}
+                        />
+                        <Route
                             path="/shifts/view"
                             element={<ViewShiftsPage />}
+                        />
+                        <Route
+                            path="/results/:orderId/report"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/reports/:orderId"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/reports"
+                            element={<TestReportPage />}
+                        />
+                        <Route
+                            path="/patient/results/:orderId"
+                            element={<TestReportPage />}
                         />
                     </Route>
 
@@ -1131,6 +1161,14 @@ function App() {
                         <Route
                             path="/reception/register-walkin"
                             element={<RegisterWalkInPatientPage />}
+                        />
+                        <Route
+                            path="/reception/queue"
+                            element={<QueueBoardPage />}
+                        />
+                        <Route
+                            path="/queue"
+                            element={<QueueBoardPage />}
                         />
                     </Route>
 
@@ -1160,6 +1198,26 @@ function App() {
                             path="/lab/batches"
                             element={<TestBatchManagementPage />}
                         />
+                        <Route
+                            path="/laboratory/sample-list"
+                            element={<SampleListPage />}
+                        />
+                        <Route
+                            path="/laboratory/sample-intake/create-list"
+                            element={<SampleListPage />}
+                        />
+                        <Route
+                            path="/laboratory/rerun-requests"
+                            element={<SampleRerunPage />}
+                        />
+                        <Route
+                            path="/laboratory/samples/request-rerun"
+                            element={<SampleRerunPage />}
+                        />
+                        <Route
+                            path="/laboratory/samples/:id/rerun"
+                            element={<SampleRerunPage />}
+                        />
                     </Route>
 
                     {/* Medical Criteria - Admin, Manager, LabHead, LabTech, Doctor */}
@@ -1187,6 +1245,18 @@ function App() {
                         <Route
                             path="/doctor/schedule"
                             element={<DoctorSchedulePage />}
+                        />
+                        <Route
+                            path="/doctor/orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/doctor/test-orders/create"
+                            element={<CreateTestOrderPage />}
+                        />
+                        <Route
+                            path="/clinical/test-orders/create"
+                            element={<CreateTestOrderPage />}
                         />
                     </Route>
 

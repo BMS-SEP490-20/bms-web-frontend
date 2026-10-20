@@ -43,31 +43,29 @@ export default function CreateTestOrderPage() {
         }
     }, []);
 
-    const doctorId = currentUser?.id || currentUser?._id || "USR-DOC-01";
-    const doctorName = currentUser?.fullName || currentUser?.name || "BS. Bác sĩ Chỉ định";
+    const doctorId = currentUser?.id || currentUser?._id || "";
+    const doctorName = currentUser?.fullName || currentUser?.name || "";
 
     // Form details
     const queryPatientName = searchParams.get("patientName");
     const queryPatientId = searchParams.get("patientId");
 
     const [patient, setPatient] = useState({
-        id: queryPatientId || "PT-2026-004523",
-        name: queryPatientName || "Bệnh nhân",
-        gender: "Nam",
-        age: 34,
-        bloodType: "Chưa xác định",
-        allergies: "Không có",
-        lastVisit: "Hôm nay",
-        lastCbc: "Bình thường",
+        id: queryPatientId || "",
+        name: queryPatientName || "",
+        gender: "",
+        age: 0,
+        bloodType: "",
+        allergies: "",
+        lastVisit: "",
+        lastCbc: "",
         activeOrders: 0
     });
 
-    const [clinicalIndication, setClinicalIndication] = useState(
-        "Follow-up for elevated LDL cholesterol (3.95 mmol/L, Sep 2026). Also assessing fasting glucose, HbA1c, and liver enzymes to evaluate comprehensive metabolic status before considering statin therapy."
-    );
+    const [clinicalIndication, setClinicalIndication] = useState("");
     const [priority, setPriority] = useState("Routine");
     const [scheduledDate, setScheduledDate] = useState(new Date().toISOString().split("T")[0]);
-    const [specialInstructions, setSpecialInstructions] = useState("Repeat LDL from same analyzer if possible.");
+    const [specialInstructions, setSpecialInstructions] = useState("");
 
     // Status & feedback
     const [loading, setLoading] = useState(false);
@@ -136,7 +134,7 @@ export default function CreateTestOrderPage() {
     const tubeBreakdown = useMemo(() => {
         const tubeCounts = {};
         selectedTests.forEach((t) => {
-            const tube = t.tubeType || "SST 4mL";
+            const tube = t.tubeType || "Tube";
             tubeCounts[tube] = (tubeCounts[tube] || 0) + 1;
         });
         const distinctTubes = Object.keys(tubeCounts);
@@ -148,6 +146,14 @@ export default function CreateTestOrderPage() {
 
     // Submit handler
     const handleSubmitOrder = async (isDraft = false) => {
+        if (!doctorId) {
+            setErrorMessage("Vui lòng đăng nhập với tài khoản bác sĩ để tạo chỉ định.");
+            return;
+        }
+        if (!patient.id) {
+            setErrorMessage("Thiếu thông tin bệnh nhân (patientId). Vui lòng chọn bệnh nhân.");
+            return;
+        }
         if (selectedTests.length === 0) {
             setErrorMessage("Please select at least one laboratory test or package.");
             return;
@@ -543,7 +549,7 @@ export default function CreateTestOrderPage() {
                                 <button
                                     type="button"
                                     className="btn btn-primary btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                                    disabled={submitting || selectedTests.length === 0}
+                                    disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
                                     onClick={() => handleSubmitOrder(false)}
                                 >
                                     <FaCheckCircle /> {submitting ? "Creating order..." : "Create order"}
@@ -551,7 +557,7 @@ export default function CreateTestOrderPage() {
                                 <button
                                     type="button"
                                     className="btn btn-outline-secondary fw-semibold d-flex align-items-center justify-content-center gap-2"
-                                    disabled={submitting || selectedTests.length === 0}
+                                    disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
                                     onClick={() => handleSubmitOrder(true)}
                                 >
                                     <FaSave /> Save as draft

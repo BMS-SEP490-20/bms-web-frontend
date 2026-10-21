@@ -26,6 +26,8 @@ import {
   FaHospital,
   FaHeartbeat,
   FaDatabase
+  FaBell
+  FaHistory
 } from 'react-icons/fa';
 
 /**
@@ -114,6 +116,14 @@ export default function Sidebar({
       badge: { text: 'ISO 15189', bg: 'danger' }
     },
     {
+      id: 'specimen-history',
+      path: '/laboratory/specimens/history',
+      label: 'Lịch Sử Bệnh Phẩm',
+      icon: FaHistory,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
+      badge: { text: 'UC70', bg: 'info' }
+    },
+    {
       id: 'schedule',
       path: '/schedule',
       label: 'Quản Lý Ca Trực',
@@ -144,6 +154,14 @@ export default function Sidebar({
       icon: FaHeartbeat,
       allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
       badge: { text: 'UC57', bg: 'success' }
+    },
+    {
+      id: 'notifications',
+      path: '/laboratory/notifications',
+      label: 'Thông Báo Kết Quả',
+      icon: FaBell,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      badge: { text: 'UC60', bg: 'primary' }
     },
     {
       id: 'employees',

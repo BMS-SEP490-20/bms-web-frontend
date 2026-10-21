@@ -8,6 +8,7 @@ import { FaEye, FaRedo, FaSearch, FaUsersCog } from 'react-icons/fa';
 import { getLabProfile, getLabProfileRooms, getLabProfiles, labProfileError } from '../api/labProfileApi';
 import '../../../components/common/SkeletonProfile.css';
 import LabProfileFormModal from '../components/LabProfileFormModal';
+import DeleteLabProfileModal from '../components/DeleteLabProfileModal';
 
 const defaults = { search: '', roomId: '', createdFrom: '', createdTo: '', page: 1, pageSize: 20 };
 const date = (value) => value ? new Date(value).toLocaleString('vi-VN') : 'Chưa ghi nhận';
@@ -28,6 +29,7 @@ export default function LabProfilesPage() {
   const [detailRefresh, setDetailRefresh] = useState(0);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const [success, setSuccess] = useState('');
   const invalidDates = filters.createdFrom && filters.createdTo && filters.createdFrom > filters.createdTo;
 
@@ -60,6 +62,8 @@ export default function LabProfilesPage() {
   }, [selectedId, detailRefresh]);
   const change = (key, value) => setFilters((current) => ({ ...current, [key]: value, page: 1 }));
   const clear = () => { setSearch(''); setFilters({ ...defaults }); };
+  const saved = (message) => { setCreating(false); setEditing(null); setDeleting(null); setSuccess(message); setFilters((v) => ({ ...v, page: 1 })); setRefresh((v) => v + 1); };
+  const reload = (id) => { setEditing(null); setDeleting(null); setSelectedId(id); setDetailRefresh((v) => v + 1); setRefresh((v) => v + 1); };
   const skeleton = <div aria-busy="true" aria-label="Đang tải hồ sơ Lab">{[1, 2, 3, 4].map((n) => <div key={n} className="bms-skeleton mb-3" style={{ height: 38 }} />)}</div>;
 
   return <div className="py-3">
@@ -89,8 +93,9 @@ export default function LabProfilesPage() {
         <h5 className="text-primary">{detail.fullName}</h5><dl className="row mb-0"><dt className="col-sm-4">ID tài khoản liên kết</dt><dd className="col-sm-8 font-monospace text-break">{detail.id}</dd><dt className="col-sm-4">Trình độ chuyên môn</dt><dd className="col-sm-8" style={{ whiteSpace: 'pre-wrap' }}>{detail.qualification || 'Chưa ghi nhận'}</dd><dt className="col-sm-4">Phòng mặc định</dt><dd className="col-sm-8">{detail.roomName || 'Chưa phân phòng'}</dd><dt className="col-sm-4">Ngày tạo</dt><dd className="col-sm-8">{date(detail.createdAt)}</dd><dt className="col-sm-4">Cập nhật gần nhất</dt><dd className="col-sm-8">{date(detail.updatedAt)}</dd></dl>
         <p className="small text-muted mt-3 mb-0">Đây là hồ sơ chuyên môn; thông tin đăng nhập và phân công theo ca được quản lý riêng.</p>
       </>}
-    </Modal.Body><Modal.Footer>{detail && <Button disabled={detailLoading} onClick={() => { setEditing(detail); setSelectedId(null); }}>Chỉnh sửa hồ sơ</Button>}<Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer></Modal>
-    {creating && <LabProfileFormModal rooms={rooms} onClose={() => setCreating(false)} onSaved={(message) => { setCreating(false); setSuccess(message); setRefresh((v) => v + 1); }} />}
-    {editing && <LabProfileFormModal profile={editing} rooms={rooms} onClose={() => setEditing(null)} onSaved={(message) => { setEditing(null); setSuccess(message); setRefresh((v) => v + 1); }} onReload={() => { setSelectedId(editing.id); setEditing(null); setDetailRefresh((v) => v + 1); setRefresh((v) => v + 1); }} />}
+    </Modal.Body><Modal.Footer>{detail?.id === selectedId && <><Button variant="outline-danger" disabled={detailLoading} onClick={() => { setDeleting(detail); setSelectedId(null); }}>Xóa hồ sơ</Button><Button disabled={detailLoading} onClick={() => { setEditing(detail); setSelectedId(null); }}>Chỉnh sửa hồ sơ</Button></>}<Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer></Modal>
+    {creating && <LabProfileFormModal rooms={rooms} onClose={() => setCreating(false)} onSaved={saved} />}
+    {editing && <LabProfileFormModal profile={editing} rooms={rooms} onClose={() => setEditing(null)} onSaved={saved} onReload={() => reload(editing.id)} />}
+    {deleting && <DeleteLabProfileModal profile={deleting} onClose={() => setDeleting(null)} onDeleted={saved} onReload={() => reload(deleting.id)} />}
   </div>;
 }

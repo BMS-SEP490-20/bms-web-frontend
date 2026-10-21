@@ -21,6 +21,7 @@ function normalizeRole(role) {
   const r = role.toString().trim().toUpperCase();
   if (r.includes("ADMIN")) return "ADMIN";
   if (r.includes("MANAGER")) return "MANAGER";
+  if (r.includes("WAREHOUSE")) return "WAREHOUSESTAFF";
   if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
   if (r.includes("HEAD") || r.includes("TRUONGPHONG")) return "LABHEAD";
   if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";

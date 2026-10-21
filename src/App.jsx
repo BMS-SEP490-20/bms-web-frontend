@@ -49,6 +49,7 @@ import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import AddMedicalNotesPage from "./features/doctor/pages/AddMedicalNotesPage.jsx";
+import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
 import AddMedicalAssessmentPage from "./features/doctor/pages/AddMedicalAssessmentPage.jsx";
 import MedicalAssessmentListPage from "./features/doctor/pages/MedicalAssessmentListPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
@@ -1112,6 +1113,9 @@ function App() {
 
                 {/* Authenticated Clinical, Patient, Lab & Admin Workflows */}
                 <Route element={<MainLayout />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "WarehouseStaff", "LabHead", "LabTech"]} />}>
+                        <Route path="/inventory" element={<InventoryPage />} />
+                    </Route>
                     <Route element={<ProtectedRoute allowedRoles={["Doctor"]} />}>
                         <Route path="/doctor/medical-notes" element={<AddMedicalNotesPage />} />
                     </Route>

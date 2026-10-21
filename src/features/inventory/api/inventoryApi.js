@@ -23,6 +23,11 @@ export async function updateInventory(id, payload) {
   return (await api.put(`/inventory/${encodeURIComponent(id)}`, payload)).data;
 }
 
+/** Archives an empty lot with the confirmation's expected revision and reason. */
+export async function deleteInventory(id, payload) {
+  await api.delete(`/inventory/${encodeURIComponent(id)}`, { data: payload });
+}
+
 export function inventoryError(error) {
   const data = error.response?.data;
   return data?.errors ? Object.values(data.errors).flat().join(' ')

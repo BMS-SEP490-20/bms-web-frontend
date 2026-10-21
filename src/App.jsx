@@ -59,6 +59,7 @@ import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPd
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
+import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
@@ -1489,6 +1490,26 @@ function App() {
                         <Route
                             path="/roles"
                             element={<RolesManagementPage />}
+                        />
+                    </Route>
+
+                    {/* Database Backup & Restore - Admin, Manager, LabHead (UC80) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead"]} />}>
+                        <Route
+                            path="/admin/backup"
+                            element={<BackupManagementPage />}
+                        />
+                        <Route
+                            path="/admin/backups"
+                            element={<BackupManagementPage />}
+                        />
+                        <Route
+                            path="/backup"
+                            element={<BackupManagementPage />}
+                        />
+                        <Route
+                            path="/laboratory/backup"
+                            element={<BackupManagementPage />}
                         />
                     </Route>
                 </Route>

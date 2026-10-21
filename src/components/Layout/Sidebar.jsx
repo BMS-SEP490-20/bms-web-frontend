@@ -26,6 +26,7 @@ import {
   FaHospital,
   FaHeartbeat,
   FaBell
+  FaHistory
 } from 'react-icons/fa';
 
 /**
@@ -112,6 +113,14 @@ export default function Sidebar({
       icon: FaVial,
       allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
       badge: { text: 'ISO 15189', bg: 'danger' }
+    },
+    {
+      id: 'specimen-history',
+      path: '/laboratory/specimens/history',
+      label: 'Lịch Sử Bệnh Phẩm',
+      icon: FaHistory,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
+      badge: { text: 'UC70', bg: 'info' }
     },
     {
       id: 'schedule',

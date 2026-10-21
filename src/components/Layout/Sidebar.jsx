@@ -13,6 +13,7 @@ import {
   FaVial,
   FaUserNurse,
   FaUserMd,
+  FaStethoscope,
   FaUsersCog,
   FaShieldAlt,
   FaCalendarAlt,
@@ -93,6 +94,14 @@ export default function Sidebar({
       icon: FaUserMd,
       allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER'],
       badge: null
+    },
+    {
+      id: 'medical-assessments',
+      path: '/medical-assessments',
+      label: 'Đánh Giá Y Khoa (ICD-10)',
+      icon: FaStethoscope,
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR'],
+      badge: { text: 'UC50', bg: 'primary' }
     },
     {
       id: 'lab-queue',

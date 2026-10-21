@@ -59,6 +59,7 @@ import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPd
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
+import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -1337,6 +1338,18 @@ function App() {
                         <Route
                             path="/laboratory/verification"
                             element={<VerifyTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/specimens/history"
+                            element={<SpecimenHistoryPage />}
+                        />
+                        <Route
+                            path="/laboratory/specimen-history"
+                            element={<SpecimenHistoryPage />}
+                        />
+                        <Route
+                            path="/specimens/history"
+                            element={<SpecimenHistoryPage />}
                         />
                         <Route
                             path="/laboratory/trace"

@@ -25,6 +25,7 @@ function ExpiryBadge({ item }) {
 /** Displays live inventory with management actions restricted by role; the server enforces authorization. */
 export default function InventoryPage() {
   const [showCreate, setShowCreate] = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [success, setSuccess] = useState('');
   const canManage = (() => {
     try {
@@ -122,10 +123,10 @@ export default function InventoryPage() {
           <h6 className="fw-bold mt-4">Lịch sử nhập / xuất theo mã hóa chất</h6><p className="small text-muted">Giao dịch hiện có không lưu số lô; đây là lịch sử của mã {item.code}, không phải riêng lô này. Hiển thị {detail.transactions.length}/{detail.transactionCount} giao dịch mới nhất.</p>
           {detail.transactions.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Loại</th><th className="text-end">Số lượng</th><th className="text-end">Đơn giá</th><th>Đơn vị thực hiện</th></tr></thead><tbody>{detail.transactions.map((t, i) => <tr key={t.id || i}><td>{moment(t.timestamp)}</td><td>{movementLabels[t.type] || t.type}</td><td className="text-end">{quantity(t.quantity)} {item.unit}</td><td className="text-end">{money(t.unitPrice)}</td><td>{t.department || '—'}</td></tr>)}</tbody></Table> : <p className="text-muted">Chưa có lịch sử giao dịch.</p>}
         </>}
-      </Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
+      </Modal.Body><Modal.Footer>{canManage && item && !detailLoading && <Button variant="primary" onClick={() => { setEditItem(item); setSelectedId(null); }}>Chỉnh sửa lô</Button>}<Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
     </Modal>
-    <InventoryFormModal show={showCreate} onHide={() => setShowCreate(false)} onSaved={(message) => {
-      setShowCreate(false); setSuccess(message); setFilters((value) => ({ ...value, page: 1 })); setRefresh((value) => value + 1);
+    <InventoryFormModal show={showCreate || Boolean(editItem)} item={editItem} onHide={() => { setShowCreate(false); setEditItem(null); }} onSaved={(message) => {
+      setShowCreate(false); setEditItem(null); setDetailRefresh((value) => value + 1); setSuccess(message); setFilters((value) => ({ ...value, page: 1 })); setRefresh((value) => value + 1);
     }} />
   </div>;
 }

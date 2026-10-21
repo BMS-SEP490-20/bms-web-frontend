@@ -18,6 +18,11 @@ export async function createInventory(payload) {
   return (await api.post('/inventory', payload)).data;
 }
 
+/** Updates the viewed revision; the server rejects stale stock values with HTTP 409. */
+export async function updateInventory(id, payload) {
+  return (await api.put(`/inventory/${encodeURIComponent(id)}`, payload)).data;
+}
+
 export function inventoryError(error) {
   const data = error.response?.data;
   return data?.errors ? Object.values(data.errors).flat().join(' ')

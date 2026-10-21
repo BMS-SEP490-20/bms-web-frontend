@@ -23,6 +23,7 @@ import {
  * Maps system route paths to friendly Vietnamese medical breadcrumb titles.
  */
 const ROUTE_TITLE_MAP = {
+  '/inventory': 'Quản Lý Kho Hóa Chất & Sinh Phẩm',
   '/dashboard': 'Bảng Điều Khiển Tổng Quan',
   '/lab/queue': 'Hàng Đợi Mẫu Xét Nghiệm',
   '/criteria': 'Danh Mục Chỉ Số & Dải Tham Chiếu',
@@ -51,6 +52,7 @@ function getRoleBadgeConfig(role) {
   const r = (role || '').toUpperCase();
   if (r.includes('ADMIN')) return { label: 'Quản Trị Viên', colorClass: 'badge-admin' };
   if (r.includes('MANAGER')) return { label: 'Quản Lý Lab', colorClass: 'badge-manager' };
+  if (r.includes('WAREHOUSE')) return { label: 'Nhân Viên Kho', colorClass: 'badge-manager' };
   if (r.includes('DOCTOR') || r.includes('BACSI')) return { label: 'Bác Sĩ Lâm Sàng', colorClass: 'badge-doctor' };
   if (r.includes('HEAD')) return { label: 'Trưởng Phòng Xét Nghiệm', colorClass: 'badge-labhead' };
   if (r.includes('TECH') || r.includes('LAB')) return { label: 'Kỹ Thuật Viên Lab', colorClass: 'badge-labtech' };

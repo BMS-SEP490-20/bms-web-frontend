@@ -24,7 +24,8 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaHospital,
-  FaHeartbeat
+  FaHeartbeat,
+  FaDatabase
 } from 'react-icons/fa';
 
 /**
@@ -159,6 +160,14 @@ export default function Sidebar({
       icon: FaShieldAlt,
       allowedRoles: ['ADMIN'],
       badge: null
+    },
+    {
+      id: 'backup',
+      path: '/admin/backup',
+      label: 'Sao Lưu & Khôi Phục',
+      icon: FaDatabase,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD'],
+      badge: { text: 'UC80', bg: 'primary' }
     },
     {
       id: 'profile',

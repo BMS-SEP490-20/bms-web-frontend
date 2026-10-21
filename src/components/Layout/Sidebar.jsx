@@ -24,7 +24,8 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaHospital,
-  FaHeartbeat
+  FaHeartbeat,
+  FaBell
 } from 'react-icons/fa';
 
 /**
@@ -143,6 +144,14 @@ export default function Sidebar({
       icon: FaHeartbeat,
       allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
       badge: { text: 'UC57', bg: 'success' }
+    },
+    {
+      id: 'notifications',
+      path: '/laboratory/notifications',
+      label: 'Thông Báo Kết Quả',
+      icon: FaBell,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      badge: { text: 'UC60', bg: 'primary' }
     },
     {
       id: 'employees',

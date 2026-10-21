@@ -25,8 +25,8 @@ import {
   FaChevronRight,
   FaHospital,
   FaHeartbeat,
-  FaDatabase
-  FaBell
+  FaDatabase,
+  FaBell,
   FaHistory
 } from 'react-icons/fa';
 
@@ -106,6 +106,14 @@ export default function Sidebar({
       icon: FaStethoscope,
       allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR'],
       badge: { text: 'UC50', bg: 'primary' }
+    },
+    {
+      id: 'medical-notes',
+      path: '/doctor/medical-notes',
+      label: 'Ghi Chú Y Khoa',
+      icon: FaNotesMedical,
+      allowedRoles: ['DOCTOR'],
+      badge: { text: 'UC51', bg: 'primary' }
     },
     {
       id: 'lab-queue',

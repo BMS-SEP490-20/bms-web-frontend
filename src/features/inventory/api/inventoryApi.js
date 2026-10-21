@@ -1,5 +1,5 @@
 /** @file inventoryApi.js
- * @description UC56 read-only requests using the shared bearer-token client.
+ * @description UC56 inventory requests using the shared bearer-token client.
  */
 import api from '../../../config/api';
 
@@ -11,6 +11,11 @@ export async function getInventory(filters, signal) {
 /** Loads a lot and reagent-level stock movement history. */
 export async function getInventoryDetail(id, signal) {
   return (await api.get(`/inventory/${encodeURIComponent(id)}`, { signal })).data;
+}
+
+/** Creates a lot with its opening balance; actor identity is supplied only by the server session. */
+export async function createInventory(payload) {
+  return (await api.post('/inventory', payload)).data;
 }
 
 export function inventoryError(error) {

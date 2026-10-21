@@ -48,6 +48,8 @@ import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx"
 import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
+import AddMedicalAssessmentPage from "./features/doctor/pages/AddMedicalAssessmentPage.jsx";
+import MedicalAssessmentListPage from "./features/doctor/pages/MedicalAssessmentListPage.jsx";
 import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
 import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
 import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResultsPage.jsx";
@@ -1226,6 +1228,34 @@ function App() {
                         <Route
                             path="/medical-records"
                             element={<MedicalRecordPage />}
+                        />
+                        <Route
+                            path="/doctor/assessments"
+                            element={<MedicalAssessmentListPage />}
+                        />
+                        <Route
+                            path="/doctor/assessments/add"
+                            element={<AddMedicalAssessmentPage />}
+                        />
+                        <Route
+                            path="/doctor/assessments/:id/edit"
+                            element={<AddMedicalAssessmentPage />}
+                        />
+                        <Route
+                            path="/medical-assessments"
+                            element={<MedicalAssessmentListPage />}
+                        />
+                        <Route
+                            path="/medical-assessments/add"
+                            element={<AddMedicalAssessmentPage />}
+                        />
+                        <Route
+                            path="/medical-assessments/:id/edit"
+                            element={<AddMedicalAssessmentPage />}
+                        />
+                        <Route
+                            path="/medical-assessments/:id"
+                            element={<AddMedicalAssessmentPage />}
                         />
                         <Route
                             path="/reception/queue"

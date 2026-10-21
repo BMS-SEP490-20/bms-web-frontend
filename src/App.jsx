@@ -31,6 +31,7 @@ import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManagementPage.jsx";
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
+import SampleTimelinePage from "./features/laboratory/pages/SampleTimelinePage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
@@ -1124,7 +1125,7 @@ function App() {
                         <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                     </Route>
                     {/* All Authenticated Roles - Dashboard, Profile, Password */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Receptionist", "Cashier", "Patient"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Nurse", "Phlebotomist", "WarehouseStaff", "Receptionist", "Cashier", "Patient"]} />}>
                         <Route
                             path="/dashboard"
                             element={<RoleBasedDashboard />}
@@ -1283,6 +1284,9 @@ function App() {
                         />
                     </Route>
 
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Nurse", "Phlebotomist", "Receptionist", "Patient"]} />}>
+                        <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
+                    </Route>
                     {/* Lab Operations - Lab Queue, Record Sample Time & Update Sample Status */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead", "LabTech", "Doctor", "Receptionist"]} />}>
                         <Route

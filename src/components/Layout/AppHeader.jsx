@@ -39,6 +39,7 @@ const ROUTE_TITLE_MAP = {
   '/admin/users': 'Quản Trị Nhân Sự Y Tế',
   '/users': 'Quản Trị Nhân Sự Y Tế',
   '/roles': 'Quản Lý Phân Quyền Vai Trò (RBAC)',
+  '/laboratory/sample-timeline': 'Hành Trình Mẫu Xét Nghiệm',
   '/profile': 'Hồ Sơ Tài Khoản Cá Nhân',
   '/change-password': 'Thay Đổi Mật Khẩu Bảo Mật'
 };
@@ -58,6 +59,8 @@ function getRoleBadgeConfig(role) {
   if (r.includes('HEAD')) return { label: 'Trưởng Phòng Xét Nghiệm', colorClass: 'badge-labhead' };
   if (r.includes('TECH') || r.includes('LAB')) return { label: 'Kỹ Thuật Viên Lab', colorClass: 'badge-labtech' };
   if (r.includes('RECEPT')) return { label: 'Lễ Tân Tiếp Đón', colorClass: 'badge-receptionist' };
+  if (r === 'NURSE' || r === 'PHLEBOTOMIST') return { label: 'Điều Dưỡng / Lấy Mẫu', colorClass: 'badge-labtech' };
+  if (r === 'WAREHOUSESTAFF') return { label: 'Nhân Viên Kho', colorClass: 'badge-manager' };
   if (r.includes('CASHIER')) return { label: 'Thu Ngân POS', colorClass: 'badge-cashier' };
   return { label: 'Bệnh Nhân / Khách', colorClass: 'badge-patient' };
 }

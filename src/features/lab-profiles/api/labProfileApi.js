@@ -16,3 +16,9 @@ export function labProfileError(error) {
   const data = error.response?.data;
   return data?.errors ? Object.values(data.errors).flat().join(' ') : data?.message || data?.title || 'Không thể tải hồ sơ Lab. Vui lòng thử lại.';
 }
+export async function getLabProfileAccounts(filters, signal) {
+  return (await api.get('/lab-profiles/accounts', { params: filters, signal })).data;
+}
+export async function createLabProfile(input) {
+  return (await api.post('/lab-profiles', input)).data;
+}

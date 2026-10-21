@@ -60,6 +60,8 @@ import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/Confi
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
+import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -1338,6 +1340,24 @@ function App() {
                         <Route
                             path="/laboratory/verification"
                             element={<VerifyTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/notifications"
+                            element={<NotifyTestResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/notify-results"
+                            element={<NotifyTestResultsPage />}
+                            path="/laboratory/specimens/history"
+                            element={<SpecimenHistoryPage />}
+                        />
+                        <Route
+                            path="/laboratory/specimen-history"
+                            element={<SpecimenHistoryPage />}
+                        />
+                        <Route
+                            path="/specimens/history"
+                            element={<SpecimenHistoryPage />}
                         />
                         <Route
                             path="/laboratory/trace"

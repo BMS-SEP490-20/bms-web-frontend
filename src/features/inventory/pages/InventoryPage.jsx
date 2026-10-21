@@ -6,6 +6,7 @@ import { Alert, Badge, Breadcrumb, Button, Card, Col, Form, Modal, Row, Table } 
 import { Link } from 'react-router-dom';
 import { FaBoxOpen, FaEye, FaRedo, FaSearch } from 'react-icons/fa';
 import { getInventory, getInventoryDetail, inventoryError } from '../api/inventoryApi';
+import InventoryFormModal from '../components/InventoryFormModal';
 import '../../../components/common/SkeletonProfile.css';
 
 const defaults = { search: '', status: '', expiryFrom: '', expiryTo: '', page: 1, pageSize: 20 };
@@ -21,8 +22,16 @@ function ExpiryBadge({ item }) {
     text={item.expiryStatus === 'EXPIRING_SOON' ? 'dark' : undefined}>{expiryLabels[item.expiryStatus] || item.expiryStatus}</Badge>;
 }
 
-/** Displays live inventory without offering stock mutations or simulated data. */
+/** Displays live inventory with management actions restricted by role; the server enforces authorization. */
 export default function InventoryPage() {
+  const [showCreate, setShowCreate] = useState(false);
+  const [success, setSuccess] = useState('');
+  const canManage = (() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || 'null');
+      return ['ADMIN', 'ADMINISTRATOR', 'MANAGER', 'WAREHOUSESTAFF'].includes((user?.role || user?.roleName || '').trim().toUpperCase());
+    } catch { return false; }
+  })();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
   const [data, setData] = useState(null);
@@ -76,7 +85,7 @@ export default function InventoryPage() {
     <Breadcrumb><Breadcrumb.Item linkAs={Link} linkProps={{ to: '/' }}>Trang Chủ</Breadcrumb.Item><Breadcrumb.Item active>Kho hóa chất</Breadcrumb.Item></Breadcrumb>
     <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4">
       <div><h4 className="fw-bold mb-1"><FaBoxOpen className="text-primary me-2" />Tồn Kho Hóa Chất & Sinh Phẩm</h4><p className="text-muted mb-0">Theo dõi từng lô, mức tồn tối thiểu và hạn sử dụng.</p></div>
-      <Button variant="outline-primary" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button>
+      <div className="d-flex gap-2">{canManage && <Button onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô hóa chất</Button>}<Button variant="outline-primary" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
     </div>
     <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', 'primary'], ['LowStock', 'Tồn thấp', 'warning'], ['ExpiringSoon', 'Sắp hết hạn', 'warning'], ['Expired', 'Đã hết hạn', 'danger']].map(([key, label, color]) =>
       <Col sm={6} xl={3} key={key}><Card className="border-0 shadow-sm h-100"><Card.Body><div className="text-muted small">{label}</div><div className={`fs-3 fw-bold text-${color}`}>{loading ? '…' : data?.summary?.[key[0].toLowerCase() + key.slice(1)] ?? '—'}</div></Card.Body></Card></Col>)}</Row>
@@ -90,6 +99,7 @@ export default function InventoryPage() {
       </Row>
       <p className="small text-muted mt-3 mb-0">Tồn thấp khi số lượng ≤ mức tối thiểu. Sắp hết hạn khi còn dưới 30 ngày; số liệu cảnh báo tính trên toàn bộ kết quả lọc.</p>
     </Card.Body></Card>
+    {success && <Alert variant="success" role="status" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
     {invalidDates && <Alert variant="warning">Hạn dùng từ phải trước hoặc bằng hạn dùng đến.</Alert>}
     {error && <Alert variant="danger" role="alert">{error} <Button variant="outline-danger" size="sm" onClick={() => setRefresh((v) => v + 1)}>Thử lại</Button></Alert>}
     <Card className="border-0 shadow-sm"><Card.Body>
@@ -107,10 +117,15 @@ export default function InventoryPage() {
           <h5 className="text-primary">{item.name}</h5><Row className="g-3 mb-4">{[['Mã hóa chất', item.code], ['Số lô', item.lotNumber], ['Hãng sản xuất', item.manufacturer], ['Tồn kho', `${quantity(item.quantity)} ${item.unit}`], ['Mức tối thiểu', `${quantity(item.minimumStock)} ${item.unit}`], ['Hạn dùng', date(item.expiryDate)]].map(([label, value]) => <Col md={4} key={label}><div className="small text-muted">{label}</div><div className="fw-semibold text-break">{value || '—'}</div></Col>)}</Row>
           <ExpiryBadge item={item} /> {item.isLowStock && <Badge bg="warning" text="dark">Tồn thấp</Badge>}
           {item.expiryStatus === 'EXPIRED' && <Alert variant="danger" className="mt-3">Lô đã hết hạn sử dụng. Không sử dụng cho xét nghiệm.</Alert>}
+          <h6 className="fw-bold mt-4">Nhật ký quản lý lô</h6>
+          {detail.changes?.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Thao tác / Người thực hiện</th><th className="text-end">Tồn trước → sau</th><th>Lý do</th></tr></thead><tbody>{detail.changes.map((entry, i) => <tr key={i}><td>{moment(entry.at)}</td><td>{entry.action}<div>{entry.actorName}</div></td><td className="text-end">{entry.beforeQuantity == null ? '—' : quantity(entry.beforeQuantity)} → {entry.afterQuantity == null ? '—' : quantity(entry.afterQuantity)}</td><td style={{ whiteSpace: 'pre-wrap' }}>{entry.reason}</td></tr>)}</tbody></Table> : <p className="small text-muted">Chưa có nhật ký quản lý cho dữ liệu cũ.</p>}
           <h6 className="fw-bold mt-4">Lịch sử nhập / xuất theo mã hóa chất</h6><p className="small text-muted">Giao dịch hiện có không lưu số lô; đây là lịch sử của mã {item.code}, không phải riêng lô này. Hiển thị {detail.transactions.length}/{detail.transactionCount} giao dịch mới nhất.</p>
           {detail.transactions.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Loại</th><th className="text-end">Số lượng</th><th className="text-end">Đơn giá</th><th>Đơn vị thực hiện</th></tr></thead><tbody>{detail.transactions.map((t, i) => <tr key={t.id || i}><td>{moment(t.timestamp)}</td><td>{movementLabels[t.type] || t.type}</td><td className="text-end">{quantity(t.quantity)} {item.unit}</td><td className="text-end">{money(t.unitPrice)}</td><td>{t.department || '—'}</td></tr>)}</tbody></Table> : <p className="text-muted">Chưa có lịch sử giao dịch.</p>}
         </>}
       </Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
     </Modal>
+    <InventoryFormModal show={showCreate} onHide={() => setShowCreate(false)} onSaved={(message) => {
+      setShowCreate(false); setSuccess(message); setFilters((value) => ({ ...value, page: 1 })); setRefresh((value) => value + 1);
+    }} />
   </div>;
 }

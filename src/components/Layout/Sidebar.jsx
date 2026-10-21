@@ -23,7 +23,8 @@ import {
   FaUserCircle,
   FaChevronLeft,
   FaChevronRight,
-  FaHospital
+  FaHospital,
+  FaHeartbeat
 } from 'react-icons/fa';
 
 /**
@@ -134,6 +135,14 @@ export default function Sidebar({
       icon: FaNotesMedical,
       allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
       badge: null
+    },
+    {
+      id: 'reference-intervals',
+      path: '/laboratory/reference-intervals',
+      label: 'Khoảng Tham Chiếu',
+      icon: FaHeartbeat,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      badge: { text: 'UC57', bg: 'success' }
     },
     {
       id: 'employees',

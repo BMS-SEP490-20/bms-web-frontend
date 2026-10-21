@@ -5,12 +5,14 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import testCriterionService from '../../../services/testCriterionService';
 import TestCriterionFormModal from '../components/TestCriterionFormModal';
 import DeactivateCriterionModal from '../components/DeactivateCriterionModal';
 import './TestCriteriaPage.css';
 
 export default function TestCriteriaPage() {
+  const navigate = useNavigate();
   const [criteria, setCriteria] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -199,7 +201,17 @@ export default function TestCriteriaPage() {
           </p>
         </div>
 
-        <div className="bms-criteria-actions">
+        <div className="bms-criteria-actions" style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="button"
+            className="bms-btn"
+            onClick={() => navigate('/laboratory/reference-intervals')}
+            id="btn-goto-reference-intervals"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd', fontWeight: 600 }}
+          >
+            <span>&#9825;</span>
+            <span>Khoảng Tham Chiếu (UC57)</span>
+          </button>
           <button
             type="button"
             className="bms-btn bms-btn-primary"
@@ -341,6 +353,15 @@ export default function TestCriteriaPage() {
                     </td>
                     <td className="col-right">
                       <div className="bms-action-btn-group">
+                        <button
+                          type="button"
+                          className="bms-table-action-btn"
+                          title="Cấu hình khoảng tham chiếu sinh học (UC57)"
+                          onClick={() => navigate(`/laboratory/reference-intervals?criterion=${item.criterionCode}`)}
+                          style={{ color: '#0284c7', backgroundColor: '#f0f9ff' }}
+                        >
+                          Dải TC
+                        </button>
                         <button
                           type="button"
                           className="bms-table-action-btn"

@@ -45,6 +45,8 @@ function normalizeRole(role) {
   if (r.includes('HEAD') || r.includes('TRUONGPHONG')) return 'LABHEAD';
   if (r.includes('TECH') || r.includes('LAB') || r.includes('KTV')) return 'LABTECH';
   if (r.includes('RECEPT') || r.includes('LETAN')) return 'RECEPTIONIST';
+  if (r === 'NURSE' || r === 'PHLEBOTOMIST') return 'NURSE';
+  if (r === 'WAREHOUSESTAFF') return 'WAREHOUSESTAFF';
   if (r.includes('CASHIER') || r.includes('THUNGAN')) return 'CASHIER';
   return 'PATIENT';
 }
@@ -88,7 +90,7 @@ export default function Sidebar({
       path: '/dashboard',
       label: 'Bảng Điều Khiển',
       icon: FaTachometerAlt,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
       badge: null
     },
     {
@@ -130,6 +132,14 @@ export default function Sidebar({
       icon: FaHistory,
       allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
       badge: { text: 'UC70', bg: 'info' }
+    },
+    {
+      id: 'sample-timeline',
+      path: '/laboratory/sample-timeline',
+      label: 'Hành Trình Mẫu',
+      icon: FaHistory,
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'RECEPTIONIST', 'PATIENT'],
+      badge: { text: 'UC71', bg: 'info' }
     },
     {
       id: 'schedule',
@@ -200,7 +210,7 @@ export default function Sidebar({
       path: '/profile',
       label: 'Hồ Sơ Cá Nhân',
       icon: FaUserCircle,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
       badge: null
     },
     {
@@ -208,7 +218,7 @@ export default function Sidebar({
       path: '/change-password',
       label: 'Đổi Mật Khẩu',
       icon: FaKey,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
       badge: null
     }
   ], []);

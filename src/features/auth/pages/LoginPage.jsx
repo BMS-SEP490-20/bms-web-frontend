@@ -22,6 +22,7 @@ function normalizeRole(role) {
   const r = role.toString().trim().toUpperCase();
   if (r.includes("ADMIN")) return "ADMIN";
   if (r.includes("MANAGER")) return "MANAGER";
+  if (r.includes("WAREHOUSE")) return "WAREHOUSESTAFF";
   if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
   if (r.includes("HEAD")) return "LABHEAD";
   if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
@@ -87,6 +88,9 @@ export default function LoginPage({
     const role = normalizeRole(user?.role || user?.roleName);
     let target = "/dashboard";
     switch (role) {
+      case "WAREHOUSESTAFF":
+        target = "/inventory";
+        break;
       case "ADMIN":
       case "MANAGER":
         target = "/dashboard";

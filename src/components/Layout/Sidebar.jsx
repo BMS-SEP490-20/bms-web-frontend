@@ -85,7 +85,7 @@ export default function Sidebar({
   // Master menu registry across clinical, laboratory, reception and admin workflows
   const allMenuItems = useMemo(() => [
     {
-      id: 'inventory', path: '/inventory', label: 'Kho Hóa Chất & Sinh Phẩm', icon: FaBoxOpen,
+      id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen,
       allowedRoles: ['ADMIN', 'MANAGER', 'WAREHOUSESTAFF', 'LABHEAD', 'LABTECH'],
       badge: { text: 'UC56', bg: 'primary' }
     },

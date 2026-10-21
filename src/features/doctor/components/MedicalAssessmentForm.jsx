@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file MedicalAssessmentForm.jsx
  * @description UC50 – Complete Doctor Clinical Assessment & WHO ICD-10 Entry Form (Iteration 3).
  * Supports Patient and Encounter Association, Vital Signs with Real-Time BMI Calculation,
@@ -319,7 +319,11 @@ export default function MedicalAssessmentForm({
         onSuccess(result?.data || result);
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Có lỗi xảy ra khi lưu đánh giá y khoa.');
+      if (err.status === 401 || err.message?.includes('401')) {
+        setErrorMessage('Phiên làm việc đã hết hạn hoặc chưa đăng nhập. Vui lòng đăng nhập tài khoản Bác sĩ để lưu đánh giá y khoa.');
+      } else {
+        setErrorMessage(err.message || 'Có lỗi xảy ra khi lưu đánh giá y khoa.');
+      }
     } finally {
       setSubmitting(false);
     }

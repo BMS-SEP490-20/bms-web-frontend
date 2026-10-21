@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file MedicalAssessmentListPage.jsx
  * @description UC50 – Medical Assessment Management and Query List (Iteration 3).
  * Provides searchable, filterable data table of clinical assessments with WHO ICD-10 diagnosis,
@@ -82,7 +82,11 @@ export default function MedicalAssessmentListPage() {
         setTotalCount(res.total || res.data.length);
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Không thể tải danh sách đánh giá y khoa.');
+      if (err.status === 401 || err.message?.includes('401')) {
+        setErrorMsg('Phiên đăng nhập đã hết hạn hoặc chưa đăng nhập. Vui lòng đăng nhập với tài khoản Bác sĩ (Doctor / Doctor@123) để xem và quản lý đánh giá y khoa.');
+      } else {
+        setErrorMsg(err.message || 'Không thể tải danh sách đánh giá y khoa.');
+      }
     } finally {
       setLoading(false);
     }

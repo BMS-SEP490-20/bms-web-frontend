@@ -41,6 +41,7 @@ function normalizeRole(role) {
   const r = role.toString().trim().toUpperCase();
   if (r.includes('ADMIN')) return 'ADMIN';
   if (r.includes('MANAGER')) return 'MANAGER';
+  if (r.includes('WAREHOUSE')) return 'WAREHOUSESTAFF';
   if (r.includes('DOCTOR') || r.includes('BACSI')) return 'DOCTOR';
   if (r.includes('HEAD') || r.includes('TRUONGPHONG')) return 'LABHEAD';
   if (r.includes('TECH') || r.includes('LAB') || r.includes('KTV')) return 'LABTECH';
@@ -83,6 +84,11 @@ export default function Sidebar({
 
   // Master menu registry across clinical, laboratory, reception and admin workflows
   const allMenuItems = useMemo(() => [
+    {
+      id: 'inventory', path: '/inventory', label: 'Kho Hóa Chất & Sinh Phẩm', icon: FaBoxOpen,
+      allowedRoles: ['ADMIN', 'MANAGER', 'WAREHOUSESTAFF', 'LABHEAD', 'LABTECH'],
+      badge: { text: 'UC56', bg: 'primary' }
+    },
     {
       id: 'dashboard',
       path: '/dashboard',

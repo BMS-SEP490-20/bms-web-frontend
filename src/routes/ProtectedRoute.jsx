@@ -25,6 +25,8 @@ function normalizeRole(role) {
   if (r.includes("HEAD") || r.includes("TRUONGPHONG")) return "LABHEAD";
   if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
   if (r.includes("RECEPT") || r.includes("LETAN")) return "RECEPTIONIST";
+  if (r === "NURSE" || r === "PHLEBOTOMIST") return "NURSE";
+  if (r === "WAREHOUSESTAFF") return "WAREHOUSESTAFF";
   if (r.includes("CASHIER") || r.includes("THUNGAN")) return "CASHIER";
   return "PATIENT";
 }

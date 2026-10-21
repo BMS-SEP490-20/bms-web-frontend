@@ -106,6 +106,14 @@ export default function Sidebar({
       badge: null
     },
     {
+      id: 'lab-profiles',
+      path: '/laboratory/lab-profiles',
+      label: 'Quản Lý Hồ Sơ Lab',
+      icon: FaUsersCog,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD'],
+      badge: { text: 'UC61', bg: 'primary' }
+    },
+    {
       id: 'medical-assessments',
       path: '/medical-assessments',
       label: 'Đánh Giá Y Khoa (ICD-10)',

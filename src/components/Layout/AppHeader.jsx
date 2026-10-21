@@ -23,6 +23,7 @@ import {
  * Maps system route paths to friendly Vietnamese medical breadcrumb titles.
  */
 const ROUTE_TITLE_MAP = {
+  '/laboratory/lab-profiles': 'Quản Lý Hồ Sơ Lab',
   '/inventory': 'Quản Lý Kho Hóa Chất & Sinh Phẩm',
   '/dashboard': 'Bảng Điều Khiển Tổng Quan',
   '/lab/queue': 'Hàng Đợi Mẫu Xét Nghiệm',

@@ -9,7 +9,8 @@ const empty = { accountId: '', fullName: '', qualification: '', assignedRoom: ''
 
 /** Creates or edits professional details; linked account identity stays immutable during edits. */
 export default function LabProfileFormModal({ profile, rooms, onClose, onSaved, onReload }) {
-  const [form, setForm] = useState(() => profile ? { accountId: profile.id, fullName: profile.fullName, qualification: profile.qualification, assignedRoom: profile.assignedRoom, reason: '' } : empty);
+  const baseline = profile ? { accountId: profile.id, fullName: profile.fullName, qualification: profile.qualification, assignedRoom: profile.assignedRoom, reason: '' } : empty;
+  const [form, setForm] = useState(baseline);
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -32,7 +33,7 @@ export default function LabProfileFormModal({ profile, rooms, onClose, onSaved, 
     return () => controller.abort();
   }, [query, page, retry, profile]);
   const change = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const close = () => { if (saving) return; if (Object.values(form).some(Boolean)) setDiscard(true); else onClose(); };
+  const close = () => { if (saving) return; if (Object.keys(form).some((key) => form[key] !== baseline[key])) setDiscard(true); else onClose(); };
   const submit = async (event) => {
     event.preventDefault(); if (saving) return; setError(''); setConflict(false);
     const input = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, value.trim()]));
@@ -45,7 +46,10 @@ export default function LabProfileFormModal({ profile, rooms, onClose, onSaved, 
       else await createLabProfile(input);
       onSaved(profile ? 'Đã cập nhật hồ sơ Lab.' : 'Đã tạo hồ sơ Lab.');
     }
-    catch (err) { setError(labProfileError(err)); setConflict(err.response?.status === 409 || err.response?.status === 404); }
+    catch (err) {
+      setError(labProfileError(err)); setConflict(err.response?.status === 409 || err.response?.status === 404);
+      if (!profile && err.response?.status === 409) { setForm((v) => ({ ...v, accountId: '' })); setRetry((v) => v + 1); }
+    }
     finally { setSaving(false); }
   };
   return <>

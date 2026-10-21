@@ -22,3 +22,6 @@ export async function getLabProfileAccounts(filters, signal) {
 export async function createLabProfile(input) {
   return (await api.post('/lab-profiles', input)).data;
 }
+export async function updateLabProfile(id, input) {
+  return (await api.put(`/lab-profiles/${encodeURIComponent(id)}`, input)).data;
+}

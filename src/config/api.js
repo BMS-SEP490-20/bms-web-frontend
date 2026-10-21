@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file api.js
  * @description Centralized HTTP networking client for BMS Web Frontend.
  * Provides both an Axios instance with request/response interceptors and a native fetch wrapper (apiRequest).
@@ -24,7 +24,11 @@ export function getToken() {
         localStorage.getItem("bms_access_token") ||
         sessionStorage.getItem("bms_access_token") ||
         localStorage.getItem("bms_token") ||
-        sessionStorage.getItem("bms_token")
+        sessionStorage.getItem("bms_token") ||
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken") ||
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token")
     );
 }
 

@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { FaEye, FaRedo, FaSearch, FaUsersCog } from 'react-icons/fa';
 import { getLabProfile, getLabProfileRooms, getLabProfiles, labProfileError } from '../api/labProfileApi';
 import '../../../components/common/SkeletonProfile.css';
+import LabProfileFormModal from '../components/LabProfileFormModal';
 
 const defaults = { search: '', roomId: '', createdFrom: '', createdTo: '', page: 1, pageSize: 20 };
 const date = (value) => value ? new Date(value).toLocaleString('vi-VN') : 'Chưa ghi nhận';
@@ -25,6 +26,8 @@ export default function LabProfilesPage() {
   const [detailError, setDetailError] = useState('');
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailRefresh, setDetailRefresh] = useState(0);
+  const [creating, setCreating] = useState(false);
+  const [success, setSuccess] = useState('');
   const invalidDates = filters.createdFrom && filters.createdTo && filters.createdFrom > filters.createdTo;
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function LabProfilesPage() {
     <Breadcrumb><Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>Trang Chủ</Breadcrumb.Item><Breadcrumb.Item active>Hồ sơ Lab</Breadcrumb.Item></Breadcrumb>
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div><h4 className="fw-bold mb-1"><FaUsersCog className="text-primary me-2" />Quản Lý Hồ Sơ Lab</h4><p className="text-muted mb-0">Thông tin chuyên môn và phòng mặc định của nhân viên xét nghiệm.</p></div>
-      <Button variant="outline-primary" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button>
+      <div className="d-flex gap-2"><Button variant="outline-primary" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button><Button disabled={loading || !rooms.length} onClick={() => setCreating(true)}>Thêm hồ sơ</Button></div>
     </div>
     <Card className="border-0 shadow-sm mb-4"><Card.Body><Row className="g-3 align-items-end">
       <Col lg={4}><Form.Label htmlFor="lab-profile-search"><FaSearch className="me-2" />Tìm kiếm</Form.Label><Form.Control id="lab-profile-search" value={search} maxLength={100} placeholder="Họ tên, trình độ chuyên môn hoặc ID tài khoản" onChange={(e) => setSearch(e.target.value)} /></Col>
@@ -72,6 +75,7 @@ export default function LabProfilesPage() {
       <Col lg={2} sm={6}><Button variant="outline-secondary" className="w-100" onClick={clear}>Xóa bộ lọc</Button></Col>
     </Row><p className="text-muted small mt-3 mb-0">Hồ sơ cũ chưa ghi nhận ngày tạo sẽ không nằm trong bộ lọc khoảng ngày. Phòng mặc định không thay thế lịch phân công theo ca.</p></Card.Body></Card>
     {invalidDates && <Alert variant="warning">Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.</Alert>}
+    {success && <Alert variant="success" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
     {error && <Alert variant="danger" role="alert">{error} <Button variant="outline-danger" size="sm" onClick={() => setRefresh((v) => v + 1)}>Thử lại</Button></Alert>}
     <Card className="border-0 shadow-sm"><Card.Body><div className="d-flex justify-content-between mb-3"><h6 className="fw-bold mb-0">Danh sách hồ sơ chuyên môn</h6><span className="text-muted small" role="status">{data?.total ?? 0} kết quả</span></div>
       {loading ? skeleton : data?.items.length ? <>
@@ -85,5 +89,6 @@ export default function LabProfilesPage() {
         <p className="small text-muted mt-3 mb-0">Đây là hồ sơ chuyên môn; thông tin đăng nhập và phân công theo ca được quản lý riêng.</p>
       </>}
     </Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer></Modal>
+    {creating && <LabProfileFormModal rooms={rooms} onClose={() => setCreating(false)} onSaved={(message) => { setCreating(false); setSuccess(message); setRefresh((v) => v + 1); }} />}
   </div>;
 }

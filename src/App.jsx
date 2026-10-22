@@ -61,6 +61,7 @@ import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResults
 import TraceSampleOriginPage from "./features/laboratory/pages/TraceSampleOriginPage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
+import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
@@ -206,11 +207,11 @@ function HomePage() {
 
     const handleLookup = (e) => {
         e.preventDefault();
-        if (!lookupCode.trim() || !lookupPhone.trim()) {
-            alert("Vui lòng nhập đầy đủ Mã biên nhận và Số điện thoại để tra cứu.");
+        if (!lookupCode.trim()) {
+            alert("Vui lòng nhập Mã biên nhận hoặc Barcode để tra cứu.");
             return;
         }
-        window.location.href = `/login?redirect=results&code=${encodeURIComponent(lookupCode.trim())}&phone=${encodeURIComponent(lookupPhone.trim())}`;
+        window.location.href = `/tracking?code=${encodeURIComponent(lookupCode.trim())}`;
     };
 
     const handleBookPackage = (pkg) => {
@@ -299,6 +300,7 @@ function HomePage() {
                                 </li>
                             </>
                         ) : null}
+                        <li><a className="bms-nav-link" href="/tracking"><FaVial className="text-primary me-1" /> Lộ Trình Mẫu</a></li>
                         <li><a className="bms-nav-link" href="#tra-cuu">Tra Cứu Kết Quả</a></li>
                     </ul>
 
@@ -1061,6 +1063,8 @@ function App() {
                 <Route path="/services" element={<ServiceCatalogPage />} />
                 <Route path="/catalog" element={<ServiceCatalogPage />} />
                 <Route path="/patient" element={<Navigate to="/" replace />} />
+                <Route path="/tracking" element={<TrackTestProgressPage />} />
+                <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
 
                 {/* Authentication Workflows */}
                 <Route element={<AuthLayout />}>
@@ -1210,6 +1214,14 @@ function App() {
                         <Route
                             path="/results/export/:orderId"
                             element={<ExportTestResultPdfPage />}
+                        />
+                        <Route
+                            path="/patient/tracking"
+                            element={<TrackTestProgressPage />}
+                        />
+                        <Route
+                            path="/patient/tracking/:identifier"
+                            element={<TrackTestProgressPage />}
                         />
                     </Route>
 

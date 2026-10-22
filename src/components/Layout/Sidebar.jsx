@@ -156,6 +156,10 @@ export default function Sidebar({
       badge: { text: 'UC71', bg: 'info' }
     },
     {
+      id: 'test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory,
+      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'PATIENT'], badge: { text: 'UC76', bg: 'info' }
+    },
+    {
       id: 'schedule',
       path: '/schedule',
       label: 'Quản Lý Ca Trực',

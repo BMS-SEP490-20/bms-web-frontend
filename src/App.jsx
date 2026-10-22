@@ -47,6 +47,7 @@ import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
+import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
 import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
@@ -300,6 +301,8 @@ function HomePage() {
                             </>
                         ) : null}
                         <li><a className="bms-nav-link" href="#tra-cuu">Tra Cứu Kết Quả</a></li>
+                        <li><a className="bms-nav-link" href="/calculate-fees">Dự Toán Phí (UC53)</a></li>
+                        <li><a className="bms-nav-link" href="/tracking">Tiến Trình (UC48)</a></li>
                     </ul>
 
                     <div className="bms-header-actions">
@@ -1060,6 +1063,10 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/services" element={<ServiceCatalogPage />} />
                 <Route path="/catalog" element={<ServiceCatalogPage />} />
+                <Route path="/calculate-fees" element={<CalculateFeesPage />} />
+                <Route path="/fee-calculator" element={<CalculateFeesPage />} />
+                <Route path="/billing/calculate-fee" element={<CalculateFeesPage />} />
+                <Route path="/patient/fee-calculator" element={<CalculateFeesPage />} />
                 <Route path="/patient" element={<Navigate to="/" replace />} />
 
                 {/* Authentication Workflows */}

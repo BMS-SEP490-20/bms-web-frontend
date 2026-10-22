@@ -32,6 +32,7 @@ import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManage
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
 import SampleTimelinePage from "./features/laboratory/pages/SampleTimelinePage.jsx";
+import TestHistoryPage from "./features/patient/pages/TestHistoryPage.jsx";
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
@@ -1286,6 +1287,9 @@ function App() {
 
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Nurse", "Phlebotomist", "Receptionist", "Patient"]} />}>
                         <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
+                    </Route>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Patient"]} />}>
+                        <Route path="/patient/test-history" element={<TestHistoryPage />} />
                     </Route>
                     {/* Lab Operations - Lab Queue, Record Sample Time & Update Sample Status */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead", "LabTech", "Doctor", "Receptionist"]} />}>

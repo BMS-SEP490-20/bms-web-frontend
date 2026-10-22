@@ -40,6 +40,7 @@ const ROUTE_TITLE_MAP = {
   '/users': 'Quản Trị Nhân Sự Y Tế',
   '/roles': 'Quản Lý Phân Quyền Vai Trò (RBAC)',
   '/laboratory/sample-timeline': 'Hành Trình Mẫu Xét Nghiệm',
+  '/patient/test-history': 'Lịch Sử Xét Nghiệm',
   '/profile': 'Hồ Sơ Tài Khoản Cá Nhân',
   '/change-password': 'Thay Đổi Mật Khẩu Bảo Mật'
 };

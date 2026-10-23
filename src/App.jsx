@@ -66,6 +66,7 @@ import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1532,6 +1533,22 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* IoT Environmental Alert Threshold Violation & Escalation (UC68) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech"]} />}>
+                        <Route
+                            path="/iot/alerts"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                        <Route
+                            path="/laboratory/iot-alerts"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                        <Route
+                            path="/admin/iot-alerts"
+                            element={<AlertThresholdViolationPage />}
                         />
                     </Route>
                 </Route>

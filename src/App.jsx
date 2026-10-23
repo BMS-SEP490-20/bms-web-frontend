@@ -62,6 +62,12 @@ import TraceSampleOriginPage from "./features/laboratory/pages/TraceSampleOrigin
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
 import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPage.jsx";
+import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
+import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
+import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
+import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
+import QualityControlManagementPage from "./features/qc/pages/QualityControlManagementPage.jsx";
+import RevenueReportPage from "./features/reports/pages/RevenueReportPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
@@ -301,6 +307,12 @@ function HomePage() {
                             </>
                         ) : null}
                         <li><a className="bms-nav-link" href="/tracking"><FaVial className="text-primary me-1" /> Lộ Trình Mẫu</a></li>
+                        <li><a className="bms-nav-link" href="/calculate-fees">Tính Phí</a></li>
+                        <li><a className="bms-nav-link" href="/notifications/dispatch">Thông Báo</a></li>
+                        <li><a className="bms-nav-link" href="/tat/statistics">Thống Kê TAT</a></li>
+                        <li><a className="bms-nav-link" href="/alerts/threshold-violations">Cảnh Báo</a></li>
+                        <li><a className="bms-nav-link" href="/qc/management">QC Westgard</a></li>
+                        <li><a className="bms-nav-link" href="/reports/revenue">Doanh Thu</a></li>
                         <li><a className="bms-nav-link" href="#tra-cuu">Tra Cứu Kết Quả</a></li>
                     </ul>
 
@@ -1544,6 +1556,100 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* UC53: Calculate Fees */}
+                    <Route
+                        path="/calculate-fees"
+                        element={<CalculateFeesPage />}
+                    />
+                    <Route
+                        path="/fee-calculator"
+                        element={<CalculateFeesPage />}
+                    />
+                    <Route
+                        path="/billing/calculate-fee"
+                        element={<CalculateFeesPage />}
+                    />
+                    <Route
+                        path="/patient/fee-calculator"
+                        element={<CalculateFeesPage />}
+                    />
+
+                    {/* UC58: Push Notifications Dispatcher & Audit Logs */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead"]} />}>
+                        <Route
+                            path="/notifications/dispatch"
+                            element={<PushNotificationCenterPage />}
+                        />
+                        <Route
+                            path="/admin/notifications"
+                            element={<PushNotificationCenterPage />}
+                        />
+                    </Route>
+
+                    {/* UC63: Turnaround Time (TAT) Analytics */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead"]} />}>
+                        <Route
+                            path="/reports/tat"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/tat/statistics"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/admin/tat-statistics"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                    </Route>
+
+                    {/* UC68: Environmental Alert Threshold Violations */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead"]} />}>
+                        <Route
+                            path="/alerts/threshold-violations"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                        <Route
+                            path="/iot/threshold-violations"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                        <Route
+                            path="/admin/alerts"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                    </Route>
+
+                    {/* UC73: Laboratory QC & Westgard Multi-Rule Evaluation */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead", "Doctor"]} />}>
+                        <Route
+                            path="/qc/management"
+                            element={<QualityControlManagementPage />}
+                        />
+                        <Route
+                            path="/laboratory/qc-westgard"
+                            element={<QualityControlManagementPage />}
+                        />
+                        <Route
+                            path="/qc-management"
+                            element={<QualityControlManagementPage />}
+                        />
+                    </Route>
+
+                    {/* UC78: Laboratory Revenue & Financial Analytics */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead"]} />}>
+                        <Route
+                            path="/reports/revenue"
+                            element={<RevenueReportPage />}
+                        />
+                        <Route
+                            path="/admin/revenue-report"
+                            element={<RevenueReportPage />}
+                        />
+                        <Route
+                            path="/manager/revenue"
+                            element={<RevenueReportPage />}
                         />
                     </Route>
                 </Route>

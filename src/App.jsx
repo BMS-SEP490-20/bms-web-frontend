@@ -66,6 +66,7 @@ import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import QualityControlManagementPage from "./features/qc/pages/QualityControlManagementPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1532,6 +1533,22 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* Quality Control & Westgard Rules (UC73) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech"]} />}>
+                        <Route
+                            path="/qc/management"
+                            element={<QualityControlManagementPage />}
+                        />
+                        <Route
+                            path="/laboratory/qc"
+                            element={<QualityControlManagementPage />}
+                        />
+                        <Route
+                            path="/laboratory/quality-control"
+                            element={<QualityControlManagementPage />}
                         />
                     </Route>
                 </Route>

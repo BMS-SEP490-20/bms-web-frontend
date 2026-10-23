@@ -27,6 +27,7 @@ import {
   FaHeartbeat,
   FaDatabase,
   FaBell,
+  FaFlask,
   FaHistory
 } from 'react-icons/fa';
 
@@ -88,7 +89,7 @@ export default function Sidebar({
   const allMenuItems = useMemo(() => [
     {
       id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen,
-      allowedRoles: ['ADMIN', 'MANAGER', 'WAREHOUSESTAFF', 'LABHEAD', 'LABTECH'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN'],
       badge: { text: 'UC56', bg: 'primary' }
     },
     {
@@ -96,7 +97,7 @@ export default function Sidebar({
       path: '/dashboard',
       label: 'Bảng Điều Khiển',
       icon: FaTachometerAlt,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'RECEPTIONIST', 'PATIENT'],
       badge: null
     },
     {
@@ -104,15 +105,15 @@ export default function Sidebar({
       path: '/patients',
       label: 'Hồ Sơ Bệnh Nhân & Tiếp Đón',
       icon: FaUserMd,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER'],
-      badge: null
+      allowedRoles: ['ADMIN', 'DOCTOR', 'RECEPTIONIST'],
+      badge: { text: 'UC25/UC30', bg: 'primary' }
     },
     {
       id: 'lab-profiles',
       path: '/laboratory/lab-profiles',
       label: 'Quản Lý Hồ Sơ Lab',
       icon: FaUsersCog,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN'],
       badge: { text: 'UC61', bg: 'primary' }
     },
     {
@@ -120,7 +121,7 @@ export default function Sidebar({
       path: '/medical-assessments',
       label: 'Đánh Giá Y Khoa (ICD-10)',
       icon: FaStethoscope,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR'],
+      allowedRoles: ['ADMIN', 'DOCTOR'],
       badge: { text: 'UC50', bg: 'primary' }
     },
     {
@@ -136,7 +137,7 @@ export default function Sidebar({
       path: '/lab/queue',
       label: 'Mẫu Bệnh Phẩm & Hàng Đợi Lab',
       icon: FaVial,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR', 'RECEPTIONIST'],
       badge: { text: 'ISO 15189', bg: 'danger' }
     },
     {
@@ -144,7 +145,7 @@ export default function Sidebar({
       path: '/laboratory/specimens/history',
       label: 'Lịch Sử Bệnh Phẩm',
       icon: FaHistory,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR', 'RECEPTIONIST'],
       badge: { text: 'UC70', bg: 'info' }
     },
     {
@@ -152,19 +153,19 @@ export default function Sidebar({
       path: '/laboratory/sample-timeline',
       label: 'Hành Trình Mẫu',
       icon: FaHistory,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'RECEPTIONIST', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'RECEPTIONIST', 'PATIENT'],
       badge: { text: 'UC71', bg: 'info' }
     },
     {
       id: 'test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'PATIENT'], badge: { text: 'UC76', bg: 'info' }
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'PATIENT'], badge: { text: 'UC76', bg: 'info' }
     },
     {
       id: 'schedule',
       path: '/schedule',
       label: 'Quản Lý Ca Trực',
       icon: FaCalendarAlt,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'LABHEAD', 'LABTECH'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'RECEPTIONIST', 'LAB_TECHNICIAN'],
       badge: null
     },
     {
@@ -172,7 +173,7 @@ export default function Sidebar({
       path: '/admin/packages',
       label: 'Quản Lý Gói Dịch Vụ',
       icon: FaBoxOpen,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'CASHIER'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'RECEPTIONIST'],
       badge: null
     },
     {
@@ -180,7 +181,7 @@ export default function Sidebar({
       path: '/criteria',
       label: 'Chỉ Số Xét Nghiệm',
       icon: FaNotesMedical,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR'],
       badge: null
     },
     {
@@ -188,7 +189,7 @@ export default function Sidebar({
       path: '/laboratory/reference-intervals',
       label: 'Khoảng Tham Chiếu',
       icon: FaHeartbeat,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR'],
       badge: { text: 'UC57', bg: 'success' }
     },
     {
@@ -196,15 +197,23 @@ export default function Sidebar({
       path: '/laboratory/notifications',
       label: 'Thông Báo Kết Quả',
       icon: FaBell,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'],
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR'],
       badge: { text: 'UC60', bg: 'primary' }
+    },
+    {
+      id: 'biochemical-results',
+      path: '/laboratory/biochemical-results',
+      label: 'Tra Cứu Kết Quả Sinh Hóa',
+      icon: FaFlask,
+      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR', 'PATIENT'],
+      badge: { text: 'UC75', bg: 'primary' }
     },
     {
       id: 'employees',
       path: '/admin/employees',
       label: 'Quản Lý Nhân Sự',
       icon: FaUserNurse,
-      allowedRoles: ['ADMIN', 'MANAGER'],
+      allowedRoles: ['ADMIN'],
       badge: null
     },
     {
@@ -220,7 +229,7 @@ export default function Sidebar({
       path: '/admin/backup',
       label: 'Sao Lưu & Khôi Phục',
       icon: FaDatabase,
-      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD'],
+      allowedRoles: ['ADMIN'],
       badge: { text: 'UC80', bg: 'primary' }
     },
     {
@@ -228,7 +237,7 @@ export default function Sidebar({
       path: '/profile',
       label: 'Hồ Sơ Cá Nhân',
       icon: FaUserCircle,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'RECEPTIONIST', 'PATIENT'],
       badge: null
     },
     {
@@ -236,7 +245,7 @@ export default function Sidebar({
       path: '/change-password',
       label: 'Đổi Mật Khẩu',
       icon: FaKey,
-      allowedRoles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER', 'PATIENT'],
+      allowedRoles: ['ADMIN', 'DOCTOR', 'LAB_TECHNICIAN', 'RECEPTIONIST', 'PATIENT'],
       badge: null
     }
   ], []);

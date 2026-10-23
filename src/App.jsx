@@ -66,6 +66,7 @@ import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import LookupBiochemicalResultsPage from "./features/laboratory/pages/LookupBiochemicalResultsPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1060,7 +1061,9 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/services" element={<ServiceCatalogPage />} />
                 <Route path="/catalog" element={<ServiceCatalogPage />} />
-                <Route path="/patient" element={<Navigate to="/" replace />} />
+                <Route path="/patient" element={<PatientHomepage />} />
+                <Route path="/patient/home" element={<PatientHomepage />} />
+                <Route path="/patient-home" element={<PatientHomepage />} />
 
                 {/* Authentication Workflows */}
                 <Route element={<AuthLayout />}>
@@ -1116,17 +1119,17 @@ function App() {
 
                 {/* Authenticated Clinical, Patient, Lab & Admin Workflows */}
                 <Route element={<MainLayout />}>
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "WarehouseStaff", "LabHead", "LabTech"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "LabTechnician"]} />}>
                         <Route path="/inventory" element={<InventoryPage />} />
                     </Route>
                     <Route element={<ProtectedRoute allowedRoles={["Doctor"]} />}>
                         <Route path="/doctor/medical-notes" element={<AddMedicalNotesPage />} />
                     </Route>
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "LabTechnician"]} />}>
                         <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                     </Route>
                     {/* All Authenticated Roles - Dashboard, Profile, Password */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Nurse", "Phlebotomist", "WarehouseStaff", "Receptionist", "Cashier", "Patient"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "LabTechnician", "Receptionist", "Patient"]} />}>
                         <Route
                             path="/dashboard"
                             element={<RoleBasedDashboard />}
@@ -1214,7 +1217,7 @@ function App() {
                     </Route>
 
                     {/* Patient Information & Guest Profile Creation (View Patient Info & Create Guest Profile) */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Receptionist", "Cashier"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "Receptionist"]} />}>
                         <Route
                             path="/patients"
                             element={<CheckInPage />}
@@ -1285,14 +1288,14 @@ function App() {
                         />
                     </Route>
 
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Nurse", "Phlebotomist", "Receptionist", "Patient"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "LabTechnician", "Receptionist", "Patient"]} />}>
                         <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
                     </Route>
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Patient"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "LabTechnician", "Patient"]} />}>
                         <Route path="/patient/test-history" element={<TestHistoryPage />} />
                     </Route>
                     {/* Lab Operations - Lab Queue, Record Sample Time & Update Sample Status */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead", "LabTech", "Doctor", "Receptionist"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "LabTechnician", "Doctor", "Receptionist"]} />}>
                         <Route
                             path="/lab/queue"
                             element={<SampleQueuePage />}
@@ -1370,6 +1373,18 @@ function App() {
                             element={<NotifyTestResultsPage />}
                         />
                         <Route
+                            path="/laboratory/biochemical-results"
+                            element={<LookupBiochemicalResultsPage />}
+                        />
+                        <Route
+                            path="/laboratory/lookup-results"
+                            element={<LookupBiochemicalResultsPage />}
+                        />
+                        <Route
+                            path="/results/biochemical"
+                            element={<LookupBiochemicalResultsPage />}
+                        />
+                        <Route
                             path="/laboratory/specimens/history"
                             element={<SpecimenHistoryPage />}
                         />
@@ -1396,7 +1411,7 @@ function App() {
                     </Route>
 
                     {/* Medical Criteria - Admin, Manager, LabHead, LabTech, Doctor */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead", "LabTech", "Doctor"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "LabTechnician", "Doctor"]} />}>
                         <Route
                             path="/criteria"
                             element={<TestCriteriaPage />}
@@ -1416,7 +1431,7 @@ function App() {
                     </Route>
 
                     {/* Clinical & Lab Shifts (View, Create, Update, Delete Shifts) */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "Receptionist", "LabHead", "LabTech"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "Receptionist", "LabTechnician"]} />}>
                         <Route
                             path="/schedule"
                             element={<DoctorSchedulePage />}
@@ -1444,7 +1459,7 @@ function App() {
                     </Route>
 
                     {/* Service Packages - Admin, Manager (Full CRUD) and Clinical Staff (Catalog Lookup) */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "Receptionist", "Cashier"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "LabTechnician", "Receptionist"]} />}>
                         <Route
                             path="/admin/packages"
                             element={<ServicePackagesPage />}
@@ -1456,7 +1471,7 @@ function App() {
                     </Route>
 
                     {/* Medical Billing & POS Receipts (UC43) */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Cashier", "Receptionist"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Receptionist"]} />}>
                         <Route
                             path="/billing/invoices"
                             element={<BillingInvoicesPage />}
@@ -1472,7 +1487,7 @@ function App() {
                     </Route>
 
                      {/* Admin & Doctor Only */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                         <Route
                             path="/manage/schedule"
                             element={<ScheduleManagementPage />}
@@ -1492,7 +1507,7 @@ function App() {
                     </Route>
 
                     {/* Admin & Manager Only - Employees */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                         <Route
                             path="/admin/employees"
                             element={<UserManagementPage />}
@@ -1516,7 +1531,7 @@ function App() {
                     </Route>
 
                     {/* Database Backup & Restore - Admin, Manager, LabHead (UC80) */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "LabHead"]} />}>
+                    <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                         <Route
                             path="/admin/backup"
                             element={<BackupManagementPage />}

@@ -66,6 +66,7 @@ import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1532,6 +1533,30 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* Turnaround Time (TAT) Analytics & SLA Dashboard (UC63) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech"]} />}>
+                        <Route
+                            path="/reports/tat"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/reports/tat-statistics"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/laboratory/tat"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/laboratory/tat-statistics"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
+                            path="/admin/tat-statistics"
+                            element={<TatStatisticsDashboardPage />}
                         />
                     </Route>
                 </Route>

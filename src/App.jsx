@@ -66,6 +66,7 @@ import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
+import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
@@ -1532,6 +1533,26 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* Multi-Channel Push Notifications & Audit Trail (UC58) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead", "LabTech", "Receptionist", "Cashier", "Patient"]} />}>
+                        <Route
+                            path="/notifications"
+                            element={<PushNotificationCenterPage />}
+                        />
+                        <Route
+                            path="/notifications/center"
+                            element={<PushNotificationCenterPage />}
+                        />
+                        <Route
+                            path="/notifications/dispatch"
+                            element={<PushNotificationCenterPage />}
+                        />
+                        <Route
+                            path="/admin/notifications"
+                            element={<PushNotificationCenterPage />}
                         />
                     </Route>
                 </Route>

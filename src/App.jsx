@@ -1600,6 +1600,10 @@ function App() {
                             element={<TatStatisticsDashboardPage />}
                         />
                         <Route
+                            path="/laboratory/tat-statistics"
+                            element={<TatStatisticsDashboardPage />}
+                        />
+                        <Route
                             path="/admin/tat-statistics"
                             element={<TatStatisticsDashboardPage />}
                         />
@@ -1609,6 +1613,10 @@ function App() {
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead"]} />}>
                         <Route
                             path="/alerts/threshold-violations"
+                            element={<AlertThresholdViolationPage />}
+                        />
+                        <Route
+                            path="/iot/alerts"
                             element={<AlertThresholdViolationPage />}
                         />
                         <Route

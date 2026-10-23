@@ -169,12 +169,17 @@ export default function LoginPage({
         setFailedAttempts(0);
 
         const storage = rememberMe ? localStorage : sessionStorage;
+        const refreshToken = data?.refreshToken;
         storage.setItem("bms_token", token);
         storage.setItem("bms_access_token", token);
         storage.setItem("bms_user", JSON.stringify(user));
         localStorage.setItem("bms_token", token);
         localStorage.setItem("bms_access_token", token);
         localStorage.setItem("bms_user", JSON.stringify(user));
+        if (refreshToken) {
+          storage.setItem("bms_refresh_token", refreshToken);
+          localStorage.setItem("bms_refresh_token", refreshToken);
+        }
 
         routeUserByRole(user);
       } catch (apiErr) {
@@ -235,12 +240,17 @@ export default function LoginPage({
       localStorage.removeItem("bms_login_lockout_until");
       setFailedAttempts(0);
 
+      const refreshToken = data?.refreshToken;
       localStorage.setItem("bms_token", token);
       localStorage.setItem("bms_access_token", token);
       localStorage.setItem("bms_user", JSON.stringify(user));
       sessionStorage.setItem("bms_token", token);
       sessionStorage.setItem("bms_access_token", token);
       sessionStorage.setItem("bms_user", JSON.stringify(user));
+      if (refreshToken) {
+        localStorage.setItem("bms_refresh_token", refreshToken);
+        sessionStorage.setItem("bms_refresh_token", refreshToken);
+      }
 
       routeUserByRole(user);
     } catch (apiErr) {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file api.js
  * @description Centralized HTTP networking client for BMS Web Frontend.
  * Provides both an Axios instance with request/response interceptors and a native fetch wrapper (apiRequest).
@@ -33,6 +33,31 @@ export function getToken() {
 }
 
 /**
+ * Retrieves the stored JWT refresh token from localStorage or sessionStorage.
+ *
+ * @returns {string|null} The raw JWT refresh token or null if unavailable.
+ */
+export function getRefreshToken() {
+    return (
+        localStorage.getItem("bms_refresh_token") ||
+        sessionStorage.getItem("bms_refresh_token")
+    );
+}
+
+/**
+ * Clears all BMS authentication tokens from both localStorage and sessionStorage.
+ */
+export function clearAuthTokens() {
+    [
+        "bms_access_token", "bms_token", "bms_refresh_token", "bms_user",
+        "accessToken", "token"
+    ].forEach((k) => {
+        localStorage.removeItem(k);
+        sessionStorage.removeItem(k);
+    });
+}
+
+/**
  * Pre-configured Axios instance with authorization header interceptors and JSON defaults.
  */
 const api = axios.create({
@@ -59,14 +84,85 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor: log unauthenticated session expiries for telemetry
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
+// Response interceptor: automatically refresh expired access tokens (BR-IAM-02)
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            console.warn("[BMS API] 401 Unauthorized: Session token is missing, invalid, or expired.");
+    async (error) => {
+        const originalRequest = error.config;
+        if (!error.response || error.response.status !== 401 || !originalRequest) {
+            return Promise.reject(error);
         }
-        return Promise.reject(error);
+
+        const isAuthEndpoint = originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/refresh");
+        if (isAuthEndpoint || originalRequest._retry) {
+            return Promise.reject(error);
+        }
+
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+            console.warn("[BMS API] 401 Unauthorized: Session token is missing or expired, and no refresh token is stored.");
+            return Promise.reject(error);
+        }
+
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject });
+            })
+                .then((newToken) => {
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    return api(originalRequest);
+                })
+                .catch((err) => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+            const refreshRes = await axios.post(`${API_URL}/auth/refresh`, {
+                refreshToken,
+            });
+            const data = refreshRes.data?.data || refreshRes.data;
+            const newAccessToken = data?.accessToken || data?.token;
+            const newRefreshToken = data?.refreshToken;
+
+            if (newAccessToken) {
+                localStorage.setItem("bms_token", newAccessToken);
+                localStorage.setItem("bms_access_token", newAccessToken);
+                if (newRefreshToken) {
+                    localStorage.setItem("bms_refresh_token", newRefreshToken);
+                }
+                api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+                processQueue(null, newAccessToken);
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                return api(originalRequest);
+            } else {
+                throw new Error("No access token returned by refresh endpoint.");
+            }
+        } catch (refreshErr) {
+            processQueue(refreshErr, null);
+            clearAuthTokens();
+            if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("bms:session-expired", { detail: { reason: "401" } }));
+            }
+            return Promise.reject(refreshErr);
+        } finally {
+            isRefreshing = false;
+        }
     }
 );
 

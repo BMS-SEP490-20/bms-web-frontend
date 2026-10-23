@@ -65,6 +65,7 @@ import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/Confi
 import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
+import RevenueReportPage from "./features/reports/pages/RevenueReportPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
@@ -1532,6 +1533,22 @@ function App() {
                         <Route
                             path="/laboratory/backup"
                             element={<BackupManagementPage />}
+                        />
+                    </Route>
+
+                    {/* Revenue & Financial Analytics (UC78) */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Doctor", "LabHead"]} />}>
+                        <Route
+                            path="/reports/revenue"
+                            element={<RevenueReportPage />}
+                        />
+                        <Route
+                            path="/admin/revenue-report"
+                            element={<RevenueReportPage />}
+                        />
+                        <Route
+                            path="/manager/revenue"
+                            element={<RevenueReportPage />}
                         />
                     </Route>
                 </Route>

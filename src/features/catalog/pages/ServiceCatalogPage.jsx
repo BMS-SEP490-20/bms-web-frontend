@@ -231,7 +231,7 @@ export default function ServiceCatalogPage() {
       setTotalPages(res?.totalPages || Math.ceil((res?.totalItems || normalized.length) / pageSize) || 1);
     } catch (err) {
       console.error('[ServiceCatalogPage] Failed to search test packages:', err);
-      setLoadError(err.message || 'Không thể tìm kiếm danh mục gói xét nghiệm từ máy chủ.');
+      setLoadError(err.response?.data?.message || err.response?.data?.title || err.message || 'Không thể tìm kiếm danh mục gói xét nghiệm từ máy chủ.');
       setPackages([]);
       setTotalItems(0);
       setTotalPages(1);
@@ -612,109 +612,124 @@ export default function ServiceCatalogPage() {
           )}
 
           {/* Results Body */}
-          {loading ? (
-            <div className="text-center py-5 bg-white rounded-4 shadow-sm border">
-              <Spinner animation="border" variant="primary" role="status" />
-              <div className="mt-3 text-muted fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</div>
-            </div>
-          ) : packages.length === 0 ? (
-            <div className="card border-0 shadow-sm rounded-4 text-center p-5 mx-auto" style={{ maxWidth: 540 }}>
-              <div className="text-muted mb-3" style={{ fontSize: 48 }}>
-                <FaVial />
-              </div>
-              <h5 className="fw-bold text-dark">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</h5>
-              <p className="text-muted small">
-                Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
-              </p>
-              <div className="mt-2">
-                <Button
-                  variant="outline-primary"
-                  className="rounded-pill px-4"
-                  onClick={handleClearAllFilters}
-                >
-                  Xóa Bộ Lọc & Xem Tất Cả
-                </Button>
-              </div>
-            </div>
-          ) : viewMode === 'table' ? (
-            /* UC20 Table View (matching screens/02-patient.html #uc20) */
-            <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-              <div className="table-responsive">
-                <Table hover className="align-middle mb-0">
+          {viewMode === 'table' ? (
+            /* UC20 Table View with FIXED column layout and persistent structure */
+            <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+              <div className="w-100 overflow-hidden">
+                <Table hover className="align-middle mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%', fontSize: '0.86rem' }}>
                   <thead className="table-light">
                     <tr>
-                      <th className="ps-4">Tên Gói Xét Nghiệm & Mô Tả</th>
-                      <th style={{ width: '120px' }}>Mã Gói</th>
-                      <th style={{ width: '130px' }}>Chuyên Khoa</th>
-                      <th className="text-center" style={{ width: '120px' }}>Chỉ Số</th>
-                      <th style={{ width: '160px' }}>Ống Mẫu (Specimen)</th>
-                      <th style={{ width: '140px' }}>Chuẩn Bị</th>
-                      <th className="text-end" style={{ width: '140px' }}>Đơn Giá (₫)</th>
-                      <th className="text-end pe-4" style={{ width: '190px' }}>Thao Tác</th>
+                      <th className="ps-4" style={{ width: '28%' }}>Tên Gói Xét Nghiệm & Mô Tả</th>
+                      <th style={{ width: '10%' }}>Mã Gói</th>
+                      <th style={{ width: '12%' }}>Chuyên Khoa</th>
+                      <th className="text-center" style={{ width: '8%' }}>Chỉ Số</th>
+                      <th style={{ width: '14%' }}>Ống Mẫu (Specimen)</th>
+                      <th style={{ width: '11%' }}>Chuẩn Bị</th>
+                      <th className="text-end" style={{ width: '10%' }}>Đơn Giá (₫)</th>
+                      <th className="text-end pe-4" style={{ width: '7%' }}>Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {packages.map((pkg) => (
-                      <tr key={pkg.id || pkg.packageCode}>
-                        <td className="ps-4">
-                          <div className="fw-bold text-dark">{pkg.packageName}</div>
-                          <div className="text-muted small text-truncate" style={{ maxWidth: '340px' }}>
-                            {pkg.criteria?.length > 0
-                              ? pkg.criteria.map(c => c.code || c.name).join(', ')
-                              : pkg.description}
-                          </div>
-                        </td>
-                        <td>
-                          <span className="badge bg-light text-dark border font-monospace">
-                            {pkg.packageCode}
-                          </span>
-                        </td>
-                        <td>
-                          <Badge bg="primary" className="bg-opacity-10 text-primary fw-semibold px-2 py-1">
-                            {pkg.category}
-                          </Badge>
-                        </td>
-                        <td className="text-center">
-                          <Badge bg="info" text="dark" className="bg-opacity-15 fw-semibold">
-                            {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
-                          </Badge>
-                        </td>
-                        <td>
-                          <span className="badge bg-warning bg-opacity-15 text-dark border border-warning-subtle">
-                            <FaVial className="me-1 text-warning" />
-                            {pkg.sampleTube} ({pkg.sampleVolumeMl} mL)
-                          </span>
-                        </td>
-                        <td>
-                          <span className="small text-secondary">{pkg.fastingRule}</span>
-                        </td>
-                        <td className="text-end fw-bold font-monospace text-danger">
-                          {Number(pkg.price).toLocaleString('vi-VN')} ₫
-                        </td>
-                        <td className="text-end pe-4">
-                          <div className="d-inline-flex gap-1">
-                            <Button
-                              variant="outline-primary"
-                              size="sm"
-                              onClick={() => handleOpenDetail(pkg)}
-                            >
-                              Chi tiết
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              style={{ backgroundColor: '#1e40af', borderColor: '#1e40af' }}
-                              onClick={() => handleOpenBooking(pkg)}
-                            >
-                              Đặt lịch
-                            </Button>
-                          </div>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-5 text-muted">
+                          <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                          <span className="fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</span>
                         </td>
                       </tr>
-                    ))}
+                    ) : packages.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-5">
+                          <div className="text-muted mb-2 fs-2">
+                            <FaVial />
+                          </div>
+                          <div className="fw-bold text-dark fs-6 mb-1">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</div>
+                          <p className="text-muted small mb-3">
+                            Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
+                          </p>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="rounded-pill px-3"
+                            onClick={handleClearAllFilters}
+                          >
+                            Xóa Bộ Lọc & Xem Tất Cả
+                          </Button>
+                        </td>
+                      </tr>
+                    ) : (
+                      packages.map((pkg) => (
+                        <tr key={pkg.id || pkg.packageCode}>
+                          <td className="ps-4 text-truncate">
+                            <div className="fw-bold text-dark text-truncate" title={pkg.packageName}>{pkg.packageName}</div>
+                            <div
+                              className="text-muted small text-truncate"
+                              title={pkg.criteria?.length > 0 ? pkg.criteria.map(c => c.code || c.name).join(', ') : pkg.description}
+                            >
+                              {pkg.criteria?.length > 0
+                                ? pkg.criteria.map(c => c.code || c.name).join(', ')
+                                : pkg.description}
+                            </div>
+                          </td>
+                          <td className="text-truncate">
+                            <span className="badge bg-light text-dark border font-monospace text-truncate d-inline-block" style={{ maxWidth: '100%' }}>
+                              {pkg.packageCode}
+                            </span>
+                          </td>
+                          <td className="text-truncate">
+                            <Badge bg="primary" className="bg-opacity-10 text-primary fw-semibold px-2 py-1 text-truncate d-inline-block" style={{ maxWidth: '100%' }}>
+                              {pkg.category}
+                            </Badge>
+                          </td>
+                          <td className="text-center text-truncate">
+                            <Badge bg="info" text="dark" className="bg-opacity-15 fw-semibold">
+                              {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
+                            </Badge>
+                          </td>
+                          <td className="text-truncate">
+                            <span className="badge bg-warning bg-opacity-15 text-dark border border-warning-subtle text-truncate d-inline-flex align-items-center" style={{ maxWidth: '100%' }}>
+                              <FaVial className="me-1 text-warning flex-shrink-0" />
+                              <span className="text-truncate">{pkg.sampleTube}</span>
+                            </span>
+                          </td>
+                          <td className="text-truncate">
+                            <span className="small text-secondary text-truncate d-block" title={pkg.fastingRule}>{pkg.fastingRule}</span>
+                          </td>
+                          <td className="text-end fw-bold font-monospace text-danger text-truncate">
+                            {Number(pkg.price).toLocaleString('vi-VN')} ₫
+                          </td>
+                          <td className="text-end pe-4">
+                            <div className="d-inline-flex gap-1">
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="px-2 py-1"
+                                style={{ fontSize: '0.78rem' }}
+                                onClick={() => handleOpenDetail(pkg)}
+                                title="Xem chi tiết"
+                              >
+                                Chi tiết
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                className="px-2 py-1"
+                                style={{ backgroundColor: '#1e40af', borderColor: '#1e40af', fontSize: '0.78rem' }}
+                                onClick={() => handleOpenBooking(pkg)}
+                                title="Đặt lịch"
+                              >
+                                Đặt
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </Table>
               </div>
+
+              {/* Persistent Table Footer */}
               <div className="card-footer bg-light border-top p-3 d-flex flex-wrap justify-content-between align-items-center small text-muted">
                 <span>
                   Hiển thị <strong>{packages.length}</strong> / <strong>{totalItems}</strong> gói xét nghiệm. Giá đã bao gồm phí lấy mẫu và phân tích chuẩn ISO 15189.
@@ -735,29 +750,57 @@ export default function ServiceCatalogPage() {
           ) : (
             /* Grid Card View */
             <>
-              <Row className="g-4">
-                {packages.map((pkg) => (
-                  <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4} xl={3}>
-                    <ServiceCard
-                      package={pkg}
-                      onSelectDetail={handleOpenDetail}
-                      onBook={handleOpenBooking}
-                    />
-                  </Col>
-                ))}
-              </Row>
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-4">
-                  <Pagination>
-                    <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
-                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
-                      <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
-                        {pNum}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
-                  </Pagination>
+              {loading ? (
+                <div className="text-center py-5 bg-white rounded-4 shadow-sm border mb-4">
+                  <Spinner animation="border" variant="primary" role="status" />
+                  <div className="mt-3 text-muted fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</div>
                 </div>
+              ) : packages.length === 0 ? (
+                <div className="card border-0 shadow-sm rounded-4 text-center p-5 mx-auto mb-4" style={{ maxWidth: 540 }}>
+                  <div className="text-muted mb-3" style={{ fontSize: 48 }}>
+                    <FaVial />
+                  </div>
+                  <h5 className="fw-bold text-dark">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</h5>
+                  <p className="text-muted small">
+                    Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
+                  </p>
+                  <div className="mt-2">
+                    <Button
+                      variant="outline-primary"
+                      className="rounded-pill px-4"
+                      onClick={handleClearAllFilters}
+                    >
+                      Xóa Bộ Lọc & Xem Tất Cả
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Row className="g-4 mb-4">
+                    {packages.map((pkg) => (
+                      <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4} xl={3}>
+                        <ServiceCard
+                          package={pkg}
+                          onSelectDetail={handleOpenDetail}
+                          onBook={handleOpenBooking}
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                  {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                      <Pagination>
+                        <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
+                        {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                          <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
+                            {pNum}
+                          </Pagination.Item>
+                        ))}
+                        <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
+                      </Pagination>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

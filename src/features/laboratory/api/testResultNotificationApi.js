@@ -144,3 +144,18 @@ export const fetchNotificationStats = async () => {
         };
     }
 };
+
+
+/**
+ * Fetch list of patients with completed test results (UC60).
+ * @returns {Promise<Array>}
+ */
+export const fetchCompletedTestPatients = async () => {
+    try {
+        const response = await api.get("/notifications/test-results/completed-patients");
+        return response.data?.data || [];
+    } catch (error) {
+        console.error("Failed to fetch completed test patients:", error);
+        return [];
+    }
+};

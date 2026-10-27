@@ -163,6 +163,35 @@ export default function Sidebar({
       badge: null
     },
     {
+      id: 'notifications',
+      category: 'TỔNG QUAN',
+      path: '/laboratory/notifications',
+      label: 'Thông Báo Kết Quả',
+      icon: FaBell,
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST', 'PATIENT'],
+      badge: { text: 'UC60', bg: 'primary' }
+    },
+
+    // === 2. TIẾP ĐÓN & BỆNH NHÂN ===
+    {
+      id: 'check-in-qr',
+      category: 'TIẾP ĐÓN & LỊCH HẸN',
+      path: '/receptionist/check-in',
+      label: 'Check-in QR Code',
+      icon: FaQrcode,
+      allowedRoles: ['ADMIN', 'RECEPTIONIST'],
+      badge: { text: 'QR', bg: 'success' }
+    },
+    {
+      id: 'create-patient',
+      category: 'TIẾP ĐÓN & LỊCH HẸN',
+      path: '/receptionist/create-patient',
+      label: 'Tạo Hồ Sơ Bệnh Nhân',
+      icon: FaUserPlus,
+      allowedRoles: ['ADMIN', 'RECEPTIONIST', 'NURSE'],
+      badge: null
+    },
+    {
       id: 'patients',
       category: 'TIẾP ĐÓN & LỊCH HẸN',
       path: '/patients',
@@ -300,7 +329,7 @@ export default function Sidebar({
       path: '/laboratory/specimens/history',
       label: 'Lịch Sử Mẫu Bệnh Phẩm',
       icon: FaHistory,
-      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR', 'RECEPTIONIST'],
+      allowedRoles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'],
       badge: { text: 'UC70', bg: 'info' }
     },
     {
@@ -378,14 +407,6 @@ export default function Sidebar({
       icon: FaUserMd,
       allowedRoles: ['ADMIN'],
       badge: null
-    },
-    {
-      id: 'biochemical-results',
-      path: '/laboratory/biochemical-results',
-      label: 'Tra Cứu Kết Quả Sinh Hóa',
-      icon: FaFlask,
-      allowedRoles: ['ADMIN', 'LAB_TECHNICIAN', 'DOCTOR', 'PATIENT'],
-      badge: { text: 'UC75', bg: 'primary' }
     },
     {
       id: 'employees',

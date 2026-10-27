@@ -509,18 +509,18 @@ export default function SpecimenHistoryPage() {
                     </div>
                 </div>
 
-                <div className="table-responsive">
-                    <table className="table table-hover align-middle mb-0">
-                        <thead className="table-light text-secondary small text-uppercase">
+                <div className="w-100 overflow-hidden">
+                    <table className="table table-hover table-sm align-middle mb-0" style={{ tableLayout: "fixed", width: "100%", fontSize: "0.84rem" }}>
+                        <thead className="table-light text-secondary text-uppercase" style={{ fontSize: "0.75rem" }}>
                             <tr>
-                                <th style={{ minWidth: "140px" }}>Mã Vạch</th>
-                                <th style={{ minWidth: "160px" }}>Bệnh Nhân</th>
-                                <th style={{ minWidth: "130px" }}>Loại Mẫu</th>
-                                <th style={{ minWidth: "140px" }}>Thời Gian Lấy</th>
-                                <th style={{ minWidth: "120px" }}>Trạng Thái</th>
-                                <th style={{ minWidth: "160px" }}>Vị Trí Tủ Lạnh</th>
-                                <th style={{ minWidth: "110px" }} className="text-center">Hạn Lưu</th>
-                                <th style={{ minWidth: "100px" }} className="text-end">Thao Tác</th>
+                                <th style={{ width: "14%" }}>Mã Vạch</th>
+                                <th style={{ width: "18%" }}>Bệnh Nhân</th>
+                                <th style={{ width: "13%" }}>Loại Mẫu</th>
+                                <th style={{ width: "13%" }}>Thời Gian Lấy</th>
+                                <th style={{ width: "13%" }}>Trạng Thái</th>
+                                <th style={{ width: "15%" }}>Vị Trí Lưu Trữ</th>
+                                <th style={{ width: "7%" }} className="text-center">Hạn Lưu</th>
+                                <th style={{ width: "7%" }} className="text-end">Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -602,14 +602,15 @@ export default function SpecimenHistoryPage() {
                                             <td className="text-end">
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-xs"
+                                                    className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-xs px-2 py-1"
+                                                    style={{ fontSize: "0.78rem" }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleSelectSpecimen(item.barcode);
                                                     }}
                                                 >
-                                                    <span>Chi tiết</span>
-                                                    <FaArrowRight size={10} />
+                                                    <span>Xem</span>
+                                                    <FaArrowRight size={9} />
                                                 </button>
                                             </td>
                                         </tr>

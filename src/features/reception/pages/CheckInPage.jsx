@@ -102,15 +102,22 @@ export default function CheckInPage() {
   const [duplicateMatches, setDuplicateMatches] = useState([]);
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false);
 
-  const isReceptionist = React.useMemo(() => {
+  const canCreateGuest = React.useMemo(() => {
     try {
       const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');
-      if (!raw) return false;
+      if (!raw) return true;
       const u = JSON.parse(raw);
       const roleStr = String(u?.role || u?.roleName || '').toUpperCase();
-      return roleStr.includes('RECEPT') || roleStr.includes('LETAN') || Number(u?.roleId) === 5;
+      const roleId = Number(u?.roleId);
+      return (
+        roleStr.includes('RECEPT') ||
+        roleStr.includes('LETAN') ||
+        roleStr.includes('ADMIN') ||
+        roleId === 5 ||
+        roleId === 1
+      );
     } catch {
-      return false;
+      return true;
     }
   }, []);
 
@@ -223,8 +230,8 @@ export default function CheckInPage() {
   }, [showCreateModal, guestForm.identityNumber, guestForm.phoneNumber, guestForm.fullName]);
 
   const handleOpenCreateGuestModal = () => {
-    if (!isReceptionist) {
-      setErrorMsg('Chỉ tài khoản Lễ Tân (Receptionist) mới được phép tạo hồ sơ khách vãng lai (Create Guest Profile).');
+    if (!canCreateGuest) {
+      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai (UC25) yêu cầu quyền Lễ Tân (Receptionist) hoặc Quản trị viên (Admin). Vui lòng đăng nhập với tài khoản Lễ tân hoặc Admin để thực hiện.');
       return;
     }
     setGuestForm(INITIAL_GUEST_FORM);
@@ -350,11 +357,17 @@ export default function CheckInPage() {
           <Button variant="outline-secondary" onClick={loadPatients} disabled={loading}>
             <FaSyncAlt className="me-1" /> Làm mới
           </Button>
-          {isReceptionist && (
-            <Button variant="primary" className="fw-semibold" onClick={handleOpenCreateGuestModal}>
-              <FaUserPlus className="me-2" /> + Tạo Hồ Sơ Khách (Guest Profile)
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            className="fw-semibold shadow-sm d-flex align-items-center gap-2"
+            onClick={handleOpenCreateGuestModal}
+            id="btn-create-guest-profile"
+            title="Khởi tạo hồ sơ khách vãng lai mới (UC25)"
+          >
+            <FaUserPlus />
+            <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
+            <Badge bg="light" text="dark" className="ms-1">UC25</Badge>
+          </Button>
         </div>
       </div>
 

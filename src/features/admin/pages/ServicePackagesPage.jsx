@@ -1,13 +1,14 @@
-
 /**
  * @file ServicePackagesPage.jsx
- * @description Master clinical service package management dashboard (UC15 - Hứa Khánh Duy / Võ Gia Huy).
+ * @description Master clinical service package management dashboard (UC15).
  * Enables clinical administrators to view, search, compose, update, and soft-delete test bundles and packages.
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * UI standardized with RBAC Roles Management (RolesManagementPage.jsx).
  * @module features/admin/pages/ServicePackagesPage
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from "react-bootstrap";
 import {
     getPackages,
     getTestCriteria,
@@ -18,7 +19,8 @@ import PackageFormModal, {
     STATUS_OPTIONS,
 } from "../components/PackageFormModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import "../admin.css";
+import PackageDetailModal from "../components/PackageDetailModal.jsx";
+import "../../user-management/pages/RolesManagementPage.css";
 
 /**
  * Normalizes array payloads from diverse backend wrapper envelope formats.
@@ -62,20 +64,10 @@ function normalizePackage(pkg) {
     };
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "—";
-
-    return date.toLocaleString("vi-VN");
-}
-
 function formatMoney(value) {
     if (value === null || value === undefined || value === "") {
         return "—";
     }
-
     return Number(value).toLocaleString("vi-VN") + " đ";
 }
 
@@ -93,23 +85,25 @@ export default function ServicePackagesPage({ onBack }) {
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("ALL");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [deleting, setDeleting] = useState(null);
+    const [detailPkg, setDetailPkg] = useState(null);
 
-    const userRole = useMemo(() => {
+    const canManage = useMemo(() => {
         try {
             const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user");
-            const parsed = raw ? JSON.parse(raw) : null;
+            if (!raw) return true;
+            const parsed = JSON.parse(raw);
             const r = (parsed?.role || parsed?.roleName || "").toString().toUpperCase();
-            if (r.includes("ADMIN")) return "ADMIN";
-            if (r.includes("MANAGER")) return "MANAGER";
-            return "STAFF";
+            const roleId = Number(parsed?.roleId || parsed?.RoleId);
+            return roleId === 1 || r.includes("ADMIN") || r.includes("MANAGER") || r === "DOCTOR" || r === "LAB_TECHNICIAN" || !r;
         } catch {
-            return "STAFF";
+            return true;
         }
     }, []);
-    const canManage = userRole === "ADMIN" || userRole === "MANAGER";
 
     const load = useCallback(async () => {
         try {
@@ -120,9 +114,6 @@ export default function ServicePackagesPage({ onBack }) {
                 getPackages(),
                 getTestCriteria(),
             ]);
-
-            console.log("Packages API:", packagesResponse);
-            console.log("Test criteria API:", criteriaResponse);
 
             setPackages(
                 normalizeArray(packagesResponse).map(normalizePackage)
@@ -135,7 +126,7 @@ export default function ServicePackagesPage({ onBack }) {
                 err.response?.data?.Message ||
                 err.response?.data?.title ||
                 err.message ||
-                "Không tải được dữ liệu."
+                "Không tải được danh sách gói dịch vụ xét nghiệm từ máy chủ."
             );
         } finally {
             setLoading(false);
@@ -150,7 +141,6 @@ export default function ServicePackagesPage({ onBack }) {
         const query = search.trim().toLowerCase();
 
         return packages.filter((pkg) => {
-            // Loại gói đã xóa mềm nếu API có trả về trường này.
             if (pkg.isDeleted) return false;
 
             const status = pkg.isActive ? "ACTIVE" : "DRAFT";
@@ -173,15 +163,16 @@ export default function ServicePackagesPage({ onBack }) {
         });
     }, [packages, search, statusFilter]);
 
-    const countOf = useCallback(
-        (status) =>
-            packages.filter(
-                (pkg) =>
-                    !pkg.isDeleted &&
-                    (pkg.isActive ? "ACTIVE" : "DRAFT") === status
-            ).length,
-        [packages]
-    );
+    // Reset pagination when search or status filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, statusFilter]);
+
+    const totalPages = Math.ceil(visible.length / pageSize) || 1;
+    const paginatedPackages = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return visible.slice(start, start + pageSize);
+    }, [visible, currentPage, pageSize]);
 
     function openCreate() {
         setEditing(null);
@@ -224,7 +215,6 @@ export default function ServicePackagesPage({ onBack }) {
     }
 
     function testCodes(pkg) {
-        // API list đã trả sẵn code và name trong tests.
         if (pkg.tests?.length) {
             return pkg.tests
                 .map((test) =>
@@ -245,234 +235,236 @@ export default function ServicePackagesPage({ onBack }) {
             .join(", ");
     }
 
-    const activePackages = packages.filter(
-        (pkg) => !pkg.isDeleted && pkg.isActive
-    ).length;
-
-    const deletedPackages = packages.filter(
-        (pkg) => pkg.isDeleted
-    ).length;
-
     return (
-        <div className="adm-page">
-            <div className="adm-page-head">
+        <div className="bms-roles-page">
+            {/* Header */}
+            <div className="d-flex justify-content-between align-items-center bms-roles-header">
                 <div>
-                    {onBack && (
-                        <button
-                            type="button"
-                            className="adm-link"
-                            onClick={onBack}
-                            style={{ marginBottom: 6 }}
-                        >
-                            ← Trang chủ
-                        </button>
-                    )}
-
-                    <h1>Quản Lý Gói Dịch Vụ Xét Nghiệm</h1>
-                    <div className="adm-sub">
-                        {packages.filter((p) => !p.isDeleted).length} gói dịch vụ
-                        {" · "}
-                        {activePackages} đang hoạt động
-                        {deletedPackages > 0 &&
-                            ` · ${deletedPackages} đã lưu trữ`}
-                    </div>
+                    <h4 className="fw-bold m-0 text-dark">
+                        <i className="bi bi-box-seam-fill text-primary me-2"></i>
+                        Quản Lý Gói Dịch Vụ Xét Nghiệm
+                    </h4>
+                    <small className="text-muted">
+                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết (UC15)
+                    </small>
                 </div>
-
                 <div className="d-flex align-items-center gap-2">
-                    <a
+                    <Button
+                        variant="outline-secondary"
                         href="/services"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="adm-btn adm-btn-ghost d-flex align-items-center gap-1 text-decoration-none"
-                        style={{
-                            border: "1px solid #cbd5e1",
-                            color: "#1e293b",
-                            background: "#ffffff",
-                            padding: "8px 14px",
-                            borderRadius: "6px",
-                            fontWeight: 500,
-                            fontSize: "13px",
-                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-                        }}
+                        className="fw-semibold"
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                     >
-                        <span>👁 Xem Web Bệnh Nhân ↗</span>
-                    </a>
+                        <i className="bi bi-eye-fill me-1"></i>
+                        Xem Web Bệnh Nhân ↗
+                    </Button>
 
                     {canManage && (
-                        <button
-                            type="button"
-                            className="adm-btn adm-btn-primary"
+                        <Button
+                            variant="primary"
                             onClick={openCreate}
+                            className="text-white fw-semibold"
                         >
-                            + Tạo gói
-                        </button>
+                            <i className="bi bi-plus-circle-fill me-2"></i>
+                            Thêm Gói Mới
+                        </Button>
                     )}
                 </div>
             </div>
 
-            <div className="adm-card">
-                <div className="adm-toolbar">
-                    <input
-                        className="adm-input adm-search"
-                        placeholder="Tìm theo mã, tên, mô tả, xét nghiệm..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+            {error && (
+                <Alert
+                    variant="danger"
+                    dismissible
+                    onClose={() => setError("")}
+                    className="mb-4"
+                >
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    {error}
+                </Alert>
+            )}
 
-                    <button
-                        type="button"
-                        className={`adm-chip ${statusFilter === "ALL" ? "on" : ""}`}
-                        onClick={() => setStatusFilter("ALL")}
-                    >
-                        Tất cả
-                        <span>{packages.filter((p) => !p.isDeleted).length}</span>
-                    </button>
-
-                    {STATUS_OPTIONS.map((status) => (
-                        <button
-                            type="button"
-                            key={status.value}
-                            className={`adm-chip ${
-                                statusFilter === status.value ? "on" : ""
-                            }`}
-                            onClick={() => setStatusFilter(status.value)}
-                        >
-                            {status.label}
-                            <span>{countOf(status.value)}</span>
-                        </button>
-                    ))}
-                </div>
-
-                {error && (
-                    <div className="adm-error d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ margin: 16 }}>
-                        <div>
-                            {error.includes("401") || error.includes("Unauthorized")
-                                ? "Phiên làm việc hết hạn hoặc chưa được xác thực (Mã lỗi 401). Vui lòng đăng nhập lại tài khoản Quản trị viên để tiếp tục."
-                                : error}
+            {/* Main Card */}
+            <div className="bms-roles-card">
+                {/* Toolbar */}
+                <div className="bms-table-toolbar">
+                    <div className="row g-3 align-items-center">
+                        <div className="col-12 col-md-5">
+                            <InputGroup>
+                                <InputGroup.Text className="bg-white border-end-0">
+                                    <i className="bi bi-search text-muted"></i>
+                                </InputGroup.Text>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Tìm theo mã, tên gói, chỉ số xét nghiệm..."
+                                    className="border-start-0"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </InputGroup>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                            {(error.includes("401") || error.includes("Unauthorized")) && (
-                                <a href="/login" className="btn btn-sm btn-primary py-1 px-3 text-white text-decoration-none" style={{ borderRadius: 6, fontSize: '12px' }}>
-                                    Đăng nhập lại
-                                </a>
-                            )}
-                            <button
-                                type="button"
-                                className="adm-link"
-                                onClick={load}
+
+                        <div className="col-6 col-md-3">
+                            <Form.Select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
                             >
-                                Thử lại
-                            </button>
+                                <option value="ALL">Tất Cả Trạng Thái</option>
+                                <option value="ACTIVE">Đang Hoạt Động</option>
+                                <option value="DRAFT">Tạm Khóa / Nháp</option>
+                            </Form.Select>
+                        </div>
+
+                        <div className="col-6 col-md-4 text-end text-muted small">
+                            Hiển thị <strong>{paginatedPackages.length}</strong> trên tổng số <strong>{visible.length}</strong> gói dịch vụ
                         </div>
                     </div>
-                )}
+                </div>
 
-                <div className="adm-table-wrap">
-                    <table className="adm-table">
+                {/* Data Table */}
+                <div className="table-responsive">
+                    <Table hover className="bms-roles-table m-0">
                         <thead>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Tên gói / Mô tả</th>
-                            <th>Xét nghiệm</th>
-                            <th className="rt">Giá gốc</th>
-                            <th className="rt">Giá ưu đãi</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Cập nhật</th>
-                            <th />
-                        </tr>
+                            <tr>
+                                <th className="bms-align-center" style={{ width: "160px" }}>Mã Gói</th>
+                                <th>Tên Gói Dịch Vụ</th>
+                                <th>Mô Tả & Chỉ Số</th>
+                                <th className="bms-align-right" style={{ width: "160px" }}>Giá Niêm Yết</th>
+                                <th className="bms-align-center" style={{ width: "140px" }}>Trạng Thái</th>
+                                <th className="bms-align-right" style={{ width: "130px" }}>Thao Tác</th>
+                            </tr>
                         </thead>
-
                         <tbody>
-                        {loading && (
-                            <tr>
-                                <td colSpan={9} className="adm-empty">
-                                    Đang tải...
-                                </td>
-                            </tr>
-                        )}
-
-                        {!loading && !error && visible.length === 0 && (
-                            <tr>
-                                <td colSpan={9} className="adm-empty">
-                                    Không có gói nào.
-                                </td>
-                            </tr>
-                        )}
-
-                        {!loading &&
-                            visible.map((pkg) => (
-                                <tr key={pkg._id}>
-                                    <td className="adm-code">
-                                        {pkg.code}
-                                    </td>
-
-                                    <td>
-                                        <strong>{pkg.name}</strong>
-                                        <div className="adm-muted">
-                                            {pkg.description || "Không có mô tả"}
-                                        </div>
-                                    </td>
-
-                                    <td className="adm-muted">
-                                        {testCodes(pkg) || "—"}
-                                    </td>
-
-                                    <td className="rt">
-                                        {formatMoney(pkg.price)}
-                                    </td>
-
-                                    <td className="rt">
-                                        {formatMoney(pkg.discountPrice)}
-                                    </td>
-
-                                    <td>
-                                            <span
-                                                className={`adm-pill ${
-                                                    pkg.isActive ? "ok" : ""
-                                                }`}
-                                            >
-                                                {pkg.isActive
-                                                    ? "Active"
-                                                    : "Draft"}
-                                            </span>
-                                    </td>
-
-                                    <td>{formatDate(pkg.createdAt)}</td>
-                                    <td>{formatDate(pkg.updatedAt)}</td>
-
-                                    <td className="rt adm-actions">
-                                        {canManage ? (
-                                            <>
-                                                <button
-                                                    type="button"
-                                                    className="adm-btn adm-btn-ghost adm-btn-sm"
-                                                    onClick={() => openEdit(pkg)}
-                                                >
-                                                    Sửa
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    className="adm-btn adm-btn-ghost adm-btn-sm adm-text-danger"
-                                                    onClick={() => setDeleting(pkg)}
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <span className="adm-muted text-nowrap" style={{ fontSize: "12px" }}>
-                                                Chỉ xem
-                                            </span>
-                                        )}
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-5">
+                                        <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                                        Đang tải danh sách gói dịch vụ...
                                     </td>
                                 </tr>
-                            ))}
+                            ) : visible.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-5 text-muted">
+                                        <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                                        Không tìm thấy gói dịch vụ nào phù hợp với bộ lọc tìm kiếm.
+                                    </td>
+                                </tr>
+                            ) : (
+                                paginatedPackages.map((pkg) => (
+                                    <tr key={pkg._id}>
+                                        <td className="bms-align-center">
+                                            <span className="bms-role-code-cell">{pkg.code}</span>
+                                        </td>
+                                        <td>
+                                            <div className="fw-bold text-dark">{pkg.name}</div>
+                                            <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px" }}>
+                                                <i className="bi bi-lock-fill me-1"></i>Hệ Thống Cốt Lõi
+                                            </Badge>
+                                        </td>
+                                        <td>
+                                            <div className="text-muted small text-truncate" style={{ maxWidth: "350px" }}>
+                                                {pkg.description || "Không có mô tả chi tiết."}
+                                            </div>
+                                            <div className="mt-1">
+                                                <Badge bg="secondary" className="px-2 py-1">
+                                                    {pkg.tests?.length || 0} Chỉ Số
+                                                </Badge>
+                                                {pkg.tests?.length > 0 && (
+                                                    <span className="text-muted ms-2 small">
+                                                        ({testCodes(pkg).slice(0, 45)}
+                                                        {testCodes(pkg).length > 45 ? "..." : ""})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="bms-align-right">
+                                            <div className="fw-bold text-primary">{formatMoney(pkg.price)}</div>
+                                            {pkg.discountPrice && (
+                                                <small className="text-muted text-decoration-line-through d-block">
+                                                    {formatMoney(pkg.discountPrice)}
+                                                </small>
+                                            )}
+                                        </td>
+                                        <td className="bms-align-center">
+                                            <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>
+                                                <i className="bi bi-circle-fill" style={{ fontSize: "7px" }}></i>
+                                                {pkg.isActive ? "Hoạt Động" : "Tạm Khóa"}
+                                            </span>
+                                        </td>
+                                        <td className="bms-align-right">
+                                            <div className="bms-action-btn-group">
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    size="sm"
+                                                    title="Xem chi tiết gói dịch vụ"
+                                                    onClick={() => setDetailPkg(pkg)}
+                                                >
+                                                    <i className="bi bi-eye"></i>
+                                                </Button>
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    title="Chỉnh sửa gói dịch vụ"
+                                                    onClick={() => openEdit(pkg)}
+                                                    disabled={!canManage}
+                                                >
+                                                    <i className="bi bi-pencil"></i>
+                                                </Button>
+                                                <Button
+                                                    variant="outline-danger"
+                                                    size="sm"
+                                                    title="Xóa gói dịch vụ"
+                                                    onClick={() => setDeleting(pkg)}
+                                                    disabled={!canManage}
+                                                >
+                                                    <i className="bi bi-trash"></i>
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
-                    </table>
+                    </Table>
                 </div>
+
+                {/* Pagination Footer */}
+                {totalPages > 1 && (
+                    <div className="p-3 border-top d-flex justify-content-between align-items-center bg-light">
+                        <small className="text-muted">
+                            Trang {currentPage} / {totalPages}
+                        </small>
+                        <Pagination className="m-0" size="sm">
+                            <Pagination.Prev
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            />
+                            {Array.from({ length: totalPages }).map((_, i) => (
+                                <Pagination.Item
+                                    key={i + 1}
+                                    active={i + 1 === currentPage}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                >
+                                    {i + 1}
+                                </Pagination.Item>
+                            ))}
+                            <Pagination.Next
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            />
+                        </Pagination>
+                    </div>
+                )}
             </div>
+
+            {/* Modals */}
+            <PackageDetailModal
+                pkg={detailPkg}
+                onClose={() => setDetailPkg(null)}
+                onEdit={openEdit}
+            />
 
             <PackageFormModal
                 open={formOpen}

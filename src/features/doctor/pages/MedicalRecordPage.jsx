@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Card,
   Button,
@@ -60,6 +61,12 @@ const COMMON_ICD10 = [
 ];
 
 export default function MedicalRecordPage() {
+  const canAddNotes = useMemo(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || 'null');
+      return (user?.role || user?.roleName || '').toLowerCase() === 'doctor';
+    } catch { return false; }
+  }, []);
   const [patientId, setPatientId] = useState('PAT-261019-0005');
   const [searchPatientInput, setSearchPatientInput] = useState('PAT-261019-0005');
   const [records, setRecords] = useState([]);
@@ -732,6 +739,10 @@ export default function MedicalRecordPage() {
                 </div>
 
                 <div className="d-flex gap-2">
+                  {canAddNotes && <Button as={Link} variant="outline-primary" size="sm"
+                    to={`/doctor/medical-notes?recordId=${encodeURIComponent(selectedRecord.id)}`}>
+                    <FaNotesMedical className="me-1" /> Ghi chú y khoa
+                  </Button>}
                   {selectedRecord.canEdit ? (
                     <Button
                       variant="outline-primary"

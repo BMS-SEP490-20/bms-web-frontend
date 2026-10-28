@@ -1,7 +1,9 @@
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/test-results';
+import { getToken, API_URL } from '../../../config/api';
+
+const BASE = `${API_URL}/test-results`;
 
 function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  const token = getToken();
   return {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -18,8 +20,22 @@ export const resultApi = {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message ?? `HTTP ${res.status}`);
+      throw new Error(err.message || err.Message || err.title || err.detail || `HTTP ${res.status}`);
+    }
+    return res.json();
+  },
+
+  async lookup(keyword) {
+    const res = await fetch(`${BASE}/lookup?keyword=${encodeURIComponent(keyword || '')}`, {
+      method: 'GET',
+      headers: authHeaders(),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || err.Message || err.title || err.detail || `HTTP ${res.status}`);
     }
     return res.json();
   },
 };
+
+export default resultApi;

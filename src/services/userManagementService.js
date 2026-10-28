@@ -12,25 +12,20 @@ import api from '../config/api';
 export const ROLE_MAPPING = {
   1: 'admin',
   2: 'doctor',
-  3: 'lab_user',
-  4: 'manager',
-  5: 'nurse',
+  3: 'lab_technician',
+  4: 'receptionist',
+  5: 'patient',
+  // legacy compatibility
   6: 'receptionist',
-  7: 'cashier',
-  8: 'warehouse',
   9: 'patient',
 };
 
 export const ROLE_NAMES = {
-  admin: 'Administrator (Admin)',
-  manager: 'Clinical Manager (Manager)',
-  doctor: 'Doctor / Physician (Doctor)',
-  lab_user: 'Laboratory Technician (Lab User)',
-  patient: 'Patient (Patient)',
-  receptionist: 'Receptionist (Receptionist)',
-  nurse: 'Clinical Nurse (Nurse)',
-  cashier: 'Cashier / Billing (Cashier)',
-  warehouse: 'Warehouse Keeper (Warehouse)',
+  admin: 'Quản trị viên (Admin)',
+  doctor: 'Bác sĩ khám bệnh (Doctor)',
+  lab_technician: 'Kỹ thuật viên xét nghiệm (Lab Technician)',
+  receptionist: 'Nhân viên tiếp đón (Receptionist)',
+  patient: 'Bệnh nhân (Patient)',
 };
 
 export const normalizeUser = (item = {}) => {

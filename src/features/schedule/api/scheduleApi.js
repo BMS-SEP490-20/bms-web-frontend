@@ -1,7 +1,9 @@
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/schedules';
+import { getToken, API_URL } from '../../../config/api';
+
+const BASE = `${API_URL}/schedules`;
 
 function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  const token = getToken();
   return {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -12,7 +14,7 @@ function authHeaders() {
 async function handle(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
+    throw new Error(err.message || err.Message || err.title || err.detail || `HTTP ${res.status}`);
   }
   if (res.status === 204) return undefined;
   return res.json();
@@ -34,4 +36,10 @@ export const scheduleApi = {
   remove(id) {
     return handle(fetch(`${BASE}/${id}`, { method: 'DELETE', headers: authHeaders() }));
   },
+  async getRooms() {
+    const res = await handle(fetch(`${API_URL}/shifts/rooms`, { headers: authHeaders() }));
+    return res?.data || res || [];
+  },
 };
+
+export default scheduleApi;

@@ -634,7 +634,14 @@ export default function App() {
                   <Route path="/admin/tat-statistics" element={<TatStatisticsDashboardPage />} />
                 </Route>
 
-                {/* Admin only: accounts (UC14), roles (UC13), audit (UC64, C5), backup (UC80), service packages write (UC15) */}
+                {/* UC15/UC19 package management: Admin + Manager (Quy trình DOT2 follow-up 2, pending Phát).
+                    WHY: UC19 test packages are edited through the same service-packages screen and API. */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
+                  <Route path="/packages" element={<ServicePackagesPage />} />
+                  <Route path="/admin/packages" element={<ServicePackagesPage />} />
+                </Route>
+
+                {/* Admin only: accounts (UC14), roles (UC13), audit (UC64, C5), backup (UC80) */}
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN]} />}>
                   <Route path="/admin/employees" element={<UserManagementPage />} />
                   <Route path="/admin/users" element={<UserManagementPage />} />
@@ -644,8 +651,6 @@ export default function App() {
                   <Route path="/admin/audit-logs" element={<AuditLogPage />} />
                   <Route path="/admin/backup" element={<BackupManagementPage />} />
                   <Route path="/backup" element={<BackupManagementPage />} />
-                  <Route path="/packages" element={<ServicePackagesPage />} />
-                  <Route path="/admin/packages" element={<ServicePackagesPage />} />
                   <Route path="/roles" element={<RolesManagementPage />} />
                   <Route path="/admin/role-management" element={<RolesManagementPage />} />
                 </Route>

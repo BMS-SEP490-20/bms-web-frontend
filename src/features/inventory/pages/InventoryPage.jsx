@@ -10,6 +10,7 @@ import InventoryFormModal from '../components/InventoryFormModal';
 import DeleteInventoryModal from '../components/DeleteInventoryModal';
 import '../../../components/common/SkeletonProfile.css';
 
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 const defaults = { search: '', status: '', expiryFrom: '', expiryTo: '', page: 1, pageSize: 20 };
 const expiryLabels = { AVAILABLE: 'Còn hạn ≥ 30 ngày', EXPIRING_SOON: 'Sắp hết hạn', EXPIRED: 'Đã hết hạn', UNKNOWN_EXPIRY: 'Chưa có hạn dùng' };
 const quantity = (value) => new Intl.NumberFormat('vi-VN').format(value);
@@ -29,12 +30,8 @@ export default function InventoryPage() {
   const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [success, setSuccess] = useState('');
-  const canManage = (() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || 'null');
-      return ['ADMIN', 'ADMINISTRATOR', 'MANAGER', 'WAREHOUSESTAFF'].includes((user?.role || user?.roleName || '').trim().toUpperCase());
-    } catch { return false; }
-  })();
+  // WHY: UC56 ruling 30/10 — write = Manager, Lab (WarehouseStaff merged into Lab); Admin reads only.
+  const canManage = hasRole(getStoredUser(), ROLES.MANAGER, ROLES.LAB);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
   const [data, setData] = useState(null);

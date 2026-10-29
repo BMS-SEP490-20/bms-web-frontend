@@ -93,8 +93,8 @@ export default function ServicePackagesPage({ onBack }) {
     const [deleting, setDeleting] = useState(null);
     const [detailPkg, setDetailPkg] = useState(null);
 
-    // WHY: UC15 create/edit/delete packages is Admin-only (matrix §1.2); missing user or role => read-only.
-    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN), []);
+    // WHY: UC15/UC19 write = Admin + Manager (Quy trình DOT2 follow-up 2); missing user or role => read-only; the API enforces the same set.
+    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
 
     const load = useCallback(async () => {
         try {

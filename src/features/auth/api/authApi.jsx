@@ -1,6 +1,6 @@
 /**
  * @file authApi.jsx
- * @description Dedicated authentication HTTP client for password recovery endpoints.
+ * @description Dedicated authentication HTTP client for password recovery endpoints (UC10 / BR-IAM-01).
  * @module features/auth/api/authApi
  */
 
@@ -16,17 +16,28 @@ const authClient = axios.create({
 });
 
 /**
- * Dispatches a password recovery OTP code to the specified user email address.
+ * Dispatches a password recovery OTP code to the specified user email address (UC10).
+ * Connects to BMS Backend /api/auth/forgot and /api/auth/forgot-password.
  *
  * @param {string} email - Registered user email address.
  * @returns {Promise<object>} Backend response payload containing dispatch status message.
  */
 export async function sendPasswordRecoveryOtp(email) {
-    const response = await authClient.post("/api/auth/forgot-password", {
-        email: email.trim(),
-    });
-
-    return response.data;
+    try {
+        const response = await authClient.post("/api/auth/forgot", {
+            email: email.trim(),
+        });
+        return response.data;
+    } catch (firstErr) {
+        try {
+            const response = await authClient.post("/api/auth/forgot-password", {
+                email: email.trim(),
+            });
+            return response.data;
+        } catch (secondErr) {
+            throw (secondErr.response ? secondErr : firstErr);
+        }
+    }
 }
 
 export default {

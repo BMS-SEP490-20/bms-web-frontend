@@ -69,9 +69,11 @@ const MENU_SECTIONS = [
   {
     category: 'LỊCH SỬ & THEO DÕI',
     items: [
-      { id: 'timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu', icon: FaHistory, roles: [...ALL_STAFF, 'PATIENT'], badge: { text: 'UC71', bg: 'info' } },
+      // WHY: UC71 timeline is lab-chain data. Matrix row UC71 + Quy trình ruling 30/10: Lab (incl. former WarehouseStaff), Manager (incl. former LabHead), Doctor only.
+      { id: 'timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu', icon: FaHistory, roles: ['MANAGER', 'LABHEAD', 'LABTECH', 'WAREHOUSESTAFF', 'DOCTOR'], badge: { text: 'UC71', bg: 'info' } },
       { id: 'specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu', icon: FaHistory, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'], badge: { text: 'UC70', bg: 'info' } },
-      { id: 'my-tests', path: '/patient/test-history', label: 'Lịch Sử Của Tôi', icon: FaHistory, roles: ['PATIENT'], badge: { text: 'UC76', bg: 'info' } }
+      // WHY: restores LacPG's UC76 item (c8850ca) lost in the 18cd447 rewrite. Decision 10: Admin and Receptionist must not see clinical history; Patient sees own data only (server-scoped).
+      { id: 'test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: ['MANAGER', 'LABHEAD', 'DOCTOR', 'LABTECH', 'WAREHOUSESTAFF', 'PATIENT'], badge: { text: 'UC76', bg: 'info' } }
     ]
   },
   {

@@ -71,6 +71,7 @@ import ValidateSample from "./pages/lab-user/ValidateSample";
 import QcFlagsPage from "./pages/qc/QcFlagsPage";
 import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
+import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
 
 // Patient Services, Scheduling & Billing Views
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
@@ -622,6 +623,13 @@ export default function App() {
                   <Route path="/admin/shift-assignment" element={<ShiftAssignment />} />
                   <Route path="/manager/shift-assignment" element={<ShiftAssignment />} />
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
+                </Route>
+
+                {/* Cold-Chain IoT Environmental Alert Surveillance & Incident Resolution (UC68) */}
+                <Route element={<ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "DOCTOR", "LABHEAD", "LABTECH"]} />}>
+                  <Route path="/iot/alerts" element={<AlertThresholdViolationPage />} />
+                  <Route path="/laboratory/iot-alerts" element={<AlertThresholdViolationPage />} />
+                  <Route path="/admin/iot-alerts" element={<AlertThresholdViolationPage />} />
                 </Route>
 
                 {/* System Administration, Personnel Management, Audit Logs & Disaster Recovery */}

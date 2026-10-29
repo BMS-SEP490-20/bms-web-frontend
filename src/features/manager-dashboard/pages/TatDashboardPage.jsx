@@ -20,7 +20,7 @@ export default function TatDashboardPage() {
             <Card className="shadow-sm p-4 text-center border-0">
                 <Alert variant="info" className="m-0">
                     <i className="bi bi-stopwatch me-2"></i>
-                    <strong>Giám Sát Thời Gian Trả Kết Quả (TAT SLA):</strong> Theo dõi thời gian xử lý mẫu thường (< 4 giờ) và mẫu cấp cứu STAT (< 1 giờ) theo cam kết chất lượng.
+                    <strong>Giám Sát Thời Gian Trả Kết Quả (TAT SLA):</strong> Theo dõi thời gian xử lý mẫu thường ({"<"} 4 giờ) và mẫu cấp cứu STAT ({"<"} 1 giờ) theo cam kết chất lượng.
                 </Alert>
             </Card>
         </Container>

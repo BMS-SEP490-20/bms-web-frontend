@@ -82,6 +82,7 @@ import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
+import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
 import FeedbackHubPage from "./pages/feedback/FeedbackHubPage";
 import NotificationsHistoryPage from "./pages/notifications/NotificationsHistoryPage";
 
@@ -326,6 +327,7 @@ function HomePage() {
               </>
             )}
             <li><a className="bms-nav-link" href="#tra-cuu">Tra Cứu Online</a></li>
+            <li><a className="bms-nav-link" href="/calculate-fees">Dự Toán Phí (UC53)</a></li>
           </ul>
 
           <div className="bms-header-actions">
@@ -494,6 +496,11 @@ export default function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/services" element={<ServiceCatalogPage />} />
               <Route path="/catalog" element={<ServiceCatalogPage />} />
+              <Route path="/calculate-fees" element={<CalculateFeesPage />} />
+              <Route path="/fee-calculator" element={<CalculateFeesPage />} />
+              <Route path="/billing/calculate-fee" element={<CalculateFeesPage />} />
+              <Route path="/patient/fee-calculator" element={<CalculateFeesPage />} />
+              <Route path="/patient" element={<Navigate to="/" replace />} />
 
               {/* --- 2. Authentication Workflows (AuthLayout) --- */}
               <Route element={<AuthLayout />}>

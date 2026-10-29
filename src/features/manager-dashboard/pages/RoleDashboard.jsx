@@ -10,6 +10,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button, Table, Spinner, Nav, Alert } from 'react-bootstrap';
 import api from '../../../config/api';
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
+import AdminOpsDashboard from '../../admin/components/AdminOpsDashboard';
 
 /**
  * Role-tailored clinical and administrative dashboard component.
@@ -17,6 +19,17 @@ import api from '../../../config/api';
  * @returns {JSX.Element} Rendered role dashboard.
  */
 const RoleBasedDashboard = () => {
+  // WHY: decision 10 + DOT2 follow-up 6 — Admin gets the ops-only dashboard and never the clinical role tabs.
+  if (hasRole(getStoredUser(), ROLES.ADMIN)) return <AdminOpsDashboard />;
+  return <ClinicalRoleDashboard />;
+};
+
+/**
+ * Dashboard for the five non-Admin roles (existing UC12 screen).
+ *
+ * @returns {JSX.Element} Rendered role dashboard.
+ */
+const ClinicalRoleDashboard = () => {
   const currentUser = React.useMemo(() => {
     try {
       const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');

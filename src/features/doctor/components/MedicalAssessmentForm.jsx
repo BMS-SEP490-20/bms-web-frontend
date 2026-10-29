@@ -1,8 +1,9 @@
-﻿/**
+/**
  * @file MedicalAssessmentForm.jsx
  * @description UC50 – Complete Doctor Clinical Assessment & WHO ICD-10 Entry Form (Iteration 3).
- * Supports Patient and Encounter Association, Vital Signs with Real-Time BMI Calculation,
- * WHO ICD-10 Autocomplete, Clinical Risk Severity, and Test Order Recommendations.
+ * Supports Patient Profile auto-binding from Database (Read-only demographic lock),
+ * Vital Signs with Real-Time BMI Calculation, WHO ICD-10 Autocomplete,
+ * Clinical Risk Severity, and Dynamic Test Order Recommendations from Service Packages.
  * Conforms to: BR-DOC-01, ISO 15189, and AGENTS-DESIGN.md.
  * @module features/doctor/components/MedicalAssessmentForm
  */
@@ -18,7 +19,8 @@ import {
   Alert,
   Spinner,
   InputGroup,
-  ListGroup
+  ListGroup,
+  Modal
 } from 'react-bootstrap';
 import {
   FaUserInjured,
@@ -32,9 +34,13 @@ import {
   FaLock,
   FaExclamationTriangle,
   FaSearch,
-  FaTimes
+  FaTimes,
+  FaExchangeAlt,
+  FaVials
 } from 'react-icons/fa';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
+import { searchPatients, getPatientById } from '../../../services/patientService';
+import { getPackages } from '../../admin/api/packageApi.jsx';
 
 // Standard WHO ICD-10 Catalog for clinical guidance
 export const COMMON_ICD10_LIST = [
@@ -50,16 +56,6 @@ export const COMMON_ICD10_LIST = [
   { code: 'N39', name: 'Rối loạn hệ tiết niệu (Disorders of urinary system)' },
   { code: 'R50', name: 'Sốt không rõ nguyên nhân (Fever of unknown origin)' },
   { code: 'Z00', name: 'Khám sức khỏe tổng quát (General examination)' },
-];
-
-export const AVAILABLE_TEST_PACKAGES = [
-  'Gói Xét Nghiệm Tổng Quát Định Kỳ',
-  'Gói Tầm Soát Đái Tháo Đường & HbA1c',
-  'Gói Đánh Giá Chức Năng Gan (AST, ALT, GGT)',
-  'Gói Đánh Giá Chức Năng Thận (Ure, Creatinine)',
-  'Bộ Mỡ Máu Toàn Phần (Lipid Profile)',
-  'Tổng Phân Tích Tế Bào Máu Ngoại Vi (CBC 24 Thông Số)',
-  'Điện Giải Đồ (Na+, K+, Cl-)'
 ];
 
 export default function MedicalAssessmentForm({
@@ -78,12 +74,12 @@ export default function MedicalAssessmentForm({
   });
 
   const [formData, setFormData] = useState({
-    patientId: initialData?.patientId || 'USR-PAT-01',
-    patientCode: initialData?.patientCode || 'PAT-261019-0005',
-    patientName: initialData?.patientName || 'Bệnh Nhân Võ Gia Huy',
-    patientDob: initialData?.patientDob ? new Date(initialData.patientDob).toISOString().split('T')[0] : '1995-05-20',
+    patientId: initialData?.patientId || '',
+    patientCode: initialData?.patientCode || '',
+    patientName: initialData?.patientName || '',
+    patientDob: initialData?.patientDob ? new Date(initialData.patientDob).toISOString().split('T')[0] : '',
     patientGender: initialData?.patientGender || 'Male',
-    encounterId: initialData?.encounterId || 'ENC-261021-001',
+    encounterId: initialData?.encounterId || 'ENC-DEFAULT-01',
     encounterType: initialData?.encounterType || 'ClinicVisit',
     doctorId: initialData?.doctorId || currentUser?.id || 'USR-DOC-01',
     doctorName: initialData?.doctorName || currentUser?.fullName || 'BS. Nguyễn Văn An',
@@ -116,6 +112,18 @@ export default function MedicalAssessmentForm({
     status: initialData?.status || 'Draft'
   });
 
+  // Patient Profile state (Database driven - Locked from manual typing)
+  const [patientProfile, setPatientProfile] = useState(null);
+  const [loadingPatient, setLoadingPatient] = useState(false);
+  const [showPatientSelectorModal, setShowPatientSelectorModal] = useState(false);
+  const [patientList, setPatientList] = useState([]);
+  const [patientSearchKeyword, setPatientSearchKeyword] = useState('');
+  const [searchingPatients, setSearchingPatients] = useState(false);
+
+  // Dynamic Service Packages state from DB (ServicePackages catalog)
+  const [servicePackages, setServicePackages] = useState([]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
+
   const [encounters, setEncounters] = useState([]);
   const [loadingEncounters, setLoadingEncounters] = useState(false);
   const [icdSearchTerm, setIcdSearchTerm] = useState('');
@@ -123,6 +131,104 @@ export default function MedicalAssessmentForm({
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+
+  // Load patient profile from DB by ID or Code
+  const loadPatientProfile = useCallback(async (identifier) => {
+    if (!identifier) return;
+    setLoadingPatient(true);
+    try {
+      const patient = await getPatientById(identifier);
+      if (patient) {
+        setPatientProfile(patient);
+        setFormData((prev) => ({
+          ...prev,
+          patientId: patient.id || identifier,
+          patientCode: patient.patientCode || patient.id || '',
+          patientName: patient.fullName || '',
+          patientDob: patient.dateOfBirth ? new Date(patient.dateOfBirth).toISOString().split('T')[0] : prev.patientDob,
+          patientGender: patient.gender || prev.patientGender,
+          vitals: {
+            ...prev.vitals,
+            heightCm: patient.vitals?.heightCm ?? prev.vitals.heightCm,
+            weightKg: patient.vitals?.weightKg ?? prev.vitals.weightKg,
+            heartRate: patient.vitals?.heartRateBpm ?? prev.vitals.heartRate,
+            temperature: patient.vitals?.temperatureC ?? prev.vitals.temperature,
+            spo2: patient.vitals?.spo2Percent ?? prev.vitals.spo2
+          }
+        }));
+      }
+    } catch (err) {
+      console.warn('Could not fetch patient profile detail:', err);
+    } finally {
+      setLoadingPatient(false);
+    }
+  }, []);
+
+  // Fetch Patient List for Search / Selection Modal
+  const fetchPatientList = useCallback(async (keyword = '') => {
+    setSearchingPatients(true);
+    try {
+      const res = await searchPatients({ search: keyword, pageSize: 30 });
+      const items = res?.items || (Array.isArray(res) ? res : []);
+      setPatientList(items);
+    } catch (err) {
+      console.error('Failed to load patient list:', err);
+    } finally {
+      setSearchingPatients(false);
+    }
+  }, []);
+
+  // Load Patient Encounters
+  const fetchEncounters = useCallback(async (pid) => {
+    if (!pid) return;
+    setLoadingEncounters(true);
+    try {
+      const res = await medicalAssessmentApi.getPatientEncounters(pid);
+      if (res?.data && res.data.length > 0) {
+        setEncounters(res.data);
+      }
+    } catch {
+      // Keep existing default
+    } finally {
+      setLoadingEncounters(false);
+    }
+  }, []);
+
+  // Initial load: Patient & Service Packages from DB
+  useEffect(() => {
+    // 1. Load patient profile
+    const targetPatientId = initialData?.patientId || formData.patientId;
+    if (targetPatientId) {
+      loadPatientProfile(targetPatientId);
+      fetchEncounters(targetPatientId);
+    } else {
+      // If none provided, fetch first patient from DB as initial
+      searchPatients({ pageSize: 1 })
+        .then((res) => {
+          const first = res?.items?.[0];
+          if (first) {
+            loadPatientProfile(first.id);
+            fetchEncounters(first.id);
+          }
+        })
+        .catch(() => {});
+    }
+
+    // 2. Load service packages from database (Service Packages catalog)
+    setLoadingPackages(true);
+    getPackages({ pageSize: 100 })
+      .then((res) => {
+        const list = res?.items || (Array.isArray(res) ? res : []);
+        const active = list.filter((p) => !p.isDeleted && p.isActive !== false);
+        setServicePackages(active);
+      })
+      .catch((err) => {
+        console.error('Failed to load lab packages from DB:', err);
+      })
+      .finally(() => {
+        setLoadingPackages(false);
+      });
+  }, [initialData, loadPatientProfile, fetchEncounters]);
 
   // Auto-calculated BMI & Category
   const { bmi, bmiCategory, bmiColor } = useMemo(() => {
@@ -168,28 +274,6 @@ export default function MedicalAssessmentForm({
     return { valid: true };
   }, [formData.vitals.systolicBp, formData.vitals.diastolicBp]);
 
-  // Load Patient Encounters
-  const fetchEncounters = useCallback(async (pid) => {
-    if (!pid) return;
-    setLoadingEncounters(true);
-    try {
-      const res = await medicalAssessmentApi.getPatientEncounters(pid);
-      if (res?.data && res.data.length > 0) {
-        setEncounters(res.data);
-      }
-    } catch {
-      // Keep existing default
-    } finally {
-      setLoadingEncounters(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (formData.patientId) {
-      fetchEncounters(formData.patientId);
-    }
-  }, [formData.patientId, fetchEncounters]);
-
   // Filter ICD-10 list by search term
   const filteredIcd10 = useMemo(() => {
     if (!icdSearchTerm.trim()) return COMMON_ICD10_LIST;
@@ -220,14 +304,14 @@ export default function MedicalAssessmentForm({
     }));
   };
 
-  const handleTogglePackage = (pkgName) => {
+  const handleTogglePackage = (pkgIdentifier) => {
     setFormData((prev) => {
-      const exists = prev.recommendedTestPackages.includes(pkgName);
+      const exists = prev.recommendedTestPackages.includes(pkgIdentifier);
       return {
         ...prev,
         recommendedTestPackages: exists
-          ? prev.recommendedTestPackages.filter((p) => p !== pkgName)
-          : [...prev.recommendedTestPackages, pkgName]
+          ? prev.recommendedTestPackages.filter((p) => p !== pkgIdentifier)
+          : [...prev.recommendedTestPackages, pkgIdentifier]
       };
     });
   };
@@ -238,7 +322,7 @@ export default function MedicalAssessmentForm({
 
     // Front-end validations
     if (!formData.patientId?.trim()) {
-      setErrorMessage('Vui lòng nhập hoặc chọn mã bệnh nhân.');
+      setErrorMessage('Vui lòng chọn bệnh nhân từ cơ sở dữ liệu hồ sơ bệnh nhân.');
       return;
     }
     if (!formData.chiefComplaint?.trim() || formData.chiefComplaint.trim().length < 3) {
@@ -363,65 +447,114 @@ export default function MedicalAssessmentForm({
         )}
 
         <Form onSubmit={(e) => { e.preventDefault(); handleSubmit('Draft'); }}>
-          {/* SECTION 1: Patient and Encounter Association */}
+          {/* SECTION 1: Patient and Encounter Association (LOCKED READ-ONLY FROM PROFILE) */}
           <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
-            <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-              <FaUserInjured /> 1. Thông Tin Bệnh Nhân & Liên Kết Lượt Khám (Encounter Association)
-            </h6>
-            <Row className="g-3">
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Mã Bệnh Nhân (Patient ID) <span className="text-danger">*</span></Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="text"
-                      value={formData.patientId}
-                      onChange={(e) => setFormData({ ...formData, patientId: e.target.value })}
-                      placeholder="VD: USR-PAT-01 hoặc PAT-..."
-                      required
-                    />
-                    <Button variant="outline-secondary" onClick={() => fetchEncounters(formData.patientId)} title="Tải lượt khám">
-                      <FaSearch />
-                    </Button>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Họ và Tên Bệnh Nhân</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.patientName}
-                    onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
-                    placeholder="Nguyễn Văn A"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Giới Tính</Form.Label>
-                  <Form.Select
-                    value={formData.patientGender}
-                    onChange={(e) => setFormData({ ...formData, patientGender: e.target.value })}
+            <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+              <div>
+                <h6 className="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                  <FaUserInjured /> 1. Thông Tin Bệnh Nhân (Hồ Sơ Điện Tử) & Lượt Khám
+                </h6>
+                <small className="text-muted">
+                  Thông tin hành chính được đồng bộ trực tiếp từ CSDL Hồ sơ bệnh nhân (Chỉ xem - Không điền tay).
+                </small>
+              </div>
+              <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                <Badge bg="secondary-subtle" className="text-secondary border d-flex align-items-center gap-1 px-2 py-1">
+                  <FaLock size={11} /> Dữ liệu hồ sơ gốc (Chỉ xem)
+                </Badge>
+                {!isEditMode && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="d-flex align-items-center gap-1 px-2 py-1 shadow-xs"
+                    onClick={() => {
+                      setShowPatientSelectorModal(true);
+                      fetchPatientList('');
+                    }}
                   >
-                    <option value="Male">Nam</option>
-                    <option value="Female">Nữ</option>
-                    <option value="Other">Khác</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Ngày Sinh</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={formData.patientDob}
-                    onChange={(e) => setFormData({ ...formData, patientDob: e.target.value })}
-                  />
-                </Form.Group>
-              </Col>
+                    <FaExchangeAlt size={11} /> Đổi bệnh nhân
+                  </Button>
+                )}
+              </div>
+            </div>
 
-              <Col md={4}>
+            {loadingPatient ? (
+              <div className="text-center py-4 text-muted bg-light rounded-3 mb-3">
+                <Spinner size="sm" animation="border" className="me-2 text-primary" />
+                Đang nạp thông tin hồ sơ bệnh nhân từ cơ sở dữ liệu...
+              </div>
+            ) : (
+              <div className="p-3 rounded-3 bg-light border mb-3">
+                <Row className="g-3">
+                  <Col md={3}>
+                    <div className="text-muted small fw-medium">Họ và tên bệnh nhân</div>
+                    <div className="fw-bold text-dark fs-6">
+                      {patientProfile?.fullName || formData.patientName || 'Chưa chọn'}
+                    </div>
+                  </Col>
+
+                  <Col md={3}>
+                    <div className="text-muted small fw-medium">Mã Bệnh Nhân (Patient Code)</div>
+                    <div>
+                      <code className="text-primary fw-bold fs-6">
+                        {patientProfile?.patientCode || patientProfile?.id || formData.patientCode || formData.patientId || '—'}
+                      </code>
+                    </div>
+                  </Col>
+
+                  <Col md={2}>
+                    <div className="text-muted small fw-medium">Ngày sinh / Tuổi</div>
+                    <div className="text-dark fw-semibold">
+                      {patientProfile?.dateOfBirth ? new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN') : (formData.patientDob || '—')}
+                      {patientProfile?.age ? ` (${patientProfile.age} tuổi)` : ''}
+                    </div>
+                  </Col>
+
+                  <Col md={2}>
+                    <div className="text-muted small fw-medium">Giới tính</div>
+                    <div>
+                      <Badge bg="info-subtle" text="info-emphasis" className="border border-info-subtle">
+                        {(patientProfile?.gender || formData.patientGender) === 'Male' ? 'Nam' : (patientProfile?.gender || formData.patientGender) === 'Female' ? 'Nữ' : 'Khác'}
+                      </Badge>
+                    </div>
+                  </Col>
+
+                  <Col md={2}>
+                    <div className="text-muted small fw-medium">Nhóm máu</div>
+                    <div>
+                      <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle font-monospace">
+                        {patientProfile?.bloodType || 'Chưa xác định'}
+                      </Badge>
+                    </div>
+                  </Col>
+
+                  <Col md={3}>
+                    <div className="text-muted small fw-medium">Số điện thoại</div>
+                    <div className="text-dark small font-monospace">
+                      {patientProfile?.phoneNumber || 'Chưa cập nhật'}
+                    </div>
+                  </Col>
+
+                  <Col md={3}>
+                    <div className="text-muted small fw-medium">Số CCCD / Định danh</div>
+                    <div className="text-dark small font-monospace">
+                      {patientProfile?.identityNumber || 'Chưa cập nhật'}
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="text-muted small fw-medium">Tiền sử bệnh & Dị ứng</div>
+                    <div className="text-dark small text-truncate" title={patientProfile?.medicalHistory || 'Không ghi nhận'}>
+                      {patientProfile?.medicalHistory || (patientProfile?.allergies?.length ? `Dị ứng: ${patientProfile.allergies.join(', ')}` : 'Không ghi nhận tiền sử bệnh')}
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            )}
+
+            {/* Encounter Association */}
+            <Row className="g-3">
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">Lượt Khám / Encounter <span className="text-danger">*</span></Form.Label>
                   <Form.Select
@@ -439,7 +572,7 @@ export default function MedicalAssessmentForm({
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">Loại Tiếp Nhận (Encounter Type)</Form.Label>
                   <Form.Select
@@ -448,213 +581,176 @@ export default function MedicalAssessmentForm({
                   >
                     <option value="ClinicVisit">Khám phòng khám ngoại trú (Clinic Visit)</option>
                     <option value="FollowUp">Tái khám theo hẹn (Follow-up)</option>
-                    <option value="Emergency">Cấp cứu khẩn (Emergency STAT)</option>
+                    <option value="Emergency">Cấp cứu / Tiếp nhận nhanh</option>
                     <option value="RoutineCheckup">Khám sức khỏe định kỳ</option>
-                    <option value="Consultation">Hội chẩn / Tư vấn chuyên khoa</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Bác Sĩ Thực Hiện Đánh Giá</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.doctorName}
-                    onChange={(e) => setFormData({ ...formData, doctorName: e.target.value })}
-                    readOnly={!currentUser?.role?.includes('Admin')}
-                    className="bg-light"
-                  />
-                </Form.Group>
-              </Col>
             </Row>
           </div>
 
-          {/* SECTION 2: Vital Signs & Live BMI */}
-          <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h6 className="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
-                <FaHeartbeat /> 2. Dấu Hiệu Sinh Tồn & Thể Trạng (Vital Signs & Clinical Biometrics)
-              </h6>
-              <div className="d-flex align-items-center gap-2">
-                <span className="text-muted small">Chỉ số BMI:</span>
-                <Badge bg={bmiColor} className="px-2 py-1 fs-6">
-                  {bmi} ({bmiCategory})
-                </Badge>
-              </div>
-            </div>
-
-            {!bpValidation.valid && (
-              <Alert variant="warning" className="py-2 px-3 small d-flex align-items-center gap-2 mb-3">
-                <FaExclamationTriangle /> {bpValidation.message}
-              </Alert>
-            )}
-
-            <Row className="g-3">
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Mạch (Heart Rate)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      min={30}
-                      max={250}
-                      value={formData.vitals.heartRate}
-                      onChange={(e) => handleVitalChange('heartRate', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">lần/phút</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Huyết Áp Tâm Thu (Systolic)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      min={60}
-                      max={260}
-                      value={formData.vitals.systolicBp}
-                      onChange={(e) => handleVitalChange('systolicBp', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">mmHg</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Huyết Áp Tâm Trương (Diastolic)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      min={40}
-                      max={150}
-                      value={formData.vitals.diastolicBp}
-                      onChange={(e) => handleVitalChange('diastolicBp', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">mmHg</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Thân Nhiệt (Temperature)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      step="0.1"
-                      min={34}
-                      max={43}
-                      value={formData.vitals.temperature}
-                      onChange={(e) => handleVitalChange('temperature', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">°C</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Độ Bão Hòa Oxy (SpO2)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      min={50}
-                      max={100}
-                      value={formData.vitals.spo2}
-                      onChange={(e) => handleVitalChange('spo2', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">%</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Chiều Cao (Height)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      step="0.5"
-                      min={20}
-                      max={250}
-                      value={formData.vitals.heightCm}
-                      onChange={(e) => handleVitalChange('heightCm', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">cm</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Cân Nặng (Weight)</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="number"
-                      step="0.5"
-                      min={1}
-                      max={300}
-                      value={formData.vitals.weightKg}
-                      onChange={(e) => handleVitalChange('weightKg', e.target.value)}
-                    />
-                    <InputGroup.Text className="small">kg</InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-              <Col md={3} sm={6}>
-                <Form.Group>
-                  <Form.Label className="small fw-semibold">Phân Loại Thể Trạng</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={bmiCategory}
-                    readOnly
-                    className="bg-light fw-semibold text-secondary"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </div>
-
-          {/* SECTION 3: Subjective Symptoms & Physical Exam */}
+          {/* SECTION 2: Chief Complaint & Symptoms */}
           <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
             <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-              <FaNotesMedical /> 3. Triệu Chứng Chủ Quan & Khám Thực Thể
+              <FaNotesMedical /> 2. Lý Do Khám & Triệu Chứng Lâm Sàng
             </h6>
             <Row className="g-3">
               <Col md={12}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">
-                    Lý Do Khám Bệnh (Chief Complaint) <span className="text-danger">*</span>
+                    Lý Do Đến Khám (Chief Complaint) <span className="text-danger">*</span>
                   </Form.Label>
                   <Form.Control
-                    as="textarea"
-                    rows={2}
+                    type="text"
                     value={formData.chiefComplaint}
                     onChange={(e) => setFormData({ ...formData, chiefComplaint: e.target.value })}
-                    placeholder="Mô tả ngắn gọn lý do bệnh nhân đến khám (VD: Đau ngực trái, mệt mỏi sụt cân, sốt kéo dài...)"
+                    placeholder="VD: Đau ngực trái từng cơn kèm khó thở khi gắng sức..."
                     required
                   />
+                  <Form.Text className="text-muted">Mô tả vắn tắt lý do chính khiến người bệnh đi khám.</Form.Text>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={12}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Triệu Chứng Lâm Sàng & Tiền Sử</Form.Label>
+                  <Form.Label className="fw-semibold">Triệu Chứng Cơ Năng & Bệnh Sử Hiện Tại</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
                     value={formData.clinicalSymptoms}
                     onChange={(e) => setFormData({ ...formData, clinicalSymptoms: e.target.value })}
-                    placeholder="Thời gian khởi phát, diễn tiến triệu chứng, tiền sử dị ứng, thuốc đang dùng..."
+                    placeholder="Khởi phát cơn đau cách 3 ngày, tăng dần về chiều, kèm hồi hộp, đánh trống ngực..."
                   />
                 </Form.Group>
               </Col>
-              <Col md={6}>
+            </Row>
+          </div>
+
+          {/* SECTION 3: Vital Signs & Examination */}
+          <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h6 className="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                <FaHeartbeat /> 3. Dấu Hiệu Sinh Tồn (Vitals) & Khám Thực Thể
+              </h6>
+              {bmi > 0 && (
+                <Badge bg={bmiColor} className="fs-6 py-1 px-3">
+                  BMI: {bmi} kg/m² ({bmiCategory})
+                </Badge>
+              )}
+            </div>
+
+            <Row className="g-3 mb-3">
+              <Col md={2} sm={4} xs={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Kết Quả Khám Thực Thể (Physical Examination)</Form.Label>
+                  <Form.Label className="small fw-semibold">Mạch (BPM)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={formData.vitals.heartRate}
+                    onChange={(e) => handleVitalChange('heartRate', e.target.value)}
+                    min={30}
+                    max={250}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={2} sm={4} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Tâm Thu (mmHg)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={formData.vitals.systolicBp}
+                    onChange={(e) => handleVitalChange('systolicBp', e.target.value)}
+                    min={60}
+                    max={260}
+                    required
+                    isInvalid={!bpValidation.valid}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={2} sm={4} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Tâm Trương (mmHg)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={formData.vitals.diastolicBp}
+                    onChange={(e) => handleVitalChange('diastolicBp', e.target.value)}
+                    min={40}
+                    max={160}
+                    required
+                    isInvalid={!bpValidation.valid}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={2} sm={4} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Nhiệt Độ (°C)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.1"
+                    value={formData.vitals.temperature}
+                    onChange={(e) => handleVitalChange('temperature', e.target.value)}
+                    min={34}
+                    max={43}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={2} sm={4} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">SpO2 (%)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={formData.vitals.spo2}
+                    onChange={(e) => handleVitalChange('spo2', e.target.value)}
+                    min={50}
+                    max={100}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={1} sm={2} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Cao (cm)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={formData.vitals.heightCm}
+                    onChange={(e) => handleVitalChange('heightCm', e.target.value)}
+                    min={30}
+                    max={250}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={1} sm={2} xs={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Nặng (kg)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.5"
+                    value={formData.vitals.weightKg}
+                    onChange={(e) => handleVitalChange('weightKg', e.target.value)}
+                    min={2}
+                    max={300}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {!bpValidation.valid && (
+              <Alert variant="warning" className="py-2 small mb-3">
+                <FaExclamationTriangle className="me-2" />
+                {bpValidation.message}
+              </Alert>
+            )}
+
+            <Row>
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label className="fw-semibold">Khám Thực Thể (Physical Examination)</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
                     value={formData.physicalExamination}
                     onChange={(e) => setFormData({ ...formData, physicalExamination: e.target.value })}
-                    placeholder="Khám các cơ quan: Tim, Phổi, Bụng, Thần kinh, Cơ xương khớp, Hạch..."
+                    placeholder="Tim đều rõ, T1 T2 nghe rõ, phổi không rale, bụng mềm gan lách không sờ chạm..."
                   />
                 </Form.Group>
               </Col>
@@ -746,7 +842,7 @@ export default function MedicalAssessmentForm({
                     type="text"
                     value={formData.preliminaryDiagnosis}
                     onChange={(e) => setFormData({ ...formData, preliminaryDiagnosis: e.target.value })}
-                    placeholder="Chẩn đoán phân biệt hoặc nghi ngờ ban đầu"
+                    placeholder="Nghi ngờ bệnh tim thiếu máu cục bộ..."
                   />
                 </Form.Group>
               </Col>
@@ -821,31 +917,59 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* SECTION 5: Treatment Plan & Test Orders */}
+          {/* SECTION 5: Treatment Plan & Test Orders (DYNAMIC SERVICE PACKAGES FROM DB) */}
           <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
             <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
               <FaFilePrescription /> 5. Kế Hoạch Xử Trí & Đề Xuất Chỉ Định Xét Nghiệm (Plan & Orders)
             </h6>
 
             <div className="mb-3">
-              <Form.Label className="fw-semibold">Đề Xuất Chỉ Định Xét Nghiệm Cận Lâm Sàng</Form.Label>
-              <div className="d-flex flex-wrap gap-2">
-                {AVAILABLE_TEST_PACKAGES.map((pkg) => {
-                  const selected = formData.recommendedTestPackages.includes(pkg);
-                  return (
-                    <Button
-                      key={pkg}
-                      variant={selected ? 'primary' : 'outline-secondary'}
-                      size="sm"
-                      onClick={() => handleTogglePackage(pkg)}
-                      className="rounded-pill"
-                    >
-                      {selected && <FaCheckCircle className="me-1" />}
-                      {pkg}
-                    </Button>
-                  );
-                })}
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <Form.Label className="fw-semibold mb-0 d-flex align-items-center gap-2">
+                  <FaVials className="text-primary" />
+                  Đề Xuất Chỉ Định Xét Nghiệm Cận Lâm Sàng
+                </Form.Label>
+                <small className="text-muted">Nguồn: Quản lý gói dịch vụ xét nghiệm (CSDL)</small>
               </div>
+
+              {loadingPackages ? (
+                <div className="text-muted small py-2">
+                  <Spinner size="sm" animation="border" className="me-2 text-primary" />
+                  Đang tải danh mục gói xét nghiệm từ hệ thống...
+                </div>
+              ) : servicePackages.length === 0 ? (
+                <div className="text-muted small py-2">
+                  Chưa có gói xét nghiệm nào trong hệ thống.
+                </div>
+              ) : (
+                <div className="d-flex flex-wrap gap-2">
+                  {servicePackages.map((pkg) => {
+                    const pkgTitle = pkg.name || pkg.packageName || pkg.code;
+                    const selected = formData.recommendedTestPackages.includes(pkgTitle);
+                    return (
+                      <Button
+                        key={pkg.id || pkg.code || pkgTitle}
+                        variant={selected ? 'primary' : 'outline-secondary'}
+                        size="sm"
+                        className="rounded-pill d-flex align-items-center gap-1 shadow-xs px-3 py-1"
+                        onClick={() => handleTogglePackage(pkgTitle)}
+                      >
+                        {selected && <FaCheckCircle size={12} />}
+                        <span>{pkgTitle}</span>
+                        {pkg.price ? (
+                          <Badge
+                            bg={selected ? 'light' : 'secondary'}
+                            text={selected ? 'dark' : 'white'}
+                            className="ms-1 font-monospace"
+                          >
+                            {Number(pkg.price).toLocaleString('vi-VN')} đ
+                          </Badge>
+                        ) : null}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <Row className="g-3">
@@ -929,6 +1053,61 @@ export default function MedicalAssessmentForm({
           </div>
         </Form>
       </Card.Body>
+
+      {/* Patient Selector Modal */}
+      <Modal show={showPatientSelectorModal} onHide={() => setShowPatientSelectorModal(false)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="fs-6 fw-bold text-primary d-flex align-items-center gap-2">
+            <FaUserInjured /> Chọn Hồ Sơ Bệnh Nhân (Cơ Sở Dữ Liệu BMS)
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <InputGroup className="mb-3">
+            <InputGroup.Text><FaSearch /></InputGroup.Text>
+            <Form.Control
+              placeholder="Tìm theo tên, mã bệnh nhân, SĐT hoặc CCCD..."
+              value={patientSearchKeyword}
+              onChange={(e) => {
+                setPatientSearchKeyword(e.target.value);
+                fetchPatientList(e.target.value);
+              }}
+            />
+          </InputGroup>
+
+          {searchingPatients ? (
+            <div className="text-center py-4 text-muted"><Spinner size="sm" /> Đang tìm kiếm hồ sơ...</div>
+          ) : patientList.length === 0 ? (
+            <div className="text-center py-4 text-muted">Không tìm thấy bệnh nhân phù hợp.</div>
+          ) : (
+            <div className="list-group list-group-flush" style={{ maxHeight: '360px', overflowY: 'auto' }}>
+              {patientList.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3 ${
+                    p.id === formData.patientId ? 'active text-white' : ''
+                  }`}
+                  onClick={() => {
+                    loadPatientProfile(p.id);
+                    fetchEncounters(p.id);
+                    setShowPatientSelectorModal(false);
+                  }}
+                >
+                  <div>
+                    <div className="fw-bold">{p.fullName}</div>
+                    <div className="small font-monospace opacity-75">
+                      Mã: {p.patientCode || p.id} • {p.gender === 'Male' ? 'Nam' : p.gender === 'Female' ? 'Nữ' : 'Khác'} • SĐT: {p.phoneNumber || '—'}
+                    </div>
+                  </div>
+                  <Badge bg={p.id === formData.patientId ? 'light' : 'primary'} text={p.id === formData.patientId ? 'dark' : 'white'}>
+                    {p.id === formData.patientId ? 'Đang chọn' : 'Chọn hồ sơ'}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </Card>
   );
 }

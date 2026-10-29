@@ -30,9 +30,9 @@ import {
   FaCheck
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { notificationService } from '../../services/notificationService';
-import PatientHeader from '../../components/Layout/PatientHeader';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { notificationService } from '../../../services/notificationService';
+import PatientHeader from '../../../components/Layout/PatientHeader';
 import GuestFooter from '../../components/Layout/GuestFooter';
 import Layout from '../../components/Layout/Layout';
 

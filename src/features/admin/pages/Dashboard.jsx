@@ -35,14 +35,14 @@ import {
   FaCogs,
   FaBell
 } from 'react-icons/fa';
-import { patientService } from '../../services/patientService';
-import { appointmentService } from '../../services/appointmentService';
-import { labTestService } from '../../services/labTestService';
-import { invoiceService } from '../../services/invoiceService';
+import { patientService } from '../../../services/patientService';
+import { appointmentService } from '../../../services/appointmentService';
+import { labTestService } from '../../../services/labTestService';
+import { invoiceService } from '../../../services/invoiceService';
 import { medicalService } from '../../services/medicalService';
 import { adminService } from '../../services/adminService';
 import { getAdminData } from '../../services/adminDataPrefetchService';
-import { authService } from '../../services/authService';
+import { authService } from '../../../services/authService';
 import { StatusBadge } from '../../shared/utils/status/statusHelper';
 import useResponsive from '../../shared/hooks/useResponsive';
 

@@ -9,7 +9,7 @@
  * @since 2024
  */
 
-import api from './api';
+import api from '../config/api';
 
 export const auditLogService = {
   /**

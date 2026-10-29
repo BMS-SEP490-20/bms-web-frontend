@@ -27,7 +27,7 @@ import { getPatientData, getPatientByEmail } from '../../../../services/patientD
 import HighResQRCode from '../../../../shared/components/QRBarcode/QRCodeDisplay';
 import PatientHeader from '../../../../components/Layout/PatientHeader';
 import GuestFooter from '../../../../components/Layout/GuestFooter';
-import api from '../../../../services/api';
+import api from '../../../../config/api';
 import { setRefreshFlag, dispatchRefreshEvent } from '../../../../shared/hooks/useAutoRefresh';
 import './MyAppointments.css';
 import html2canvas from 'html2canvas';

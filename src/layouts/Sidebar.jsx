@@ -10,7 +10,7 @@
 import React, { useMemo } from 'react';
 import { Nav, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../../shared/contexts/AuthContext';
+import { useAuth } from '../shared/contexts/AuthContext';
 import {
   FaTachometerAlt,
   FaUsers,

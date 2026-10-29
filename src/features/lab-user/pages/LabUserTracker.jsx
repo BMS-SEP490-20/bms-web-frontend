@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Badge, Card, Row, Col, Form } from 'react-bootstrap';
-import testOrderService from '../../services/testOrderService';
+import testOrderService from '../../../services/testOrderService';
 import useResponsive from '../../shared/hooks/useResponsive';
 
 // Hook to load and manage lab user profiles

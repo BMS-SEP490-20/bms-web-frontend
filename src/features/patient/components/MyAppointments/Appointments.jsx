@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Table, Form, Alert, Button, InputGroup, Modal, Badge, Spinner, Tabs, Tab } from 'react-bootstrap';
-import { useAuth } from '../../shared/contexts/AuthContext';
+import { useAuth } from '../../../../shared/contexts/AuthContext';
 import { 
     FaCalendarAlt, 
     FaSearch, 
@@ -33,17 +33,17 @@ import {
     FaTimes,
     FaPrint
 } from 'react-icons/fa';
-import { appointmentService } from '../../services/appointmentService';
-import { patientService } from '../../services/patientService';
-import { sampleService } from '../../services/sampleService';
+import { appointmentService } from '../../../../services/appointmentService';
+import { patientService } from '../../../../services/patientService';
+import { sampleService } from '../../../../services/sampleService';
 import { shiftService } from '../../services/shiftService';
-import { testOrderService } from '../../services/testOrderService';
+import { testOrderService } from '../../../../services/testOrderService';
 import { medicalService } from '../../services/medicalService';
 import { getAdminData } from '../../services/adminDataPrefetchService';
 import warehouseService from '../../services/warehouseService';
-import { roleService } from '../../services/roleService';
+import { roleService } from '../../../../services/roleService';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useNotificationContext } from '../../shared/contexts/NotificationContext';
+import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
 import api from '../../services/api';
 import { getStatusLabel } from '../../shared/constants/status';
 import BarcodeDisplay from '../../shared/components/QRBarcode/BarcodeDisplay';

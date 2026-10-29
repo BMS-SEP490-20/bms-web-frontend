@@ -19,7 +19,7 @@ import {
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle, 
   FaInfoCircle, FaLock, FaUserShield, FaEye
 } from 'react-icons/fa';
-import { auditLogService } from '../../services/auditLogService';
+import { auditLogService } from '../../../services/auditLogService';
 
 const AuditLogPage = () => {
 

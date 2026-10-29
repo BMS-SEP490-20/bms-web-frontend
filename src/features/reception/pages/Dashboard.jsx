@@ -16,14 +16,14 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Badge, Alert, Modal, Spinner, Form } from 'react-bootstrap';
-import { useAuth } from '../../shared/contexts/AuthContext';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { appointmentService } from '../../services/appointmentService';
-import { patientService } from '../../services/patientService';
-import { sampleService } from '../../services/sampleService';
-import { invoiceService } from '../../services/invoiceService';
+import { appointmentService } from '../../../services/appointmentService';
+import { patientService } from '../../../services/patientService';
+import { sampleService } from '../../../services/sampleService';
+import { invoiceService } from '../../../services/invoiceService';
 import api from '../../services/api';
-import { useNotificationContext } from '../../shared/contexts/NotificationContext';
+import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
 import { StatusBadge } from '../../shared/utils/status/statusHelper';
 import BarcodeDisplay from '../../shared/components/QRBarcode/BarcodeDisplay';
 import { 

@@ -69,6 +69,7 @@ import LabProfilesPage from "./features/lab-profiles/pages/LabProfilesPage.jsx";
 import LabRoomManagement from "./features/facilities/pages/LabRoomManagementPage";
 import ValidateSample from "./pages/lab-user/ValidateSample";
 import QcFlagsPage from "./pages/qc/QcFlagsPage";
+import QualityControlManagementPage from "./features/qc/pages/QualityControlManagementPage.jsx";
 import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
@@ -605,6 +606,9 @@ export default function App() {
                   <Route path="/lab-user/qc-flags" element={<QcFlagsPage />} />
                   <Route path="/manager/qc-flags" element={<QcFlagsPage />} />
                   <Route path="/admin/qc-flags" element={<QcFlagsPage />} />
+                  <Route path="/qc/management" element={<QualityControlManagementPage />} />
+                  <Route path="/laboratory/qc" element={<QualityControlManagementPage />} />
+                  <Route path="/laboratory/quality-control" element={<QualityControlManagementPage />} />
                   <Route path="/laboratory/rooms" element={<LabRoomManagement />} />
                   <Route path="/lab-user/lab-rooms" element={<LabRoomManagement />} />
                   <Route path="/admin/lab-rooms" element={<LabRoomManagement />} />

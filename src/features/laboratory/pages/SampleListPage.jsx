@@ -507,7 +507,7 @@ export default function SampleListPage() {
                                     className="btn btn-primary d-flex align-items-center gap-1"
                                     onClick={() => window.print()}
                                 >
-                                    <FaPrinter /> Print All Labels
+                                    <FaPrint /> Print All Labels
                                 </button>
                             </div>
                         </div>

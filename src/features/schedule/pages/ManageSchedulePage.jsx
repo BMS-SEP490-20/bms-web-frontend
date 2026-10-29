@@ -2,15 +2,9 @@ import '../schedule.css';
 import React, { useCallback, useEffect, useState } from 'react';
 import { scheduleApi } from '../api/scheduleApi';
 
-
-const defaultRooms = [
-  { id: 'ROOM-101', name: 'Clinic room 01' },
-  { id: 'ROOM-102', name: 'Consultation room 02' },
-  { id: 'ROOM-103', name: 'Doctor office' },
-];
-
 /** UC31 – Personal schedule. English UI, KPI cards + table. */
-export function ManageSchedulePage({ doctorId, rooms = defaultRooms }) {
+export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
+  const [rooms, setRooms] = useState(initialRooms || []);
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,16 +14,29 @@ export function ManageSchedulePage({ doctorId, rooms = defaultRooms }) {
     doctorId,
     shiftDate: '',
     shiftType: 'Morning',
-    roomId: rooms[0]?.id ?? 'ROOM-101',
+    roomId: '',
     maxPatients: 30,
   });
+
+  useEffect(() => {
+    if (!initialRooms || initialRooms.length === 0) {
+      scheduleApi.getRooms()
+        .then((list) => {
+          if (Array.isArray(list) && list.length > 0) {
+            setRooms(list);
+            setForm((f) => ({ ...f, roomId: f.roomId || list[0].id || list[0].roomNumber }));
+          }
+        })
+        .catch((err) => console.error('Failed to load rooms:', err));
+    }
+  }, [initialRooms]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const list = await scheduleApi.list(doctorId, undefined, undefined);
-      setShifts(list);
+      setShifts(list || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Load failed');
     } finally {
@@ -156,9 +163,10 @@ export function ManageSchedulePage({ doctorId, rooms = defaultRooms }) {
                 value={form.roomId}
                 onChange={(e) => setForm({ ...form, roomId: e.target.value })}
               >
+                <option value="">-- Select Room --</option>
                 {rooms.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
+                  <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                    {r.name ? `${r.id || r.roomNumber} - ${r.name}` : (r.id || r.roomNumber)}
                   </option>
                 ))}
               </select>
@@ -169,86 +177,132 @@ export function ManageSchedulePage({ doctorId, rooms = defaultRooms }) {
                 type="number"
                 className="form-control"
                 style={{ minHeight: 44 }}
-                value={form.maxPatients ?? 30}
-                onChange={(e) => setForm({ ...form, maxPatients: Number(e.target.value) })}
+                min={1}
+                max={100}
+                value={form.maxPatients}
+                onChange={(e) =>
+                  setForm({ ...form, maxPatients: parseInt(e.target.value, 10) || 0 })
+                }
               />
             </div>
-            <div className="col-md-2">
-              <button type="submit" className="btn btn-primary w-100" style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}>
+            <div className="col-md-2 d-flex gap-2">
+              <button
+                type="submit"
+                className="btn btn-primary flex-grow-1"
+                style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+              >
                 Save
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                style={{ minHeight: 44 }}
+                onClick={() => setShowForm(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>
         </form>
       )}
 
-      <div className="d-flex gap-2 mb-3">
-        {([
-          ['all', 'All'],
-          ['active', 'Active'],
-          ['unused', 'Unused'],
-        ]).map(([k, label]) => (
-          <button
-            key={k}
-            type="button"
-            className={`btn ${filter === k ? 'btn-primary' : 'btn-outline-secondary'}`}
-            style={{ minHeight: 40, ...(filter === k ? { backgroundColor: '#1e40af', borderColor: '#1e40af' } : {}) }}
-            onClick={() => setFilter(k)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          <h6>Personal schedule list</h6>
-          {loading ? (
-            <p className="text-muted">Loading…</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="table align-middle mb-0">
-                <thead>
-                  <tr className="text-muted small">
-                    <th>Code</th>
-                    <th>Activity</th>
-                    <th>Date / time</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((s) => (
-                    <tr key={s.id}>
-                      <td className="fw-semibold">{s.id.slice(-8).toUpperCase()}</td>
-                      <td>{s.shiftType}</td>
-                      <td>{new Date(s.shiftDate).toLocaleDateString('en-GB')}</td>
-                      <td>{s.roomId}</td>
-                      <td>{statusBadge(s.status)}</td>
-                      <td className="text-end">
-                        <span className="text-primary small">Details →</span>
-                      </td>
-                    </tr>
-                  ))}
-                  {filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="text-center text-muted py-4">
-                        No schedules
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <div className="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <ul className="nav nav-pills card-header-pills">
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link ${filter === 'all' ? 'active' : ''}`}
+                style={filter === 'all' ? { backgroundColor: '#1e40af' } : {}}
+                onClick={() => setFilter('all')}
+              >
+                All schedules ({shifts.length})
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link ${filter === 'active' ? 'active' : ''}`}
+                style={filter === 'active' ? { backgroundColor: '#1e40af' } : {}}
+                onClick={() => setFilter('active')}
+              >
+                Active
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                type="button"
+                className={`nav-link ${filter === 'unused' ? 'active' : ''}`}
+                style={filter === 'unused' ? { backgroundColor: '#1e40af' } : {}}
+                onClick={() => setFilter('unused')}
+              >
+                Unused / Cancelled
+              </button>
+            </li>
+          </ul>
         </div>
-      </div>
 
-      <div className="card border-0 shadow-sm mt-3" style={{ background: '#eff6ff' }}>
-        <div className="card-body small text-muted mb-0">
-          <strong>Management rules.</strong> Personal schedule for the signed-in doctor. Break
-          11:00–13:00; the system checks overlap with clinic and consultation slots.
+        <div className="table-responsive">
+          <table className="table table-hover mb-0 align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Shift</th>
+                <th>Room</th>
+                <th>Patients</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan={6} className="text-center py-4 text-muted">
+                    Loading schedules...
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center py-4 text-muted">
+                    No schedules found.
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                filtered.map((s) => (
+                  <tr key={s.id}>
+                    <td>{new Date(s.shiftDate).toLocaleDateString()}</td>
+                    <td>{s.shiftType}</td>
+                    <td>
+                      <code>{s.roomId}</code>
+                      {s.roomName ? ` (${s.roomName})` : ''}
+                    </td>
+                    <td>
+                      {s.currentPatientsCount ?? 0} / {s.maxPatients}
+                    </td>
+                    <td>{statusBadge(s.status)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={async () => {
+                          if (!window.confirm('Delete this schedule?')) return;
+                          try {
+                            await scheduleApi.remove(s.id);
+                            await load();
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : 'Delete failed');
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

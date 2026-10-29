@@ -84,4 +84,13 @@ export async function updateShift(id, payload) {
 export async function deleteShift(id) {
   const res = await api.delete(`/shifts/${encodeURIComponent(id)}`);
   return res.data;
-}
+}
+
+/**
+ * Fetch All Rooms for Shift assignment (Doctor and Lab rooms from DB)
+ * GET /api/shifts/rooms
+ */
+export async function fetchRooms() {
+  const res = await api.get('/shifts/rooms');
+  return res.data?.data || res.data || [];
+}

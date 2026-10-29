@@ -12,15 +12,17 @@ import {
 import {
   FaCalendarAlt, FaUserMd, FaSearch, FaClock, FaClinicMedical,
   FaCheckCircle, FaPlus, FaEdit, FaTrash, FaEye, FaSyncAlt,
-  FaExclamationTriangle, FaUsers, FaDoorOpen
+  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock
 } from 'react-icons/fa';
 import {
   fetchShifts,
   fetchShiftById,
   createShift,
   updateShift,
-  deleteShift
+  deleteShift,
+  fetchRooms
 } from '../api/scheduleApi';
+import { userManagementService } from '../../../services/userManagementService';
 
 const SHIFT_TYPE_META = {
   Morning: { label: 'Ca Sáng', defaultStart: '07:00', defaultEnd: '11:30', badge: 'bg-primary-subtle text-primary border border-primary-subtle' },
@@ -40,18 +42,7 @@ const SHIFT_STATUS_META = {
   Rejected: { label: 'Từ Chối', badge: 'bg-danger-subtle text-danger border border-danger-subtle' }
 };
 
-const PRESET_EMPLOYEES = [
-  { employeeId: 'DOC-001', employeeName: 'BS.CKII Nguyễn Văn An', employeeRole: 'Doctor', department: 'Nội Tổng Quát' },
-  { employeeId: 'DOC-002', employeeName: 'ThS.BS Trần Thị Bích', employeeRole: 'Doctor', department: 'Huyết Học - Sinh Hoá' },
-  { employeeId: 'DOC-003', employeeName: 'BS.CKI Lê Hoàng Nam', employeeRole: 'Doctor', department: 'Nội Tiết - Đái Tháo Đường' },
-  { employeeId: 'LAB-001', employeeName: 'CN.XN Phạm Minh Tuấn', employeeRole: 'LabTech', department: 'Xét Nghiệm Trung Tâm' },
-  { employeeId: 'LAB-002', employeeName: 'ThS.XN Vũ Thu Hà', employeeRole: 'LabHead', department: 'Vi Sinh - Sinh Học Phân Tử' },
-  { employeeId: 'REC-001', employeeName: 'ĐD. Hoàng Mai Lan', employeeRole: 'Receptionist', department: 'Tiếp Đón & Lấy Mẫu' }
-];
 
-const PRESET_ROOMS = [
-  'ROOM-101', 'ROOM-102', 'ROOM-103', 'ROOM-201', 'LAB-ROOM-01', 'LAB-ROOM-02', 'SAMPLE-ROOM-01'
-];
 
 function toDateInputStr(val) {
   if (!val) return '';
@@ -86,7 +77,7 @@ const EMPTY_FORM = {
   employeeName: '',
   employeeRole: 'Doctor',
   department: 'Nội Tổng Quát',
-  roomId: 'ROOM-101',
+  roomId: '',
   shiftDate: toDateInputStr(new Date()),
   shiftType: 'Morning',
   shiftStart: '07:00',
@@ -107,6 +98,31 @@ export default function DoctorSchedulePage() {
   const [toDate, setToDate] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
+
+  // Rooms from DB
+  const [rooms, setRooms] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [loadingStaff, setLoadingStaff] = useState(false);
+
+  useEffect(() => {
+    setLoadingStaff(true);
+    userManagementService.getAllUsers({ pageSize: 100 })
+      .then(res => {
+        if (res?.success && Array.isArray(res.data)) {
+          const staff = res.data.filter(u => u.role !== 'patient' && u.roleId !== 5 && u.roleId !== 9);
+          setStaffList(staff);
+        }
+      })
+      .catch(err => console.error('Failed to load staff list from DB:', err))
+      .finally(() => setLoadingStaff(false));
+  }, []);
+  useEffect(() => {
+    fetchRooms()
+      .then(data => {
+        if (Array.isArray(data)) setRooms(data);
+      })
+      .catch(err => console.error('Failed to load shift rooms from DB:', err));
+  }, []);
 
   // Data states
   const [shifts, setShifts] = useState([]);
@@ -243,21 +259,7 @@ export default function DoctorSchedulePage() {
     }));
   };
 
-  // Handle preset employee selection
-  const handlePresetEmployeeSelect = (empId) => {
-    if (!empId) return;
-    const found = PRESET_EMPLOYEES.find(e => e.employeeId === empId);
-    if (found) {
-      setFormData(prev => ({
-        ...prev,
-        employeeId: found.employeeId,
-        employeeName: found.employeeName,
-        employeeRole: found.employeeRole,
-        department: found.department
-      }));
-    }
-  };
-
+  
   // Submit Create or Update Shift
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -753,90 +755,151 @@ export default function DoctorSchedulePage() {
               </Alert>
             )}
 
-            {/* Quick select preset staff */}
+            {/* Select staff from User Management database */}
             <div className="p-3 rounded-3 bg-light border mb-3">
-              <Form.Label className="small fw-bold text-secondary mb-1">
-                Chọn nhanh nhân sự mẫu (hoặc tự nhập mã & họ tên bên dưới)
-              </Form.Label>
-              <Form.Select
-                size="sm"
-                defaultValue=""
-                onChange={(e) => handlePresetEmployeeSelect(e.target.value)}
-              >
-                <option value="">-- Chọn nhanh Bác sĩ / Kỹ thuật viên Xét nghiệm --</option>
-                {PRESET_EMPLOYEES.map(emp => (
-                  <option key={emp.employeeId} value={emp.employeeId}>
-                    [{emp.employeeId}] {emp.employeeName} — {emp.department} ({emp.employeeRole})
-                  </option>
-                ))}
-              </Form.Select>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <Form.Label className="small fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                  <FaUserMd className="text-primary" />
+                  Nhân Sự Phụ Trách Ca Trực (Đồng Bộ Quản Lý Nhân Sự) <span className="text-danger">*</span>
+                </Form.Label>
+                <Badge bg="secondary-subtle" text="secondary" className="border d-flex align-items-center gap-1">
+                  <FaLock size={10} /> Dữ liệu gốc CSDL (Chỉ xem)
+                </Badge>
+              </div>
+              <small className="text-muted d-block mb-2">
+                Chọn nhân viên hoặc bác sĩ từ hệ thống Quản lý nhân sự. Thông tin chuyên môn sẽ được nạp tự động và khóa không cho nhập tay.
+              </small>
+
+              {loadingStaff ? (
+                <div className="text-muted small py-2">
+                  <Spinner size="sm" animation="border" className="me-2 text-primary" />
+                  Đang tải danh sách nhân sự từ cơ sở dữ liệu...
+                </div>
+              ) : (
+                <Form.Select
+                  value={formData.employeeId}
+                  onChange={(e) => {
+                    const empId = e.target.value;
+                    const st = staffList.find(s => s.id === empId || s.username === empId);
+                    if (st) {
+                      const roleMap = {
+                        doctor: 'Doctor',
+                        lab_technician: 'LabTech',
+                        receptionist: 'Receptionist',
+                        admin: 'Admin'
+                      };
+                      setFormData(prev => ({
+                        ...prev,
+                        employeeId: st.id,
+                        employeeName: st.fullName || st.username,
+                        employeeRole: roleMap[st.role] || 'Doctor',
+                        department: st.doctorProfile?.specialty || (st.role === 'doctor' ? 'Khoa Khám Bệnh' : (st.role === 'lab_technician' ? 'Khoa Xét Nghiệm' : 'Tiếp Đón'))
+                      }));
+                    } else {
+                      setFormData(prev => ({ ...prev, employeeId: empId, employeeName: '', department: '' }));
+                    }
+                  }}
+                  required
+                >
+                  <option value="">-- Chọn Bác Sĩ / Kỹ Thuật Viên / Lễ Tân từ CSDL Nhân Sự --</option>
+                  {staffList.map(emp => {
+                    const roleLabel = emp.role === 'doctor' ? 'Bác sĩ' : emp.role === 'lab_technician' ? 'KTV Xét nghiệm' : emp.role === 'receptionist' ? 'Lễ tân' : 'Quản trị';
+                    const dept = emp.doctorProfile?.specialty || (emp.role === 'doctor' ? 'Khoa Khám Bệnh' : (emp.role === 'lab_technician' ? 'Khoa Xét Nghiệm' : 'Tiếp Đón'));
+                    return (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.fullName || emp.username} — {dept} ({roleLabel}) [Mã: {emp.id}]
+                      </option>
+                    );
+                  })}
+                  {formData.employeeId && !staffList.some(s => s.id === formData.employeeId) && (
+                    <option value={formData.employeeId}>
+                      {formData.employeeName || formData.employeeId} [Mã: {formData.employeeId}]
+                    </option>
+                  )}
+                </Form.Select>
+              )}
             </div>
 
-            <Row className="g-3">
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">
-                  Mã Nhân Viên / Bác Sĩ <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: DOC-001, LAB-001"
-                  value={formData.employeeId}
-                  onChange={(e) => setFormData(prev => ({ ...prev, employeeId: e.target.value }))}
-                  required
-                />
-              </Col>
-
-              <Col md={5}>
-                <Form.Label className="small fw-semibold">Họ và Tên Nhân Sự</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: BS.CKII Nguyễn Văn An"
-                  value={formData.employeeName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, employeeName: e.target.value }))}
-                />
-              </Col>
-
-              <Col md={3}>
-                <Form.Label className="small fw-semibold">Vai Trò</Form.Label>
-                <Form.Select
-                  value={formData.employeeRole}
-                  onChange={(e) => setFormData(prev => ({ ...prev, employeeRole: e.target.value }))}
-                >
-                  <option value="Doctor">Bác sĩ (Doctor)</option>
-                  <option value="LabTech">KTV Xét nghiệm (LabTech)</option>
-                  <option value="LabHead">Trưởng khoa XN (LabHead)</option>
-                  <option value="Nurse">Điều dưỡng (Nurse)</option>
-                  <option value="Receptionist">Lễ tân (Receptionist)</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={6}>
-                <Form.Label className="small fw-semibold">Khoa / Chuyên Khoa Phụ Trách</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: Nội Tổng Quát, Huyết Học - Sinh Hoá..."
-                  value={formData.department}
-                  onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                />
-              </Col>
-
-              <Col md={6}>
-                <Form.Label className="small fw-semibold">
-                  Mã Phòng Khám / Phòng Lab <span className="text-danger">*</span>
-                </Form.Label>
-                <InputGroup>
+            {/* Read-only locked employee details card */}
+            <div className="p-3 rounded-3 bg-white border mb-3">
+              <Row className="g-3">
+                <Col md={4}>
+                  <Form.Label className="small fw-semibold text-muted">Mã Nhân Viên / Bác Sĩ (Chỉ xem)</Form.Label>
                   <Form.Control
                     type="text"
-                    list="preset-rooms-list"
-                    placeholder="VD: ROOM-101, LAB-ROOM-01"
-                    value={formData.roomId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, roomId: e.target.value.toUpperCase() }))}
-                    required
+                    value={formData.employeeId || '—'}
+                    readOnly
+                    className="bg-light fw-bold font-monospace text-primary"
                   />
-                  <datalist id="preset-rooms-list">
-                    {PRESET_ROOMS.map(r => <option key={r} value={r} />)}
-                  </datalist>
-                </InputGroup>
+                </Col>
+
+                <Col md={5}>
+                  <Form.Label className="small fw-semibold text-muted">Họ và Tên Nhân Sự (Chỉ xem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.employeeName || '—'}
+                    readOnly
+                    className="bg-light fw-bold text-dark"
+                  />
+                </Col>
+
+                <Col md={3}>
+                  <Form.Label className="small fw-semibold text-muted">Vai Trò (Chỉ xem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={
+                      formData.employeeRole === 'Doctor' ? 'Bác sĩ (Doctor)' :
+                      formData.employeeRole === 'LabTech' ? 'KTV Xét nghiệm (LabTech)' :
+                      formData.employeeRole === 'LabHead' ? 'Trưởng khoa XN (LabHead)' :
+                      formData.employeeRole === 'Receptionist' ? 'Lễ tân (Receptionist)' :
+                      formData.employeeRole || '—'
+                    }
+                    readOnly
+                    className="bg-light fw-semibold text-secondary"
+                  />
+                </Col>
+
+                <Col md={6}>
+                  <Form.Label className="small fw-semibold text-muted">Khoa / Bộ Phận Phụ Trách (Chỉ xem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.department || '—'}
+                    readOnly
+                    className="bg-light text-dark"
+                  />
+                </Col>
+              </Row>
+            </div>
+
+              
+            <Row className="g-3">
+              <Col md={6}>
+                <Form.Label className="small fw-semibold">
+                  Phòng Khám / Phòng Lab (Cơ Sở Dữ Liệu) <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Select
+                  value={formData.roomId}
+                  onChange={(e) => {
+                    const selId = e.target.value;
+                    const r = rooms.find(item => (item.id || item.roomNumber) === selId);
+                    setFormData(prev => ({
+                      ...prev,
+                      roomId: selId,
+                      department: r?.department ? r.department : prev.department,
+                    }));
+                  }}
+                  required
+                >
+                  <option value="">-- Chọn phòng trực từ cơ sở dữ liệu --</option>
+                  {rooms.map(r => (
+                    <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                      {r.name ? `${r.id || r.roomNumber} - ${r.name} (${r.department || (r.floor ? `Tầng ${r.floor}` : r.type || 'Phòng')})` : (r.id || r.roomNumber)}
+                    </option>
+                  ))}
+                  {formData.roomId && !rooms.some(r => (r.id || r.roomNumber) === formData.roomId) && (
+                    <option value={formData.roomId}>{formData.roomId}</option>
+                  )}
+                </Form.Select>
               </Col>
 
               <Col md={4}>

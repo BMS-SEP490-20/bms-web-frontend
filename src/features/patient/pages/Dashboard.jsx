@@ -30,7 +30,7 @@ import { patientService } from '../../services/patientService';
 import { doctorService } from '../../services/doctorService';
 import PatientHeader from '../../components/Layout/PatientHeader';
 import GuestFooter from '../../components/Layout/GuestFooter';
-import MyAppointments from '../../features/patient/components/MyAppointments/MyAppointments';
+import MyAppointments from '../../features/patient/components/MyAppointments/MyAppointmentsLegacy';
 import MyResults from '../../features/lab-results/components/MyResults/MyResults';
 // MyConsultations component removed — feature unsupported by backend
 

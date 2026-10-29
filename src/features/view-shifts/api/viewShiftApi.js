@@ -1,12 +1,22 @@
 /**
- * UC36 – View shifts (read-only).
- * Uses existing ShiftsController: GET /api/shifts
+ * @file viewShiftApi.js
+ * @description API client for UC35 / UC36 – View Shifts & Manage Shifts.
+ * Uses ShiftsController: GET /api/shifts & /api/v1/shifts
  */
 
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/shifts';
 
 function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  const token =
+    localStorage.getItem('bms_access_token') ||
+    sessionStorage.getItem('bms_access_token') ||
+    localStorage.getItem('bms_token') ||
+    sessionStorage.getItem('bms_token') ||
+    localStorage.getItem('accessToken') ||
+    sessionStorage.getItem('accessToken') ||
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('token');
+
   return {
     Accept: 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -16,14 +26,14 @@ function authHeaders() {
 async function handle(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
+    throw new Error(err.message || err.Message || err.title || err.detail || `HTTP ${res.status}`);
   }
   return res.json();
 }
 
 function unwrapItems(data) {
   if (Array.isArray(data)) return data;
-  return data?.items ?? data?.Items ?? [];
+  return data?.items ?? data?.Items ?? data?.data ?? [];
 }
 
 /**
@@ -38,7 +48,8 @@ async function list(from, to, specialty) {
   if (specialty) q.set('department', specialty);
   q.set('page', '1');
   q.set('pageSize', '200');
-  const data = await handle(fetch(`${BASE}?${q}`, { headers: authHeaders() }));
+  const res = await fetch(`${BASE}?${q}`, { headers: authHeaders() });
+  const data = await handle(res);
   return unwrapItems(data);
 }
 
@@ -51,8 +62,14 @@ async function byDay(date) {
   }
   q.set('page', '1');
   q.set('pageSize', '200');
-  const data = await handle(fetch(`${BASE}?${q}`, { headers: authHeaders() }));
-  return { date, shifts: unwrapItems(data) };
+  const res = await fetch(`${BASE}?${q}`, { headers: authHeaders() });
+  const data = await handle(res);
+  return unwrapItems(data);
 }
 
-export const viewShiftApi = { list, byDay };
+export const viewShiftApi = {
+  list,
+  byDay,
+};
+
+export default viewShiftApi;

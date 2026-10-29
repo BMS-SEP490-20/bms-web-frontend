@@ -96,6 +96,7 @@ import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import AuditLogPage from "./pages/audit/AuditLogPage";
 import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
+import RevenueReportPage from "./features/reports/pages/RevenueReportPage.jsx";
 import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
 
 // API Clients & UI Icons
@@ -633,6 +634,13 @@ export default function App() {
                   <Route path="/manager/audit-logs" element={<AuditLogPage />} />
                   <Route path="/admin/backup" element={<BackupManagementPage />} />
                   <Route path="/backup" element={<BackupManagementPage />} />
+                </Route>
+
+                {/* Laboratory Revenue Analytics & Financial Reporting (UC78) */}
+                <Route element={<ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "DOCTOR", "LABHEAD"]} />}>
+                  <Route path="/reports/revenue" element={<RevenueReportPage />} />
+                  <Route path="/admin/revenue-report" element={<RevenueReportPage />} />
+                  <Route path="/manager/revenue" element={<RevenueReportPage />} />
                 </Route>
 
                 {/* Turnaround Time (TAT) Analytics & SLA Dashboard (UC63) */}

@@ -1,95 +1,3 @@
-Ran check commit in feature/tat-statistics-i3-047 on bms-web-frontend
-Analyzed uc63-tat-statistics-checks.mjs:L1-100
-
-Dưới đây là 2 phần bạn cần:
-1. **Nội dung PR chuẩn Senior** để dán vào ô mô tả của PR #86 (`bms-web-frontend`).
-2. **File `src/App.jsx` hoàn chỉnh 100% sạch conflict** để dán vào trình sửa conflict.
-
----
-
-## PHẦN 1: MẪU PR CHUẨN SENIOR CHO PR #86 (`bms-web-frontend`)
-
-*(Copy toàn bộ đoạn dưới dán vào ô `Leave a comment` của PR #86 rồi bấm **Update comment**)*:
-
-```markdown
-## Summary
-
-- **Purpose:** Build interactive, responsive laboratory Turnaround Time (TAT) analytics dashboard, ISO 15189 SLA compliance monitoring, 3-phase histogram visualization, outlier violations drawer, and UTF-8 CSV export conforming to UC63 and BR-LAB-01.
-- **Scope:** `bms-web-frontend` (`src/features/reports`, `src/App.jsx`, automated test suite).
-- **Related issue:** Closes #I3-047
-
-## Type of Change
-
-- [x] Feature
-- [ ] Bug fix
-- [x] UI/UX improvement
-- [x] Documentation
-- [x] Tests
-- [ ] Database / Migration
-- [ ] Breaking change
-- [x] Configuration / Infrastructure
-
-## Context & Motivation
-
-- **Problem:** Laboratory directors and QA managers needed real-time graphical monitoring of turnaround times (TAT) across Routine ($\le$ 240 mins) and STAT emergency ($\le$ 60 mins) tests to satisfy ISO 15189 accreditation benchmarks and eliminate clinical reporting bottlenecks.
-- **Root cause:** Web client previously had no dedicated analytical dashboard for multi-percentile computation (Mean, Median, P90) or phase decomposition (Pre-analytical, Analytical, Post-analytical).
-- **Proposed solution:** Implemented `TatStatisticsDashboardPage`, `tatStatisticsApi.js`, and route registrations in `App.jsx` with KPI cards, compliance gauges, breakdown tables, and one-click CSV export.
-
-## Implementation Details
-
-- **Key files changed (4 files):**
-  - `src/App.jsx`: Registers protected routes (`/reports/tat`, `/reports/tat-statistics`, `/laboratory/tat`, `/admin/tat-statistics`) guarded by `ProtectedRoute`.
-  - `src/features/reports/api/tatStatisticsApi.js`: API client module providing functions `fetchTatReport`, `fetchTatSummary`, `fetchTatTrends`, `fetchTatViolations`, and `exportTatCsv`.
-  - `src/features/reports/pages/TatStatisticsDashboardPage.jsx`: Master dashboard page with KPI scorecards, interactive filters (Priority, Department, Date Range), 3-phase distribution, and violations list.
-  - `tests/uc63-tat-statistics-checks.mjs`: Automated Node.js verification test suite covering 10 critical checks.
-- **UI/UX Features:**
-  - Executive KPI Cards: Total Tests, Average TAT (formatted e.g. "1h 45m"), Median TAT, P90, and SLA Compliance Rate (%).
-  - Priority SLA Benchmarking: Dedicated cards for Stat (target 60m), Urgent (120m), and Normal (240m).
-  - 3-Phase ISO 15189 Breakdown: Visual breakdown of Pre-analytical (accessioning), Analytical (testing), and Post-analytical (review & approval).
-  - Responsive layout: Verified from 1920px Desktop down to 375px Mobile.
-  - One-click UTF-8 CSV Export with Excel BOM support.
-
-## Testing & Validation
-
-- [x] Automated test script passed (`node tests/uc63-tat-statistics-checks.mjs` - 10/10 checks passed)
-- [x] Build and bundling passed (`npm run build` 0 errors)
-- [x] Responsive layout verified
-- [x] Empty, loading skeleton, and error boundary states verified
-
-**Test scenarios verified via `uc63-tat-statistics-checks.mjs`:**
-
-| Scenario | Expected result | Actual result |
-|---|---|---|
-| API Client Interface | Exports `fetchTatReport`, `fetchTatSummary`, `fetchTatTrends`, `exportTatCsv` | Passed (Checks 1-2) |
-| KPI Percentiles Computation | Calculates Mean, Median, and verifies P90 $\ge$ Median | Passed (Check 3) |
-| Master Report Data Structure | Returns complete breakdown arrays and summary | Passed (Check 4) |
-| Priority Benchmarking Targets | Validates Stat (60m), Urgent (120m), Normal (240m) | Passed (Check 5) |
-| 3-Phase ISO 15189 Lifecycle | Pre-analytical, Analytical, Post-analytical sum to $\approx 100\%$ | Passed (Check 6) |
-| Continuous Trend Points | Generates daily trend points with test volume & SLA compliance % | Passed (Check 7) |
-| Overdue Outlier Violations | Identifies delayed samples exceeding target SLA | Passed (Check 8) |
-| CSV Report Export | Generates valid UTF-8 CSV with Vietnamese headers | Passed (Check 9) |
-| Client Route Registration | `/reports/tat` and `/laboratory/tat` mapped in `App.jsx` | Passed (Check 10) |
-
-## Security & Data Integrity
-
-- [x] Role-Based Access Control verified: Admin, Manager, Doctor, LabHead, LabTech
-- [x] Patient PII protected in outlier violations view
-- [x] Read-only reporting: Zero mutation risk on operational test records
-
-## Reviewer Checklist
-
-- [x] Satisfies BR-LAB-01 and ISO 15189 Turnaround Time requirements
-- [x] Fully integrated into `App.jsx` routing hierarchy
-- [x] 100% of 10 automated test scenarios passed
-```
-
----
-
-## PHẦN 2: FILE `src/App.jsx` ĐÃ FIX SẠCH CONFLICT 100%
-
-*(Bấm nút **Resolve conflicts** trên GitHub, bấm `Ctrl + A` rồi `Ctrl + V` dán toàn bộ nội dung bên dưới, sau đó bấm **Mark as resolved** ➔ **Commit merge**)*:
-
-```jsx
 /**
  * @file App.jsx
  * @description Master client-side routing hierarchy for BMS Laboratory Management Portal.
@@ -177,7 +85,7 @@ import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx"
 import FeedbackHubPage from "./pages/feedback/FeedbackHubPage";
 import NotificationsHistoryPage from "./pages/notifications/NotificationsHistoryPage";
 
-// System Administration & Security Views
+// System Administration, Notifications Center & Security Views
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
 import DoctorManagement from "./features/users/pages/DoctorManagementPage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
@@ -186,6 +94,7 @@ import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
 import AuditLogPage from "./pages/audit/AuditLogPage";
 import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
+import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
 
 // API Clients & UI Icons
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
@@ -605,7 +514,7 @@ export default function App() {
                   <Route path="/dashboard" element={<RoleBasedDashboard />} />
                   <Route path="/profile" element={<UserProfilePage />} />
                   <Route path="/change-password" element={<ChangePassword />} />
-                  <Route path="/notifications" element={<NotificationsHistoryPage />} />
+                  <Route path="/notifications" element={<PushNotificationCenterPage />} />
                   <Route path="/feedback" element={<FeedbackHubPage />} />
                   <Route path="/patient/feedback" element={<FeedbackHubPage />} />
                   <Route path="/doctor/feedback" element={<FeedbackHubPage />} />
@@ -722,6 +631,13 @@ export default function App() {
                   <Route path="/admin/tat-statistics" element={<TatStatisticsDashboardPage />} />
                 </Route>
 
+                {/* Multi-Channel Push Notifications & Audit Trail (UC58) */}
+                <Route element={<ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "DOCTOR", "LABHEAD", "LABTECH", "RECEPTIONIST", "CASHIER", "PATIENT"]} />}>
+                  <Route path="/notifications/center" element={<PushNotificationCenterPage />} />
+                  <Route path="/notifications/dispatch" element={<PushNotificationCenterPage />} />
+                  <Route path="/admin/notifications" element={<PushNotificationCenterPage />} />
+                </Route>
+
                 {/* Root Security Authority - Role Privilege Matrix (Role ID 1 Only) */}
                 <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} allowedRoleIds={[1]} />}>
                   <Route path="/roles" element={<RolesManagementPage />} />
@@ -741,4 +657,3 @@ export default function App() {
     </ErrorBoundary>
   );
 }
-```

@@ -13,7 +13,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, Outlet } from "react-router-dom";
 
 // Layouts, Global State Providers & Error Boundaries
 import MainLayout from "./layouts/MainLayout";
@@ -29,7 +29,7 @@ import Register from "./features/auth/Register";
 import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
 import ChangePassword from "./features/auth/ChangePassword";
 import NotFound404 from "./components/errors/NotFound404";
-import Forbidden403 from "./pages/errors/Forbidden403";
+import Forbidden403 from "./components/errors/Forbidden403";
 
 // Clinical, Consultation & Receptionist Views
 import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
@@ -38,8 +38,6 @@ import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
-import ReceptionistCheckInPage from "./pages/receptionist/CheckIn";
-import ReceptionistCreatePatientPage from "./pages/receptionist/CreatePatient";
 import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
 import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
 import AddMedicalNotesPage from "./features/doctor/pages/AddMedicalNotesPage.jsx";
@@ -48,7 +46,6 @@ import AddMedicalAssessmentPage from "./features/doctor/pages/AddMedicalAssessme
 import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
 import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
 import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
-import ShiftAssignment from "./features/appointments/components/ShiftAssignment/ShiftAssignment";
 
 // Laboratory Operations, QC, IoT & Inventory Views
 import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
@@ -67,8 +64,8 @@ import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
 import LabProfilesPage from "./features/lab-profiles/pages/LabProfilesPage.jsx";
 import LabRoomManagement from "./features/facilities/pages/LabRoomManagementPage";
-import ValidateSample from "./pages/lab-user/ValidateSample";
-import QcFlagsPage from "./pages/qc/QcFlagsPage";
+import ValidateSample from "./features/lab-user/pages/ValidateSample.jsx";
+import QcFlagsPage from "./features/qc/pages/QcFlagsPage.jsx";
 import QualityControlManagementPage from "./features/qc/pages/QualityControlManagementPage.jsx";
 import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
@@ -86,17 +83,15 @@ import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPag
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
 import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
-import FeedbackHubPage from "./pages/feedback/FeedbackHubPage";
-import NotificationsHistoryPage from "./pages/notifications/NotificationsHistoryPage";
+import FeedbackHubPage from "./features/feedback/pages/FeedbackHubPage.jsx";
 
 // System Administration, Notifications Center & Security Views
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
-import DoctorManagement from "./features/users/pages/DoctorManagementPage";
 import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
 import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
 import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
 import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
-import AuditLogPage from "./pages/audit/AuditLogPage";
+import AuditLogPage from "./features/audit/pages/AuditLogPage.jsx";
 import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
 import RevenueReportPage from "./features/reports/pages/RevenueReportPage.jsx";
 import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
@@ -200,7 +195,9 @@ function ProtectedRoute({ children, allowedRoles = [], allowedRoleIds = [] }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return children || <React.Fragment />;
+  // WHY: this guard is used as a layout route (<Route element={<ProtectedRoute/>}>), so it must
+  // render <Outlet/> for nested routes; returning an empty Fragment rendered every protected page blank.
+  return children ?? <Outlet />;
 }
 
 // =============================================================================
@@ -558,10 +555,14 @@ export default function App() {
                 <Route element={<ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "RECEPTIONIST", "CASHIER", "DOCTOR", "NURSE"]} />}>
                   <Route path="/patients" element={<CheckInPage />} />
                   <Route path="/reception/checkin" element={<CheckInPage />} />
-                  <Route path="/reception/check-in" element={<ReceptionistCheckInPage />} />
-                  <Route path="/receptionist/check-in" element={<ReceptionistCheckInPage />} />
-                  <Route path="/reception/create-patient" element={<ReceptionistCreatePatientPage />} />
-                  <Route path="/receptionist/create-patient" element={<ReceptionistCreatePatientPage />} />
+                  {/* WHY: the legacy "pages/receptionist/CheckIn|CreatePatient" modules were never committed.
+                      Keep the URLs the Sidebar links to, served by the team's existing check-in and
+                      walk-in registration pages. TODO(senior-dev, Đợt 3): decide whether to wire the
+                      QR-based features/reception/components/Receptionist/ReceptionistCheckIn.jsx instead. */}
+                  <Route path="/reception/check-in" element={<CheckInPage />} />
+                  <Route path="/receptionist/check-in" element={<CheckInPage />} />
+                  <Route path="/reception/create-patient" element={<RegisterWalkInPatientPage />} />
+                  <Route path="/receptionist/create-patient" element={<RegisterWalkInPatientPage />} />
                   <Route path="/reception/register-walkin" element={<RegisterWalkInPatientPage />} />
                   <Route path="/reception/queue" element={<QueueBoardPage />} />
                   <Route path="/queue" element={<QueueBoardPage />} />
@@ -624,8 +625,9 @@ export default function App() {
                   <Route path="/manager/inventory-management" element={<InventoryPage />} />
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
                   <Route path="/manage/schedule" element={<ScheduleManagementPage />} />
-                  <Route path="/admin/shift-assignment" element={<ShiftAssignment />} />
-                  <Route path="/manager/shift-assignment" element={<ShiftAssignment />} />
+                  {/* WHY: ShiftAssignment module was never committed; shift rostering lives in ManageSchedulePage. */}
+                  <Route path="/admin/shift-assignment" element={<ScheduleManagementPage />} />
+                  <Route path="/manager/shift-assignment" element={<ScheduleManagementPage />} />
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                 </Route>
 
@@ -641,7 +643,8 @@ export default function App() {
                   <Route path="/admin/employees" element={<UserManagementPage />} />
                   <Route path="/admin/users" element={<UserManagementPage />} />
                   <Route path="/admin/user-management" element={<UserManagementPage />} />
-                  <Route path="/admin/doctor-management" element={<DoctorManagement />} />
+                  {/* WHY: DoctorManagementPage was never committed; doctor accounts are managed in UserManagementPage. */}
+                  <Route path="/admin/doctor-management" element={<UserManagementPage />} />
                   <Route path="/admin/audit-logs" element={<AuditLogPage />} />
                   <Route path="/manager/audit-logs" element={<AuditLogPage />} />
                   <Route path="/admin/backup" element={<BackupManagementPage />} />

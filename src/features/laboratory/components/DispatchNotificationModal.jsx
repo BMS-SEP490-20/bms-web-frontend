@@ -1,10 +1,11 @@
 /**
  * @file DispatchNotificationModal.jsx
  * @description Modal dialog for laboratory staff and clinicians to dispatch test result notifications and panic value alerts (UC60 / BR-183).
+ * Supports selecting patients with completed test results directly from the MongoDB database.
  * Conforms to: Production Medical Standards, Clinical Emergency Escalation & AGENTS-DESIGN.md.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FaPaperPlane,
     FaExclamationTriangle,
@@ -14,8 +15,12 @@ import {
     FaEnvelope,
     FaBell,
     FaCheck,
-    FaTimes
+    FaTimes,
+    FaCheckCircle,
+    FaUserCheck,
+    FaFileMedical
 } from "react-icons/fa";
+import { fetchCompletedTestPatients } from "../api/testResultNotificationApi";
 
 const CHANNELS = [
     { value: 3, label: "Thư Điện Tử (Email) - Trực Tiếp Qua SMTP" },
@@ -26,18 +31,24 @@ const CHANNELS = [
 ];
 
 export default function DispatchNotificationModal({ show, onHide, onDispatchSuccess }) {
-    const [testOrderId, setTestOrderId] = useState("ORD-20261021-001");
-    const [specimenBarcode, setSpecimenBarcode] = useState("SMP-261021-001");
-    const [patientId, setPatientId] = useState("USR-PAT-01");
-    const [patientName, setPatientName] = useState("Nguyễn Văn An");
-    const [patientPhone, setPatientPhone] = useState("0912345678");
-    const [patientEmail, setPatientEmail] = useState("an.nguyen@gmail.com");
-    const [testPackageName, setTestPackageName] = useState("Gói Xét Nghiệm Sinh Hóa Máu Nâng Cao");
+    // Completed patients state from MongoDB
+    const [completedPatients, setCompletedPatients] = useState([]);
+    const [selectedCompletedKey, setSelectedCompletedKey] = useState("");
+    const [loadingPatients, setLoadingPatients] = useState(false);
+
+    // Form fields
+    const [testOrderId, setTestOrderId] = useState("");
+    const [specimenBarcode, setSpecimenBarcode] = useState("");
+    const [patientId, setPatientId] = useState("");
+    const [patientName, setPatientName] = useState("");
+    const [patientPhone, setPatientPhone] = useState("");
+    const [patientEmail, setPatientEmail] = useState("");
+    const [testPackageName, setTestPackageName] = useState("");
 
     const [channel, setChannel] = useState(3); // Email (Primary)
     const [isCritical, setIsCritical] = useState(false);
     const [priority, setPriority] = useState(1); // Normal
-    const [criticalParamsText, setCriticalParamsText] = useState("Glucose huyết tương: 28.5 mmol/L (Ngưỡng nguy hiểm > 25.0)\nKali máu: 2.1 mmol/L (Hạ kali đe dọa ngừng tim)");
+    const [criticalParamsText, setCriticalParamsText] = useState("");
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [clinicalRecommendation, setClinicalRecommendation] = useState("Yêu cầu nhập viện cấp cứu để truyền dịch và theo dõi monitor liên tục.");
@@ -45,7 +56,68 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
 
-    if (!show) return null;
+    // Load completed patients from MongoDB when modal is opened
+    useEffect(() => {
+        if (!show) return;
+
+        let active = true;
+        setLoadingPatients(true);
+        fetchCompletedTestPatients()
+            .then((list) => {
+                if (!active) return;
+                const items = Array.isArray(list) ? list : [];
+                setCompletedPatients(items);
+
+                if (items.length > 0) {
+                    const first = items[0];
+                    applyPatientSelection(first);
+                    setSelectedCompletedKey(first.specimenBarcode || first.testOrderId || first.patientId);
+                }
+            })
+            .catch((err) => {
+                console.error("Error loading completed patients:", err);
+            })
+            .finally(() => {
+                if (active) setLoadingPatients(false);
+            });
+
+        return () => {
+            active = false;
+        };
+    }, [show]);
+
+    const applyPatientSelection = (found) => {
+        if (!found) return;
+        setTestOrderId(found.testOrderId || "");
+        setSpecimenBarcode(found.specimenBarcode || "");
+        setPatientId(found.patientId || "");
+        setPatientName(found.patientName || "");
+        setPatientPhone(found.patientPhone || "");
+        setPatientEmail(found.patientEmail || "");
+        setTestPackageName(found.testPackageName || "");
+
+        if (found.isCritical) {
+            setIsCritical(true);
+            setPriority(4);
+            setCriticalParamsText(found.conclusionNotes || "Chỉ số xét nghiệm vượt ngưỡng báo động nguy kịch");
+            setTitle(`[CẢNH BÁO NGUY HIỂM] Chỉ số xét nghiệm hoảng loạn - Đơn ${found.testOrderId}`);
+            setMessage(`CẢNH BÁO Y KHOA: Kết quả xét nghiệm của bệnh nhân ${found.patientName} (${found.testPackageName || 'Xét nghiệm'}) có chỉ số vượt ngưỡng nguy kịch. Vui lòng liên hệ bác sĩ hoặc cơ sở y tế ngay lập tức.`);
+        } else {
+            setIsCritical(false);
+            setPriority(1);
+            setTitle(`Kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã hoàn tất`);
+            setMessage(`Kính gửi quý khách ${found.patientName}, kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã được duyệt y khoa và sẵn sàng để xem chi tiết.${found.conclusionNotes ? ' Kết luận: ' + found.conclusionNotes : ''}`);
+        }
+    };
+
+    const handleSelectCompletedPatient = (e) => {
+        const val = e.target.value;
+        setSelectedCompletedKey(val);
+        const found = completedPatients.find(p => (p.specimenBarcode === val || p.testOrderId === val || p.patientId === val));
+        if (found) {
+            applyPatientSelection(found);
+        }
+    };
 
     const handleToggleCritical = (e) => {
         const checked = e.target.checked;
@@ -98,6 +170,8 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
         }
     };
 
+    if (!show) return null;
+
     return (
         <div
             className="modal show d-block"
@@ -109,7 +183,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                     <div className={`modal-header ${isCritical ? "bg-danger text-white" : "bg-primary text-white"}`}>
                         <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
                             {isCritical ? <FaExclamationTriangle /> : <FaPaperPlane />}
-                            <span>{isCritical ? "Phát Thông Báo Cảnh Báo Hoảng Loạn (Panic Value)" : "Phát Thông Báo Kết Quả Xét Nghiệm Mới"}</span>
+                            <span>{isCritical ? "Phát Thông Báo Cảnh Báo Hoảng Loạn (Panic Value)" : "Phát Thông Báo Kết Quả Xét Nghiệm Mới (UC60)"}</span>
                         </h5>
                         <button
                             type="button"
@@ -120,12 +194,48 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="modal-body p-4">
+                        <div className="modal-body p-4" style={{ maxHeight: "80vh", overflowY: "auto" }}>
                             {errorMessage && (
                                 <div className="alert alert-danger py-2 small mb-3">
                                     {errorMessage}
                                 </div>
                             )}
+
+                            {/* CHỌN BỆNH NHÂN ĐÃ HOÀN THÀNH XÉT NGHIỆM */}
+                            <div className="p-3 rounded border mb-4 bg-light shadow-xs border-primary-subtle">
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <label className="form-label text-primary fw-bold small mb-0 d-flex align-items-center gap-2">
+                                        <FaUserCheck className="fs-5" />
+                                        <span>Chọn Bệnh Nhân Đã Hoàn Thành Xét Nghiệm</span>
+                                    </label>
+                                    {loadingPatients && (
+                                        <div className="d-flex align-items-center gap-1 text-muted small">
+                                            <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                            <span>Đang tải từ database...</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <select
+                                    className="form-select border-primary fw-semibold"
+                                    value={selectedCompletedKey}
+                                    onChange={handleSelectCompletedPatient}
+                                    disabled={loadingPatients}
+                                >
+                                    {completedPatients.length === 0 ? (
+                                        <option value="">{loadingPatients ? "Đang tải dữ liệu..." : "Chưa có bệnh nhân nào hoàn thành xét nghiệm"}</option>
+                                    ) : (
+                                        completedPatients.map((item, idx) => (
+                                            <option key={idx} value={item.specimenBarcode || item.testOrderId || item.patientId}>
+                                                [{item.patientId}] {item.patientName} • Đơn: {item.testOrderId} • Mẫu: {item.specimenBarcode || '—'} • {item.testPackageName || 'Xét nghiệm'} {item.isCritical ? '⚠️ (Nguy kịch)' : '✅ (Hoàn tất)'}
+                                            </option>
+                                        ))
+                                    )}
+                                </select>
+                                <small className="text-muted d-block mt-2">
+                                    <FaCheckCircle className="text-success me-1" />
+                                    Dữ liệu được nạp tự động từ các xét nghiệm đã hoàn tất (Completed / Approved) trong cơ sở dữ liệu. Khi chọn bệnh nhân, tất cả thông tin định danh, mẫu bệnh phẩm, đơn chỉ định và nội dung thông báo sẽ tự động điền.
+                                </small>
+                            </div>
 
                             {/* Critical Panic Toggle Switch */}
                             <div className="p-3 rounded border mb-4" style={{ backgroundColor: isCritical ? "#fee2e2" : "#f8fafc", borderColor: isCritical ? "#ef4444" : "#cbd5e1" }}>
@@ -173,7 +283,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                         className="form-control font-monospace"
                                         value={specimenBarcode}
                                         onChange={(e) => setSpecimenBarcode(e.target.value)}
-                                        placeholder="SMP-261021-001"
+                                        placeholder="BC-xxx hoặc SMP-xxx"
                                     />
                                 </div>
                             </div>
@@ -232,6 +342,20 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                         placeholder="patient@example.com"
                                     />
                                 </div>
+                            </div>
+
+                            {/* Gói Xét Nghiệm */}
+                            <div className="mb-3">
+                                <label className="form-label text-dark fw-semibold small">
+                                    Tên Gói Xét Nghiệm
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={testPackageName}
+                                    onChange={(e) => setTestPackageName(e.target.value)}
+                                    placeholder="Tên gói xét nghiệm lâm sàng"
+                                />
                             </div>
 
                             {/* Channel & Priority */}

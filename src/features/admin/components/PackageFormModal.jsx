@@ -1,19 +1,18 @@
-
 /**
  * @file PackageFormModal.jsx
  * @description Administration modal form for composing, creating, and updating laboratory service packages (UC15).
- * Allows clinical administrators to set package codes, names, promotional pricing, status, and associated test criteria.
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * Implemented using React-Bootstrap Modal for guaranteed standard modal behavior and animation.
  * @module features/admin/components/PackageFormModal
  */
 
 import React, { useEffect, useMemo, useState } from "react";
-import Modal from "./Modal.jsx";
+import { Modal, Button, Form, Row, Col, Alert, Badge, Spinner, InputGroup } from "react-bootstrap";
 import { createPackage, updatePackage } from "../api/packageApi.jsx";
 
 export const STATUS_OPTIONS = [
-    { value: "ACTIVE", label: "Active" },
-    { value: "DRAFT", label: "Draft" },
+    { value: "ACTIVE", label: "Hoạt Động (Active)" },
+    { value: "DRAFT", label: "Tạm Khóa (Draft / Inactive)" },
 ];
 
 /**
@@ -63,14 +62,6 @@ const EMPTY = {
 
 /**
  * Service package form modal component supporting create and edit workflows.
- *
- * @param {object} props - Component properties.
- * @param {boolean} props.open - Modal visibility state.
- * @param {object|null} [props.pkg] - Package to edit, or null when creating.
- * @param {object[]} [props.criteria=[]] - Available test criteria for multi-selection.
- * @param {Function} props.onClose - Callback to dismiss the modal.
- * @param {Function} props.onSaved - Callback triggered after successful creation or update.
- * @returns {JSX.Element} Rendered form modal.
  */
 export default function PackageFormModal({
     open,
@@ -97,29 +88,15 @@ export default function PackageFormModal({
                 ? {
                     code: pkg.code ?? pkg.Code ?? "",
                     name: pkg.name ?? pkg.Name ?? "",
-                    description:
-                        pkg.description ?? pkg.Description ?? "",
+                    description: pkg.description ?? pkg.Description ?? "",
                     price: pkg.price ?? pkg.Price ?? "",
-                    discountPrice:
-                        pkg.discountPrice ?? pkg.DiscountPrice ?? "",
-                    status:
-                        (pkg.isActive ?? pkg.IsActive) === false
-                            ? "DRAFT"
-                            : "ACTIVE",
+                    discountPrice: pkg.discountPrice ?? pkg.DiscountPrice ?? "",
+                    status: (pkg.isActive ?? pkg.IsActive) === false ? "DRAFT" : "ACTIVE",
                     testIds: getTestIds(pkg, criteria),
                 }
                 : { ...EMPTY, testIds: [] }
         );
     }, [open, pkg, criteria]);
-
-    const categories = useMemo(
-        () => [
-            ...new Set(
-                criteria.map((c) => c.category).filter(Boolean)
-            ),
-        ],
-        [criteria]
-    );
 
     const grouped = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -152,9 +129,7 @@ export default function PackageFormModal({
 
     function toggleGroup(items) {
         const ids = items.map((c) => c._id || c.id || c.code);
-        const allChecked = ids.every((id) =>
-            form.testIds.includes(id)
-        );
+        const allChecked = ids.every((id) => form.testIds.includes(id));
 
         setForm((f) => ({
             ...f,
@@ -206,8 +181,6 @@ export default function PackageFormModal({
             return;
         }
 
-        // Các trường dùng camelCase theo response API.
-        // testIds cần khớp với DTO tạo/cập nhật của backend.
         const existingTests = pkg?.tests || pkg?.Tests || [];
         const tests = form.testIds
             .map((id) => {
@@ -248,28 +221,25 @@ export default function PackageFormModal({
             isActive: form.status === "ACTIVE",
             tests,
             ...(pkg?.category !== undefined ? { category: pkg.category } : {}),
-            ...(pkg?.preparationNotes !== undefined ? { preparationNotes: pkg.preparationNotes } : {}),
         };
 
         try {
             setSaving(true);
-
             if (isEdit) {
-                await updatePackage(pkg._id || pkg.id, payload);
+                const id = pkg._id || pkg.id;
+                await updatePackage(id, payload);
             } else {
                 await createPackage(payload);
             }
-
-            await onSaved();
+            onSaved();
         } catch (err) {
-            console.error("Lỗi lưu gói dịch vụ:", err);
-
+            console.error("Lỗi lưu gói xét nghiệm:", err);
             setError(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||
                 err.response?.data?.title ||
                 err.message ||
-                "Lưu gói dịch vụ thất bại."
+                "Lưu gói thất bại."
             );
         } finally {
             setSaving(false);
@@ -277,219 +247,186 @@ export default function PackageFormModal({
     }
 
     return (
-        <Modal
-            open={open}
-            wide
-            title={isEdit ? `Sửa gói ${pkg.code || pkg.Code}` : "Tạo gói dịch vụ"}
-            onClose={saving ? () => {} : onClose}
-            footer={
-                <>
-                    <button
-                        type="button"
-                        className="adm-btn adm-btn-ghost"
-                        onClick={onClose}
-                        disabled={saving}
-                    >
-                        Hủy
-                    </button>
+        <Modal show={open} onHide={saving ? undefined : onClose} size="lg" centered backdrop="static">
+            <Modal.Header closeButton={!saving} className="bg-primary text-white py-3">
+                <Modal.Title className="fs-6 fw-bold text-white d-flex align-items-center gap-2">
+                    <i className="bi bi-box-seam-fill"></i>
+                    {isEdit ? `Chỉnh Sửa Gói Dịch Vụ: ${pkg?.name || pkg?.code}` : 'Thêm Mới Gói Dịch Vụ Xét Nghiệm'}
+                </Modal.Title>
+            </Modal.Header>
 
-                    <button
-                        type="submit"
-                        form="package-form"
-                        className="adm-btn adm-btn-primary"
-                        disabled={saving}
-                    >
-                        {saving
-                            ? "Đang lưu..."
-                            : isEdit
-                                ? "Lưu thay đổi"
-                                : "Tạo gói"}
-                    </button>
-                </>
-            }
-        >
-            <form
-                id="package-form"
-                onSubmit={handleSubmit}
-                className="adm-form"
-            >
-                <div className="adm-grid-2">
-                    <label className="adm-field">
-                        <span>Mã gói *</span>
-                        <input
-                            className="adm-input"
-                            value={form.code}
-                            onChange={(e) =>
-                                setField("code", e.target.value)
-                            }
-                            placeholder="GOI-TQ-001"
-                            required
-                        />
-                    </label>
-
-                    <label className="adm-field">
-                        <span>Trạng thái</span>
-                        <select
-                            className="adm-input"
-                            value={form.status}
-                            onChange={(e) =>
-                                setField("status", e.target.value)
-                            }
-                        >
-                            {STATUS_OPTIONS.map((s) => (
-                                <option key={s.value} value={s.value}>
-                                    {s.label}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
-
-                <label className="adm-field">
-                    <span>Tên gói *</span>
-                    <input
-                        className="adm-input"
-                        value={form.name}
-                        onChange={(e) =>
-                            setField("name", e.target.value)
-                        }
-                        placeholder="Gói khám tổng quát"
-                        required
-                    />
-                </label>
-
-                <label className="adm-field">
-                    <span>Mô tả</span>
-                    <textarea
-                        className="adm-input"
-                        value={form.description}
-                        onChange={(e) =>
-                            setField("description", e.target.value)
-                        }
-                        placeholder="Mô tả các dịch vụ có trong gói..."
-                        rows={3}
-                    />
-                </label>
-
-                <div className="adm-grid-2">
-                    <label className="adm-field">
-                        <span>Giá gốc (VND) *</span>
-                        <input
-                            className="adm-input"
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={form.price}
-                            onChange={(e) =>
-                                setField("price", e.target.value)
-                            }
-                            required
-                        />
-                    </label>
-
-                    <label className="adm-field">
-                        <span>Giá ưu đãi (VND)</span>
-                        <input
-                            className="adm-input"
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={form.discountPrice}
-                            onChange={(e) =>
-                                setField("discountPrice", e.target.value)
-                            }
-                            placeholder="Để trống nếu không giảm giá"
-                        />
-                    </label>
-                </div>
-
-                <div className="adm-field">
-                    <span>
-                        Xét nghiệm trong gói *
-                        {" "}
-                        <em className="adm-count">
-                            ({form.testIds.length} đã chọn)
-                        </em>
-                    </span>
-
-                    <input
-                        className="adm-input"
-                        placeholder="Tìm theo mã, tên hoặc nhóm..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-
-                    <div className="adm-picker">
-                        {Object.keys(grouped).length === 0 && (
-                            <div className="adm-empty">
-                                Không tìm thấy xét nghiệm.
-                            </div>
-                        )}
-
-                        {Object.entries(grouped).map(
-                            ([category, items]) => (
-                                <div key={category}>
-                                    <div className="adm-picker-group">
-                                        <strong>{category}</strong>
-
-                                        <button
-                                            type="button"
-                                            className="adm-link"
-                                            onClick={() =>
-                                                toggleGroup(items)
-                                            }
-                                        >
-                                            {items.every((c) =>
-                                                form.testIds.includes(
-                                                    c._id || c.id || c.code
-                                                )
-                                            )
-                                                ? "Bỏ chọn nhóm"
-                                                : "Chọn cả nhóm"}
-                                        </button>
-                                    </div>
-
-                                    {items.map((c) => {
-                                        const id =
-                                            c._id || c.id || c.code;
-
-                                        return (
-                                            <label
-                                                key={id}
-                                                className="adm-picker-item"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={form.testIds.includes(id)}
-                                                    onChange={() =>
-                                                        toggleTest(id)
-                                                    }
-                                                />
-
-                                                <span className="adm-code">
-                                                    {c.code}
-                                                </span>
-
-                                                <span className="adm-picker-name">
-                                                    {c.name}
-                                                </span>
-
-                                                <span className="adm-unit">
-                                                    {c.unit || ""}
-                                                </span>
-                                            </label>
-                                        );
-                                    })}
-                                </div>
-                            )
-                        )}
-                    </div>
-                </div>
-
+            <Modal.Body className="p-4" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
                 {error && (
-                    <div className="adm-error">{error}</div>
+                    <Alert variant="danger" dismissible onClose={() => setError('')} className="py-2 small mb-3">
+                        <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                        {error}
+                    </Alert>
                 )}
-            </form>
+
+                <Form id="package-form" onSubmit={handleSubmit}>
+                    <Row className="g-3 mb-3">
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Mã Gói Dịch Vụ <span className="text-danger">*</span></Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={form.code}
+                                    onChange={(e) => setField('code', e.target.value.toUpperCase())}
+                                    placeholder="VD: PKG-TQ-01, PKG-LIVER-02"
+                                    required
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Trạng Thái Hoạt Động</Form.Label>
+                                <Form.Select
+                                    value={form.status}
+                                    onChange={(e) => setField('status', e.target.value)}
+                                >
+                                    {STATUS_OPTIONS.map((s) => (
+                                        <option key={s.value} value={s.value}>
+                                            {s.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={12}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Tên Gói Dịch Vụ Xét Nghiệm <span className="text-danger">*</span></Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={form.name}
+                                    onChange={(e) => setField('name', e.target.value)}
+                                    placeholder="VD: Gói Xét Nghiệm Chức Năng Gan Thận Toàn Diện"
+                                    required
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={12}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Mô Tả & Chỉ Định Lâm Sàng</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={2}
+                                    value={form.description}
+                                    onChange={(e) => setField('description', e.target.value)}
+                                    placeholder="Mô tả mục đích, đối tượng chỉ định của gói dịch vụ..."
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Đơn Giá Niêm Yết (VND) <span className="text-danger">*</span></Form.Label>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="number"
+                                        min="0"
+                                        step="1000"
+                                        value={form.price}
+                                        onChange={(e) => setField('price', e.target.value)}
+                                        placeholder="VD: 500000"
+                                        required
+                                    />
+                                    <InputGroup.Text>đ</InputGroup.Text>
+                                </InputGroup>
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label className="small fw-semibold">Giá Ưu Đãi / Khuyến Mãi (VND)</Form.Label>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="number"
+                                        min="0"
+                                        step="1000"
+                                        value={form.discountPrice}
+                                        onChange={(e) => setField('discountPrice', e.target.value)}
+                                        placeholder="Để trống nếu không có ưu đãi"
+                                    />
+                                    <InputGroup.Text>đ</InputGroup.Text>
+                                </InputGroup>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+                    {/* Test Criteria Selection */}
+                    <div className="border rounded-3 p-3 bg-light">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <Form.Label className="small fw-bold text-dark mb-0">
+                                Cấu Hình Xét Nghiệm Thành Phần Trong Gói <span className="text-danger">*</span>
+                            </Form.Label>
+                            <Badge bg="primary">Đã chọn: {form.testIds.length} xét nghiệm</Badge>
+                        </div>
+                        <InputGroup size="sm" className="mb-2">
+                            <InputGroup.Text><i className="bi bi-search"></i></InputGroup.Text>
+                            <Form.Control
+                                placeholder="Tìm xét nghiệm theo mã, tên chỉ số, chuyên khoa..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </InputGroup>
+                        <div style={{ maxHeight: '200px', overflowY: 'auto' }} className="border rounded bg-white p-2">
+                            {Object.keys(grouped).length === 0 ? (
+                                <div className="text-muted small text-center py-3">Không tìm thấy xét nghiệm phù hợp.</div>
+                            ) : (
+                                Object.entries(grouped).map(([category, items]) => (
+                                    <div key={category} className="mb-2 pb-2 border-bottom">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <span className="small fw-bold text-primary">{category}</span>
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                className="p-0 text-decoration-none small"
+                                                onClick={() => toggleGroup(items)}
+                                            >
+                                                Chọn/Bỏ nhóm
+                                            </Button>
+                                        </div>
+                                        <div className="d-flex flex-wrap gap-2">
+                                            {items.map((c) => {
+                                                const id = c._id || c.id || c.code;
+                                                const checked = form.testIds.includes(id);
+                                                return (
+                                                    <Button
+                                                        key={id}
+                                                        type="button"
+                                                        size="sm"
+                                                        variant={checked ? 'primary' : 'outline-secondary'}
+                                                        className="rounded-pill py-0 px-2 small d-flex align-items-center gap-1"
+                                                        style={{ fontSize: '0.78rem' }}
+                                                        onClick={() => toggleTest(id)}
+                                                    >
+                                                        {checked && <i className="bi bi-check-circle-fill"></i>}
+                                                        <span>{c.code} - {c.name}</span>
+                                                    </Button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </Form>
+            </Modal.Body>
+
+            <Modal.Footer className="bg-light py-2 px-3 d-flex justify-content-between">
+                <Button variant="outline-secondary" onClick={onClose} disabled={saving}>
+                    Hủy bỏ
+                </Button>
+                <Button
+                    variant="primary"
+                    type="submit"
+                    form="package-form"
+                    disabled={saving}
+                    className="d-flex align-items-center gap-2"
+                >
+                    {saving ? <Spinner size="sm" animation="border" /> : <i className="bi bi-check-lg"></i>}
+                    {saving ? 'Đang lưu...' : (isEdit ? 'Lưu Thay Đổi' : 'Tạo Gói Mới')}
+                </Button>
+            </Modal.Footer>
         </Modal>
     );
 }

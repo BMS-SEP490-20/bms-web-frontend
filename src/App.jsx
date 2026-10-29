@@ -80,6 +80,7 @@ import AppointmentConfirmationPage from "./features/appointment/pages/Appointmen
 import TestHistoryPage from "./features/patient/pages/TestHistoryPage.jsx";
 import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
+import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
 import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
 import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
@@ -312,6 +313,7 @@ function HomePage() {
 
           <ul className="bms-nav-links">
             <li><a className="bms-nav-link" href="/services">Gói Xét Nghiệm</a></li>
+            <li><a className="bms-nav-link" href="/tracking"><FaVial className="text-primary me-1" /> Lộ Trình Mẫu (UC48)</a></li>
             {user && (
               <>
                 <li>
@@ -496,6 +498,8 @@ export default function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/services" element={<ServiceCatalogPage />} />
               <Route path="/catalog" element={<ServiceCatalogPage />} />
+              <Route path="/tracking" element={<TrackTestProgressPage />} />
+              <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
               <Route path="/calculate-fees" element={<CalculateFeesPage />} />
               <Route path="/fee-calculator" element={<CalculateFeesPage />} />
               <Route path="/billing/calculate-fee" element={<CalculateFeesPage />} />
@@ -535,6 +539,8 @@ export default function App() {
                   <Route path="/reports/:orderId" element={<TestReportPage />} />
                   <Route path="/results/:orderId/report" element={<TestReportPage />} />
                   <Route path="/results/export/:orderId" element={<ExportTestResultPdfPage />} />
+                  <Route path="/patient/tracking" element={<TrackTestProgressPage />} />
+                  <Route path="/patient/tracking/:identifier" element={<TrackTestProgressPage />} />
                 </Route>
 
                 {/* Patient Results & Payment Gateway Workflows */}

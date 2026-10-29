@@ -653,110 +653,134 @@ const SampleQueuePage = () => {
               </Button>
             </div>
           ) : (
-            <Table responsive hover className="mb-0 align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th className="ps-4">Barcode / Mã Mẫu</th>
-                  <th>Bệnh Nhân</th>
-                  <th>Chỉ Định / Ống Mẫu</th>
-                  <th>Thời Gian Lấy Mẫu</th>
-                  <th>Ưu Tiên</th>
-                  <th>Phòng Lab</th>
-                  <th>Trạng Thái</th>
-                  <th className="text-end pe-4">Thao Tác (Popup)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {samples.map((s) => (
-                  <tr key={s.id}>
-                    <td className="ps-4">
-                      <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1">
-                        <FaBarcode />
-                        <span>{s.barcode}</span>
-                      </div>
-                      <div className="text-muted small">
-                        ID: <code>{s.id}</code>
-                        {s.rfidTag ? ` • ${s.rfidTag}` : ''}
-                      </div>
-                    </td>
-
-                    <td>
-                      <div className="fw-semibold text-dark">{s.patientName || s.patientId || 'Bệnh nhân'}</div>
-                      <div className="text-muted small">
-                        Mã BN: <code>{s.patientId || '—'}</code>
-                        {s.patientGender ? ` • ${s.patientGender}` : ''}
-                        {s.patientAge ? `, ${s.patientAge} tuổi` : ''}
-                      </div>
-                    </td>
-
-                    <td>
-                      <div className="fw-medium text-dark">{s.testPackageName || 'Xét nghiệm lâm sàng'}</div>
-                      <div className="small text-muted d-flex flex-wrap gap-1 align-items-center mt-1">
-                        <Badge bg="secondary" className="fw-normal">{s.sampleType || 'Blood'}</Badge>
-                        {s.tubeColor && <Badge bg="light" text="dark" className="border">{s.tubeColor}</Badge>}
-                        {s.volumeMl ? <span>{s.volumeMl} ml</span> : null}
-                      </div>
-                      {s.rejectionReason && (
-                        <div className="text-danger small mt-1">
-                          <FaExclamationTriangle className="me-1" />
-                          Từ chối: {s.rejectionReason}
-                        </div>
-                      )}
-                    </td>
-
-                    <td>
-                      <div className="fw-semibold text-dark small">
-                        {formatDateTimeVN(s.collectedAt)}
-                      </div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>
-                        Người lấy: {s.collectorName || s.collectedBy || 'KTV Lấy mẫu'}
-                      </div>
-                    </td>
-
-                    <td>{getPriorityBadge(s.priority)}</td>
-
-                    <td>
-                      <span className="badge bg-light text-dark border">
-                        {s.labRoom || 'LAB-ROOM-01'}
-                      </span>
-                    </td>
-
-                    <td>{getStatusBadge(s.status)}</td>
-
-                    <td className="text-end pe-4">
-                      <div className="d-inline-flex flex-wrap gap-1 justify-content-end">
-                        <Button
-                          variant="outline-info"
-                          size="sm"
-                          title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time)"
-                          onClick={() => openRecordCollectionModal(s)}
-                        >
-                          <FaClock className="me-1" /> Giờ lấy mẫu
-                        </Button>
-
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status)"
-                          onClick={() => openStatusUpdateModal(s)}
-                        >
-                          <FaExchangeAlt className="me-1" /> Đổi trạng thái
-                        </Button>
-
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          title="Yêu cầu chạy lại mẫu (Rerun)"
-                          onClick={() => openRerunModal(s)}
-                        >
-                          <FaRedoAlt />
-                        </Button>
-                      </div>
-                    </td>
+            <div className="table-responsive" style={{ overflowX: 'hidden' }}>
+              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
+                <colgroup>
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '13%' }} />
+                  <col style={{ width: '8%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '11%' }} />
+                  <col style={{ width: '14%' }} />
+                </colgroup>
+                <thead className="table-light">
+                  <tr>
+                    <th className="ps-3">Barcode / Mã Mẫu</th>
+                    <th>Bệnh Nhân</th>
+                    <th>Chỉ Định / Ống Mẫu</th>
+                    <th>Thời Gian Lấy Mẫu</th>
+                    <th>Ưu Tiên</th>
+                    <th>Phòng Lab</th>
+                    <th>Trạng Thái</th>
+                    <th className="text-end pe-3">Thao Tác (Popup)</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {samples.map((s) => (
+                    <tr key={s.id}>
+                      <td className="ps-3">
+                        <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
+                          <FaBarcode />
+                          <span>{s.barcode}</span>
+                        </div>
+                        <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                          ID: <code>{s.id}</code>
+                          {s.rfidTag ? ` • ${s.rfidTag}` : ''}
+                        </div>
+                      </td>
+
+                      <td>
+                        <div className="fw-semibold text-dark" style={{ fontSize: '0.84rem', wordBreak: 'break-word' }}>
+                          {s.patientName || s.patientId || 'Bệnh nhân'}
+                        </div>
+                        <div className="text-muted" style={{ fontSize: '0.74rem' }}>
+                          Mã BN: <code>{s.patientId || '—'}</code>
+                          {s.patientGender ? ` • ${s.patientGender}` : ''}
+                          {s.patientAge ? `, ${s.patientAge} tuổi` : ''}
+                        </div>
+                      </td>
+
+                      <td>
+                        <div className="fw-medium text-dark" style={{ fontSize: '0.82rem', wordBreak: 'break-word', lineHeight: 1.25 }}>
+                          {s.testPackageName || 'Xét nghiệm lâm sàng'}
+                        </div>
+                        <div className="small text-muted d-flex flex-wrap gap-1 align-items-center mt-1">
+                          <Badge bg="secondary" className="fw-normal" style={{ fontSize: '0.7rem' }}>{s.sampleType || 'Blood'}</Badge>
+                          {s.tubeColor && <Badge bg="light" text="dark" className="border" style={{ fontSize: '0.7rem' }}>{s.tubeColor}</Badge>}
+                          {s.volumeMl ? <span style={{ fontSize: '0.72rem' }}>{s.volumeMl} ml</span> : null}
+                        </div>
+                        {s.rejectionReason && (
+                          <div className="text-danger small mt-1" style={{ fontSize: '0.72rem', wordBreak: 'break-word' }}>
+                            <FaExclamationTriangle className="me-1" />
+                            Từ chối: {s.rejectionReason}
+                          </div>
+                        )}
+                      </td>
+
+                      <td>
+                        <div className="fw-semibold text-dark" style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                          {formatDateTimeVN(s.collectedAt)}
+                        </div>
+                        <div className="text-muted text-truncate" style={{ fontSize: '0.72rem' }} title={s.collectorName || s.collectedBy || 'KTV Lấy mẫu'}>
+                          Người lấy: {s.collectorName || s.collectedBy || 'KTV Lấy mẫu'}
+                        </div>
+                      </td>
+
+                      <td>{getPriorityBadge(s.priority)}</td>
+
+                      <td>
+                        <span className="badge bg-light text-dark border text-truncate d-inline-block" style={{ maxWidth: '100%', fontSize: '0.75rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
+                          {s.labRoom || 'LAB-ROOM-01'}
+                        </span>
+                      </td>
+
+                      <td>{getStatusBadge(s.status)}</td>
+
+                      <td className="text-end pe-3">
+                        <div className="d-flex gap-1 justify-content-end align-items-center">
+                          <Button
+                            variant="outline-info"
+                            size="sm"
+                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                            style={{ fontSize: '0.75rem' }}
+                            title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
+                            onClick={() => openRecordCollectionModal(s)}
+                          >
+                            <FaClock />
+                            <span>Giờ lấy</span>
+                          </Button>
+
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                            style={{ fontSize: '0.75rem' }}
+                            title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
+                            onClick={() => openStatusUpdateModal(s)}
+                          >
+                            <FaExchangeAlt />
+                            <span>Trạng thái</span>
+                          </Button>
+
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="px-2 py-1"
+                            style={{ fontSize: '0.75rem' }}
+                            title="Yêu cầu chạy lại mẫu (Rerun)"
+                            onClick={() => openRerunModal(s)}
+                          >
+                            <FaRedoAlt />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
           )}
         </Card.Body>
       </Card>

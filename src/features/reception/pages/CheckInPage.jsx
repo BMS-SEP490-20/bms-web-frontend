@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
   Modal, Spinner, Alert, Pagination, Nav
@@ -102,24 +103,9 @@ export default function CheckInPage() {
   const [duplicateMatches, setDuplicateMatches] = useState([]);
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false);
 
-  const canCreateGuest = React.useMemo(() => {
-    try {
-      const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');
-      if (!raw) return true;
-      const u = JSON.parse(raw);
-      const roleStr = String(u?.role || u?.roleName || '').toUpperCase();
-      const roleId = Number(u?.roleId);
-      return (
-        roleStr.includes('RECEPT') ||
-        roleStr.includes('LETAN') ||
-        roleStr.includes('ADMIN') ||
-        roleId === 5 ||
-        roleId === 1
-      );
-    } catch {
-      return true;
-    }
-  }, []);
+  // WHY: UC25 guest profiles are Receptionist-only (matrix §1.3, decision 10: Admin has no clinical access).
+  // No stored user => false (the old code returned true and also let Admin in).
+  const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
 
   // Debounce search input
   useEffect(() => {

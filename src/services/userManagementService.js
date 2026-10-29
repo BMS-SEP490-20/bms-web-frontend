@@ -7,40 +7,31 @@
  */
 
 import api from '../config/api';
+import { ROLES, ROLE_LABELS, resolveRoleId } from '../constants/roles';
 
-// Role ID to role key mapping matching BMS backend enumeration
-export const ROLE_MAPPING = {
-  1: 'admin',
-  2: 'doctor',
-  3: 'lab_technician',
-  4: 'receptionist',
-  5: 'patient',
-  // legacy compatibility
-  6: 'receptionist',
-  9: 'patient',
-};
+// WHY: role IDs and labels come from src/constants/roles.js (1 Admin, 2 Manager, 3 Lab, 4 Doctor,
+// 5 Receptionist, 6 Patient). The old table here said 2 = doctor, 3 = lab, 4 = receptionist, 5 = patient,
+// so accounts were shown (and created) with the wrong role. Keys match the backend's lower-case role names.
+export const ROLE_MAPPING = Object.freeze({
+  [ROLES.ADMIN]: 'admin',
+  [ROLES.MANAGER]: 'manager',
+  [ROLES.LAB]: 'lab',
+  [ROLES.DOCTOR]: 'doctor',
+  [ROLES.RECEPTIONIST]: 'receptionist',
+  [ROLES.PATIENT]: 'patient',
+});
 
-export const ROLE_NAMES = {
-  admin: 'Quản trị viên (Admin)',
-  doctor: 'Bác sĩ khám bệnh (Doctor)',
-  lab_technician: 'Kỹ thuật viên xét nghiệm (Lab Technician)',
-  receptionist: 'Nhân viên tiếp đón (Receptionist)',
-  patient: 'Bệnh nhân (Patient)',
-};
+/** Display label per role key (Vietnamese labels from ROLE_LABELS). */
+export const ROLE_NAMES = Object.freeze(
+  Object.fromEntries(Object.entries(ROLE_MAPPING).map(([id, key]) => [key, ROLE_LABELS[id]]))
+);
 
 export const normalizeUser = (item = {}) => {
   if (!item) return null;
 
-  let finalRole = '';
-  const roleId = Number(item.roleId || item.RoleId);
-
-  if (roleId && ROLE_MAPPING[roleId]) {
-    finalRole = ROLE_MAPPING[roleId];
-  } else if (item.role && typeof item.role === 'string') {
-    finalRole = item.role.toLowerCase();
-  } else {
-    finalRole = 'patient';
-  }
+  // Unknown or missing role stays unknown (null) instead of silently becoming a patient.
+  const roleId = resolveRoleId(item);
+  const finalRole = roleId ? ROLE_MAPPING[roleId] : 'unknown';
 
   const isActive = item.isActive !== undefined
     ? Boolean(item.isActive)
@@ -53,7 +44,7 @@ export const normalizeUser = (item = {}) => {
     email: item.email || '',
     phone: item.phoneNumber || item.phone || '',
     role: finalRole,
-    roleId: roleId || (finalRole === 'admin' ? 1 : finalRole === 'doctor' ? 2 : finalRole === 'lab_user' ? 3 : finalRole === 'manager' ? 4 : 9),
+    roleId,
     isActive,
     status: isActive ? 'active' : 'inactive',
     createdAt: item.createdAt || null,
@@ -126,7 +117,8 @@ export const userManagementService = {
       email: userData.email,
       phoneNumber: userData.phone || userData.phoneNumber,
       fullName: userData.fullName,
-      roleId: Number(userData.roleId) || 9,
+      // No default: the backend rejects a missing/out-of-range RoleId with 400 (must be 1–6).
+      roleId: Number(userData.roleId),
       isActive: Boolean(userData.isActive),
     };
 

@@ -57,7 +57,8 @@ const MENU_SECTIONS = [
       { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: [MANAGER, ADMIN] },
       { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: [MANAGER, ADMIN], badge: { text: 'UC61', bg: 'primary' } },
       { id: 'criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [MANAGER, LAB, DOCTOR] },
-      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } }
+      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } },
+      { id: 'biochemical-results', path: '/laboratory/biochemical-results', label: 'Tra Cứu Sinh Hóa', icon: FaFlask, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC75', bg: 'primary' } }
     ]
   },
   {

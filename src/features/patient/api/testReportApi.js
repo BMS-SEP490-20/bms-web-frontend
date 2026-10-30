@@ -12,13 +12,8 @@ import api from "../../../config/api";
  * @returns {Promise<Object|null>} Report payload.
  */
 export const fetchReportByOrder = async (orderId) => {
-    try {
-        const response = await api.get(`/reports/order/${orderId}`);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to fetch report for order ${orderId} from backend API:`, error);
-        return null;
-    }
+    const response = await api.get(`/reports/order/${encodeURIComponent(orderId)}`);
+    return response.data?.data || null;
 };
 
 /**
@@ -28,13 +23,8 @@ export const fetchReportByOrder = async (orderId) => {
  * @returns {Promise<Object>} Created report.
  */
 export const generateReport = async (orderId, data = {}) => {
-    try {
-        const response = await api.post(`/reports/order/${orderId}/generate`, data);
-        return response.data;
-    } catch (error) {
-        console.error(`Failed to generate report for order ${orderId}:`, error);
-        throw error;
-    }
+    const response = await api.post(`/reports/order/${encodeURIComponent(orderId)}/generate`, data);
+    return response.data;
 };
 
 /**
@@ -43,11 +33,6 @@ export const generateReport = async (orderId, data = {}) => {
  * @returns {Promise<Object>} PDF export metadata.
  */
 export const fetchReportPdf = async (orderId) => {
-    try {
-        const response = await api.get(`/reports/order/${orderId}/pdf`);
-        return response.data?.data;
-    } catch (error) {
-        console.error(`Failed to fetch report PDF for order ${orderId}:`, error);
-        throw error;
-    }
+    const response = await api.get(`/reports/order/${encodeURIComponent(orderId)}/pdf`);
+    return response.data?.data;
 };

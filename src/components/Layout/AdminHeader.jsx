@@ -56,11 +56,11 @@ const AdminHeader = ({ onToggleSidebar }) => {
     if (userRoleId) {
       const colors = {
         1: 'danger',    // Admin
-        2: 'warning',   // Manager
-        3: 'success',   // Doctor
-        4: 'info',      // Lab User
+        2: 'success',   // Doctor
+        3: 'info',      // Lab User
+        4: 'primary',   // Receptionist
         5: 'secondary', // Patient
-        6: 'primary'    // Receptionist
+        6: 'warning'    // Manager
       };
       return colors[userRoleId] || 'secondary';
     }

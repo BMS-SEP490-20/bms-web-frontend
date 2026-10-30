@@ -9,7 +9,7 @@
  * @since 2024
  */
 
-import api from './api';
+import api from '../config/api';
 import { sampleService } from './sampleService';
 import { doctorService } from './doctorService';
 import { emailService } from './emailService';

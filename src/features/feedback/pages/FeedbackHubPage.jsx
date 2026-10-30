@@ -22,8 +22,8 @@ import {
   FaEdit, FaTrashAlt, FaSearch, FaSyncAlt, 
   FaUserCheck, FaUserSecret, FaUserMd, FaPlus, FaArrowLeft
 } from 'react-icons/fa';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { patientFeedbackService } from '../../services/patientFeedbackService';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { patientFeedbackService } from '../../../services/patientFeedbackService';
 
 const FeedbackHubPage = () => {
   const navigate = useNavigate();

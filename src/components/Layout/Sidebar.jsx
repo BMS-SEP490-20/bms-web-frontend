@@ -13,87 +13,85 @@ import {
   FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes
 } from 'react-icons/fa';
 
-// Chuẩn hóa Role (Hỗ trợ cả Role ID số và Role Name chuỗi)
-const ROLE_MAP = { 1: 'ADMIN', 2: 'MANAGER', 3: 'DOCTOR', 4: 'LABTECH', 5: 'PATIENT', 6: 'RECEPTIONIST' };
-const normalizeRole = (r) => {
-  if (!r) return 'PATIENT';
-  if (ROLE_MAP[r]) return ROLE_MAP[r];
-  const s = r.toString().toUpperCase();
-  for (const k of ['ADMIN', 'MANAGER', 'WAREHOUSE', 'DOCTOR', 'HEAD', 'TECH', 'RECEPT', 'NURSE', 'CASHIER']) {
-    if (s.includes(k)) return k === 'TECH' ? 'LABTECH' : k === 'HEAD' ? 'LABHEAD' : k === 'RECEPT' ? 'RECEPTIONIST' : k === 'WAREHOUSE' ? 'WAREHOUSESTAFF' : k;
-  }
-  return 'PATIENT';
-};
+import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
 
-const ALL_STAFF = ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'NURSE', 'WAREHOUSESTAFF', 'RECEPTIONIST', 'CASHIER'];
+// WHY: roles come from src/constants/roles.js (6 roles, decision 30/10). Each list mirrors the route guard in
+// App.jsx and the row in ROLE-PERMISSION-MATRIX §1, so a menu item never leads to a 403/404 for its role.
+const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
 
 // Cấu trúc danh mục menu định nghĩa sẵn
 const MENU_SECTIONS = [
   {
     category: 'TỔNG QUAN',
     items: [
-      { id: 'dashboard', path: '/dashboard', label: 'Bảng Điều Khiển', icon: FaTachometerAlt, roles: [...ALL_STAFF, 'PATIENT'] },
-      { id: 'notifications', path: '/laboratory/notifications', label: 'Thông Báo', icon: FaBell, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'], badge: { text: 'UC60', bg: 'primary' } }
+      { id: 'dashboard', path: '/dashboard', label: 'Bảng Điều Khiển', icon: FaTachometerAlt, roles: ALL_ROLES },
+      { id: 'notifications', path: '/laboratory/notifications', label: 'Thông Báo', icon: FaBell, roles: [LAB, MANAGER], badge: { text: 'UC60', bg: 'primary' } }
     ]
   },
   {
     category: 'TIẾP ĐÓN & BỆNH NHÂN',
     items: [
-      { id: 'check-in', path: '/receptionist/check-in', label: 'Check-in QR Code', icon: FaQrcode, roles: ['ADMIN', 'RECEPTIONIST'], badge: { text: 'QR', bg: 'success' } },
-      { id: 'create-pt', path: '/receptionist/create-patient', label: 'Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: ['ADMIN', 'RECEPTIONIST', 'NURSE'] },
-      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: ['ADMIN', 'MANAGER', 'DOCTOR', 'LABHEAD', 'LABTECH', 'RECEPTIONIST', 'CASHIER'] },
-      { id: 'appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST'] }
+      { id: 'check-in', path: '/receptionist/check-in', label: 'Check-in QR Code', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
+      { id: 'create-pt', path: '/receptionist/create-patient', label: 'Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: [RECEPTIONIST] },
+      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] },
+      { id: 'appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: [RECEPTIONIST, MANAGER, DOCTOR, PATIENT] }
     ]
   },
   {
     category: 'CHẨN ĐOÁN & KHÁM',
     items: [
-      { id: 'assessments', path: '/medical-assessments', label: 'Đánh Giá ICD-10', icon: FaStethoscope, roles: ['ADMIN', 'MANAGER', 'DOCTOR'], badge: { text: 'UC50', bg: 'primary' } },
-      { id: 'med-notes', path: '/doctor/medical-notes', label: 'Ghi Chú Y Khoa', icon: FaNotesMedical, roles: ['DOCTOR'], badge: { text: 'UC51', bg: 'primary' } },
-      { id: 'doc-approval', path: '/doctor/dashboard?filter=pending_approval', label: 'Duyệt Kết Quả Lab', icon: FaCheckCircle, roles: ['DOCTOR', 'LABHEAD', 'MANAGER'], badge: { text: 'Duyệt', bg: 'warning' } },
-      { id: 'feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý', icon: FaStar, roles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST'] }
+      { id: 'assessments', path: '/medical-assessments', label: 'Đánh Giá ICD-10', icon: FaStethoscope, roles: [DOCTOR, MANAGER], badge: { text: 'UC50', bg: 'primary' } },
+      { id: 'med-notes', path: '/doctor/medical-notes', label: 'Ghi Chú Y Khoa', icon: FaNotesMedical, roles: [DOCTOR], badge: { text: 'UC51', bg: 'primary' } },
+      // WHY: only the Manager signs results (decision 30/10 #1, UC49). The old link /doctor/dashboard?... had no route (404);
+      // the verification queue is the routed step of the approval chain until a signing screen is wired (Đợt 3).
+      { id: 'doc-approval', path: '/laboratory/verify-results', label: 'Duyệt Kết Quả Lab', icon: FaCheckCircle, roles: [MANAGER], badge: { text: 'Duyệt', bg: 'warning' } },
+      { id: 'feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý', icon: FaStar, roles: [MANAGER, PATIENT] }
     ]
   },
   {
     category: 'NGHIỆP VỤ XÉT NGHIỆM',
     items: [
-      { id: 'validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu', icon: FaVial, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH'], badge: { text: 'QC', bg: 'warning' } },
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Lab', icon: FaVial, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'], badge: { text: 'ISO 15189', bg: 'danger' } },
-      { id: 'qc-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn QC', icon: FaFlask, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH'], badge: { text: 'Flags', bg: 'danger' } },
-      { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH'] },
-      { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: ['ADMIN', 'MANAGER', 'LABHEAD'], badge: { text: 'UC61', bg: 'primary' } },
-      { id: 'criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'] },
-      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR'], badge: { text: 'UC57', bg: 'success' } }
+      { id: 'validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'QC', bg: 'warning' } },
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'ISO 15189', bg: 'danger' } },
+      { id: 'qc-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn QC', icon: FaFlask, roles: [LAB, MANAGER], badge: { text: 'Flags', bg: 'danger' } },
+      { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: [MANAGER, ADMIN] },
+      { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: [MANAGER, ADMIN], badge: { text: 'UC61', bg: 'primary' } },
+      { id: 'criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [MANAGER, LAB, DOCTOR] },
+      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } }
     ]
   },
   {
     category: 'LỊCH SỬ & THEO DÕI',
     items: [
-      { id: 'timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu', icon: FaHistory, roles: [...ALL_STAFF, 'PATIENT'], badge: { text: 'UC71', bg: 'info' } },
-      { id: 'specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu', icon: FaHistory, roles: ['ADMIN', 'MANAGER', 'LABHEAD', 'LABTECH', 'DOCTOR', 'RECEPTIONIST'], badge: { text: 'UC70', bg: 'info' } },
-      { id: 'my-tests', path: '/patient/test-history', label: 'Lịch Sử Của Tôi', icon: FaHistory, roles: ['PATIENT'], badge: { text: 'UC76', bg: 'info' } }
+      // WHY: UC71 timeline is lab-chain data. Matrix row UC71 + Quy trình ruling 30/10: Lab, Manager, Doctor only.
+      { id: 'timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu', icon: FaHistory, roles: [LAB, MANAGER, DOCTOR], badge: { text: 'UC71', bg: 'info' } },
+      { id: 'specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu', icon: FaHistory, roles: [LAB, MANAGER, DOCTOR], badge: { text: 'UC70', bg: 'info' } },
+      // WHY: restores LacPG's UC76 item (c8850ca) lost in the 18cd447 rewrite. Decision 10: Admin and Receptionist must not see clinical history; Patient sees own data only (server-scoped).
+      { id: 'test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [MANAGER, LAB, DOCTOR, PATIENT], badge: { text: 'UC76', bg: 'info' } }
     ]
   },
   {
     category: 'KHO & VẬN HÀNH',
     items: [
-      { id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: ['ADMIN', 'MANAGER', 'WAREHOUSESTAFF', 'LABHEAD', 'LABTECH'], badge: { text: 'UC56', bg: 'primary' } },
-      { id: 'shifts', path: '/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'LABHEAD', 'LABTECH'] },
-      { id: 'packages', path: '/admin/packages', label: 'Gói Dịch Vụ', icon: FaBoxOpen, roles: ['ADMIN', 'MANAGER', 'DOCTOR', 'RECEPTIONIST', 'CASHIER'] },
-      { id: 'invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: ['ADMIN', 'MANAGER', 'CASHIER', 'RECEPTIONIST'] },
-      { id: 'reports', path: '/admin/reports', label: 'Báo Cáo Thống Kê', icon: FaChartBar, roles: ['ADMIN', 'MANAGER'] }
+      { id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [ADMIN, MANAGER, LAB], badge: { text: 'UC56', bg: 'primary' } },
+      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST] },
+      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [MANAGER] },
+      { id: 'packages', path: '/admin/packages', label: 'Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN, MANAGER] },
+      { id: 'invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: [RECEPTIONIST, MANAGER] },
+      // WHY: /admin/reports had no route (404); the reports that exist are TAT (UC63) and revenue (UC78), Admin + Manager.
+      { id: 'reports', path: '/reports/tat', label: 'Báo Cáo Thống Kê', icon: FaChartBar, roles: [ADMIN, MANAGER] }
     ]
   },
   {
     category: 'HỆ THỐNG',
     items: [
-      { id: 'users', path: '/admin/user-management', label: 'Quản Lý Người Dùng', icon: FaUserCog, roles: ['ADMIN'] },
-      { id: 'employees', path: '/admin/employees', label: 'Quản Lý Nhân Sự', icon: FaUserNurse, roles: ['ADMIN', 'MANAGER'] },
-      { id: 'roles', path: '/roles', label: 'Phân Quyền Vai Trò', icon: FaShieldAlt, roles: ['ADMIN'] },
-      { id: 'audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit', icon: FaShieldAlt, roles: ['ADMIN', 'MANAGER'] },
-      { id: 'backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục', icon: FaDatabase, roles: ['ADMIN', 'MANAGER', 'LABHEAD'], badge: { text: 'UC80', bg: 'primary' } },
-      { id: 'profile', path: '/profile', label: 'Hồ Sơ Cá Nhân', icon: FaUserMd, roles: [...ALL_STAFF, 'PATIENT'] },
-      { id: 'pwd', path: '/change-password', label: 'Đổi Mật Khẩu', icon: FaKey, roles: [...ALL_STAFF, 'PATIENT'] }
+      { id: 'users', path: '/admin/user-management', label: 'Quản Lý Người Dùng', icon: FaUserCog, roles: [ADMIN] },
+      { id: 'employees', path: '/admin/employees', label: 'Quản Lý Nhân Sự', icon: FaUserNurse, roles: [ADMIN] },
+      { id: 'roles', path: '/roles', label: 'Phân Quyền Vai Trò', icon: FaShieldAlt, roles: [ADMIN] },
+      { id: 'audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit', icon: FaShieldAlt, roles: [ADMIN] },
+      { id: 'backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục', icon: FaDatabase, roles: [ADMIN], badge: { text: 'UC80', bg: 'primary' } },
+      { id: 'profile', path: '/profile', label: 'Hồ Sơ Cá Nhân', icon: FaUserMd, roles: ALL_ROLES },
+      { id: 'pwd', path: '/change-password', label: 'Đổi Mật Khẩu', icon: FaKey, roles: ALL_ROLES }
     ]
   }
 ];
@@ -120,17 +118,17 @@ export default function Sidebar({
     } catch { return null; }
   }, [auth?.user]);
 
-  const currentRole = useMemo(() => {
-    return normalizeRole(auth?.userRoleId || auth?.userRole || user?.roleId || user?.role || user?.roleName);
-  }, [auth, user]);
+  // Unknown role => null => no role-specific menu (never silently treated as Patient).
+  const roleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(auth?.userRoleId ?? auth?.userRole), [auth, user]);
+  const currentRole = roleId ? ROLE_LABELS[roleId] : 'Không rõ vai trò';
 
   // Lọc Menu theo Role
   const filteredSections = useMemo(() => {
     return MENU_SECTIONS.map(sec => ({
       ...sec,
-      items: sec.items.filter(item => item.roles.includes(currentRole))
+      items: sec.items.filter(item => roleId !== null && item.roles.includes(roleId))
     })).filter(sec => sec.items.length > 0);
-  }, [currentRole]);
+  }, [roleId]);
 
   const isActive = (path) => {
     const base = path.split('?')[0];
@@ -223,7 +221,7 @@ export default function Sidebar({
         {!isCollapsed && (
           <div className="ms-2.5 overflow-hidden flex-grow-1 lh-sm">
             <div className="text-white small fw-semibold text-truncate">{user?.fullName || user?.name || 'Nhân viên'}</div>
-            <div className="text-muted text-truncate" style={{ fontSize: '0.7rem' }}>{user?.email || `${currentRole.toLowerCase()}@bms.med`}</div>
+            <div className="text-muted text-truncate" style={{ fontSize: '0.7rem' }}>{user?.email || currentRole}</div>
           </div>
         )}
       </div>

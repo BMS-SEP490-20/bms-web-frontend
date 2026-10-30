@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import { Dropdown, Badge, Button } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ROLES, ROLE_LABELS, resolveRoleId } from '../../constants/roles';
 import {
   FaBars,
   FaBell,
@@ -45,25 +46,20 @@ const ROUTE_TITLE_MAP = {
   '/change-password': 'Thay Đổi Mật Khẩu Bảo Mật'
 };
 
+const ROLE_BADGE_CLASS = Object.freeze({
+  [ROLES.ADMIN]: 'badge-admin', [ROLES.MANAGER]: 'badge-manager', [ROLES.LAB]: 'badge-labtech',
+  [ROLES.DOCTOR]: 'badge-doctor', [ROLES.RECEPTIONIST]: 'badge-receptionist', [ROLES.PATIENT]: 'badge-patient',
+});
+
 /**
- * Returns role badge visual configuration.
+ * Returns role badge visual configuration from the shared 6-role table.
  *
- * @param {string} role Raw role string
- * @returns {{ label: string, colorClass: string }} Badge config
+ * @param {object|string|number} role User object or raw role value
+ * @returns {{ label: string, colorClass: string }} Badge config ("Không rõ vai trò" when unknown)
  */
 function getRoleBadgeConfig(role) {
-  const r = (role || '').toUpperCase();
-  if (r.includes('ADMIN')) return { label: 'Quản Trị Viên', colorClass: 'badge-admin' };
-  if (r.includes('MANAGER')) return { label: 'Quản Lý Lab', colorClass: 'badge-manager' };
-  if (r.includes('WAREHOUSE')) return { label: 'Nhân Viên Kho', colorClass: 'badge-manager' };
-  if (r.includes('DOCTOR') || r.includes('BACSI')) return { label: 'Bác Sĩ Lâm Sàng', colorClass: 'badge-doctor' };
-  if (r.includes('HEAD')) return { label: 'Trưởng Phòng Xét Nghiệm', colorClass: 'badge-labhead' };
-  if (r.includes('TECH') || r.includes('LAB')) return { label: 'Kỹ Thuật Viên Lab', colorClass: 'badge-labtech' };
-  if (r.includes('RECEPT')) return { label: 'Lễ Tân Tiếp Đón', colorClass: 'badge-receptionist' };
-  if (r === 'NURSE' || r === 'PHLEBOTOMIST') return { label: 'Điều Dưỡng / Lấy Mẫu', colorClass: 'badge-labtech' };
-  if (r === 'WAREHOUSESTAFF') return { label: 'Nhân Viên Kho', colorClass: 'badge-manager' };
-  if (r.includes('CASHIER')) return { label: 'Thu Ngân POS', colorClass: 'badge-cashier' };
-  return { label: 'Bệnh Nhân / Khách', colorClass: 'badge-patient' };
+  const id = resolveRoleId(role);
+  return id ? { label: ROLE_LABELS[id], colorClass: ROLE_BADGE_CLASS[id] } : { label: 'Không rõ vai trò', colorClass: 'badge-patient' };
 }
 
 /**
@@ -88,7 +84,7 @@ export default function AppHeader({ onToggleSidebar }) {
   }, []);
 
   const roleConfig = useMemo(() => {
-    return getRoleBadgeConfig(user?.role || user?.roleName);
+    return getRoleBadgeConfig(user);
   }, [user]);
 
   const currentTitle = useMemo(() => {

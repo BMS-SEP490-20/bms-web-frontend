@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { useNotificationContext } from '../../shared/contexts/NotificationContext';
-import { patientService } from '../../services/patientService';
-import { testOrderService } from '../../services/testOrderService';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
+import { patientService } from '../../../services/patientService';
+import { testOrderService } from '../../../services/testOrderService';
 import { doctorService } from '../../services/doctorService';
-import { labTestService } from '../../services/labTestService';
+import { labTestService } from '../../../services/labTestService';
 import { formatLabTestCode } from '../../shared/utils/format/formatHelper';
 import { APPOINTMENT_STATUS } from '../../shared/constants/status';
 import useResponsive from '../../shared/hooks/useResponsive';

@@ -16,7 +16,7 @@ import { testOrderService } from '../../../../services/testOrderService';
 import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
 import { useAuth } from '../../../../shared/contexts/AuthContext';
 import QuickCheckInScan from '../QuickCheckInScan/QuickCheckInScan';
-import api from '../../../../services/api';
+import api from '../../../../config/api';
 import useResponsive from '../../../../shared/hooks/useResponsive';
 import { useAutoRefresh, dispatchRefreshEvent, setRefreshFlag } from '../../../../shared/hooks/useAutoRefresh';
 

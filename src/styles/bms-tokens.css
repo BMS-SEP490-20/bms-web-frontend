@@ -1,0 +1,42 @@
+/**
+ * BMS design tokens (UI-DESIGN.md §2.1). Contrast values checked against WCAG 2.2 AA there.
+ * WHY: the app has no Sass pipeline yet, so tokens are CSS custom properties that every new screen reuses
+ * instead of hard-coding colours. #16a34a is only for icons/lines (3.30:1); text/buttons use --bms-success.
+ */
+:root {
+  --bms-primary: #1e40af;
+  --bms-primary-dark: #1e3a8a;
+  --bms-primary-subtle: #eff6ff;
+  --bms-danger: #dc2626;
+  --bms-danger-text: #991b1b;
+  --bms-danger-subtle: #fef2f2;
+  --bms-normal-icon: #16a34a;
+  --bms-success: #15803d;
+  --bms-success-text: #166534;
+  --bms-success-subtle: #f0fdf4;
+  --bms-warning: #ffc107;
+  --bms-warning-text: #b45309;
+  --bms-warning-strong: #92400e;
+  --bms-warning-subtle: #fffbeb;
+  --bms-info: #0e7490;
+  --bms-body: #0f172a;
+  --bms-secondary: #475569;
+  --bms-muted: #64748b;
+  --bms-input-border: #7c8799;
+  --bms-border: #cbd5e1;
+  --bms-bg: #f8fafc;
+  --bms-focus: 0 0 0 .2rem #93c5fd, 0 0 0 .35rem #1e40af;
+}
+
+.bms-num { font-variant-numeric: tabular-nums; }
+.bms-focusable:focus-visible, .bms-scope :is(button, a, input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: var(--bms-focus);
+}
+.bms-scope .form-control, .bms-scope .form-select { border-color: var(--bms-input-border); }
+.bms-scope .btn-success { background-color: var(--bms-success); border-color: var(--bms-success); color: #fff; }
+.bms-scope .text-success { color: var(--bms-success) !important; }
+.bms-scope .text-muted { color: var(--bms-muted) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .bms-scope * { animation: none !important; transition: none !important; }
+}

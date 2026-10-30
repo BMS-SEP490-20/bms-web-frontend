@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Badge, Alert, Spinner, Form } from 'react-bootstrap';
-import { useNotificationContext } from '../../shared/contexts/NotificationContext';
-import { sampleService } from '../../services/sampleService';
+import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
+import { sampleService } from '../../../services/sampleService';
 
 /**
  * Specimen Quality Assessment & Validation Screen.

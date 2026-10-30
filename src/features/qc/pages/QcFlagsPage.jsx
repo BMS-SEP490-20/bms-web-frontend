@@ -20,8 +20,8 @@ import {
   FaPlus, FaTrashAlt, FaSyncAlt, FaSearch, 
   FaVial, FaTools, FaCheck
 } from 'react-icons/fa';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { qcFlagService } from '../../services/qcFlagService';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { qcFlagService } from '../../../services/qcFlagService';
 
 const QcFlagsPage = () => {
   const { user } = useAuth();

@@ -230,7 +230,6 @@ export default function ServiceCatalogPage() {
       setTotalItems(res?.totalItems ?? res?.totalCount ?? normalized.length);
       setTotalPages(res?.totalPages || Math.ceil((res?.totalItems || normalized.length) / pageSize) || 1);
     } catch (err) {
-      console.error('[ServiceCatalogPage] Failed to search test packages:', err);
       setLoadError(err.response?.data?.message || err.response?.data?.title || err.message || 'Không thể tìm kiếm danh mục gói xét nghiệm từ máy chủ.');
       setPackages([]);
       setTotalItems(0);

@@ -10,7 +10,7 @@ import {
   FaTachometerAlt, FaVial, FaUserNurse, FaUserMd, FaStethoscope, FaUsersCog,
   FaShieldAlt, FaBoxOpen, FaNotesMedical, FaKey, FaChevronLeft, FaChevronRight,
   FaHeartbeat, FaDatabase, FaBell, FaHistory, FaQrcode, FaUserPlus, FaCheckCircle,
-  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes
+  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaSearch
 } from 'react-icons/fa';
 
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
@@ -25,6 +25,7 @@ const MENU_SECTIONS = [
     category: 'TỔNG QUAN',
     items: [
       { id: 'dashboard', path: '/dashboard', label: 'Bảng Điều Khiển', icon: FaTachometerAlt, roles: ALL_ROLES },
+      { id: 'search-packages', path: '/services', label: 'Tra Cứu Gói XN', icon: FaSearch, roles: ALL_ROLES, badge: { text: 'UC20', bg: 'info' } },
       { id: 'notifications', path: '/laboratory/notifications', label: 'Thông Báo', icon: FaBell, roles: [LAB, MANAGER], badge: { text: 'UC60', bg: 'primary' } }
     ]
   },

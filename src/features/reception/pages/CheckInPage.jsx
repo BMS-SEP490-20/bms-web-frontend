@@ -1161,70 +1161,75 @@ export default function CheckInPage() {
                         <th className="text-end pe-3">Tổng Tiền</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {!selectedPatient.recentAppointments || selectedPatient.recentAppointments.length === 0 ? (
-                        <tr>
-                          <td colSpan="7" className="text-center py-4 text-muted">
-                            Chưa có lịch sử đặt lịch xét nghiệm cho bệnh nhân này.
-                          </td>
-                        </tr>
-                      ) : (
-                        selectedPatient.recentAppointments.map((apt) => (
-                          <tr key={apt.appointmentId}>
-                            <td className="ps-3 font-monospace fw-bold text-primary">{apt.appointmentId}</td>
-                            <td>{formatDate(apt.appointmentDate)}</td>
-                            <td>{apt.timeSlot || '—'}</td>
-                            <td className="fw-medium">{apt.servicePackageName || 'Xét nghiệm lâm sàng'}</td>
-                            <td><Badge bg="info" text="dark">{apt.status}</Badge></td>
-                            <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{apt.paymentStatus || 'Unpaid'}</Badge></td>
-                            <td className="text-end pe-3 font-monospace">
-                              {apt.totalAmount != null ? `${Number(apt.totalAmount).toLocaleString('vi-VN')} ₫` : '—'}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
-              )}
-
-              {/* Tab 3: Recent Medical Records */}
-              {activeDetailTab === 'records' && (
-                <div className="table-responsive border rounded-3">
-                  <Table hover size="sm" className="align-middle mb-0">
-                    <thead className="table-light">
+                  <tbody>
+                    {!selectedPatient.recentAppointments || selectedPatient.recentAppointments.length === 0 ? (
                       <tr>
-                        <th className="ps-3">Mã Bệnh Án</th>
-                        <th>Ngày Khám</th>
-                        <th>Bác Sĩ Phụ Trách</th>
-                        <th>Chẩn Đoán Lâm Sàng</th>
-                        <th>Ghi Chú & Khuyến Nghị</th>
+                        <td colSpan="7" className="text-center py-4 text-muted">
+                          Chưa có lịch sử đặt lịch xét nghiệm cho bệnh nhân này.
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {!selectedPatient.recentMedicalRecords || selectedPatient.recentMedicalRecords.length === 0 ? (
-                        <tr>
-                          <td colSpan="5" className="text-center py-4 text-muted">
-                            Chưa có hồ sơ bệnh án hoặc nhận định bác sĩ nào được lưu.
+                    ) : (
+                      selectedPatient.recentAppointments.map((apt, idx) => (
+                        <tr key={apt.appointmentId || apt.id || idx}>
+                          <td className="ps-3 font-monospace fw-bold text-primary">{apt.appointmentId || apt.id}</td>
+                          <td>{formatDate(apt.appointmentDate)}</td>
+                          <td>{apt.timeSlot || apt.type || '—'}</td>
+                          <td className="fw-medium">
+                            {apt.servicePackageName ||
+                              (Array.isArray(apt.testPackages) && apt.testPackages.length > 0
+                                ? apt.testPackages.join(', ')
+                                : 'Xét nghiệm lâm sàng')}
+                          </td>
+                          <td><Badge bg="info" text="dark">{apt.status}</Badge></td>
+                          <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{apt.paymentStatus || 'Unpaid'}</Badge></td>
+                          <td className="text-end pe-3 font-monospace">
+                            {apt.totalAmount != null ? `${Number(apt.totalAmount).toLocaleString('vi-VN')} ₫` : '—'}
                           </td>
                         </tr>
-                      ) : (
-                        selectedPatient.recentMedicalRecords.map((rec) => (
-                          <tr key={rec.recordId}>
-                            <td className="ps-3 font-monospace fw-bold">{rec.recordId}</td>
-                            <td>{formatDateTime(rec.visitDate)}</td>
-                            <td>{rec.doctorName || 'Bác sĩ chuyên khoa'}</td>
-                            <td className="fw-semibold text-dark">{rec.diagnosis || '—'}</td>
-                            <td className="small text-secondary">
-                              <div>{rec.clinicalNotes}</div>
-                              {rec.recommendations && (
-                                <div className="text-primary mt-1"><strong>Khuyến nghị:</strong> {rec.recommendations}</div>
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
+                      ))
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+
+            {/* Tab 3: Recent Medical Records */}
+            {activeDetailTab === 'records' && (
+              <div className="table-responsive border rounded-3">
+                <Table hover size="sm" className="align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th className="ps-3">Mã Bệnh Án</th>
+                      <th>Ngày Khám</th>
+                      <th>Bác Sĩ Phụ Trách</th>
+                      <th>Chẩn Đoán Lâm Sàng</th>
+                      <th>Ghi Chú & Khuyến Nghị</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!selectedPatient.recentMedicalRecords || selectedPatient.recentMedicalRecords.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="text-center py-4 text-muted">
+                          Chưa có hồ sơ bệnh án hoặc nhận định bác sĩ nào được lưu.
+                        </td>
+                      </tr>
+                    ) : (
+                      selectedPatient.recentMedicalRecords.map((rec, idx) => (
+                        <tr key={rec.recordId || rec.id || idx}>
+                          <td className="ps-3 font-monospace fw-bold">{rec.recordId || rec.id}</td>
+                          <td>{formatDateTime(rec.visitDate || rec.createdAt)}</td>
+                          <td>{rec.doctorName || rec.doctorId || 'Bác sĩ chuyên khoa'}</td>
+                          <td className="fw-semibold text-dark">{rec.diagnosis || rec.symptoms || '—'}</td>
+                          <td className="small text-secondary">
+                            <div>{rec.clinicalNotes || rec.doctorNotes || '—'}</div>
+                            {rec.recommendations && (
+                              <div className="text-primary mt-1"><strong>Khuyến nghị:</strong> {rec.recommendations}</div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
                   </Table>
                 </div>
               )}

@@ -233,7 +233,6 @@ export default function PackageFormModal({
             }
             onSaved();
         } catch (err) {
-            console.error("Lỗi lưu gói xét nghiệm:", err);
             setError(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||

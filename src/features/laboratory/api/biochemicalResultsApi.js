@@ -12,13 +12,8 @@ import api from '../../../config/api';
  * @returns {Promise<Object>}
  */
 export const lookupTestResults = async (params = {}) => {
-  try {
-    const res = await api.get('/test-results', { params });
-    return res.data;
-  } catch (error) {
-    console.error('Error looking up biochemical results:', error);
-    throw error;
-  }
+  const res = await api.get('/test-results', { params });
+  return res.data;
 };
 
 /**
@@ -27,11 +22,6 @@ export const lookupTestResults = async (params = {}) => {
  * @returns {Promise<Object>}
  */
 export const getTestResultById = async (id) => {
-  try {
-    const res = await api.get(`/test-results/${encodeURIComponent(id)}`);
-    return res.data;
-  } catch (error) {
-    console.error(`Error fetching test result ${id}:`, error);
-    throw error;
-  }
+  const res = await api.get(`/test-results/${encodeURIComponent(id)}`);
+  return res.data;
 };

@@ -61,6 +61,7 @@ import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResults
 import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
 import TraceSampleOriginPage from "./features/laboratory/pages/TraceSampleOriginPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
+import LookupBiochemicalResultsPage from "./features/laboratory/pages/LookupBiochemicalResultsPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
@@ -591,6 +592,8 @@ export default function App() {
                   <Route path="/laboratory/specimens/:specimenId/notes" element={<AddTestNotePage />} />
                   <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
                   <Route path="/laboratory/specimens/history" element={<SpecimenHistoryPage />} />
+                  <Route path="/laboratory/biochemical-results" element={<LookupBiochemicalResultsPage />} />
+                  <Route path="/laboratory/lookup-results" element={<LookupBiochemicalResultsPage />} />
                   <Route path="/laboratory/trace" element={<TraceSampleOriginPage />} />
                   <Route path="/laboratory/trace/:specimenId" element={<TraceSampleOriginPage />} />
                   <Route path="/criteria" element={<TestCriteriaPage />} />

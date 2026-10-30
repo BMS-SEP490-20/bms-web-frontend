@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import { searchPatients } from '../../../services/patientService';
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 
 /**
  * ISO 15189 Permitted Sample Status Transitions (matches LabQueueService.AllowedStatusTransitions in BE).
@@ -104,8 +105,17 @@ const SampleQueuePage = () => {
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [labRoomFilter, setLabRoomFilter] = useState('');
 
-  // Patients list for quick selection in Record Sample Time modal
+  // Patients, Appointments & Lab Rooms from DB for dynamic lookup in Record Sample Time & Update Sample Status
   const [patientOptions, setPatientOptions] = useState([]);
+  const [appointmentOptions, setAppointmentOptions] = useState([]);
+  const [labRooms, setLabRooms] = useState([]);
+
+  const storedUser = React.useMemo(() => getStoredUser(), []);
+  // WHY: UC40 Record Sample Time & UC47 Request Rerun are Lab-only; UC45 Update Sample Status is Lab + Manager (ROLE-PERMISSION-MATRIX §1).
+  const canRecordSampleTime = React.useMemo(() => hasRole(storedUser, ROLES.LAB), [storedUser]);
+  const canUpdateSampleStatus = React.useMemo(() => hasRole(storedUser, [ROLES.LAB, ROLES.MANAGER]), [storedUser]);
+  const defaultOperatorName = storedUser?.fullName || storedUser?.username || 'KTV Xét Nghiệm';
+  const defaultOperatorId = storedUser?.id || storedUser?.username || 'LAB-001';
 
   // =========================================================================
   // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
@@ -192,15 +202,39 @@ const SampleQueuePage = () => {
     fetchQueue();
   }, [fetchQueue]);
 
-  // Load patient options once for the Record Sample Time modal
+  // Load real Lab Rooms from DB (/api/shifts/rooms)
+  useEffect(() => {
+    api.get('/shifts/rooms')
+      .then((res) => {
+        const list = res.data?.data || res.data || [];
+        if (Array.isArray(list) && list.length > 0) {
+          setLabRooms(list);
+        }
+      })
+      .catch(() => {
+        // Non-blocking
+      });
+  }, []);
+
+  // Load patient and appointment options from DB for the Record Sample Time modal
   const loadPatientsForLookup = async () => {
-    if (patientOptions.length > 0) return;
-    try {
-      const res = await searchPatients({ page: 1, pageSize: 30 });
-      const items = res?.items || res?.Items || [];
-      setPatientOptions(items);
-    } catch {
-      // Non-blocking
+    if (patientOptions.length === 0) {
+      try {
+        const res = await searchPatients({ page: 1, pageSize: 50 });
+        const items = res?.items || res?.Items || [];
+        setPatientOptions(items);
+      } catch {
+        // Non-blocking
+      }
+    }
+    if (appointmentOptions.length === 0) {
+      try {
+        const res = await api.get('/appointments', { params: { page: 1, pageSize: 50 } });
+        const items = res.data?.items || res.data?.Items || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+        setAppointmentOptions(items);
+      } catch {
+        // Non-blocking
+      }
     }
   };
 
@@ -223,16 +257,16 @@ const SampleQueuePage = () => {
         barcode: sample.barcode || '',
         rfidTag: sample.rfidTag || '',
         patientId: sample.patientId || '',
-        appointmentId: sample.appointmentId || '',
+        appointmentId: sample.appointmentId || sample.testOrderId || '',
         collectedAt: toLocalDateTimeInput(sample.collectedAt || new Date()),
-        collectorName: sample.collectorName || 'ĐD. Hoàng Mai Lan',
-        collectedBy: sample.collectedBy || 'NURSE-01',
+        collectorName: sample.collectorName || defaultOperatorName,
+        collectedBy: sample.collectedBy || defaultOperatorId,
         sampleType: sample.sampleType || 'Blood',
         tubeColor: sample.tubeColor || 'Purple',
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
         volumeMl: sample.volumeMl || 3.0,
         priority: sample.priority || 'Normal',
-        labRoom: sample.labRoom || 'LAB-ROOM-01',
+        labRoom: sample.labRoom || (labRooms[0]?.id || 'LAB-ROOM-01'),
         notes: sample.notes || ''
       });
     } else {
@@ -244,14 +278,14 @@ const SampleQueuePage = () => {
         patientId: '',
         appointmentId: '',
         collectedAt: toLocalDateTimeInput(new Date()),
-        collectorName: 'ĐD. Hoàng Mai Lan',
-        collectedBy: 'NURSE-01',
+        collectorName: defaultOperatorName,
+        collectedBy: defaultOperatorId,
         sampleType: 'Blood',
         tubeColor: 'Purple',
         anticoagulant: 'K2-EDTA',
         volumeMl: 3.0,
         priority: 'Normal',
-        labRoom: 'LAB-ROOM-01',
+        labRoom: labRooms[0]?.id || 'LAB-ROOM-01',
         notes: ''
       });
     }
@@ -491,14 +525,16 @@ const SampleQueuePage = () => {
           <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="d-flex align-items-center gap-1 px-3 py-2">
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => openRecordCollectionModal(null)}
-            className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
-          >
-            <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
-          </Button>
+          {canRecordSampleTime && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => openRecordCollectionModal(null)}
+              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
+            >
+              <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới (UC40)
+            </Button>
+          )}
         </div>
       </div>
 
@@ -648,9 +684,11 @@ const SampleQueuePage = () => {
               <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
-              <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay
-              </Button>
+              {canRecordSampleTime && (
+                <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
+                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay (UC40)
+                </Button>
+              )}
             </div>
           ) : (
             <div className="table-responsive" style={{ overflowX: 'hidden' }}>
@@ -740,40 +778,46 @@ const SampleQueuePage = () => {
 
                       <td className="text-end pe-3">
                         <div className="d-flex gap-1 justify-content-end align-items-center">
-                          <Button
-                            variant="outline-info"
-                            size="sm"
-                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
-                            onClick={() => openRecordCollectionModal(s)}
-                          >
-                            <FaClock />
-                            <span>Giờ lấy</span>
-                          </Button>
+                          {canRecordSampleTime && (
+                            <Button
+                              variant="outline-info"
+                              size="sm"
+                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
+                              onClick={() => openRecordCollectionModal(s)}
+                            >
+                              <FaClock />
+                              <span>Giờ lấy</span>
+                            </Button>
+                          )}
 
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
-                            onClick={() => openStatusUpdateModal(s)}
-                          >
-                            <FaExchangeAlt />
-                            <span>Trạng thái</span>
-                          </Button>
+                          {canUpdateSampleStatus && (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
+                              onClick={() => openStatusUpdateModal(s)}
+                            >
+                              <FaExchangeAlt />
+                              <span>Trạng thái</span>
+                            </Button>
+                          )}
 
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            className="px-2 py-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Yêu cầu chạy lại mẫu (Rerun)"
-                            onClick={() => openRerunModal(s)}
-                          >
-                            <FaRedoAlt />
-                          </Button>
+                          {canRecordSampleTime && (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              className="px-2 py-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Yêu cầu chạy lại mẫu (Rerun)"
+                              onClick={() => openRerunModal(s)}
+                            >
+                              <FaRedoAlt />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -834,9 +878,42 @@ const SampleQueuePage = () => {
                   <option value="">-- Chọn bệnh nhân để liên kết mẫu bệnh phẩm --</option>
                   {patientOptions.map(p => (
                     <option key={p.id || p.patientCode} value={p.patientCode || p.id}>
-                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phone || '—'}
+                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phoneNumber || p.phone || '—'}
                     </option>
                   ))}
+                </Form.Select>
+              </div>
+            )}
+
+            {!collectionTargetSample && appointmentOptions.length > 0 && (
+              <div className="p-3 rounded-3 bg-light border mb-3">
+                <Form.Label className="small fw-bold text-secondary mb-1">
+                  Chọn nhanh Lịch hẹn / Phiếu chỉ định từ hệ thống (tự động điền Appointment ID & Patient ID)
+                </Form.Label>
+                <Form.Select
+                  size="sm"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const aid = e.target.value;
+                    const apt = appointmentOptions.find(a => (a.id || a.appointmentId) === aid);
+                    if (apt) {
+                      setCollectionForm(prev => ({
+                        ...prev,
+                        appointmentId: apt.id || apt.appointmentId,
+                        patientId: apt.patientId || prev.patientId
+                      }));
+                    }
+                  }}
+                >
+                  <option value="">-- Chọn lịch hẹn / chỉ định xét nghiệm từ CSDL --</option>
+                  {appointmentOptions.map(a => {
+                    const aid = a.id || a.appointmentId;
+                    return (
+                      <option key={aid} value={aid}>
+                        [{aid}] {a.patientName || a.patientId || 'Bệnh nhân'} — {a.status || 'Active'}
+                      </option>
+                    );
+                  })}
                 </Form.Select>
               </div>
             )}
@@ -979,13 +1056,26 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col md={4}>
-                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: LAB-ROOM-01"
-                  value={collectionForm.labRoom}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
-                />
+                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (CSDL)</Form.Label>
+                {labRooms.length > 0 ? (
+                  <Form.Select
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  >
+                    {labRooms.map(r => (
+                      <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                        {r.name ? `${r.id || r.roomNumber} — ${r.name}` : (r.id || r.roomNumber)}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    placeholder="VD: LAB-ROOM-01"
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  />
+                )}
               </Col>
 
               <Col xs={12}>

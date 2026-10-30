@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Spinner } from 'react-bootstrap';
 import { FaHeartbeat, FaShieldAlt, FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import testCriterionService from '../../../services/testCriterionService';
 
 const COMMON_CRITERIA_LIST = [
   { code: 'GLU', name: 'Glucose máu lúc đói', unit: 'mmol/L' },
@@ -61,8 +62,28 @@ export default function ReferenceIntervalModal({
     isActive: true,
   });
 
+  const [criteriaOptions, setCriteriaOptions] = useState(COMMON_CRITERIA_LIST);
   const [validationError, setValidationError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    testCriterionService
+      .getCriteria({ page: 1, pageSize: 100, isActive: true })
+      .then((res) => {
+        const items = res?.items || (Array.isArray(res) ? res : []);
+        if (items.length > 0) {
+          const mapped = items.map((c) => ({
+            code: (c.criterionCode || c.code || '').toUpperCase(),
+            name: c.criterionName || c.name || '',
+            unit: c.unit || ''
+          })).filter((c) => c.code);
+          if (mapped.length > 0) setCriteriaOptions(mapped);
+        }
+      })
+      .catch(() => {
+        // Keep fallback COMMON_CRITERIA_LIST
+      });
+  }, []);
 
   useEffect(() => {
     if (interval && mode === 'edit') {
@@ -87,7 +108,7 @@ export default function ReferenceIntervalModal({
       });
     } else {
       const code = initialCriterionCode || 'HGB';
-      const preset = COMMON_CRITERIA_LIST.find((c) => c.code === code) || COMMON_CRITERIA_LIST[0];
+      const preset = criteriaOptions.find((c) => c.code === code) || criteriaOptions[0] || COMMON_CRITERIA_LIST[0];
       setFormData({
         criterionCode: preset.code,
         criterionName: preset.name,
@@ -120,7 +141,7 @@ export default function ReferenceIntervalModal({
 
       // Auto update criterion name and unit when criterionCode changes
       if (name === 'criterionCode') {
-        const found = COMMON_CRITERIA_LIST.find((c) => c.code === value);
+        const found = criteriaOptions.find((c) => c.code === value);
         if (found) {
           updated.criterionName = found.name;
           updated.unit = found.unit;
@@ -238,7 +259,7 @@ export default function ReferenceIntervalModal({
                       onChange={handleChange}
                       required
                     >
-                      {COMMON_CRITERIA_LIST.map((c) => (
+                      {criteriaOptions.map((c) => (
                         <option key={c.code} value={c.code}>
                           {c.code} ({c.unit})
                         </option>

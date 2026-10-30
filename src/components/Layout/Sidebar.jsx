@@ -52,7 +52,7 @@ const MENU_SECTIONS = [
     category: 'NGHIỆP VỤ XÉT NGHIỆM',
     items: [
       { id: 'validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'QC', bg: 'warning' } },
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'ISO 15189', bg: 'danger' } },
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'UC40/45', bg: 'danger' } },
       { id: 'qc-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn QC', icon: FaFlask, roles: [LAB, MANAGER], badge: { text: 'Flags', bg: 'danger' } },
       { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: [MANAGER, ADMIN] },
       { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: [MANAGER, ADMIN], badge: { text: 'UC61', bg: 'primary' } },

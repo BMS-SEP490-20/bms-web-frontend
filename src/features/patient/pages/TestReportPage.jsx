@@ -24,6 +24,7 @@ export default function TestReportPage() {
 
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(Boolean(orderId));
+    const [errorMessage, setErrorMessage] = useState("");
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -34,11 +35,12 @@ export default function TestReportPage() {
 
         const loadReport = async () => {
             setLoading(true);
+            setErrorMessage("");
             try {
                 const data = await fetchReportByOrder(orderId);
                 setReport(data);
             } catch (err) {
-                console.error("Failed to load test report:", err);
+                setErrorMessage(err?.response?.data?.message || err?.message || "Không thể tải báo cáo kết quả xét nghiệm.");
             } finally {
                 setLoading(false);
             }
@@ -82,7 +84,7 @@ export default function TestReportPage() {
         return (
             <div className="container py-5 text-center text-muted">
                 <FaExclamationCircle className="text-danger fs-1 mb-3" />
-                <h5>Diagnostic report not found for order #{orderId}</h5>
+                <h5>{errorMessage || `Diagnostic report not found for order #${orderId}`}</h5>
                 <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
                     Go Back
                 </button>

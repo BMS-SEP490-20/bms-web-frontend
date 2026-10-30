@@ -41,11 +41,11 @@ const Sidebar = ({ onClose, isCollapsed, onToggleCollapse, isMobile = false }) =
   const getDashboardPath = useMemo(() => {
     switch (userRoleId) {
       case 1: return '/admin/dashboard';
-      case 2: return '/doctor/dashboard';
-      case 3: return '/lab-user/dashboard';
-      case 4: return '/receptionist/dashboard';
+      case 2: return '/manager/dashboard';
+      case 3: return '/doctor/dashboard';
+      case 4: return '/lab-user/dashboard';
       case 5: return '/patient/dashboard';
-      case 6: return '/manager/dashboard';
+      case 6: return '/receptionist/dashboard';
       default:
         // Fallback cho string role
         switch (userRole) {
@@ -299,7 +299,7 @@ const Sidebar = ({ onClose, isCollapsed, onToggleCollapse, isMobile = false }) =
         return true;
       });
     } catch (error) {
-      // Ignore filter error
+      console.error('Error filtering menu items:', error);
       return [];
     }
   }, [menuItems, user, userRole, hasRole]);

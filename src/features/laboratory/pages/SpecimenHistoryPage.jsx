@@ -26,6 +26,7 @@ import {
     addSpecimenTrackingEvent,
     updateSpecimenStorage
 } from "../api/specimenHistoryApi";
+import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import SpecimenLifecycleTimeline from "../components/SpecimenLifecycleTimeline";
 import SpecimenStorageCard from "../components/SpecimenStorageCard";
 import AddTrackingEventModal from "../components/AddTrackingEventModal";
@@ -43,13 +44,15 @@ const STATUS_TABS = [
 
 export default function SpecimenHistoryPage() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const currentUser = getStoredUser();
+    const canEditSpecimen = hasRole(currentUser, ROLES.LAB);
 
     // Barcode query parameter
     const paramBarcode = searchParams.get("barcode") || "";
 
     // States
-    const [searchInput, setSearchInput] = useState(paramBarcode || "SMP-261021-001");
-    const [activeBarcode, setActiveBarcode] = useState(paramBarcode || "SMP-261021-001");
+    const [searchInput, setSearchInput] = useState(paramBarcode);
+    const [activeBarcode, setActiveBarcode] = useState(paramBarcode);
     const [currentSpecimen, setCurrentSpecimen] = useState(null);
     const [loadingSpecimen, setLoadingSpecimen] = useState(false);
     const [specimenError, setSpecimenError] = useState(null);
@@ -89,7 +92,7 @@ export default function SpecimenHistoryPage() {
                 setSpecimenError(`Không tìm thấy mẫu bệnh phẩm có mã '${barcode}'.`);
             }
         } catch (err) {
-            const msg = err.response?.data?.message || err.message || "Không thể tải thông tin bệnh phẩm.";
+            const msg = err?.response?.data?.message || err?.message || "Không thể tải thông tin bệnh phẩm.";
             setSpecimenError(msg);
         } finally {
             setLoadingSpecimen(false);
@@ -106,14 +109,22 @@ export default function SpecimenHistoryPage() {
                 status: statusFilter === "ALL" ? undefined : statusFilter
             };
             const result = await fetchSpecimenHistories(params);
-            setSpecimenList(result.items || []);
+            const items = result.items || [];
+            setSpecimenList(items);
             setTotalCount(result.totalCount || 0);
+            if (!activeBarcode && items.length > 0 && items[0].barcode) {
+                setSearchInput(items[0].barcode);
+                setActiveBarcode(items[0].barcode);
+            }
         } catch (err) {
-            console.error("Lỗi khi tải danh sách bệnh phẩm:", err);
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách lịch sử bệnh phẩm."
+            });
         } finally {
             setLoadingList(false);
         }
-    }, [pageNumber, pageSize, statusFilter]);
+    }, [pageNumber, pageSize, statusFilter, activeBarcode]);
 
     // Initial load
     useEffect(() => {
@@ -307,22 +318,24 @@ export default function SpecimenHistoryPage() {
                             </button>
                         </div>
 
-                        {/* Quick Suggestion Chips */}
-                        <div className="col-12 col-md-12 col-lg-3 d-flex flex-wrap align-items-center gap-1 text-muted small">
-                            <span className="fw-semibold">Mẫu nhanh:</span>
-                            {["SMP-261021-001", "SMP-261021-002", "SMP-261021-003"].map((code) => (
-                                <button
-                                    key={code}
-                                    type="button"
-                                    className={`btn btn-sm py-0 px-2 font-monospace ${
-                                        activeBarcode === code ? "btn-dark" : "btn-outline-secondary"
-                                    }`}
-                                    onClick={() => handleSelectSpecimen(code)}
-                                >
-                                    {code.replace("SMP-261021-", "#")}
-                                </button>
-                            ))}
-                        </div>
+                        {/* Quick Suggestion Chips from live API directory */}
+                        {specimenList.length > 0 && (
+                            <div className="col-12 col-md-12 col-lg-3 d-flex flex-wrap align-items-center gap-1 text-muted small">
+                                <span className="fw-semibold">Mẫu nhanh:</span>
+                                {specimenList.slice(0, 4).map((item) => (
+                                    <button
+                                        key={item.barcode}
+                                        type="button"
+                                        className={`btn btn-sm py-0 px-2 font-monospace ${
+                                            activeBarcode === item.barcode ? "btn-dark" : "btn-outline-secondary"
+                                        }`}
+                                        onClick={() => handleSelectSpecimen(item.barcode)}
+                                    >
+                                        {item.barcode}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>
@@ -378,24 +391,26 @@ export default function SpecimenHistoryPage() {
                                 </div>
                             </div>
 
-                            <div className="col-12 col-md-auto d-flex flex-wrap gap-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-primary d-flex align-items-center gap-2 shadow-xs"
-                                    onClick={() => setShowStorageModal(true)}
-                                >
-                                    <FaWarehouse />
-                                    <span>Đổi Vị Trí Tủ Lạnh</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                                    onClick={() => setShowEventModal(true)}
-                                >
-                                    <FaHistory />
-                                    <span>Ghi Nhận Sự Kiện</span>
-                                </button>
-                            </div>
+                            {canEditSpecimen && (
+                                <div className="col-12 col-md-auto d-flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary d-flex align-items-center gap-2 shadow-xs"
+                                        onClick={() => setShowStorageModal(true)}
+                                    >
+                                        <FaWarehouse />
+                                        <span>Đổi Vị Trí Tủ Lạnh</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                                        onClick={() => setShowEventModal(true)}
+                                    >
+                                        <FaHistory />
+                                        <span>Ghi Nhận Sự Kiện</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -461,14 +476,14 @@ export default function SpecimenHistoryPage() {
                             <div className="col-12 col-xl-7">
                                 <SpecimenLifecycleTimeline
                                     events={timelineEvents}
-                                    onAddEventClick={() => setShowEventModal(true)}
+                                    onAddEventClick={canEditSpecimen ? () => setShowEventModal(true) : undefined}
                                 />
                             </div>
                             <div className="col-12 col-xl-5">
                                 <SpecimenStorageCard
                                     storageInfo={storageInfo}
-                                    onUpdateStorageClick={() => setShowStorageModal(true)}
-                                    canEdit={true}
+                                    onUpdateStorageClick={canEditSpecimen ? () => setShowStorageModal(true) : undefined}
+                                    canEdit={canEditSpecimen}
                                 />
                             </div>
                         </div>
@@ -623,20 +638,24 @@ export default function SpecimenHistoryPage() {
             </div>
 
             {/* Modals */}
-            <AddTrackingEventModal
-                show={showEventModal}
-                onHide={() => setShowEventModal(false)}
-                barcode={activeBarcode}
-                onSave={handleSaveTrackingEvent}
-            />
+            {canEditSpecimen && (
+                <>
+                    <AddTrackingEventModal
+                        show={showEventModal}
+                        onHide={() => setShowEventModal(false)}
+                        barcode={activeBarcode}
+                        onSave={handleSaveTrackingEvent}
+                    />
 
-            <UpdateStorageModal
-                show={showStorageModal}
-                onHide={() => setShowStorageModal(false)}
-                barcode={activeBarcode}
-                currentStorage={storageInfo}
-                onSave={handleSaveStorage}
-            />
+                    <UpdateStorageModal
+                        show={showStorageModal}
+                        onHide={() => setShowStorageModal(false)}
+                        barcode={activeBarcode}
+                        currentStorage={storageInfo}
+                        onSave={handleSaveStorage}
+                    />
+                </>
+            )}
         </div>
     );
 }

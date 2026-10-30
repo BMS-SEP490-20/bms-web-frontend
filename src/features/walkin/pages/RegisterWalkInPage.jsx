@@ -231,7 +231,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 className="form-select"
                 style={{ minHeight: 44, maxWidth: 320 }}
                 value={form.priority}
-                onChange={(e) => set('priority', e.target.value | 'HIGH')}
+                onChange={(e) => set('priority', e.target.value)}
               >
                 <option value="NORMAL">NORMAL</option>
                 <option value="HIGH">HIGH (elderly / pregnant / infant)</option>

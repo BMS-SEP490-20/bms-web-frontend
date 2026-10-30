@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Badge, Alert, Spinner, Form } from 'react-bootstrap';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
 import { sampleService } from '../../../services/sampleService';
+import { getStoredUser } from '../../../constants/roles';
 
 /**
  * Specimen Quality Assessment & Validation Screen.
@@ -44,8 +45,7 @@ const ValidateSample = () => {
         setSamples([]);
       }
     } catch (err) {
-      console.error('Lỗi khi tải danh sách mẫu:', err);
-      setError('Không thể tải danh sách mẫu xét nghiệm. Vui lòng thử lại.');
+      setError(err?.response?.data?.message || 'Không thể tải danh sách mẫu xét nghiệm. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -61,17 +61,20 @@ const ValidateSample = () => {
   const handleValidate = async (sampleId) => {
     try {
       setValidatingId(sampleId);
+      const currentUser = getStoredUser();
       const notes = validateNotes[sampleId] || 'Mẫu đạt chuẩn';
       await sampleService.validateSample(sampleId, {
-        isValid: true,
+        Status: 'validated',
+        status: 'validated',
+        Notes: notes,
         notes: notes,
-        validatedBy: 'lab_user'
+        LabUserId: currentUser?.id || currentUser?.username || 'lab_user',
+        labUserId: currentUser?.id || currentUser?.username || 'lab_user'
       });
       showSuccess('Xác nhận mẫu thành công!');
       fetchSamples();
     } catch (err) {
-      console.error('Lỗi khi validate sample:', err);
-      showError('Xác nhận mẫu thất bại. Vui lòng thử lại.');
+      showError(err?.response?.data?.message || 'Xác nhận mẫu thất bại. Vui lòng thử lại.');
     } finally {
       setValidatingId(null);
     }

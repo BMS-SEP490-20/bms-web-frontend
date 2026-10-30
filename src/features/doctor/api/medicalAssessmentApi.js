@@ -60,8 +60,7 @@ export async function getPatientEncounters(patientId) {
   try {
     const response = await api.get(`/medical-assessments/patient/${encodeURIComponent(patientId)}/encounters`);
     return response.data;
-  } catch (error) {
-    console.warn(`Could not load encounters for patient ${patientId}:`, error.message);
+  } catch {
     return { data: [] };
   }
 }

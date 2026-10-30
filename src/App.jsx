@@ -61,6 +61,7 @@ import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResults
 import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
 import TraceSampleOriginPage from "./features/laboratory/pages/TraceSampleOriginPage.jsx";
 import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
+import LookupBiochemicalResultsPage from "./features/laboratory/pages/LookupBiochemicalResultsPage.jsx";
 import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
 import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
 import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
@@ -475,8 +476,8 @@ export default function App() {
                   <Route path="/shifts/view" element={<ViewShiftsPage />} />
                 </Route>
 
-                {/* UC16 doctor schedule: Doctor, Manager, Admin, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, ADMIN, RECEPTIONIST]} />}>
+                {/* UC35/UC16 shift schedule view: Admin, Manager, Doctor, Lab, Receptionist */}
+                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, ADMIN, LAB, RECEPTIONIST]} />}>
                   <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/schedule" element={<DoctorSchedulePage />} />
                 </Route>
@@ -506,9 +507,13 @@ export default function App() {
                   <Route path="/patient/test-history" element={<TestHistoryPage />} />
                 </Route>
 
+                {/* UC30 view patient information: Receptionist, Doctor, Lab, Manager. Admin denied (decision 10). */}
+                <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, DOCTOR, LAB, MANAGER]} />}>
+                  <Route path="/patients" element={<CheckInPage />} />
+                </Route>
+
                 {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
-                  <Route path="/patients" element={<CheckInPage />} />
                   <Route path="/reception/checkin" element={<CheckInPage />} />
                   {/* WHY: the legacy "pages/receptionist/CheckIn|CreatePatient" modules were never committed.
                       Keep the URLs the Sidebar links to, served by the team's existing check-in and
@@ -587,6 +592,8 @@ export default function App() {
                   <Route path="/laboratory/specimens/:specimenId/notes" element={<AddTestNotePage />} />
                   <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
                   <Route path="/laboratory/specimens/history" element={<SpecimenHistoryPage />} />
+                  <Route path="/laboratory/biochemical-results" element={<LookupBiochemicalResultsPage />} />
+                  <Route path="/laboratory/lookup-results" element={<LookupBiochemicalResultsPage />} />
                   <Route path="/laboratory/trace" element={<TraceSampleOriginPage />} />
                   <Route path="/laboratory/trace/:specimenId" element={<TraceSampleOriginPage />} />
                   <Route path="/criteria" element={<TestCriteriaPage />} />
@@ -609,11 +616,11 @@ export default function App() {
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                 </Route>
 
-                {/* UC35 shift rostering: Manager */}
+                {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager */}
                 <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
-                  <Route path="/manage/schedule" element={<ScheduleManagementPage />} />
-                  {/* WHY: ShiftAssignment module was never committed; shift rostering lives in ManageSchedulePage. */}
-                  <Route path="/manager/shift-assignment" element={<ScheduleManagementPage />} />
+                  <Route path="/manage/schedule" element={<DoctorSchedulePage />} />
+                  <Route path="/manager/shift-assignment" element={<DoctorSchedulePage />} />
+                  <Route path="/schedule/personal" element={<ScheduleManagementPage />} />
                 </Route>
 
                 {/* UC68 IoT alerts: Lab, Manager */}

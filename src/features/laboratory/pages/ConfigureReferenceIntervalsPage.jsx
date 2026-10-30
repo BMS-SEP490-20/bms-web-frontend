@@ -30,9 +30,12 @@ import {
 import referenceIntervalService from '../../../services/referenceIntervalService';
 import ReferenceIntervalModal from '../components/ReferenceIntervalModal';
 import ClinicalRangeSimulator from '../components/ClinicalRangeSimulator';
+import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 
 export default function ConfigureReferenceIntervalsPage() {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
+  const canConfigureIntervals = hasRole(currentUser, ROLES.MANAGER);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCriterionParam = searchParams.get('criterion') || '';
 
@@ -131,15 +134,14 @@ export default function ConfigureReferenceIntervalsPage() {
   };
 
   const handleToggleActive = async (interval) => {
+    if (!canConfigureIntervals) return;
     if (interval.isActive) {
-      if (window.confirm(`Bạn có chắc chắn muốn khóa khoảng tham chiếu ${interval.criterionCode} (${interval.demographicLabel})?`)) {
-        try {
-          await referenceIntervalService.deactivateInterval(interval.id);
-          showToast('Đã khóa khoảng tham chiếu an toàn.');
-          fetchIntervals(pagination.currentPage);
-        } catch (err) {
-          showToast(err.message || 'Lỗi khi khóa khoảng tham chiếu.', 'danger');
-        }
+      try {
+        await referenceIntervalService.deactivateInterval(interval.id);
+        showToast('Đã khóa khoảng tham chiếu an toàn.');
+        fetchIntervals(pagination.currentPage);
+      } catch (err) {
+        showToast(err.message || 'Lỗi khi khóa khoảng tham chiếu.', 'danger');
       }
     } else {
       try {
@@ -232,14 +234,16 @@ export default function ConfigureReferenceIntervalsPage() {
             {showSimulator ? 'Ẩn Thử Nghiệm' : 'Mở Thử Nghiệm Lâm Sàng'}
           </Button>
 
-          <Button
-            variant="success"
-            size="sm"
-            onClick={handleOpenCreateModal}
-            className="d-flex align-items-center gap-2 fw-semibold shadow-sm"
-          >
-            <FaPlus /> Thêm Khoảng Tham Chiếu Mới
-          </Button>
+          {canConfigureIntervals && (
+            <Button
+              variant="success"
+              size="sm"
+              onClick={handleOpenCreateModal}
+              className="d-flex align-items-center gap-2 fw-semibold shadow-sm"
+            >
+              <FaPlus /> Thêm Khoảng Tham Chiếu Mới
+            </Button>
+          )}
         </div>
       </div>
 
@@ -322,7 +326,7 @@ export default function ConfigureReferenceIntervalsPage() {
                   <th className="py-3 text-end text-danger">Ngưỡng PANIC (BR-LAB-03)</th>
                   <th className="py-3">Chuẩn Tham Chiếu</th>
                   <th className="py-3 text-center">Trạng Thái</th>
-                  <th className="py-3 text-end px-3">Thao Tác</th>
+                  {canConfigureIntervals && <th className="py-3 text-end px-3">Thao Tác</th>}
                 </tr>
               </thead>
               <tbody>
@@ -413,29 +417,31 @@ export default function ConfigureReferenceIntervalsPage() {
                         </Badge>
                       </td>
 
-                      <td className="text-end px-3">
-                        <div className="d-flex justify-content-end gap-1">
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="p-1 px-2"
-                            title="Chỉnh sửa khoảng tham chiếu"
-                            onClick={() => handleOpenEditModal(item)}
-                          >
-                            <FaEdit />
-                          </Button>
+                      {canConfigureIntervals && (
+                        <td className="text-end px-3">
+                          <div className="d-flex justify-content-end gap-1">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              className="p-1 px-2"
+                              title="Chỉnh sửa khoảng tham chiếu"
+                              onClick={() => handleOpenEditModal(item)}
+                            >
+                              <FaEdit />
+                            </Button>
 
-                          <Button
-                            variant={item.isActive ? 'outline-danger' : 'outline-success'}
-                            size="sm"
-                            className="p-1 px-2"
-                            title={item.isActive ? 'Khóa khoảng tham chiếu' : 'Kích hoạt lại'}
-                            onClick={() => handleToggleActive(item)}
-                          >
-                            {item.isActive ? <FaLock /> : <FaUnlock />}
-                          </Button>
-                        </div>
-                      </td>
+                            <Button
+                              variant={item.isActive ? 'outline-danger' : 'outline-success'}
+                              size="sm"
+                              className="p-1 px-2"
+                              title={item.isActive ? 'Khóa khoảng tham chiếu' : 'Kích hoạt lại'}
+                              onClick={() => handleToggleActive(item)}
+                            >
+                              {item.isActive ? <FaLock /> : <FaUnlock />}
+                            </Button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}

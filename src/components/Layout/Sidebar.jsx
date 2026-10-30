@@ -10,7 +10,7 @@ import {
   FaTachometerAlt, FaVial, FaUserNurse, FaUserMd, FaStethoscope, FaUsersCog,
   FaShieldAlt, FaBoxOpen, FaNotesMedical, FaKey, FaChevronLeft, FaChevronRight,
   FaHeartbeat, FaDatabase, FaBell, FaHistory, FaQrcode, FaUserPlus, FaCheckCircle,
-  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes
+  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaSearch
 } from 'react-icons/fa';
 
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
@@ -25,6 +25,7 @@ const MENU_SECTIONS = [
     category: 'TỔNG QUAN',
     items: [
       { id: 'dashboard', path: '/dashboard', label: 'Bảng Điều Khiển', icon: FaTachometerAlt, roles: ALL_ROLES },
+      { id: 'search-packages', path: '/services', label: 'Tra Cứu Gói XN', icon: FaSearch, roles: ALL_ROLES, badge: { text: 'UC20', bg: 'info' } },
       { id: 'notifications', path: '/laboratory/notifications', label: 'Thông Báo', icon: FaBell, roles: [LAB, MANAGER], badge: { text: 'UC60', bg: 'primary' } }
     ]
   },
@@ -33,7 +34,7 @@ const MENU_SECTIONS = [
     items: [
       { id: 'check-in', path: '/receptionist/check-in', label: 'Check-in QR Code', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
       { id: 'create-pt', path: '/receptionist/create-patient', label: 'Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: [RECEPTIONIST] },
-      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] },
+      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST, DOCTOR, LAB, MANAGER], badge: { text: 'UC30', bg: 'info' } },
       { id: 'appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: [RECEPTIONIST, MANAGER, DOCTOR, PATIENT] }
     ]
   },
@@ -52,12 +53,13 @@ const MENU_SECTIONS = [
     category: 'NGHIỆP VỤ XÉT NGHIỆM',
     items: [
       { id: 'validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'QC', bg: 'warning' } },
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'ISO 15189', bg: 'danger' } },
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'UC40/45', bg: 'danger' } },
       { id: 'qc-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn QC', icon: FaFlask, roles: [LAB, MANAGER], badge: { text: 'Flags', bg: 'danger' } },
       { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: [MANAGER, ADMIN] },
       { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: [MANAGER, ADMIN], badge: { text: 'UC61', bg: 'primary' } },
       { id: 'criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [MANAGER, LAB, DOCTOR] },
-      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } }
+      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } },
+      { id: 'biochemical-results', path: '/laboratory/biochemical-results', label: 'Tra Cứu Sinh Hóa', icon: FaFlask, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC75', bg: 'primary' } }
     ]
   },
   {
@@ -74,8 +76,8 @@ const MENU_SECTIONS = [
     category: 'KHO & VẬN HÀNH',
     items: [
       { id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [ADMIN, MANAGER, LAB], badge: { text: 'UC56', bg: 'primary' } },
-      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST] },
-      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [MANAGER] },
+      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST], badge: { text: 'UC35', bg: 'info' } },
+      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [MANAGER], badge: { text: 'UC35', bg: 'primary' } },
       { id: 'packages', path: '/admin/packages', label: 'Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN, MANAGER] },
       { id: 'invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: [RECEPTIONIST, MANAGER] },
       // WHY: /admin/reports had no route (404); the reports that exist are TAT (UC63) and revenue (UC78), Admin + Manager.

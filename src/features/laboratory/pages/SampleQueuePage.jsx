@@ -205,7 +205,7 @@ const SampleQueuePage = () => {
   const loadLookups = useCallback(async () => {
     try {
       if (patientOptions.length === 0) {
-        const res = await searchPatients({ page: 1, pageSize: 30 });
+        const res = await searchPatients({ page: 1, pageSize: 50 });
         const items = res?.items || res?.Items || [];
         if (items.length > 0) setPatientOptions(items);
       }
@@ -255,7 +255,7 @@ const SampleQueuePage = () => {
         barcode: sample.barcode || '',
         rfidTag: sample.rfidTag || '',
         patientId: sample.patientId || '',
-        appointmentId: sample.appointmentId || '',
+        appointmentId: sample.appointmentId || sample.testOrderId || '',
         collectedAt: toLocalDateTimeInput(sample.collectedAt || new Date()),
         collectorName: sample.collectorName || defaultOperatorName,
         collectedBy: sample.collectedBy || defaultOperatorId,
@@ -264,7 +264,7 @@ const SampleQueuePage = () => {
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
         volumeMl: sample.volumeMl || 3.0,
         priority: sample.priority || 'Normal',
-        labRoom: sample.labRoom || labRooms[0] || 'LAB-ROOM-01',
+        labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: sample.notes || ''
       });
     } else {
@@ -283,7 +283,7 @@ const SampleQueuePage = () => {
         anticoagulant: 'K2-EDTA',
         volumeMl: 3.0,
         priority: 'Normal',
-        labRoom: labRooms[0] || 'LAB-ROOM-01',
+        labRoom: (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: ''
       });
     }
@@ -383,7 +383,7 @@ const SampleQueuePage = () => {
       status: defaultNext,
       technicianName: sample.assignedTechnicianName || defaultOperatorName,
       technicianId: sample.assignedTechnicianId || defaultOperatorId,
-      labRoom: sample.labRoom || labRooms[0] || 'LAB-ROOM-01',
+      labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
       timestamp: toLocalDateTimeInput(new Date()),
       rejectionReason: sample.rejectionReason || '',
       notes: ''
@@ -682,9 +682,11 @@ const SampleQueuePage = () => {
               <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
-              <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay
-              </Button>
+              {canRecordSampleTime && (
+                <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
+                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay (UC40)
+                </Button>
+              )}
             </div>
           ) : (
             <div className="table-responsive" style={{ overflowX: 'hidden' }}>
@@ -874,9 +876,42 @@ const SampleQueuePage = () => {
                   <option value="">-- Chọn bệnh nhân để liên kết mẫu bệnh phẩm --</option>
                   {patientOptions.map(p => (
                     <option key={p.id || p.patientCode} value={p.patientCode || p.id}>
-                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phone || '—'}
+                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phoneNumber || p.phone || '—'}
                     </option>
                   ))}
+                </Form.Select>
+              </div>
+            )}
+
+            {!collectionTargetSample && appointmentOptions.length > 0 && (
+              <div className="p-3 rounded-3 bg-light border mb-3">
+                <Form.Label className="small fw-bold text-secondary mb-1">
+                  Chọn nhanh Lịch hẹn / Phiếu chỉ định từ hệ thống (tự động điền Appointment ID & Patient ID)
+                </Form.Label>
+                <Form.Select
+                  size="sm"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const aid = e.target.value;
+                    const apt = appointmentOptions.find(a => (a.id || a.appointmentId) === aid);
+                    if (apt) {
+                      setCollectionForm(prev => ({
+                        ...prev,
+                        appointmentId: apt.id || apt.appointmentId,
+                        patientId: apt.patientId || prev.patientId
+                      }));
+                    }
+                  }}
+                >
+                  <option value="">-- Chọn lịch hẹn / chỉ định xét nghiệm từ CSDL --</option>
+                  {appointmentOptions.map(a => {
+                    const aid = a.id || a.appointmentId;
+                    return (
+                      <option key={aid} value={aid}>
+                        [{aid}] {a.patientName || a.patientId || 'Bệnh nhân'} — {a.status || 'Active'}
+                      </option>
+                    );
+                  })}
                 </Form.Select>
               </div>
             )}
@@ -1019,13 +1054,26 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col md={4}>
-                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: LAB-ROOM-01"
-                  value={collectionForm.labRoom}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
-                />
+                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (CSDL)</Form.Label>
+                {labRooms.length > 0 ? (
+                  <Form.Select
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  >
+                    {labRooms.map(r => (
+                      <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                        {r.name ? `${r.id || r.roomNumber} — ${r.name}` : (r.id || r.roomNumber)}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    placeholder="VD: LAB-ROOM-01"
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  />
+                )}
               </Col>
 
               <Col xs={12}>
@@ -1164,9 +1212,10 @@ const SampleQueuePage = () => {
                       onChange={(e) => setStatusForm(prev => ({ ...prev, labRoom: e.target.value }))}
                     />
                     <datalist id="status-lab-room-options">
-                      {labRooms.map((rm) => (
-                        <option key={rm} value={rm} />
-                      ))}
+                      {labRooms.map((rm) => {
+                        const code = typeof rm === 'string' ? rm : (rm.id || rm.roomNumber || 'LAB-ROOM-01');
+                        return <option key={code} value={code} />;
+                      })}
                     </datalist>
                   </Col>
 

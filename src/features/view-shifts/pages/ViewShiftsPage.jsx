@@ -1,10 +1,14 @@
 import '../view-shifts.css';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { viewShiftApi } from '../api/viewShiftApi';
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 
 
-/** UC36 – Work shifts catalog. English UI matching BMS shift list mock. */
+/** UC35 / UC36 – Work shifts catalog. */
 export function ViewShiftsPage() {
+  const navigate = useNavigate();
+  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.MANAGER), []);
   const [from, setFrom] = useState(() => new Date().toISOString().slice(0, 10));
   const [to, setTo] = useState(() => {
     const d = new Date();
@@ -52,15 +56,17 @@ export function ViewShiftsPage() {
           <h3 className="fw-bold mb-0">Work shifts</h3>
           <p className="text-muted small mb-0">Manage catalog and status · BMS District 1</p>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
-          disabled
-          title="Create is managed in shift admin (UC35)"
-        >
-          + Create shift
-        </button>
+        {canManageShifts && (
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+            onClick={() => navigate('/manage/schedule')}
+            title="Manage shifts (UC35)"
+          >
+            + Manage / Create Shift (UC35)
+          </button>
+        )}
       </div>
 
       <div className="row g-3 mb-4">
@@ -135,35 +141,46 @@ export function ViewShiftsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((s) => (
-                    <tr key={s.shiftId}>
-                      <td className="fw-semibold">{s.shiftId.slice(-6).toUpperCase()}</td>
-                      <td>
-                        {s.shiftType}
-                        {s.employeeName || s.doctorName ? ` · ${s.employeeName || s.doctorName}` : ''}
-                      </td>
-                      <td>
-                        {s.shiftStart && s.shiftEnd
-                          ? `${s.shiftStart}–${s.shiftEnd}`
-                          : new Date(s.shiftDate).toLocaleDateString('en-GB')}
-                      </td>
-                      <td>
-                        {s.department || s.specialty || s.roomName} · {s.currentPatientsCount}/{s.maxPatients} pts
-                      </td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            (s.status || 'Approved') === 'Cancelled'
-                              ? 'text-bg-light border'
-                              : 'text-bg-primary'
-                          }`}
-                        >
-                          {s.status || 'In effect'}
-                        </span>
-                      </td>
-                      <td className="text-end text-primary small">Details →</td>
-                    </tr>
-                  ))}
+                  {filtered.map((s, idx) => {
+                    const sid = String(s.shiftId || s.id || `SHIFT-${idx}`);
+                    return (
+                      <tr key={sid}>
+                        <td className="fw-semibold font-monospace">{sid.slice(-6).toUpperCase()}</td>
+                        <td>
+                          {s.shiftType}
+                          {s.employeeName || s.doctorName ? ` · ${s.employeeName || s.doctorName}` : ''}
+                        </td>
+                        <td>
+                          {s.shiftStart && s.shiftEnd
+                            ? `${s.shiftStart}–${s.shiftEnd}`
+                            : new Date(s.shiftDate).toLocaleDateString('en-GB')}
+                        </td>
+                        <td>
+                          {s.department || s.specialty || s.roomName || s.roomId} · {s.currentPatientsCount ?? 0}/{s.maxPatients ?? 30} pts
+                        </td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              (s.status || 'Approved') === 'Cancelled'
+                                ? 'text-bg-light border'
+                                : 'text-bg-primary'
+                            }`}
+                          >
+                            {s.status || 'In effect'}
+                          </span>
+                        </td>
+                        <td className="text-end text-primary small">
+                          <button
+                            type="button"
+                            className="btn btn-link btn-sm p-0 text-decoration-none"
+                            onClick={() => navigate(canManageShifts ? '/manage/schedule' : '/doctor/schedule')}
+                          >
+                            Details →
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {filtered.length === 0 && (
                     <tr>
                       <td colSpan={6} className="text-center text-muted py-4">

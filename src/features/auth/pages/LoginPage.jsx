@@ -12,6 +12,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
 import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaVial, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import api from "../../../config/api";
+import { ROLES, resolveRoleId } from "../../../constants/roles";
 import "./LoginPage.css";
 
 /**
@@ -85,34 +86,35 @@ export default function LoginPage({
    * Redirects user to their role-specific dashboard.
    */
   const routeUserByRole = (user) => {
-    const role = normalizeRole(user?.role || user?.roleName);
-    let target = "/dashboard";
-    switch (role) {
-      case "WAREHOUSESTAFF":
-        target = "/inventory";
-        break;
-      case "ADMIN":
-      case "MANAGER":
+    const roleId = resolveRoleId(user);
+    let target = "/";
+    switch (roleId) {
+      case ROLES.ADMIN:
+      case ROLES.MANAGER:
         target = "/dashboard";
         break;
-      case "DOCTOR":
-        target = "/schedule";
+      case ROLES.DOCTOR:
+        target = "/doctor/console";
         break;
-      case "LABHEAD":
-      case "LABTECH":
+      case ROLES.LAB:
         target = "/lab/queue";
         break;
-      case "RECEPTIONIST":
-        target = "/schedule";
+      case ROLES.RECEPTIONIST:
+        target = "/reception/check-in";
         break;
-      case "PATIENT":
-        target = "/";
-        break;
+      case ROLES.PATIENT:
       default:
         target = "/";
         break;
     }
-    // Perform full navigation to refresh layout with authenticated user session
+
+    try {
+      window.dispatchEvent(new Event("storage"));
+    } catch {
+      /* ignore storage event dispatch error */
+    }
+
+    // Perform navigation to refresh layout with authenticated user session
     window.location.href = target;
   };
 
@@ -167,6 +169,7 @@ export default function LoginPage({
         localStorage.removeItem("bms_failed_login_attempts");
         localStorage.removeItem("bms_login_lockout_until");
         setFailedAttempts(0);
+        setLockoutTime(0);
 
         const storage = rememberMe ? localStorage : sessionStorage;
         const refreshToken = data?.refreshToken;
@@ -183,27 +186,43 @@ export default function LoginPage({
 
         routeUserByRole(user);
       } catch (apiErr) {
-        // Track failed attempt (BR-IAM-03)
-        const nextAttempts = failedAttempts + 1;
-        setFailedAttempts(nextAttempts);
-        localStorage.setItem("bms_failed_login_attempts", nextAttempts.toString());
-
-        if (nextAttempts >= 5) {
-          const lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lockout
-          setLockoutTime(lockUntil);
-          localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
-          setError("Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu 5 lần liên tiếp (Quy chuẩn BR-IAM-03).");
+        if (!apiErr.response) {
+          setError("Không thể kết nối đến máy chủ BMS. Vui lòng kiểm tra dịch vụ mạng hoặc kết nối cơ sở dữ liệu.");
           return;
         }
 
-        if (!apiErr.response) {
-          throw new Error("Không thể kết nối đến máy chủ BMS. Vui lòng kiểm tra dịch vụ mạng hoặc kết nối cơ sở dữ liệu.");
+        const status = apiErr.response.status;
+        const respData = apiErr.response.data;
+
+        // If backend returned account lockout (423) or custom lockout time (BR-IAM-03)
+        if (status === 423 || respData?.code === "ACCOUNT_LOCKED") {
+          const retryMinutes = respData?.retryAfterMinutes || 15;
+          const lockUntil = Date.now() + retryMinutes * 60 * 1000;
+          setLockoutTime(lockUntil);
+          localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
+          setError(respData?.message || `Tài khoản tạm thời bị khóa trong ${retryMinutes} phút do đăng nhập sai quá 5 lần liên tiếp.`);
+          return;
         }
 
-        throw new Error(
-          apiErr.response?.data?.message ||
-          apiErr.response?.data?.title ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin tài khoản hoặc mật khẩu."
+        // Only count credential failure (401) towards client lockout
+        if (status === 401) {
+          const nextAttempts = failedAttempts + 1;
+          setFailedAttempts(nextAttempts);
+          localStorage.setItem("bms_failed_login_attempts", nextAttempts.toString());
+
+          if (nextAttempts >= 5) {
+            const lockUntil = Date.now() + 15 * 60 * 1000;
+            setLockoutTime(lockUntil);
+            localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
+            setError("Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu 5 lần liên tiếp (Quy chuẩn BR-IAM-03).");
+            return;
+          }
+        }
+
+        setError(
+          respData?.message ||
+          respData?.title ||
+          "Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng thử lại!"
         );
       }
     } catch (err) {
@@ -239,6 +258,7 @@ export default function LoginPage({
       localStorage.removeItem("bms_failed_login_attempts");
       localStorage.removeItem("bms_login_lockout_until");
       setFailedAttempts(0);
+      setLockoutTime(0);
 
       const refreshToken = data?.refreshToken;
       localStorage.setItem("bms_token", token);
@@ -254,7 +274,6 @@ export default function LoginPage({
 
       routeUserByRole(user);
     } catch (apiErr) {
-      console.error("Quick login error:", apiErr);
       setError(
         apiErr.response?.data?.message ||
         apiErr.response?.data?.title ||

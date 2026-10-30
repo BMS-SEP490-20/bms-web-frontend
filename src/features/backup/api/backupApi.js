@@ -7,108 +7,37 @@
 
 import api from "../../../config/api";
 
-const BACKUP_BASE_URL = "/api/backup";
+const BACKUP_BASE_URL = "/backup";
 
 /**
  * Retrieves overall backup system statistics and KPI metrics.
  */
 export async function fetchBackupStats() {
-    try {
-        const response = await api.get(`${BACKUP_BASE_URL}/stats`);
-        return response.data?.data || {
-            totalBackups: 0,
-            completedBackups: 0,
-            failedBackups: 0,
-            patientTestScopeBackups: 0,
-            totalStorageMb: 0,
-            integritySuccessRate: 100.0,
-            lastBackupTime: null
-        };
-    } catch (err) {
-        console.warn("[Backup API] Could not fetch stats from backend. Using local metrics.", err);
-        return {
-            totalBackups: 3,
-            completedBackups: 3,
-            failedBackups: 0,
-            patientTestScopeBackups: 2,
-            totalStorageMb: 8,
-            integritySuccessRate: 100.0,
-            lastBackupTime: new Date().toISOString()
-        };
-    }
+    const response = await api.get(`${BACKUP_BASE_URL}/stats`);
+    return response.data?.data || {
+        totalBackups: 0,
+        completedBackups: 0,
+        failedBackups: 0,
+        patientTestScopeBackups: 0,
+        totalStorageMb: 0,
+        integritySuccessRate: 100.0,
+        lastBackupTime: null
+    };
 }
 
 /**
  * Retrieves paginated list of backup snapshots.
  */
 export async function fetchBackups(params = {}) {
-    try {
-        const queryParams = new URLSearchParams();
-        if (params.scope) queryParams.append("scope", params.scope);
-        if (params.status) queryParams.append("status", params.status);
-        if (params.pageNumber) queryParams.append("pageNumber", params.pageNumber);
-        if (params.pageSize) queryParams.append("pageSize", params.pageSize);
+    const queryParams = new URLSearchParams();
+    if (params.scope) queryParams.append("scope", params.scope);
+    if (params.status) queryParams.append("status", params.status);
+    if (params.pageNumber) queryParams.append("pageNumber", params.pageNumber);
+    if (params.pageSize) queryParams.append("pageSize", params.pageSize);
 
-        const response = await api.get(`${BACKUP_BASE_URL}?${queryParams.toString()}`);
-        return response.data?.data || { items: [], totalCount: 0, currentPage: 1, pageSize: 15 };
-    } catch (err) {
-        console.warn("[Backup API] Could not fetch backups list from backend. Using fallback list.", err);
-        return {
-            items: [
-                {
-                    id: "6724a001a1b2c3d4e5f60001",
-                    backupId: "BKP-261020-0001",
-                    backupName: "Lưu trữ dữ liệu xét nghiệm bệnh nhân - Tháng 10/2026",
-                    scope: "PatientTestResults",
-                    backupType: "Manual",
-                    status: "Completed",
-                    fileName: "BKP-261020-0001.json.gz",
-                    fileSizeBytes: 1843200,
-                    fileSizeFormatted: "1.76 MB",
-                    checksumSha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                    totalRecords: 286,
-                    createdAt: new Date(Date.now() - 86400000).toISOString(),
-                    createdBy: "Hứa Khánh Duy (Lab Manager)",
-                    lastRestoredAt: null
-                },
-                {
-                    id: "6724a001a1b2c3d4e5f60002",
-                    backupId: "BKP-261019-0002",
-                    backupName: "Sao lưu tự động toàn bộ cơ sở dữ liệu BMS (Hàng ngày)",
-                    scope: "FullDatabase",
-                    backupType: "ScheduledDaily",
-                    status: "Completed",
-                    fileName: "BKP-261019-0002.json.gz",
-                    fileSizeBytes: 4718592,
-                    fileSizeFormatted: "4.5 MB",
-                    checksumSha256: "87556d98c2134e12e1261d76326127164b3c202022927263524a8726e6371819",
-                    totalRecords: 824,
-                    createdAt: new Date(Date.now() - 172800000).toISOString(),
-                    createdBy: "Hệ thống tự động",
-                    lastRestoredAt: null
-                },
-                {
-                    id: "6724a001a1b2c3d4e5f60003",
-                    backupId: "BKP-261015-0003",
-                    backupName: "Lưu trữ phân hệ kết quả xét nghiệm & chỉ số tham chiếu Q3/2026",
-                    scope: "PatientTestResults",
-                    backupType: "Manual",
-                    status: "Restored",
-                    fileName: "BKP-261015-0003.json.gz",
-                    fileSizeBytes: 2202009,
-                    fileSizeFormatted: "2.1 MB",
-                    checksumSha256: "a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0",
-                    totalRecords: 340,
-                    createdAt: new Date(Date.now() - 518400000).toISOString(),
-                    createdBy: "Hứa Khánh Duy (Lab Manager)",
-                    lastRestoredAt: new Date(Date.now() - 86400000).toISOString()
-                }
-            ],
-            totalCount: 3,
-            currentPage: 1,
-            pageSize: 15
-        };
-    }
+    const qs = queryParams.toString();
+    const response = await api.get(`${BACKUP_BASE_URL}${qs ? `?${qs}` : ""}`);
+    return response.data?.data || { items: [], totalCount: 0, currentPage: 1, pageSize: 15 };
 }
 
 /**

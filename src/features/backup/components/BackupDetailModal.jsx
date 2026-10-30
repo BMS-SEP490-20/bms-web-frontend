@@ -39,8 +39,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
         try {
             setIsDownloading(true);
             await downloadBackupArchive(id, preferredName);
-        } catch (err) {
-            console.warn("[BackupDetailModal] Blob download failed, opening direct URL:", err);
+        } catch {
             const directUrl = getBackupDownloadUrl(id);
             window.open(directUrl, "_blank");
         } finally {
@@ -199,7 +198,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                                         </div>
                                         <div className="col-12 col-md-6 text-danger">
                                             <FaUser className="me-1" /> Người khôi phục:{" "}
-                                            <strong>{backup.lastRestoredBy || "Võ Gia Huy (System Admin)"}</strong>
+                                            <strong>{backup.lastRestoredBy || "Quản trị viên hệ thống"}</strong>
                                         </div>
                                     </>
                                 )}
@@ -230,16 +229,18 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             >
                                 Đóng
                             </button>
-                            <button
-                                type="button"
-                                className="btn btn-danger d-flex align-items-center gap-1"
-                                onClick={() => {
-                                    onHide();
-                                    if (onRestoreTrigger) onRestoreTrigger(backup);
-                                }}
-                            >
-                                Khôi Phục Bản Này
-                            </button>
+                            {onRestoreTrigger && (
+                                <button
+                                    type="button"
+                                    className="btn btn-danger d-flex align-items-center gap-1"
+                                    onClick={() => {
+                                        onHide();
+                                        onRestoreTrigger(backup);
+                                    }}
+                                >
+                                    Khôi Phục Bản Này
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

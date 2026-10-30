@@ -8,7 +8,7 @@ import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 /** UC35 / UC36 – Work shifts catalog. */
 export function ViewShiftsPage() {
   const navigate = useNavigate();
-  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.MANAGER), []);
+  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
   const [from, setFrom] = useState(() => new Date().toISOString().slice(0, 10));
   const [to, setTo] = useState(() => {
     const d = new Date();

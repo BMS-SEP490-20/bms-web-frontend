@@ -51,11 +51,11 @@ const NotificationsHistoryPage = () => {
   const roleDisplayName = useMemo(() => {
     switch (userRoleId) {
       case 1: return 'Quản trị viên (Administrator)';
-      case 2: return 'Quản lý Lab (Manager)';
-      case 3: return 'Bác sĩ (Doctor)';
-      case 4: return 'Kỹ thuật viên (Laboratory User)';
+      case 2: return 'Bác sĩ (Doctor)';
+      case 3: return 'Kỹ thuật viên (Laboratory User)';
+      case 4: return 'Lễ tân (Receptionist)';
       case 5: return 'Bệnh nhân (Patient)';
-      case 6: return 'Lễ tân (Receptionist)';
+      case 6: return 'Quản lý Lab (Manager)';
       default:
         switch (userRole) {
           case 'admin': return 'Quản trị viên (Administrator)';

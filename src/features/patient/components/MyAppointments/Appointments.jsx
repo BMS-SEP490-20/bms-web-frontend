@@ -752,7 +752,7 @@ const AdminAppointments = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, userRoleId } = useAuth();
-    const isLabUser = userRoleId === 4;
+    const isLabUser = userRoleId === 3;
     const isSampleManagementPath = Boolean(location.pathname && location.pathname.includes('sample-management'));
     const [showBarcodePrintModal, setShowBarcodePrintModal] = useState(false);
     const [selectedPrintSample, setSelectedPrintSample] = useState(null);
@@ -812,7 +812,7 @@ const AdminAppointments = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [detailActiveTab, setDetailActiveTab] = useState('appointment');
     const [detailShowSamples, setDetailShowSamples] = useState(true);
-    const [mainActiveTab, setMainActiveTab] = useState(() => (userRoleId === 4 || (typeof window !== 'undefined' && window.location.pathname.includes('sample-management'))) ? 'samples' : 'appointments');
+    const [mainActiveTab, setMainActiveTab] = useState(() => (userRoleId === 3 || (typeof window !== 'undefined' && window.location.pathname.includes('sample-management'))) ? 'samples' : 'appointments');
     const [mainShowSamples, setMainShowSamples] = useState(true);
     const [showSampleDetailModal, setShowSampleDetailModal] = useState(false);
     const [sampleDetailData, setSampleDetailData] = useState(null);
@@ -887,7 +887,7 @@ const AdminAppointments = () => {
         if (location.pathname.includes('sample-management')) {
             setMainActiveTab('samples');
             setMainShowSamples(true);
-        } else if (location.pathname.includes('appointments') && userRoleId !== 4) {
+        } else if (location.pathname.includes('appointments') && userRoleId !== 3) {
             setMainActiveTab('appointments');
         }
     }, [location.pathname, userRoleId]);

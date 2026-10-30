@@ -617,7 +617,7 @@ export default function App() {
                 </Route>
 
                 {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/manage/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/manager/shift-assignment" element={<DoctorSchedulePage />} />
                   <Route path="/schedule/personal" element={<ScheduleManagementPage />} />

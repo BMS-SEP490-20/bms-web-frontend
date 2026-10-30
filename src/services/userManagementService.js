@@ -79,7 +79,6 @@ export const userManagementService = {
         data: data.map(normalizeUser).filter(Boolean),
       };
     } catch (err) {
-      console.error('[UserManagementService] Failed to load accounts from database:', err.message);
       return {
         success: false,
         data: [],
@@ -98,8 +97,7 @@ export const userManagementService = {
     try {
       const response = await api.get(`/v1/users/${id}`);
       return normalizeUser(response.data?.data || response.data);
-    } catch (error) {
-      console.error('[UserManagementService] Failed to retrieve user by ID:', error.message);
+    } catch {
       return null;
     }
   },
@@ -233,8 +231,8 @@ export const userManagementService = {
       if (res.data?.success && Array.isArray(res.data.data)) {
         return res.data.data;
       }
-    } catch (err) {
-      console.error('[userManagementService] Failed to load lab rooms from database:', err);
+    } catch {
+      // Handled silently
     }
     return [];
   },

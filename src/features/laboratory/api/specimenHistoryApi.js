@@ -12,13 +12,8 @@ import api from "../../../config/api";
  * @returns {Promise<{ items: Array, totalCount: number, pageNumber: number, pageSize: number, totalPages: number }>}
  */
 export const fetchSpecimenHistories = async (params = {}) => {
-    try {
-        const response = await api.get("/laboratory/specimens/history", { params });
-        return response.data?.data || { items: [], totalCount: 0, pageNumber: 1, pageSize: 15, totalPages: 0 };
-    } catch (error) {
-        console.error("Failed to fetch specimen history list:", error);
-        throw error;
-    }
+    const response = await api.get("/laboratory/specimens/history", { params });
+    return response.data?.data || { items: [], totalCount: 0, pageNumber: 1, pageSize: 15, totalPages: 0 };
 };
 
 /**
@@ -28,13 +23,8 @@ export const fetchSpecimenHistories = async (params = {}) => {
  */
 export const fetchSpecimenHistoryByBarcode = async (barcode) => {
     if (!barcode) return null;
-    try {
-        const response = await api.get(`/laboratory/specimens/${encodeURIComponent(barcode)}/history`);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to fetch specimen history for barcode ${barcode}:`, error);
-        throw error;
-    }
+    const response = await api.get(`/laboratory/specimens/${encodeURIComponent(barcode)}/history`);
+    return response.data?.data || null;
 };
 
 /**
@@ -44,13 +34,8 @@ export const fetchSpecimenHistoryByBarcode = async (barcode) => {
  */
 export const fetchSpecimenHistoriesByPatient = async (patientId) => {
     if (!patientId) return [];
-    try {
-        const response = await api.get(`/laboratory/specimens/patient/${encodeURIComponent(patientId)}/history`);
-        return response.data?.data || [];
-    } catch (error) {
-        console.error(`Failed to fetch specimen history for patient ${patientId}:`, error);
-        throw error;
-    }
+    const response = await api.get(`/laboratory/specimens/patient/${encodeURIComponent(patientId)}/history`);
+    return response.data?.data || [];
 };
 
 /**
@@ -61,13 +46,8 @@ export const fetchSpecimenHistoriesByPatient = async (patientId) => {
  */
 export const addSpecimenTrackingEvent = async (barcode, eventData) => {
     if (!barcode) throw new Error("Mã vạch mẫu bệnh phẩm là bắt buộc.");
-    try {
-        const response = await api.post(`/laboratory/specimens/${encodeURIComponent(barcode)}/events`, eventData);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to add tracking event for ${barcode}:`, error);
-        throw error;
-    }
+    const response = await api.post(`/laboratory/specimens/${encodeURIComponent(barcode)}/events`, eventData);
+    return response.data?.data || null;
 };
 
 /**
@@ -78,11 +58,6 @@ export const addSpecimenTrackingEvent = async (barcode, eventData) => {
  */
 export const updateSpecimenStorage = async (barcode, storageData) => {
     if (!barcode) throw new Error("Mã vạch mẫu bệnh phẩm là bắt buộc.");
-    try {
-        const response = await api.put(`/laboratory/specimens/${encodeURIComponent(barcode)}/storage`, storageData);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to update storage for ${barcode}:`, error);
-        throw error;
-    }
+    const response = await api.put(`/laboratory/specimens/${encodeURIComponent(barcode)}/storage`, storageData);
+    return response.data?.data || null;
 };

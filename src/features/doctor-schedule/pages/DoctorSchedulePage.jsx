@@ -24,6 +24,7 @@ import {
 } from '../api/scheduleApi';
 import { userManagementService } from '../../../services/userManagementService';
 
+import { ROLES, resolveRoleId } from '../../../constants/roles';
 const SHIFT_TYPE_META = {
   Morning: { label: 'Ca Sáng', defaultStart: '07:00', defaultEnd: '11:30', badge: 'bg-primary-subtle text-primary border border-primary-subtle' },
   Afternoon: { label: 'Ca Chiều', defaultStart: '13:00', defaultEnd: '17:00', badge: 'bg-info-subtle text-info-emphasis border border-info-subtle' },
@@ -109,7 +110,7 @@ export default function DoctorSchedulePage() {
     userManagementService.getAllUsers({ pageSize: 100 })
       .then(res => {
         if (res?.success && Array.isArray(res.data)) {
-          const staff = res.data.filter(u => u.role !== 'patient' && u.roleId !== 5 && u.roleId !== 9);
+          const staff = res.data.filter(u => { const id = resolveRoleId(u); return id !== null && id !== ROLES.PATIENT; });
           setStaffList(staff);
         }
       })

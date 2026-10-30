@@ -3,7 +3,7 @@
  *
  * Consolidated wrapper for TestOrder endpoints proxied by gateway and warehouse endpoints
  */
-import api from './api';
+import api from '../config/api';
 
 const testOrderService = {
   // Internal: safely extract array from various API shapes

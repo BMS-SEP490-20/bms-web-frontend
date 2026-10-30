@@ -16,7 +16,8 @@ import {
   FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter
 } from 'react-icons/fa';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
-import { userManagementService, ROLE_NAMES } from '../../../services/userManagementService';
+import { userManagementService } from '../../../services/userManagementService';
+import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../../constants/roles';
 
 /**
  * Unified administrative user and employee account management view.
@@ -51,7 +52,7 @@ export default function UserManagementPage() {
     username: '',
     email: '',
     phone: '',
-    roleId: 3, // Default doctor
+    roleId: ROLES.DOCTOR, // Default doctor (ID 4 in the 6-role table)
     password: '',
     confirmPassword: '',
     isActive: true,
@@ -213,7 +214,7 @@ export default function UserManagementPage() {
           username: '',
           email: '',
           phone: '',
-          roleId: 3,
+          roleId: ROLES.DOCTOR,
           password: '',
           confirmPassword: '',
           isActive: true,
@@ -263,26 +264,12 @@ export default function UserManagementPage() {
   };
 
   // Helper render role badge
+  const ROLE_BADGE_BG = { [ROLES.ADMIN]: 'danger', [ROLES.MANAGER]: 'dark', [ROLES.LAB]: 'info', [ROLES.DOCTOR]: 'primary', [ROLES.RECEPTIONIST]: 'warning', [ROLES.PATIENT]: 'secondary' };
   const renderRoleBadge = (role, roleId) => {
-    switch (role?.toLowerCase() || roleId) {
-      case 'admin':
-      case 1:
-        return <Badge bg="danger">Quản trị viên (Admin)</Badge>;
-      case 'manager':
-      case 2:
-        return <Badge bg="dark">Quản lý (Manager)</Badge>;
-      case 'doctor':
-      case 3:
-        return <Badge bg="primary">Bác sĩ (Doctor)</Badge>;
-      case 'lab_user':
-      case 4:
-        return <Badge bg="info" className="text-dark">Kỹ thuật viên Lab</Badge>;
-      case 'receptionist':
-      case 6:
-        return <Badge bg="warning" className="text-dark">Lễ tân</Badge>;
-      default:
-        return <Badge bg="secondary">Bệnh nhân</Badge>;
-    }
+    const id = resolveRoleId(roleId) ?? resolveRoleId(role);
+    if (!id) return <Badge bg="light" className="text-dark border">Không rõ vai trò</Badge>;
+    const dark = id === ROLES.LAB || id === ROLES.RECEPTIONIST;
+    return <Badge bg={ROLE_BADGE_BG[id]} className={dark ? 'text-dark' : undefined}>{ROLE_LABELS[id]}</Badge>;
   };
 
   return (
@@ -394,12 +381,7 @@ export default function UserManagementPage() {
             <Col xs={6} md={3}>
               <Form.Select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
                 <option value="all">-- Tất cả vai trò --</option>
-                <option value="admin">Quản trị viên (Admin)</option>
-                <option value="doctor">Bác sĩ (Doctor)</option>
-                <option value="lab_user">Kỹ thuật viên Lab</option>
-                <option value="receptionist">Lễ tân (Receptionist)</option>
-                <option value="manager">Quản lý (Manager)</option>
-                <option value="patient">Bệnh nhân (Patient)</option>
+                {ALL_ROLES.map(id => <option key={id} value={id}>{ROLE_LABELS[id]}</option>)}
               </Form.Select>
             </Col>
             <Col xs={6} md={2}>
@@ -577,12 +559,7 @@ export default function UserManagementPage() {
                     value={createForm.roleId}
                     onChange={e => setCreateForm({ ...createForm, roleId: Number(e.target.value) })}
                   >
-                    <option value={1}>Quản trị viên (Admin)</option>
-                    <option value={2}>Quản lý (Manager)</option>
-                    <option value={3}>Bác sĩ (Doctor)</option>
-                    <option value={4}>Kỹ thuật viên xét nghiệm (Lab User)</option>
-                    <option value={6}>Lễ tân (Receptionist)</option>
-                    <option value={5}>Bệnh nhân (Patient)</option>
+                    {ALL_ROLES.map(id => <option key={id} value={id}>{ROLE_LABELS[id]}</option>)}
                   </Form.Select>
                 </Form.Group>
               </Col>

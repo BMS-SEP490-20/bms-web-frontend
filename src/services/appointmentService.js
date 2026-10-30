@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../config/api';
 
 // appointmentService.js - Updated normalizeAppointment
 

@@ -22,6 +22,7 @@ import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
 import PackageDetailModal from "../components/PackageDetailModal.jsx";
 import "../../user-management/pages/RolesManagementPage.css";
 
+import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
 /**
  * Normalizes array payloads from diverse backend wrapper envelope formats.
  *
@@ -92,18 +93,8 @@ export default function ServicePackagesPage({ onBack }) {
     const [deleting, setDeleting] = useState(null);
     const [detailPkg, setDetailPkg] = useState(null);
 
-    const canManage = useMemo(() => {
-        try {
-            const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user");
-            if (!raw) return true;
-            const parsed = JSON.parse(raw);
-            const r = (parsed?.role || parsed?.roleName || "").toString().toUpperCase();
-            const roleId = Number(parsed?.roleId || parsed?.RoleId);
-            return roleId === 1 || r.includes("ADMIN") || r.includes("MANAGER") || r === "DOCTOR" || r === "LAB_TECHNICIAN" || !r;
-        } catch {
-            return true;
-        }
-    }, []);
+    // WHY: UC15/UC19 write = Admin + Manager (Quy trình DOT2 follow-up 2); missing user or role => read-only; the API enforces the same set.
+    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
 
     const load = useCallback(async () => {
         try {

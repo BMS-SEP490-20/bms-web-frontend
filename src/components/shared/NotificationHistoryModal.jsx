@@ -26,7 +26,7 @@ import {
   FaVial
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
-import { notificationService } from '../../../services/notificationService';
+import { notificationService } from '../../services/notificationService';
 
 const NotificationHistoryModal = ({ variant = 'light' }) => {
   const { user } = useAuth();

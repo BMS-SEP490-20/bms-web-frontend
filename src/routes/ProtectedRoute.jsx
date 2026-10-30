@@ -1,87 +1,42 @@
 /**
  * @file ProtectedRoute.jsx
- * @description Route guard component enforcing authentication and RBAC authorization (BR-IAM-02).
- * Verifies JWT session token and user role before granting access to clinical/management modules.
- * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * @description The single route guard for BMS web (BR-IAM-02). Replaces the second copy that lived in App.jsx.
+ * UX only: the backend `[Authorize(Roles=…)]` attributes remain the security boundary.
+ *
+ * - not signed in            -> redirect to /login (remembers the target in location state)
+ * - signed in, role unknown  -> redirect to /403 (unknown roles are never treated as Patient)
+ * - signed in, wrong role    -> redirect to /403
+ * - allowed                  -> render children, or <Outlet/> when used as a layout route
  */
 
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getToken } from "../config/api";
-import Forbidden403 from "../components/errors/Forbidden403";
+import { getStoredUser, resolveRoleId } from "../constants/roles";
 
 /**
- * Normalizes role string to standard uppercase format.
- *
- * @param {string} role Raw role string
- * @returns {string} Normalized role
- */
-function normalizeRole(role) {
-  if (!role) return "PATIENT";
-  const r = role.toString().trim().toUpperCase();
-  if (r.includes("ADMIN")) return "ADMIN";
-  if (r.includes("MANAGER")) return "MANAGER";
-  if (r.includes("WAREHOUSE")) return "WAREHOUSESTAFF";
-  if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
-  if (r.includes("HEAD") || r.includes("TRUONGPHONG")) return "LABHEAD";
-  if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
-  if (r.includes("RECEPT") || r.includes("LETAN")) return "RECEPTIONIST";
-  if (r === "NURSE" || r === "PHLEBOTOMIST") return "NURSE";
-  if (r === "WAREHOUSESTAFF") return "WAREHOUSESTAFF";
-  if (r.includes("CASHIER") || r.includes("THUNGAN")) return "CASHIER";
-  return "PATIENT";
-}
-
-/**
- * Retrieves the current authenticated user profile from browser storage.
- *
- * @returns {object|null} The parsed user object if present, otherwise null.
- */
-function getCurrentUser() {
-  try {
-    const raw =
-      localStorage.getItem("bms_user") ||
-      sessionStorage.getItem("bms_user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Route guard component protecting private internal BMS application routes.
- * Checks for authentication token and verifies whether current user role matches allowed roles.
- *
- * @param {object} props - Component properties.
- * @param {string[]} [props.allowedRoles] - List of permitted role names (e.g. ['ADMIN', 'MANAGER', 'DOCTOR']).
- * @param {React.ReactNode} [props.children] - Child elements if not using nested route Outlet.
- * @returns {JSX.Element} Rendered child routes, redirect to login, or 403 Forbidden screen.
+ * @param {object} props
+ * @param {Array<number|string>} [props.allowedRoles] Role IDs from ROLES (role names are accepted and
+ *   resolved through the same alias table). Empty or missing = any signed-in user with a known role.
+ * @param {React.ReactNode} [props.children] Content to render instead of nested routes.
+ * @returns {JSX.Element}
  */
 export default function ProtectedRoute({ allowedRoles, children }) {
   const location = useLocation();
   const token = getToken();
-  const user = getCurrentUser();
+  const user = getStoredUser();
 
-  // 1. Verify authentication status
-  if (!token && !user) {
+  if (!token || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Verify Role-Based Access Control (RBAC) permissions
-  if (allowedRoles && allowedRoles.length > 0) {
-    const userRole = normalizeRole(user?.role || user?.roleName);
-    const normalizedAllowedRoles = allowedRoles.map(r => normalizeRole(r));
-    const hasPermission = normalizedAllowedRoles.includes(userRole);
+  const roleId = resolveRoleId(user);
+  const allowedIds = (allowedRoles ?? []).map(resolveRoleId).filter((id) => id !== null);
+  const allowed = roleId !== null && (allowedIds.length === 0 || allowedIds.includes(roleId));
 
-    if (!hasPermission) {
-      return (
-        <Forbidden403
-          requiredRole={allowedRoles.join(", ")}
-          userRole={userRole}
-        />
-      );
-    }
+  if (!allowed) {
+    return <Navigate to="/403" state={{ from: location }} replace />;
   }
 
-  return children ? children : <Outlet />;
+  return children ?? <Outlet />;
 }

@@ -9,7 +9,7 @@
  * @since 2024
  */
 
-import api from './api';
+import api from '../config/api';
 
 // Map UI sample type labels (Vietnamese or English) to backend canonical values
 const mapUiToBackendSampleType = (label) => {

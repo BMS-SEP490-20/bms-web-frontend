@@ -32,6 +32,7 @@ import {
     downloadBackupArchive,
     deleteBackup
 } from "../api/backupApi";
+import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import CreateBackupModal from "../components/CreateBackupModal";
 import RestoreConfirmationModal from "../components/RestoreConfirmationModal";
 import BackupDetailModal from "../components/BackupDetailModal";
@@ -44,6 +45,9 @@ const TABS = [
 ];
 
 export default function BackupManagementPage() {
+    const currentUser = getStoredUser();
+    const isAdmin = hasRole(currentUser, ROLES.ADMIN);
+
     // States
     const [backups, setBackups] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
@@ -102,8 +106,10 @@ export default function BackupManagementPage() {
                 setTotalCount(data.totalCount || 0);
             }
         } catch (err) {
-            console.error("[Backup Page] Error loading data:", err);
-            setToastMessage({ type: "danger", text: "Không thể tải danh sách bản sao lưu." });
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách bản sao lưu."
+            });
         } finally {
             setLoading(false);
         }
@@ -126,7 +132,10 @@ export default function BackupManagementPage() {
             }
             loadData();
         } catch (err) {
-            setToastMessage({ type: "danger", text: "Lỗi trong quá trình xác thực mã băm." });
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Lỗi trong quá trình xác thực mã băm."
+            });
         } finally {
             setVerifyingId(null);
         }
@@ -146,12 +155,28 @@ export default function BackupManagementPage() {
         try {
             setDownloadingId(item.backupId || item.id);
             await downloadBackupArchive(id, preferredName);
-        } catch (err) {
-            console.warn("[Backup Page] Download via blob failed, opening direct URL:", err);
+        } catch {
             const directUrl = getBackupDownloadUrl(id);
             window.open(directUrl, "_blank");
         } finally {
             setDownloadingId(null);
+        }
+    };
+
+    const handleDeleteBackup = async (item) => {
+        const id = item.backupId || item.id;
+        try {
+            await deleteBackup(id);
+            setToastMessage({
+                type: "success",
+                text: `Đã xóa bản sao lưu ${item.backupId || id} thành công.`
+            });
+            loadData();
+        } catch (err) {
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể xóa bản sao lưu."
+            });
         }
     };
 
@@ -216,14 +241,16 @@ export default function BackupManagementPage() {
                         <FaSync className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
-                    <button
-                        type="button"
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
-                        onClick={() => setShowCreateModal(true)}
-                    >
-                        <FaPlus />
-                        <span>+ Sao Lưu Dữ Liệu Xét Nghiệm</span>
-                    </button>
+                    {isAdmin && (
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                            onClick={() => setShowCreateModal(true)}
+                        >
+                            <FaPlus />
+                            <span>+ Sao Lưu Dữ Liệu Xét Nghiệm</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -574,17 +601,29 @@ export default function BackupManagementPage() {
                                                     >
                                                         <FaEye />
                                                     </button>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-danger btn-sm"
-                                                        title="Khôi phục dữ liệu từ bản này"
-                                                        onClick={() => {
-                                                            setSelectedBackup(item);
-                                                            setShowRestoreModal(true);
-                                                        }}
-                                                    >
-                                                        <FaUndo />
-                                                    </button>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-outline-danger btn-sm"
+                                                                title="Khôi phục dữ liệu từ bản này"
+                                                                onClick={() => {
+                                                                    setSelectedBackup(item);
+                                                                    setShowRestoreModal(true);
+                                                                }}
+                                                            >
+                                                                <FaUndo />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-outline-secondary btn-sm"
+                                                                title="Xóa bản sao lưu"
+                                                                onClick={() => handleDeleteBackup(item)}
+                                                            >
+                                                                <FaTrashAlt />
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -597,27 +636,31 @@ export default function BackupManagementPage() {
             )}
 
             {/* Modals */}
-            <CreateBackupModal
-                show={showCreateModal}
-                onHide={() => setShowCreateModal(false)}
-                onBackupCreated={handleBackupCreated}
-            />
+            {isAdmin && (
+                <>
+                    <CreateBackupModal
+                        show={showCreateModal}
+                        onHide={() => setShowCreateModal(false)}
+                        onBackupCreated={handleBackupCreated}
+                    />
 
-            <RestoreConfirmationModal
-                show={showRestoreModal}
-                onHide={() => setShowRestoreModal(false)}
-                backup={selectedBackup}
-                onRestoreSuccess={handleRestoreSuccess}
-            />
+                    <RestoreConfirmationModal
+                        show={showRestoreModal}
+                        onHide={() => setShowRestoreModal(false)}
+                        backup={selectedBackup}
+                        onRestoreSuccess={handleRestoreSuccess}
+                    />
+                </>
+            )}
 
             <BackupDetailModal
                 show={showDetailModal}
                 onHide={() => setShowDetailModal(false)}
                 backup={selectedBackup}
-                onRestoreTrigger={(b) => {
+                onRestoreTrigger={isAdmin ? (b) => {
                     setSelectedBackup(b);
                     setShowRestoreModal(true);
-                }}
+                } : undefined}
             />
         </div>
     );

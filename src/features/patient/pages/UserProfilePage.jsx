@@ -45,16 +45,21 @@ export const UserProfilePage = () => {
           patientCode: p.patientCode || p.id,
           role: 'Patient',
           createdAt: p.createdAt ? new Date(p.createdAt).toLocaleDateString('vi-VN') : '—',
-          identityCardNumberMasked: p.identityCardMasked || p.identityCard || '—',
+          identityCardNumberMasked: p.identityCardMasked || p.identityNumber || p.identityCard || '—',
           dateOfBirth: p.dateOfBirth ? new Date(p.dateOfBirth).toLocaleDateString('vi-VN') : '—',
           gender: p.gender || '—',
-          phoneNumber: p.phone || '—',
+          phoneNumber: p.phoneNumber || p.phone || '—',
           email: p.email || '—',
           bloodType: p.bloodType || 'Chưa xác định',
           address: p.address || '—'
         });
       } else {
-        setErrorMessage(userRes.value?.message || 'Unable to load profile.');
+        setErrorMessage(
+          userRes.value?.message ||
+          patRes.reason?.message ||
+          userRes.reason?.message ||
+          'Không thể tải thông tin hồ sơ bệnh nhân.'
+        );
       }
 
       if (patRes.status === 'fulfilled' && patRes.value) {
@@ -172,7 +177,7 @@ export const UserProfilePage = () => {
 
                   <Col md={6}>
                     <div className="bms-field-label">Số CCCD / Định danh (Đề án 06)</div>
-                    <div className="bms-field-value">{patientRecord?.identityCard || profile.identityCardNumberMasked}</div>
+                    <div className="bms-field-value">{patientRecord?.identityNumber || patientRecord?.identityCard || profile.identityCardNumberMasked}</div>
                   </Col>
 
                   <Col md={6}>
@@ -192,7 +197,7 @@ export const UserProfilePage = () => {
                     <div className="bms-field-label">Số điện thoại liên hệ</div>
                     <div className="bms-field-value">
                       <i className="bi bi-telephone me-2 text-muted"></i>
-                      {patientRecord?.phone || profile.phoneNumber}
+                      {patientRecord?.phoneNumber || patientRecord?.phone || profile.phoneNumber}
                     </div>
                   </Col>
 
@@ -267,10 +272,10 @@ export const UserProfilePage = () => {
                   <div className="p-3 border rounded-3 bg-light">
                     <div className="small text-muted">Liên hệ khẩn cấp</div>
                     <div className="fw-bold text-dark">
-                      {patientRecord.emergencyContact?.name || 'Chưa cập nhật'}
+                      {patientRecord.emergencyContactName || patientRecord.emergencyContact?.name || 'Chưa cập nhật'}
                     </div>
                     <div className="small text-secondary">
-                      {patientRecord.emergencyContact?.phone || ''} {patientRecord.emergencyContact?.relationship ? `(${patientRecord.emergencyContact.relationship})` : ''}
+                      {patientRecord.emergencyContactPhone || patientRecord.emergencyContact?.phone || ''} {patientRecord.emergencyContact?.relationship ? `(${patientRecord.emergencyContact.relationship})` : ''}
                     </div>
                   </div>
                 </Col>
@@ -288,9 +293,9 @@ export const UserProfilePage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {patientRecord.recentAppointments.map((a) => (
-                      <tr key={a.id}>
-                        <td><code>{a.id}</code></td>
+                    {patientRecord.recentAppointments.map((a, idx) => (
+                      <tr key={a.appointmentId || a.id || idx}>
+                        <td><code>{a.appointmentId || a.id}</code></td>
                         <td>{a.appointmentDate ? new Date(a.appointmentDate).toLocaleString('vi-VN') : '—'}</td>
                         <td><Badge bg="info">{a.status}</Badge></td>
                         <td>{a.paymentStatus}</td>

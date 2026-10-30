@@ -33,7 +33,7 @@ const MENU_SECTIONS = [
     items: [
       { id: 'check-in', path: '/receptionist/check-in', label: 'Check-in QR Code', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
       { id: 'create-pt', path: '/receptionist/create-patient', label: 'Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: [RECEPTIONIST] },
-      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] },
+      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST, DOCTOR, LAB, MANAGER], badge: { text: 'UC30', bg: 'info' } },
       { id: 'appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: [RECEPTIONIST, MANAGER, DOCTOR, PATIENT] }
     ]
   },

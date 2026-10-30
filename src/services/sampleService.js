@@ -108,7 +108,6 @@ export const sampleService = {
       const response = await api.put('/gateway/testorder/bloodsample/' + sampleId + '/validate', data);
       return response.data;
     } catch (error) {
-      console.error('Error validating sample:', error);
       throw error;
     }
   },

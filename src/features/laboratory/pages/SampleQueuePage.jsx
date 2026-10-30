@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import { searchPatients } from '../../../services/patientService';
-import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
+import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 
 /**
  * ISO 15189 Permitted Sample Status Transitions (matches LabQueueService.AllowedStatusTransitions in BE).
@@ -93,6 +93,12 @@ function extractApiError(err, fallback = 'Không thể thực hiện thao tác t
 }
 
 const SampleQueuePage = () => {
+  const currentUser = getStoredUser();
+  const canRecordSampleTime = hasRole(currentUser, ROLES.LAB);
+  const canUpdateSampleStatus = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
+  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'CN.XN Phạm Minh Tuấn';
+  const defaultOperatorId = currentUser?.id || currentUser?.username || 'LAB-001';
+
   const [samples, setSamples] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -105,17 +111,10 @@ const SampleQueuePage = () => {
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [labRoomFilter, setLabRoomFilter] = useState('');
 
-  // Patients, Appointments & Lab Rooms from DB for dynamic lookup in Record Sample Time & Update Sample Status
+  // Dynamic lookups from backend APIs
   const [patientOptions, setPatientOptions] = useState([]);
   const [appointmentOptions, setAppointmentOptions] = useState([]);
-  const [labRooms, setLabRooms] = useState([]);
-
-  const storedUser = React.useMemo(() => getStoredUser(), []);
-  // WHY: UC40 Record Sample Time & UC47 Request Rerun are Lab-only; UC45 Update Sample Status is Lab + Manager (ROLE-PERMISSION-MATRIX §1).
-  const canRecordSampleTime = React.useMemo(() => hasRole(storedUser, ROLES.LAB), [storedUser]);
-  const canUpdateSampleStatus = React.useMemo(() => hasRole(storedUser, [ROLES.LAB, ROLES.MANAGER]), [storedUser]);
-  const defaultOperatorName = storedUser?.fullName || storedUser?.username || 'KTV Xét Nghiệm';
-  const defaultOperatorId = storedUser?.id || storedUser?.username || 'LAB-001';
+  const [labRooms, setLabRooms] = useState(['LAB-ROOM-01', 'LAB-ROOM-02', 'LAB-BIOCHEM-01', 'LAB-HEMATOLOGY-01']);
 
   // =========================================================================
   // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
@@ -129,8 +128,8 @@ const SampleQueuePage = () => {
     patientId: '',
     appointmentId: '',
     collectedAt: toLocalDateTimeInput(),
-    collectorName: 'ĐD. Hoàng Mai Lan',
-    collectedBy: 'NURSE-01',
+    collectorName: defaultOperatorName,
+    collectedBy: defaultOperatorId,
     sampleType: 'Blood',
     tubeColor: 'Purple',
     anticoagulant: 'K2-EDTA',
@@ -150,8 +149,8 @@ const SampleQueuePage = () => {
   const [statusDetailLoading, setStatusDetailLoading] = useState(false);
   const [statusForm, setStatusForm] = useState({
     status: '',
-    technicianName: 'CN.XN Phạm Minh Tuấn',
-    technicianId: 'LAB-001',
+    technicianName: defaultOperatorName,
+    technicianId: defaultOperatorId,
     labRoom: 'LAB-ROOM-01',
     timestamp: toLocalDateTimeInput(),
     rejectionReason: '',
@@ -202,41 +201,40 @@ const SampleQueuePage = () => {
     fetchQueue();
   }, [fetchQueue]);
 
-  // Load real Lab Rooms from DB (/api/shifts/rooms)
-  useEffect(() => {
-    api.get('/shifts/rooms')
-      .then((res) => {
-        const list = res.data?.data || res.data || [];
-        if (Array.isArray(list) && list.length > 0) {
-          setLabRooms(list);
-        }
-      })
-      .catch(() => {
-        // Non-blocking
-      });
-  }, []);
-
-  // Load patient and appointment options from DB for the Record Sample Time modal
-  const loadPatientsForLookup = async () => {
-    if (patientOptions.length === 0) {
-      try {
+  // Load patient, appointment, and lab room options dynamically from backend APIs
+  const loadLookups = useCallback(async () => {
+    try {
+      if (patientOptions.length === 0) {
         const res = await searchPatients({ page: 1, pageSize: 50 });
         const items = res?.items || res?.Items || [];
-        setPatientOptions(items);
-      } catch {
-        // Non-blocking
+        if (items.length > 0) setPatientOptions(items);
       }
+    } catch {
+      // Non-blocking
     }
-    if (appointmentOptions.length === 0) {
-      try {
-        const res = await api.get('/appointments', { params: { page: 1, pageSize: 50 } });
-        const items = res.data?.items || res.data?.Items || res.data?.data || (Array.isArray(res.data) ? res.data : []);
-        setAppointmentOptions(items);
-      } catch {
-        // Non-blocking
+
+    try {
+      if (appointmentOptions.length === 0) {
+        const aptRes = await api.get('/appointments');
+        const aptList = Array.isArray(aptRes.data?.data) ? aptRes.data.data : (Array.isArray(aptRes.data) ? aptRes.data : []);
+        if (aptList.length > 0) setAppointmentOptions(aptList.slice(0, 30));
       }
+    } catch {
+      // Non-blocking
     }
-  };
+
+    try {
+      const roomRes = await api.get('/shifts/rooms');
+      const rList = Array.isArray(roomRes.data?.data) ? roomRes.data.data : (Array.isArray(roomRes.data) ? roomRes.data : []);
+      if (rList.length > 0) setLabRooms(rList);
+    } catch {
+      // Non-blocking
+    }
+  }, [patientOptions.length, appointmentOptions.length]);
+
+  useEffect(() => {
+    loadLookups();
+  }, [loadLookups]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -247,7 +245,7 @@ const SampleQueuePage = () => {
   // HANDLERS: RECORD SAMPLE TIME MODAL
   // =========================================================================
   const openRecordCollectionModal = (sample = null) => {
-    loadPatientsForLookup();
+    loadLookups();
     setCollectionTargetSample(sample);
     setCollectionError('');
 
@@ -266,7 +264,7 @@ const SampleQueuePage = () => {
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
         volumeMl: sample.volumeMl || 3.0,
         priority: sample.priority || 'Normal',
-        labRoom: sample.labRoom || (labRooms[0]?.id || 'LAB-ROOM-01'),
+        labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: sample.notes || ''
       });
     } else {
@@ -285,7 +283,7 @@ const SampleQueuePage = () => {
         anticoagulant: 'K2-EDTA',
         volumeMl: 3.0,
         priority: 'Normal',
-        labRoom: labRooms[0]?.id || 'LAB-ROOM-01',
+        labRoom: (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: ''
       });
     }
@@ -383,9 +381,9 @@ const SampleQueuePage = () => {
     setStatusError('');
     setStatusForm({
       status: defaultNext,
-      technicianName: sample.assignedTechnicianName || 'CN.XN Phạm Minh Tuấn',
-      technicianId: sample.assignedTechnicianId || 'LAB-001',
-      labRoom: sample.labRoom || 'LAB-ROOM-01',
+      technicianName: sample.assignedTechnicianName || defaultOperatorName,
+      technicianId: sample.assignedTechnicianId || defaultOperatorId,
+      labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
       timestamp: toLocalDateTimeInput(new Date()),
       rejectionReason: sample.rejectionReason || '',
       notes: ''
@@ -470,7 +468,7 @@ const SampleQueuePage = () => {
     try {
       await api.post(`/laboratory/samples/${encodeURIComponent(selectedSample.id)}/rerun`, {
         reason: rerunReason.trim(),
-        requestedBy: 'CN.XN Phạm Minh Tuấn'
+        requestedBy: defaultOperatorName
       });
       setSuccessMsg(`Đã gửi yêu cầu chạy lại (Rerun) cho mẫu ${selectedSample.barcode}.`);
       setShowRerunModal(false);
@@ -532,7 +530,7 @@ const SampleQueuePage = () => {
               onClick={() => openRecordCollectionModal(null)}
               className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
             >
-              <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới (UC40)
+              <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
             </Button>
           )}
         </div>
@@ -1208,10 +1206,17 @@ const SampleQueuePage = () => {
                     <Form.Label className="small fw-semibold">Phòng Lab Xử Lý</Form.Label>
                     <Form.Control
                       type="text"
+                      list="status-lab-room-options"
                       placeholder="VD: LAB-ROOM-01"
                       value={statusForm.labRoom}
                       onChange={(e) => setStatusForm(prev => ({ ...prev, labRoom: e.target.value }))}
                     />
+                    <datalist id="status-lab-room-options">
+                      {labRooms.map((rm) => {
+                        const code = typeof rm === 'string' ? rm : (rm.id || rm.roomNumber || 'LAB-ROOM-01');
+                        return <option key={code} value={code} />;
+                      })}
+                    </datalist>
                   </Col>
 
                   <Col md={6}>

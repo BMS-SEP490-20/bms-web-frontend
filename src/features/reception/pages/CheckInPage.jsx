@@ -107,6 +107,17 @@ export default function CheckInPage() {
   // No stored user => false (the old code returned true and also let Admin in).
   const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
 
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('action') === 'create-guest' && canCreateGuest) {
+        setShowCreateModal(true);
+      }
+    } catch {
+      // Ignore query parse error
+    }
+  }, [canCreateGuest]);
+
   // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => {
@@ -217,7 +228,7 @@ export default function CheckInPage() {
 
   const handleOpenCreateGuestModal = () => {
     if (!canCreateGuest) {
-      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai (UC25) yêu cầu quyền Lễ Tân (Receptionist) hoặc Quản trị viên (Admin). Vui lòng đăng nhập với tài khoản Lễ tân hoặc Admin để thực hiện.');
+      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai (UC25) yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
       return;
     }
     setGuestForm(INITIAL_GUEST_FORM);
@@ -250,13 +261,13 @@ export default function CheckInPage() {
       return;
     }
     const phoneClean = guestForm.phoneNumber.trim();
-    if (!/^(\+84|0)[0-9]{8,10}$/.test(phoneClean)) {
-      setCreateError('Số điện thoại không hợp lệ (Chuẩn VN: 0xxxxxxxxx hoặc +84xxxxxxxxx).');
+    if (!/^0[35789][0-9]{8}$/.test(phoneClean)) {
+      setCreateError('Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09.');
       return;
     }
     const idCardClean = guestForm.identityNumber.trim();
-    if (idCardClean && !/^[0-9]{9,12}$/.test(idCardClean)) {
-      setCreateError('Số CCCD / CMND phải gồm từ 9 đến 12 chữ số.');
+    if (idCardClean && !/^[0-9]{12}$/.test(idCardClean)) {
+      setCreateError('Số CCCD phải gồm đúng 12 chữ số (hoặc để trống nếu khách chưa có CCCD).');
       return;
     }
     const emergPhoneClean = guestForm.emergencyContactPhone.trim();
@@ -343,17 +354,19 @@ export default function CheckInPage() {
           <Button variant="outline-secondary" onClick={loadPatients} disabled={loading}>
             <FaSyncAlt className="me-1" /> Làm mới
           </Button>
-          <Button
-            variant="primary"
-            className="fw-semibold shadow-sm d-flex align-items-center gap-2"
-            onClick={handleOpenCreateGuestModal}
-            id="btn-create-guest-profile"
-            title="Khởi tạo hồ sơ khách vãng lai mới (UC25)"
-          >
-            <FaUserPlus />
-            <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
-            <Badge bg="light" text="dark" className="ms-1">UC25</Badge>
-          </Button>
+          {canCreateGuest && (
+            <Button
+              variant="primary"
+              className="fw-semibold shadow-sm d-flex align-items-center gap-2"
+              onClick={handleOpenCreateGuestModal}
+              id="btn-create-guest-profile"
+              title="Khởi tạo hồ sơ khách vãng lai mới (UC25)"
+            >
+              <FaUserPlus />
+              <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
+              <Badge bg="light" text="dark" className="ms-1">UC25</Badge>
+            </Button>
+          )}
         </div>
       </div>
 

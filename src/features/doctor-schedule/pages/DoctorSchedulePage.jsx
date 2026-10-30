@@ -20,11 +20,12 @@ import {
   createShift,
   updateShift,
   deleteShift,
-  fetchRooms
+  fetchRooms,
+  fetchShiftStaff
 } from '../api/scheduleApi';
 import { userManagementService } from '../../../services/userManagementService';
 
-import { ROLES, resolveRoleId } from '../../../constants/roles';
+import { ROLES, resolveRoleId, hasRole, getStoredUser } from '../../../constants/roles';
 const SHIFT_TYPE_META = {
   Morning: { label: 'Ca Sáng', defaultStart: '07:00', defaultEnd: '11:30', badge: 'bg-primary-subtle text-primary border border-primary-subtle' },
   Afternoon: { label: 'Ca Chiều', defaultStart: '13:00', defaultEnd: '17:00', badge: 'bg-info-subtle text-info-emphasis border border-info-subtle' },
@@ -100,21 +101,34 @@ export default function DoctorSchedulePage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
 
-  // Rooms from DB
+  // Rooms & Staff from DB
   const [rooms, setRooms] = useState([]);
   const [staffList, setStaffList] = useState([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
 
+  // WHY: UC35 Create/Update/Delete Shifts are restricted to Manager role per ROLE-PERMISSION-MATRIX §1.
+  // All staff roles (Admin, Manager, Doctor, Lab, Receptionist) can View Shifts.
+  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.MANAGER), []);
+
   useEffect(() => {
     setLoadingStaff(true);
-    userManagementService.getAllUsers({ pageSize: 100 })
+    fetchShiftStaff()
+      .then(list => {
+        if (Array.isArray(list) && list.length > 0) {
+          setStaffList(list);
+          return null;
+        }
+        return userManagementService.getAllUsers({ pageSize: 100 });
+      })
       .then(res => {
         if (res?.success && Array.isArray(res.data)) {
           const staff = res.data.filter(u => { const id = resolveRoleId(u); return id !== null && id !== ROLES.PATIENT; });
           setStaffList(staff);
         }
       })
-      .catch(err => console.error('Failed to load staff list from DB:', err))
+      .catch(() => {
+        // Handled silently; error banner shown on shift load if API unreachable
+      })
       .finally(() => setLoadingStaff(false));
   }, []);
   useEffect(() => {
@@ -122,7 +136,9 @@ export default function DoctorSchedulePage() {
       .then(data => {
         if (Array.isArray(data)) setRooms(data);
       })
-      .catch(err => console.error('Failed to load shift rooms from DB:', err));
+      .catch(() => {
+        // Handled silently; error banner shown on shift load if API unreachable
+      });
   }, []);
 
   // Data states
@@ -379,9 +395,11 @@ export default function DoctorSchedulePage() {
           <Button variant="outline-secondary" size="sm" onClick={loadShifts} disabled={loading} className="d-flex align-items-center gap-1 px-3 py-2">
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
-          <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm">
-            <FaPlus /> Tạo Ca Làm Việc Mới
-          </Button>
+          {canManageShifts && (
+            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm">
+              <FaPlus /> Tạo Ca Làm Việc Mới (UC35)
+            </Button>
+          )}
         </div>
       </div>
 
@@ -573,9 +591,11 @@ export default function DoctorSchedulePage() {
                     <FaUserMd className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50" />
                     <div className="fw-semibold">Không tìm thấy ca làm việc nào phù hợp</div>
                     <div className="small mb-3">Thử xoá bộ lọc ngày hoặc nhấn &ldquo;Tạo Ca Làm Việc Mới&rdquo; để phân ca.</div>
-                    <Button variant="primary" size="sm" onClick={handleOpenCreate}>
-                      <FaPlus className="me-1" /> Tạo Ca Làm Việc Đầu Tiên
-                    </Button>
+                    {canManageShifts && (
+                      <Button variant="primary" size="sm" onClick={handleOpenCreate}>
+                        <FaPlus className="me-1" /> Tạo Ca Làm Việc Đầu Tiên
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -678,22 +698,26 @@ export default function DoctorSchedulePage() {
                           >
                             <FaEye />
                           </Button>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            title="Cập nhật ca trực"
-                            onClick={() => handleOpenEdit(shift)}
-                          >
-                            <FaEdit />
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            title="Xoá ca trực"
-                            onClick={() => handleOpenDelete(shift)}
-                          >
-                            <FaTrash />
-                          </Button>
+                          {canManageShifts && (
+                            <>
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                title="Cập nhật ca trực (UC35)"
+                                onClick={() => handleOpenEdit(shift)}
+                              >
+                                <FaEdit />
+                              </Button>
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                title="Xoá ca trực (UC35)"
+                                onClick={() => handleOpenDelete(shift)}
+                              >
+                                <FaTrash />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -783,18 +807,26 @@ export default function DoctorSchedulePage() {
                     const empId = e.target.value;
                     const st = staffList.find(s => s.id === empId || s.username === empId);
                     if (st) {
+                      const rawRole = String(st.role || '').toLowerCase();
                       const roleMap = {
                         doctor: 'Doctor',
+                        lab: 'LabTech',
                         lab_technician: 'LabTech',
+                        labtech: 'LabTech',
+                        manager: 'Manager',
                         receptionist: 'Receptionist',
                         admin: 'Admin'
                       };
+                      const mappedRole = roleMap[rawRole] || st.role || 'Doctor';
+                      const defaultDept = st.department || st.doctorProfile?.specialty ||
+                        (rawRole === 'doctor' ? 'Khoa Khám Bệnh' :
+                         (rawRole === 'lab' || rawRole === 'lab_technician' || rawRole === 'manager' ? 'Khoa Xét Nghiệm' : 'Bộ Phận Tiếp Đón'));
                       setFormData(prev => ({
                         ...prev,
                         employeeId: st.id,
                         employeeName: st.fullName || st.username,
-                        employeeRole: roleMap[st.role] || 'Doctor',
-                        department: st.doctorProfile?.specialty || (st.role === 'doctor' ? 'Khoa Khám Bệnh' : (st.role === 'lab_technician' ? 'Khoa Xét Nghiệm' : 'Tiếp Đón'))
+                        employeeRole: mappedRole,
+                        department: defaultDept
                       }));
                     } else {
                       setFormData(prev => ({ ...prev, employeeId: empId, employeeName: '', department: '' }));
@@ -804,8 +836,15 @@ export default function DoctorSchedulePage() {
                 >
                   <option value="">-- Chọn Bác Sĩ / Kỹ Thuật Viên / Lễ Tân từ CSDL Nhân Sự --</option>
                   {staffList.map(emp => {
-                    const roleLabel = emp.role === 'doctor' ? 'Bác sĩ' : emp.role === 'lab_technician' ? 'KTV Xét nghiệm' : emp.role === 'receptionist' ? 'Lễ tân' : 'Quản trị';
-                    const dept = emp.doctorProfile?.specialty || (emp.role === 'doctor' ? 'Khoa Khám Bệnh' : (emp.role === 'lab_technician' ? 'Khoa Xét Nghiệm' : 'Tiếp Đón'));
+                    const rawRole = String(emp.role || '').toLowerCase();
+                    const roleLabel =
+                      rawRole === 'doctor' ? 'Bác sĩ' :
+                      (rawRole === 'lab' || rawRole === 'lab_technician' || rawRole === 'labtech') ? 'KTV Xét nghiệm' :
+                      rawRole === 'manager' ? 'Quản lý Lab' :
+                      rawRole === 'receptionist' ? 'Lễ tân' : 'Quản trị';
+                    const dept = emp.department || emp.doctorProfile?.specialty ||
+                      (rawRole === 'doctor' ? 'Khoa Khám Bệnh' :
+                       (rawRole === 'lab' || rawRole === 'lab_technician' || rawRole === 'manager') ? 'Khoa Xét Nghiệm' : 'Bộ Phận Tiếp Đón');
                     return (
                       <option key={emp.id} value={emp.id}>
                         {emp.fullName || emp.username} — {dept} ({roleLabel}) [Mã: {emp.id}]
@@ -1110,7 +1149,7 @@ export default function DoctorSchedulePage() {
           )}
         </Modal.Body>
         <Modal.Footer className="bg-light">
-          {detailShift && (
+          {detailShift && canManageShifts && (
             <Button
               variant="outline-primary"
               onClick={() => {

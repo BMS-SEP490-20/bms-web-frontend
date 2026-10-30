@@ -475,8 +475,8 @@ export default function App() {
                   <Route path="/shifts/view" element={<ViewShiftsPage />} />
                 </Route>
 
-                {/* UC16 doctor schedule: Doctor, Manager, Admin, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, ADMIN, RECEPTIONIST]} />}>
+                {/* UC35/UC16 shift schedule view: Admin, Manager, Doctor, Lab, Receptionist */}
+                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, ADMIN, LAB, RECEPTIONIST]} />}>
                   <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/schedule" element={<DoctorSchedulePage />} />
                 </Route>
@@ -613,11 +613,11 @@ export default function App() {
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                 </Route>
 
-                {/* UC35 shift rostering: Manager */}
+                {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager */}
                 <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
-                  <Route path="/manage/schedule" element={<ScheduleManagementPage />} />
-                  {/* WHY: ShiftAssignment module was never committed; shift rostering lives in ManageSchedulePage. */}
-                  <Route path="/manager/shift-assignment" element={<ScheduleManagementPage />} />
+                  <Route path="/manage/schedule" element={<DoctorSchedulePage />} />
+                  <Route path="/manager/shift-assignment" element={<DoctorSchedulePage />} />
+                  <Route path="/schedule/personal" element={<ScheduleManagementPage />} />
                 </Route>
 
                 {/* UC68 IoT alerts: Lab, Manager */}

@@ -133,7 +133,7 @@ export default function LoginPage({
     }
 
     if (!identifier.trim() || !password) {
-      setError("Vui lòng nhập Email, Số CCCD, SĐT hoặc Mã nhân viên và Mật khẩu.");
+      setError("Vui lòng nhập Tên đăng nhập hoặc Email và Mật khẩu.");
       return;
     }
 
@@ -384,7 +384,7 @@ export default function LoginPage({
             <form onSubmit={handleSubmit} noValidate>
               <div className="login-field">
                 <label htmlFor="login-email">
-                  Email, CCCD, SĐT hoặc Mã Nhân Viên <span className="text-danger">*</span>
+                  Tên đăng nhập hoặc Email <span className="text-danger">*</span>
                 </label>
                 <div className="login-input-wrap">
                   <FaUser className="text-muted ms-2" />
@@ -392,7 +392,7 @@ export default function LoginPage({
                     id="login-email"
                     type="text"
                     autoComplete="username"
-                    placeholder="name@bms.health.vn hoặc NV-0001"
+                    placeholder="name@bms.health.vn hoặc username"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required

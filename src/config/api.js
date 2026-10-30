@@ -114,7 +114,6 @@ api.interceptors.response.use(
 
         const refreshToken = getRefreshToken();
         if (!refreshToken) {
-            console.warn("[BMS API] 401 Unauthorized: Session token is missing or expired, and no refresh token is stored.");
             return Promise.reject(error);
         }
 
@@ -237,12 +236,6 @@ export async function apiRequest(
             data?.detail ||
             (typeof data === "string" && data.trim()) ||
             `Request failed with status ${response.status}`;
-
-        if (response.status === 401) {
-            console.warn(
-                "[BMS API] 401 Unauthorized: Session token is missing, invalid, or expired."
-            );
-        }
 
         throw new Error(message);
     }

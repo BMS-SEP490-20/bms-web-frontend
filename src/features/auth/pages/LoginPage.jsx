@@ -2,34 +2,50 @@
  * @file LoginPage.jsx
  * @description Authentication screen for patients and clinical staff (UC05 - Log In to System).
  * @issue I1-018 | BR-018 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
- * Implements multi-identifier login (CCCD / Email / Phone / Employee Code), account lockout on 5 failed attempts (BR-IAM-03),
- * and dynamic role-based redirection to target clinical/admin portals.
+ * Implements Username / Email login, account lockout on 5 failed attempts (BR-IAM-03),
+ * and dynamic role-based redirection to target clinical/admin portals (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient).
  * Conforms to: BR-IAM-01, BR-IAM-02, BR-IAM-03 & AGENTS-DESIGN.md.
  */
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
-import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaVial, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
 import "./LoginPage.css";
 
 /**
- * Normalizes role string to standard uppercase format.
+ * Canonical role names indexed by RoleId (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient, 6=Manager).
  */
-function normalizeRole(role) {
-  if (!role) return "PATIENT";
-  const r = role.toString().trim().toUpperCase();
-  if (r.includes("ADMIN")) return "ADMIN";
-  if (r.includes("MANAGER")) return "MANAGER";
-  if (r.includes("WAREHOUSE")) return "WAREHOUSESTAFF";
-  if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
-  if (r.includes("HEAD")) return "LABHEAD";
-  if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
-  if (r.includes("RECEPT") || r.includes("LETAN")) return "RECEPTIONIST";
-  if (r.includes("CASHIER") || r.includes("THUNGAN")) return "CASHIER";
-  return "PATIENT";
+const CANONICAL_ROLE_BY_ID = Object.freeze({
+  [ROLES.ADMIN]: "Admin",
+  [ROLES.DOCTOR]: "Doctor",
+  [ROLES.LAB]: "Lab",
+  [ROLES.RECEPTIONIST]: "Receptionist",
+  [ROLES.PATIENT]: "Patient",
+  [ROLES.MANAGER]: "Manager",
+});
+
+/**
+ * Normalizes the authenticated user payload so roleId, role, and roleName always match
+ * the canonical role mapping (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient).
+ */
+function normalizeAuthenticatedUser(rawUser) {
+  if (!rawUser || typeof rawUser !== "object") return rawUser;
+  const numericRoleId = Number(rawUser.roleId ?? rawUser.RoleId ?? rawUser.role_id);
+  const roleId =
+    Number.isFinite(numericRoleId) && CANONICAL_ROLE_BY_ID[numericRoleId]
+      ? numericRoleId
+      : resolveRoleId(rawUser);
+  const canonicalRole =
+    CANONICAL_ROLE_BY_ID[roleId] || rawUser.role || rawUser.roleName || "Patient";
+  return {
+    ...rawUser,
+    roleId: roleId ?? rawUser.roleId,
+    role: canonicalRole,
+    roleName: canonicalRole,
+  };
 }
 
 export default function LoginPage({
@@ -83,10 +99,12 @@ export default function LoginPage({
   const isLocked = lockoutTime > Date.now();
 
   /**
-   * Redirects user to their role-specific dashboard.
+   * Redirects user to their role-specific workspace based on RoleId:
+   * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient.
    */
   const routeUserByRole = (user) => {
-    const roleId = resolveRoleId(user);
+    const normalizedUser = normalizeAuthenticatedUser(user);
+    const roleId = resolveRoleId(normalizedUser);
     let target = "/";
     switch (roleId) {
       case ROLES.ADMIN:
@@ -94,13 +112,13 @@ export default function LoginPage({
         target = "/dashboard";
         break;
       case ROLES.DOCTOR:
-        target = "/doctor/console";
+        target = "/medical-assessments";
         break;
       case ROLES.LAB:
         target = "/lab/queue";
         break;
       case ROLES.RECEPTIONIST:
-        target = "/reception/check-in";
+        target = "/patients";
         break;
       case ROLES.PATIENT:
       default:
@@ -160,10 +178,11 @@ export default function LoginPage({
         if (!token) {
           throw new Error("Không nhận được mã xác thực hợp lệ từ máy chủ BMS.");
         }
-        const user = data?.user;
-        if (!user) {
+        const rawUser = data?.user;
+        if (!rawUser) {
           throw new Error("Không tìm thấy thông tin tài khoản người dùng.");
         }
+        const user = normalizeAuthenticatedUser(rawUser);
 
         // Reset failed login counter on success
         localStorage.removeItem("bms_failed_login_attempts");
@@ -250,10 +269,11 @@ export default function LoginPage({
       if (!token) {
         throw new Error("Không nhận được mã xác thực hợp lệ từ máy chủ BMS.");
       }
-      const user = data?.user;
-      if (!user) {
+      const rawUser = data?.user;
+      if (!rawUser) {
         throw new Error("Không tìm thấy thông tin tài khoản người dùng.");
       }
+      const user = normalizeAuthenticatedUser(rawUser);
 
       localStorage.removeItem("bms_failed_login_attempts");
       localStorage.removeItem("bms_login_lockout_until");
@@ -473,35 +493,35 @@ export default function LoginPage({
                   className="btn btn-sm btn-outline-primary"
                   onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
                 >
-                  Admin
+                  Admin (Role 1)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-info"
                   onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
                 >
-                  Bác Sĩ
+                  Bác Sĩ (Role 2)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-success"
                   onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
                 >
-                  KTV Lab
+                  KTV Lab (Role 3)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-warning"
                   onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
                 >
-                  Lễ Tân
+                  Lễ Tân (Role 4)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
                 >
-                  Bệnh Nhân
+                  Bệnh Nhân (Role 5)
                 </button>
               </div>
             </div>

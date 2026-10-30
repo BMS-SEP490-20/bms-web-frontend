@@ -108,7 +108,7 @@ export default function DoctorSchedulePage() {
 
   // WHY: UC35 Create/Update/Delete Shifts are restricted to Manager role per ROLE-PERMISSION-MATRIX §1.
   // All staff roles (Admin, Manager, Doctor, Lab, Receptionist) can View Shifts.
-  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.MANAGER), []);
+  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
 
   useEffect(() => {
     setLoadingStaff(true);

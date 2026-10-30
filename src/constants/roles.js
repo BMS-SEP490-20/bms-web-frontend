@@ -1,12 +1,12 @@
 /**
  * @file roles.js
  * @description Single source of truth for the six BMS roles (decision 30/10/2026, ROLE-PERMISSION-MATRIX §0).
- * IDs match the backend `role_id` claim: 1 Admin, 2 Manager, 3 Lab, 4 Doctor, 5 Receptionist, 6 Patient.
+ * IDs match the backend `role_id` claim: 1 Admin, 2 Doctor, 3 Lab, 4 Receptionist, 5 Patient, 6 Manager.
  * Every guard, menu and role label in the web app must import from here instead of keeping its own map.
  */
 
 /** Canonical role IDs (same numbers as the backend RoleId / `role_id` claim). */
-export const ROLES = Object.freeze({ ADMIN: 1, MANAGER: 2, LAB: 3, DOCTOR: 4, RECEPTIONIST: 5, PATIENT: 6 });
+export const ROLES = Object.freeze({ ADMIN: 1, DOCTOR: 2, LAB: 3, RECEPTIONIST: 4, PATIENT: 5, MANAGER: 6 });
 
 /** Vietnamese display labels keyed by role ID. */
 export const ROLE_LABELS = Object.freeze({

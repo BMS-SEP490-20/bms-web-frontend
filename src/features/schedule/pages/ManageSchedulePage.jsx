@@ -27,7 +27,9 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
             setForm((f) => ({ ...f, roomId: f.roomId || list[0].id || list[0].roomNumber }));
           }
         })
-        .catch((err) => console.error('Failed to load rooms:', err));
+        .catch(() => {
+          // Handled silently; error banner shown on schedule load if API unreachable
+        });
     }
   }, [initialRooms]);
 

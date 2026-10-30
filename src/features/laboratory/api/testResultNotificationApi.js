@@ -12,13 +12,8 @@ import api from "../../../config/api";
  * @returns {Promise<{ items: Array, totalCount: number, currentPage: number, pageSize: number, totalPages: number }>}
  */
 export const fetchNotifications = async (params = {}) => {
-    try {
-        const response = await api.get("/notifications/test-results", { params });
-        return response.data?.data || { items: [], totalCount: 0, currentPage: 1, pageSize: 15, totalPages: 0 };
-    } catch (error) {
-        console.error("Failed to fetch test result notifications:", error);
-        throw error;
-    }
+    const response = await api.get("/notifications/test-results", { params });
+    return response.data?.data || { items: [], totalCount: 0, currentPage: 1, pageSize: 15, totalPages: 0 };
 };
 
 /**
@@ -28,13 +23,8 @@ export const fetchNotifications = async (params = {}) => {
  */
 export const fetchNotificationById = async (id) => {
     if (!id) return null;
-    try {
-        const response = await api.get(`/notifications/test-results/${encodeURIComponent(id)}`);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to fetch notification ${id}:`, error);
-        throw error;
-    }
+    const response = await api.get(`/notifications/test-results/${encodeURIComponent(id)}`);
+    return response.data?.data || null;
 };
 
 /**
@@ -44,13 +34,8 @@ export const fetchNotificationById = async (id) => {
  */
 export const fetchPatientNotifications = async (patientId) => {
     if (!patientId) return [];
-    try {
-        const response = await api.get(`/notifications/test-results/patient/${encodeURIComponent(patientId)}`);
-        return response.data?.data || [];
-    } catch (error) {
-        console.error(`Failed to fetch patient notifications for ${patientId}:`, error);
-        throw error;
-    }
+    const response = await api.get(`/notifications/test-results/patient/${encodeURIComponent(patientId)}`);
+    return response.data?.data || [];
 };
 
 /**
@@ -63,8 +48,7 @@ export const fetchPatientUnreadCount = async (patientId) => {
     try {
         const response = await api.get(`/notifications/test-results/patient/${encodeURIComponent(patientId)}/unread-count`);
         return response.data?.data ?? 0;
-    } catch (error) {
-        console.error(`Failed to fetch unread count for ${patientId}:`, error);
+    } catch {
         return 0;
     }
 };
@@ -75,13 +59,8 @@ export const fetchPatientUnreadCount = async (patientId) => {
  * @returns {Promise<Object>}
  */
 export const dispatchNotification = async (payload) => {
-    try {
-        const response = await api.post("/notifications/test-results/dispatch", payload);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error("Failed to dispatch test result notification:", error);
-        throw error;
-    }
+    const response = await api.post("/notifications/test-results/dispatch", payload);
+    return response.data?.data || null;
 };
 
 /**
@@ -91,13 +70,8 @@ export const dispatchNotification = async (payload) => {
  */
 export const markNotificationAsRead = async (id) => {
     if (!id) return false;
-    try {
-        const response = await api.put(`/notifications/test-results/${encodeURIComponent(id)}/read`);
-        return response.data?.data === true;
-    } catch (error) {
-        console.error(`Failed to mark notification ${id} as read:`, error);
-        throw error;
-    }
+    const response = await api.put(`/notifications/test-results/${encodeURIComponent(id)}/read`);
+    return response.data?.data === true;
 };
 
 /**
@@ -107,14 +81,9 @@ export const markNotificationAsRead = async (id) => {
  * @returns {Promise<Object>}
  */
 export const resendNotification = async (id, payload = {}) => {
-    if (!id) throw new Error("Notification ID is required.");
-    try {
-        const response = await api.post(`/notifications/test-results/${encodeURIComponent(id)}/resend`, payload);
-        return response.data?.data || null;
-    } catch (error) {
-        console.error(`Failed to resend notification ${id}:`, error);
-        throw error;
-    }
+    if (!id) throw new Error("Mã thông báo không được để trống.");
+    const response = await api.post(`/notifications/test-results/${encodeURIComponent(id)}/resend`, payload);
+    return response.data?.data || null;
 };
 
 /**
@@ -132,8 +101,7 @@ export const fetchNotificationStats = async () => {
             failedCount: 0,
             deliverySuccessRate: 100.0
         };
-    } catch (error) {
-        console.error("Failed to fetch notification stats:", error);
+    } catch {
         return {
             totalNotifications: 0,
             deliveredSuccessfully: 0,
@@ -151,11 +119,6 @@ export const fetchNotificationStats = async () => {
  * @returns {Promise<Array>}
  */
 export const fetchCompletedTestPatients = async () => {
-    try {
-        const response = await api.get("/notifications/test-results/completed-patients");
-        return response.data?.data || [];
-    } catch (error) {
-        console.error("Failed to fetch completed test patients:", error);
-        return [];
-    }
+    const response = await api.get("/notifications/test-results/completed-patients");
+    return response.data?.data || [];
 };

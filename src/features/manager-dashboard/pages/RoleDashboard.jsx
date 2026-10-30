@@ -65,6 +65,7 @@ const ClinicalRoleDashboard = () => {
         setError(res.data?.message || 'Không thể tải số liệu thống kê.');
       }
     } catch (err) {
+      console.error('[RoleDashboard] API Error:', err);
       setError(err.response?.data?.message || err.message || 'Lỗi kết nối tới dịch vụ cơ sở dữ liệu BMS.');
       setStats(null);
     } finally {

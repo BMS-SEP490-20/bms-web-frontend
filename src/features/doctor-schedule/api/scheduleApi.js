@@ -94,3 +94,12 @@ export async function fetchRooms() {
   const res = await api.get('/shifts/rooms');
   return res.data?.data || res.data || [];
 }
+
+/**
+ * Fetch All Staff (Doctors, Lab Technicians, Managers, Receptionists) for Shift assignment
+ * GET /api/shifts/staff
+ */
+export async function fetchShiftStaff() {
+  const res = await api.get('/shifts/staff');
+  return res.data?.data || res.data || [];
+}

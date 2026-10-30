@@ -74,8 +74,8 @@ const MENU_SECTIONS = [
     category: 'KHO & VẬN HÀNH',
     items: [
       { id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [ADMIN, MANAGER, LAB], badge: { text: 'UC56', bg: 'primary' } },
-      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST] },
-      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [MANAGER] },
+      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST], badge: { text: 'UC35', bg: 'info' } },
+      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [MANAGER], badge: { text: 'UC35', bg: 'primary' } },
       { id: 'packages', path: '/admin/packages', label: 'Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN, MANAGER] },
       { id: 'invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: [RECEPTIONIST, MANAGER] },
       // WHY: /admin/reports had no route (404); the reports that exist are TAT (UC63) and revenue (UC78), Admin + Manager.

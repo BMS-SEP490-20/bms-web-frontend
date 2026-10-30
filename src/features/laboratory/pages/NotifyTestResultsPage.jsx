@@ -29,6 +29,7 @@ import {
     resendNotification,
     fetchNotificationStats
 } from "../api/testResultNotificationApi";
+import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import DispatchNotificationModal from "../components/DispatchNotificationModal";
 import NotificationDetailModal from "../components/NotificationDetailModal";
 
@@ -40,6 +41,10 @@ const TABS = [
 ];
 
 export default function NotifyTestResultsPage() {
+    const currentUser = getStoredUser();
+    const canDispatch = hasRole(currentUser, ROLES.LAB);
+    const canMarkRead = hasRole(currentUser, ROLES.PATIENT);
+
     // States
     const [notifications, setNotifications] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
@@ -113,7 +118,10 @@ export default function NotifyTestResultsPage() {
             setTotalCount(notifData.totalCount || 0);
             setStats(statsData);
         } catch (err) {
-            console.error("Lỗi khi tải danh sách thông báo:", err);
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách thông báo kết quả xét nghiệm."
+            });
         } finally {
             setLoading(false);
         }
@@ -132,7 +140,10 @@ export default function NotifyTestResultsPage() {
                 setShowDetailModal(true);
             }
         } catch (err) {
-            console.error("Không thể mở chi tiết thông báo:", err);
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể mở chi tiết thông báo kết quả xét nghiệm."
+            });
         }
     };
 
@@ -145,21 +156,37 @@ export default function NotifyTestResultsPage() {
 
     // Mark as read
     const handleMarkAsRead = async (id) => {
-        await markNotificationAsRead(id);
-        setToastMessage({ type: "success", text: "Đã đánh dấu thông báo là đã đọc." });
-        loadData();
-        if (selectedNotification) {
-            setSelectedNotification((prev) => (prev ? { ...prev, status: "Read", readAt: new Date().toISOString() } : null));
+        try {
+            await markNotificationAsRead(id);
+            setToastMessage({ type: "success", text: "Đã đánh dấu thông báo là đã đọc." });
+            loadData();
+            if (selectedNotification) {
+                setSelectedNotification((prev) => (prev ? { ...prev, status: "Read", readAt: new Date().toISOString() } : null));
+            }
+        } catch (err) {
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể đánh dấu thông báo là đã đọc."
+            });
+            throw err;
         }
     };
 
     // Resend
     const handleResend = async (id) => {
-        const updated = await resendNotification(id);
-        setToastMessage({ type: "success", text: "Đã gửi lại thông báo kết quả thành công!" });
-        loadData();
-        if (updated) {
-            setSelectedNotification(updated);
+        try {
+            const updated = await resendNotification(id);
+            setToastMessage({ type: "success", text: "Đã gửi lại thông báo kết quả thành công!" });
+            loadData();
+            if (updated) {
+                setSelectedNotification(updated);
+            }
+        } catch (err) {
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể gửi lại thông báo kết quả xét nghiệm."
+            });
+            throw err;
         }
     };
 
@@ -231,14 +258,16 @@ export default function NotifyTestResultsPage() {
                         <FaSync className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
-                    <button
-                        type="button"
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
-                        onClick={() => setShowDispatchModal(true)}
-                    >
-                        <FaPaperPlane />
-                        <span>+ Phát Thông Báo Mới</span>
-                    </button>
+                    {canDispatch && (
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                            onClick={() => setShowDispatchModal(true)}
+                        >
+                            <FaPaperPlane />
+                            <span>+ Phát Thông Báo Mới</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -489,14 +518,16 @@ export default function NotifyTestResultsPage() {
                                                     <FaEye size={12} />
                                                     <span>Chi tiết</span>
                                                 </button>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center shadow-xs"
-                                                    onClick={() => handleResend(notif.notificationId || notif.id)}
-                                                    title="Gửi lại"
-                                                >
-                                                    <FaRedo size={11} />
-                                                </button>
+                                                {canDispatch && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center shadow-xs"
+                                                        onClick={() => handleResend(notif.notificationId || notif.id)}
+                                                        title="Gửi lại"
+                                                    >
+                                                        <FaRedo size={11} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -508,11 +539,13 @@ export default function NotifyTestResultsPage() {
             </div>
 
             {/* Modals */}
-            <DispatchNotificationModal
-                show={showDispatchModal}
-                onHide={() => setShowDispatchModal(false)}
-                onDispatchSuccess={handleDispatch}
-            />
+            {canDispatch && (
+                <DispatchNotificationModal
+                    show={showDispatchModal}
+                    onHide={() => setShowDispatchModal(false)}
+                    onDispatchSuccess={handleDispatch}
+                />
+            )}
 
             <NotificationDetailModal
                 show={showDetailModal}
@@ -520,6 +553,8 @@ export default function NotifyTestResultsPage() {
                 notification={selectedNotification}
                 onMarkAsRead={handleMarkAsRead}
                 onResend={handleResend}
+                canDispatch={canDispatch}
+                canMarkRead={canMarkRead}
             />
         </div>
     );

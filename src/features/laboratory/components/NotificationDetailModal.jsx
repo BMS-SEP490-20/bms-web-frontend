@@ -24,7 +24,9 @@ export default function NotificationDetailModal({
     onHide,
     notification,
     onMarkAsRead,
-    onResend
+    onResend,
+    canDispatch = false,
+    canMarkRead = false
 }) {
     const [resending, setResending] = useState(false);
     const [markingRead, setMarkingRead] = useState(false);
@@ -39,7 +41,7 @@ export default function NotificationDetailModal({
             await onMarkAsRead(notification.notificationId || notification.id);
             setActionMessage({ type: "success", text: "Đã đánh dấu thông báo là đã đọc." });
         } catch (err) {
-            setActionMessage({ type: "danger", text: "Không thể đánh dấu đã đọc." });
+            setActionMessage({ type: "danger", text: err?.response?.data?.message || err?.message || "Không thể đánh dấu đã đọc." });
         } finally {
             setMarkingRead(false);
         }
@@ -52,7 +54,7 @@ export default function NotificationDetailModal({
             await onResend(notification.notificationId || notification.id);
             setActionMessage({ type: "success", text: "Đã phát lại thông báo thành công." });
         } catch (err) {
-            setActionMessage({ type: "danger", text: "Lỗi khi gửi lại thông báo." });
+            setActionMessage({ type: "danger", text: err?.response?.data?.message || err?.message || "Lỗi khi gửi lại thông báo." });
         } finally {
             setResending(false);
         }
@@ -218,7 +220,7 @@ export default function NotificationDetailModal({
 
                     <div className="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
                         <div>
-                            {notification.status !== "Read" && (
+                            {canMarkRead && notification.status !== "Read" && (
                                 <button
                                     type="button"
                                     className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 shadow-xs"
@@ -239,24 +241,26 @@ export default function NotificationDetailModal({
                             >
                                 Đóng
                             </button>
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-xs"
-                                onClick={handleResend}
-                                disabled={resending}
-                            >
-                                {resending ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm" role="status"></span>
-                                        <span>Đang gửi lại...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <FaRedo />
-                                        <span>Gửi lại thông báo ({notification.retryCount || 0})</span>
-                                    </>
-                                )}
-                            </button>
+                            {canDispatch && (
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-xs"
+                                    onClick={handleResend}
+                                    disabled={resending}
+                                >
+                                    {resending ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm" role="status"></span>
+                                            <span>Đang gửi lại...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaRedo />
+                                            <span>Gửi lại thông báo ({notification.retryCount || 0})</span>
+                                        </>
+                                    )}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

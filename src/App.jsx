@@ -506,9 +506,13 @@ export default function App() {
                   <Route path="/patient/test-history" element={<TestHistoryPage />} />
                 </Route>
 
+                {/* UC30 view patient information: Receptionist, Doctor, Lab, Manager. Admin denied (decision 10). */}
+                <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, DOCTOR, LAB, MANAGER]} />}>
+                  <Route path="/patients" element={<CheckInPage />} />
+                </Route>
+
                 {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
-                  <Route path="/patients" element={<CheckInPage />} />
                   <Route path="/reception/checkin" element={<CheckInPage />} />
                   {/* WHY: the legacy "pages/receptionist/CheckIn|CreatePatient" modules were never committed.
                       Keep the URLs the Sidebar links to, served by the team's existing check-in and

@@ -1,6 +1,6 @@
 /**
  * BMS Design Tokens — Modern Flat Healthcare SaaS (Big Tech Clean Grade)
- * Typography: Plus Jakarta Sans | Palette: Clinical Medical Blue #1E60E6 & Emerald
+ * Typography: Geist | Palette: Clinical Medical Blue #1E60E6 & Emerald
  * Pure Flat Architecture: Zero Sến Súa Glow / Shadows / Blurry Hover
  */
 
@@ -22,7 +22,7 @@
   --primary: #1E60E6;          /* crisp authoritative clinical blue */
   --primary-hover: #1550C4;    /* interactive hover state */
   --primary-soft: #EEF4FD;     /* clean ice blue tint */
-  --primary-grad-end: #3B82F6;
+  --primary-grad-end: #1E60E6;
 
   /* Semantic */
   --success: #10B981;          /* crisp medical emerald */
@@ -79,8 +79,9 @@
   --bms-focus: var(--ring-focus);
   --bms-transition: all 0.15s ease-out;
 
-  /* Distinctive Typography: Plus Jakarta Sans */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Distinctive Typography: Geist */
+  --font-sans: 'Geist Variable', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 
 /* Global Typography Anti-Aliasing & Enforcement */

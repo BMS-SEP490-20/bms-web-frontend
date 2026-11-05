@@ -516,7 +516,7 @@ export default function ProcessPaymentPage() {
                     <div
                       className="p-3 rounded-4 mb-3 text-white shadow-sm position-relative overflow-hidden"
                       style={{
-                        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                        background: 'linear-gradient(135deg, #1e3a8a 0%, #1E60E6 100%)',
                         minHeight: 140
                       }}
                     >

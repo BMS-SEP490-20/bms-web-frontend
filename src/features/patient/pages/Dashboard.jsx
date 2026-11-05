@@ -933,7 +933,7 @@ const PatientDashboard = () => {
       });
 
     const groups = {
-      morning: { label: '🌅 Ca Sáng (07:00 - 12:00)', shifts: [], color: '#0d6efd', bgColor: '#e7f1ff' },
+      morning: { label: '🌅 Ca Sáng (07:00 - 12:00)', shifts: [], color: '#1E60E6', bgColor: '#e7f1ff' },
       afternoon: { label: '☀️ Ca Chiều (13:00 - 17:00)', shifts: [], color: '#fd7e14', bgColor: '#fff4e6' },
       evening: { label: '🌙 Ca Tối (18:00 - 21:00)', shifts: [], color: '#6f42c1', bgColor: '#f3e8ff' }
     };
@@ -1009,7 +1009,7 @@ const PatientDashboard = () => {
     // Classify shift interval (morning, afternoon, evening)
     let shiftType = 'morning';
     let shiftTypeLabel = 'Ca Sáng';
-    let shiftTypeColor = '#0d6efd';
+    let shiftTypeColor = '#1E60E6';
     if (startTime) {
       const hour = parseInt(startTime.split(':')[0]);
       if (hour >= 12 && hour < 17) {
@@ -1777,7 +1777,7 @@ const PatientDashboard = () => {
 
   const getFormLabelStyle = (icon) => ({
     fontWeight: 'bold',
-    color: '#0d6efd',
+    color: '#1E60E6',
     marginBottom: '8px'
   });
 
@@ -1961,7 +1961,7 @@ const PatientDashboard = () => {
             <tr>
               <td style="width:50%; vertical-align:top;">
                 <div style="border:1px solid #e9ecef; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.06); overflow:hidden">
-                  <div style="font-weight:700; padding:8px 12px; background:#0d6efd; color:white">THÔNG TIN BỆNH NHÂN</div>
+                  <div style="font-weight:700; padding:8px 12px; background:#1E60E6; color:white">THÔNG TIN BỆNH NHÂN</div>
                   <div style="padding:10px;">
                     <div style="margin-bottom:6px;"><strong>Họ và tên:</strong> ${user.fullName || ''}</div>
                     <div style="margin-bottom:6px;"><strong>Giới tính:</strong> ${user.gender || ''}</div>
@@ -1973,7 +1973,7 @@ const PatientDashboard = () => {
               </td>
               <td style="width:50%; vertical-align:top;">
                 <div style="border:1px solid #e9ecef; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.06); overflow:hidden">
-                  <div style="font-weight:700; padding:8px 12px; background:#0d6efd; color:white">THÔNG TIN XÉT NGHIỆM</div>
+                  <div style="font-weight:700; padding:8px 12px; background:#1E60E6; color:white">THÔNG TIN XÉT NGHIỆM</div>
                   <div style="padding:10px;">
                     <div style="margin-bottom:6px;"><strong>Mã xét nghiệm:</strong> ${labTest.id || ''}</div>
                     <div style="margin-bottom:6px;"><strong>Loại xét nghiệm:</strong> ${labTest.testPackage || ''}</div>
@@ -1988,7 +1988,7 @@ const PatientDashboard = () => {
 
           <div style="margin-top:20px;">
             <div style="border:1px solid #e9ecef; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.06); overflow:hidden">
-              <div style="font-weight:700; padding:8px 12px; background:#0d6efd; color:white">KẾT QUẢ XÉT NGHIỆM</div>
+              <div style="font-weight:700; padding:8px 12px; background:#1E60E6; color:white">KẾT QUẢ XÉT NGHIỆM</div>
               <div style="padding:10px;">
                 <table style="width:100%; border-collapse:collapse; margin-top:10px;">
                   <thead>
@@ -2167,7 +2167,7 @@ const PatientDashboard = () => {
                                 onClick={banner.buttonAction}
                                 className="px-3 px-md-4"
                                 style={{
-                                  background: '#0d6efd',
+                                  background: '#1E60E6',
                                   border: 'none',
                                   color: '#333333',
                                   fontWeight: '600',
@@ -2184,7 +2184,7 @@ const PatientDashboard = () => {
                                 onMouseLeave={(e) => {
                                   e.currentTarget.style.transform = 'translateY(0)';
                                   e.currentTarget.style.boxShadow = '0 8px 20px rgba(13, 110, 253, 0.3)';
-                                  e.currentTarget.style.background = '#0d6efd';
+                                  e.currentTarget.style.background = '#1E60E6';
                                 }}
                               >
                                 <i className="fas fa-info-circle me-2"></i>
@@ -2251,7 +2251,7 @@ const PatientDashboard = () => {
                   borderRadius: '25px',
                   overflow: 'hidden',
                   position: 'relative',
-                  border: '3px solid #0d6efd',
+                  border: '3px solid #1E60E6',
                   boxShadow: '0 10px 30px rgba(13, 110, 253, 0.3)'
                 }}
               >
@@ -2332,7 +2332,7 @@ const PatientDashboard = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             marginRight: '1rem',
-                            border: '2px solid #0d6efd'
+                            border: '2px solid #1E60E6'
                           }}>
                             <i className="fas fa-lightbulb" style={{ fontSize: '2rem', color: '#ffd700' }}></i>
                           </div>
@@ -2360,7 +2360,7 @@ const PatientDashboard = () => {
                               style={{
                                 background: 'rgba(255,255,255,0.8)',
                                 backdropFilter: 'blur(10px)',
-                                border: '2px solid #0d6efd',
+                                border: '2px solid #1E60E6',
                                 borderRadius: '15px',
                                 padding: '1.5rem',
                                 cursor: 'pointer',
@@ -2407,7 +2407,7 @@ const PatientDashboard = () => {
                               style={{
                                 background: 'rgba(255,255,255,0.8)',
                                 backdropFilter: 'blur(10px)',
-                                border: '2px solid #0d6efd',
+                                border: '2px solid #1E60E6',
                                 borderRadius: '15px',
                                 padding: '1.5rem',
                                 cursor: 'pointer',
@@ -2454,7 +2454,7 @@ const PatientDashboard = () => {
                               style={{
                                 background: 'rgba(255,255,255,0.8)',
                                 backdropFilter: 'blur(10px)',
-                                border: '2px solid #0d6efd',
+                                border: '2px solid #1E60E6',
                                 borderRadius: '15px',
                                 padding: '1.5rem',
                                 cursor: 'pointer',
@@ -2501,7 +2501,7 @@ const PatientDashboard = () => {
                               style={{
                                 background: 'rgba(255,255,255,0.8)',
                                 backdropFilter: 'blur(10px)',
-                                border: '2px solid #0d6efd',
+                                border: '2px solid #1E60E6',
                                 borderRadius: '15px',
                                 padding: '1.5rem',
                                 cursor: 'pointer',
@@ -2614,14 +2614,14 @@ const PatientDashboard = () => {
                       </div>
                       <div style={{ position: 'relative', zIndex: 2 }}>
                         <h2 className="display-5 fw-bold text-primary mb-3" style={{
-                          background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                          background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
                           backgroundClip: 'text',
                           textShadow: '0 4px 8px rgba(13, 110, 253, 0.3)'
                         }}>
                           <i className="fas fa-stethoscope me-3" style={{
-                            background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                            background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text'
@@ -2639,7 +2639,7 @@ const PatientDashboard = () => {
                             transition={{ duration: 0.4, ease: "easeOut" }}
                             whileHover={{ scale: 1.05, y: -5 }}
                           >
-                            <div style={{ fontSize: '2rem', color: '#0d6efd', fontWeight: 'bold' }}>99.9%</div>
+                            <div style={{ fontSize: '2rem', color: '#1E60E6', fontWeight: 'bold' }}>99.9%</div>
                             <div style={{ fontSize: '0.9rem', color: '#6c757d' }}>Độ chính xác</div>
                           </motion.div>
                           <motion.div
@@ -2649,7 +2649,7 @@ const PatientDashboard = () => {
                             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
                             whileHover={{ scale: 1.05, y: -5 }}
                           >
-                            <div style={{ fontSize: '2rem', color: '#0d6efd', fontWeight: 'bold' }}>2-4h</div>
+                            <div style={{ fontSize: '2rem', color: '#1E60E6', fontWeight: 'bold' }}>2-4h</div>
                             <div style={{ fontSize: '0.9rem', color: '#6c757d' }}>Thời gian</div>
                           </motion.div>
                           <motion.div
@@ -2659,7 +2659,7 @@ const PatientDashboard = () => {
                             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
                             whileHover={{ scale: 1.05, y: -5 }}
                           >
-                            <div style={{ fontSize: '2rem', color: '#0d6efd', fontWeight: 'bold' }}>24/7</div>
+                            <div style={{ fontSize: '2rem', color: '#1E60E6', fontWeight: 'bold' }}>24/7</div>
                             <div style={{ fontSize: '0.9rem', color: '#6c757d' }}>Hỗ trợ</div>
                           </motion.div>
                         </div>
@@ -2747,7 +2747,7 @@ const PatientDashboard = () => {
 
                                 <div className="medical-service-info">
                                   <h5 className="fw-bold mb-3" style={{
-                                    color: '#0d6efd',
+                                    color: '#1E60E6',
                                     fontSize: '1.3rem',
                                     textShadow: '0 2px 4px rgba(13, 110, 253, 0.2)'
                                   }}>
@@ -2765,7 +2765,7 @@ const PatientDashboard = () => {
                                   <motion.div
                                     className="medical-badge mb-3"
                                     style={{
-                                      background: '#0d6efd',
+                                      background: '#1E60E6',
                                       color: '#333333',
                                       padding: '4px 12px',
                                       borderRadius: '25px',
@@ -2808,7 +2808,7 @@ const PatientDashboard = () => {
                                       className="w-100 medical-btn"
                                       onClick={() => handleServiceSelect(service.name)}
                                       style={{
-                                        background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                                        background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                                         border: 'none',
                                         borderRadius: '25px',
                                         padding: '12px 24px',
@@ -2893,7 +2893,7 @@ const PatientDashboard = () => {
                     <motion.h2
                       className="display-6 fw-bold mb-3"
                       style={{
-                        background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                        background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'
@@ -2903,7 +2903,7 @@ const PatientDashboard = () => {
                       transition={{ duration: 0.6, delay: 0.4 }}
                       viewport={{ once: true }}
                     >
-                      <i className="fas fa-calendar-check me-3" style={{ color: '#0d6efd' }}></i>
+                      <i className="fas fa-calendar-check me-3" style={{ color: '#1E60E6' }}></i>
                       Lịch hẹn & Kết quả của tôi
                     </motion.h2>
                     <motion.p
@@ -2938,7 +2938,7 @@ const PatientDashboard = () => {
                         >
                           <Card.Header
                             style={{
-                              background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%) !important',
+                              background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%) !important',
                               border: 'none !important',
                               padding: '1.5rem !important'
                             }}
@@ -3080,7 +3080,7 @@ const PatientDashboard = () => {
                                               padding: '6px 16px',
                                               fontWeight: '600',
                                               fontSize: '13px',
-                                              background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                                              background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                                               border: 'none',
                                               boxShadow: '0 4px 10px rgba(13, 110, 253, 0.3)',
                                               transition: 'all 0.3s ease'
@@ -3295,7 +3295,7 @@ const PatientDashboard = () => {
                 <Modal.Header
                   closeButton
                   style={{
-                    background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                    background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                     border: 'none',
                     color: 'white',
                     padding: '1.5rem 2rem',
@@ -3342,7 +3342,7 @@ const PatientDashboard = () => {
                         <div className="mb-4">
                           <h6 className="fw-bold mb-2 d-flex align-items-center" style={{
                             fontSize: '1.1rem',
-                            color: '#0d6efd'
+                            color: '#1E60E6'
                           }}>
                             <div style={{
                               width: '40px',
@@ -3388,7 +3388,7 @@ const PatientDashboard = () => {
                         <div className="mb-4">
                           <h6 className="fw-bold mb-2 d-flex align-items-center" style={{
                             fontSize: '1.1rem',
-                            color: '#0d6efd'
+                            color: '#1E60E6'
                           }}>
                             <div style={{
                               width: '40px',
@@ -3555,10 +3555,10 @@ const PatientDashboard = () => {
                                     fontSize: '0.95rem',
                                     fontWeight: '500',
                                     borderRadius: '12px',
-                                    border: bookingData.shift ? '2px solid #0d6efd' : 'none',
+                                    border: bookingData.shift ? '2px solid #1E60E6' : 'none',
                                     padding: '0.875rem 1.125rem',
-                                    backgroundColor: bookingData.shift ? '#ffffff' : '#0d6efd',
-                                    color: bookingData.shift ? '#0d6efd' : '#ffffff',
+                                    backgroundColor: bookingData.shift ? '#ffffff' : '#1E60E6',
+                                    color: bookingData.shift ? '#1E60E6' : '#ffffff',
                                     transition: 'all 0.3s ease',
                                     boxShadow: bookingData.date && availableShifts.length > 0 ? '0 2px 10px rgba(13, 110, 253, 0.12)' : 'none',
                                     textAlign: 'left',
@@ -3741,12 +3741,12 @@ const PatientDashboard = () => {
                                   onClick={() => setShowServiceModal(true)}
                                   className="w-100 d-flex justify-content-between align-items-center"
                                   style={{
-                                    border: '2px solid #0d6efd',
+                                    border: '2px solid #1E60E6',
                                     borderRadius: '12px',
                                     fontWeight: '500',
                                     padding: '0.875rem 1.125rem',
-                                    backgroundColor: bookingData.service ? '#ffffff' : '#0d6efd',
-                                    color: bookingData.service ? '#0d6efd' : '#ffffff',
+                                    backgroundColor: bookingData.service ? '#ffffff' : '#1E60E6',
+                                    color: bookingData.service ? '#1E60E6' : '#ffffff',
                                     transition: 'all 0.3s ease',
                                     boxShadow: '0 2px 10px rgba(13, 110, 253, 0.12)',
                                     fontSize: '0.95rem',
@@ -3820,7 +3820,7 @@ const PatientDashboard = () => {
                               transition: 'all 0.3s ease'
                             }}
                             onFocus={(e) => {
-                              e.target.style.borderColor = '#0d6efd';
+                              e.target.style.borderColor = '#1E60E6';
                               e.target.style.boxShadow = '0 0 0 0.2rem rgba(13, 110, 253, 0.15)';
                             }}
                             onBlur={(e) => {
@@ -3880,7 +3880,7 @@ const PatientDashboard = () => {
                         borderRadius: '25px',
                         padding: '10px 25px',
                         fontWeight: '600',
-                        background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                        background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                         border: 'none',
                         transition: 'all 0.3s ease',
                         boxShadow: '0 4px 15px rgba(13, 110, 253, 0.3)'
@@ -4286,7 +4286,7 @@ const PatientDashboard = () => {
                 <Modal.Header
                   closeButton
                   style={{
-                    background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                    background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                     border: 'none',
                     color: 'white'
                   }}

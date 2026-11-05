@@ -292,7 +292,7 @@ const FeedbackHubPage = () => {
                   <FaComments style={{ color: '#1E60E6' }} />
                   Góp Ý & Đánh Giá Dịch Vụ (Patient Feedback)
                 </h4>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.25)' }}>
                   {isPatient ? 'Bệnh nhân (Patient)' : isManagerOrAdmin ? 'Ban Quản Lý (Clinic Manager)' : 'Bác Sĩ & Nhân Viên'}
                 </Badge>
               </div>
@@ -326,7 +326,7 @@ const FeedbackHubPage = () => {
                   size="sm"
                   onClick={() => setShowCreateModal(true)}
                   className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                  style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                  style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                 >
                   <FaPlus />
                   <span>Gửi đánh giá mới</span>

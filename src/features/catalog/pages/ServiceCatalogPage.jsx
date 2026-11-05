@@ -5,7 +5,7 @@
  * - Zero artificial shadows, zero neon glow, zero hover jump
  * - Asymmetric Executive Spotlight Hero layout
  * - Horizontal quick-filter category pills & specimen filter
- * - High-contrast Plus Jakarta Sans typography and tabular numerals
+ * - High-contrast Geist typography and tabular numerals
  * - Clean Biomarker Specification Drawer/Modal
  * - 100% Real API integration with searchTestPackages, fetchServiceCatalog, fetchServiceById
  */

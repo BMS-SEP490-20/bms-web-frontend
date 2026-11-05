@@ -163,7 +163,7 @@ export default function QueueBoardPage() {
           <div className="text-muted small">
             Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#1E60E6' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
           </div>
-          <h1 className="h4 fw-bold mb-1" style={{ color: '#2B3674' }}>Bảng Gọi Số & Điều Phối Tiếp Đón</h1>
+          <h1 className="h4 fw-bold mb-1" style={{ color: '#0F172A' }}>Bảng Gọi Số & Điều Phối Tiếp Đón</h1>
           <div className="text-muted small">
             Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#1E60E6' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
           </div>
@@ -215,7 +215,7 @@ export default function QueueBoardPage() {
         <div className="col-12 col-xl-8">
           <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>
+              <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>
                 Hàng đợi bệnh nhân — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
               </h3>
               <span className="badge rounded-pill bg-light text-muted border px-3">
@@ -328,7 +328,7 @@ export default function QueueBoardPage() {
           {/* Issue Ticket Card */}
           <div className="card shadow-sm border-0 rounded-4 mb-4 text-center" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Cấp Số Thứ Tự Mới</h3>
+              <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Cấp Số Thứ Tự Mới</h3>
             </div>
             <div className="card-body p-4">
               <div className="text-uppercase text-muted small fw-bold mb-2">
@@ -364,7 +364,7 @@ export default function QueueBoardPage() {
           {/* Queue Stats Card */}
           <div className="card shadow-sm border-0 rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Thống Kê Hàng Đợi</h3>
+              <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Thống Kê Hàng Đợi</h3>
             </div>
             <div className="card-body p-3">
               <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
@@ -401,7 +401,7 @@ export default function QueueBoardPage() {
           {/* Collection Counters Card */}
           <div className="card shadow-sm border-0 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Danh Sách Bàn Tiếp Đón</h3>
+              <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Danh Sách Bàn Tiếp Đón</h3>
             </div>
             <div className="card-body p-3">
               {data.counters.map((c, idx) => (

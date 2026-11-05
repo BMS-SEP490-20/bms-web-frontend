@@ -2,7 +2,7 @@
  * @file PricingPage.jsx
  * @description Official Medical Laboratory Fee Schedule & Tariff (Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm).
  * Conforms to: Ministry of Health (Thông tư 13/2019/TT-BYT & Nghị định 123/2020/NĐ-CP), ISO 15189:2022.
- * Pure Flat Design: Plus Jakarta Sans typography, high contrast, zero blurry shadows.
+ * Pure Flat Design: Geist typography, high contrast, zero blurry shadows.
  */
 
 import React, { useState, useEffect, useMemo } from 'react';

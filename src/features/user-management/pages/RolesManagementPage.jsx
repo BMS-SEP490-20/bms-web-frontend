@@ -113,7 +113,7 @@ export const RolesManagementPage = () => {
             Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02)
           </small>
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}>
           <FaPlus />
           Thêm Vai Trò Mới
         </Button>
@@ -211,7 +211,7 @@ export const RolesManagementPage = () => {
                       {role.description || 'Không có mô tả chi tiết chức năng.'}
                     </td>
                     <td className="bms-align-center">
-                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
                         {Array.isArray(role.permissions) ? role.permissions.length : 0} Quyền
                       </span>
                     </td>

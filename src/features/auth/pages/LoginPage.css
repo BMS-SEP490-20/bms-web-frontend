@@ -45,7 +45,7 @@
     overflow: hidden;
     color: #fff;
     background:
-            radial-gradient(circle at 15% 20%, rgba(94, 133, 230, 0.35), transparent 45%),
+            radial-gradient(circle at 15% 20%, rgba(30, 96, 230, 0.35), transparent 45%),
             radial-gradient(circle at 90% 75%, rgba(145, 222, 131, 0.25), transparent 45%),
             linear-gradient(150deg, #1e293b 0%, #0f172a 100%);
 }
@@ -416,13 +416,13 @@
     border: 1px solid var(--login-primary);
     color: #fff;
     background: var(--login-primary);
-    box-shadow: 0 2px 8px rgba(94, 133, 230, 0.25);
+    box-shadow: 0 2px 8px rgba(30, 96, 230, 0.25);
 }
 
 .login-submit:hover {
     border-color: var(--login-primary-hover);
     background: var(--login-primary-hover);
-    box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
+    box-shadow: 0 4px 14px rgba(30, 96, 230, 0.35);
 }
 
 .login-submit span {

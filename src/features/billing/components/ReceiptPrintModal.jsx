@@ -101,7 +101,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
-                                boxShadow: '0 2px 8px rgba(94, 133, 230, 0.3)',
+                                boxShadow: '0 2px 8px rgba(30, 96, 230, 0.3)',
                             }}
                         >
                             🖨️ In Ngay (Print)
@@ -358,7 +358,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 color: '#ffffff',
                                 fontWeight: '700',
                                 cursor: 'pointer',
-                                boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)',
+                                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
                             }}
                         >
                             🖨️ In Biên Lai (K80)

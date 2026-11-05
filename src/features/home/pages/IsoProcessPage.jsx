@@ -2,7 +2,7 @@
  * @file IsoProcessPage.jsx
  * @description Dedicated Quality Assurance & ISO 15189:2022 Clinical Workflow Page (Quy Trình ISO).
  * Conforms to: ISO 15189:2022, Ministry of Health QĐ 2429/QĐ-BYT, CAP Proficiency.
- * Pure Flat Design: Plus Jakarta Sans typography, high contrast, zero blurry shadows.
+ * Pure Flat Design: Geist typography, high contrast, zero blurry shadows.
  */
 
 import React from 'react';

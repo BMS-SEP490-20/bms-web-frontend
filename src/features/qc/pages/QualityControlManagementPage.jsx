@@ -505,7 +505,7 @@ export default function QualityControlManagementPage() {
                                         {/* Polyline connecting points */}
                                         <polyline
                                             fill="none"
-                                            stroke="#3b82f6"
+                                            stroke="#1E60E6"
                                             strokeWidth="2"
                                             points={chartRenderData.polylinePoints}
                                         />

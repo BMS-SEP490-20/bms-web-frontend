@@ -365,7 +365,7 @@ const BarcodeDisplay = ({
                 overflow: hidden;
               }
               .patient-initials-badge {
-                background: #0d6efd;
+                background: #1E60E6;
                 color: #ffffff;
                 font-weight: 800;
                 padding: 2px 6px;
@@ -501,7 +501,7 @@ const BarcodeDisplay = ({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // 1. Draw header
-    ctx.fillStyle = '#0d6efd';
+    ctx.fillStyle = '#1E60E6';
     ctx.font = 'bold 24px Arial, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`[${initials}] ${safePatientName}`, padding, padding + 15);

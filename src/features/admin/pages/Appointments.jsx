@@ -3851,13 +3851,13 @@ const AdminAppointments = () => {
                                         } catch (e) { rowRoomDisplay = null; }
 
                                         return (
-                                        <tr key={appointment.id} style={{ borderLeft: '3px solid #0d6efd' }}>
+                                        <tr key={appointment.id} style={{ borderLeft: '3px solid #1E60E6' }}>
                                             <td className="text-center" style={{ padding: '16px 12px', verticalAlign: 'middle', textAlign: 'center' }}>
                                                 <div className="d-flex align-items-center justify-content-center">
                                                     <div style={{ 
                                                         width: '36px', 
                                                         height: '36px', 
-                                                        background: '#0d6efd',
+                                                        background: '#1E60E6',
                                                         borderRadius: '8px',
                                                         display: 'flex',
                                                         alignItems: 'center',
@@ -3880,8 +3880,8 @@ const AdminAppointments = () => {
                                                     gap: '6px',
                                                     minWidth: '140px'
                                                 }}>
-                                                    <FaClock style={{ color: '#0d6efd', fontSize: '0.85rem' }} />
-                                                    <span className="fw-semibold" style={{ color: '#0d6efd', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+                                                    <FaClock style={{ color: '#1E60E6', fontSize: '0.85rem' }} />
+                                                    <span className="fw-semibold" style={{ color: '#1E60E6', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                                                         {getShiftTime(shift) || formatTime(appointment.appointmentTime) || '—'}
                                                     </span>
                                                 </div>
@@ -3899,7 +3899,7 @@ const AdminAppointments = () => {
                                                         marginRight: '12px',
                                                         flexShrink: 0
                                                     }}>
-                                                        <FaUser style={{ color: '#0d6efd', fontSize: '1rem' }} />
+                                                        <FaUser style={{ color: '#1E60E6', fontSize: '1rem' }} />
                                                     </div>
                                                     <div className="text-start">
                                                         <div className="fw-bold" style={{ fontSize: '0.95rem', color: '#2d3748' }}>{getPatientName(appointment.patientId) || 'Chưa có'}</div>
@@ -3942,16 +3942,16 @@ const AdminAppointments = () => {
                                                         marginRight: '12px',
                                                         flexShrink: 0
                                                     }}>
-                                                        <FaUserMd style={{ color: '#0d6efd', fontSize: '1.1rem' }} />
+                                                        <FaUserMd style={{ color: '#1E60E6', fontSize: '1.1rem' }} />
                                                     </div>
                                                     <div>
                                                         <div className="fw-bold" style={{ fontSize: '0.95rem', color: '#2d3748', marginBottom: '2px' }}>{getDoctorName(doctorId)}</div>
                                                         <small style={{ color: '#718096', fontSize: '0.8rem' }}>
-                                                            Ca: <span className="fw-semibold" style={{ color: '#0d6efd' }}>{getShiftTime(shift) || 'N/A'}</span>
+                                                            Ca: <span className="fw-semibold" style={{ color: '#1E60E6' }}>{getShiftTime(shift) || 'N/A'}</span>
                                                             {rowRoomDisplay ? (
-                                                                <span className="ms-2">· Phòng: <span className="fw-semibold" style={{ color: '#0d6efd' }}>{rowRoomDisplay}</span></span>
+                                                                <span className="ms-2">· Phòng: <span className="fw-semibold" style={{ color: '#1E60E6' }}>{rowRoomDisplay}</span></span>
                                                             ) : (rowRoomName ? (
-                                                                <span className="ms-2">· Phòng: <span className="fw-semibold" style={{ color: '#0d6efd' }}>{rowRoomName}</span></span>
+                                                                <span className="ms-2">· Phòng: <span className="fw-semibold" style={{ color: '#1E60E6' }}>{rowRoomName}</span></span>
                                                             ) : null)}
                                                         </small>
                                                     </div>
@@ -4093,7 +4093,7 @@ const AdminAppointments = () => {
                                         return (
                                             <tr key={String(sampleId)} id={`sample-row-${String(sampleId)}`} 
                                                 className={highlightedSampleId === String(sampleId) ? 'table-success' : ''}
-                                                style={{ borderLeft: '3px solid #0d6efd' }}>
+                                                style={{ borderLeft: '3px solid #1E60E6' }}>
                                                 <td className="text-center" style={{ padding: '16px 12px', verticalAlign: 'middle', textAlign: 'center' }}>
                                                     <div className="d-flex align-items-center justify-content-center">
                                                         <div style={{ 
@@ -4107,7 +4107,7 @@ const AdminAppointments = () => {
                                                             marginRight: '12px',
                                                             flexShrink: 0
                                                         }}>
-                                                            <FaUser style={{ color: '#0d6efd', fontSize: '1rem' }} />
+                                                            <FaUser style={{ color: '#1E60E6', fontSize: '1rem' }} />
                                                         </div>
                                                         <div className="text-start">
                                                             <div className="fw-bold" style={{ fontSize: '0.95rem', color: '#2d3748' }}>{getPatientNameFromSample(sample) || sample.patientName || 'Chưa có'}</div>
@@ -4139,8 +4139,8 @@ const AdminAppointments = () => {
                                                         justifyContent: 'center',
                                                         gap: '6px'
                                                     }}>
-                                                        <FaVial style={{ color: '#0d6efd', fontSize: '0.9rem' }} />
-                                                        <span className="fw-bold" style={{ color: '#0d6efd', fontSize: '0.9rem' }}>{formatSampleType(sample.sampleType) || sample.sampleType || '—'}</span>
+                                                        <FaVial style={{ color: '#1E60E6', fontSize: '0.9rem' }} />
+                                                        <span className="fw-bold" style={{ color: '#1E60E6', fontSize: '0.9rem' }}>{formatSampleType(sample.sampleType) || sample.sampleType || '—'}</span>
                                                         {sample.volume && <small style={{ color: '#718096', fontSize: '0.75rem' }}>{String(sample.volume)}ml</small>}
                                                     </div>
                                                     {sample.testCodes && (
@@ -4155,7 +4155,7 @@ const AdminAppointments = () => {
                                                             <div style={{ 
                                                                 width: '36px', 
                                                                 height: '36px', 
-                                                                background: '#0d6efd',
+                                                                background: '#1E60E6',
                                                                 borderRadius: '8px',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
@@ -4261,7 +4261,7 @@ const AdminAppointments = () => {
                                             <Row>
                                                 <Col md={12}>
                                                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: '16px' }}>
-                                                        <div style={{ width: 64, height: 64, borderRadius: 32, background: '#0d6efd', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.3rem', fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', flexShrink: 0 }}>{initials}</div>
+                                                        <div style={{ width: 64, height: 64, borderRadius: 32, background: '#1E60E6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.3rem', flexShrink: 0 }}>{initials}</div>
                                                         <div style={{ flex: 1 }}>
                                                             <div style={{ marginBottom: '12px' }}>
                                                                 <div style={{ fontSize: '0.85rem', color: '#6c757d', marginBottom: '4px', fontWeight: 500 }}>
@@ -4715,7 +4715,7 @@ const AdminAppointments = () => {
 
             {/* Global Barcode Scanner Modal */}
             <Modal show={showGlobalScanModal} onHide={() => setShowGlobalScanModal(false)} centered size="lg">
-                <Modal.Header closeButton style={{ background: '#0d6efd', color: 'white' }}>
+                <Modal.Header closeButton style={{ background: '#1E60E6', color: 'white' }}>
                     <h5 className="mb-0">
                         <FaBarcode className="me-2"/>
                         Quét mã vạch để tìm lịch hẹn
@@ -4852,10 +4852,10 @@ const AdminAppointments = () => {
                                                 <Col md={6}>
                                                     <div className="d-flex align-items-center">
                                                         <div style={{ width: 52, height: 52, borderRadius: 8, background: '#f1f3f5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-                                                            <FaUserMd style={{ color: '#0d6efd', fontSize: '1.2rem' }} />
+                                                            <FaUserMd style={{ color: '#1E60E6', fontSize: '1.2rem' }} />
                                                         </div>
                                                         <div>
-                                                            <div className="fw-bold" style={{ fontSize: '1.05rem', fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif' }}>{doctorName}</div>
+                                                            <div className="fw-bold" style={{ fontSize: '1.05rem', }}>{doctorName}</div>
                                                             {roomName ? (
                                                                 <Badge bg="secondary" className="mt-1" style={{ fontSize: '0.85rem' }}>Phòng: <span className="fw-bold ms-1" style={{ color: '#ffffff' }}>{roomDisplay || roomName}</span></Badge>
                                                             ) : null}
@@ -4930,9 +4930,9 @@ const AdminAppointments = () => {
                                                         <h6 className="mb-3 d-flex align-items-center"><i className="fas fa-info-circle me-2 text-primary"></i><span>Thông tin đầy đủ</span></h6>
                                                         <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(13, 110, 253, 0.2)'}}>
                                                             <h6 className="fw-bold mb-2 text-primary" style={{ fontSize: '0.95rem'}}><i className="fas fa-vial me-2" /> Mẫu xét nghiệm</h6>
-                                                            <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
-                                                            <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
-                                                            <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
+                                                            <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
+                                                            <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
+                                                            <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
                                                         </div>
 
                                                         <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(25, 135, 84, 0.2)'}}>
@@ -5129,9 +5129,9 @@ const AdminAppointments = () => {
                                                             <h6 className="mb-3 d-flex align-items-center"><i className="fas fa-info-circle me-2 text-primary"></i><span>Thông tin đầy đủ</span></h6>
                                                             <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(13, 110, 253, 0.2)'}}>
                                                                 <h6 className="fw-bold mb-2 text-primary" style={{ fontSize: '0.95rem'}}><i className="fas fa-vial me-2" /> Mẫu xét nghiệm</h6>
-                                                                <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
-                                                                <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
-                                                                <div className="mb-1" style={{ fontFamily: 'Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif', fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
+                                                                <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
+                                                                <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
+                                                                <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
                                                             </div>
 
                                                             <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(25, 135, 84, 0.2)'}}>

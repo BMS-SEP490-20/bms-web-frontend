@@ -322,7 +322,7 @@ const ReceptionistDashboard = () => {
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6' }}
               >
                 <FaQrcode style={{ fontSize: '1.4rem' }} />
               </div>
@@ -391,7 +391,7 @@ const ReceptionistDashboard = () => {
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6' }}
               >
                 <FaCalendarAlt style={{ fontSize: '1.4rem' }} />
               </div>
@@ -544,7 +544,7 @@ const ReceptionistDashboard = () => {
                                 <div className="d-flex align-items-center gap-2">
                                   <span 
                                     className="badge px-2.5 py-1.5 font-monospace"
-                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(94, 133, 230, 0.3)', borderRadius: '9999px' }}
+                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.3)', borderRadius: '9999px' }}
                                     onClick={() => handleOpenBarcodeModal(appointment)}
                                     title="Mã Barcode - Nhấn để xem và in"
                                   >
@@ -632,7 +632,7 @@ const ReceptionistDashboard = () => {
         <Modal.Body className="p-4">
           {selectedBarcodeItem ? (
             <div>
-              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '12px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>
+              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '12px', border: '1px solid rgba(30, 96, 230, 0.3)' }}>
                 <i className="fas fa-info-circle me-1"></i>
                 Nhãn in sẵn sàng cho ống xét nghiệm với 4 trường: <strong>Chữ cái đầu tên</strong>, <strong>Mã mẫu</strong>, <strong>Mã xét nghiệm</strong>, và <strong>Thời gian lấy mẫu</strong>.
               </Alert>

@@ -641,7 +641,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => navigate('/doctor/appointments')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0d6efd' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
                             >
                                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-calendar-alt fa-lg"></i>

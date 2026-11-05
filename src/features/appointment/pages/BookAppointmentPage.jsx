@@ -530,10 +530,10 @@ export function BookAppointmentPage({
 
         {/* Page Title */}
         <div className="mb-4">
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style={{ backgroundColor: '#dbeafe', color: '#1e40af', fontSize: '13px', fontWeight: 600 }}>
+          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#5E85E6', fontSize: '13px', fontWeight: 600 }}>
             <FaShieldAlt /> TIÊU CHUẨN ISO 15189:2022 · PHÒNG KHÁM CHUYÊN KHOA BMS
           </div>
-          <h2 className="fw-bold mb-1" style={{ color: '#0f172a' }}>
+          <h2 className="fw-bold mb-1" style={{ color: 'var(--bms-text-primary, #20242B)' }}>
             Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến)
           </h2>
           <p className="text-muted mb-0">
@@ -739,19 +739,19 @@ export function BookAppointmentPage({
                   </div>
 
                   {/* DYNAMIC DOCTOR & ROOM INFO CARD */}
-                  <div className="card border-0 mb-4" style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #1e40af' }}>
+                  <div className="card border-0 mb-4 rounded-4" style={{ backgroundColor: 'var(--bms-surface-card, #F1F4F7)', borderLeft: '4px solid #5E85E6' }}>
                     <div className="card-body p-3">
                       <div className="d-flex align-items-start gap-3">
                         <div
-                          className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0"
-                          style={{ width: 44, height: 44 }}
+                          className="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                          style={{ width: 44, height: 44, backgroundColor: '#5E85E6' }}
                         >
                           <FaUserMd className="fs-5" />
                         </div>
                         <div className="flex-grow-1">
                           <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
                             <div>
-                              <span className="badge bg-primary text-white mb-1">
+                              <span className="badge rounded-pill text-white mb-1" style={{ backgroundColor: '#5E85E6' }}>
                                 Bác Sĩ & Phòng Khám Trực Ban {selectedShiftId === 'Morning' ? 'Ca Sáng' : selectedShiftId === 'Afternoon' ? 'Ca Chiều' : 'Ca Tối'}
                               </span>
                               <h6 className="fw-bold text-dark mb-0">{activeShiftData.doctorName}</h6>
@@ -759,9 +759,9 @@ export function BookAppointmentPage({
                             </div>
                             <div className="text-md-end">
                               <div className="small text-muted d-flex align-items-center gap-1 justify-content-md-end">
-                                <FaHospital className="text-primary" /> <strong>{activeShiftData.roomName}</strong>
+                                <FaHospital style={{ color: '#5E85E6' }} /> <strong>{activeShiftData.roomName}</strong>
                               </div>
-                              <div className="badge bg-light text-dark border">
+                              <div className="badge bg-light text-dark border rounded-pill">
                                 Phòng {activeShiftData.roomNumber} · {activeShiftData.floor}
                               </div>
                             </div>
@@ -774,7 +774,7 @@ export function BookAppointmentPage({
                   {/* TIME SLOT PICKER */}
                   <div className="mb-3">
                     <label className="form-label text-muted small fw-semibold d-flex align-items-center gap-1">
-                      <FaClock className="text-primary" /> Khung giờ lấy mẫu cụ thể trong ca:
+                      <FaClock style={{ color: '#5E85E6' }} /> Khung giờ lấy mẫu cụ thể trong ca:
                     </label>
                     {loadingSlots ? (
                       <div className="text-muted small py-2">Đang tải các khung giờ trống...</div>
@@ -790,16 +790,16 @@ export function BookAppointmentPage({
                               type="button"
                               disabled={!isAvailable}
                               onClick={() => isAvailable && setSlotTime(slot)}
-                              className={`btn btn-sm px-3 py-2 rounded-3 fw-semibold ${
+                              className={`btn btn-sm px-3 py-2 rounded-pill fw-semibold ${
                                 !isAvailable
-                                  ? 'btn-light text-muted border-light text-decoration-line-through'
-                                  : isPicked
-                                  ? 'btn-primary shadow-sm'
-                                  : 'btn-outline-secondary'
+                                    ? 'btn-light text-muted border-light text-decoration-line-through'
+                                    : isPicked
+                                    ? 'btn-primary shadow-sm'
+                                    : 'btn-outline-secondary'
                               }`}
                               style={{
-                                backgroundColor: isPicked ? '#1e40af' : undefined,
-                                borderColor: isPicked ? '#1e40af' : '#cbd5e1',
+                                backgroundColor: isPicked ? '#5E85E6' : undefined,
+                                borderColor: isPicked ? '#5E85E6' : '#cbd5e1',
                                 minWidth: 80,
                                 opacity: isAvailable ? 1 : 0.5,
                                 cursor: isAvailable ? 'pointer' : 'not-allowed'
@@ -820,7 +820,7 @@ export function BookAppointmentPage({
                       Ghi chú lâm sàng / Dặn dò chuẩn bị
                     </label>
                     <textarea
-                      className="form-control"
+                      className="form-control rounded-3"
                       rows={2}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
@@ -836,15 +836,15 @@ export function BookAppointmentPage({
                   <div className="d-flex gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-secondary px-4 py-2 rounded-3"
+                      className="btn btn-outline-secondary px-4 py-2 rounded-pill"
                       onClick={() => navigate('/services')}
                     >
                       Quay Lại
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-primary px-4 py-2 rounded-3 fw-semibold d-flex align-items-center gap-2"
-                      style={{ backgroundColor: '#1e40af', borderColor: '#1e40af', minHeight: 46 }}
+                      className="btn btn-primary px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2"
+                      style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', minHeight: 46 }}
                       disabled={loading || !slotTime || !selectedPackageId}
                     >
                       {loading ? 'Đang Xử Lý...' : 'Xác Nhận Đặt Lịch Xét Nghiệm'}

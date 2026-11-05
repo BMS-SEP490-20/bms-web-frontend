@@ -26,9 +26,9 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background-color: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background-color: rgba(94, 133, 230, 0.12);
+  color: #5E85E6;
+  border: 1px solid rgba(94, 133, 230, 0.3);
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
@@ -40,14 +40,14 @@
 .bms-payhistory-title {
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--bms-text-primary, #20242B);
   margin-bottom: 6px;
   letter-spacing: -0.02em;
 }
 
 .bms-payhistory-subtitle {
   font-size: 14.5px;
-  color: #64748b;
+  color: var(--bms-text-secondary, #606873);
   margin-bottom: 0;
   line-height: 1.5;
 }
@@ -68,19 +68,19 @@
 
 .bms-pay-kpi-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #E5E9EB;
+  border-radius: 16px;
   padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .bms-pay-kpi-icon {
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,18 +89,18 @@
 }
 
 .bms-pay-kpi-icon.success {
-  background-color: #ecfdf5;
-  color: #10b981;
+  background-color: rgba(145, 222, 131, 0.2);
+  color: #2b781a;
 }
 
 .bms-pay-kpi-icon.primary {
-  background-color: #eff6ff;
-  color: #1e40af;
+  background-color: rgba(94, 133, 230, 0.15);
+  color: #5E85E6;
 }
 
 .bms-pay-kpi-icon.warning {
-  background-color: #fffbeb;
-  color: #f59e0b;
+  background-color: rgba(231, 188, 76, 0.2);
+  color: #92400e;
 }
 
 .bms-pay-kpi-label {
@@ -119,8 +119,8 @@
 /* Filter Toolbar */
 .bms-pay-toolbar {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px 12px 0 0;
+  border: 1px solid #E5E9EB;
+  border-radius: 16px 16px 0 0;
   padding: 16px 20px;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
@@ -140,17 +140,18 @@
 .bms-pay-search-input {
   width: 240px;
   height: 38px;
-  padding: 6px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border: 1px solid #E5E9EB;
+  border-radius: 12px;
   font-size: 13.5px;
-  background-color: #f8fafc;
+  background-color: var(--bms-surface-card, #F1F4F7);
 }
 
 .bms-pay-search-input:focus {
   outline: none;
   background-color: #ffffff;
-  border-color: #2563eb;
+  border-color: #5E85E6;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
 }
 
 /* Transactions Table */

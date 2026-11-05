@@ -90,7 +90,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                         <button
                             onClick={handlePrint}
                             style={{
-                                backgroundColor: '#5E85E6',
+                                backgroundColor: '#648CF4',
                                 color: '#ffffff',
                                 border: 'none',
                                 padding: '8px 18px',
@@ -339,7 +339,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                             style={{
                                 padding: '8px 18px',
                                 borderRadius: '9999px',
-                                border: '1px solid #E5E9EB',
+                                border: '1px solid rgba(15, 23, 42, 0.05)',
                                 backgroundColor: '#ffffff',
                                 color: '#475569',
                                 fontWeight: '600',
@@ -354,7 +354,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 padding: '8px 22px',
                                 borderRadius: '9999px',
                                 border: 'none',
-                                backgroundColor: '#5E85E6',
+                                backgroundColor: '#648CF4',
                                 color: '#ffffff',
                                 fontWeight: '700',
                                 cursor: 'pointer',

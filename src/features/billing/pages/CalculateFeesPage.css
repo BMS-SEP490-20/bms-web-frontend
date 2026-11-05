@@ -1,25 +1,27 @@
 /* ==========================================================================
    CalculateFeesPage.css – BMS Clinical Fee Calculation & BHYT Estimator
    Standards: Clean Medical UI, ISO 15189, Decree 123/2020/ND-CP
-   Theme: Modern Soft Healthcare SaaS (#5E85E6, #91DE83, #E7BC4C)
+   Theme: Soft Medical Telehealth UI Specification (MEDLINE-class)
    ========================================================================== */
 
 .calc-fees-page {
-  background-color: var(--bms-surface, #F1F4F7);
+  background-color: var(--bg-page, #F4F7F9);
   min-height: 100vh;
 }
 
 .calc-fees-page .card {
-  border: 1px solid var(--bms-border, #E5E9EB) !important;
-  border-radius: 18px !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(15, 23, 42, 0.04) !important;
+  border-radius: var(--radius-card, 28px) !important;
+  box-shadow: var(--shadow-card, 0 8px 28px rgba(28, 39, 61, 0.07)) !important;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
 }
 
 .calc-fees-page .card-header {
-  border-top-left-radius: 18px !important;
-  border-top-right-radius: 18px !important;
-  border-bottom: 1px solid var(--bms-border, #E5E9EB) !important;
+  border-top-left-radius: var(--radius-card, 28px) !important;
+  border-top-right-radius: var(--radius-card, 28px) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
+  background-color: #FFFFFF !important;
 }
 
 .calc-fees-page .badge {
@@ -30,42 +32,46 @@
 .calc-fees-page .btn {
   border-radius: 9999px !important;
   font-weight: 600;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .calc-fees-page .btn-primary {
-  background-color: var(--bms-primary, #5E85E6) !important;
-  border-color: var(--bms-primary, #5E85E6) !important;
-  box-shadow: 0 2px 10px rgba(94, 133, 230, 0.25);
+  background-color: var(--primary, #648CF4) !important;
+  border-color: var(--primary, #648CF4) !important;
+  box-shadow: var(--shadow-pill, 0 4px 14px rgba(100, 140, 244, 0.22));
+  color: #FFFFFF !important;
 }
 
 .calc-fees-page .btn-primary:hover {
-  background-color: #4C70D2 !important;
-  border-color: #4C70D2 !important;
-  box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
+  background-color: var(--primary-hover, #537be6) !important;
+  border-color: var(--primary-hover, #537be6) !important;
+  box-shadow: 0 6px 18px rgba(100, 140, 244, 0.35);
+  transform: translateY(-1px);
 }
 
 .calc-fees-page .btn-outline-primary {
-  border-color: var(--bms-primary, #5E85E6) !important;
-  color: var(--bms-primary, #5E85E6) !important;
+  border-color: var(--primary, #648CF4) !important;
+  color: var(--primary, #648CF4) !important;
 }
 
 .calc-fees-page .btn-outline-primary:hover {
-  background-color: var(--bms-primary, #5E85E6) !important;
+  background-color: var(--primary, #648CF4) !important;
   color: #ffffff !important;
 }
 
 .calc-fees-page .form-control,
 .calc-fees-page .form-select {
-  border-radius: 12px;
-  border: 1px solid var(--bms-border, #E5E9EB);
-  background-color: #ffffff;
+  border-radius: 9999px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background-color: var(--bg-muted, #EEF2F6);
+  color: var(--ink, #1A1D21);
 }
 
 .calc-fees-page .form-control:focus,
 .calc-fees-page .form-select:focus {
-  border-color: var(--bms-primary, #5E85E6);
-  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
+  border-color: var(--primary, #648CF4);
+  background-color: #FFFFFF;
+  box-shadow: var(--ring-focus, 0 0 0 3px rgba(100, 140, 244, 0.28));
 }
 
 .calc-fees-page .cursor-pointer {

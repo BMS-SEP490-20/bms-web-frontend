@@ -86,9 +86,9 @@ const ChangePassword = () => {
   };
 
   return (
-    <Card className="shadow-sm border rounded-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
-      <Card.Header className="bg-white border-bottom py-3 px-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
-        <h5 className="fw-bold mb-1" style={{ color: 'var(--bms-primary, #5E85E6)', fontSize: '18px' }}>
+    <Card className="shadow-sm border rounded-4" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
+      <Card.Header className="bg-white border-bottom py-3 px-4" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
+        <h5 className="fw-bold mb-1" style={{ color: 'var(--bms-primary, #648CF4)', fontSize: '18px' }}>
           <i className="bi bi-key-fill me-2"></i>Thay Đổi Mật Khẩu Bảo Mật
         </h5>
         <small className="text-muted" style={{ fontSize: '12px' }}>Bảo vệ tài khoản y tế BMS theo chuẩn định danh y khoa (BR-IAM-01)</small>
@@ -162,7 +162,7 @@ const ChangePassword = () => {
             <Button variant="outline-secondary" className="rounded-pill px-3" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
               Hủy bỏ
             </Button>
-            <Button variant="primary" type="submit" disabled={loading} className="rounded-pill fw-semibold px-4" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}>
+            <Button variant="primary" type="submit" disabled={loading} className="rounded-pill fw-semibold px-4" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}>
               {loading ? <Spinner animation="border" size="sm" /> : 'Cập Nhật Mật Khẩu'}
             </Button>
           </div>

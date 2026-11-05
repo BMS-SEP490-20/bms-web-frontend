@@ -81,10 +81,10 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
             style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
-                    <div className="modal-header py-3" style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+                <div className="modal-content shadow border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaDatabase className="fs-5" style={{ color: '#5E85E6' }} />
+                            <FaDatabase className="fs-5" style={{ color: '#648CF4' }} />
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Tạo Bản Sao Lưu & Lưu Trữ Dữ Liệu Xét Nghiệm (UC80)
                             </h5>
@@ -118,8 +118,8 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                             style={{
                                                 cursor: "pointer",
                                                 borderRadius: 14,
-                                                borderColor: scope === 1 ? '#5E85E6' : '#E5E9EB',
-                                                background: scope === 1 ? 'rgba(94, 133, 230, 0.08)' : '#F1F4F7'
+                                                borderColor: scope === 1 ? '#648CF4' : 'rgba(15, 23, 42, 0.05)',
+                                                background: scope === 1 ? 'rgba(94, 133, 230, 0.08)' : '#EEF2F6'
                                             }}
                                         >
                                             <div className="form-check">
@@ -149,8 +149,8 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                             style={{
                                                 cursor: "pointer",
                                                 borderRadius: 14,
-                                                borderColor: scope === 2 ? '#5E85E6' : '#E5E9EB',
-                                                background: scope === 2 ? 'rgba(94, 133, 230, 0.08)' : '#F1F4F7'
+                                                borderColor: scope === 2 ? '#648CF4' : 'rgba(15, 23, 42, 0.05)',
+                                                background: scope === 2 ? 'rgba(94, 133, 230, 0.08)' : '#EEF2F6'
                                             }}
                                         >
                                             <div className="form-check">
@@ -286,7 +286,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                             </div>
                         </div>
 
-                        <div className="modal-footer py-2 px-3" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+                        <div className="modal-footer py-2 px-3" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary"
@@ -300,7 +300,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 type="submit"
                                 className="btn btn-primary d-flex align-items-center gap-2"
                                 disabled={submitting || !backupName.trim()}
-                                style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                                style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                             >
                                 {submitting ? (
                                     <>

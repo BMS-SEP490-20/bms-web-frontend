@@ -242,7 +242,7 @@ export default function BackupManagementPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#0f2743' }}>Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
-                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
+                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
                             ISO 15189 • Nghị Định 123/2020/NĐ-CP
                         </span>
                         <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
@@ -259,7 +259,7 @@ export default function BackupManagementPage() {
                         type="button"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
                         onClick={loadData}
-                        style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+                        style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
@@ -269,7 +269,7 @@ export default function BackupManagementPage() {
                             type="button"
                             className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
                             onClick={() => setShowCreateModal(true)}
-                            style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                            style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                         >
                             <FaPlus />
                             <span>Sao Lưu Dữ Liệu Xét Nghiệm Mới</span>
@@ -300,7 +300,7 @@ export default function BackupManagementPage() {
             {/* KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -309,28 +309,28 @@ export default function BackupManagementPage() {
                                     </span>
                                     <h3 className="fw-bold mb-0" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{stats.totalBackups}</h3>
                                 </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                                     <FaDatabase className="fs-4" />
                                 </div>
                             </div>
                             <small className="text-secondary mt-2 d-block">
-                                <span className="fw-semibold" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
+                                <span className="fw-semibold" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
                             </small>
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-1">
                                         Dung Lượng Đã Dùng
                                     </span>
-                                    <h3 className="fw-bold mb-0" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalStorageMb} MB</h3>
+                                    <h3 className="fw-bold mb-0" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{stats.totalStorageMb} MB</h3>
                                 </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                                     <FaHdd className="fs-4" />
                                 </div>
                             </div>
@@ -342,7 +342,7 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -363,7 +363,7 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -385,7 +385,7 @@ export default function BackupManagementPage() {
             </div>
 
             {/* Filter Tabs & Search Bar */}
-            <div className="card shadow-sm border-0 mb-4" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+            <div className="card shadow-sm border-0 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
                 <div className="card-body p-3">
                     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <ul className="nav nav-pills gap-1">
@@ -405,7 +405,7 @@ export default function BackupManagementPage() {
                                             }}
                                             style={{
                                                 borderRadius: 9999,
-                                                background: isActive ? '#5E85E6' : 'transparent',
+                                                background: isActive ? '#648CF4' : 'transparent',
                                                 color: isActive ? '#fff' : '#64748b',
                                                 fontWeight: 600,
                                                 padding: '6px 14px'
@@ -421,7 +421,7 @@ export default function BackupManagementPage() {
 
                         {activeTab !== "HISTORY" && (
                             <div className="input-group input-group-sm" style={{ maxWidth: "320px" }}>
-                                <span className="input-group-text border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                                <span className="input-group-text border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                     <FaSearch className="text-muted" />
                                 </span>
                                 <input
@@ -430,7 +430,7 @@ export default function BackupManagementPage() {
                                     placeholder="Tìm theo tên, mã sao lưu..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
+                                    style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                                 />
                             </div>
                         )}
@@ -441,10 +441,10 @@ export default function BackupManagementPage() {
             {/* Main Content: Backups Table or Restore Audits */}
             {activeTab === "HISTORY" ? (
                 /* Restore Audits Directory Table */
-                <div className="card shadow-sm border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
-                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid #E5E9EB' }}>
+                <div className="card shadow-sm border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                            <FaHistory style={{ color: '#5E85E6' }} />
+                            <FaHistory style={{ color: '#648CF4' }} />
                             Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu
                         </h6>
                         <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {restoreHistory.length} phiên khôi phục ghi nhận</small>
@@ -452,7 +452,7 @@ export default function BackupManagementPage() {
 
                     <div className="table-responsive">
                         <table className="table table-hover align-middle mb-0">
-                            <thead style={{ background: '#F1F4F7' }}>
+                            <thead style={{ background: '#EEF2F6' }}>
                                 <tr>
                                     <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Phiên Khôi Phục</th>
                                     <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Bản Sao Lưu</th>
@@ -480,9 +480,9 @@ export default function BackupManagementPage() {
                                     </tr>
                                 ) : (
                                     restoreHistory.map((log) => (
-                                        <tr key={log.id || log.restoreId} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                        <tr key={log.id || log.restoreId} style={{ borderBottom: '1px solid #EEF2F6' }}>
                                             <td style={{ padding: '12px 16px' }}>
-                                                <span className="font-monospace fw-bold" style={{ color: '#5E85E6' }}>
+                                                <span className="font-monospace fw-bold" style={{ color: '#648CF4' }}>
                                                     {log.restoreId}
                                                 </span>
                                             </td>
@@ -492,8 +492,8 @@ export default function BackupManagementPage() {
                                                 </span>
                                             </td>
                                             <td className="fw-semibold text-dark" style={{ padding: '12px 16px' }}>{log.restoredBy}</td>
-                                            <td style={{ padding: '12px 16px' }}><span className="badge rounded-pill" style={{ background: '#F1F4F7', color: '#475569' }}>{log.restoredByRole || "Quản trị viên"}</span></td>
-                                            <td className="fw-bold" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums', padding: '12px 16px' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
+                                            <td style={{ padding: '12px 16px' }}><span className="badge rounded-pill" style={{ background: '#EEF2F6', color: '#475569' }}>{log.restoredByRole || "Quản trị viên"}</span></td>
+                                            <td className="fw-bold" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums', padding: '12px 16px' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
                                             <td style={{ padding: '12px 16px' }}>
                                                 <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
                                                     <FaCheck className="me-1" /> Khớp 100%
@@ -514,10 +514,10 @@ export default function BackupManagementPage() {
                 </div>
             ) : (
                 /* Backups Directory Table */
-                <div className="card shadow-sm border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
-                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid #E5E9EB' }}>
+                <div className="card shadow-sm border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                            <FaDatabase style={{ color: '#5E85E6' }} />
+                            <FaDatabase style={{ color: '#648CF4' }} />
                             Danh Sách Bản Sao Lưu Cơ Sở Dữ Liệu Xét Nghiệm
                         </h6>
                         <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {filteredBackups.length} bản sao lưu sẵn sàng</small>
@@ -525,7 +525,7 @@ export default function BackupManagementPage() {
 
                     <div className="table-responsive">
                         <table className="table table-hover align-middle mb-0">
-                            <thead style={{ background: '#F1F4F7' }}>
+                            <thead style={{ background: '#EEF2F6' }}>
                                 <tr>
                                     <th style={{ minWidth: "150px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Sao Lưu</th>
                                     <th style={{ minWidth: "220px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Tên Bản Sao Lưu</th>
@@ -553,9 +553,9 @@ export default function BackupManagementPage() {
                                     </tr>
                                 ) : (
                                     filteredBackups.map((item) => (
-                                        <tr key={item.id || item.backupId} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                        <tr key={item.id || item.backupId} style={{ borderBottom: '1px solid #EEF2F6' }}>
                                             <td style={{ padding: '12px 16px' }}>
-                                                <span className="font-monospace fw-bold" style={{ color: '#5E85E6' }}>
+                                                <span className="font-monospace fw-bold" style={{ color: '#648CF4' }}>
                                                     {item.backupId}
                                                 </span>
                                             </td>
@@ -567,8 +567,8 @@ export default function BackupManagementPage() {
                                             </td>
                                             <td style={{ padding: '12px 16px' }}>
                                                 <span className="badge rounded-pill" style={{
-                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(94, 133, 230, 0.1)' : '#F1F4F7',
-                                                    color: item.scope === "PatientTestResults" || item.scope === 1 ? '#5E85E6' : '#64748b',
+                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(94, 133, 230, 0.1)' : '#EEF2F6',
+                                                    color: item.scope === "PatientTestResults" || item.scope === 1 ? '#648CF4' : '#64748b',
                                                     border: '1px solid rgba(94, 133, 230, 0.2)'
                                                 }}>
                                                     {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
@@ -634,7 +634,7 @@ export default function BackupManagementPage() {
                                                             setSelectedBackup(item);
                                                             setShowDetailModal(true);
                                                         }}
-                                                        style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+                                                        style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
                                                     >
                                                         <FaEye />
                                                     </button>

@@ -20,20 +20,20 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
 
     return (
         <Modal show={Boolean(pkg)} onHide={onClose} size="lg" centered>
-            <Modal.Header closeButton style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+            <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                    <i className="bi bi-box-seam-fill" style={{ color: '#5E85E6' }}></i>
+                    <i className="bi bi-box-seam-fill" style={{ color: '#648CF4' }}></i>
                     Chi Tiết Gói Dịch Vụ Xét Nghiệm: {pkg.name}
                 </Modal.Title>
             </Modal.Header>
 
             <Modal.Body className="p-4" style={{ maxHeight: "72vh", overflowY: "auto" }}>
                 {/* General Info Card */}
-                <div className="p-3 mb-3" style={{ background: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: 16 }}>
+                <div className="p-3 mb-3" style={{ background: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 16 }}>
                     <Row className="g-3">
                         <Col md={4}>
                             <div className="text-muted small fw-medium">Mã Gói Dịch Vụ</div>
-                            <div className="fw-bold font-monospace fs-6" style={{ color: '#5E85E6' }}>
+                            <div className="fw-bold font-monospace fs-6" style={{ color: '#648CF4' }}>
                                 {pkg.code || "—"}
                             </div>
                         </Col>
@@ -46,7 +46,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                         <Col md={3}>
                             <div className="text-muted small fw-medium">Trạng Thái</div>
                             <div>
-                                <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 600, background: pkg.isActive ? 'rgba(145, 222, 131, 0.2)' : '#E5E9EB', color: pkg.isActive ? '#2E7D32' : '#64748b' }}>
+                                <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 600, background: pkg.isActive ? 'rgba(145, 222, 131, 0.2)' : 'rgba(15, 23, 42, 0.05)', color: pkg.isActive ? '#2E7D32' : '#64748b' }}>
                                     {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
                                 </span>
                             </div>
@@ -54,7 +54,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
 
                         <Col md={4}>
                             <div className="text-muted small fw-medium">Đơn Giá Niêm Yết</div>
-                            <div className="fw-bold fs-5" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
+                            <div className="fw-bold fs-5" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>
                                 {formatMoney(pkg.price)}
                             </div>
                         </Col>
@@ -82,7 +82,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
 
                 {/* Tests List */}
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                    <i className="bi bi-list-check" style={{ color: '#5E85E6' }}></i>
+                    <i className="bi bi-list-check" style={{ color: '#648CF4' }}></i>
                     Danh Sách Xét Nghiệm Thành Phần Trong Gói ({tests.length})
                 </h6>
 
@@ -91,9 +91,9 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                         Chưa gán xét nghiệm nào cho gói này.
                     </div>
                 ) : (
-                    <div className="table-responsive" style={{ border: '1px solid #E5E9EB', borderRadius: 14, overflow: 'hidden' }}>
+                    <div className="table-responsive" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 14, overflow: 'hidden' }}>
                         <Table hover size="sm" className="mb-0 align-middle">
-                            <thead style={{ background: '#F1F4F7' }}>
+                            <thead style={{ background: '#EEF2F6' }}>
                                 <tr>
                                     <th style={{ width: "80px", color: '#475569', fontSize: 12, padding: '10px 14px' }}>STT</th>
                                     <th style={{ width: "160px", color: '#475569', fontSize: 12, padding: '10px 14px' }}>Mã Xét Nghiệm</th>
@@ -105,10 +105,10 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                                     const code = typeof t === "string" ? t : (t.code || t._id || t.id);
                                     const name = typeof t === "string" ? t : (t.name || t.code);
                                     return (
-                                        <tr key={idx} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                        <tr key={idx} style={{ borderBottom: '1px solid #EEF2F6' }}>
                                             <td className="text-muted small" style={{ padding: '10px 14px', fontVariantNumeric: 'tabular-nums' }}>{idx + 1}</td>
                                             <td style={{ padding: '10px 14px' }}>
-                                                <code className="fw-bold" style={{ color: '#5E85E6' }}>{code}</code>
+                                                <code className="fw-bold" style={{ color: '#648CF4' }}>{code}</code>
                                             </td>
                                             <td className="fw-semibold text-dark" style={{ padding: '10px 14px' }}>{name}</td>
                                         </tr>
@@ -120,7 +120,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                 )}
             </Modal.Body>
 
-            <Modal.Footer className="py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+            <Modal.Footer className="py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Button variant="outline-secondary" onClick={onClose} style={{ borderRadius: 9999 }}>
                     Đóng
                 </Button>
@@ -132,7 +132,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                             onEdit(pkg);
                         }}
                         className="d-flex align-items-center gap-1"
-                        style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6' }}
+                        style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4' }}
                     >
                         <i className="bi bi-pencil"></i>
                         Chỉnh Sửa Gói Này

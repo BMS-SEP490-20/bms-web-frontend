@@ -206,18 +206,19 @@ export default function SampleRerunPage() {
                 <div className="row g-4">
                     {/* Left Card: Rerun Request Form */}
                     <div className="col-lg-7">
-                        <div className="card border-0 shadow-sm rounded-3">
-                            <div className="card-header bg-white border-bottom py-3">
+                        <div className="card border-0 shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+                            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: '#E5E9EB' }}>
                                 <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                    <FaRedo className="text-primary" /> Rerun request — <span className="font-monospace text-primary">{sampleDetails.barcode || sampleDetails.sampleId}</span>
+                                    <FaRedo style={{ color: '#5E85E6' }} /> Rerun request — <span className="font-monospace" style={{ color: '#5E85E6' }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
                                 </h5>
                             </div>
                             <div className="card-body p-4">
                                 {/* Specimen Key-Value Banner */}
                                 <div
-                                    className="p-3 mb-4 rounded-3 border"
+                                    className="p-3 mb-4 rounded-4 border"
                                     style={{
-                                        backgroundColor: "#f8fafc",
+                                        backgroundColor: "#F1F4F7",
+                                        borderColor: "#E5E9EB",
                                         display: "grid",
                                         gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                                         gap: "8px 16px",
@@ -230,8 +231,8 @@ export default function SampleRerunPage() {
                                     </div>
                                     <div>
                                         <span className="text-muted fw-semibold">Current result:</span>{" "}
-                                        <strong className="text-danger">{sampleDetails.currentResult}</strong>{" "}
-                                        <span className="badge bg-danger text-white px-1.5 py-0.5 font-monospace">{sampleDetails.flag}</span>
+                                        <strong className="text-danger font-monospace" style={{ fontVariantNumeric: "tabular-nums" }}>{sampleDetails.currentResult}</strong>{" "}
+                                        <span className="badge bg-danger text-white px-2 py-0.5 rounded-pill font-monospace">{sampleDetails.flag}</span>
                                     </div>
                                     <div>
                                         <span className="text-muted fw-semibold">Analyzer:</span>{" "}
@@ -327,7 +328,8 @@ export default function SampleRerunPage() {
                                 <div className="d-flex gap-2">
                                     <button
                                         type="button"
-                                        className="btn btn-primary d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm"
+                                        className="btn d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm text-white"
+                                        style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
                                         disabled={submitting}
                                         onClick={handleSubmit}
                                     >
@@ -336,6 +338,7 @@ export default function SampleRerunPage() {
                                     <button
                                         type="button"
                                         className="btn btn-outline-secondary"
+                                        style={{ borderRadius: '9999px' }}
                                         onClick={() => navigate(-1)}
                                     >
                                         Cancel

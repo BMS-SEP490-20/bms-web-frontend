@@ -1,4 +1,4 @@
-/* TestCriteriaPage.css - Laboratory Master Data & Reference Ranges */
+/* TestCriteriaPage.css - Laboratory Master Data & Reference Ranges (Modern Soft Healthcare SaaS) */
 
 .bms-criteria-container {
   padding: 12px 0;
@@ -21,7 +21,7 @@
 .bms-criteria-title-group h1 {
   font-size: 24px;
   font-weight: 700;
-  color: #0f172a;
+  color: #20242B;
   margin: 0 0 6px 0;
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@
 
 .bms-criteria-title-group p {
   font-size: 14px;
-  color: #64748b;
+  color: #606873;
   margin: 0;
 }
 
@@ -38,26 +38,26 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1d4ed8;
+  background: #F1F4F7;
+  border: 1px solid #E5E9EB;
+  color: #5E85E6;
   font-size: 12px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
 }
 
 /* Filter & Action Bar */
 .bms-criteria-toolbar {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #E5E9EB;
+  border-radius: 16px;
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(32, 36, 43, 0.04);
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -82,40 +82,45 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: #8D96A0;
   pointer-events: none;
 }
 
 .bms-search-field {
   width: 100%;
   padding: 9px 12px 9px 36px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid #E5E9EB;
+  border-radius: 9999px;
   font-size: 14px;
-  color: #1e293b;
+  color: #20242B;
+  background-color: #F1F4F7;
   outline: none;
   transition: all 0.2s;
   box-sizing: border-box;
 }
 
 .bms-search-field:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #5E85E6;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
 }
 
 .bms-filter-select {
   padding: 9px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid #E5E9EB;
+  border-radius: 9999px;
   font-size: 14px;
-  color: #334155;
-  background-color: #ffffff;
+  color: #20242B;
+  background-color: #F1F4F7;
   outline: none;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .bms-filter-select:focus {
-  border-color: #2563eb;
+  border-color: #5E85E6;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
 }
 
 .bms-criteria-actions {
@@ -127,9 +132,9 @@
 /* Master Data Table */
 .bms-table-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E5E9EB;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(32, 36, 43, 0.04);
   overflow: hidden;
 }
 
@@ -145,27 +150,27 @@
 }
 
 .bms-criteria-table th {
-  background: #f8fafc;
-  color: #475569;
+  background: #F1F4F7;
+  color: #606873;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 14px 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #E5E9EB;
   white-space: nowrap;
 }
 
 .bms-criteria-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #F1F4F7;
   font-size: 14px;
-  color: #1e293b;
+  color: #20242B;
   vertical-align: middle;
 }
 
 .bms-criteria-table tr:hover {
-  background-color: #f8fafc;
+  background-color: rgba(94, 133, 230, 0.04);
 }
 
 /* Column Alignments per AGENTS-DESIGN.md */
@@ -175,6 +180,7 @@
 
 .col-right {
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .col-left {
@@ -188,19 +194,19 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 700;
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #dbeafe;
-  border-radius: 6px;
+  background: #F1F4F7;
+  color: #5E85E6;
+  border: 1px solid #E5E9EB;
+  border-radius: 9999px;
 }
 
 /* Category Badges */
 .bms-category-badge {
   display: inline-block;
-  padding: 3px 8px;
+  padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 
 .cat-biochem {
@@ -232,6 +238,7 @@
   color: #16a34a;
   font-weight: 600;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .bms-panic-range {
@@ -242,13 +249,14 @@
   justify-content: flex-end;
   gap: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .bms-status-active {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
   color: #15803d;
@@ -260,7 +268,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
   color: #64748b;
@@ -276,21 +284,21 @@
 }
 
 .bms-table-action-btn {
-  padding: 6px 10px;
+  padding: 6px 12px;
   font-size: 13px;
   font-weight: 500;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  border: 1px solid #E5E9EB;
   background: #ffffff;
-  color: #334155;
+  color: #20242B;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .bms-table-action-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: #F1F4F7;
+  border-color: #5E85E6;
+  color: #5E85E6;
 }
 
 .bms-table-action-btn.danger:hover {
@@ -306,12 +314,12 @@
   align-items: center;
   padding: 14px 20px;
   background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #E5E9EB;
 }
 
 .bms-pagination-info {
   font-size: 13px;
-  color: #64748b;
+  color: #606873;
 }
 
 .bms-pagination-buttons {
@@ -321,12 +329,12 @@
 }
 
 .bms-page-btn {
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #E5E9EB;
+  border-radius: 9999px;
   background: #ffffff;
-  color: #334155;
+  color: #20242B;
   cursor: pointer;
 }
 
@@ -336,8 +344,9 @@
 }
 
 .bms-page-btn:not(:disabled):hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
+  background: #F1F4F7;
+  border-color: #5E85E6;
+  color: #5E85E6;
 }
 
 /* Toast alert */
@@ -346,7 +355,7 @@
   bottom: 24px;
   right: 24px;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -380,9 +389,9 @@
 
 /* Medical Form Modal Enhancements */
 .bms-medical-modal .modal-content {
-  border-radius: 16px;
-  border: none;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  border-radius: 18px;
+  border: 1px solid #E5E9EB;
+  box-shadow: 0 25px 50px -12px rgba(32, 36, 43, 0.15);
   overflow: hidden;
 }
 
@@ -401,7 +410,7 @@
 }
 
 .bms-medical-modal .modal-body::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F1F4F7;
 }
 
 .bms-medical-modal .modal-body::-webkit-scrollbar-thumb {
@@ -415,7 +424,7 @@
 
 .bms-medical-modal .form-control:focus,
 .bms-medical-modal .form-select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #5E85E6;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
 }
 

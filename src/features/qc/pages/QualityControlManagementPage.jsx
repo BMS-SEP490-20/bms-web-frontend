@@ -305,48 +305,48 @@ export default function QualityControlManagementPage() {
             <div className="row g-3 mb-4">
                 {/* In-Control Rate */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-success border-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-success border-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn IQC</span>
-                            <span className="badge bg-success-subtle text-success">CLSI C24-A3</span>
+                            <span className="badge bg-success-subtle text-success rounded-pill">CLSI C24-A3</span>
                         </div>
-                        <div className="fs-2 fw-bold text-success mt-1">{summary.inControlRate}%</div>
+                        <div className="fs-2 fw-bold text-success mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.inControlRate}%</div>
                         <div className="small text-muted mt-1">Đảm bảo độ tin cậy mẫu bệnh nhân</div>
                     </div>
                 </div>
 
                 {/* Active Lots */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ border: '1px solid #E5E9EB', borderLeftColor: '#5E85E6' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Số Lô QC Đang Dùng</span>
-                            <span className="badge bg-primary-subtle text-primary">Active</span>
+                            <span className="badge rounded-pill" style={{ backgroundColor: '#F1F4F7', color: '#5E85E6' }}>Active</span>
                         </div>
-                        <div className="fs-2 fw-bold text-primary mt-1">{summary.activeLotsCount} lô</div>
+                        <div className="fs-2 fw-bold mt-1 font-monospace" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{summary.activeLotsCount} lô</div>
                         <div className="small text-muted mt-1">Tất cả các bộ phân tích</div>
                     </div>
                 </div>
 
                 {/* Westgard Warnings */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-warning border-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-warning border-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Cảnh Báo 1_2s (Warning)</span>
-                            <span className="badge bg-warning-subtle text-warning">Giám sát</span>
+                            <span className="badge bg-warning-subtle text-warning rounded-pill">Giám sát</span>
                         </div>
-                        <div className="fs-2 fw-bold text-warning mt-1">{summary.activeWarningsCount} lần</div>
+                        <div className="fs-2 fw-bold text-warning mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.activeWarningsCount} lần</div>
                         <div className="small text-muted mt-1">Độ lệch nằm trong dải 2s - 3s</div>
                     </div>
                 </div>
 
                 {/* Rejections & Locked Analyzers */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-danger border-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-danger border-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Vi Phạm Từ Chối / Khóa Máy</span>
-                            <span className="badge bg-danger-subtle text-danger">Rejection</span>
+                            <span className="badge bg-danger-subtle text-danger rounded-pill">Rejection</span>
                         </div>
-                        <div className="fs-2 fw-bold text-danger mt-1">
+                        <div className="fs-2 fw-bold text-danger mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
                             {summary.activeRejectionsCount} <span className="fs-6 fw-normal text-muted">({summary.lockedAnalyzersCount} máy khóa)</span>
                         </div>
                         <div className="small text-muted mt-1">Yêu cầu hiệu chuẩn lại trước khi chạy mẫu</div>
@@ -355,10 +355,11 @@ export default function QualityControlManagementPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <ul className="nav nav-pills mb-4 bg-white p-2 rounded-3 shadow-sm">
+            <ul className="nav nav-pills mb-4 bg-white p-2 rounded-4 shadow-sm border" style={{ borderColor: '#E5E9EB' }}>
                 <li className="nav-item">
                     <button
-                        className={`nav-link d-flex align-items-center gap-2 ${activeTab === 'chart' ? 'active' : ''}`}
+                        className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'chart' ? 'active text-white' : ''}`}
+                        style={activeTab === 'chart' ? { backgroundColor: '#5E85E6' } : {}}
                         onClick={() => setActiveTab("chart")}
                     >
                         <FaChartLine /> Biểu Đồ Levey-Jennings
@@ -366,7 +367,8 @@ export default function QualityControlManagementPage() {
                 </li>
                 <li className="nav-item">
                     <button
-                        className={`nav-link d-flex align-items-center gap-2 ${activeTab === 'lots' ? 'active' : ''}`}
+                        className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'lots' ? 'active text-white' : ''}`}
+                        style={activeTab === 'lots' ? { backgroundColor: '#5E85E6' } : {}}
                         onClick={() => setActiveTab("lots")}
                     >
                         <FaVial /> Quản Lý Lô Kiểm Chuẩn (QC Lots)
@@ -374,7 +376,8 @@ export default function QualityControlManagementPage() {
                 </li>
                 <li className="nav-item">
                     <button
-                        className={`nav-link d-flex align-items-center gap-2 ${activeTab === 'flags' ? 'active' : ''}`}
+                        className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'flags' ? 'active text-white' : ''}`}
+                        style={activeTab === 'flags' ? { backgroundColor: '#5E85E6' } : {}}
                         onClick={() => setActiveTab("flags")}
                     >
                         <FaExclamationTriangle /> Lịch Sử Cảnh Báo Vi Phạm Westgard ({flags.length})

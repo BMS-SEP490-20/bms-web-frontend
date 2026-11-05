@@ -102,7 +102,7 @@
 }
 
 html {
-  font-size: 15px;
+  font-size: 13.5px !important; /* Scaled down 10-15% for compact, spacious Big-SaaS layout */
   -webkit-text-size-adjust: 100%;
 }
 
@@ -110,29 +110,47 @@ body {
   font-family: var(--font-sans) !important;
   color: var(--ink) !important;
   background-color: var(--bg-page) !important;
-  line-height: 1.5;
+  line-height: 1.45;
   letter-spacing: -0.01em;
+  font-size: 13.5px !important;
 }
 
-/* --- Apple macOS Grade Typography Scale --- */
+/* Global Navbar Shadow Stripping */
+header,
+.navbar,
+.bms-header,
+.bms-telehealth-header {
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Expanded Max-Width for Spacious Layout */
+.container,
+.container-xl,
+.container-xxl,
+.bms-inner-container {
+  max-width: 1400px !important;
+}
+
+/* --- Compact Precision Typography Scale --- */
 h1, .h1 {
-  font-size: 2rem; /* 30-32px */
+  font-size: 1.65rem !important; /* ~22-23px */
   font-weight: 750;
-  color: var(--ink);
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-}
-
-h2, .h2 {
-  font-size: 1.5rem; /* 22-24px */
-  font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.025em;
   line-height: 1.25;
 }
 
+h2, .h2 {
+  font-size: 1.3rem !important; /* ~17-18px */
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
 h3, .h3 {
-  font-size: 1.15rem; /* 17-18px */
+  font-size: 1.05rem !important; /* ~14-15px */
   font-weight: 650;
   color: var(--ink);
   letter-spacing: -0.015em;
@@ -147,14 +165,15 @@ h4, .h4, h5, .h5, h6, .h6 {
 
 p {
   color: var(--ink);
-  line-height: 1.55;
+  line-height: 1.5;
+  font-size: 13.5px;
 }
 
 /* Tabular numbers for clinical data */
 .tabular-nums,
 .bms-num {
   font-variant-numeric: tabular-nums !important;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* Focus outline */
@@ -163,7 +182,7 @@ p {
   box-shadow: var(--ring-focus) !important;
 }
 
-/* --- Card Architecture (Crisp Pure Flat Surfaces) --- */
+/* --- Compact Flat Cards (Zero Shadow) --- */
 .card {
   background-color: var(--bg-card) !important;
   border-radius: var(--radius-card) !important;
@@ -180,29 +199,30 @@ p {
 .card-header {
   background-color: transparent !important;
   border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
-  padding: 18px 24px !important;
+  padding: 12px 18px !important;
   font-weight: 650 !important;
   color: var(--ink) !important;
 }
 
 .card-body {
-  padding: 24px 28px !important;
+  padding: 16px 20px !important;
 }
 
-/* --- Pill & Clean Action Buttons (Pure Flat, Zero Blurry Glow) --- */
+/* --- Compact Pill & Clean Action Buttons --- */
 .btn {
   font-family: var(--font-sans) !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   border-radius: var(--radius-btn) !important;
-  padding: 9px 20px !important;
+  padding: 6px 16px !important;
   transition: all 0.15s ease-out !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 8px !important;
+  gap: 6px !important;
   cursor: pointer !important;
   box-shadow: none !important;
+  line-height: 1.4 !important;
 }
 
 .btn:focus-visible {
@@ -211,7 +231,7 @@ p {
 }
 
 .btn:hover {
-  transform: none !important; /* NO sến lift */
+  transform: none !important;
 }
 
 .btn:active {
@@ -272,17 +292,18 @@ p {
   color: var(--primary) !important;
 }
 
-/* --- Form Controls --- */
+/* --- Compact Form Controls --- */
 .form-control, .form-select {
   background-color: #FFFFFF !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  border-radius: 14px !important;
+  border-radius: 10px !important;
   color: var(--ink) !important;
   font-family: var(--font-sans) !important;
-  font-size: 14px !important;
-  padding: 10px 16px !important;
-  box-shadow: 0 1px 3px rgba(28, 39, 61, 0.02) !important;
-  transition: all 0.2s ease !important;
+  font-size: 13px !important;
+  padding: 6px 12px !important;
+  height: 38px !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
 }
 
 .form-control:focus, .form-select:focus {

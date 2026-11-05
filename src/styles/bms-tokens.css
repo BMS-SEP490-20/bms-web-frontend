@@ -1,42 +1,175 @@
 /**
- * BMS design tokens (UI-DESIGN.md §2.1). Contrast values checked against WCAG 2.2 AA there.
- * WHY: the app has no Sass pipeline yet, so tokens are CSS custom properties that every new screen reuses
- * instead of hard-coding colours. #16a34a is only for icons/lines (3.30:1); text/buttons use --bms-success.
+ * BMS Design Tokens — Modern Soft Healthcare SaaS Specification (DESIGNRULE.md)
+ * 
+ * Character: Clean, calm, professional, welcoming, friendly without looking childish.
+ * Color Identity:
+ *   - Primary Blue: #5E85E6
+ *   - Soft Green: #91DE83
+ *   - Soft Yellow: #E7BC4C
+ *   - Base Surface: #FFFFFF
+ *   - Card Surface: #F1F4F7 (replaces harsh borders)
+ *   - Muted Surface: #E8EDF2
+ *   - Primary Text: #20242B (never pure black)
+ *   - Secondary Text: #7D8794
+ *   - Subtle Divider: #DDE3EA
+ * Typography: Geist Sans
  */
+
 :root {
-  --bms-primary: #1e40af;
-  --bms-primary-dark: #1e3a8a;
-  --bms-primary-subtle: #eff6ff;
-  --bms-danger: #dc2626;
+  /* --- 1. Primary Brand & Interaction Accent --- */
+  --bms-primary: #5E85E6;
+  --bms-primary-hover: #4d74d5;
+  --bms-primary-active: #3c62c3;
+  --bms-primary-subtle: #edf2fc;
+  --bms-primary-border: #c4d4f7;
+  --bms-primary-dark: #3b63c4;
+
+  /* --- 2. Semantic States (Positive, Warning, Destructive) --- */
+  --bms-success: #91DE83;
+  --bms-success-hover: #7ece70;
+  --bms-success-text: #246a1a;
+  --bms-success-subtle: #f0faf0;
+  --bms-normal-icon: #2e8b20;
+
+  --bms-warning: #E7BC4C;
+  --bms-warning-hover: #d7ac3b;
+  --bms-warning-text: #7d5b06;
+  --bms-warning-strong: #6d4f04;
+  --bms-warning-subtle: #fdfaf0;
+
+  --bms-danger: #eb5757;
+  --bms-danger-hover: #d84545;
   --bms-danger-text: #991b1b;
-  --bms-danger-subtle: #fef2f2;
-  --bms-normal-icon: #16a34a;
-  --bms-success: #15803d;
-  --bms-success-text: #166534;
-  --bms-success-subtle: #f0fdf4;
-  --bms-warning: #ffc107;
-  --bms-warning-text: #b45309;
-  --bms-warning-strong: #92400e;
-  --bms-warning-subtle: #fffbeb;
-  --bms-info: #0e7490;
-  --bms-body: #0f172a;
-  --bms-secondary: #475569;
-  --bms-muted: #64748b;
-  --bms-input-border: #7c8799;
-  --bms-border: #cbd5e1;
-  --bms-bg: #f8fafc;
-  --bms-focus: 0 0 0 .2rem #93c5fd, 0 0 0 .35rem #1e40af;
+  --bms-danger-subtle: #fef3f3;
+
+  --bms-info: #5E85E6;
+  --bms-info-text: #25499c;
+  --bms-info-subtle: #edf2fc;
+
+  /* --- 3. Surface & Neutral Hierarchy (Surface contrast instead of heavy borders) --- */
+  --bms-bg: #FFFFFF;
+  --bms-card-bg: #F1F4F7;
+  --bms-muted-surface: #E8EDF2;
+  --bms-body: #20242B;
+  --bms-text-primary: #20242B;
+  --bms-text-secondary: #7D8794;
+  --bms-text-muted: #9aa4b2;
+  --bms-secondary: #7D8794;
+  --bms-muted: #7D8794;
+
+  /* --- 4. Borders & Subtle Dividers --- */
+  --bms-border: #DDE3EA;
+  --bms-divider: #DDE3EA;
+  --bms-input-border: #DDE3EA;
+  --bms-card-border: transparent;
+
+  /* --- 5. Geometry & Border Radii --- */
+  --bms-radius-sm: 8px;
+  --bms-radius-md: 12px;
+  --bms-radius-lg: 16px;
+  --bms-radius-xl: 20px;
+  --bms-radius-pill: 9999px;
+  --bms-card-radius: 18px;
+
+  /* --- 6. Shadows (Ultra-soft, never heavy) --- */
+  --bms-shadow-sm: 0 1px 3px rgba(32, 36, 43, 0.03);
+  --bms-shadow-md: 0 4px 14px rgba(32, 36, 43, 0.04);
+  --bms-shadow-lg: 0 10px 28px rgba(32, 36, 43, 0.06);
+
+  /* --- 7. Focus & Interaction Transitions --- */
+  --bms-focus: 0 0 0 3px rgba(94, 133, 230, 0.22);
+  --bms-transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- 8. Typography --- */
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.bms-num { font-variant-numeric: tabular-nums; }
-.bms-focusable:focus-visible, .bms-scope :is(button, a, input, select, textarea):focus-visible {
+/* Tabular Numbers for ISO 15189 Clinical & Financial precision */
+.bms-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Global Focus Ring */
+.bms-focusable:focus-visible,
+.bms-scope :is(button, a, input, select, textarea):focus-visible {
   outline: none;
   box-shadow: var(--bms-focus);
 }
-.bms-scope .form-control, .bms-scope .form-select { border-color: var(--bms-input-border); }
-.bms-scope .btn-success { background-color: var(--bms-success); border-color: var(--bms-success); color: #fff; }
-.bms-scope .text-success { color: var(--bms-success) !important; }
-.bms-scope .text-muted { color: var(--bms-muted) !important; }
+
+/* Modern Soft Form Controls */
+.bms-scope .form-control,
+.bms-scope .form-select {
+  background-color: var(--bms-card-bg);
+  border: 1px solid transparent;
+  border-radius: var(--bms-radius-md);
+  color: var(--bms-text-primary);
+  font-size: 13.5px;
+  padding: 10px 14px;
+  transition: var(--bms-transition);
+}
+
+.bms-scope .form-control:focus,
+.bms-scope .form-select:focus {
+  background-color: var(--bms-bg);
+  border-color: var(--bms-primary);
+  box-shadow: var(--bms-focus);
+}
+
+.bms-scope .form-control::placeholder {
+  color: var(--bms-text-secondary);
+  opacity: 0.85;
+}
+
+/* Modern Pill & Soft Button Utilities */
+.bms-scope .btn-primary {
+  background-color: var(--bms-primary);
+  border-color: var(--bms-primary);
+  color: #ffffff;
+  border-radius: var(--bms-radius-pill);
+  font-weight: 500;
+  font-size: 13.5px;
+  padding: 8px 18px;
+  box-shadow: none;
+  transition: var(--bms-transition);
+}
+
+.bms-scope .btn-primary:hover,
+.bms-scope .btn-primary:focus {
+  background-color: var(--bms-primary-hover);
+  border-color: var(--bms-primary-hover);
+  color: #ffffff;
+}
+
+.bms-scope .btn-success {
+  background-color: var(--bms-success);
+  border-color: var(--bms-success);
+  color: #1a4a15;
+  border-radius: var(--bms-radius-pill);
+  font-weight: 500;
+  font-size: 13.5px;
+  padding: 8px 18px;
+  box-shadow: none;
+  transition: var(--bms-transition);
+}
+
+.bms-scope .btn-success:hover {
+  background-color: var(--bms-success-hover);
+  border-color: var(--bms-success-hover);
+  color: #143d10;
+}
+
+.bms-scope .text-success {
+  color: var(--bms-success-text) !important;
+}
+
+.bms-scope .text-muted {
+  color: var(--bms-text-secondary) !important;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
-  .bms-scope * { animation: none !important; transition: none !important; }
+  .bms-scope * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

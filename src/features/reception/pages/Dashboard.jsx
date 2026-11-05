@@ -285,7 +285,7 @@ const ReceptionistDashboard = () => {
       {/* Header Banner */}
       <Row className="mb-4">
         <Col>
-          <Card className="shadow-sm border-0" style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)', color: '#fff' }}>
+          <Card className="shadow-sm rounded-4 border-0" style={{ background: 'linear-gradient(135deg, #5E85E6 0%, #3B5BDB 100%)', color: '#fff' }}>
             <Card.Body className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div>
                 <h4 className="mb-1 fw-bold">
@@ -301,7 +301,8 @@ const ReceptionistDashboard = () => {
                 size="sm" 
                 onClick={loadReceptionData} 
                 disabled={loading}
-                className="fw-semibold text-primary shadow-sm"
+                className="fw-semibold shadow-sm"
+                style={{ color: '#5E85E6', borderRadius: '9999px', padding: '6px 18px' }}
               >
                 <FaSync className={`me-1 ${loading ? 'fa-spin' : ''}`} /> Làm mới
               </Button>
@@ -314,19 +315,19 @@ const ReceptionistDashboard = () => {
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} lg={3}>
           <Card 
-            className="shadow-sm h-100 border-0" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', borderLeft: '4px solid #0d6efd' }}
+            className="shadow-sm h-100 rounded-4" 
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid #E5E9EB' }}
             onClick={() => navigate('/receptionist/check-in')}
           >
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(13, 110, 253, 0.1)', color: '#0d6efd' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#5E85E6' }}
               >
-                <FaQrcode style={{ fontSize: '1.6rem' }} />
+                <FaQrcode style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 text-primary fw-bold">Quét QR Check-in</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#5E85E6' }}>Quét QR Check-in</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Quét mã QR tiếp nhận bệnh nhân
                 </small>
@@ -337,19 +338,19 @@ const ReceptionistDashboard = () => {
 
         <Col xs={12} sm={6} lg={3}>
           <Card 
-            className="shadow-sm h-100 border-0" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', borderLeft: '4px solid #198754' }}
+            className="shadow-sm h-100 rounded-4" 
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid #E5E9EB' }}
             onClick={() => navigate('/receptionist/create-patient')}
           >
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(25, 135, 84, 0.1)', color: '#198754' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e' }}
               >
-                <FaUserPlus style={{ fontSize: '1.6rem' }} />
+                <FaUserPlus style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 text-success fw-bold">Tạo Bệnh Nhân Mới</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#2b8a3e' }}>Tạo Bệnh Nhân Mới</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Đăng ký thông tin bệnh nhân
                 </small>
@@ -360,19 +361,19 @@ const ReceptionistDashboard = () => {
 
         <Col xs={12} sm={6} lg={3}>
           <Card 
-            className="shadow-sm h-100 border-0" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', borderLeft: '4px solid #ffc107' }}
+            className="shadow-sm h-100 rounded-4" 
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid #E5E9EB' }}
             onClick={() => handleOpenReceiptModal(appointments[0] || null)}
           >
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255, 193, 7, 0.15)', color: '#d39e00' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(231, 188, 76, 0.2)', color: '#b48316' }}
               >
-                <FaReceipt style={{ fontSize: '1.6rem' }} />
+                <FaReceipt style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 text-warning fw-bold text-dark">Xuất Biên Lai Thu Phí</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#b48316' }}>Xuất Biên Lai Thu Phí</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Tính phí xét nghiệm & in hóa đơn
                 </small>
@@ -383,19 +384,19 @@ const ReceptionistDashboard = () => {
 
         <Col xs={12} sm={6} lg={3}>
           <Card 
-            className="shadow-sm h-100 border-0" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', borderLeft: '4px solid #0dcaf0' }}
+            className="shadow-sm h-100 rounded-4" 
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid #E5E9EB' }}
             onClick={() => navigate('/receptionist/appointments')}
           >
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(13, 202, 240, 0.1)', color: '#0dcaf0' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#5E85E6' }}
               >
-                <FaCalendarAlt style={{ fontSize: '1.6rem' }} />
+                <FaCalendarAlt style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 text-info fw-bold">Quản Lý Lịch Hẹn</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#5E85E6' }}>Quản Lý Lịch Hẹn</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Xem & điều phối danh sách lịch
                 </small>
@@ -406,16 +407,16 @@ const ReceptionistDashboard = () => {
 
         <Col xs={12} sm={6} lg={3}>
           <Card 
-            className="shadow-sm h-100 border-0" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', borderLeft: '4px solid #fd7e14' }}
+            className="shadow-sm h-100 rounded-4" 
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid #E5E9EB' }}
             onClick={() => navigate('/notifications')}
           >
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(253, 126, 20, 0.15)', color: '#fd7e14' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(231, 188, 76, 0.15)', color: '#d97706' }}
               >
-                <FaBell style={{ fontSize: '1.6rem' }} />
+                <FaBell style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
                 <h6 className="mb-1 text-dark fw-bold">Thông Báo Notify</h6>
@@ -431,30 +432,30 @@ const ReceptionistDashboard = () => {
       {/* Stats Summary Cards */}
       <Row className="g-3 mb-4">
         <Col xs={6} md={3}>
-          <Card className="border-0 shadow-sm text-center p-3">
+          <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid #E5E9EB' }}>
             <small className="text-muted fw-semibold">Tổng tiếp nhận</small>
-            <h3 className="fw-bold text-primary my-1">{stats.totalToday}</h3>
+            <h3 className="fw-bold my-1" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalToday}</h3>
             <small className="text-muted">lịch hẹn</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
-          <Card className="border-0 shadow-sm text-center p-3">
+          <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid #E5E9EB' }}>
             <small className="text-muted fw-semibold">Đã Check-in</small>
-            <h3 className="fw-bold text-success my-1">{stats.checkedIn}</h3>
-            <small className="text-success"><FaCheckCircle className="me-1" />hoàn tất tiếp đón</small>
+            <h3 className="fw-bold my-1" style={{ color: '#91DE83', fontVariantNumeric: 'tabular-nums' }}>{stats.checkedIn}</h3>
+            <small style={{ color: '#2b8a3e' }}><FaCheckCircle className="me-1" />hoàn tất tiếp đón</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
-          <Card className="border-0 shadow-sm text-center p-3">
+          <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid #E5E9EB' }}>
             <small className="text-muted fw-semibold">Đã cấp Barcode</small>
-            <h3 className="fw-bold text-info my-1">{stats.hasBarcode}</h3>
-            <small className="text-info"><FaBarcode className="me-1" />có mã ống mẫu</small>
+            <h3 className="fw-bold my-1" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.hasBarcode}</h3>
+            <small style={{ color: '#5E85E6' }}><FaBarcode className="me-1" />có mã ống mẫu</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
-          <Card className="border-0 shadow-sm text-center p-3">
+          <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid #E5E9EB' }}>
             <small className="text-muted fw-semibold">Chờ tiếp đón</small>
-            <h3 className="fw-bold text-warning my-1">{stats.pending}</h3>
+            <h3 className="fw-bold my-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{stats.pending}</h3>
             <small className="text-muted">đang chờ đến</small>
           </Card>
         </Col>
@@ -463,13 +464,13 @@ const ReceptionistDashboard = () => {
       {/* Main Table: Patient Name & Barcode ID */}
       <Row>
         <Col>
-          <Card className="shadow-sm border-0">
-            <Card.Header className="bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
-              <h5 className="mb-0 text-primary fw-bold">
-                <FaBarcode className="me-2 text-primary" />
+          <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+            <Card.Header className="py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E5E9EB' }}>
+              <h5 className="mb-0 fw-bold" style={{ color: '#5E85E6' }}>
+                <FaBarcode className="me-2" style={{ color: '#5E85E6' }} />
                 Danh Sách Tiếp Nhận & Mã Barcode (Lễ Tân)
               </h5>
-              <Badge bg="primary" className="px-3 py-2 font-monospace" style={{ fontSize: '0.85rem' }}>
+              <Badge bg="primary" className="px-3 py-2 font-monospace" style={{ fontSize: '0.85rem', backgroundColor: '#5E85E6', borderRadius: '9999px' }}>
                 {appointments.length} bệnh nhân
               </Badge>
             </Card.Header>
@@ -477,21 +478,21 @@ const ReceptionistDashboard = () => {
             <Card.Body className="p-0">
               {loading ? (
                 <div className="text-center py-5">
-                  <Spinner animation="border" variant="primary" />
+                  <Spinner animation="border" style={{ color: '#5E85E6' }} />
                   <p className="mt-2 text-muted">Đang tải danh sách bệnh nhân và mã barcode...</p>
                 </div>
               ) : appointments.length > 0 ? (
                 <div className="table-responsive">
                   <Table hover className="mb-0 align-middle">
-                    <thead className="table-light">
+                    <thead style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
                       <tr>
-                        <th style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Mã lịch hẹn</th>
-                        <th style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Bệnh nhân (Tên)</th>
-                        <th style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Mã Barcode (Sample ID)</th>
-                        <th className="d-none d-lg-table-cell" style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Gói / Xét nghiệm</th>
-                        <th style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Thời gian</th>
-                        <th style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Trạng thái</th>
-                        <th className="text-center" style={{ padding: '14px 16px', color: '#495057', fontWeight: '600' }}>Thao tác Lễ Tân</th>
+                        <th style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Mã lịch hẹn</th>
+                        <th style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Bệnh nhân (Tên)</th>
+                        <th style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Mã Barcode (Sample ID)</th>
+                        <th className="d-none d-lg-table-cell" style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Gói / Xét nghiệm</th>
+                        <th style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Thời gian</th>
+                        <th style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Trạng thái</th>
+                        <th className="text-center" style={{ padding: '14px 16px', color: '#475569', fontWeight: '600' }}>Thao tác Lễ Tân</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -514,10 +515,10 @@ const ReceptionistDashboard = () => {
                         const appointmentDate = appointment.appointmentDate || appointment.createdAt;
 
                         return (
-                          <tr key={appointment.id || Math.random()}>
+                          <tr key={appointment.id || Math.random()} style={{ borderBottom: '1px solid #F1F4F7' }}>
                             {/* Appointment ID */}
                             <td style={{ padding: '14px 16px' }}>
-                              <span className="badge bg-light text-dark border font-monospace px-2 py-1">
+                              <span className="badge px-2.5 py-1.5 font-monospace" style={{ backgroundColor: '#F1F4F7', color: '#5E85E6', border: '1px solid #E5E9EB', borderRadius: '8px' }}>
                                 {appointment.appointmentCode || (appointment.id ? `APT-${String(appointment.id).substring(0, 6).toUpperCase()}` : 'N/A')}
                               </span>
                             </td>
@@ -526,8 +527,8 @@ const ReceptionistDashboard = () => {
                             <td style={{ padding: '14px 16px' }}>
                               <div className="d-flex align-items-center">
                                 <div 
-                                  className="me-2 rounded-circle d-flex align-items-center justify-content-center bg-primary text-white"
-                                  style={{ width: '32px', height: '32px', fontSize: '0.8rem', fontWeight: 'bold' }}
+                                  className="me-2 rounded-circle d-flex align-items-center justify-content-center text-white"
+                                  style={{ width: '32px', height: '32px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#5E85E6' }}
                                 >
                                   <FaUser />
                                 </div>
@@ -542,8 +543,8 @@ const ReceptionistDashboard = () => {
                               {barcodeValue ? (
                                 <div className="d-flex align-items-center gap-2">
                                   <span 
-                                    className="badge bg-light text-primary border border-primary font-monospace px-2 py-1"
-                                    style={{ fontSize: '0.9rem', cursor: 'pointer' }}
+                                    className="badge px-2.5 py-1.5 font-monospace"
+                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', border: '1px solid rgba(94, 133, 230, 0.3)', borderRadius: '9999px' }}
                                     onClick={() => handleOpenBarcodeModal(appointment)}
                                     title="Mã Barcode - Nhấn để xem và in"
                                   >
@@ -552,7 +553,7 @@ const ReceptionistDashboard = () => {
                                   </span>
                                 </div>
                               ) : (
-                                <span className="badge bg-light text-muted border px-2 py-1" style={{ fontSize: '0.8rem' }}>
+                                <span className="badge px-2 py-1 text-muted" style={{ fontSize: '0.8rem', backgroundColor: '#F1F4F7', borderRadius: '9999px' }}>
                                   Chờ cấp barcode
                                 </span>
                               )}
@@ -561,7 +562,7 @@ const ReceptionistDashboard = () => {
                             {/* Service / Test Code */}
                             <td className="d-none d-lg-table-cell" style={{ padding: '14px 16px' }}>
                               <span className="text-secondary" style={{ fontSize: '0.9rem' }}>
-                                <FaFlask className="me-1 text-primary" style={{ fontSize: '0.8rem' }} />
+                                <FaFlask className="me-1" style={{ fontSize: '0.8rem', color: '#5E85E6' }} />
                                 {serviceName}
                               </span>
                             </td>
@@ -585,7 +586,8 @@ const ReceptionistDashboard = () => {
                                 <Button
                                   variant="outline-primary"
                                   size="sm"
-                                  className="fw-semibold px-2 py-1"
+                                  className="fw-semibold px-2.5 py-1"
+                                  style={{ borderRadius: '9999px', borderColor: '#5E85E6', color: '#5E85E6' }}
                                   onClick={() => handleOpenBarcodeModal(appointment)}
                                   title="In nhãn mã vạch dán ống nghiệm"
                                 >
@@ -594,7 +596,8 @@ const ReceptionistDashboard = () => {
                                 <Button
                                   variant="outline-success"
                                   size="sm"
-                                  className="fw-semibold px-2 py-1"
+                                  className="fw-semibold px-2.5 py-1"
+                                  style={{ borderRadius: '9999px', borderColor: '#91DE83', color: '#2b8a3e' }}
                                   onClick={() => handleOpenReceiptModal(appointment)}
                                   title="Tính phí & Xuất biên lai thanh toán"
                                 >
@@ -621,15 +624,15 @@ const ReceptionistDashboard = () => {
 
       {/* Barcode Print Modal for Receptionist */}
       <Modal show={showBarcodeModal} onHide={handleCloseBarcodeModal} centered>
-        <Modal.Header closeButton className="bg-primary text-white">
-          <Modal.Title style={{ fontSize: '1.1rem' }}>
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
+          <Modal.Title style={{ fontSize: '1.1rem', color: '#5E85E6', fontWeight: 'bold' }}>
             <FaBarcode className="me-2" /> In Nhãn Mã Vạch Tiếp Nhận (Lễ Tân)
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
           {selectedBarcodeItem ? (
             <div>
-              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem' }}>
+              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '12px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>
                 <i className="fas fa-info-circle me-1"></i>
                 Nhãn in sẵn sàng cho ống xét nghiệm với 4 trường: <strong>Chữ cái đầu tên</strong>, <strong>Mã mẫu</strong>, <strong>Mã xét nghiệm</strong>, và <strong>Thời gian lấy mẫu</strong>.
               </Alert>
@@ -648,8 +651,8 @@ const ReceptionistDashboard = () => {
             <p className="text-muted text-center mb-0">Không tìm thấy thông tin bệnh nhân</p>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseBarcodeModal}>
+        <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E5E9EB' }}>
+          <Button variant="secondary" onClick={handleCloseBarcodeModal} style={{ borderRadius: '9999px', padding: '6px 20px' }}>
             Đóng
           </Button>
         </Modal.Footer>
@@ -657,8 +660,8 @@ const ReceptionistDashboard = () => {
 
       {/* Generate Receipt Modal (Receptionist) */}
       <Modal show={showReceiptModal} onHide={() => setShowReceiptModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="bg-success text-white">
-          <Modal.Title className="d-flex align-items-center gap-2" style={{ fontSize: '1.15rem' }}>
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
+          <Modal.Title className="d-flex align-items-center gap-2 fw-bold" style={{ fontSize: '1.15rem', color: '#2b8a3e' }}>
             <FaFileInvoiceDollar />
             Tính phí & Xuất biên lai thanh toán (Receptionist)
           </Modal.Title>
@@ -666,12 +669,12 @@ const ReceptionistDashboard = () => {
         <Modal.Body className="p-4">
           {selectedReceiptAppointment && (
             <div>
-              <Alert variant="light" className="border d-flex justify-content-between align-items-center mb-4">
+              <Alert variant="light" className="border d-flex justify-content-between align-items-center mb-4" style={{ borderRadius: '14px', borderColor: '#E5E9EB' }}>
                 <div>
                   <div className="fw-bold fs-6 text-dark">{selectedReceiptAppointment.patientName || 'Bệnh nhân'}</div>
                   <small className="text-muted">Mã lịch hẹn: {selectedReceiptAppointment.id || selectedReceiptAppointment.appointmentId || 'N/A'}</small>
                 </div>
-                <Badge bg="success" className="px-3 py-2 fs-6">
+                <Badge className="px-3 py-2 fs-6" style={{ backgroundColor: '#91DE83', color: '#14532d', borderRadius: '9999px', fontVariantNumeric: 'tabular-nums' }}>
                   {calculateTotal().toLocaleString('vi-VN')} VNĐ
                 </Badge>
               </Alert>
@@ -791,11 +794,11 @@ const ReceptionistDashboard = () => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowReceiptModal(false)} disabled={generatingReceipt}>
+        <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E5E9EB' }}>
+          <Button variant="outline-secondary" onClick={() => setShowReceiptModal(false)} disabled={generatingReceipt} style={{ borderRadius: '9999px', borderColor: '#E5E9EB' }}>
             Hủy
           </Button>
-          <Button variant="success" onClick={handleGenerateReceipt} disabled={generatingReceipt}>
+          <Button onClick={handleGenerateReceipt} disabled={generatingReceipt} style={{ backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#14532d', borderRadius: '9999px', fontWeight: '600' }}>
             {generatingReceipt ? 'Đang tạo biên lai...' : 'Xác nhận & Xuất Biên Lai'}
           </Button>
         </Modal.Footer>
@@ -803,9 +806,9 @@ const ReceptionistDashboard = () => {
 
       {/* Itemized Electronic Receipt View Modal */}
       <Modal show={showGeneratedReceiptModal} onHide={() => setShowGeneratedReceiptModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="bg-light">
-          <Modal.Title className="d-flex align-items-center gap-2">
-            <FaReceipt className="text-success" />
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
+          <Modal.Title className="d-flex align-items-center gap-2 fw-bold" style={{ color: '#2b8a3e' }}>
+            <FaReceipt />
             Biên Lai Thanh Toán Điện Tử
           </Modal.Title>
         </Modal.Header>
@@ -890,11 +893,11 @@ const ReceptionistDashboard = () => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-primary" onClick={() => window.print()}>
+        <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E5E9EB' }}>
+          <Button variant="outline-primary" onClick={() => window.print()} style={{ borderRadius: '9999px', borderColor: '#5E85E6', color: '#5E85E6' }}>
             <FaPrint className="me-2" /> In Biên Lai
           </Button>
-          <Button variant="secondary" onClick={() => setShowGeneratedReceiptModal(false)}>
+          <Button variant="secondary" onClick={() => setShowGeneratedReceiptModal(false)} style={{ borderRadius: '9999px', padding: '6px 20px' }}>
             Đóng
           </Button>
         </Modal.Footer>

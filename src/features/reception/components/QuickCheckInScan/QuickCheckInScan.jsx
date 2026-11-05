@@ -696,7 +696,7 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
       )}
 
       <div className="mb-3">
-        <div className="btn-group w-100 shadow-sm" role="group" style={{ borderRadius: '10px', overflow: 'hidden' }}>
+        <div className="btn-group w-100 shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
           <Button
             variant={scanMode === 'camera' ? 'primary' : 'outline-primary'}
             onClick={() => {
@@ -709,10 +709,16 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
                 setInitialized(false);
               }
             }}
-            style={{
+            style={scanMode === 'camera' ? {
+              backgroundColor: '#5E85E6',
+              borderColor: '#5E85E6',
               fontWeight: '600',
-              borderRadius: scanMode === 'camera' ? '10px 0 0 10px' : '0',
-              borderRight: scanMode === 'camera' ? 'none' : '1px solid #dee2e6'
+              borderRadius: '9999px 0 0 9999px'
+            } : {
+              color: '#5E85E6',
+              borderColor: '#E5E9EB',
+              fontWeight: '600',
+              borderRadius: '9999px 0 0 9999px'
             }}
           >
             <i className="fas fa-camera me-2"></i>
@@ -734,9 +740,14 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
                 setInitialized(false);
               }
             }}
-            style={{
-              fontWeight: '600',
-              borderRadius: '0', borderRight: scanMode === 'file' ? 'none' : '1px solid #dee2e6'
+            style={scanMode === 'file' ? {
+              backgroundColor: '#5E85E6',
+              borderColor: '#5E85E6',
+              fontWeight: '600'
+            } : {
+              color: '#5E85E6',
+              borderColor: '#E5E9EB',
+              fontWeight: '600'
             }}
           >
             <i className="fas fa-file-image me-2"></i>
@@ -756,9 +767,16 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
                 setInitialized(false);
               }
             }}
-            style={{
+            style={scanMode === 'manual' ? {
+              backgroundColor: '#5E85E6',
+              borderColor: '#5E85E6',
               fontWeight: '600',
-              borderRadius: scanMode === 'manual' ? '0 10px 10px 0' : '0'
+              borderRadius: '0 9999px 9999px 0'
+            } : {
+              color: '#5E85E6',
+              borderColor: '#E5E9EB',
+              fontWeight: '600',
+              borderRadius: '0 9999px 9999px 0'
             }}
           >
             <i className="fas fa-keyboard me-2"></i>

@@ -26,19 +26,17 @@
 }
 
 /* ==========================================================================
-   Centered Pill Navigation Header (Apple macOS Floating Capsule)
+   Centered Pill Navigation Header (Pure Flat, Zero Shadow)
    ========================================================================== */
 .bms-telehealth-header,
 .bms-navbar {
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #FFFFFF;
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: 72px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-    box-shadow: 0 4px 20px rgba(28, 39, 61, 0.03);
+    height: 62px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: none !important;
     display: flex;
     align-items: center;
 }
@@ -46,12 +44,12 @@
 .bms-telehealth-header-inner,
 .bms-navbar-container {
     box-sizing: border-box;
-    width: min(1360px, calc(100% - 48px));
+    width: min(1400px, calc(100% - 32px)) !important;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: 20px;
 }
 
 /* 1. Left Brand Cluster */

@@ -21,11 +21,11 @@ const DATE = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: '
  */
 function Metric({ label, value, hint }) {
   return (
-    <Card className="h-100 shadow-sm">
-      <Card.Body>
-        <div className="text-muted small">{label}</div>
-        <div className="fs-4 fw-semibold bms-num">{value}</div>
-        {hint && <div className="text-muted small">{hint}</div>}
+    <Card className="h-100 shadow-sm rounded-4 border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+      <Card.Body className="p-3.5">
+        <div className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '11.5px', letterSpacing: '0.03em' }}>{label}</div>
+        <div className="fs-4 fw-bold bms-num text-dark mt-1 tabular-nums" style={{ letterSpacing: '-0.02em' }}>{value}</div>
+        {hint && <div className="text-muted small mt-1" style={{ fontSize: '12px' }}>{hint}</div>}
       </Card.Body>
     </Card>
   );
@@ -78,14 +78,14 @@ export default function AdminOpsDashboard() {
 
       <Row className="g-3">
         <Col lg={5}>
-          <Card className="shadow-sm h-100">
+          <Card className="shadow-sm h-100 rounded-4 border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
             <Card.Body>
-              <h2 className="h5">Tài khoản theo vai trò</h2>
-              <Table size="sm" className="mb-0">
-                <thead><tr><th scope="col">Vai trò</th><th scope="col" className="text-end">Số tài khoản</th></tr></thead>
+              <h2 className="h5 fw-bold mb-3 text-dark">Tài khoản theo vai trò</h2>
+              <Table size="sm" className="mb-0 align-middle">
+                <thead><tr><th scope="col" className="text-muted small text-uppercase">Vai trò</th><th scope="col" className="text-end text-muted small text-uppercase">Số tài khoản</th></tr></thead>
                 <tbody>
                   {Object.entries(ops.usersPerRole).map(([name, count]) => (
-                    <tr key={name}><td>{ROLE_LABELS[ROLE_NAME_TO_ID[name]] || name}</td><td className="text-end bms-num">{NUM.format(count)}</td></tr>
+                    <tr key={name}><td>{ROLE_LABELS[ROLE_NAME_TO_ID[name]] || name}</td><td className="text-end bms-num fw-semibold">{NUM.format(count)}</td></tr>
                   ))}
                 </tbody>
               </Table>
@@ -93,9 +93,9 @@ export default function AdminOpsDashboard() {
           </Card>
         </Col>
         <Col lg={7}>
-          <Card className="shadow-sm h-100">
+          <Card className="shadow-sm h-100 rounded-4 border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
             <Card.Body>
-              <h2 className="h5">Hệ thống</h2>
+              <h2 className="h5 fw-bold mb-3 text-dark">Hệ thống</h2>
               <Table size="sm" className="mb-0">
                 <tbody>
                   <tr>

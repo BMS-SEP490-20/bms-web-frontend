@@ -268,7 +268,7 @@ export default function VerifyTestResultsPage() {
     return (
         <div className="container-fluid py-4 px-md-5" style={{ maxWidth: 1400 }}>
             {/* Thanh điều hướng & Breadcrumb */}
-            <div className="d-flex flex-wrap align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+            <div className="d-flex flex-wrap align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div className="d-flex align-items-center gap-2 text-muted small">
                     <Link to="/dashboard" className="text-decoration-none text-muted">Bảng điều khiển</Link>
                     <span>/</span>
@@ -276,7 +276,7 @@ export default function VerifyTestResultsPage() {
                     <span>/</span>
                     <span className="text-secondary">Quy trình thẩm định</span>
                     <span>/</span>
-                    <span className="fw-semibold" style={{ color: '#5E85E6' }}>Ký số · {selectedSpecimenId}</span>
+                    <span className="fw-semibold" style={{ color: '#648CF4' }}>Ký số · {selectedSpecimenId}</span>
                 </div>
                 <div className="d-flex align-items-center gap-3">
                     <div className="badge bg-light text-dark border px-3 py-2 d-flex align-items-center gap-2 shadow-sm rounded-pill">
@@ -290,7 +290,7 @@ export default function VerifyTestResultsPage() {
             <div className="row align-items-center mb-4">
                 <div className="col-lg-8">
                     <h2 className="fw-bold mb-1 d-flex align-items-center gap-2 text-dark">
-                        <FaClipboardCheck style={{ color: '#5E85E6' }} />
+                        <FaClipboardCheck style={{ color: '#648CF4' }} />
                         Thẩm Định Kết Quả Xét Nghiệm &amp; Ký Số Điện Tử (Verify)
                     </h2>
                     <p className="text-muted mb-0">
@@ -298,7 +298,7 @@ export default function VerifyTestResultsPage() {
                     </p>
                 </div>
                 <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <div className="d-inline-flex align-items-center gap-2 bg-white p-2 rounded-4 border shadow-sm" style={{ borderColor: '#E5E9EB' }}>
+                    <div className="d-inline-flex align-items-center gap-2 bg-white p-2 rounded-4 border shadow-sm" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <label className="text-muted small fw-semibold mb-0">Chọn mẫu:</label>
                         <select
                             className="form-select form-select-sm border-0 bg-light rounded-pill"
@@ -337,12 +337,12 @@ export default function VerifyTestResultsPage() {
             )}
 
             {/* Banner Thông Tin Mẫu Bệnh Phẩm */}
-            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}>
+            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 <div className="card-body p-3">
                     <div className="row g-3 align-items-center">
-                        <div className="col-md-3 border-end" style={{ borderColor: '#E5E9EB' }}>
+                        <div className="col-md-3 border-end" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                             <span className="text-muted small d-block">Mã Barcode Mẫu (Specimen ID)</span>
-                            <span className="fw-bold font-monospace fs-6" style={{ color: '#5E85E6' }}>{verificationData?.specimenId || selectedSpecimenId}</span>
+                            <span className="fw-bold font-monospace fs-6" style={{ color: '#648CF4' }}>{verificationData?.specimenId || selectedSpecimenId}</span>
                         </div>
                         <div className="col-md-3 border-end">
                             <span className="text-muted small d-block">Phiếu chỉ định &amp; Gói xét nghiệm</span>
@@ -464,7 +464,7 @@ export default function VerifyTestResultsPage() {
                             <button
                                 type="button"
                                 className="btn btn-lg d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold text-white"
-                                style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
+                                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
                                 onClick={handleVerify}
                                 disabled={submitting || isVerified}
                             >

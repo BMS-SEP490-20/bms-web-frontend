@@ -310,14 +310,14 @@ export default function UserManagementPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-            <FaUserCog style={{ color: '#5E85E6' }} /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
+            <FaUserCog style={{ color: '#648CF4' }} /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
           </h2>
           <p className="text-muted mb-0 small">
             Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
           </p>
         </div>
         <div className="mt-2 mt-md-0">
-          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
             <FaPlus /> Thêm Tài Khoản Mới
           </Button>
         </div>
@@ -338,9 +338,9 @@ export default function UserManagementPage() {
       {/* KPI Stats Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                 <FaUser className="fs-4" />
               </div>
               <div>
@@ -351,7 +351,7 @@ export default function UserManagementPage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
               <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
                 <FaUnlock className="fs-4" />
@@ -364,7 +364,7 @@ export default function UserManagementPage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
               <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
                 <FaLock className="fs-4" />
@@ -377,9 +377,9 @@ export default function UserManagementPage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
+          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                 <FaUserCog className="fs-4" />
               </div>
               <div>
@@ -394,12 +394,12 @@ export default function UserManagementPage() {
       </Row>
 
       {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm mb-4" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+      <Card className="border-0 shadow-sm mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
         <Card.Body className="p-3">
           <Row className="g-3 align-items-center">
             <Col xs={12} md={5}>
               <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
@@ -407,18 +407,18 @@ export default function UserManagementPage() {
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="border-start-0"
-                  style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
+                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                 />
               </InputGroup>
             </Col>
             <Col xs={6} md={3}>
-              <Form.Select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}>
+              <Form.Select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}>
                 <option value="all">-- Tất cả vai trò --</option>
                 {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
               </Form.Select>
             </Col>
             <Col xs={6} md={2}>
-              <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}>
+              <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}>
                 <option value="all">-- Tất cả trạng thái --</option>
                 <option value="active">Đang hoạt động</option>
                 <option value="inactive">Đang bị khóa</option>
@@ -434,7 +434,7 @@ export default function UserManagementPage() {
       </Card>
 
       {/* Table Data */}
-      <Card className="border-0 shadow-sm" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+      <Card className="border-0 shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
         <Card.Body className="p-0">
           {loading ? (
             <div className="text-center py-5">
@@ -449,7 +449,7 @@ export default function UserManagementPage() {
           ) : (
             <div className="table-responsive">
               <Table hover className="align-middle mb-0">
-                <thead style={{ background: '#F1F4F7' }}>
+                <thead style={{ background: '#EEF2F6' }}>
                   <tr>
                     <th className="ps-4" style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Họ và tên</th>
                     <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Email / Tên đăng nhập</th>
@@ -461,10 +461,10 @@ export default function UserManagementPage() {
                 </thead>
                 <tbody>
                   {filteredUsers.map(user => (
-                    <tr key={user.id} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                    <tr key={user.id} style={{ borderBottom: '1px solid #EEF2F6' }}>
                       <td className="ps-4" style={{ padding: '12px 16px' }}>
                         <div className="fw-semibold" style={{ color: '#0f2743' }}>{user.fullName || '—'}</div>
-                        <small className="font-monospace" style={{ color: '#5E85E6' }}>{user.username}</small>
+                        <small className="font-monospace" style={{ color: '#648CF4' }}>{user.username}</small>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <div>{user.email || '—'}</div>
@@ -489,7 +489,7 @@ export default function UserManagementPage() {
                             size="sm"
                             title="Xem chi tiết & Phân quyền chuyên môn"
                             onClick={() => handleOpenUserDetail(user)}
-                            style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+                            style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
                           >
                             Chi tiết
                           </Button>

@@ -29,7 +29,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
 
     return (
         <Modal show={Boolean(item)} onHide={loading ? undefined : onClose} centered size="md">
-            <Modal.Header closeButton={!loading} style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+            <Modal.Header closeButton={!loading} style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Modal.Title className="fs-6 fw-bold text-danger d-flex align-items-center gap-2">
                     <i className="bi bi-exclamation-triangle-fill"></i>
                     Xác Nhận Xóa Gói Dịch Vụ Xét Nghiệm
@@ -42,13 +42,13 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
                     </Alert>
                 )}
                 <p className="mb-1" style={{ color: '#0f2743', fontSize: 15 }}>
-                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code style={{ color: '#5E85E6' }}>{item?.code}</code>)?
+                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code style={{ color: '#648CF4' }}>{item?.code}</code>)?
                 </p>
                 <small className="text-muted">
                     Hành động này sẽ vô hiệu hóa và đánh dấu xóa gói trên toàn hệ thống quản lý.
                 </small>
             </Modal.Body>
-            <Modal.Footer style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }} className="py-2 px-3">
+            <Modal.Footer style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }} className="py-2 px-3">
                 <Button variant="outline-secondary" size="sm" onClick={onClose} disabled={loading} style={{ borderRadius: 9999 }}>
                     Hủy bỏ
                 </Button>

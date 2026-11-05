@@ -220,16 +220,16 @@ const QcFlagsPage = () => {
   return (
     <div className="w-100">
       {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-                  <FaFlask style={{ color: '#5E85E6' }} />
+                  <FaFlask style={{ color: '#648CF4' }} />
                   Cờ Kiểm Chuẩn QC (Quality Control Flags)
                 </h4>
-                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#5E85E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>
+                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#648CF4', backgroundColor: 'rgba(94,133,230,0.1)' }}>
                   Laboratory User / Manager
                 </Badge>
               </div>
@@ -243,7 +243,7 @@ const QcFlagsPage = () => {
                 size="sm"
                 onClick={() => setShowCreateModal(true)}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
+                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
               >
                 <FaPlus />
                 <span>Tạo cờ QC mới</span>
@@ -254,7 +254,7 @@ const QcFlagsPage = () => {
                 onClick={fetchFlags}
                 disabled={loading}
                 className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2"
-                style={{ borderColor: '#E5E9EB' }}
+                style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 <FaSyncAlt className={loading ? 'fa-spin' : ''} />
                 <span>Làm mới</span>
@@ -289,14 +289,14 @@ const QcFlagsPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB', borderLeft: '4px solid #5E85E6' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #648CF4' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Tổng số cờ QC</span>
                     <h3 className="fw-bold mb-0 mt-1" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalFlags}</h3>
                   </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#5E85E6' }}>
+                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#648CF4' }}>
                     <FaVial className="fs-4" />
                   </div>
                 </div>
@@ -304,7 +304,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB', borderLeft: '4px solid #dc3545' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #dc3545' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -319,7 +319,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB', borderLeft: '4px solid #E7BC4C' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #E7BC4C' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -334,7 +334,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB', borderLeft: '4px solid #91DE83' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #A3E687' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -352,12 +352,12 @@ const QcFlagsPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
               <InputGroup>
-                <InputGroup.Text className="border-end-0 rounded-start-3" style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                <InputGroup.Text className="border-end-0 rounded-start-3" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
@@ -365,7 +365,7 @@ const QcFlagsPage = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border-start-0 rounded-end-3"
-                  style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}
+                  style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
                 />
               </InputGroup>
             </Col>
@@ -374,7 +374,7 @@ const QcFlagsPage = () => {
                 value={statusFilter} 
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="rounded-3"
-                style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}
+                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 <option value="ALL">Tất cả trạng thái</option>
                 <option value="ACTIVE">Đang cảnh báo (Active)</option>
@@ -388,7 +388,7 @@ const QcFlagsPage = () => {
                 value={severityFilter} 
                 onChange={(e) => setSeverityFilter(e.target.value)}
                 className="rounded-3"
-                style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}
+                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 <option value="ALL">Tất cả mức độ</option>
                 <option value="CRITICAL">Nguy hiểm (Critical)</option>
@@ -402,7 +402,7 @@ const QcFlagsPage = () => {
                 value={analyzerFilter} 
                 onChange={(e) => setAnalyzerFilter(e.target.value)}
                 className="rounded-3"
-                style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}
+                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 <option value="ALL">Tất cả máy phân tích</option>
                 <option value="ANL-SYS-01">Sysmex XN-1000</option>
@@ -503,7 +503,7 @@ const QcFlagsPage = () => {
                         variant="outline-primary"
                         size="sm"
                         className="rounded-pill px-3 py-2 d-flex align-items-center gap-1"
-                        style={{ color: '#5E85E6', borderColor: '#5E85E6' }}
+                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
                         onClick={() => openEditModal(flag)}
                       >
                         <FaTools />
@@ -682,7 +682,7 @@ const QcFlagsPage = () => {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button variant="secondary" className="rounded-pill px-3" onClick={() => setShowCreateModal(false)}>Hủy</Button>
-            <Button className="rounded-pill px-3" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }} type="submit" disabled={submitting}>
+            <Button className="rounded-pill px-3" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }} type="submit" disabled={submitting}>
               {submitting ? 'Đang tạo...' : 'Kích hoạt cờ QC'}
             </Button>
           </Modal.Footer>
@@ -751,7 +751,7 @@ const QcFlagsPage = () => {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button variant="secondary" className="rounded-pill px-3" onClick={() => setShowEditModal(false)}>Hủy</Button>
-            <Button variant="success" className="rounded-pill px-3" style={{ backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#1A3311' }} type="submit" disabled={submitting}>
+            <Button variant="success" className="rounded-pill px-3" style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }} type="submit" disabled={submitting}>
               {submitting ? 'Đang lưu...' : 'Lưu kết quả xử lý'}
             </Button>
           </Modal.Footer>

@@ -161,11 +161,11 @@ export default function QueueBoardPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
           <div className="text-muted small">
-            Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#5E85E6' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
+            Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#648CF4' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
           </div>
           <h1 className="h4 fw-bold mb-1" style={{ color: '#2B3674' }}>Bảng Gọi Số & Điều Phối Tiếp Đón</h1>
           <div className="text-muted small">
-            Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#5E85E6' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
+            Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#648CF4' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
           </div>
         </div>
         <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
@@ -176,7 +176,7 @@ export default function QueueBoardPage() {
                 className="form-select form-select-sm rounded-pill"
                 value={selectedCounter}
                 onChange={(e) => setSelectedCounter(e.target.value)}
-                style={{ width: "160px", backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}
+                style={{ width: "160px", backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 {data.counters.map((c, i) => (
                   <option key={i} value={c.counterName}>
@@ -189,7 +189,7 @@ export default function QueueBoardPage() {
           <button
             onClick={loadQueue}
             className="btn btn-outline-secondary btn-sm rounded-pill px-3"
-            style={{ borderColor: '#E5E9EB' }}
+            style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
           >
             <FaSyncAlt className={`me-1 ${loading ? "fa-spin" : ""}`} /> Làm mới
           </button>
@@ -213,8 +213,8 @@ export default function QueueBoardPage() {
       <div className="row g-4">
         {/* Left Column: Current Queue Table */}
         <div className="col-12 col-xl-8">
-          <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
-            <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: '#E5E9EB' }}>
+          <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>
                 Hàng đợi bệnh nhân — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
               </h3>
@@ -249,7 +249,7 @@ export default function QueueBoardPage() {
                         key={ticket.id}
                         className={ticket.status === "Called" ? "table-success" : ""}
                       >
-                        <td className="fw-bold font-monospace fs-5" style={{ color: '#5E85E6' }}>
+                        <td className="fw-bold font-monospace fs-5" style={{ color: '#648CF4' }}>
                           {ticket.ticketNumber}
                         </td>
                         <td>
@@ -296,7 +296,7 @@ export default function QueueBoardPage() {
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi cập nhật" : ""}
                               className="btn btn-success btn-sm px-3 py-1 rounded-pill shadow-sm"
-                              style={{ backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#1A3311' }}
+                              style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }}
                             >
                               Vào lấy mẫu
                             </button>
@@ -308,7 +308,7 @@ export default function QueueBoardPage() {
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi gọi" : ""}
                               className="btn btn-sm px-3 py-1 rounded-pill shadow-sm text-white"
-                              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
+                              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
                             >
                               <FaBullhorn className="me-1" /> Gọi số
                             </button>
@@ -326,8 +326,8 @@ export default function QueueBoardPage() {
         {/* Right Column: Issue Ticket & Stats */}
         <div className="col-12 col-xl-4">
           {/* Issue Ticket Card */}
-          <div className="card shadow-sm border-0 rounded-4 mb-4 text-center" style={{ border: '1px solid #E5E9EB' }}>
-            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+          <div className="card shadow-sm border-0 rounded-4 mb-4 text-center" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Cấp Số Thứ Tự Mới</h3>
             </div>
             <div className="card-body p-4">
@@ -338,7 +338,7 @@ export default function QueueBoardPage() {
                 style={{
                   fontSize: "68px",
                   fontWeight: "800",
-                  color: "#5E85E6",
+                  color: "#648CF4",
                   fontFamily: "monospace",
                   lineHeight: 1,
                   letterSpacing: "-2px",
@@ -353,7 +353,7 @@ export default function QueueBoardPage() {
                 onClick={handleIssueTicket}
                 disabled={issuing}
                 className="btn btn-lg w-100 mt-4 fw-bold shadow-sm rounded-pill"
-                style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' }}
+                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
               >
                 <FaPrint className="me-2" />
                 {issuing ? "Đang cấp số..." : (data.nextNumber ? `Cấp STT Vãng Lai (${data.nextNumber})` : "Cấp STT Mới")}
@@ -362,8 +362,8 @@ export default function QueueBoardPage() {
           </div>
 
           {/* Queue Stats Card */}
-          <div className="card shadow-sm border-0 rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
-            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+          <div className="card shadow-sm border-0 rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Thống Kê Hàng Đợi</h3>
             </div>
             <div className="card-body p-3">
@@ -391,7 +391,7 @@ export default function QueueBoardPage() {
               </div>
               <div className="d-flex justify-content-between align-items-center py-2">
                 <span className="text-muted small">Quầy đang mở</span>
-                <span className="fw-bold fs-5" style={{ color: '#5E85E6' }}>
+                <span className="fw-bold fs-5" style={{ color: '#648CF4' }}>
                   {data.stats.countersActive}
                 </span>
               </div>
@@ -399,8 +399,8 @@ export default function QueueBoardPage() {
           </div>
 
           {/* Collection Counters Card */}
-          <div className="card shadow-sm border-0 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
-            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+          <div className="card shadow-sm border-0 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#2B3674' }}>Danh Sách Bàn Tiếp Đón</h3>
             </div>
             <div className="card-body p-3">

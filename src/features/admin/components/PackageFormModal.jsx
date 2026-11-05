@@ -247,9 +247,9 @@ export default function PackageFormModal({
 
     return (
         <Modal show={open} onHide={saving ? undefined : onClose} size="lg" centered backdrop="static">
-            <Modal.Header closeButton={!saving} style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+            <Modal.Header closeButton={!saving} style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                    <i className="bi bi-box-seam-fill" style={{ color: '#5E85E6' }}></i>
+                    <i className="bi bi-box-seam-fill" style={{ color: '#648CF4' }}></i>
                     {isEdit ? `Chỉnh Sửa Gói Dịch Vụ: ${pkg?.name || pkg?.code}` : 'Thêm Mới Gói Dịch Vụ Xét Nghiệm'}
                 </Modal.Title>
             </Modal.Header>
@@ -411,7 +411,7 @@ export default function PackageFormModal({
                 </Form>
             </Modal.Body>
 
-            <Modal.Footer className="py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+            <Modal.Footer className="py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Button variant="outline-secondary" onClick={onClose} disabled={saving} style={{ borderRadius: 9999 }}>
                     Hủy bỏ
                 </Button>
@@ -421,7 +421,7 @@ export default function PackageFormModal({
                     form="package-form"
                     disabled={saving}
                     className="d-flex align-items-center gap-2"
-                    style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                    style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                 >
                     {saving ? <Spinner size="sm" animation="border" /> : <i className="bi bi-check-lg"></i>}
                     {saving ? 'Đang lưu...' : (isEdit ? 'Lưu Thay Đổi' : 'Tạo Gói Mới')}

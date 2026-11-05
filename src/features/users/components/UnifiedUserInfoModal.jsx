@@ -134,10 +134,10 @@ const UnifiedUserInfoModal = ({
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg" backdrop="static">
-      <Modal.Header closeButton style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+      <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
         <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-          <FaUserShield style={{ color: '#5E85E6' }} />
-          Chi Tiết Tài Khoản Nhân Sự: <span style={{ color: '#5E85E6' }}>{user.fullName || user.username}</span>
+          <FaUserShield style={{ color: '#648CF4' }} />
+          Chi Tiết Tài Khoản Nhân Sự: <span style={{ color: '#648CF4' }}>{user.fullName || user.username}</span>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="p-4">
@@ -351,11 +351,11 @@ const UnifiedUserInfoModal = ({
           </Tab>
         </Tabs>
       </Modal.Body>
-      <Modal.Footer className="py-2 px-3" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+      <Modal.Footer className="py-2 px-3" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
         {!isEditing ? (
           <>
             <Button variant="outline-secondary" onClick={onHide} style={{ borderRadius: 9999 }}>Đóng</Button>
-            <Button variant="primary" onClick={() => setIsEditing(true)} className="fw-semibold" style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+            <Button variant="primary" onClick={() => setIsEditing(true)} className="fw-semibold" style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
               <FaEdit className="me-1" /> Chỉnh Sửa Thông Tin
             </Button>
           </>
@@ -364,7 +364,7 @@ const UnifiedUserInfoModal = ({
             <Button variant="outline-secondary" onClick={() => { setIsEditing(false); setError(''); }} style={{ borderRadius: 9999 }}>
               <FaTimes className="me-1" /> Hủy Thao Tác
             </Button>
-            <Button variant="success" onClick={handleSave} className="fw-semibold" style={{ borderRadius: 9999, background: '#91DE83', borderColor: '#91DE83', color: '#0f2743', boxShadow: '0 4px 14px rgba(145, 222, 131, 0.25)' }}>
+            <Button variant="success" onClick={handleSave} className="fw-semibold" style={{ borderRadius: 9999, background: '#A3E687', borderColor: '#A3E687', color: '#0f2743', boxShadow: '0 4px 14px rgba(145, 222, 131, 0.25)' }}>
               <FaSave className="me-1" /> Lưu Thay Đổi
             </Button>
           </>

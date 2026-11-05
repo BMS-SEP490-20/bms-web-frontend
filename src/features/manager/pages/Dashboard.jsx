@@ -565,10 +565,10 @@ const ManagerDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
-    <Card className="stat-card h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
+    <Card className="stat-card h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
       <Card.Body className="p-4">
         <div className="d-flex justify-content-between align-items-start mb-3">
-          <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+          <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
             <Icon className="fs-4" />
           </div>
           {trend && (
@@ -624,7 +624,7 @@ const ManagerDashboard = () => {
           <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
             <div>
               <h2 className="mb-1 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743', fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                <FaTachometerAlt style={{ color: '#5E85E6' }} />
+                <FaTachometerAlt style={{ color: '#648CF4' }} />
                 Dashboard Quản Lý (Operations Hub)
               </h2>
               <p className="text-muted mb-0 d-none d-md-block small">Tổng quan chỉ số hoạt động hệ thống phòng xét nghiệm y khoa</p>
@@ -634,7 +634,7 @@ const ManagerDashboard = () => {
               size="sm"
               onClick={() => navigate('/admin/reports')}
               className="w-100 w-md-auto shadow-sm"
-              style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+              style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
             >
               <FaChartLine className="me-2" />
               <span className="d-none d-sm-inline">Xem báo cáo chi tiết</span>

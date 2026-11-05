@@ -69,7 +69,7 @@
 .bms-pay-kpi-card {
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.04);
-  border-radius: 24px;
+  border-radius: var(--radius-card, 28px);
   padding: 20px 24px;
   display: flex;
   align-items: center;
@@ -89,13 +89,13 @@
 }
 
 .bms-pay-kpi-icon.success {
-  background-color: rgba(145, 222, 131, 0.2);
-  color: #2b781a;
+  background-color: #EEF8EB;
+  color: #0F3D1A;
 }
 
 .bms-pay-kpi-icon.primary {
-  background-color: rgba(94, 133, 230, 0.15);
-  color: #5E85E6;
+  background-color: var(--primary-soft, #EDF3FE);
+  color: #648CF4;
 }
 
 .bms-pay-kpi-icon.warning {
@@ -119,7 +119,7 @@
 /* Filter Toolbar */
 .bms-pay-toolbar {
   background: #ffffff;
-  border: 1px solid #E5E9EB;
+  border: 1px solid rgba(15, 23, 42, 0.05);
   border-radius: 16px 16px 0 0;
   padding: 16px 20px;
   border-bottom: 1px solid #f1f5f9;
@@ -141,7 +141,7 @@
   width: 240px;
   height: 38px;
   padding: 6px 14px;
-  border: 1px solid #E5E9EB;
+  border: 1px solid rgba(15, 23, 42, 0.05);
   border-radius: 12px;
   font-size: 13.5px;
   background-color: var(--bms-surface-card, #F1F4F7);
@@ -150,8 +150,8 @@
 .bms-pay-search-input:focus {
   outline: none;
   background-color: #ffffff;
-  border-color: #5E85E6;
-  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
+  border-color: #648CF4;
+  box-shadow: 0 0 0 3px var(--primary-soft, #EDF3FE);
 }
 
 /* Transactions Table */

@@ -517,14 +517,14 @@ const SampleQueuePage = () => {
   return (
     <div className="w-100 py-1">
       {/* Page Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <div className="d-flex align-items-center gap-2 mb-1">
             <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-              <FaVial style={{ color: '#5E85E6' }} />
+              <FaVial style={{ color: '#648CF4' }} />
               <span>Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm</span>
             </h4>
-            <Badge bg="light" className="border rounded-pill px-3 py-1 font-monospace" style={{ color: '#5E85E6', borderColor: '#E5E9EB' }}>
+            <Badge bg="light" className="border rounded-pill px-3 py-1 font-monospace" style={{ color: '#648CF4', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               Tiêu chuẩn ISO 15189
             </Badge>
           </div>
@@ -543,7 +543,7 @@ const SampleQueuePage = () => {
               size="sm"
               onClick={() => openRecordCollectionModal(null)}
               className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white"
-              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
+              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
             >
               <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
             </Button>
@@ -567,29 +567,29 @@ const SampleQueuePage = () => {
       {/* KPI Cards */}
       <Row className="g-3 mb-4">
         <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex justify-content-between align-items-center p-3">
               <div>
                 <div className="text-muted small">Tổng Mẫu Trong Hàng Đợi</div>
                 <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalCount}</div>
               </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#F1F4F7', color: '#5E85E6' }}><FaVial /></div>
+              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#648CF4' }}><FaVial /></div>
             </Card.Body>
           </Card>
         </Col>
         <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex justify-content-between align-items-center p-3">
               <div>
                 <div className="text-muted small">Đã Lấy Mẫu / Tiếp Nhận</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{collectedCount}</div>
+                <div className="fs-4 fw-bold font-monospace" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{collectedCount}</div>
               </div>
               <div className="rounded-3 bg-info-subtle text-info-emphasis p-3 fs-4"><FaClock /></div>
             </Card.Body>
           </Card>
         </Col>
         <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex justify-content-between align-items-center p-3">
               <div>
                 <div className="text-muted small">Đang Xử Lý / Chạy Máy</div>
@@ -600,7 +600,7 @@ const SampleQueuePage = () => {
           </Card>
         </Col>
         <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex justify-content-between align-items-center p-3">
               <div>
                 <div className="text-muted small">Đã Hoàn Thành Kết Quả</div>
@@ -613,7 +613,7 @@ const SampleQueuePage = () => {
       </Row>
 
       {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-3">
           <Form onSubmit={handleSearch}>
             <Row className="g-2 align-items-center">
@@ -626,7 +626,7 @@ const SampleQueuePage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <Button variant="primary" type="submit" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}>Tìm</Button>
+                  <Button variant="primary" type="submit" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}>Tìm</Button>
                 </InputGroup>
               </Col>
 
@@ -810,7 +810,7 @@ const SampleQueuePage = () => {
                               variant="primary"
                               size="sm"
                               className="px-2 py-1 text-nowrap d-flex align-items-center gap-1 text-white"
-                              style={{ fontSize: '0.75rem', backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
+                              style={{ fontSize: '0.75rem', backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
                               title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
                               onClick={() => openStatusUpdateModal(s)}
                             >

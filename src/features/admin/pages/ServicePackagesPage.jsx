@@ -239,7 +239,7 @@ export default function ServicePackagesPage({ onBack }) {
             <div className="d-flex justify-content-between align-items-center bms-roles-header">
                 <div>
                     <h4 className="fw-bold m-0" style={{ color: '#0f2743' }}>
-                        <i className="bi bi-box-seam-fill me-2" style={{ color: '#5E85E6' }}></i>
+                        <i className="bi bi-box-seam-fill me-2" style={{ color: '#648CF4' }}></i>
                         Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí
                     </h4>
                     <small className="text-muted">
@@ -254,9 +254,9 @@ export default function ServicePackagesPage({ onBack }) {
                         rel="noopener noreferrer"
                         className="fw-semibold shadow-sm"
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
-                        style={{ borderRadius: 9999, borderColor: '#E5E9EB' }}
+                        style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
                     >
-                        <i className="bi bi-eye-fill me-1" style={{ color: '#5E85E6' }}></i>
+                        <i className="bi bi-eye-fill me-1" style={{ color: '#648CF4' }}></i>
                         Xem Cổng Bệnh Nhân ↗
                     </Button>
 
@@ -265,7 +265,7 @@ export default function ServicePackagesPage({ onBack }) {
                             variant="primary"
                             onClick={openCreate}
                             className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                            style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                            style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                         >
                             <i className="bi bi-plus-circle-fill"></i>
                             Thêm Gói Mới
@@ -294,7 +294,7 @@ export default function ServicePackagesPage({ onBack }) {
                     <div className="row g-3 align-items-center">
                         <div className="col-12 col-md-5">
                             <InputGroup>
-                                <InputGroup.Text className="border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                     <i className="bi bi-search text-muted"></i>
                                 </InputGroup.Text>
                                 <Form.Control
@@ -303,7 +303,7 @@ export default function ServicePackagesPage({ onBack }) {
                                     className="border-start-0"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
+                                    style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                                 />
                             </InputGroup>
                         </div>
@@ -312,7 +312,7 @@ export default function ServicePackagesPage({ onBack }) {
                             <Form.Select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
+                                style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}
                             >
                                 <option value="ALL">-- Tất Cả Trạng Thái --</option>
                                 <option value="ACTIVE">Đang Hoạt Động</option>
@@ -373,7 +373,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                 {pkg.description || "Không có mô tả chi tiết."}
                                             </div>
                                             <div className="mt-1">
-                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
+                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
                                                     {pkg.tests?.length || 0} Chỉ Số
                                                 </span>
                                                 {pkg.tests?.length > 0 && (
@@ -385,7 +385,7 @@ export default function ServicePackagesPage({ onBack }) {
                                             </div>
                                         </td>
                                         <td className="bms-align-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                            <div className="fw-bold" style={{ color: '#5E85E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
+                                            <div className="fw-bold" style={{ color: '#648CF4', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
                                             {pkg.discountPrice ? (
                                                 <small className="text-muted text-decoration-line-through d-block">
                                                     {formatMoney(pkg.discountPrice)}
@@ -415,7 +415,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                     title="Chỉnh sửa gói dịch vụ"
                                                     onClick={() => openEdit(pkg)}
                                                     disabled={!canManage}
-                                                    style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+                                                    style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
                                                 >
                                                     <i className="bi bi-pencil"></i>
                                                 </Button>

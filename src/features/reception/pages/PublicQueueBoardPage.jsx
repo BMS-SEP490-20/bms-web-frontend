@@ -148,7 +148,7 @@ export default function PublicQueueBoardPage() {
         <div className="d-flex align-items-center gap-3">
           <div
             className="p-2 rounded-3 text-white d-flex align-items-center justify-content-center"
-            style={{ width: '48px', height: '48px', backgroundColor: '#5E85E6' }}
+            style={{ width: '48px', height: '48px', backgroundColor: '#648CF4' }}
           >
             <FaHospital className="fs-3" />
           </div>
@@ -206,7 +206,7 @@ export default function PublicQueueBoardPage() {
               className="h-100 border-0 rounded-4 shadow-lg overflow-hidden d-flex flex-column"
               style={{ backgroundColor: '#1C2541' }}
             >
-              <div className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#5E85E6' }}>
+              <div className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#648CF4' }}>
                 <span className="fw-bold text-uppercase fs-5 d-flex align-items-center gap-2">
                   <FaUserCheck /> ĐANG GỌI VÀO PHÒNG KHÁM
                 </span>

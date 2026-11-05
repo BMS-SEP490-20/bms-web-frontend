@@ -259,14 +259,14 @@ export default function TestBatchManagementPage() {
   return (
     <Container fluid className="py-4 px-md-4" style={{ minHeight: '100vh' }}>
       {/* Header Banner chuẩn ISO 15189 */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <div className="d-flex align-items-center gap-2 mb-1">
             <h3 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-              <FaFlask style={{ color: '#5E85E6' }} />
+              <FaFlask style={{ color: '#648CF4' }} />
               <span>Quản Lý Mẻ Xét Nghiệm Máy Phân Tích (Test Batches)</span>
             </h3>
-            <Badge pill bg="primary-subtle" className="px-3 py-1 fw-semibold" style={{ color: '#5E85E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>
+            <Badge pill bg="primary-subtle" className="px-3 py-1 fw-semibold" style={{ color: '#648CF4', backgroundColor: 'rgba(94,133,230,0.1)' }}>
               Tiêu chuẩn ISO 15189:2022
             </Badge>
           </div>
@@ -280,7 +280,7 @@ export default function TestBatchManagementPage() {
             size="sm"
             onClick={() => { setActiveTab('list'); setSelectedBatch(null); }}
             className="d-flex align-items-center gap-1 shadow-sm px-3 rounded-pill"
-            style={activeTab === 'list' ? { backgroundColor: '#5E85E6', borderColor: '#5E85E6' } : { borderColor: '#E5E9EB' }}
+            style={activeTab === 'list' ? { backgroundColor: '#648CF4', borderColor: '#648CF4' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
             variant={activeTab === 'list' ? 'primary' : 'outline-secondary'}
           >
             Danh Sách Mẻ ({safeBatches.length})
@@ -289,7 +289,7 @@ export default function TestBatchManagementPage() {
             size="sm"
             onClick={() => setActiveTab('create')}
             className="d-flex align-items-center gap-1 shadow-sm px-3 fw-semibold rounded-pill"
-            style={{ backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#1A3311' }}
+            style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }}
           >
             <FaPlus /> Tạo Mẻ Chạy Máy Mới
           </Button>
@@ -312,13 +312,13 @@ export default function TestBatchManagementPage() {
 
       {/* TAB 1: DANH SÁCH MẺ XÉT NGHIỆM */}
       {activeTab === 'list' && (
-        <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white" style={{ border: '1px solid #E5E9EB' }}>
-          <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: '#E5E9EB' }}>
+        <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+          <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h5 className="mb-0 fw-bold fs-6 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-              <FaMicroscope style={{ color: '#5E85E6' }} />
+              <FaMicroscope style={{ color: '#648CF4' }} />
               <span>Danh Sách Các Mẻ Xét Nghiệm Trong Ca Làm Việc</span>
             </h5>
-            <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="d-flex align-items-center gap-1 rounded-pill px-3" style={{ borderColor: '#E5E9EB' }}>
+            <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="d-flex align-items-center gap-1 rounded-pill px-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
             </Button>
           </Card.Header>
@@ -398,7 +398,7 @@ export default function TestBatchManagementPage() {
                                 variant="outline-primary"
                                 size="sm"
                                 className="px-2 py-1 rounded-pill"
-                                style={{ fontSize: '0.75rem', borderColor: '#5E85E6', color: '#5E85E6' }}
+                                style={{ fontSize: '0.75rem', borderColor: '#648CF4', color: '#648CF4' }}
                                 onClick={() => { setSelectedBatch(b); setActiveTab('detail'); }}
                               >
                                 Chi tiết khay
@@ -421,7 +421,7 @@ export default function TestBatchManagementPage() {
                                   variant="success"
                                   size="sm"
                                   className="px-2 py-1 rounded-pill"
-                                  style={{ fontSize: '0.75rem', backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#1A3311' }}
+                                  style={{ fontSize: '0.75rem', backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Completed')}
                                 >
                                   <FaCheckCircle className="me-1" /> Hoàn thành

@@ -468,13 +468,13 @@
 }
 
 .bms-stepper-node.completed {
-  background-color: #91DE83;
+  background-color: #A3E687;
   color: #20242B;
   box-shadow: 0 0 0 4px rgba(145, 222, 131, 0.25);
 }
 
 .bms-stepper-node.inprogress {
-  background-color: #5E85E6;
+  background-color: #648CF4;
   color: #ffffff;
   box-shadow: 0 0 0 4px rgba(94, 133, 230, 0.25);
   animation: pulse-node 2s infinite;
@@ -499,7 +499,7 @@
 }
 
 .bms-stepper-node.pending {
-  background-color: #E5E9EB;
+  background-color: #EEF2F6;
   color: #606873;
   border: 1px solid #cbd5e1;
 }
@@ -507,7 +507,7 @@
 .bms-step-card {
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid #E5E9EB;
+  border: 1px solid rgba(15, 23, 42, 0.05);
   background-color: #ffffff;
   transition: all 0.15s ease;
 }

@@ -96,7 +96,7 @@
 
 .bms-review-card {
   background: var(--bms-surface-card, #F1F4F7);
-  border: 1px solid var(--bms-border, #E5E9EB);
+  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
   border-radius: 16px;
   padding: 1.25rem;
 }

@@ -76,7 +76,7 @@ export default function MainLayout() {
   const sidebarWidth = desktopCollapsed ? '80px' : '260px';
 
   return (
-    <div className="bms-app-layout min-vh-100 d-flex flex-column bg-light" style={{ overflowX: 'hidden' }}>
+    <div className="bms-app-layout min-vh-100 d-flex flex-column" style={{ background: 'var(--bg-page, #F4F7F9)', overflowX: 'hidden' }}>
       {/* Mobile Backdrop Overlay */}
       {isMobile && mobileSidebarOpen && (
         <div
@@ -125,16 +125,16 @@ export default function MainLayout() {
           <Outlet />
         </main>
 
-        {/* Professional Clinical Footer */}
-        <footer className="bms-main-footer bg-white border-top py-3 px-4 text-muted small">
+        {/* Soft Telehealth Minimal Footer */}
+        <footer className="bms-main-footer py-3 px-4 text-muted small" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.04)', background: 'transparent' }}>
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <div>
-              &copy; {new Date().getFullYear()} <strong>BMS Healthcare Laboratory</strong> — Hệ Thống Quản Lý Phòng Xét Nghiệm Máu Tiêu Chuẩn Quốc Tế ISO 15189:2022.
+            <div style={{ color: '#6B7280', fontSize: '12px' }}>
+              &copy; {new Date().getFullYear()} <strong>BMS Health</strong> — Clinical Laboratory Diagnostics Platform.
             </div>
-            <div className="d-flex align-items-center gap-3">
-              <span>Hotline Kỹ Thuật: <strong>1900 6868</strong></span>
+            <div className="d-flex align-items-center gap-3" style={{ fontSize: '12px' }}>
+              <span className="text-muted">ISO 15189 Quality System</span>
               <span className="text-secondary">•</span>
-              <span className="badge bg-success-subtle text-success">Phiên Bản 1.0 Production</span>
+              <span style={{ color: '#0F3D1A', backgroundColor: '#EEF8EB', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600 }}>v1.0 Production</span>
             </div>
           </div>
         </footer>

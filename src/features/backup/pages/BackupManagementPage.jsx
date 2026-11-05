@@ -21,6 +21,7 @@ import {
     FaHdd,
     FaCalendarAlt,
     FaHistory,
+    FaTrashAlt,
     FaCheck
 } from "react-icons/fa";
 import {
@@ -30,6 +31,7 @@ import {
     fetchRestoreHistory,
     getBackupDownloadUrl,
     downloadBackupArchive,
+    deleteBackup,
 } from "../api/backupApi";
 import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import CreateBackupModal from "../components/CreateBackupModal";
@@ -649,6 +651,15 @@ export default function BackupManagementPage() {
                                                                 style={{ borderRadius: 9999 }}
                                                             >
                                                                 <FaUndo />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-outline-secondary btn-sm"
+                                                                title="Xóa bản sao lưu"
+                                                                onClick={() => handleDeleteBackup(item)}
+                                                                style={{ borderRadius: 9999 }}
+                                                            >
+                                                                <FaTrashAlt />
                                                             </button>
                                                         </>
                                                     )}

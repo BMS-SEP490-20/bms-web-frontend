@@ -20,8 +20,8 @@ const money = (value) => value == null ? '—' : `${quantity(value)} đ`;
 const movementLabels = { STOCK_IN: 'Nhập kho', STOCK_OUT: 'Xuất kho', ADJUSTMENT: 'Điều chỉnh' };
 
 function ExpiryBadge({ item }) {
-  return <Badge bg={item.expiryStatus === 'EXPIRED' ? 'danger' : item.expiryStatus === 'EXPIRING_SOON' ? 'warning' : item.expiryStatus === 'AVAILABLE' ? 'success' : 'secondary'}
-    text={item.expiryStatus === 'EXPIRING_SOON' ? 'dark' : undefined}>{expiryLabels[item.expiryStatus] || item.expiryStatus}</Badge>;
+  return <Badge pill bg={item.expiryStatus === 'EXPIRED' ? 'danger' : item.expiryStatus === 'EXPIRING_SOON' ? 'warning' : item.expiryStatus === 'AVAILABLE' ? 'success' : 'secondary'}
+    text={item.expiryStatus === 'EXPIRING_SOON' ? 'dark' : undefined} className="px-2 py-1">{expiryLabels[item.expiryStatus] || item.expiryStatus}</Badge>;
 }
 
 /** Displays live inventory with management actions restricted by role; the server enforces authorization. */
@@ -82,34 +82,34 @@ export default function InventoryPage() {
   const skeleton = <div aria-label="Đang tải dữ liệu" aria-busy="true">{[1, 2, 3, 4].map((n) => <div key={n} className="bms-skeleton mb-3" style={{ height: 38 }} />)}</div>;
   const item = detail?.item;
   return <div className="py-3">
-    <Breadcrumb><Breadcrumb.Item linkAs={Link} linkProps={{ to: '/' }}>Trang Chủ</Breadcrumb.Item><Breadcrumb.Item active>Kho hóa chất</Breadcrumb.Item></Breadcrumb>
+    <Breadcrumb className="mb-3"><Breadcrumb.Item linkAs={Link} linkProps={{ to: '/' }}>Trang Chủ</Breadcrumb.Item><Breadcrumb.Item active>Kho hóa chất</Breadcrumb.Item></Breadcrumb>
     <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4">
-      <div><h4 className="fw-bold mb-1"><FaBoxOpen className="text-primary me-2" />Quản Lý Kho Hóa Chất & Sinh Phẩm</h4><p className="text-muted mb-0">Theo dõi từng lô, mức tồn tối thiểu và hạn sử dụng.</p></div>
-      <div className="d-flex gap-2">{canManage && <Button onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô hóa chất</Button>}<Button variant="outline-primary" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
+      <div><h4 className="fw-bold mb-1" style={{ color: '#2B3674' }}><FaBoxOpen className="me-2" style={{ color: '#5E85E6' }} />Quản Lý Kho Hóa Chất & Sinh Phẩm</h4><p className="text-muted mb-0">Theo dõi từng lô, mức tồn tối thiểu và hạn sử dụng.</p></div>
+      <div className="d-flex gap-2">{canManage && <Button className="rounded-pill shadow-sm px-3" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }} onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô hóa chất</Button>}<Button variant="outline-primary" className="rounded-pill px-3" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
     </div>
-    <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', 'primary'], ['LowStock', 'Tồn thấp', 'warning'], ['ExpiringSoon', 'Sắp hết hạn', 'warning'], ['Expired', 'Đã hết hạn', 'danger']].map(([key, label, color]) =>
-      <Col sm={6} xl={3} key={key}><Card className="border-0 shadow-sm h-100"><Card.Body><div className="text-muted small">{label}</div><div className={`fs-3 fw-bold text-${color}`}>{loading ? '…' : data?.summary?.[key[0].toLowerCase() + key.slice(1)] ?? '—'}</div></Card.Body></Card></Col>)}</Row>
-    <Card className="border-0 shadow-sm mb-4"><Card.Body>
+    <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', '#5E85E6'], ['LowStock', 'Tồn thấp', '#E7BC4C'], ['ExpiringSoon', 'Sắp hết hạn', '#E7BC4C'], ['Expired', 'Đã hết hạn', '#dc3545']].map(([key, label, color]) =>
+      <Col sm={6} xl={3} key={key}><Card className="border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}><Card.Body><div className="text-muted small mb-1">{label}</div><div className="fs-3 fw-bold" style={{ color, fontVariantNumeric: 'tabular-nums' }}>{loading ? '…' : data?.summary?.[key[0].toLowerCase() + key.slice(1)] ?? '—'}</div></Card.Body></Card></Col>)}</Row>
+    <Card className="border-0 shadow-sm mb-4 rounded-4" style={{ border: '1px solid #E5E9EB' }}><Card.Body className="p-4">
       <Row className="g-3 align-items-end">
-        <Col lg={4}><Form.Label htmlFor="inventory-search"><FaSearch className="me-2" />Tìm kiếm</Form.Label><Form.Control id="inventory-search" value={search} maxLength={100} placeholder="Mã, tên hóa chất, số lô, hãng sản xuất" onChange={(e) => setSearch(e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="inventory-status">Cảnh báo</Form.Label><Form.Select id="inventory-status" value={filters.status} onChange={(e) => change('status', e.target.value)}><option value="">Tất cả</option><option value="LOW_STOCK">Tồn thấp</option>{Object.entries(expiryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</Form.Select></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-from">Hạn dùng từ</Form.Label><Form.Control id="expiry-from" type="date" value={filters.expiryFrom} onChange={(e) => change('expiryFrom', e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-to">Hạn dùng đến</Form.Label><Form.Control id="expiry-to" type="date" value={filters.expiryTo} onChange={(e) => change('expiryTo', e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Button variant="outline-secondary" className="w-100" onClick={clear}>Xóa bộ lọc</Button></Col>
+        <Col lg={4}><Form.Label htmlFor="inventory-search" className="fw-semibold small"><FaSearch className="me-2" style={{ color: '#5E85E6' }} />Tìm kiếm</Form.Label><Form.Control id="inventory-search" className="rounded-3" style={{ backgroundColor: '#F1F4F7' }} value={search} maxLength={100} placeholder="Mã, tên hóa chất, số lô, hãng sản xuất" onChange={(e) => setSearch(e.target.value)} /></Col>
+        <Col sm={6} lg={2}><Form.Label htmlFor="inventory-status" className="fw-semibold small">Cảnh báo</Form.Label><Form.Select id="inventory-status" className="rounded-3" style={{ backgroundColor: '#F1F4F7' }} value={filters.status} onChange={(e) => change('status', e.target.value)}><option value="">Tất cả</option><option value="LOW_STOCK">Tồn thấp</option>{Object.entries(expiryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</Form.Select></Col>
+        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-from" className="fw-semibold small">Hạn dùng từ</Form.Label><Form.Control id="expiry-from" type="date" className="rounded-3" style={{ backgroundColor: '#F1F4F7' }} value={filters.expiryFrom} onChange={(e) => change('expiryFrom', e.target.value)} /></Col>
+        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-to" className="fw-semibold small">Hạn dùng đến</Form.Label><Form.Control id="expiry-to" type="date" className="rounded-3" style={{ backgroundColor: '#F1F4F7' }} value={filters.expiryTo} onChange={(e) => change('expiryTo', e.target.value)} /></Col>
+        <Col sm={6} lg={2}><Button variant="outline-secondary" className="w-100 rounded-pill" onClick={clear}>Xóa bộ lọc</Button></Col>
       </Row>
       <p className="small text-muted mt-3 mb-0">Tồn thấp khi số lượng ≤ mức tối thiểu. Sắp hết hạn khi còn dưới 30 ngày; số liệu cảnh báo tính trên toàn bộ kết quả lọc.</p>
     </Card.Body></Card>
-    {success && <Alert variant="success" role="status" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
-    {invalidDates && <Alert variant="warning">Hạn dùng từ phải trước hoặc bằng hạn dùng đến.</Alert>}
-    {error && <Alert variant="danger" role="alert">{error} <Button variant="outline-danger" size="sm" onClick={() => setRefresh((v) => v + 1)}>Thử lại</Button></Alert>}
-    <Card className="border-0 shadow-sm"><Card.Body>
-      <div className="d-flex justify-content-between mb-3"><h6 className="fw-bold mb-0">Danh sách lô hóa chất</h6><span className="small text-muted" role="status">{data?.total ?? 0} kết quả</span></div>
+    {success && <Alert variant="success" role="status" dismissible onClose={() => setSuccess('')} className="rounded-3">{success}</Alert>}
+    {invalidDates && <Alert variant="warning" className="rounded-3">Hạn dùng từ phải trước hoặc bằng hạn dùng đến.</Alert>}
+    {error && <Alert variant="danger" role="alert" className="rounded-3">{error} <Button variant="outline-danger" size="sm" className="rounded-pill ms-2" onClick={() => setRefresh((v) => v + 1)}>Thử lại</Button></Alert>}
+    <Card className="border-0 shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB' }}><Card.Body className="p-4">
+      <div className="d-flex justify-content-between mb-3"><h6 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Danh sách lô hóa chất</h6><span className="small text-muted" role="status">{data?.total ?? 0} kết quả</span></div>
       {loading ? skeleton : data?.items.length ? <>
         <Table responsive hover className="align-middle"><thead className="table-light"><tr><th>Mã / Tên hóa chất</th><th>Số lô / Hãng</th><th className="text-end">Tồn / Tối thiểu</th><th>Hạn dùng</th><th className="text-center">Cảnh báo</th><th className="text-center">Chi tiết</th></tr></thead><tbody>
-          {data.items.map((row) => <tr key={row.id}><td><div className="font-monospace text-primary">{row.code}</div><div className="fw-semibold">{row.name}</div></td><td><div>{row.lotNumber || '—'}</div><small className="text-muted">{row.manufacturer || '—'}</small></td><td className="text-end"><strong>{quantity(row.quantity)}</strong> / {quantity(row.minimumStock)}<div className="small text-muted">{row.unit}</div></td><td className="text-nowrap">{date(row.expiryDate)}</td><td className="text-center"><ExpiryBadge item={row} />{row.isLowStock && <div className="mt-1"><Badge bg="warning" text="dark">Tồn thấp</Badge></div>}</td><td className="text-center"><Button size="sm" variant="outline-primary" aria-label={`Xem lô ${row.lotNumber || row.code}`} onClick={() => setSelectedId(row.id)}><FaEye /></Button></td></tr>)}
+          {data.items.map((row) => <tr key={row.id}><td><div className="font-monospace fw-semibold" style={{ color: '#5E85E6' }}>{row.code}</div><div className="fw-semibold">{row.name}</div></td><td><div>{row.lotNumber || '—'}</div><small className="text-muted">{row.manufacturer || '—'}</small></td><td className="text-end"><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.quantity)}</strong> / <span style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.minimumStock)}</span><div className="small text-muted">{row.unit}</div></td><td className="text-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(row.expiryDate)}</td><td className="text-center"><ExpiryBadge item={row} />{row.isLowStock && <div className="mt-1"><Badge pill bg="warning" text="dark" className="px-2">Tồn thấp</Badge></div>}</td><td className="text-center"><Button size="sm" variant="outline-primary" className="rounded-circle p-2" aria-label={`Xem lô ${row.lotNumber || row.code}`} onClick={() => setSelectedId(row.id)}><FaEye /></Button></td></tr>)}
         </tbody></Table>
-        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3"><Form.Select aria-label="Số lô mỗi trang" style={{ width: 150 }} value={filters.pageSize} onChange={(e) => change('pageSize', Number(e.target.value))}>{[20, 50, 100].map((n) => <option key={n} value={n}>{n} lô / trang</option>)}</Form.Select><div className="d-flex gap-3 align-items-center"><Button variant="outline-primary" size="sm" disabled={data.page <= 1} onClick={() => setFilters((v) => ({ ...v, page: v.page - 1 }))}>Trước</Button><span className="small">Trang {data.page}/{data.totalPages}</span><Button variant="outline-primary" size="sm" disabled={data.page >= data.totalPages} onClick={() => setFilters((v) => ({ ...v, page: v.page + 1 }))}>Sau</Button></div></div>
-      </> : !error && !invalidDates && <div className="text-center text-muted py-5"><FaBoxOpen size={40} className="mb-3" /><h5>Không có lô hóa chất phù hợp</h5><p>Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" onClick={clear}>Xóa bộ lọc</Button></div>}
+        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3"><Form.Select aria-label="Số lô mỗi trang" className="rounded-3" style={{ width: 150 }} value={filters.pageSize} onChange={(e) => change('pageSize', Number(e.target.value))}>{[20, 50, 100].map((n) => <option key={n} value={n}>{n} lô / trang</option>)}</Form.Select><div className="d-flex gap-3 align-items-center"><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page <= 1} onClick={() => setFilters((v) => ({ ...v, page: v.page - 1 }))}>Trước</Button><span className="small">Trang {data.page}/{data.totalPages}</span><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page >= data.totalPages} onClick={() => setFilters((v) => ({ ...v, page: v.page + 1 }))}>Sau</Button></div></div>
+      </> : !error && !invalidDates && <div className="text-center text-muted py-5"><FaBoxOpen size={40} className="mb-3" style={{ color: '#5E85E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p>Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-4" onClick={clear}>Xóa bộ lọc</Button></div>}
     </Card.Body></Card>
     <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="xl" scrollable>
       <Modal.Header closeButton><Modal.Title className="h5">Chi tiết lô hóa chất</Modal.Title></Modal.Header><Modal.Body>
@@ -124,9 +124,9 @@ export default function InventoryPage() {
         </>}
       </Modal.Body><Modal.Footer>{canManage && item && !detailLoading && <>
         <span className="small text-muted me-auto">Chỉ xóa lô có tồn kho bằng 0.</span>
-        <Button variant="outline-danger" disabled={item.quantity !== 0} onClick={() => { setDeleteItem(item); setSelectedId(null); }}>Xóa lô</Button>
-        <Button variant="primary" onClick={() => { setEditItem(item); setSelectedId(null); }}>Chỉnh sửa lô</Button>
-      </>}<Button variant="secondary" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
+        <Button variant="outline-danger" className="rounded-pill px-3" disabled={item.quantity !== 0} onClick={() => { setDeleteItem(item); setSelectedId(null); }}>Xóa lô</Button>
+        <Button className="rounded-pill px-3" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }} onClick={() => { setEditItem(item); setSelectedId(null); }}>Chỉnh sửa lô</Button>
+      </>}<Button variant="secondary" className="rounded-pill px-3" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
     </Modal>
     <InventoryFormModal show={showCreate || Boolean(editItem)} item={editItem} onHide={() => { setShowCreate(false); setEditItem(null); }} onSaved={(message) => {
       setShowCreate(false); setEditItem(null); setDetailRefresh((value) => value + 1); setSuccess(message); setFilters((value) => ({ ...value, page: 1 })); setRefresh((value) => value + 1);

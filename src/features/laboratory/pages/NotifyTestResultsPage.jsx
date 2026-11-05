@@ -236,11 +236,11 @@ export default function NotifyTestResultsPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold text-dark mb-0">Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
-                        <span className="badge bg-primary-subtle text-primary border border-primary font-monospace">
+                        <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#5E85E6', border: '1px solid rgba(94,133,230,0.2)' }}>
                             UC60 • BR-182 / BR-183
                         </span>
-                        <span className="badge bg-danger-subtle text-danger border border-danger">
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
                             Panic Value Escalation
                         </span>
                     </div>
@@ -252,7 +252,8 @@ export default function NotifyTestResultsPage() {
                 <div className="d-flex gap-2">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+                        style={{ color: '#5E85E6', borderColor: '#5E85E6' }}
                         onClick={loadData}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
@@ -261,7 +262,8 @@ export default function NotifyTestResultsPage() {
                     {canDispatch && (
                         <button
                             type="button"
-                            className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                            className="btn btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-4 fw-semibold"
+                            style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' }}
                             onClick={() => setShowDispatchModal(true)}
                         >
                             <FaPaperPlane />
@@ -292,14 +294,14 @@ export default function NotifyTestResultsPage() {
             {/* 4 Stat KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100">
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block">Tổng Số Thông Báo</span>
-                                <h3 className="fw-bold text-dark mb-0 font-monospace">{stats.totalNotifications}</h3>
+                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tổng Số Thông Báo</span>
+                                <h3 className="fw-bold mb-0" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
                                 <small className="text-muted">Đã phát hành toàn viện</small>
                             </div>
-                            <div className="p-3 bg-primary-subtle text-primary rounded-circle">
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#5E85E6' }}>
                                 <FaBell className="fs-4" />
                             </div>
                         </div>
@@ -307,14 +309,14 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100">
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block">Tỷ Lệ Tiếp Nhận</span>
-                                <h3 className="fw-bold text-success mb-0 font-monospace">{stats.deliverySuccessRate}%</h3>
+                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tỷ Lệ Tiếp Nhận</span>
+                                <h3 className="fw-bold mb-0" style={{ color: '#16a34a', fontVariantNumeric: 'tabular-nums' }}>{stats.deliverySuccessRate}%</h3>
                                 <small className="text-success">{stats.deliveredSuccessfully} thông báo thành công</small>
                             </div>
-                            <div className="p-3 bg-success-subtle text-success rounded-circle">
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#16a34a' }}>
                                 <FaCheckCircle className="fs-4" />
                             </div>
                         </div>
@@ -322,11 +324,11 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100">
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block">Báo Động Nguy Kịch</span>
-                                <h3 className="fw-bold text-danger mb-0 font-monospace">{stats.criticalPanicAlerts}</h3>
+                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Báo Động Nguy Kịch</span>
+                                <h3 className="fw-bold text-danger mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{stats.criticalPanicAlerts}</h3>
                                 <small className="text-danger fw-semibold">Chỉ số hoảng loạn cần can thiệp</small>
                             </div>
                             <div className="p-3 bg-danger-subtle text-danger rounded-circle">
@@ -337,14 +339,14 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100">
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block">Chờ Xử Lý / Thất Bại</span>
-                                <h3 className="fw-bold text-warning mb-0 font-monospace">{stats.pendingCount + stats.failedCount}</h3>
+                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Chờ Xử Lý / Thất Bại</span>
+                                <h3 className="fw-bold mb-0" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
                                 <small className="text-muted">{stats.failedCount} tin nhắn cần gửi lại</small>
                             </div>
-                            <div className="p-3 bg-warning-subtle text-warning rounded-circle">
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#E7BC4C' }}>
                                 <FaRedo className="fs-4" />
                             </div>
                         </div>

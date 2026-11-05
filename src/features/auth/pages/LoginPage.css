@@ -1,19 +1,19 @@
 
 .login-page {
-    --login-primary: #c62828;
-    --login-primary-hover: #a91f26;
-    --login-navy: #0f2743;
-    --login-text: #172b4d;
-    --login-muted: #718096;
-    --login-border: #dfe6ef;
+    --login-primary: #5E85E6;
+    --login-primary-hover: #4a6ec7;
+    --login-navy: #20242B;
+    --login-text: #20242B;
+    --login-muted: #606873;
+    --login-border: #E5E9EB;
     min-height: 100vh;
     padding: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f1f4f8;
+    background: #F1F4F7;
     color: var(--login-text);
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--bms-font-family, 'Geist Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
 
 .login-page *,
@@ -30,9 +30,9 @@
     min-height: 740px;
     overflow: hidden;
     background: #fff;
-    border: 1px solid #e5eaf1;
-    border-radius: 18px;
-    box-shadow: 0 20px 70px rgba(15, 39, 67, 0.1);
+    border: 1px solid #E5E9EB;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(94, 133, 230, 0.08);
 }
 
 .login-brand-panel {
@@ -45,9 +45,9 @@
     overflow: hidden;
     color: #fff;
     background:
-            radial-gradient(circle at 15% 20%, rgba(198, 40, 40, 0.22), transparent 40%),
-            radial-gradient(circle at 90% 75%, rgba(42, 103, 171, 0.3), transparent 40%),
-            linear-gradient(150deg, #102b49 0%, #0a1e34 62%, #061729 100%);
+            radial-gradient(circle at 15% 20%, rgba(94, 133, 230, 0.35), transparent 45%),
+            radial-gradient(circle at 90% 75%, rgba(145, 222, 131, 0.25), transparent 45%),
+            linear-gradient(150deg, #1e293b 0%, #0f172a 100%);
 }
 
 .login-brand-panel::after {
@@ -169,10 +169,10 @@
     justify-content: center;
     width: 34px;
     height: 34px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(145, 222, 131, 0.3);
     border-radius: 10px;
-    color: #ffb4b4;
-    background: rgba(255, 255, 255, 0.06);
+    color: #91DE83;
+    background: rgba(145, 222, 131, 0.15);
     font-size: 17px;
 }
 
@@ -284,16 +284,17 @@
     align-items: center;
     gap: 11px;
     min-height: 48px;
-    padding: 0 13px;
+    padding: 0 14px;
     border: 1px solid var(--login-border);
-    border-radius: 9px;
-    background: #fff;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    border-radius: 12px;
+    background: #F1F4F7;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
 .login-input-wrap:focus-within {
-    border-color: #c62828;
-    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.08);
+    border-color: #5E85E6;
+    box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.18);
+    background: #ffffff;
 }
 
 .login-input-wrap > span {
@@ -403,23 +404,25 @@
     gap: 10px;
     width: 100%;
     min-height: 48px;
-    border-radius: 9px;
+    border-radius: 9999px;
     font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .login-submit {
     border: 1px solid var(--login-primary);
     color: #fff;
     background: var(--login-primary);
+    box-shadow: 0 2px 8px rgba(94, 133, 230, 0.25);
 }
 
 .login-submit:hover {
     border-color: var(--login-primary-hover);
     background: var(--login-primary-hover);
+    box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
 }
 
 .login-submit span {
@@ -447,12 +450,12 @@
 .login-sso {
     border: 1px solid var(--login-border);
     color: #34445a;
-    background: #fff;
+    background: #F1F4F7;
 }
 
 .login-sso:hover {
     border-color: #cbd5e1;
-    background: #f8fafc;
+    background: #e8edf2;
 }
 
 .login-sso > span {
@@ -474,11 +477,11 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 13px;
-    border: 1px solid #f2e5c9;
-    border-radius: 9px;
-    color: #8a6b30;
-    background: #fffaf0;
+    padding: 13px 16px;
+    border: 1px solid rgba(231, 188, 76, 0.3);
+    border-radius: 14px;
+    color: #92400e;
+    background: rgba(231, 188, 76, 0.12);
 }
 
 .login-security-note > span {

@@ -86,7 +86,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                         <div className="d-flex align-items-center gap-2">
                             <FaDatabase className="fs-5" style={{ color: '#1E60E6' }} />
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
-                                Tạo Bản Sao Lưu & Lưu Trữ Dữ Liệu Xét Nghiệm (UC80)
+                                Tạo Bản Sao Lưu & Lưu Trữ Dữ Liệu Xét Nghiệm
                             </h5>
                         </div>
                         <button

@@ -250,7 +250,7 @@ export default function BackupManagementPage() {
                         </span>
                     </div>
                     <p className="text-secondary small mb-0">
-                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn (UC80).
+                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn.
                     </p>
                 </div>
 

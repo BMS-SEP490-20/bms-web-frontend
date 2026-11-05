@@ -231,7 +231,7 @@ export default function CalculateFeesPage() {
               </div>
               <div>
                 <div className="text-primary small fw-bold text-uppercase" style={{ letterSpacing: "0.5px" }}>
-                  UC53 • TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
+                  TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
                 </div>
                 <h2 className="h4 fw-bold text-dark mb-1">
                   Dự Toán & Tính Phí Xét Nghiệm Y Tế

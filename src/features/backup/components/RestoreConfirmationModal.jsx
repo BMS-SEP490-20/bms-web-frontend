@@ -97,7 +97,7 @@ export default function RestoreConfirmationModal({
                         <div className="d-flex align-items-center gap-2">
                             <FaUndo className="fs-5" style={{ color: '#EF4444' }} />
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
-                                Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm (UC80)
+                                Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm
                             </h5>
                         </div>
                         <button

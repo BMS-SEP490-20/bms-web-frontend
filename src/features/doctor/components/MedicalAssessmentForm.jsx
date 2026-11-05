@@ -430,7 +430,7 @@ export default function MedicalAssessmentForm({
             <FaStethoscope /> {isEditMode ? 'Cập Nhật Đánh Giá Y Khoa' : 'Thêm Mới Đánh Giá Y Khoa (Medical Assessment)'}
           </h5>
           <small className="opacity-75">
-            Tiêu chuẩn EMR Bộ Y Tế & Chẩn đoán Quốc tế WHO ICD-10 (UC50)
+            Tiêu chuẩn EMR Bộ Y Tế & Chẩn đoán Quốc tế WHO ICD-10
           </small>
         </div>
         {initialData?.assessmentCode && (

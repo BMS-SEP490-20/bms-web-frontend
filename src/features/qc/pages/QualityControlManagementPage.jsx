@@ -268,7 +268,6 @@ export default function QualityControlManagementPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge bg-primary px-3 py-2 fs-6">UC73</span>
                         <h2 className="h3 mb-0 fw-bold text-dark">Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đánh Giá Đa Quy Tắc Westgard</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">

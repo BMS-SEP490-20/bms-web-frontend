@@ -699,7 +699,7 @@ const SampleQueuePage = () => {
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
               {canRecordSampleTime && (
                 <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay (UC40)
+                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay
                 </Button>
               )}
             </div>
@@ -797,7 +797,7 @@ const SampleQueuePage = () => {
                               size="sm"
                               className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
                               style={{ fontSize: '0.75rem', borderRadius: '9999px' }}
-                              title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
+                              title="Ghi nhận / Cập nhật thời gian lấy mẫu"
                               onClick={() => openRecordCollectionModal(s)}
                             >
                               <FaClock />
@@ -811,7 +811,7 @@ const SampleQueuePage = () => {
                               size="sm"
                               className="px-2 py-1 text-nowrap d-flex align-items-center gap-1 text-white"
                               style={{ fontSize: '0.75rem', backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                              title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
+                              title="Cập nhật trạng thái vòng đời mẫu"
                               onClick={() => openStatusUpdateModal(s)}
                             >
                               <FaExchangeAlt />
@@ -1337,7 +1337,7 @@ const SampleQueuePage = () => {
       </Modal>
 
       {/* =====================================================================
-          MODAL 3: RERUN REQUEST POPUP (UC47)
+          MODAL 3: RERUN REQUEST POPUP
          ===================================================================== */}
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger-subtle text-danger">

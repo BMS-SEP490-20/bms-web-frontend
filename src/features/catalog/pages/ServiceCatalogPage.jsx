@@ -231,8 +231,9 @@ export default function ServiceCatalogPage() {
               <Col lg={7}>
                 <div className="d-flex align-items-center gap-2 mb-4">
                   <span
-                    className="d-flex align-items-center gap-1.5"
+                    className="d-flex align-items-center"
                     style={{
+                      gap: '8px',
                       background: '#EFF6FF',
                       color: '#1E60E6',
                       fontSize: '11px',
@@ -243,7 +244,7 @@ export default function ServiceCatalogPage() {
                       border: 'none'
                     }}
                   >
-                    <img src="/bmsicon.ico" alt="BMS" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
+                    <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
                     <span>ISO 15189:2022 ACCREDITED LABORATORY</span>
                   </span>
                   <span style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 600 }}>
@@ -275,7 +276,7 @@ export default function ServiceCatalogPage() {
                   Tra cứu đầy đủ các gói xét nghiệm tiêu chuẩn và chuyên sâu. Toàn bộ mẫu bệnh phẩm được xử lý trên hệ thống máy sinh hóa, huyết học tự động với thời gian trả kết quả nhanh chóng, kết nối trực tuyến với hồ sơ sức khỏe điện tử.
                 </p>
 
-                {/* Key Spec Badges - Pure Flat, No Borders */}
+                {/* Key Spec Badges - Pure Flat, No Emojis, No Borders */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div
                     style={{
@@ -288,7 +289,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 600
                     }}
                   >
-                    ⚡ Trả KQ trong 60 – 90 phút
+                    Trả KQ trong 60 – 90 phút
                   </div>
                   <div
                     style={{
@@ -301,7 +302,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 600
                     }}
                   >
-                    🔬 Mã hóa Barcode 1D/2D tự động
+                    Mã hóa Barcode 1D/2D tự động
                   </div>
                   <div
                     style={{
@@ -314,7 +315,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 600
                     }}
                   >
-                    📱 Nhận SMS &amp; Tra cứu trực tuyến
+                    Nhận SMS &amp; Tra cứu trực tuyến
                   </div>
                 </div>
               </Col>
@@ -331,19 +332,17 @@ export default function ServiceCatalogPage() {
                       boxShadow: 'none'
                     }}
                   >
-                    <div className="d-flex justify-content-between align-items-center mb-2.5">
+                    <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '20px' }}>
                       <span
                         style={{
-                          background: '#DCFCE7',
-                          color: '#15803D',
+                          color: '#166534',
                           fontSize: '11px',
                           fontWeight: 700,
-                          padding: '4px 9px',
-                          borderRadius: '6px',
-                          border: 'none'
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase'
                         }}
                       >
-                        GÓI ĐƯỢC CHỈ ĐỊNH NHIỀU NHẤT
+                        Chỉ định nhiều nhất
                       </span>
                       <span className="font-monospace text-muted" style={{ fontSize: '11.5px' }}>
                         {featuredItem.packageCode}
@@ -351,8 +350,8 @@ export default function ServiceCatalogPage() {
                     </div>
 
                     <h4
-                      className="fw-bold mb-2"
-                      style={{ fontSize: '17px', color: '#0F172A', lineHeight: '1.35' }}
+                      className="fw-bold"
+                      style={{ fontSize: '18px', color: '#0F172A', lineHeight: '1.4', marginBottom: '10px' }}
                     >
                       {featuredItem.packageName}
                     </h4>
@@ -624,7 +623,7 @@ export default function ServiceCatalogPage() {
               </button>
             </div>
           ) : (
-            <Row className="g-3.5 mb-4">
+            <Row className="g-4 mb-4">
               {packages.map((pkg) => (
                 <Col key={pkg.id} xs={12} md={6} lg={4}>
                   <ServiceCard

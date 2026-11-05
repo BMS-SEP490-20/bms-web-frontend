@@ -142,13 +142,13 @@ h1:not(.bms-hero-heading), .h1:not(.bms-hero-heading) {
   line-height: 1.25;
 }
 
-/* Home Hero Heading: Grand, Authoritative, Big */
+/* Home Hero Heading: Compact Authority */
 .bms-hero-heading,
 h1.bms-hero-heading {
-  font-size: clamp(38px, 4.4vw, 54px) !important;
+  font-size: clamp(30px, 3.2vw, 40px) !important;
   font-weight: 800 !important;
-  letter-spacing: -0.035em !important;
-  line-height: 1.15 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.2 !important;
   color: var(--ink) !important;
 }
 
@@ -382,3 +382,15 @@ p {
   background-color: var(--bg-muted) !important;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
+
+/* Fractional spacing utilities (Bootstrap 5 ships none of these; several pages rely on them) */
+.mt-0\.5 { margin-top: 0.125rem !important; }
+.mb-2\.5 { margin-bottom: 0.625rem !important; }
+.p-3\.5 { padding: 0.875rem !important; }
+.px-1\.5 { padding-left: 0.375rem !important; padding-right: 0.375rem !important; }
+.px-2\.5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+.py-0\.5 { padding-top: 0.125rem !important; padding-bottom: 0.125rem !important; }
+.py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.py-2\.5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+.gap-1\.5 { gap: 0.375rem !important; }
+.gap-2\.5 { gap: 0.625rem !important; }

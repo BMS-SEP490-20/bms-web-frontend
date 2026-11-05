@@ -565,22 +565,22 @@ const ManagerDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
-    <Card className="stat-card h-100">
+    <Card className="stat-card h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
       <Card.Body className="p-4">
         <div className="d-flex justify-content-between align-items-start mb-3">
-          <div className={`stat-icon stat-icon-${color}`}>
-            <Icon />
+          <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+            <Icon className="fs-4" />
           </div>
           {trend && (
-            <div className={`trend-indicator ${trend > 0 ? 'trend-up' : 'trend-down'}`} style={{ color: '#ffffff' }}>
-              {trend > 0 ? <FaArrowUp style={{ color: '#ffffff' }} /> : <FaArrowDown style={{ color: '#ffffff' }} />}
-              <span style={{ color: '#ffffff' }}>{Math.abs(trend)}%</span>
+            <div className={`trend-indicator d-flex align-items-center gap-1 small fw-semibold ${trend > 0 ? 'text-success' : 'text-danger'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {trend > 0 ? <FaArrowUp /> : <FaArrowDown />}
+              <span>{Math.abs(trend)}%</span>
             </div>
           )}
         </div>
-        <h3 className="stat-value mb-1" style={{ color: '#ffffff', fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>{value}</h3>
-        <p className="stat-title mb-0" style={{ color: '#ffffff', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>{title}</p>
-        {subtitle && <small style={{ color: '#ffffff', opacity: 0.9 }}>{subtitle}</small>}
+        <h3 className="stat-value mb-1 fw-bold" style={{ color: '#0f2743', fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', fontVariantNumeric: 'tabular-nums' }}>{value}</h3>
+        <p className="stat-title mb-0 small fw-semibold text-uppercase" style={{ color: '#64748b', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>{title}</p>
+        {subtitle && <small className="text-muted d-block mt-1" style={{ fontSize: '0.8rem' }}>{subtitle}</small>}
       </Card.Body>
     </Card>
   );
@@ -610,70 +610,23 @@ const ManagerDashboard = () => {
       width: '100%',
       boxSizing: 'border-box'
     }}>
-      {/* Stat Cards Styling */}
-      <style>{`
-        .stat-card {
-          background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
-          color: #ffffff !important;
-          border: none !important;
-          border-radius: 12px !important;
-        }
-        .stat-card .card-body {
-          color: #ffffff !important;
-        }
-        .stat-card .stat-value {
-          color: #ffffff !important;
-          font-weight: 700;
-        }
-        .stat-card .stat-title {
-          color: #ffffff !important;
-          opacity: 0.95;
-        }
-        .stat-card .text-muted {
-          color: #ffffff !important;
-          opacity: 0.9;
-        }
-        .stat-card .trend-indicator {
-          color: #ffffff !important;
-        }
-        .stat-card .trend-indicator svg {
-          color: #ffffff !important;
-        }
-        .stat-card .trend-indicator span {
-          color: #ffffff !important;
-        }
-        .stat-card .stat-icon {
-          background: rgba(255, 255, 255, 0.15) !important;
-          color: #ffffff !important;
-        }
-        .stat-card .stat-icon svg {
-          color: #ffffff !important;
-        }
-      `}</style>
-      {/* Access Denied Alert */}
-      {accessDeniedMessage && (
-        <Alert variant="danger" dismissible onClose={() => setAccessDeniedMessage(null)} className="mb-4">
-          <i className="fas fa-exclamation-triangle me-2"></i>
-          {accessDeniedMessage}
-        </Alert>
-      )}
-      
       {/* Header */}
       <Row className="mb-4">
         <Col>
           <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
             <div>
-              <h2 className="mb-1 text-primary" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                <FaTachometerAlt className="me-2" />
-                Dashboard Quản lý
+              <h2 className="mb-1 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743', fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                <FaTachometerAlt style={{ color: '#5E85E6' }} />
+                Dashboard Quản Lý (Operations Hub)
               </h2>
-              <p className="text-muted mb-0 d-none d-md-block">Tổng quan hệ thống phòng xét nghiệm</p>
+              <p className="text-muted mb-0 d-none d-md-block small">Tổng quan chỉ số hoạt động hệ thống phòng xét nghiệm y khoa</p>
             </div>
             <Button 
               variant="outline-primary" 
               size="sm"
               onClick={() => navigate('/admin/reports')}
-              className="w-100 w-md-auto"
+              className="w-100 w-md-auto shadow-sm"
+              style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
             >
               <FaChartLine className="me-2" />
               <span className="d-none d-sm-inline">Xem báo cáo chi tiết</span>

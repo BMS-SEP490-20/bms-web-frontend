@@ -144,22 +144,22 @@ const AuditLogPage = () => {
   return (
     <div className="w-100 py-2">
       {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
+      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
         <Card.Body className="p-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                  <FaShieldAlt className="text-primary" />
+                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
+                  <FaShieldAlt style={{ color: '#5E85E6' }} />
                   Nhật Ký Kiểm Toán An Ninh Hệ Thống
                 </h4>
-                <Badge bg="primary-subtle" className="text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
                   Quản Trị Viên / Trưởng Bộ Phận
                 </Badge>
-                <Badge bg="secondary-subtle" className="text-secondary border px-3 py-2 rounded-pill fw-semibold">
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: '#F1F4F7', color: '#64748b', border: '1px solid #E5E9EB' }}>
                   Chỉ Xem Bất Biến (Read-Only)
                 </Badge>
-                <Badge bg="info-subtle" className="text-info-emphasis border border-info px-3 py-2 rounded-pill fw-semibold">
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
                   ISO 15189 & NĐ 123 • Lưu Trữ 10 Năm
                 </Badge>
               </div>
@@ -175,6 +175,7 @@ const AuditLogPage = () => {
                 onClick={handleExportCSV}
                 disabled={safeLogs.length === 0}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
+                style={{ borderRadius: 9999, borderColor: '#E5E9EB' }}
               >
                 <FaFileExport />
                 <span>Xuất Báo Cáo CSV</span>
@@ -185,6 +186,7 @@ const AuditLogPage = () => {
                 onClick={fetchLogs}
                 disabled={loading}
                 className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2 shadow-sm"
+                style={{ borderRadius: 9999, borderColor: '#E5E9EB' }}
               >
                 <FaSyncAlt className={loading ? 'fa-spin' : ''} />
                 <span>Làm Mới</span>
@@ -198,14 +200,14 @@ const AuditLogPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #0d6efd' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Tổng số sự kiện</span>
-                    <h3 className="fw-bold mb-0 text-dark mt-1">{statistics.totalLogs ?? safeLogs.length}</h3>
+                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalLogs ?? safeLogs.length}</h3>
                   </div>
-                  <div className="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+                  <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
                     <FaShieldAlt className="fs-4" />
                   </div>
                 </div>
@@ -213,14 +215,14 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #dc3545' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Sự kiện an ninh</span>
-                    <h3 className="fw-bold mb-0 text-danger mt-1">{statistics.securityEvents ?? 0}</h3>
+                    <h3 className="fw-bold mb-0 text-danger mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.securityEvents ?? 0}</h3>
                   </div>
-                  <div className="rounded-circle bg-danger bg-opacity-10 p-3 text-danger">
+                  <div className="rounded-circle p-3" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
                     <FaLock className="fs-4" />
                   </div>
                 </div>
@@ -228,14 +230,14 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #ffc107' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Cảnh báo nghiêm trọng</span>
-                    <h3 className="fw-bold mb-0 text-warning mt-1">{statistics.criticalAlerts ?? 0}</h3>
+                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>{statistics.criticalAlerts ?? 0}</h3>
                   </div>
-                  <div className="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
+                  <div className="rounded-circle p-3" style={{ background: 'rgba(231, 188, 76, 0.2)', color: '#b45309' }}>
                     <FaExclamationTriangle className="fs-4" />
                   </div>
                 </div>
@@ -243,14 +245,14 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #6c757d' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Thất bại / Lỗi truy cập</span>
-                    <h3 className="fw-bold mb-0 text-secondary mt-1">{statistics.failedActions ?? 0}</h3>
+                    <h3 className="fw-bold mb-0 text-secondary mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.failedActions ?? 0}</h3>
                   </div>
-                  <div className="rounded-circle bg-secondary bg-opacity-10 p-3 text-secondary">
+                  <div className="rounded-circle p-3" style={{ background: '#F1F4F7', color: '#64748b' }}>
                     <FaTimesCircle className="fs-4" />
                   </div>
                 </div>
@@ -261,19 +263,20 @@ const AuditLogPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
+      <Card className="border-0 shadow-sm mb-4 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
               <InputGroup>
-                <InputGroup.Text className="bg-light border-end-0">
+                <InputGroup.Text className="border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
                   placeholder="Tìm theo người dùng, hành động, đối tượng tác động..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-light border-start-0"
+                  className="border-start-0"
+                  style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
                 />
               </InputGroup>
             </Col>
@@ -281,7 +284,7 @@ const AuditLogPage = () => {
               <Form.Select 
                 value={categoryFilter} 
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-light"
+                style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
                 <option value="ALL">-- Tất cả danh mục --</option>
                 <option value="SECURITY">An ninh & Bảo mật</option>
@@ -294,7 +297,7 @@ const AuditLogPage = () => {
               <Form.Select 
                 value={severityFilter} 
                 onChange={(e) => setSeverityFilter(e.target.value)}
-                className="bg-light"
+                style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
                 <option value="ALL">-- Tất cả mức độ --</option>
                 <option value="CRITICAL">Mức nghiêm trọng</option>
@@ -307,7 +310,7 @@ const AuditLogPage = () => {
               <Form.Select 
                 value={statusFilter} 
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
+                style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
                 <option value="ALL">-- Tất cả trạng thái --</option>
                 <option value="SUCCESS">Thực hiện thành công</option>
@@ -319,7 +322,7 @@ const AuditLogPage = () => {
       </Card>
 
       {/* Audit Log Table */}
-      <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+      <Card className="border-0 shadow-sm overflow-hidden bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
         <Card.Body className="p-0">
           {loading && safeLogs.length === 0 ? (
             <div className="text-center py-5">
@@ -329,16 +332,16 @@ const AuditLogPage = () => {
           ) : safeLogs.length > 0 ? (
             <div className="table-responsive">
               <Table hover className="align-middle mb-0">
-                <thead className="table-light text-muted small text-uppercase">
+                <thead style={{ background: '#F1F4F7' }}>
                   <tr>
-                    <th style={{ width: '170px' }}>Thời gian</th>
-                    <th style={{ width: '200px' }}>Người thực hiện</th>
-                    <th style={{ width: '160px' }}>Hành động</th>
-                    <th style={{ width: '130px' }}>Phân loại</th>
-                    <th style={{ width: '120px' }}>Mức độ</th>
-                    <th>Nội dung chi tiết</th>
-                    <th style={{ width: '110px' }}>IP / Thiết bị</th>
-                    <th style={{ width: '80px' }} className="text-center">Chi tiết</th>
+                    <th style={{ width: '170px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời gian</th>
+                    <th style={{ width: '200px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Người thực hiện</th>
+                    <th style={{ width: '160px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Hành động</th>
+                    <th style={{ width: '130px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Phân loại</th>
+                    <th style={{ width: '120px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mức độ</th>
+                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Nội dung chi tiết</th>
+                    <th style={{ width: '110px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>IP / Thiết bị</th>
+                    <th style={{ width: '80px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }} className="text-center">Chi tiết</th>
                   </tr>
                 </thead>
                 <tbody>

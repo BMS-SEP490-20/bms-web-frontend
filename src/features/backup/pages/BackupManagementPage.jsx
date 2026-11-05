@@ -239,11 +239,11 @@ export default function BackupManagementPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold text-dark mb-0">Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
-                        <span className="badge bg-primary-subtle text-primary border border-primary font-monospace">
+                        <h4 className="fw-bold mb-0" style={{ color: '#0f2743' }}>Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
+                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
                             ISO 15189 • Nghị Định 123/2020/NĐ-CP
                         </span>
-                        <span className="badge bg-success-subtle text-success border border-success">
+                        <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
                             Niêm Phong Số SHA-256 (Lưu Trữ 10 Năm)
                         </span>
                     </div>
@@ -257,6 +257,7 @@ export default function BackupManagementPage() {
                         type="button"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
                         onClick={loadData}
+                        style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
@@ -266,6 +267,7 @@ export default function BackupManagementPage() {
                             type="button"
                             className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
                             onClick={() => setShowCreateModal(true)}
+                            style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                         >
                             <FaPlus />
                             <span>Sao Lưu Dữ Liệu Xét Nghiệm Mới</span>
@@ -279,6 +281,7 @@ export default function BackupManagementPage() {
                 <div
                     className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4`}
                     role="alert"
+                    style={{ borderRadius: 14 }}
                 >
                     <div className="d-flex align-items-center">
                         <FaCheckCircle className="me-2 fs-5" />
@@ -295,37 +298,37 @@ export default function BackupManagementPage() {
             {/* KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 border-start border-primary border-4 h-100">
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-1">
                                         Tổng Bản Sao Lưu
                                     </span>
-                                    <h3 className="fw-bold text-dark mb-0">{stats.totalBackups}</h3>
+                                    <h3 className="fw-bold mb-0" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{stats.totalBackups}</h3>
                                 </div>
-                                <div className="p-3 bg-primary-subtle text-primary rounded-circle">
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
                                     <FaDatabase className="fs-4" />
                                 </div>
                             </div>
                             <small className="text-secondary mt-2 d-block">
-                                <span className="text-primary fw-semibold">{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
+                                <span className="fw-semibold" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
                             </small>
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 border-start border-info border-4 h-100">
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-1">
                                         Dung Lượng Đã Dùng
                                     </span>
-                                    <h3 className="fw-bold text-info mb-0">{stats.totalStorageMb} MB</h3>
+                                    <h3 className="fw-bold mb-0" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalStorageMb} MB</h3>
                                 </div>
-                                <div className="p-3 bg-info-subtle text-info rounded-circle">
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
                                     <FaHdd className="fs-4" />
                                 </div>
                             </div>
@@ -337,16 +340,16 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 border-start border-success border-4 h-100">
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-1">
                                         Độ Toàn Vẹn SHA-256
                                     </span>
-                                    <h3 className="fw-bold text-success mb-0">{stats.integritySuccessRate}%</h3>
+                                    <h3 className="fw-bold mb-0" style={{ color: '#2E7D32', fontVariantNumeric: 'tabular-nums' }}>{stats.integritySuccessRate}%</h3>
                                 </div>
-                                <div className="p-3 bg-success-subtle text-success rounded-circle">
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
                                     <FaShieldAlt className="fs-4" />
                                 </div>
                             </div>
@@ -358,16 +361,16 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 border-start border-warning border-4 h-100">
+                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid #E5E9EB', borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-1">
                                         Thời Hạn Lưu Trữ
                                     </span>
-                                    <h3 className="fw-bold text-warning-emphasis mb-0">10 Năm</h3>
+                                    <h3 className="fw-bold mb-0" style={{ color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>10 Năm</h3>
                                 </div>
-                                <div className="p-3 bg-warning-subtle text-warning-emphasis rounded-circle">
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(231, 188, 76, 0.2)', color: '#b45309' }}>
                                     <FaCalendarAlt className="fs-4" />
                                 </div>
                             </div>
@@ -380,22 +383,30 @@ export default function BackupManagementPage() {
             </div>
 
             {/* Filter Tabs & Search Bar */}
-            <div className="card shadow-sm border-0 mb-4">
+            <div className="card shadow-sm border-0 mb-4" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
                 <div className="card-body p-3">
                     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <ul className="nav nav-pills gap-1">
                             {TABS.map((tab) => {
                                 const Icon = tab.icon;
+                                const isActive = activeTab === tab.key;
                                 return (
                                     <li className="nav-item" key={tab.key}>
                                         <button
                                             type="button"
                                             className={`nav-link btn-sm d-flex align-items-center gap-2 ${
-                                                activeTab === tab.key ? "active" : "text-secondary"
+                                                isActive ? "active" : "text-secondary"
                                             }`}
                                             onClick={() => {
                                                 setActiveTab(tab.key);
                                                 setCurrentPage(1);
+                                            }}
+                                            style={{
+                                                borderRadius: 9999,
+                                                background: isActive ? '#5E85E6' : 'transparent',
+                                                color: isActive ? '#fff' : '#64748b',
+                                                fontWeight: 600,
+                                                padding: '6px 14px'
                                             }}
                                         >
                                             {Icon && <Icon />}
@@ -408,7 +419,7 @@ export default function BackupManagementPage() {
 
                         {activeTab !== "HISTORY" && (
                             <div className="input-group input-group-sm" style={{ maxWidth: "320px" }}>
-                                <span className="input-group-text bg-light border-end-0">
+                                <span className="input-group-text border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
                                     <FaSearch className="text-muted" />
                                 </span>
                                 <input
@@ -417,6 +428,7 @@ export default function BackupManagementPage() {
                                     placeholder="Tìm theo tên, mã sao lưu..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
                                 />
                             </div>
                         )}
@@ -427,27 +439,27 @@ export default function BackupManagementPage() {
             {/* Main Content: Backups Table or Restore Audits */}
             {activeTab === "HISTORY" ? (
                 /* Restore Audits Directory Table */
-                <div className="card shadow-sm border-0">
-                    <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <FaHistory className="text-primary" />
+                <div className="card shadow-sm border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid #E5E9EB' }}>
+                        <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
+                            <FaHistory style={{ color: '#5E85E6' }} />
                             Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu
                         </h6>
-                        <small className="text-muted">Tổng cộng {restoreHistory.length} phiên khôi phục ghi nhận</small>
+                        <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {restoreHistory.length} phiên khôi phục ghi nhận</small>
                     </div>
 
                     <div className="table-responsive">
                         <table className="table table-hover align-middle mb-0">
-                            <thead className="table-light text-secondary small text-uppercase">
+                            <thead style={{ background: '#F1F4F7' }}>
                                 <tr>
-                                    <th>Mã Phiên Khôi Phục</th>
-                                    <th>Mã Bản Sao Lưu</th>
-                                    <th>Người Khôi Phục</th>
-                                    <th>Vai Trò</th>
-                                    <th>Số Bản Ghi Phục Hồi</th>
-                                    <th>Xác Thực SHA-256</th>
-                                    <th>Thời Gian Thực Thi</th>
-                                    <th>Trạng Thái</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Phiên Khôi Phục</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Bản Sao Lưu</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Người Khôi Phục</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Vai Trò</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Số Bản Ghi Phục Hồi</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Xác Thực SHA-256</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời Gian Thực Thi</th>
+                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Trạng Thái</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -466,30 +478,30 @@ export default function BackupManagementPage() {
                                     </tr>
                                 ) : (
                                     restoreHistory.map((log) => (
-                                        <tr key={log.id || log.restoreId}>
-                                            <td>
-                                                <span className="font-monospace text-primary fw-bold">
+                                        <tr key={log.id || log.restoreId} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span className="font-monospace fw-bold" style={{ color: '#5E85E6' }}>
                                                     {log.restoreId}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td style={{ padding: '12px 16px' }}>
                                                 <span className="font-monospace text-dark fw-semibold">
                                                     {log.backupId}
                                                 </span>
                                             </td>
-                                            <td className="fw-semibold text-dark">{log.restoredBy}</td>
-                                            <td><span className="badge bg-secondary">{log.restoredByRole || "Quản trị viên"}</span></td>
-                                            <td className="fw-bold text-primary">{log.totalRecordsRestored ?? 0} bản ghi</td>
-                                            <td>
-                                                <span className="badge bg-success-subtle text-success border border-success">
+                                            <td className="fw-semibold text-dark" style={{ padding: '12px 16px' }}>{log.restoredBy}</td>
+                                            <td style={{ padding: '12px 16px' }}><span className="badge rounded-pill" style={{ background: '#F1F4F7', color: '#475569' }}>{log.restoredByRole || "Quản trị viên"}</span></td>
+                                            <td className="fw-bold" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums', padding: '12px 16px' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
                                                     <FaCheck className="me-1" /> Khớp 100%
                                                 </span>
                                             </td>
-                                            <td className="small text-secondary">
+                                            <td className="small text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
                                                 {log.executedAt ? new Date(log.executedAt).toLocaleString("vi-VN") : "—"}
                                             </td>
-                                            <td>
-                                                <span className="badge bg-success">Hoàn Thành</span>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>Hoàn Thành</span>
                                             </td>
                                         </tr>
                                     ))
@@ -500,27 +512,27 @@ export default function BackupManagementPage() {
                 </div>
             ) : (
                 /* Backups Directory Table */
-                <div className="card shadow-sm border-0">
-                    <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <FaDatabase className="text-primary" />
+                <div className="card shadow-sm border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid #E5E9EB' }}>
+                        <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
+                            <FaDatabase style={{ color: '#5E85E6' }} />
                             Danh Sách Bản Sao Lưu Cơ Sở Dữ Liệu Xét Nghiệm
                         </h6>
-                        <small className="text-muted">Tổng cộng {filteredBackups.length} bản sao lưu sẵn sàng</small>
+                        <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {filteredBackups.length} bản sao lưu sẵn sàng</small>
                     </div>
 
                     <div className="table-responsive">
                         <table className="table table-hover align-middle mb-0">
-                            <thead className="table-light text-secondary small text-uppercase">
+                            <thead style={{ background: '#F1F4F7' }}>
                                 <tr>
-                                    <th style={{ minWidth: "150px" }}>Mã Sao Lưu</th>
-                                    <th style={{ minWidth: "220px" }}>Tên Bản Sao Lưu</th>
-                                    <th style={{ minWidth: "140px" }}>Phạm Vi</th>
-                                    <th style={{ minWidth: "110px" }}>Dung Lượng</th>
-                                    <th style={{ minWidth: "150px" }}>Mã SHA-256</th>
-                                    <th style={{ minWidth: "120px" }}>Trạng Thái</th>
-                                    <th style={{ minWidth: "140px" }}>Thời Gian Tạo</th>
-                                    <th style={{ minWidth: "200px" }} className="text-end">Thao Tác</th>
+                                    <th style={{ minWidth: "150px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Sao Lưu</th>
+                                    <th style={{ minWidth: "220px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Tên Bản Sao Lưu</th>
+                                    <th style={{ minWidth: "140px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Phạm Vi</th>
+                                    <th style={{ minWidth: "110px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Dung Lượng</th>
+                                    <th style={{ minWidth: "150px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã SHA-256</th>
+                                    <th style={{ minWidth: "120px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Trạng Thái</th>
+                                    <th style={{ minWidth: "140px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời Gian Tạo</th>
+                                    <th style={{ minWidth: "200px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }} className="text-end">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -539,31 +551,31 @@ export default function BackupManagementPage() {
                                     </tr>
                                 ) : (
                                     filteredBackups.map((item) => (
-                                        <tr key={item.id || item.backupId}>
-                                            <td>
-                                                <span className="font-monospace text-primary fw-bold">
+                                        <tr key={item.id || item.backupId} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span className="font-monospace fw-bold" style={{ color: '#5E85E6' }}>
                                                     {item.backupId}
                                                 </span>
                                             </td>
-                                            <td>
-                                                <div className="fw-bold text-dark">{item.backupName}</div>
-                                                <small className="text-muted">
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <div className="fw-bold" style={{ color: '#0f2743' }}>{item.backupName}</div>
+                                                <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
                                                     {item.totalRecords || 0} bản ghi y khoa • Người tạo: {item.createdBy || 'Quản trị viên'}
                                                 </small>
                                             </td>
-                                            <td>
-                                                <span className={`badge ${
-                                                    item.scope === "PatientTestResults" || item.scope === 1
-                                                        ? "bg-primary-subtle text-primary border border-primary"
-                                                        : "bg-secondary-subtle text-secondary border"
-                                                }`}>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span className="badge rounded-pill" style={{
+                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(94, 133, 230, 0.1)' : '#F1F4F7',
+                                                    color: item.scope === "PatientTestResults" || item.scope === 1 ? '#5E85E6' : '#64748b',
+                                                    border: '1px solid rgba(94, 133, 230, 0.2)'
+                                                }}>
                                                     {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
                                                 </span>
                                             </td>
-                                            <td className="font-monospace text-secondary">
+                                            <td className="font-monospace text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
                                                 {item.fileSizeFormatted || "1.8 MB"}
                                             </td>
-                                            <td>
+                                            <td style={{ padding: '12px 16px' }}>
                                                 <span
                                                     className="font-monospace small text-muted text-truncate d-inline-block"
                                                     style={{ maxWidth: "130px" }}
@@ -572,8 +584,8 @@ export default function BackupManagementPage() {
                                                     {item.checksumSha256 ? `${item.checksumSha256.substring(0, 12)}...` : "--"}
                                                 </span>
                                             </td>
-                                            <td>{renderStatusBadge(item.status)}</td>
-                                            <td className="small text-secondary">
+                                            <td style={{ padding: '12px 16px' }}>{renderStatusBadge(item.status)}</td>
+                                            <td className="small text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
                                                 {item.createdAt ? new Date(item.createdAt).toLocaleString("vi-VN", {
                                                     day: "2-digit",
                                                     month: "2-digit",
@@ -582,7 +594,7 @@ export default function BackupManagementPage() {
                                                     minute: "2-digit"
                                                 }) : "--"}
                                             </td>
-                                            <td className="text-end">
+                                            <td className="text-end" style={{ padding: '12px 16px' }}>
                                                 <div className="d-flex justify-content-end gap-1">
                                                     <button
                                                         type="button"
@@ -590,6 +602,7 @@ export default function BackupManagementPage() {
                                                         title="Kiểm tra toàn vẹn SHA-256"
                                                         onClick={() => handleVerify(item)}
                                                         disabled={verifyingId === item.backupId}
+                                                        style={{ borderRadius: 9999 }}
                                                     >
                                                         {verifyingId === item.backupId ? (
                                                             <div className="spinner-border spinner-border-sm" role="status"></div>
@@ -603,6 +616,7 @@ export default function BackupManagementPage() {
                                                         title="Tải tệp nén sao lưu"
                                                         onClick={() => handleDownload(item)}
                                                         disabled={downloadingId === (item.backupId || item.id)}
+                                                        style={{ borderRadius: 9999 }}
                                                     >
                                                         {downloadingId === (item.backupId || item.id) ? (
                                                             <div className="spinner-border spinner-border-sm" role="status"></div>
@@ -618,6 +632,7 @@ export default function BackupManagementPage() {
                                                             setSelectedBackup(item);
                                                             setShowDetailModal(true);
                                                         }}
+                                                        style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
                                                     >
                                                         <FaEye />
                                                     </button>
@@ -631,16 +646,9 @@ export default function BackupManagementPage() {
                                                                     setSelectedBackup(item);
                                                                     setShowRestoreModal(true);
                                                                 }}
+                                                                style={{ borderRadius: 9999 }}
                                                             >
                                                                 <FaUndo />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-outline-secondary btn-sm"
-                                                                title="Xóa bản sao lưu"
-                                                                onClick={() => handleDeleteBackup(item)}
-                                                            >
-                                                                <FaTrashAlt />
                                                             </button>
                                                         </>
                                                     )}

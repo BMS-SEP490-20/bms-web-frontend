@@ -78,20 +78,20 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
         <div
             className="modal show d-block"
             tabIndex="-1"
-            style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 1050 }}
+            style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0">
-                    <div className="modal-header bg-primary text-white">
+                <div className="modal-content shadow border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="modal-header py-3" style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaDatabase className="fs-5" />
-                            <h5 className="modal-title fw-bold mb-0">
+                            <FaDatabase className="fs-5" style={{ color: '#5E85E6' }} />
+                            <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Tạo Bản Sao Lưu & Lưu Trữ Dữ Liệu Xét Nghiệm (UC80)
                             </h5>
                         </div>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                             disabled={submitting}
                         ></button>
@@ -100,7 +100,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                     <form onSubmit={handleSubmit}>
                         <div className="modal-body p-4">
                             {errorMessage && (
-                                <div className="alert alert-danger py-2 small mb-3">
+                                <div className="alert alert-danger py-2 small mb-3" style={{ borderRadius: 14 }}>
                                     {errorMessage}
                                 </div>
                             )}
@@ -113,11 +113,14 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 <div className="row g-3">
                                     <div className="col-12 col-md-6">
                                         <div
-                                            className={`p-3 border rounded cursor-pointer transition-all ${
-                                                scope === 1 ? "border-primary bg-primary-subtle shadow-xs" : "bg-light"
-                                            }`}
+                                            className="p-3 border transition-all"
                                             onClick={() => handleScopeChange({ target: { value: 1 } })}
-                                            style={{ cursor: "pointer" }}
+                                            style={{
+                                                cursor: "pointer",
+                                                borderRadius: 14,
+                                                borderColor: scope === 1 ? '#5E85E6' : '#E5E9EB',
+                                                background: scope === 1 ? 'rgba(94, 133, 230, 0.08)' : '#F1F4F7'
+                                            }}
                                         >
                                             <div className="form-check">
                                                 <input
@@ -141,11 +144,14 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
 
                                     <div className="col-12 col-md-6">
                                         <div
-                                            className={`p-3 border rounded cursor-pointer transition-all ${
-                                                scope === 2 ? "border-primary bg-primary-subtle shadow-xs" : "bg-light"
-                                            }`}
+                                            className="p-3 border transition-all"
                                             onClick={() => handleScopeChange({ target: { value: 2 } })}
-                                            style={{ cursor: "pointer" }}
+                                            style={{
+                                                cursor: "pointer",
+                                                borderRadius: 14,
+                                                borderColor: scope === 2 ? '#5E85E6' : '#E5E9EB',
+                                                background: scope === 2 ? 'rgba(94, 133, 230, 0.08)' : '#F1F4F7'
+                                            }}
                                         >
                                             <div className="form-check">
                                                 <input
@@ -280,12 +286,13 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                             </div>
                         </div>
 
-                        <div className="modal-footer bg-light">
+                        <div className="modal-footer py-2 px-3" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary"
                                 onClick={onHide}
                                 disabled={submitting}
+                                style={{ borderRadius: 9999 }}
                             >
                                 Hủy Bỏ
                             </button>
@@ -293,6 +300,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 type="submit"
                                 className="btn btn-primary d-flex align-items-center gap-2"
                                 disabled={submitting || !backupName.trim()}
+                                style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                             >
                                 {submitting ? (
                                     <>

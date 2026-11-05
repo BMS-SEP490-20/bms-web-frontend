@@ -29,27 +29,27 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
 
     return (
         <Modal show={Boolean(item)} onHide={loading ? undefined : onClose} centered size="md">
-            <Modal.Header closeButton={!loading} className="bg-danger text-white py-2">
-                <Modal.Title className="fs-6 fw-bold text-white d-flex align-items-center gap-2">
+            <Modal.Header closeButton={!loading} style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
+                <Modal.Title className="fs-6 fw-bold text-danger d-flex align-items-center gap-2">
                     <i className="bi bi-exclamation-triangle-fill"></i>
                     Xác Nhận Xóa Gói Dịch Vụ Xét Nghiệm
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-3">
+            <Modal.Body className="p-4">
                 {error && (
-                    <Alert variant="danger" className="py-2 small mb-3">
+                    <Alert variant="danger" className="py-2 small mb-3" style={{ borderRadius: 14 }}>
                         {error}
                     </Alert>
                 )}
-                <p className="mb-1">
-                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code>{item?.code}</code>)?
+                <p className="mb-1" style={{ color: '#0f2743', fontSize: 15 }}>
+                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code style={{ color: '#5E85E6' }}>{item?.code}</code>)?
                 </p>
                 <small className="text-muted">
                     Hành động này sẽ vô hiệu hóa và đánh dấu xóa gói trên toàn hệ thống quản lý.
                 </small>
             </Modal.Body>
-            <Modal.Footer className="bg-light py-2">
-                <Button variant="outline-secondary" size="sm" onClick={onClose} disabled={loading}>
+            <Modal.Footer style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }} className="py-2 px-3">
+                <Button variant="outline-secondary" size="sm" onClick={onClose} disabled={loading} style={{ borderRadius: 9999 }}>
                     Hủy bỏ
                 </Button>
                 <Button
@@ -58,6 +58,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
                     onClick={handleConfirm}
                     disabled={loading}
                     className="d-flex align-items-center gap-1"
+                    style={{ borderRadius: 9999, boxShadow: '0 4px 14px rgba(239, 68, 68, 0.25)' }}
                 >
                     {loading ? <Spinner size="sm" animation="border" /> : <i className="bi bi-trash"></i>}
                     {loading ? "Đang xóa..." : "Xóa Gói Dịch Vụ"}

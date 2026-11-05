@@ -17,9 +17,9 @@ import { Container, Card, Alert } from "react-bootstrap";
 export default function IotMonitorPage() {
     return (
         <Container className="py-4">
-            <Card className="shadow-sm p-4 text-center border-0">
-                <Alert variant="info" className="m-0">
-                    <i className="bi bi-thermometer-half me-2"></i>
+            <Card className="shadow-sm p-4 text-center rounded-4" style={{ border: '1px solid #E5E9EB', backgroundColor: '#FFFFFF' }}>
+                <Alert variant="info" className="m-0" style={{ borderRadius: '14px', border: '1px solid rgba(94, 133, 230, 0.3)', backgroundColor: 'rgba(94, 133, 230, 0.08)', color: '#2B4C8C' }}>
+                    <i className="bi bi-thermometer-half me-2" style={{ color: '#5E85E6' }}></i>
                     <strong>Giám Sát Nhiệt Độ Tủ Lưu Trữ Mẫu 2-8°C (IoT):</strong> Hệ thống giám sát nhiệt độ, độ ẩm tủ trữ sinh phẩm và cảnh báo sự cố vi khí hậu.
                 </Alert>
             </Card>

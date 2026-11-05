@@ -360,7 +360,8 @@ export const appointmentService = {
       }
 
       // Check if already checked in
-      if (appointment.status === 'checked_in') {
+      const statusLower = (appointment.status || appointment.Status || '').toLowerCase();
+      if (statusLower === 'checked_in' || statusLower === 'checked-in') {
         const checkedInTime = appointment.checkedInAt
           ? new Date(appointment.checkedInAt).toLocaleString('vi-VN')
           : 'N/A';
@@ -370,14 +371,13 @@ export const appointmentService = {
         };
       }
 
-      // Accept 'scheduled' and 'confirmed' statuses
-      if (!['scheduled', 'confirmed'].includes(appointment.status)) {
+      // Accept 'scheduled', 'confirmed', and 'paid' statuses (case-insensitive)
+      if (!['scheduled', 'confirmed', 'paid'].includes(statusLower)) {
         return { success: false, message: 'Chỉ có thể check-in lịch hẹn đã thanh toán hoặc đã xác nhận' };
       }
 
-      // Validate check-in window (30 mins before to 2 hours after scheduled time)
+      // Validate check-in window (for self-service; receptionist desk has intake override)
       const now = new Date();
-      // Helper function to get appointment datetime
       const getAppointmentDateTime = (apt) => {
         if (!apt || !apt.appointmentDate) return null;
         try {
@@ -391,7 +391,7 @@ export const appointmentService = {
       };
       const appointmentDateTime = getAppointmentDateTime(appointment);
 
-      if (appointmentDateTime) {
+      if (appointmentDateTime && !receptionistId) {
         const windowStart = new Date(appointmentDateTime.getTime() - 30 * 60 * 1000); // 30 mins before
         const windowEnd = new Date(appointmentDateTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after
 

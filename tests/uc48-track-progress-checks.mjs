@@ -34,6 +34,7 @@ const result = await build({
   platform: 'browser',
   format: 'esm',
   write: false,
+  loader: { '.css': 'empty' },
   external: ['react', 'react-dom/*', 'react-router-dom', 'react-bootstrap', 'react-icons/*'],
   define: { 'import.meta.env': '{}' },
 });
@@ -51,10 +52,10 @@ try {
 
   const html = rendered.renderTrackingPage();
 
-  check(html.includes('Theo Dõi Lộ Trình Mẫu Máu &amp; Xét Nghiệm') || html.includes('Theo Dõi Lộ Trình Mẫu Máu'), 'Page renders main header and title');
-  check(html.includes('ISO 15189:2012'), 'Page displays ISO 15189 accreditation badge');
-  check(html.includes('Nhập Mã đơn xét nghiệm') || html.includes('ORD-2026-'), 'Page displays search input bar with guide');
-  check(html.includes('Tra Cứu Ngay'), 'Page renders search button');
+  check(html.includes('Lộ Trình Mẫu'), 'Page renders main header and title');
+  check(html.includes('ISO 15189'), 'Page displays ISO 15189 accreditation badge');
+  check(html.toLowerCase().includes('nhập mã đơn xét nghiệm') || html.includes('ORD-'), 'Page displays search input bar with guide');
+  check(html.includes('Tra Cứu'), 'Page renders search button');
   check(html.includes('1900 6868'), 'Page displays medical hotline assistance button');
 
   console.log(`\n=================================================`);

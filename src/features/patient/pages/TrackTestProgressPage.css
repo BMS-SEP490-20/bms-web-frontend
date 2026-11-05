@@ -1,0 +1,558 @@
+/* ==========================================================================
+   BMS Clinical Specimen Tracking Page (UC48)
+   Clean, Professional, Non-AI Human-Centered Medical Design
+   Compliant with AGENTS-DESIGN.md and ISO 15189:2022
+   ========================================================================== */
+
+.bms-tracking-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bms-tracking-main {
+  flex: 1;
+  padding: 32px 0 64px 0;
+}
+
+/* Header Section */
+.bms-tracking-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 28px auto;
+}
+
+.bms-tracking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.bms-tracking-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.bms-tracking-subtitle {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Search Box Container */
+.bms-tracking-search-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bms-tracking-search-card:focus-within {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+.bms-search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bms-search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.bms-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.bms-search-input {
+  width: 100%;
+  height: 48px;
+  padding: 10px 40px 10px 42px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #0f172a;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.bms-search-input:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.bms-search-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.bms-search-clear-btn:hover {
+  color: #475569;
+  background-color: #f1f5f9;
+}
+
+.bms-search-submit-btn {
+  height: 48px;
+  padding: 0 24px;
+  background-color: #1e40af;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.bms-search-submit-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.2);
+}
+
+.bms-search-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Quick Demo Chips */
+.bms-demo-chips {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.bms-demo-chips-label {
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bms-demo-chip {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: Consolas, "Roboto Mono", monospace;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bms-demo-chip:hover {
+  background-color: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.bms-demo-chip-badge {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.bms-demo-chip:hover .bms-demo-chip-badge {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Initial Guide Section (When No Search Yet) */
+.bms-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 768px) {
+  .bms-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bms-guide-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bms-guide-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.06);
+}
+
+.bms-guide-step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background-color: #eff6ff;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.bms-guide-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.bms-guide-card-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* 6-Stage Overview Strip */
+.bms-stages-overview {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.bms-stages-overview-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.bms-stages-overview-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.bms-stages-pills-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 992px) {
+  .bms-stages-pills-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .bms-stages-pills-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bms-stage-pill {
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bms-stage-pill-num {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e40af;
+  background-color: #eff6ff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.bms-stage-pill-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+/* Security & Help Footer Box */
+.bms-trust-box {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.bms-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bms-trust-item svg {
+  color: #0284c7;
+}
+
+/* Result View Layout */
+.bms-result-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bms-result-meta-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.bms-specimen-id-badge {
+  font-family: Consolas, "Roboto Mono", monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+.bms-specimen-detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bms-specimen-detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13.5px;
+}
+
+.bms-specimen-detail-item:last-child {
+  border-bottom: none;
+}
+
+.bms-specimen-detail-label {
+  color: #64748b;
+}
+
+.bms-specimen-detail-val {
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+}
+
+/* Timeline Stepper */
+.bms-stepper-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.bms-stepper-timeline {
+  position: relative;
+  padding-left: 36px;
+  margin-top: 16px;
+}
+
+.bms-stepper-timeline::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  bottom: 24px;
+  width: 2px;
+  background-color: #e2e8f0;
+}
+
+.bms-stepper-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.bms-stepper-item:last-child {
+  margin-bottom: 0;
+}
+
+.bms-stepper-node {
+  position: absolute;
+  left: -36px;
+  top: 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+
+.bms-stepper-node.completed {
+  background-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #ecfdf5;
+}
+
+.bms-stepper-node.inprogress {
+  background-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #eff6ff;
+  animation: pulse-node 2s infinite;
+}
+
+@keyframes pulse-node {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.bms-stepper-node.warning {
+  background-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #fef3c7;
+}
+
+.bms-stepper-node.rejected {
+  background-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #fee2e2;
+}
+
+.bms-stepper-node.pending {
+  background-color: #e2e8f0;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.bms-step-card {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.bms-step-card.active-step {
+  border-color: #93c5fd;
+  background-color: #f0f7ff;
+}
+
+.bms-step-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.bms-step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.bms-step-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.bms-step-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12.5px;
+  color: #64748b;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.bms-step-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+

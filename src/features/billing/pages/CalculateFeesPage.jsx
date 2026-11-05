@@ -1,557 +1,761 @@
 /**
  * @file CalculateFeesPage.jsx
- * @description Interactive clinical fee calculation and BHYT co-pay estimator (UC53 / Calculate Fees).
- * Conforms to: Production Standards, Clean Architecture, Decree 123/2020/ND-CP & AGENTS-DESIGN.md.
+ * @description Trình dự toán và tính phí xét nghiệm y tế tự động (UC53 / Calculate Fees).
+ * Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí điều dưỡng lấy mẫu tại nhà,
+ * chính sách ưu tiên theo Luật Khám chữa bệnh 2023, và mã giảm giá/voucher theo chuẩn Bộ Y Tế.
+ * 
+ * Tuân thủ: Clean Medical UI (Rule 19), Nghị định 123/2020/NĐ-CP (Hóa đơn điện tử),
+ * Quyết định 3618/QĐ-BHXH, Quyết định 2429/QĐ-BYT, ISO 15189:2022.
  */
 
-import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-    FaCalculator,
-    FaFileInvoiceDollar,
-    FaShieldAlt,
-    FaHome,
-    FaClinicMedical,
-    FaTag,
-    FaCheckCircle,
-    FaExclamationCircle,
-    FaPrint,
-    FaArrowRight,
-    FaRedo,
-    FaFlask,
-    FaUserCheck
+  Card,
+  Row,
+  Col,
+  Button,
+  Form,
+  Badge,
+  InputGroup,
+  Spinner,
+  Alert,
+  Table
+} from "react-bootstrap";
+import {
+  FaCalculator,
+  FaFileInvoiceDollar,
+  FaShieldAlt,
+  FaHome,
+  FaClinicMedical,
+  FaTag,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaPrint,
+  FaArrowRight,
+  FaRedo,
+  FaUserCheck,
+  FaReceipt,
+  FaVial
 } from "react-icons/fa";
 import { calculateFee, validateVoucherCode } from "../api/feeCalculationApi";
-
-const AVAILABLE_PACKAGES = [
-    { id: "PKG-CBC-01", code: "CBC-01", name: "Tổng Phân Tích Tế Bào Máu (CBC 24 Thông Số)", category: "Huyết học", price: 150000, tube: "EDTA (Tím)" },
-    { id: "PKG-BIO-01", code: "BIO-01", name: "Sinh Hóa Máu Cơ Bản (Glucose, Ure, Creatinine)", category: "Sinh hóa", price: 250000, tube: "SST (Vàng)" },
-    { id: "PKG-LIPID-01", code: "LIPID-01", name: "Bộ Mỡ Máu Toàn Phần (Cholesterol, Triglyceride, HDL, LDL)", category: "Sinh hóa", price: 220000, tube: "SST (Vàng)" },
-    { id: "PKG-LIVER-01", code: "LIVER-01", name: "Bộ Men Gan Đầy Đủ (AST, ALT, GGT)", category: "Sinh hóa", price: 180000, tube: "Heparin (Xanh lá)" },
-    { id: "PKG-GENERAL-01", code: "GEN-01", name: "Gói Xét Nghiệm Sức Khỏe Tổng Quát Định Kỳ Toàn Diện", category: "Tổng quát", price: 1200000, tube: "Đa ống nghiệm" }
-];
+import { medicalService } from "../../../services/medicalService";
+import "./CalculateFeesPage.css";
 
 export default function CalculateFeesPage() {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-    // Form states
-    const [selectedPackageIds, setSelectedPackageIds] = useState(["PKG-CBC-01", "PKG-BIO-01"]);
-    const [serviceType, setServiceType] = useState("Clinic"); // Clinic | HomeCollection
-    const [insuranceCard, setInsuranceCard] = useState("");
-    const [voucherInput, setVoucherInput] = useState("");
-    const [appliedVoucher, setAppliedVoucher] = useState(null);
-    const [isPriority, setIsPriority] = useState(false);
+  // Dynamic packages from Database
+  const [packages, setPackages] = useState([]);
+  const [loadingPackages, setLoadingPackages] = useState(true);
 
-    // Results state
-    const [calculation, setCalculation] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
+  // Form states
+  const [selectedPackageCodes, setSelectedPackageCodes] = useState([]);
+  const [serviceType, setServiceType] = useState("Clinic"); // Clinic | HomeCollection
+  const [insuranceCard, setInsuranceCard] = useState("");
+  const [voucherInput, setVoucherInput] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [isPriority, setIsPriority] = useState(false);
 
-    // Initial query params parsing
-    useEffect(() => {
-        const pkgParam = searchParams.get("packages");
-        if (pkgParam) {
-            const list = pkgParam.split(",").map((s) => s.trim()).filter(Boolean);
-            if (list.length > 0) setSelectedPackageIds(list);
+  // Results state
+  const [calculation, setCalculation] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // 1. Fetch dynamic packages from database on mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCatalog = async () => {
+      setLoadingPackages(true);
+      try {
+        const res = await medicalService.getAllServices();
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          if (isMounted) {
+            setPackages(res.data);
+            // Default selection: select first package if none selected yet
+            const defaultCode = res.data[0].code || res.data[0].package_code || res.data[0].id;
+            setSelectedPackageCodes([defaultCode]);
+          }
+        } else {
+          // Fallback packages if DB catalog endpoint has different shape
+          const fallback = [
+            { id: "PKG-CBC-01", code: "CBC-01", name: "Tổng Phân Tích Tế Bào Máu Ngoại Vi (CBC 24 Thông Số)", category: "Huyết học", price: 180000, tube: "EDTA (Tím)" },
+            { id: "PKG-BIOCHEM-01", code: "BIOCHEM-01", name: "Sinh Hóa Máu Cơ Bản (Glucose, AST/ALT, Ure, Creatinine)", category: "Sinh hóa", price: 250000, tube: "SST (Vàng)" },
+            { id: "PKG-LIPID-01", code: "LIPID-01", name: "Bộ Mỡ Máu Toàn Phần (Cholesterol, Triglyceride, HDL, LDL)", category: "Sinh hóa", price: 200000, tube: "SST (Vàng)" },
+            { id: "PKG-HEPATITIS-01", code: "HEPATITIS-01", name: "Tầm Soát Viêm Gan Siêu Vi B/C (HBsAg, Anti-HCV)", category: "Miễn dịch", price: 320000, tube: "Serum (Đỏ)" },
+            { id: "PKG-COAGULATION-01", code: "COAGULATION-01", name: "Đông Máu Cơ Bản (PT, INR, aPTT, Fibrinogen)", category: "Huyết học", price: 220000, tube: "Citrate (Xanh dương)" }
+          ];
+          if (isMounted) {
+            setPackages(fallback);
+            setSelectedPackageCodes(["CBC-01"]);
+          }
         }
-        const serviceParam = searchParams.get("serviceType");
-        if (serviceParam) {
-            setServiceType(serviceParam.toLowerCase() === "homecollection" ? "HomeCollection" : "Clinic");
-        }
-        const bhytParam = searchParams.get("bhyt");
-        if (bhytParam) setInsuranceCard(bhytParam);
-        const voucherParam = searchParams.get("voucher");
-        if (voucherParam) setVoucherInput(voucherParam);
-    }, [searchParams]);
-
-    // Perform calculation whenever input changes
-    const performCalculation = async (voucherCodeToUse = appliedVoucher?.code || voucherInput) => {
-        setLoading(true);
-        setErrorMsg("");
-        try {
-            const payload = {
-                packageIds: selectedPackageIds,
-                individualTestIds: [],
-                serviceType,
-                insuranceCardNumber: insuranceCard.trim(),
-                voucherCode: voucherCodeToUse ? voucherCodeToUse.trim() : null,
-                isPriorityPatient: isPriority
-            };
-            const result = await calculateFee(payload);
-            setCalculation(result);
-        } catch (err) {
-            setErrorMsg("Không thể tính phí: " + (err.message || "Lỗi kết nối"));
-        } finally {
-            setLoading(false);
-        }
+      } catch (err) {
+        console.warn("Failed to fetch service packages:", err);
+      } finally {
+        if (isMounted) setLoadingPackages(false);
+      }
     };
 
-    useEffect(() => {
-        performCalculation();
-    }, [selectedPackageIds, serviceType, insuranceCard, isPriority]);
+    fetchCatalog();
+    return () => { isMounted = false; };
+  }, []);
 
-    // Handle package toggle
-    const handleTogglePackage = (id) => {
-        setSelectedPackageIds((prev) =>
-            prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-        );
-    };
+  // 2. Initial query params parsing
+  useEffect(() => {
+    const pkgParam = searchParams.get("packages");
+    if (pkgParam) {
+      const list = pkgParam.split(",").map((s) => s.trim()).filter(Boolean);
+      if (list.length > 0) setSelectedPackageCodes(list);
+    }
+    const serviceParam = searchParams.get("serviceType");
+    if (serviceParam) {
+      setServiceType(serviceParam.toLowerCase() === "homecollection" ? "HomeCollection" : "Clinic");
+    }
+    const bhytParam = searchParams.get("bhyt");
+    if (bhytParam) setInsuranceCard(bhytParam);
+    const voucherParam = searchParams.get("voucher");
+    if (voucherParam) setVoucherInput(voucherParam);
+  }, [searchParams]);
 
-    // Apply voucher action
-    const handleApplyVoucher = async () => {
-        if (!voucherInput.trim()) return;
-        try {
-            const vRes = await validateVoucherCode(voucherInput.trim(), calculation?.testSubTotal || 0, serviceType);
-            if (vRes.isValid) {
-                setAppliedVoucher({
-                    code: voucherInput.trim().toUpperCase(),
-                    discountAmount: vRes.discountAmount,
-                    description: vRes.description
-                });
-                performCalculation(voucherInput.trim().toUpperCase());
-            } else {
-                setErrorMsg(vRes.message || "Mã ưu đãi không hợp lệ.");
-            }
-        } catch (err) {
-            setErrorMsg("Lỗi khi kiểm tra mã ưu đãi.");
-        }
-    };
+  // 3. Calculation engine call
+  const performCalculation = async (voucherCodeToUse = appliedVoucher?.code || voucherInput) => {
+    if (selectedPackageCodes.length === 0) {
+      setCalculation(null);
+      return;
+    }
 
-    const handleClearVoucher = () => {
-        setVoucherInput("");
-        setAppliedVoucher(null);
-        performCalculation("");
-    };
+    setCalculating(true);
+    setErrorMsg("");
+    try {
+      const payload = {
+        packageIds: selectedPackageCodes,
+        individualTestIds: [],
+        serviceType,
+        insuranceCardNumber: insuranceCard.trim(),
+        voucherCode: voucherCodeToUse ? voucherCodeToUse.trim() : null,
+        isPriorityPatient: isPriority
+      };
+      const result = await calculateFee(payload);
+      setCalculation(result);
+    } catch (err) {
+      console.error("Fee calculation error:", err);
+      setErrorMsg("Không thể tính phí: " + (err.response?.data?.message || err.message || "Vui lòng kiểm tra lại thông tin."));
+    } finally {
+      setCalculating(false);
+    }
+  };
 
-    const handlePrint = () => {
-        window.print();
-    };
+  useEffect(() => {
+    if (selectedPackageCodes.length > 0) {
+      performCalculation();
+    }
+  }, [selectedPackageCodes, serviceType, insuranceCard, isPriority]);
 
-    const formatVnd = (num) => {
-        return (num || 0).toLocaleString("vi-VN") + " ₫";
-    };
+  // Package toggle handler
+  const handleTogglePackage = (code) => {
+    setSelectedPackageCodes((prev) =>
+      prev.includes(code)
+        ? prev.length > 1
+          ? prev.filter((p) => p !== code)
+          : prev // keep at least 1 package selected
+        : [...prev, code]
+    );
+  };
 
-    return (
-        <div className="min-h-screen bg-[#F5F7FB] py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner">
-                                <FaCalculator />
+  // Voucher handler
+  const handleApplyVoucher = async () => {
+    if (!voucherInput.trim()) return;
+    try {
+      const vRes = await validateVoucherCode(voucherInput.trim(), calculation?.testSubTotal || 0, serviceType);
+      if (vRes.isValid) {
+        setAppliedVoucher({
+          code: voucherInput.trim().toUpperCase(),
+          discountAmount: vRes.discountAmount,
+          description: vRes.description
+        });
+        performCalculation(voucherInput.trim().toUpperCase());
+      } else {
+        setErrorMsg(vRes.message || "Mã ưu đãi không hợp lệ.");
+      }
+    } catch (err) {
+      setErrorMsg("Lỗi khi kiểm tra mã ưu đãi.");
+    }
+  };
+
+  const handleClearVoucher = () => {
+    setVoucherInput("");
+    setAppliedVoucher(null);
+    performCalculation("");
+  };
+
+  const handleReset = () => {
+    if (packages.length > 0) {
+      const first = packages[0].code || packages[0].package_code || packages[0].id;
+      setSelectedPackageCodes([first]);
+    }
+    setServiceType("Clinic");
+    setInsuranceCard("");
+    setVoucherInput("");
+    setAppliedVoucher(null);
+    setIsPriority(false);
+    setErrorMsg("");
+  };
+
+  const formatVnd = (num) => {
+    return (num || 0).toLocaleString("vi-VN") + " ₫";
+  };
+
+  return (
+    <div className="calc-fees-page py-4 px-3 bg-light min-vh-100">
+      <div className="container-fluid" style={{ maxWidth: 1320 }}>
+        {/* Top Header Card */}
+        <Card className="shadow-sm border-0 rounded-3 mb-4">
+          <Card.Body className="p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div className="d-flex align-items-center gap-3">
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 12,
+                  backgroundColor: "#eff6ff",
+                  color: "#1d4ed8",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 24
+                }}
+              >
+                <FaCalculator />
+              </div>
+              <div>
+                <div className="text-primary small fw-bold text-uppercase" style={{ letterSpacing: "0.5px" }}>
+                  UC53 • TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
+                </div>
+                <h2 className="h4 fw-bold text-dark mb-1">
+                  Dự Toán & Tính Phí Xét Nghiệm Y Tế
+                </h2>
+                <div className="text-muted small">
+                  Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí điều dưỡng lấy mẫu tại nhà và mã giảm giá chuẩn Bộ Y Tế.
+                </div>
+              </div>
+            </div>
+
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={handleReset}
+                className="d-flex align-items-center gap-1 px-3 py-2 fw-semibold"
+              >
+                <FaRedo /> Làm mới
+              </Button>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => window.print()}
+                className="d-flex align-items-center gap-1 px-3 py-2 fw-semibold"
+              >
+                <FaPrint /> In Dự Toán
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+
+        {errorMsg && (
+          <Alert variant="danger" dismissible onClose={() => setErrorMsg("")} className="d-flex align-items-center gap-2 shadow-sm mb-4">
+            <FaExclamationCircle className="fs-5 flex-shrink-0" />
+            <span>{errorMsg}</span>
+          </Alert>
+        )}
+
+        {/* Main 2-Column Grid */}
+        <Row className="g-4">
+          {/* Left Column: Selection Controls */}
+          <Col xs={12} lg={7}>
+            {/* 1. Package Catalog Selection */}
+            <Card className="shadow-sm border-0 rounded-3 mb-4">
+              <Card.Header className="bg-white border-bottom py-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Badge bg="primary" pill style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>1</Badge>
+                  <h5 className="mb-0 fw-bold text-dark" style={{ fontSize: "1.05rem" }}>
+                    Chọn Danh Mục Gói Xét Nghiệm
+                  </h5>
+                </div>
+                <p className="text-muted small mb-0 mt-1">
+                  Đánh dấu chọn các gói xét nghiệm theo chỉ định của bác sĩ để hệ thống tính giá chuẩn từ cơ sở dữ liệu.
+                </p>
+              </Card.Header>
+              <Card.Body className="p-3">
+                {loadingPackages ? (
+                  <div className="text-center py-4 text-muted">
+                    <Spinner animation="border" size="sm" variant="primary" className="me-2" />
+                    Đang tải danh mục gói xét nghiệm từ CSDL...
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column gap-2">
+                    {packages.map((pkg) => {
+                      const code = pkg.code || pkg.package_code || pkg.Code || pkg.id;
+                      const name = pkg.name || pkg.package_name || pkg.Name || "Gói xét nghiệm";
+                      const price = pkg.price || pkg.Price || 0;
+                      const tube = pkg.tube || pkg.sample_tube || "Chuẩn ISO 15189";
+                      const category = pkg.category || "Xét nghiệm tổng quát";
+                      const checked = selectedPackageCodes.includes(code);
+
+                      return (
+                        <div
+                          key={code}
+                          onClick={() => handleTogglePackage(code)}
+                          style={{
+                            border: checked ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                            backgroundColor: checked ? "#eff6ff" : "#ffffff",
+                            borderRadius: 10,
+                            padding: "14px 16px",
+                            cursor: "pointer",
+                            transition: "all 0.15s ease-in-out"
+                          }}
+                          className="d-flex align-items-start gap-3"
+                        >
+                          <Form.Check
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {}}
+                            style={{ marginTop: 2, cursor: "pointer" }}
+                          />
+                          <div className="flex-grow-1">
+                            <div className="d-flex justify-content-between align-items-center gap-2">
+                              <span className="fw-bold text-dark" style={{ fontSize: "0.95rem" }}>
+                                {name}
+                              </span>
+                              <span className="fw-bold text-primary text-nowrap" style={{ fontSize: "1rem" }}>
+                                {formatVnd(price)}
+                              </span>
                             </div>
-                            <div>
-                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
-                                    UC53 • TÍNH PHÍ XÉT NGHIỆM TỰ ĐỘNG
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 mt-1">
-                                    Dự Toán & Tính Phí Xét Nghiệm
-                                </h1>
+                            <div className="d-flex flex-wrap align-items-center gap-2 mt-1 small text-muted">
+                              <Badge bg="light" text="dark" className="border">
+                                Mã: {code}
+                              </Badge>
+                              <span>•</span>
+                              <span>Chuyên khoa: {category}</span>
+                              <span>•</span>
+                              <Badge bg="info" text="white">
+                                <FaVial className="me-1" />
+                                Ống: {tube}
+                              </Badge>
                             </div>
+                          </div>
                         </div>
-                        <p className="text-slate-500 text-sm mt-2">
-                            Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí lấy mẫu tại nhà, và mã voucher theo tiêu chuẩn Bộ Y Tế.
-                        </p>
-                    </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
 
-                    <div className="flex items-center gap-2 self-stretch md:self-auto">
-                        <button
-                            onClick={() => {
-                                setSelectedPackageIds(["PKG-CBC-01"]);
-                                setServiceType("Clinic");
-                                setInsuranceCard("");
-                                setVoucherInput("");
-                                setAppliedVoucher(null);
-                                setIsPriority(false);
-                            }}
-                            className="px-3 py-2 text-sm text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1.5 transition-colors"
+            {/* 2. Service Reception Location */}
+            <Card className="shadow-sm border-0 rounded-3 mb-4">
+              <Card.Header className="bg-white border-bottom py-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Badge bg="primary" pill style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>2</Badge>
+                  <h5 className="mb-0 fw-bold text-dark" style={{ fontSize: "1.05rem" }}>
+                    Hình Thức Tiếp Nhận Bệnh Phẩm
+                  </h5>
+                </div>
+                <p className="text-muted small mb-0 mt-1">
+                  Lựa chọn địa điểm thực hiện kỹ thuật lấy mẫu máu và xét nghiệm theo nhu cầu người bệnh.
+                </p>
+              </Card.Header>
+              <Card.Body className="p-3">
+                <Row className="g-3">
+                  <Col xs={12} sm={6}>
+                    <div
+                      onClick={() => setServiceType("Clinic")}
+                      style={{
+                        border: serviceType === "Clinic" ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                        backgroundColor: serviceType === "Clinic" ? "#eff6ff" : "#ffffff",
+                        borderRadius: 10,
+                        padding: 16,
+                        cursor: "pointer",
+                        height: "100%",
+                        transition: "all 0.15s ease"
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-3">
+                        <div
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 8,
+                            backgroundColor: serviceType === "Clinic" ? "#1d4ed8" : "#f1f5f9",
+                            color: serviceType === "Clinic" ? "#ffffff" : "#64748b",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 18
+                          }}
                         >
-                            <FaRedo className="text-xs" /> Làm mới
-                        </button>
-                        <button
-                            onClick={handlePrint}
-                            className="px-4 py-2 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg font-medium flex items-center gap-2 transition-colors"
-                        >
-                            <FaPrint /> In Dự Toán
-                        </button>
+                          <FaClinicMedical />
+                        </div>
+                        <div>
+                          <div className="fw-bold text-dark">Tại Phòng Khám</div>
+                          <Badge bg="success" className="mt-1">
+                            Miễn phí dịch vụ
+                          </Badge>
+                        </div>
+                      </div>
+                      <p className="text-muted small mt-2 mb-0">
+                        Lấy mẫu trực tiếp tại Phòng Lấy Mẫu 101 BMS. Không phát sinh chi phí điều phối nhân sự.
+                      </p>
                     </div>
+                  </Col>
+
+                  <Col xs={12} sm={6}>
+                    <div
+                      onClick={() => setServiceType("HomeCollection")}
+                      style={{
+                        border: serviceType === "HomeCollection" ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                        backgroundColor: serviceType === "HomeCollection" ? "#eff6ff" : "#ffffff",
+                        borderRadius: 10,
+                        padding: 16,
+                        cursor: "pointer",
+                        height: "100%",
+                        transition: "all 0.15s ease"
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-3">
+                        <div
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 8,
+                            backgroundColor: serviceType === "HomeCollection" ? "#1d4ed8" : "#f1f5f9",
+                            color: serviceType === "HomeCollection" ? "#ffffff" : "#64748b",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 18
+                          }}
+                        >
+                          <FaHome />
+                        </div>
+                        <div>
+                          <div className="fw-bold text-dark">Lấy Mẫu Tận Nơi</div>
+                          <Badge bg="warning" text="dark" className="mt-1 fw-bold">
+                            +150.000 ₫ phụ phí
+                          </Badge>
+                        </div>
+                      </div>
+                      <p className="text-muted small mt-2 mb-0">
+                        Điều dưỡng đến tận nhà người bệnh, bảo quản bệnh phẩm chuẩn chuỗi lạnh ISO 15189:2022.
+                      </p>
+                    </div>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+
+            {/* 3. BHYT & Priority Policy */}
+            <Card className="shadow-sm border-0 rounded-3 mb-4">
+              <Card.Header className="bg-white border-bottom py-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Badge bg="primary" pill style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>3</Badge>
+                  <h5 className="mb-0 fw-bold text-dark" style={{ fontSize: "1.05rem" }}>
+                    Bảo Hiểm Y Tế & Chế Độ Ưu Tiên
+                  </h5>
+                </div>
+              </Card.Header>
+              <Card.Body className="p-3">
+                <Form.Group className="mb-3">
+                  <Form.Label className="small text-muted fw-bold text-uppercase">
+                    Mã Thẻ BHYT (15 Ký tự chuẩn Bảo Hiểm Xã Hội Việt Nam)
+                  </Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text className="bg-light text-muted">
+                      <FaShieldAlt />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      placeholder="Ví dụ: DN4791234567890 hoặc TE1012345678901..."
+                      value={insuranceCard}
+                      onChange={(e) => setInsuranceCard(e.target.value.toUpperCase())}
+                      className="font-monospace text-uppercase"
+                    />
+                  </InputGroup>
+                  <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
+                    <span className="text-muted small">Thử nhanh mã chuẩn:</span>
+                    <Badge
+                      bg="light"
+                      text="primary"
+                      className="border cursor-pointer"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setInsuranceCard("TE1012345678901")}
+                    >
+                      TE (Trẻ em &lt;6t: 100%)
+                    </Badge>
+                    <Badge
+                      bg="light"
+                      text="primary"
+                      className="border cursor-pointer"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setInsuranceCard("DN4791234567890")}
+                    >
+                      DN (Người lao động: 80%)
+                    </Badge>
+                    <Badge
+                      bg="light"
+                      text="primary"
+                      className="border cursor-pointer"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setInsuranceCard("CN3012345678901")}
+                    >
+                      CN (Hộ cận nghèo: 95%)
+                    </Badge>
+                  </div>
+                </Form.Group>
+
+                <div className="p-3 bg-light rounded-3 border">
+                  <Form.Check
+                    type="checkbox"
+                    id="priorityCheck"
+                    checked={isPriority}
+                    onChange={(e) => setIsPriority(e.target.checked)}
+                    label={
+                      <div>
+                        <span className="fw-bold text-dark">Đối tượng ưu tiên theo Luật Khám chữa bệnh 2023</span>
+                        <div className="text-muted small mt-0.5">
+                          Người cao tuổi ≥ 80 tuổi, Trẻ em dưới 6 tuổi, Người khuyết tật đặc biệt nặng (Giảm thêm 5% viện phí).
+                        </div>
+                      </div>
+                    }
+                  />
+                </div>
+              </Card.Body>
+            </Card>
+
+            {/* 4. Voucher Code */}
+            <Card className="shadow-sm border-0 rounded-3 mb-4">
+              <Card.Header className="bg-white border-bottom py-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Badge bg="primary" pill style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>4</Badge>
+                  <h5 className="mb-0 fw-bold text-dark" style={{ fontSize: "1.05rem" }}>
+                    Mã Giảm Giá & Phiếu Quà Tặng (Voucher)
+                  </h5>
+                </div>
+              </Card.Header>
+              <Card.Body className="p-3">
+                <div className="d-flex gap-2 mb-2">
+                  <InputGroup>
+                    <InputGroup.Text className="bg-light text-muted">
+                      <FaTag />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập mã khuyến mãi (BMS10, FREEHOME, VIP50...)"
+                      value={voucherInput}
+                      onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                      className="font-monospace text-uppercase"
+                    />
+                  </InputGroup>
+                  <Button variant="primary" onClick={handleApplyVoucher} className="px-4 fw-bold">
+                    Áp Dụng
+                  </Button>
                 </div>
 
-                {errorMsg && (
-                    <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl flex items-center gap-3 text-sm">
-                        <FaExclamationCircle className="text-rose-500 flex-shrink-0" />
-                        <span>{errorMsg}</span>
+                {appliedVoucher && (
+                  <Alert variant="success" className="d-flex justify-content-between align-items-center py-2 px-3 mb-2 rounded-3 small">
+                    <div className="d-flex align-items-center gap-2">
+                      <FaCheckCircle className="text-success" />
+                      <span>
+                        Mã <strong>{appliedVoucher.code}</strong>: {appliedVoucher.description} (-{formatVnd(appliedVoucher.discountAmount)})
+                      </span>
                     </div>
+                    <Button variant="link" size="sm" onClick={handleClearVoucher} className="text-danger p-0 fw-bold text-decoration-none">
+                      Hủy áp dụng
+                    </Button>
+                  </Alert>
                 )}
 
-                {/* Main Grid: Form Inputs (Left) and Live Price Summary (Right) */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* Left Column: Configuration Controls */}
-                    <div className="lg:col-span-7 space-y-6">
-                        {/* 1. Package Selection */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-                            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
-                                Chọn Danh Mục Gói Xét Nghiệm
-                            </h2>
-                            <p className="text-xs text-slate-500">
-                                Đánh dấu chọn các gói xét nghiệm hoặc chỉ định của bác sĩ để hệ thống tính giá chuẩn.
-                            </p>
-
-                            <div className="space-y-2.5">
-                                {AVAILABLE_PACKAGES.map((pkg) => {
-                                    const checked = selectedPackageIds.includes(pkg.id);
-                                    return (
-                                        <label
-                                            key={pkg.id}
-                                            onClick={() => handleTogglePackage(pkg.id)}
-                                            className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                                                checked
-                                                    ? "bg-blue-50/60 border-blue-300 ring-1 ring-blue-400/20"
-                                                    : "bg-white border-slate-200 hover:border-slate-300"
-                                            }`}
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={checked}
-                                                onChange={() => {}}
-                                                className="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
-                                            />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <span className="font-semibold text-slate-800 text-sm">
-                                                        {pkg.name}
-                                                    </span>
-                                                    <span className="font-bold text-blue-700 text-sm whitespace-nowrap">
-                                                        {formatVnd(pkg.price)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                                                    <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">
-                                                        Mã: {pkg.code}
-                                                    </span>
-                                                    <span>•</span>
-                                                    <span>Ống mẫu: {pkg.tube}</span>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* 2. Service Location Type */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-                            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
-                                Hình Thức Tiếp Nhận Mẫu
-                            </h2>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div
-                                    onClick={() => setServiceType("Clinic")}
-                                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                                        serviceType === "Clinic"
-                                            ? "bg-blue-50/60 border-blue-400 ring-2 ring-blue-500/20"
-                                            : "bg-white border-slate-200 hover:border-slate-300"
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-lg ${serviceType === "Clinic" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>
-                                            <FaClinicMedical className="text-lg" />
-                                        </div>
-                                        <div>
-                                            <div className="font-semibold text-slate-800 text-sm">Tại Phòng Khám</div>
-                                            <div className="text-xs text-emerald-600 font-medium">Miễn phí dịch vụ</div>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-slate-500 mt-2">
-                                        Lấy mẫu trực tiếp tại phòng khám đa khoa BMS. Không phát sinh chi phí vận chuyển.
-                                    </p>
-                                </div>
-
-                                <div
-                                    onClick={() => setServiceType("HomeCollection")}
-                                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                                        serviceType === "HomeCollection"
-                                            ? "bg-blue-50/60 border-blue-400 ring-2 ring-blue-500/20"
-                                            : "bg-white border-slate-200 hover:border-slate-300"
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-lg ${serviceType === "HomeCollection" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>
-                                            <FaHome className="text-lg" />
-                                        </div>
-                                        <div>
-                                            <div className="font-semibold text-slate-800 text-sm">Lấy Mẫu Tận Nơi</div>
-                                            <div className="text-xs text-amber-600 font-bold">+150.000 ₫ phụ phí</div>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-slate-500 mt-2">
-                                        Kỹ thuật viên đến tận nhà, bảo quản mẫu theo chuẩn chuỗi lạnh ISO 15189.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. BHYT & Priority Information */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-                            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">3</span>
-                                Bảo Hiểm Y Tế & Chế Độ Ưu Tiên
-                            </h2>
-
-                            <div className="space-y-3">
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                        Mã Thẻ BHYT (15 Ký tự theo chuẩn BHXH Việt Nam)
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                            <FaShieldAlt />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            placeholder="Ví dụ: DN4791234567890 hoặc TE1012345678901..."
-                                            value={insuranceCard}
-                                            onChange={(e) => setInsuranceCard(e.target.value.toUpperCase())}
-                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-sm font-mono uppercase focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                                        />
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        <span className="text-xs text-slate-500">Mã mẫu thử nghiệm nhanh:</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInsuranceCard("TE1012345678901")}
-                                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-0.5 rounded font-mono"
-                                        >
-                                            TE (Trẻ em 100%)
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInsuranceCard("DN4791234567890")}
-                                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-0.5 rounded font-mono"
-                                        >
-                                            DN (Người lao động 80%)
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInsuranceCard("CN3012345678901")}
-                                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-0.5 rounded font-mono"
-                                        >
-                                            CN (Cận nghèo 95%)
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="pt-2">
-                                    <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
-                                        <input
-                                            type="checkbox"
-                                            checked={isPriority}
-                                            onChange={(e) => setIsPriority(e.target.checked)}
-                                            className="h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                        <div className="text-xs">
-                                            <span className="font-semibold text-slate-800">
-                                                Đối tượng ưu tiên khám chữa bệnh
-                                            </span>
-                                            <p className="text-slate-500 mt-0.5">
-                                                Người cao tuổi ≥ 80 tuổi, Trẻ em &lt; 6 tuổi, Người khuyết tật nặng (Giảm thêm 10% phí viện phí).
-                                            </p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 4. Voucher Code */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-                            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">4</span>
-                                Mã Giảm Giá & Phiếu Quà Tặng
-                            </h2>
-
-                            <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                        <FaTag />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Nhập mã ưu đãi (BMS10, FREEHOME, VIP50...)"
-                                        value={voucherInput}
-                                        onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-sm font-mono uppercase focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                                    />
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={handleApplyVoucher}
-                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-colors"
-                                >
-                                    Áp Dụng
-                                </button>
-                            </div>
-
-                            {appliedVoucher && (
-                                <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs">
-                                    <div className="flex items-center gap-2">
-                                        <FaCheckCircle className="text-emerald-500 text-sm" />
-                                        <span>
-                                            Mã <strong>{appliedVoucher.code}</strong>: {appliedVoucher.description} (-{formatVnd(appliedVoucher.discountAmount)})
-                                        </span>
-                                    </div>
-                                    <button
-                                        onClick={handleClearVoucher}
-                                        className="text-xs text-rose-600 hover:underline font-semibold"
-                                    >
-                                        Hủy áp dụng
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-                                <span>Mã gợi ý:</span>
-                                <span onClick={() => { setVoucherInput("BMS10"); }} className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded font-mono text-blue-600">
-                                    BMS10 (Giảm 10%)
-                                </span>
-                                <span onClick={() => { setVoucherInput("FREEHOME"); }} className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded font-mono text-blue-600">
-                                    FREEHOME (Free ship)
-                                </span>
-                                <span onClick={() => { setVoucherInput("VIP50"); }} className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded font-mono text-blue-600">
-                                    VIP50 (-50.000đ)
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Breakdown & Grand Total */}
-                    <div className="lg:col-span-5 space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5 sticky top-6">
-                            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-                                <div className="flex items-center gap-2">
-                                    <FaFileInvoiceDollar className="text-blue-600 text-xl" />
-                                    <h3 className="font-bold text-slate-800 text-lg">Bảng Dự Toán Chi Phí</h3>
-                                </div>
-                                <span className="text-xs text-slate-400 font-mono">
-                                    {calculation?.calculationReference || "CALC-READY"}
-                                </span>
-                            </div>
-
-                            {/* Itemized Table */}
-                            <div className="space-y-3">
-                                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                    Chi Tiết Các Khoản Phí
-                                </div>
-
-                                <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto pr-1">
-                                    {calculation?.items && calculation.items.length > 0 ? (
-                                        calculation.items.map((item, idx) => (
-                                            <div key={idx} className="py-2.5 text-xs">
-                                                <div className="flex justify-between font-semibold text-slate-700">
-                                                    <span className="truncate pr-2">{item.itemName}</span>
-                                                    <span>{formatVnd(item.totalPrice)}</span>
-                                                </div>
-                                                {item.bhytCoveredAmount > 0 && (
-                                                    <div className="flex justify-between text-emerald-600 mt-0.5">
-                                                        <span>BHYT chi trả ({calculation.insuranceCoveragePercent}%):</span>
-                                                        <span>-{formatVnd(item.bhytCoveredAmount)}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-6 text-slate-400 text-xs">
-                                            Chưa chọn gói xét nghiệm nào.
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Cost Breakdown Calculation Lines */}
-                            <div className="bg-slate-50 rounded-xl p-4 space-y-2.5 text-xs border border-slate-200">
-                                <div className="flex justify-between text-slate-600">
-                                    <span>Tổng phí xét nghiệm:</span>
-                                    <span className="font-semibold text-slate-800">{formatVnd(calculation?.testSubTotal)}</span>
-                                </div>
-
-                                <div className="flex justify-between text-slate-600">
-                                    <span>Phụ phí lấy mẫu ({serviceType === "HomeCollection" ? "Tận nơi" : "Tại viện"}):</span>
-                                    <span className="font-semibold text-slate-800">{formatVnd(calculation?.homeCollectionSurcharge)}</span>
-                                </div>
-
-                                {calculation?.hasInsurance && (
-                                    <div className="flex justify-between text-emerald-700 font-medium pt-1 border-t border-slate-200">
-                                        <span className="flex items-center gap-1">
-                                            <FaShieldAlt className="text-xs" />
-                                            BHYT chi trả ({calculation.insuranceCoveragePercent}%):
-                                        </span>
-                                        <span>-{formatVnd(calculation.insuranceDeduction)}</span>
-                                    </div>
-                                )}
-
-                                {calculation?.voucherDiscount > 0 && (
-                                    <div className="flex justify-between text-blue-700 font-medium">
-                                        <span className="flex items-center gap-1">
-                                            <FaTag className="text-xs" />
-                                            Voucher ({calculation.voucherCode}):
-                                        </span>
-                                        <span>-{formatVnd(calculation.voucherDiscount)}</span>
-                                    </div>
-                                )}
-
-                                {calculation?.priorityDiscount > 0 && (
-                                    <div className="flex justify-between text-indigo-700 font-medium">
-                                        <span className="flex items-center gap-1">
-                                            <FaUserCheck className="text-xs" />
-                                            Ưu đãi viện phí đối tượng ưu tiên:
-                                        </span>
-                                        <span>-{formatVnd(calculation.priorityDiscount)}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Net Payable Grand Card */}
-                            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-2xl p-5 text-white shadow-lg space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold uppercase tracking-wider text-blue-200">
-                                        TỔNG TIỀN PHẢI THANH TOÁN
-                                    </span>
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-800 text-blue-200 font-mono">
-                                        VND
-                                    </span>
-                                </div>
-
-                                <div className="text-3xl font-extrabold tracking-tight text-white">
-                                    {formatVnd(calculation?.netTotalPayable)}
-                                </div>
-
-                                <div className="pt-2 border-t border-blue-800/80 text-xs text-blue-200 italic leading-relaxed">
-                                    Bằng chữ: <strong className="text-white not-italic">{calculation?.totalInWords || "Không đồng chẵn"}</strong>
-                                </div>
-                            </div>
-
-                            {/* Primary Action Button */}
-                            <button
-                                onClick={() => {
-                                    navigate(`/payments/checkout?amount=${calculation?.netTotalPayable || 0}`);
-                                }}
-                                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all"
-                            >
-                                <span>Tiến Hành Thanh Toán Ngay</span>
-                                <FaArrowRight className="text-xs" />
-                            </button>
-
-                            <p className="text-[11px] text-center text-slate-400">
-                                Áp dụng quy chuẩn hoá đơn điện tử Nghị định 123/2020/NĐ-CP & Luật BHYT Việt Nam.
-                            </p>
-                        </div>
-                    </div>
+                <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
+                  <span className="text-muted small">Mã gợi ý:</span>
+                  <Badge
+                    bg="light"
+                    text="primary"
+                    className="border cursor-pointer"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setVoucherInput("BMS10")}
+                  >
+                    BMS10 (Giảm 10%)
+                  </Badge>
+                  <Badge
+                    bg="light"
+                    text="primary"
+                    className="border cursor-pointer"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setVoucherInput("FREEHOME")}
+                  >
+                    FREEHOME (Miễn ship tận nơi)
+                  </Badge>
+                  <Badge
+                    bg="light"
+                    text="primary"
+                    className="border cursor-pointer"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setVoucherInput("VIP50")}
+                  >
+                    VIP50 (-50.000 ₫)
+                  </Badge>
                 </div>
-            </div>
-        </div>
-    );
+              </Card.Body>
+            </Card>
+          </Col>
+
+          {/* Right Column: Cost Breakdown & Grand Total */}
+          <Col xs={12} lg={5}>
+            <Card className="shadow-sm border-0 rounded-3 sticky-top" style={{ top: 20 }}>
+              <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-2">
+                  <FaFileInvoiceDollar className="text-primary fs-4" />
+                  <h5 className="mb-0 fw-bold text-dark" style={{ fontSize: "1.1rem" }}>
+                    Bảng Dự Toán Chi Phí
+                  </h5>
+                </div>
+                <Badge bg="light" text="dark" className="border font-monospace">
+                  {calculation?.calculationReference || "CALC-READY"}
+                </Badge>
+              </Card.Header>
+
+              <Card.Body className="p-4">
+                {calculating ? (
+                  <div className="text-center py-5 text-muted">
+                    <Spinner animation="border" variant="primary" className="mb-2" />
+                    <div>Đang tính toán chiết giảm viện phí...</div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Itemized Line Items */}
+                    <div className="mb-3">
+                      <div className="text-muted small fw-bold text-uppercase mb-2">
+                        Chi Tiết Danh Mục Đã Chọn ({calculation?.items?.length || selectedPackageCodes.length})
+                      </div>
+
+                      <div className="border rounded-3 p-2 bg-light mb-3" style={{ maxHeight: 220, overflowY: "auto" }}>
+                        {calculation?.items && calculation.items.length > 0 ? (
+                          calculation.items.map((item, idx) => (
+                            <div key={idx} className="py-2 border-bottom last-border-0 small">
+                              <div className="d-flex justify-content-between fw-bold text-dark">
+                                <span className="text-truncate pe-2">{item.itemName}</span>
+                                <span className="text-nowrap">{formatVnd(item.totalPrice)}</span>
+                              </div>
+                              {item.bhytCoveredAmount > 0 && (
+                                <div className="d-flex justify-content-between text-success mt-1">
+                                  <span>BHYT thanh toán ({calculation.insuranceCoveragePercent}%):</span>
+                                  <span>-{formatVnd(item.bhytCoveredAmount)}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-3 text-muted small">
+                            Chưa chọn gói xét nghiệm nào.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Cost Calculation Summary */}
+                    <div className="p-3 bg-light rounded-3 border mb-3 small">
+                      <div className="d-flex justify-content-between py-1 text-muted">
+                        <span>Tổng phí xét nghiệm:</span>
+                        <strong className="text-dark">{formatVnd(calculation?.testSubTotal)}</strong>
+                      </div>
+
+                      <div className="d-flex justify-content-between py-1 text-muted">
+                        <span>Phụ phí lấy mẫu ({serviceType === "HomeCollection" ? "Tận nơi" : "Tại viện"}):</span>
+                        <strong className="text-dark">{formatVnd(calculation?.homeCollectionSurcharge)}</strong>
+                      </div>
+
+                      {calculation?.hasInsurance && (
+                        <div className="d-flex justify-content-between py-1 text-success fw-bold border-top pt-2 mt-1">
+                          <span className="d-flex align-items-center gap-1">
+                            <FaShieldAlt />
+                            BHYT chi trả ({calculation.insuranceCoveragePercent}%):
+                          </span>
+                          <span>-{formatVnd(calculation.insuranceDeduction)}</span>
+                        </div>
+                      )}
+
+                      {calculation?.voucherDiscount > 0 && (
+                        <div className="d-flex justify-content-between py-1 text-primary fw-bold">
+                          <span className="d-flex align-items-center gap-1">
+                            <FaTag />
+                            Ưu đãi Voucher ({calculation.voucherCode}):
+                          </span>
+                          <span>-{formatVnd(calculation.voucherDiscount)}</span>
+                        </div>
+                      )}
+
+                      {calculation?.priorityDiscount > 0 && (
+                        <div className="d-flex justify-content-between py-1 text-indigo fw-bold">
+                          <span className="d-flex align-items-center gap-1">
+                            <FaUserCheck />
+                            Ưu đãi đối tượng ưu tiên:
+                          </span>
+                          <span>-{formatVnd(calculation.priorityDiscount)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Grand Total Card */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%)",
+                        borderRadius: 12,
+                        padding: 20,
+                        color: "#ffffff",
+                        marginBottom: 20
+                      }}
+                      className="text-center"
+                    >
+                      <div className="d-flex justify-content-between align-items-center text-white-50 small mb-1">
+                        <span className="text-uppercase fw-bold" style={{ letterSpacing: "1px" }}>TỔNG TIỀN PHẢI THANH TOÁN</span>
+                        <Badge bg="primary" className="font-monospace">VND</Badge>
+                      </div>
+
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#ffffff", margin: "8px 0" }}>
+                        {formatVnd(calculation?.netTotalPayable)}
+                      </div>
+
+                      <div className="pt-2 border-top border-white border-opacity-25 small text-white-50">
+                        Bằng chữ: <strong className="text-white">{calculation?.totalInWords || "Không đồng chẵn"}</strong>
+                      </div>
+                    </div>
+
+                    {/* Direct Actions */}
+                    <div className="d-grid gap-2">
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={() => navigate("/invoices")}
+                        className="py-3 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                        style={{ backgroundColor: "#1e40af" }}
+                      >
+                        <FaReceipt />
+                        <span>Quầy Thu Viện Phí & Hóa Đơn VAT</span>
+                        <FaArrowRight className="small" />
+                      </Button>
+                    </div>
+
+                    <div className="text-center text-muted small mt-3" style={{ fontSize: "11px" }}>
+                      Áp dụng quy chuẩn hoá đơn điện tử Nghị định 123/2020/NĐ-CP & Luật BHYT Việt Nam.
+                    </div>
+                  </>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    </div>
+  );
 }

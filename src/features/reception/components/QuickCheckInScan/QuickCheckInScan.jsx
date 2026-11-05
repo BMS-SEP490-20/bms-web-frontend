@@ -4,6 +4,7 @@ import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
 import { appointmentService } from '../../../../services/appointmentService';
 import { doctorService } from '../../../../services/doctorService';
 import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
+import { queueApi } from '../../api/queueApi';
 
 /**
  * Quick Check-In QR Code Scanner Component.
@@ -100,15 +101,32 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
     try {
       const respUpdate = await appointmentService.checkInAppointment(pendingCheckInPatient.aptId, receptionistId);
       if (respUpdate.success) {
+        let issuedQueueNum = (respUpdate.data && respUpdate.data.queueNumber) || (respUpdate.data && respUpdate.data.QueueNumber) || null;
+        try {
+          const qRes = await queueApi.issueNextTicket({
+            patientId: pendingCheckInPatient.patientId || pendingCheckInPatient.aptId,
+            patientName: pendingCheckInPatient.name,
+            patientCode: pendingCheckInPatient.appointmentCode,
+            packageName: pendingCheckInPatient.service || 'Tổng phân tích tế bào máu',
+            isWalkIn: false,
+            priority: 1
+          });
+          if (qRes?.data?.ticketNumber) {
+            issuedQueueNum = qRes.data.ticketNumber;
+          }
+        } catch (qErr) {
+          console.warn('Queue ticket auto-issue error in scan:', qErr);
+        }
+
         setLastCheckedInPatient({
           name: pendingCheckInPatient.name,
           appointmentCode: pendingCheckInPatient.appointmentCode,
           appointmentDate: pendingCheckInPatient.appointmentDate,
           appointmentTime: pendingCheckInPatient.appointmentTime,
           service: pendingCheckInPatient.service,
-          queueNumber: (respUpdate.data && respUpdate.data.queueNumber) || (respUpdate.data && respUpdate.data.QueueNumber) || null
+          queueNumber: issuedQueueNum
         });
-        showSuccess(`✅ Check-in thành công cho "${pendingCheckInPatient.name}"!`, 5000);
+        showSuccess(`✅ Check-in thành công cho "${pendingCheckInPatient.name}"! STT: ${issuedQueueNum || 'Tiếp theo'}`, 5000);
         setPendingCheckInPatient(null);
         setTimeout(() => {
           scanningRef.current = false;

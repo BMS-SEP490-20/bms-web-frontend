@@ -4,10 +4,12 @@
  * Features: Debounced search, status filter, professional data table, user association count,
  * permission matrix modal, and delete safety confirmation.
  * Conforms to: NIST RBAC Standard & AGENTS-DESIGN.md Rules 01-28.
+ * @module features/user-management/pages/RolesManagementPage
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from 'react-bootstrap';
+import { FaShieldAlt, FaPlus, FaSearch, FaLock, FaPencilAlt, FaTrash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { getRoles, getPermissionMatrix } from '../../../services/roleService';
 import RoleFormModal from '../components/RoleFormModal';
 import DeleteRoleConfirmModal from '../components/DeleteRoleConfirmModal';
@@ -33,7 +35,7 @@ export const RolesManagementPage = () => {
   // Load permission matrix once
   useEffect(() => {
     getPermissionMatrix().then((res) => {
-      if (res.isSuccess && res.data) {
+      if (res && res.isSuccess && res.data) {
         setPermissionMatrix(res.data);
       }
     });
@@ -51,14 +53,22 @@ export const RolesManagementPage = () => {
         isActive: statusFilter,
       });
 
-      if (res.isSuccess && res.data) {
-        setRoles(res.data.items || []);
-        setTotalCount(res.data.totalCount || 0);
+      if (res && res.isSuccess && res.data) {
+        const rawItems = Array.isArray(res.data)
+          ? res.data
+          : (Array.isArray(res.data.items)
+              ? res.data.items
+              : (Array.isArray(res.data.data) ? res.data.data : []));
+        setRoles(rawItems);
+        setTotalCount(res.data.totalCount ?? rawItems.length);
       } else {
-        setErrorMessage(res.message || 'Unable to load roles.');
+        setErrorMessage(res?.message || 'Không thể tải danh sách vai trò.');
+        setRoles([]);
       }
     } catch (err) {
-      setErrorMessage('Connection error while fetching roles.');
+      console.error('[RolesManagementPage] Error loading roles:', err);
+      setErrorMessage('Lỗi kết nối máy chủ khi tải danh sách phân quyền vai trò.');
+      setRoles([]);
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +97,7 @@ export const RolesManagementPage = () => {
     setShowDeleteModal(true);
   };
 
+  const safeRoles = useMemo(() => (Array.isArray(roles) ? roles : []), [roles]);
   const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
   return (
@@ -94,23 +105,22 @@ export const RolesManagementPage = () => {
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center bms-roles-header">
         <div>
-          <h4 className="fw-bold m-0 text-dark">
-            <i className="bi bi-shield-lock-fill text-primary me-2"></i>
+          <h4 className="fw-bold m-0 text-dark d-flex align-items-center gap-2">
+            <FaShieldAlt className="text-primary" />
             Quản Lý Phân Quyền Vai Trò (RBAC)
           </h4>
           <small className="text-muted">
             Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02)
           </small>
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold">
-          <i className="bi bi-plus-circle-fill me-2"></i>
+        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm">
+          <FaPlus />
           Thêm Vai Trò Mới
         </Button>
       </div>
 
       {errorMessage && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+        <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 shadow-sm">
           {errorMessage}
         </Alert>
       )}
@@ -123,7 +133,7 @@ export const RolesManagementPage = () => {
             <div className="col-12 col-md-5">
               <InputGroup>
                 <InputGroup.Text className="bg-white border-end-0">
-                  <i className="bi bi-search text-muted"></i>
+                  <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
                   type="text"
@@ -140,14 +150,14 @@ export const RolesManagementPage = () => {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="">Tất Cả Trạng Thái</option>
+                <option value="">-- Tất Cả Trạng Thái --</option>
                 <option value="true">Đang Hoạt Động</option>
                 <option value="false">Tạm Khóa</option>
               </Form.Select>
             </div>
 
             <div className="col-6 col-md-4 text-end text-muted small">
-              Hiển thị <strong>{roles.length}</strong> trên tổng số <strong>{totalCount}</strong> vai trò
+              Hiển thị <strong>{safeRoles.length}</strong> trên tổng số <strong>{totalCount}</strong> vai trò
             </div>
           </div>
         </div>
@@ -171,18 +181,18 @@ export const RolesManagementPage = () => {
                 <tr>
                   <td colSpan="7" className="text-center py-5">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    Đang tải danh sách vai trò...
+                    Đang tải danh sách vai trò hệ thống...
                   </td>
                 </tr>
-              ) : roles.length === 0 ? (
+              ) : safeRoles.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center py-5 text-muted">
-                    <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                    <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" />
                     Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
                   </td>
                 </tr>
               ) : (
-                roles.map((role) => (
+                safeRoles.map((role) => (
                   <tr key={role.id}>
                     <td className="bms-align-center">
                       <span className="bms-role-code-cell">{role.roleCode}</span>
@@ -191,16 +201,16 @@ export const RolesManagementPage = () => {
                       <div className="fw-bold text-dark">{role.roleName}</div>
                       {role.isSystemRole && (
                         <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: '10px' }}>
-                          <i className="bi bi-lock-fill me-1"></i>Hệ Thống Cốt Lõi
+                          <FaLock className="me-1" />Hệ Thống Cốt Lõi
                         </Badge>
                       )}
                     </td>
                     <td className="text-muted small">
-                      {role.description || 'Không có mô tả chi tiết.'}
+                      {role.description || 'Không có mô tả chi tiết chức năng.'}
                     </td>
                     <td className="bms-align-center">
                       <Badge bg="secondary" className="px-2 py-1">
-                        {role.permissions?.length || 0} Quyền
+                        {Array.isArray(role.permissions) ? role.permissions.length : 0} Quyền
                       </Badge>
                     </td>
                     <td className="bms-align-right fw-semibold">
@@ -208,8 +218,12 @@ export const RolesManagementPage = () => {
                     </td>
                     <td className="bms-align-center">
                       <span className={`bms-status-pill ${role.isActive ? 'active' : 'inactive'}`}>
-                        <i className="bi bi-circle-fill" style={{ fontSize: '7px' }}></i>
-                        {role.isActive ? 'Hoạt Động' : 'Tạm Khóa'}
+                        {role.isActive ? (
+                          <span className="p-1 rounded-circle bg-success d-inline-block me-1" style={{ width: 6, height: 6 }}></span>
+                        ) : (
+                          <span className="p-1 rounded-circle bg-secondary d-inline-block me-1" style={{ width: 6, height: 6 }}></span>
+                        )}
+                        {role.isActive ? 'Đang Hoạt Động' : 'Tạm Khóa'}
                       </span>
                     </td>
                     <td className="bms-align-right">
@@ -220,16 +234,16 @@ export const RolesManagementPage = () => {
                           title="Chỉnh sửa vai trò & phân quyền"
                           onClick={() => handleOpenEditModal(role)}
                         >
-                          <i className="bi bi-pencil"></i>
+                          <FaPencilAlt />
                         </Button>
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          title={role.isSystemRole ? 'Vai trò hệ thống không được xóa' : 'Xóa vai trò'}
+                          title={role.isSystemRole ? 'Vai trò hệ thống cốt lõi không được xóa' : 'Xóa vai trò'}
                           onClick={() => handleOpenDeleteModal(role)}
                           disabled={role.isSystemRole}
                         >
-                          <i className="bi bi-trash"></i>
+                          <FaTrash />
                         </Button>
                       </div>
                     </td>
@@ -244,7 +258,7 @@ export const RolesManagementPage = () => {
         {totalPages > 1 && (
           <div className="p-3 border-top d-flex justify-content-between align-items-center bg-light">
             <small className="text-muted">
-              Page {currentPage} of {totalPages}
+              Trang {currentPage} / {totalPages}
             </small>
             <Pagination className="m-0" size="sm">
               <Pagination.Prev

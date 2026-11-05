@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file PackageFormModal.jsx
  * @description Administration modal form for composing, creating, and updating laboratory service packages (UC15).
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
@@ -11,8 +11,8 @@ import { Modal, Button, Form, Row, Col, Alert, Badge, Spinner, InputGroup } from
 import { createPackage, updatePackage } from "../api/packageApi.jsx";
 
 export const STATUS_OPTIONS = [
-    { value: "ACTIVE", label: "Hoạt Động (Active)" },
-    { value: "DRAFT", label: "Tạm Khóa (Draft / Inactive)" },
+    { value: "ACTIVE", label: "Đang Hoạt Động" },
+    { value: "DRAFT", label: "Tạm Khóa / Bản Nháp" },
 ];
 
 /**

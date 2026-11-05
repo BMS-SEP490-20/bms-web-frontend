@@ -86,7 +86,8 @@ export default function ConfigureReferenceIntervalsPage() {
           isActive: isActiveParam,
         });
 
-        setIntervals(result.items || []);
+        const safeItems = Array.isArray(result) ? result : (result?.items || result?.Items || result?.data || []);
+        setIntervals(Array.isArray(safeItems) ? safeItems : []);
         setPagination({
           currentPage: result.currentPage || page,
           pageSize: result.pageSize || 15,

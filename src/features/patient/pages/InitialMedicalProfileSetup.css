@@ -1,0 +1,241 @@
+/**
+ * @file InitialMedicalProfileSetup.css
+ * @description Styling for First-Time Patient Clinical Intake Screen.
+ * Conforms to: Ministry of Health (Thông tư 46/2018/TT-BYT & QĐ 2429/QĐ-BYT),
+ * ISO 15189 & AGENTS-DESIGN.md.
+ */
+
+.initial-setup-page {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 8px 0 40px;
+}
+
+/* Hero Directive Banner */
+.setup-hero-banner {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 60%, #0284c7 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.setup-hero-banner::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Clinical Section Card */
+.setup-section-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.setup-section-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.setup-section-header {
+  padding: 16px 22px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setup-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.setup-section-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.setup-section-body {
+  padding: 22px 24px;
+}
+
+/* Blood Type Button Grid */
+.blood-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .blood-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.blood-type-btn {
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.blood-type-btn:hover {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+}
+
+.blood-type-btn.active {
+  border-color: #dc2626;
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.blood-type-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.blood-type-btn.active .blood-type-name {
+  color: #dc2626;
+}
+
+.blood-type-desc {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Fast Tag Selection */
+.fast-tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fast-tag-item {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fast-tag-item:hover {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.fast-tag-item.selected {
+  background: #1e40af;
+  border-color: #1e40af;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+}
+
+.fast-tag-item.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  background: #f8fafc;
+}
+
+/* BMI Metric Box */
+.bmi-metric-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.bmi-value-display {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Readonly Identity Card */
+.identity-meta-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.identity-meta-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 2px;
+}
+
+.identity-meta-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* In-Flow Action Bar at Bottom */
+.setup-actions-bar {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .setup-actions-bar {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+}

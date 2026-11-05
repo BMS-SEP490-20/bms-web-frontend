@@ -65,7 +65,8 @@ export default function TestCriteriaPage() {
           isActive: isActiveParam,
         });
 
-        setCriteria(result.items || []);
+        const safeItems = Array.isArray(result) ? result : (result?.items || result?.Items || result?.data || []);
+        setCriteria(Array.isArray(safeItems) ? safeItems : []);
         setPagination({
           currentPage: result.currentPage || page,
           pageSize: result.pageSize || 10,

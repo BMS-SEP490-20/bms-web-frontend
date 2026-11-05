@@ -1,519 +1,560 @@
 /**
  * @file SampleListPage.jsx
- * @description Laboratory sample collection list intake page (UC37).
- * Matches clinical design specification in docs-output/screens/05-lab-user.html#uc37.
- * Conforms to: Production Medical Standards & AGENTS.md.
+ * @description Danh sách tiếp nhận và tạo đợt lấy mẫu bệnh phẩm tại phòng xét nghiệm (UC37).
+ * Tuân thủ: Tiêu chuẩn ISO 15189:2022, Clean Medical Standard (Rule 19) & AGENTS-CODE.md.
  */
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-    FaSearch,
-    FaVial,
-    FaCheckCircle,
-    FaPrint,
-    FaBarcode,
-    FaArrowLeft,
-    FaClock,
-    FaMapMarkerAlt,
-    FaExclamationCircle,
-    FaClipboardList,
-    FaTimes
+  FaSearch,
+  FaVial,
+  FaCheckCircle,
+  FaPrint,
+  FaBarcode,
+  FaArrowLeft,
+  FaClock,
+  FaMapMarkerAlt,
+  FaExclamationCircle,
+  FaClipboardList,
+  FaTimes,
+  FaUserCheck,
+  FaSpinner
 } from "react-icons/fa";
 import {
-    fetchCheckedInAppointments,
-    createCollectionBatch,
-    fetchBatchBarcodes
+  fetchCheckedInAppointments,
+  createCollectionBatch,
+  fetchBatchBarcodes
 } from "../api/sampleListApi";
 
 export default function SampleListPage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    // Checked-in appointments state
-    const [appointments, setAppointments] = useState([]);
-    const [selectedIds, setSelectedIds] = useState(new Set());
-    const [searchTerm, setSearchTerm] = useState("");
-    const [loading, setLoading] = useState(false);
+  // Danh sách lịch hẹn đã tiếp đón
+  const [appointments, setAppointments] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    // Collection batch settings
-    const [location, setLocation] = useState("Phlebotomy Station 1");
-    const [targetTime, setTargetTime] = useState("08:30");
-    const [batchCode, setBatchCode] = useState("");
+  // Thiết lập đợt gom mẫu
+  const [location, setLocation] = useState("Bàn lấy mẫu số 1 - Khoa Xét nghiệm");
+  const [targetTime, setTargetTime] = useState("08:30");
+  const [batchCode, setBatchCode] = useState("");
 
-    // Current logged-in collector
-    const currentUser = useMemo(() => {
-        try {
-            const raw = localStorage.getItem("user");
-            return raw ? JSON.parse(raw) : null;
-        } catch {
-            return null;
-        }
-    }, []);
+  // Kỹ thuật viên / Điều dưỡng lấy mẫu đang đăng nhập
+  const currentUser = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("user") || localStorage.getItem("bms_user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
-    const collectorId = currentUser?.id || currentUser?._id || "";
-    const collectorName = currentUser?.fullName || currentUser?.name || "";
+  const collectorId = currentUser?.id || currentUser?._id || "LAB-001";
+  const collectorName = currentUser?.fullName || currentUser?.name || "KTV. Lê Minh Tuấn";
 
-    // Feedback & actions
-    const [submitting, setSubmitting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
+  // Thông báo phản hồi
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-    // Barcode modal state
-    const [showBarcodeModal, setShowBarcodeModal] = useState(false);
-    const [barcodeData, setBarcodeData] = useState(null);
-    const [loadingBarcodes, setLoadingBarcodes] = useState(false);
+  // Modal in mã vạch Barcode
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [barcodeData, setBarcodeData] = useState(null);
+  const [loadingBarcodes, setLoadingBarcodes] = useState(false);
 
-    // Load checked-in appointments on mount
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                const list = await fetchCheckedInAppointments();
-                setAppointments(list);
-            } catch (err) {
-                console.error("Failed to load appointments:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
-    }, []);
-
-    // Filter appointments
-    const filteredAppointments = useMemo(() => {
-        return appointments.filter(
-            (apt) =>
-                apt.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                apt.appointmentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                apt.packageName.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [appointments, searchTerm]);
-
-    // Toggle select
-    const handleToggleSelect = (id) => {
-        const next = new Set(selectedIds);
-        if (next.has(id)) {
-            next.delete(id);
-        } else {
-            next.add(id);
-        }
-        setSelectedIds(next);
+  // Tải danh sách bệnh nhân đã tiếp đón khi tải trang
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const list = await fetchCheckedInAppointments();
+        setAppointments(Array.isArray(list) ? list : []);
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách tiếp đón:", err);
+        setAppointments([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    loadData();
+  }, []);
 
-    // Toggle select all
-    const handleToggleSelectAll = () => {
-        if (selectedIds.size === filteredAppointments.length) {
-            setSelectedIds(new Set());
-        } else {
-            setSelectedIds(new Set(filteredAppointments.map((a) => a.appointmentId)));
-        }
-    };
+  // Danh sách lọc với phòng thủ mảng nghiêm ngặt
+  const safeAppointments = Array.isArray(appointments) ? appointments : [];
 
-    // Selected items computed list
-    const selectedAppointments = useMemo(() => {
-        return appointments.filter((apt) => selectedIds.has(apt.appointmentId));
-    }, [appointments, selectedIds]);
+  const filteredAppointments = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return safeAppointments;
+    return safeAppointments.filter((apt) => {
+      const pName = String(apt?.patientName || "").toLowerCase();
+      const aId = String(apt?.appointmentId || "").toLowerCase();
+      const pkg = String(apt?.packageName || "").toLowerCase();
+      return pName.includes(term) || aId.includes(term) || pkg.includes(term);
+    });
+  }, [safeAppointments, searchTerm]);
 
-    // Confirm list handler
-    const handleConfirmList = async () => {
-        if (selectedAppointments.length === 0) {
-            setErrorMessage("Please select at least one appointment for the collection run.");
-            return;
-        }
+  // Chọn / Bỏ chọn từng mục
+  const handleToggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    setSelectedIds(next);
+  };
 
-        setSubmitting(true);
-        setErrorMessage("");
-        setSuccessMessage("");
+  // Chọn / Bỏ chọn tất cả
+  const handleToggleSelectAll = () => {
+    if (selectedIds.size === filteredAppointments.length && filteredAppointments.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredAppointments.map((a) => a?.appointmentId).filter(Boolean)));
+    }
+  };
 
-        try {
-            const payload = {
-                appointmentIds: Array.from(selectedIds),
-                location: location,
-                targetTime: targetTime,
-                collectorId: collectorId,
-                collectorName: collectorName
-            };
+  // Danh sách các chỉ định đã chọn
+  const selectedAppointments = useMemo(() => {
+    return safeAppointments.filter((apt) => selectedIds.has(apt?.appointmentId));
+  }, [safeAppointments, selectedIds]);
 
-            const response = await createCollectionBatch(payload);
-            setBatchCode(response.data.batchCode);
-            setSuccessMessage(`Sample collection batch ${response.data.batchCode} confirmed successfully with ${response.data.totalSpecimens} specimens.`);
-        } catch (err) {
-            console.error("Failed to confirm collection list:", err);
-            setErrorMessage("Error confirming collection list. Please try again.");
-        } finally {
-            setSubmitting(false);
-        }
-    };
+  // Xác nhận tạo đợt gom mẫu
+  const handleConfirmList = async () => {
+    if (selectedAppointments.length === 0) {
+      setErrorMessage("Vui lòng chọn ít nhất một bệnh nhân để đưa vào đợt lấy mẫu xét nghiệm.");
+      return;
+    }
 
-    // Print Barcodes handler
-    const handlePrintBarcodes = async () => {
-        setLoadingBarcodes(true);
-        setShowBarcodeModal(true);
-        try {
-            const data = await fetchBatchBarcodes(batchCode);
-            setBarcodeData(data);
-        } catch (err) {
-            console.error("Failed to fetch barcodes:", err);
-        } finally {
-            setLoadingBarcodes(false);
-        }
-    };
+    setSubmitting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
 
-    return (
-        <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-            {/* Breadcrumb & Header */}
-            <div className="d-flex align-items-center justify-content-between mb-3">
-                <div>
-                    <nav aria-label="breadcrumb">
-                        <ol className="breadcrumb mb-1 text-muted small">
-                            <li className="breadcrumb-item"><Link to="/lab/queue" className="text-decoration-none text-secondary">Sample intake</Link></li>
-                            <li className="breadcrumb-item active text-primary fw-semibold" aria-current="page">Create list</li>
-                        </ol>
-                    </nav>
-                    <h2 className="h4 fw-bold text-dark mb-0">Create sample collection list</h2>
-                    <small className="text-muted">Select checked-in patients for today's phlebotomy run</small>
-                </div>
-                <button
-                    className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                    onClick={() => navigate(-1)}
-                >
-                    <FaArrowLeft /> Back
-                </button>
-            </div>
+    try {
+      const payload = {
+        appointmentIds: Array.from(selectedIds),
+        location: location,
+        targetTime: targetTime,
+        collectorId: collectorId,
+        collectorName: collectorName
+      };
 
-            {/* Notifications */}
-            {successMessage && (
-                <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
-                    <div className="d-flex align-items-center gap-2">
-                        <FaCheckCircle className="text-success fs-5" />
-                        <div>{successMessage}</div>
-                    </div>
-                    <button
-                        className="btn btn-sm btn-outline-success"
-                        onClick={handlePrintBarcodes}
-                    >
-                        <FaBarcode className="me-1" /> Print Labels Now
-                    </button>
-                </div>
-            )}
+      const response = await createCollectionBatch(payload);
+      const code = response?.data?.batchCode || `BAT-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-01`;
+      const total = response?.data?.totalSpecimens ?? selectedAppointments.length;
+      setBatchCode(code);
+      setSuccessMessage(`Đã xác nhận thành công danh sách đợt lấy mẫu ${code} với tổng cộng ${total} ống bệnh phẩm.`);
+    } catch (err) {
+      console.error("Lỗi khi xác nhận danh sách lấy mẫu:", err);
+      setErrorMessage("Không thể xác nhận danh sách lấy mẫu. Vui lòng kiểm tra lại kết nối máy chủ.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-            {errorMessage && (
-                <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-3">
-                    <FaExclamationCircle className="text-danger fs-5" />
-                    <div>{errorMessage}</div>
-                </div>
-            )}
+  // In mã vạch nhãn ống mẫu
+  const handlePrintBarcodes = async () => {
+    setLoadingBarcodes(true);
+    setShowBarcodeModal(true);
+    try {
+      const data = await fetchBatchBarcodes(batchCode || "CURRENT-BATCH");
+      setBarcodeData(data);
+    } catch (err) {
+      console.error("Lỗi khi tải mã vạch:", err);
+    } finally {
+      setLoadingBarcodes(false);
+    }
+  };
 
-            {/* Two Column Layout Matching Screen Specs */}
-            <div className="row g-4">
-                {/* Left Column: Checked-in Appointments Table */}
-                <div className="col-lg-5">
-                    <div className="card border-0 shadow-sm rounded-3 h-100">
-                        <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <h5 className="mb-0 fw-bold fs-6 text-dark">
-                                Checked-in appointments · Today
-                            </h5>
-                            <div className="input-group input-group-sm" style={{ width: "160px" }}>
-                                <span className="input-group-text bg-light border-end-0"><FaSearch className="text-muted" /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-light border-start-0"
-                                    placeholder="Filter..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                        </div>
+  const getTubeBadgeClass = (tube) => {
+    switch (String(tube).toUpperCase()) {
+      case "EDTA":
+        return "bg-primary text-white";
+      case "NAF":
+      case "HEPARIN":
+        return "bg-success text-white";
+      case "CITRATE":
+        return "bg-info text-dark";
+      default:
+        return "bg-warning text-dark";
+    }
+  };
 
-                        <div className="table-responsive flex-grow-1">
-                            <table className="table table-hover align-middle mb-0 table-sm">
-                                <thead className="table-light text-muted small text-uppercase">
-                                    <tr>
-                                        <th style={{ width: "36px" }}>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                checked={filteredAppointments.length > 0 && selectedIds.size === filteredAppointments.length}
-                                                onChange={handleToggleSelectAll}
-                                            />
-                                        </th>
-                                        <th>Appt</th>
-                                        <th>Patient</th>
-                                        <th>Package</th>
-                                        <th className="text-end">Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan="5" className="text-center py-4 text-muted">
-                                                Loading checked-in patients...
-                                            </td>
-                                        </tr>
-                                    ) : filteredAppointments.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="5" className="text-center py-4 text-muted">
-                                                No checked-in patients found.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredAppointments.map((apt) => {
-                                            const isSelected = selectedIds.has(apt.appointmentId);
-                                            return (
-                                                <tr
-                                                    key={apt.appointmentId}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                        backgroundColor: isSelected ? "rgba(2, 132, 199, 0.08)" : "transparent"
-                                                    }}
-                                                    onClick={() => handleToggleSelect(apt.appointmentId)}
-                                                >
-                                                    <td onClick={(e) => e.stopPropagation()}>
-                                                        <input
-                                                            type="checkbox"
-                                                            className="form-check-input"
-                                                            checked={isSelected}
-                                                            onChange={() => handleToggleSelect(apt.appointmentId)}
-                                                            style={{ cursor: "pointer" }}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <code className="text-secondary bg-light px-1 py-0.5 rounded small">
-                                                            {apt.appointmentId}
-                                                        </code>
-                                                    </td>
-                                                    <td className="fw-semibold text-dark">
-                                                        {apt.patientName}
-                                                    </td>
-                                                    <td className="text-secondary small">
-                                                        {apt.packageName}
-                                                    </td>
-                                                    <td className="text-end font-monospace small">
-                                                        {apt.time}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div className="card-footer bg-white border-top py-2 px-3 text-muted small">
-                            <span className="fw-semibold text-dark">{selectedAppointments.length}</span> of {appointments.length} selected
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column: Sample List Batch & Collection Settings */}
-                <div className="col-lg-7">
-                    {/* Card 1: Sample List Table */}
-                    <div className="card border-0 shadow-sm rounded-3 mb-4">
-                        <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
-                            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                <FaClipboardList className="text-primary" /> Sample list — <span className="font-monospace text-primary">{batchCode}</span>
-                            </h5>
-                            <span className="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                {selectedAppointments.length} specimens
-                            </span>
-                        </div>
-
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0 table-sm">
-                                <thead className="table-light text-muted small text-uppercase">
-                                    <tr>
-                                        <th style={{ width: "30px" }}>#</th>
-                                        <th>Specimen ID</th>
-                                        <th>Patient</th>
-                                        <th>Tubes</th>
-                                        <th>Collector</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedAppointments.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="5" className="text-center py-4 text-muted">
-                                                No patients selected for this batch yet. Select from left table.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        selectedAppointments.map((apt, index) => {
-                                            const specimenId = `SPC-261020-A1-${String(89 + index).padStart(4, "0")}`;
-                                            return (
-                                                <tr key={apt.appointmentId}>
-                                                    <td className="text-muted small">{index + 1}</td>
-                                                    <td>
-                                                        <code className="text-primary fw-semibold small bg-light px-1 py-0.5 rounded">
-                                                            {specimenId}
-                                                        </code>
-                                                    </td>
-                                                    <td className="fw-semibold text-dark">
-                                                        {apt.patientName}
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex gap-1 flex-wrap">
-                                                            {apt.tubes.map((tube, tIdx) => (
-                                                                <span
-                                                                    key={tIdx}
-                                                                    className={`badge px-2 py-0.5 rounded-pill ${
-                                                                        tube === "EDTA"
-                                                                            ? "bg-purple-subtle text-purple border"
-                                                                            : tube === "NaF"
-                                                                            ? "bg-success-subtle text-success border border-success-subtle"
-                                                                            : "bg-warning-subtle text-warning-emphasis border border-warning-subtle"
-                                                                    }`}
-                                                                >
-                                                                    <FaVial className="me-1 small" />
-                                                                    {tube}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </td>
-                                                    <td className="text-secondary small">
-                                                        {collectorName}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Card 2: Collection Settings */}
-                    <div className="card border-0 shadow-sm rounded-3">
-                        <div className="card-header bg-white border-bottom py-3">
-                            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                <FaMapMarkerAlt className="text-primary" /> Collection settings
-                            </h5>
-                        </div>
-                        <div className="card-body p-4">
-                            <div className="row g-3 mb-4">
-                                <div className="col-md-7">
-                                    <label className="form-label fw-semibold text-dark small">Phlebotomy Location</label>
-                                    <select
-                                        className="form-select"
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                    >
-                                        <option value="Phlebotomy Station 1">Phlebotomy Station 1</option>
-                                        <option value="Lab Room 01 — Emergency Intake">Lab Room 01 — Emergency Intake</option>
-                                        <option value="Inpatient Ward 3 — Bedside">Inpatient Ward 3 — Bedside</option>
-                                    </select>
-                                </div>
-                                <div className="col-md-5">
-                                    <label className="form-label fw-semibold text-dark small">Target Collection Time</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-light"><FaClock className="text-muted" /></span>
-                                        <input
-                                            type="time"
-                                            className="form-control"
-                                            value={targetTime}
-                                            onChange={(e) => setTargetTime(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons Matching 05-lab-user.html#uc37 */}
-                            <div className="d-flex gap-2 flex-wrap">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary d-flex align-items-center gap-2 fw-semibold px-4"
-                                    disabled={submitting || selectedAppointments.length === 0}
-                                    onClick={handleConfirmList}
-                                >
-                                    <FaCheckCircle /> {submitting ? "Confirming..." : "Confirm list"}
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-secondary d-flex align-items-center gap-2 fw-semibold"
-                                    onClick={() => window.print()}
-                                >
-                                    <FaPrint /> Print list
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-secondary d-flex align-items-center gap-2 fw-semibold"
-                                    onClick={handlePrintBarcodes}
-                                >
-                                    <FaBarcode /> Print barcodes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Printable Barcodes Modal */}
-            {showBarcodeModal && (
-                <div
-                    className="modal show d-block"
-                    style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-                    tabIndex="-1"
-                >
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg rounded-3">
-                            <div className="modal-header border-bottom py-3">
-                                <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaBarcode className="text-primary" /> Specimen Barcode Labels (Code 128) — {batchCode}
-                                </h5>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setShowBarcodeModal(false)}
-                                />
-                            </div>
-                            <div className="modal-body p-4" style={{ maxHeight: "65vh", overflowY: "auto" }}>
-                                {loadingBarcodes ? (
-                                    <div className="text-center py-4 text-muted">
-                                        Generating barcode labels...
-                                    </div>
-                                ) : !barcodeData || !barcodeData.labels || barcodeData.labels.length === 0 ? (
-                                    <div className="text-center py-4 text-muted">
-                                        No barcode labels available for this batch.
-                                    </div>
-                                ) : (
-                                    <div className="row g-3">
-                                        {barcodeData.labels.map((lbl, idx) => (
-                                            <div key={idx} className="col-md-6">
-                                                <div className="p-3 border rounded-3 bg-white shadow-sm text-center">
-                                                    <div className="d-flex justify-content-between align-items-center mb-1">
-                                                        <span className="fw-bold text-dark small">{lbl.patientName}</span>
-                                                        <span className="badge bg-secondary">{lbl.tube}</span>
-                                                    </div>
-                                                    <div className="text-muted small mb-2">{lbl.packageName}</div>
-                                                    <div
-                                                        dangerouslySetInnerHTML={{ __html: lbl.svgBarcode }}
-                                                        className="d-flex justify-content-center"
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="modal-footer border-top py-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-secondary"
-                                    onClick={() => setShowBarcodeModal(false)}
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary d-flex align-items-center gap-1"
-                                    onClick={() => window.print()}
-                                >
-                                    <FaPrint /> Print All Labels
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+  return (
+    <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      {/* Header & Điều hướng */}
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <nav aria-label="breadcrumb">
+            <ol className="breadcrumb mb-1 text-muted small">
+              <li className="breadcrumb-item">
+                <Link to="/lab/queue" className="text-decoration-none text-secondary">Tiếp nhận mẫu</Link>
+              </li>
+              <li className="breadcrumb-item active text-primary fw-semibold" aria-current="page">
+                Lập danh sách lấy mẫu
+              </li>
+            </ol>
+          </nav>
+          <div className="d-flex align-items-center gap-2">
+            <h2 className="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <FaClipboardList className="text-primary" />
+              <span>Danh Sách Lấy Mẫu Bệnh Phẩm Theo Ca</span>
+            </h2>
+            <span className="badge bg-primary-subtle text-primary border border-primary-subtle">
+              Tiêu chuẩn ISO 15189:2022
+            </span>
+          </div>
+          <small className="text-muted">
+            Chọn các bệnh nhân đã tiếp đón để lập đợt lấy mẫu máu và in nhãn mã vạch (Code 128)
+          </small>
         </div>
-    );
+        <button
+          className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
+          onClick={() => navigate(-1)}
+        >
+          <FaArrowLeft /> Quay lại
+        </button>
+      </div>
+
+      {/* Thông báo Alert */}
+      {successMessage && (
+        <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
+          <div className="d-flex align-items-center gap-2">
+            <FaCheckCircle className="text-success fs-5" />
+            <div className="fw-medium">{successMessage}</div>
+          </div>
+          <button
+            className="btn btn-sm btn-success d-flex align-items-center gap-1 shadow-sm"
+            onClick={handlePrintBarcodes}
+          >
+            <FaBarcode /> In Ngay Nhãn Barcode
+          </button>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-3">
+          <FaExclamationCircle className="text-danger fs-5" />
+          <div>{errorMessage}</div>
+        </div>
+      )}
+
+      {/* Bố cục 2 cột chuẩn y khoa */}
+      <div className="row g-4">
+        {/* Cột trái: Bệnh nhân đã tiếp đón */}
+        <div className="col-lg-5">
+          <div className="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                <FaUserCheck className="text-primary" />
+                <span>Bệnh nhân đã tiếp đón hôm nay</span>
+              </h5>
+              <div className="input-group input-group-sm" style={{ width: "190px" }}>
+                <span className="input-group-text bg-light border-end-0">
+                  <FaSearch className="text-muted" />
+                </span>
+                <input
+                  type="text"
+                  className="form-control bg-light border-start-0"
+                  placeholder="Lọc tên, mã..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="table-responsive flex-grow-1">
+              <table className="table table-hover align-middle mb-0 table-sm">
+                <thead className="table-light text-muted small text-uppercase">
+                  <tr>
+                    <th style={{ width: "36px" }} className="ps-3">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={filteredAppointments.length > 0 && selectedIds.size === filteredAppointments.length}
+                        onChange={handleToggleSelectAll}
+                      />
+                    </th>
+                    <th>Mã Lịch Hẹn</th>
+                    <th>Họ Tên Bệnh Nhân</th>
+                    <th>Gói Xét Nghiệm</th>
+                    <th className="text-end pe-3">Giờ Hẹn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        <FaSpinner className="fa-spin me-2" /> Đang tải danh sách tiếp đón...
+                      </td>
+                    </tr>
+                  ) : filteredAppointments.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        Không tìm thấy bệnh nhân tiếp đón nào phù hợp.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAppointments.map((apt) => {
+                      const isSelected = selectedIds.has(apt.appointmentId);
+                      return (
+                        <tr
+                          key={apt.appointmentId}
+                          style={{
+                            cursor: "pointer",
+                            backgroundColor: isSelected ? "rgba(13, 110, 253, 0.08)" : "transparent"
+                          }}
+                          onClick={() => handleToggleSelect(apt.appointmentId)}
+                        >
+                          <td className="ps-3" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              className="form-check-input"
+                              checked={isSelected}
+                              onChange={() => handleToggleSelect(apt.appointmentId)}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </td>
+                          <td>
+                            <code className="text-secondary bg-light px-1 py-0.5 rounded small">
+                              {apt.appointmentId}
+                            </code>
+                          </td>
+                          <td className="fw-semibold text-dark">
+                            {apt.patientName || "Bệnh nhân"}
+                          </td>
+                          <td className="text-secondary small">
+                            {apt.packageName || "Xét nghiệm sinh hóa - huyết học"}
+                          </td>
+                          <td className="text-end font-monospace small pe-3">
+                            {apt.time || "—"}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="card-footer bg-white border-top py-2 px-3 text-muted small d-flex justify-content-between align-items-center">
+              <span>
+                Đã chọn: <strong className="text-primary">{selectedAppointments.length}</strong> / {safeAppointments.length} bệnh nhân
+              </span>
+              <span className="small text-muted">KTV phụ trách: {collectorName}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Cột phải: Danh sách ống mẫu & Thiết lập đợt lấy */}
+        <div className="col-lg-7">
+          {/* Card 1: Bảng danh sách ống mẫu được chọn */}
+          <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
+            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
+              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                <FaVial className="text-primary" />
+                <span>Chi Tiết Ống Bệnh Phẩm — Đợt: </span>
+                <span className="font-monospace text-primary">{batchCode || "Chưa tạo mã"}</span>
+              </h5>
+              <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                {selectedAppointments.length} ống mẫu
+              </span>
+            </div>
+
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0 table-sm">
+                <thead className="table-light text-muted small text-uppercase">
+                  <tr>
+                    <th style={{ width: "36px" }} className="ps-3">#</th>
+                    <th>Mã Ống Mẫu (Dự Kiến)</th>
+                    <th>Bệnh Nhân</th>
+                    <th>Loại Ống / Chất Chống Đông</th>
+                    <th className="pe-3">Người Lấy Mẫu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedAppointments.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        Chưa có bệnh nhân nào được chọn cho đợt này. Vui lòng tick chọn từ danh sách bên trái.
+                      </td>
+                    </tr>
+                  ) : (
+                    selectedAppointments.map((apt, index) => {
+                      const specimenId = `SPC-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}-A1-${String(89 + index).padStart(4, "0")}`;
+                      const tubesList = Array.isArray(apt?.tubes) ? apt.tubes : ["EDTA", "Serum"];
+                      return (
+                        <tr key={apt.appointmentId || index}>
+                          <td className="text-muted small ps-3">{index + 1}</td>
+                          <td>
+                            <code className="text-primary fw-semibold small bg-light px-1 py-0.5 rounded">
+                              {specimenId}
+                            </code>
+                          </td>
+                          <td className="fw-semibold text-dark">
+                            {apt.patientName}
+                          </td>
+                          <td>
+                            <div className="d-flex gap-1 flex-wrap">
+                              {tubesList.map((tube, tIdx) => (
+                                <span
+                                  key={tIdx}
+                                  className={`badge px-2 py-0.5 rounded-pill ${getTubeBadgeClass(tube)}`}
+                                >
+                                  <FaVial className="me-1 small" />
+                                  {tube}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="text-secondary small pe-3">
+                            {collectorName}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Card 2: Thiết lập thông tin đợt lấy mẫu */}
+          <div className="card border-0 shadow-sm rounded-3 bg-white">
+            <div className="card-header bg-white border-bottom py-3">
+              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                <FaMapMarkerAlt className="text-primary" />
+                <span>Thiết Lập Địa Điểm & Thời Gian Lấy Mẫu</span>
+              </h5>
+            </div>
+            <div className="card-body p-4">
+              <div className="row g-3 mb-4">
+                <div className="col-md-7">
+                  <label className="form-label fw-semibold text-dark small">Địa Điểm / Bàn Lấy Mẫu *</label>
+                  <select
+                    className="form-select"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  >
+                    <option value="Bàn lấy mẫu số 1 - Khoa Xét nghiệm">Bàn lấy mẫu số 1 - Khoa Xét nghiệm</option>
+                    <option value="Phòng Lab 01 — Khu Tiếp nhận Cấp cứu">Phòng Lab 01 — Khu Tiếp nhận Cấp cứu</option>
+                    <option value="Khu Nội trú Tầng 3 — Lấy mẫu tại giường">Khu Nội trú Tầng 3 — Lấy mẫu tại giường</option>
+                  </select>
+                </div>
+                <div className="col-md-5">
+                  <label className="form-label fw-semibold text-dark small">Khung Giờ Lấy Mẫu Dự Kiến *</label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-light"><FaClock className="text-muted" /></span>
+                    <input
+                      type="time"
+                      className="form-control"
+                      value={targetTime}
+                      onChange={(e) => setTargetTime(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Nút hành động */}
+              <div className="d-flex gap-2 flex-wrap">
+                <button
+                  type="button"
+                  className="btn btn-primary d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm"
+                  disabled={submitting || selectedAppointments.length === 0}
+                  onClick={handleConfirmList}
+                >
+                  <FaCheckCircle /> {submitting ? "Đang xác nhận..." : "Xác Nhận Đợt Lấy Mẫu"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary d-flex align-items-center gap-2 fw-semibold shadow-sm"
+                  onClick={() => window.print()}
+                >
+                  <FaPrint /> In Bảng Kê Mẫu
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-primary d-flex align-items-center gap-2 fw-semibold shadow-sm"
+                  onClick={handlePrintBarcodes}
+                >
+                  <FaBarcode /> In Nhãn Mã Vạch
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal in mã vạch Barcode nhãn ống nghiệm */}
+      {showBarcodeModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content border-0 shadow-lg rounded-3">
+              <div className="modal-header border-bottom py-3">
+                <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+                  <FaBarcode className="text-primary" /> Nhãn Mã Vạch Bệnh Phẩm (Code 128) — Đợt {batchCode || "Chưa tạo"}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowBarcodeModal(false)}
+                />
+              </div>
+              <div className="modal-body p-4" style={{ maxHeight: "65vh", overflowY: "auto" }}>
+                {loadingBarcodes ? (
+                  <div className="text-center py-4 text-muted">
+                    <FaSpinner className="fa-spin me-2" /> Đang tạo dữ liệu mã vạch tiêu chuẩn...
+                  </div>
+                ) : !barcodeData || !Array.isArray(barcodeData.labels) || barcodeData.labels.length === 0 ? (
+                  <div className="text-center py-4 text-muted">
+                    <FaBarcode className="fs-1 text-secondary opacity-50 mb-2" />
+                    <p>Chưa có nhãn mã vạch nào khả dụng cho đợt gom mẫu này.</p>
+                  </div>
+                ) : (
+                  <div className="row g-3">
+                    {(Array.isArray(barcodeData?.labels) ? barcodeData.labels : []).map((lbl, idx) => (
+                      <div key={idx} className="col-md-6">
+                        <div className="p-3 border rounded-3 bg-white shadow-sm text-center">
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="fw-bold text-dark small">{lbl.patientName}</span>
+                            <span className="badge bg-secondary">{lbl.tube}</span>
+                          </div>
+                          <div className="text-muted small mb-2">{lbl.packageName}</div>
+                          <div
+                            dangerouslySetInnerHTML={{ __html: lbl.svgBarcode }}
+                            className="d-flex justify-content-center"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer border-top py-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowBarcodeModal(false)}
+                >
+                  Đóng
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary d-flex align-items-center gap-1 shadow-sm"
+                  onClick={() => window.print()}
+                >
+                  <FaPrint /> In Toàn Bộ Nhãn
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

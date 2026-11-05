@@ -75,6 +75,23 @@ api.interceptors.request.use(
         if (config.url && config.url.startsWith('/api/')) {
             config.url = config.url.substring(4);
         }
+        if (config.url) {
+            if (config.url.startsWith('/gateway/testorder/appointment')) {
+                config.url = config.url.replace('/gateway/testorder/appointment', '/appointments');
+            } else if (config.url.startsWith('/gateway/testorder/doctor')) {
+                config.url = config.url.replace('/gateway/testorder/doctor', '/appointments/doctors');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/bloodsample')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/bloodsample/i, '/TestOrder/BloodSample');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/testresult')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/testresult/i, '/TestOrder/TestResult');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/auditlog')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/auditlog/i, '/TestOrder/AuditLog');
+            }
+
+            if (config.url.startsWith('/TestOrder')) {
+                config.baseURL = API_URL.replace(/\/api\/?$/, '');
+            }
+        }
         const token = getToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

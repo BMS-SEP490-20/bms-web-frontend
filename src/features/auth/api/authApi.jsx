@@ -29,6 +29,11 @@ export async function sendPasswordRecoveryOtp(email) {
         });
         return response.data;
     } catch (firstErr) {
+        // Nếu API trả về 404 (Email chưa đăng ký), không nuốt lỗi mà ném ra ngay để thông báo cho người dùng
+        if (firstErr.response?.status === 404) {
+            throw firstErr;
+        }
+
         try {
             const response = await authClient.post("/api/auth/forgot-password", {
                 email: email.trim(),

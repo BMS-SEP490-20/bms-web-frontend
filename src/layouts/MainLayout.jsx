@@ -5,7 +5,9 @@
  * Conforms to: Production Medical Standards & AGENTS-DESIGN.md.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import PatientPortalLayout from './PatientPortalLayout';
+import { ROLES, resolveRoleId, getStoredUser } from '../constants/roles';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Layout/Sidebar.jsx';
 import AppHeader from '../components/Layout/AppHeader';
@@ -16,6 +18,13 @@ import AppHeader from '../components/Layout/AppHeader';
  * @returns {JSX.Element} The rendered main layout.
  */
 export default function MainLayout() {
+  const user = useMemo(() => getStoredUser(), []);
+  const roleId = useMemo(() => resolveRoleId(user), [user]);
+
+  // Logged-in Patient is a healthcare consumer: delegate to synchronized PatientPortalLayout
+  if (user && roleId === ROLES.PATIENT) {
+    return <PatientPortalLayout />;
+  }
   // Mobile drawer state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);

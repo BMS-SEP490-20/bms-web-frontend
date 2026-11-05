@@ -1,4 +1,39 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * @file TestBatchManagementPage.jsx
+ * @description Quản lý mẻ xét nghiệm máy phân tích tự động theo chuẩn ISO 15189:2022 (UC38).
+ * Tuân thủ: Tiêu chuẩn ISO 15189:2022, Clean Medical Standard (Rule 19) & AGENTS-CODE.md.
+ */
+
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Table,
+  Button,
+  Badge,
+  Alert,
+  Form,
+  Spinner,
+  Modal
+} from 'react-bootstrap';
+import {
+  FaFlask,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaPlus,
+  FaPlay,
+  FaStop,
+  FaTrashAlt,
+  FaSyncAlt,
+  FaMicroscope,
+  FaVial,
+  FaArrowLeft,
+  FaLock,
+  FaClock,
+  FaInfoCircle
+} from 'react-icons/fa';
 import {
   getBatches,
   getPendingSamples,
@@ -20,11 +55,11 @@ export default function TestBatchManagementPage() {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Active view: 'list' | 'create' | 'detail'
+  // Chế độ xem: 'list' | 'create' | 'detail'
   const [activeTab, setActiveTab] = useState('list');
   const [selectedBatch, setSelectedBatch] = useState(null);
 
-  // Form state for creating batch
+  // Form tạo mẻ mới
   const [selectedAnalyzer, setSelectedAnalyzer] = useState(ANALYZERS[0]);
   const [batchNotes, setBatchNotes] = useState('');
   const [iqcLotNumber, setIqcLotNumber] = useState('LOT-2026-OCT-09');
@@ -40,9 +75,11 @@ export default function TestBatchManagementPage() {
     setLoading(true);
     try {
       const res = await getBatches();
-      if (res.data) setBatches(res.data);
+      const list = res?.data || res || [];
+      setBatches(Array.isArray(list) ? list : []);
     } catch (err) {
-      setError(err.message || 'Không thể tải danh sách mẻ chạy.');
+      setError(err.message || 'Không thể tải danh sách mẻ xét nghiệm.');
+      setBatches([]);
     } finally {
       setLoading(false);
     }
@@ -51,9 +88,11 @@ export default function TestBatchManagementPage() {
   async function loadPendingSamples(category) {
     try {
       const res = await getPendingSamples(category || selectedAnalyzer.category);
-      if (res.data) setPendingSamples(res.data);
+      const list = res?.data || res || [];
+      setPendingSamples(Array.isArray(list) ? list : []);
     } catch (err) {
       console.warn('Lỗi tải mẫu chờ xếp mẻ:', err);
+      setPendingSamples([]);
     }
   }
 
@@ -83,7 +122,7 @@ export default function TestBatchManagementPage() {
     });
   };
 
-  // Auto fill available pending samples sequentially starting from A3
+  // Tự động xếp mẫu theo thứ tự ưu tiên ISO 15189 (STAT đi trước)
   const handleAutoFill = () => {
     const rows = ['A','B','C','D','E','F','G','H'].slice(0, selectedAnalyzer.rows);
     const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
@@ -99,14 +138,15 @@ export default function TestBatchManagementPage() {
     });
 
     const newAssigned = {};
-    const unassignedSamples = pendingSamples.filter(s => 
-      !Object.values(assignedWells).some(a => a.id === s.id || a.barcode === s.barcode)
+    const safePending = Array.isArray(pendingSamples) ? pendingSamples : [];
+    const unassignedSamples = safePending.filter(s =>
+      !Object.values(assignedWells).some(a => a?.id === s?.id || a?.barcode === s?.barcode)
     );
 
-    // Sort: STAT emergencies first
+    // Ưu tiên mẫu cấp cứu STAT
     const sorted = [...unassignedSamples].sort((a, b) => {
-      if (a.priority === 'STAT' && b.priority !== 'STAT') return -1;
-      if (b.priority === 'STAT' && a.priority !== 'STAT') return 1;
+      if (a?.priority === 'STAT' && b?.priority !== 'STAT') return -1;
+      if (b?.priority === 'STAT' && a?.priority !== 'STAT') return 1;
       return 0;
     });
 
@@ -117,14 +157,14 @@ export default function TestBatchManagementPage() {
     }
 
     setAssignedWells(prev => ({ ...prev, ...newAssigned }));
-    setSuccessMsg(`Đã tự động điền ${sIdx} mẫu vào khay theo thứ tự ưu tiên ISO 15189.`);
+    setSuccessMsg(`Đã tự động xếp ${sIdx} mẫu vào khay theo thứ tự ưu tiên ISO 15189.`);
     setTimeout(() => setSuccessMsg(null), 4000);
   };
 
   const handleCreateBatch = async () => {
     const wellEntries = Object.entries(assignedWells);
     if (wellEntries.length === 0) {
-      alert('Vui lòng xếp ít nhất 1 mẫu bệnh phẩm vào khay mẻ xét nghiệm.');
+      alert('Vui lòng xếp ít nhất một mẫu bệnh phẩm vào khay mẻ xét nghiệm.');
       return;
     }
 
@@ -132,13 +172,13 @@ export default function TestBatchManagementPage() {
       {
         coordinate: 'A1',
         isIqcControl: true,
-        iqcControlLevel: 'Level 1 (Normal)',
+        iqcControlLevel: 'Level 1 (Bình thường)',
         iqcLotNumber: iqcLotNumber
       },
       {
         coordinate: 'A2',
         isIqcControl: true,
-        iqcControlLevel: 'Level 2 (Pathological High)',
+        iqcControlLevel: 'Level 2 (Bệnh lý cao)',
         iqcLotNumber: iqcLotNumber
       },
       ...wellEntries.map(([coord, sample]) => ({
@@ -192,7 +232,7 @@ export default function TestBatchManagementPage() {
   };
 
   const handleCancelBatch = async (batchId) => {
-    if (!window.confirm('CẢNH BÁO: Hủy mẻ chạy sẽ hoàn tác tất cả mẫu bệnh phẩm về trạng thái "Đã tiếp nhận" (SampleStatus.Received). Bạn có chắc chắn muốn hủy?')) {
+    if (!window.confirm('CẢNH BÁO ISO 15189: Hủy mẻ chạy sẽ hoàn tác tất cả mẫu bệnh phẩm về trạng thái "Đã tiếp nhận" (Received). Bạn có chắc chắn muốn hủy?')) {
       return;
     }
     try {
@@ -210,515 +250,532 @@ export default function TestBatchManagementPage() {
     }
   };
 
+  const safeBatches = Array.isArray(batches) ? batches : [];
+  const safePendingSamples = Array.isArray(pendingSamples) ? pendingSamples : [];
+
   const rows = ['A','B','C','D','E','F','G','H'].slice(0, selectedAnalyzer.rows);
   const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
+    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      {/* Header Banner chuẩn ISO 15189 */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-              Quản lý Mẻ Xét nghiệm Máy Phân tích (Test Batches)
-            </h1>
-            <span style={{ backgroundColor: '#e0e7ff', color: '#4338ca', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '12px', border: '1px solid #c7d2fe' }}>
-              ISO 15189 COMPLIANT
-            </span>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <h3 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <FaFlask className="text-primary" />
+              <span>Quản Lý Mẻ Xét Nghiệm Máy Phân Tích (Test Batches)</span>
+            </h3>
+            <Badge bg="primary-subtle" text="primary" className="border border-primary-subtle px-2.5 py-1">
+              Tiêu chuẩn ISO 15189:2022
+            </Badge>
           </div>
-          <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '14px' }}>
-            Quy trình gom mẫu, sơ đồ giếng chạy máy (Well Plate Layout), kiểm soát mẫu nội kiểm IQC A1/A2 và hoàn tác an toàn.
+          <p className="text-muted small mb-0">
+            Quy trình gom mẫu, sơ đồ khay giếng (Well Plate Layout), bảo lưu vị trí IQC A1/A2 và kiểm soát vòng đời mẻ chạy máy.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button
+        <div className="d-flex gap-2">
+          <Button
+            variant={activeTab === 'list' ? 'primary' : 'outline-secondary'}
+            size="sm"
             onClick={() => { setActiveTab('list'); setSelectedBatch(null); }}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: activeTab === 'list' ? '#2563eb' : '#ffffff',
-              color: activeTab === 'list' ? '#ffffff' : '#475569',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-            }}
+            className="d-flex align-items-center gap-1 shadow-sm px-3"
           >
-            📋 Danh sách Mẻ ({batches.length})
-          </button>
-          <button
+            Danh Sách Mẻ ({safeBatches.length})
+          </Button>
+          <Button
+            variant={activeTab === 'create' ? 'primary' : 'success'}
+            size="sm"
             onClick={() => setActiveTab('create')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: activeTab === 'create' ? '#1d4ed8' : '#059669',
-              color: '#ffffff',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(5,150,105,0.2)'
-            }}
+            className="d-flex align-items-center gap-1 shadow-sm px-3 fw-semibold"
           >
-            ➕ Tạo Mẻ Chạy Máy Mới
-          </button>
+            <FaPlus /> Tạo Mẻ Chạy Máy Mới
+          </Button>
         </div>
       </div>
 
-      {/* Notifications */}
+      {/* Thông báo Alert */}
       {error && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
-          <span>⚠️ {error}</span>
-          <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991b1b', fontWeight: 'bold' }}>✕</button>
-        </div>
+        <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm mb-3">
+          <FaExclamationTriangle className="me-2" />
+          {error}
+        </Alert>
       )}
       {successMsg && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', marginBottom: '16px' }}>
-          ✅ {successMsg}
-        </div>
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg(null)} className="rounded-3 shadow-sm mb-3">
+          <FaCheckCircle className="me-2" />
+          {successMsg}
+        </Alert>
       )}
 
-      {/* TAB 1: LIST BATCHES */}
+      {/* TAB 1: DANH SÁCH MẺ XÉT NGHIỆM */}
       {activeTab === 'list' && (
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: '600', margin: 0, color: '#334155' }}>
-              Danh sách các mẻ xét nghiệm trong ca
-            </h2>
-            <button onClick={loadBatches} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', fontSize: '13px', cursor: 'pointer' }}>
-              🔄 Làm mới
-            </button>
-          </div>
+        <Card className="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
+          <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+              <FaMicroscope className="text-primary" />
+              <span>Danh Sách Các Mẻ Xét Nghiệm Trong Ca Làm Việc</span>
+            </h5>
+            <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="d-flex align-items-center gap-1">
+              <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+            </Button>
+          </Card.Header>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                <th style={{ padding: '12px 16px' }}>Mã Mẻ (Batch Code)</th>
-                <th style={{ padding: '12px 16px' }}>Máy Phân Tích</th>
-                <th style={{ padding: '12px 16px' }}>Số Mẫu (Đầy/Sức Chứa)</th>
-                <th style={{ padding: '12px 16px' }}>Trạng Thái</th>
-                <th style={{ padding: '12px 16px' }}>Kỹ Thuật Viên</th>
-                <th style={{ padding: '12px 16px' }}>Thời Gian Tạo</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center' }}>Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
-                    Chưa có mẻ xét nghiệm nào. Nhấn "Tạo Mẻ Chạy Máy Mới" để bắt đầu xếp khay mẫu.
-                  </td>
-                </tr>
-              ) : (
-                batches.map((b) => (
-                  <tr key={b.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#1e40af' }}>
-                      {b.batchCode}
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <div style={{ fontWeight: '600', color: '#1e293b' }}>{b.analyzerName}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>Phân loại: {b.testCategory}</div>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{ fontWeight: '600' }}>{b.totalSamples}</span>
-                      <span style={{ color: '#94a3b8' }}> / {b.trayCapacity} giếng</span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        backgroundColor:
-                          b.status === 'Completed' ? '#dcfce7' :
-                          b.status === 'Running' ? '#e0f2fe' :
-                          b.status === 'Cancelled' ? '#fee2e2' : '#fef3c7',
-                        color:
-                          b.status === 'Completed' ? '#166534' :
-                          b.status === 'Running' ? '#0369a1' :
-                          b.status === 'Cancelled' ? '#991b1b' : '#92400e'
-                      }}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#475569' }}>
-                      {b.createdByName || 'Tech KTV'}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '13px' }}>
-                      {new Date(b.createdAt).toLocaleString('vi-VN')}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <div style={{ display: 'inline-flex', gap: '8px' }}>
-                        <button
-                          onClick={() => { setSelectedBatch(b); setActiveTab('detail'); }}
-                          style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
-                        >
-                          👁️ Sơ Đồ Giếng
-                        </button>
-                        {b.status === 'Pending' && (
-                          <button
-                            onClick={() => handleUpdateStatus(b.id, 'Running')}
-                            style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#0284c7', color: '#ffffff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
-                          >
-                            ▶️ Nạp Máy Chạy
-                          </button>
-                        )}
-                        {b.status === 'Running' && (
-                          <button
-                            onClick={() => handleUpdateStatus(b.id, 'Completed')}
-                            style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#16a34a', color: '#ffffff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
-                          >
-                            ✅ Hoàn Tất
-                          </button>
-                        )}
-                        {b.status !== 'Completed' && b.status !== 'Cancelled' && (
-                          <button
-                            onClick={() => handleCancelBatch(b.id)}
-                            style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#ffffff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
-                          >
-                            ❌ Hủy Mẻ
-                          </button>
-                        )}
-                      </div>
-                    </td>
+          <Card.Body className="p-0">
+            <div className="table-responsive">
+              <Table hover align="middle" className="mb-0 table-sm">
+                <thead className="table-light text-muted small text-uppercase">
+                  <tr>
+                    <th className="py-3 px-3">Mã Mẻ (Batch Code)</th>
+                    <th className="py-3">Máy Phân Tích</th>
+                    <th className="py-3">Số Mẫu / Dung Lượng</th>
+                    <th className="py-3">Trạng Thái</th>
+                    <th className="py-3">Kỹ Thuật Viên</th>
+                    <th className="py-3">Thời Gian Tạo</th>
+                    <th className="py-3 px-3 text-end">Thao Tác</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody>
+                  {loading && safeBatches.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="text-center py-5">
+                        <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                        <span className="text-muted">Đang tải danh sách mẻ chạy...</span>
+                      </td>
+                    </tr>
+                  ) : safeBatches.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="text-center py-5 text-muted">
+                        <FaFlask className="fs-1 text-secondary opacity-50 mb-2" />
+                        <div className="fw-semibold">Chưa có mẻ xét nghiệm nào trong ca</div>
+                        <div className="small mb-3">Hãy tạo mẻ mới để sắp xếp các ống bệnh phẩm vào khay máy.</div>
+                        <Button variant="primary" size="sm" onClick={() => setActiveTab('create')}>
+                          <FaPlus className="me-1" /> Tạo Mẻ Mới Ngay
+                        </Button>
+                      </td>
+                    </tr>
+                  ) : (
+                    safeBatches.map((b) => {
+                      const totalWells = Array.isArray(b.positions) ? b.positions.length : b.totalPositions || 0;
+                      return (
+                        <tr key={b.id || b.batchCode}>
+                          <td className="px-3">
+                            <span className="fw-bold font-monospace text-primary">{b.batchCode || b.id}</span>
+                          </td>
+                          <td>
+                            <strong className="text-dark small">{b.analyzerName || b.analyzerId}</strong>
+                            <div className="text-muted" style={{ fontSize: '0.72rem' }}>{b.testCategory}</div>
+                          </td>
+                          <td>
+                            <span className="fw-semibold text-dark">{totalWells}</span>
+                            <span className="text-muted"> / {b.trayCapacity || 96} giếng</span>
+                          </td>
+                          <td>
+                            <Badge
+                              bg={
+                                b.status === 'Running' ? 'warning' :
+                                b.status === 'Completed' ? 'success' :
+                                b.status === 'Cancelled' ? 'danger' : 'secondary'
+                              }
+                              text={b.status === 'Running' ? 'dark' : undefined}
+                              className="px-2 py-1"
+                            >
+                              {b.status === 'Draft' ? 'Bản nháp' :
+                               b.status === 'Running' ? 'Đang chạy máy' :
+                               b.status === 'Completed' ? 'Hoàn thành' :
+                               b.status === 'Cancelled' ? 'Đã hủy' : b.status}
+                            </Badge>
+                          </td>
+                          <td className="small text-muted">{b.createdByName || 'KTV. Lê Minh Tuấn'}</td>
+                          <td className="small text-muted font-monospace">
+                            {b.createdAt ? new Date(b.createdAt).toLocaleString('vi-VN') : '—'}
+                          </td>
+                          <td className="px-3 text-end">
+                            <div className="d-flex justify-content-end gap-1">
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="px-2 py-1"
+                                style={{ fontSize: '0.75rem' }}
+                                onClick={() => { setSelectedBatch(b); setActiveTab('detail'); }}
+                              >
+                                Chi tiết khay
+                              </Button>
 
-      {/* TAB 2: DETAIL SƠ ĐỒ GIẾNG CỦA MẺ */}
-      {activeTab === 'detail' && selectedBatch && (
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', margin: 0, color: '#0f172a' }}>
-                  Sơ đồ Khay Giếng Mẻ: <span style={{ color: '#2563eb' }}>{selectedBatch.batchCode}</span>
-                </h2>
-                <span style={{
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  backgroundColor: selectedBatch.status === 'Completed' ? '#dcfce7' : selectedBatch.status === 'Running' ? '#e0f2fe' : '#fef3c7',
-                  color: selectedBatch.status === 'Completed' ? '#166534' : selectedBatch.status === 'Running' ? '#0369a1' : '#92400e'
-                }}>
-                  {selectedBatch.status}
-                </span>
-              </div>
-              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '14px' }}>
-                Máy: <strong>{selectedBatch.analyzerName}</strong> | Sức chứa: {selectedBatch.trayCapacity} giếng | Tổng ống mẫu nạp: {selectedBatch.totalSamples}
-              </p>
+                              {b.status === 'Draft' && (
+                                <Button
+                                  variant="warning"
+                                  size="sm"
+                                  className="px-2 py-1 text-dark"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleUpdateStatus(b.id, 'Running')}
+                                >
+                                  <FaPlay className="me-1" /> Chạy máy
+                                </Button>
+                              )}
+
+                              {b.status === 'Running' && (
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  className="px-2 py-1"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleUpdateStatus(b.id, 'Completed')}
+                                >
+                                  <FaCheckCircle className="me-1" /> Hoàn thành
+                                </Button>
+                              )}
+
+                              {b.status !== 'Completed' && b.status !== 'Cancelled' && (
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  className="px-2 py-1"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleCancelBatch(b.id)}
+                                  title="Hủy mẻ và hoàn tác mẫu về hàng đợi"
+                                >
+                                  <FaTrashAlt />
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </Table>
             </div>
-            <button
-              onClick={() => setActiveTab('list')}
-              style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: '600' }}
-            >
-              ← Quay Lại Danh Sách
-            </button>
-          </div>
-
-          {/* Grid Layout View */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '8px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-            {(selectedBatch.positions || []).map((pos) => (
-              <div
-                key={pos.coordinate}
-                style={{
-                  minHeight: '80px',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  border: pos.isIqcControl ? '2px solid #8b5cf6' : pos.isStat ? '2px solid #ef4444' : '1px solid #cbd5e1',
-                  backgroundColor: pos.isIqcControl ? '#f5f3ff' : pos.isStat ? '#fef2f2' : '#ffffff',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '800', fontSize: '13px', color: pos.isIqcControl ? '#6d28d9' : '#1e293b' }}>
-                    {pos.coordinate}
-                  </span>
-                  {pos.isIqcControl && (
-                    <span style={{ fontSize: '10px', fontWeight: '700', color: '#6d28d9', backgroundColor: '#ede9fe', padding: '1px 4px', borderRadius: '4px' }}>
-                      IQC
-                    </span>
-                  )}
-                  {pos.isStat && (
-                    <span style={{ fontSize: '10px', fontWeight: '700', color: '#dc2626', backgroundColor: '#fee2e2', padding: '1px 4px', borderRadius: '4px' }}>
-                      STAT
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: '11px', color: '#334155', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {pos.isIqcControl ? (pos.iqcControlLevel || 'Control Normal') : (pos.patientName || pos.barcode || 'Ống mẫu')}
-                </div>
-                <div style={{ fontSize: '10px', color: '#94a3b8' }}>
-                  {pos.barcode || (pos.isIqcControl ? 'LOT IQC' : '')}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '13px', color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '14px', height: '14px', backgroundColor: '#f5f3ff', border: '2px solid #8b5cf6', borderRadius: '3px' }} />
-              <strong>Tím:</strong> Mẫu nội kiểm IQC (A1 Level 1, A2 Level 2)
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '14px', height: '14px', backgroundColor: '#fef2f2', border: '2px solid #ef4444', borderRadius: '3px' }} />
-              <strong>Đỏ:</strong> Mẫu cấp cứu STAT ưu tiên
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '14px', height: '14px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '3px' }} />
-              <strong>Trắng:</strong> Mẫu thường (Routine)
-            </span>
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
       )}
 
-      {/* TAB 3: CREATE NEW BATCH & INTERACTIVE WELL PLATE BUILDER */}
+      {/* TAB 2: TẠO MẺ CHẠY MỚI */}
       {activeTab === 'create' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
-          {/* Left: Configuration & Well Plate Grid */}
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 16px', color: '#0f172a' }}>
-              Sơ Đồ Xếp Khay Mẫu Xét Nghiệm (Rack / Well Plate Builder)
-            </h2>
+        <div>
+          {/* Card chọn máy và thiết lập */}
+          <Card className="border-0 shadow-sm rounded-3 mb-4 bg-white">
+            <Card.Header className="bg-white py-3 border-bottom">
+              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                <FaFlask className="text-primary" />
+                <span>1. Chọn Máy Phân Tích &amp; Lô Kiểm Chuẩn IQC (ISO 15189)</span>
+              </h5>
+            </Card.Header>
+            <Card.Body className="p-4">
+              <Row className="g-3">
+                <Col md={5}>
+                  <Form.Label className="small fw-semibold text-secondary">Thiết Bị Phân Tích Tự Động *</Form.Label>
+                  <Form.Select
+                    value={selectedAnalyzer.id}
+                    onChange={(e) => {
+                      const anl = ANALYZERS.find(a => a.id === e.target.value);
+                      if (anl) handleSelectAnalyzer(anl);
+                    }}
+                  >
+                    {ANALYZERS.map(a => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} &bull; Sức chứa: {a.capacity} giếng
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Col>
 
-            {/* Config bar */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                  Máy Phân Tích
-                </label>
-                <select
-                  value={selectedAnalyzer.id}
-                  onChange={(e) => {
-                    const found = ANALYZERS.find(a => a.id === e.target.value);
-                    if (found) handleSelectAnalyzer(found);
-                  }}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-                >
-                  {ANALYZERS.map(a => (
-                    <option key={a.id} value={a.id}>{a.name} ({a.capacity} giếng)</option>
-                  ))}
-                </select>
-              </div>
+                <Col md={4}>
+                  <Form.Label className="small fw-semibold text-secondary">Mã Lô Nội Kiểm IQC (Vị trí A1/A2) *</Form.Label>
+                  <Form.Control
+                    value={iqcLotNumber}
+                    onChange={(e) => setIqcLotNumber(e.target.value)}
+                    placeholder="VD: LOT-2026-OCT-09"
+                  />
+                </Col>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                  Số Lô Nội Kiểm (IQC Lot)
-                </label>
-                <input
-                  type="text"
-                  value={iqcLotNumber}
-                  onChange={(e) => setIqcLotNumber(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-                />
-              </div>
+                <Col md={3}>
+                  <Form.Label className="small fw-semibold text-secondary">Tác Vụ Xếp Nhanh</Form.Label>
+                  <Button
+                    variant="outline-primary"
+                    className="w-100 d-flex align-items-center justify-content-center gap-1 shadow-sm"
+                    onClick={handleAutoFill}
+                  >
+                    <FaVial /> Xếp Nhanh Mẫu (Ưu Tiên STAT)
+                  </Button>
+                </Col>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                  Ghi chú vận hành
-                </label>
-                <input
-                  type="text"
-                  value={batchNotes}
-                  onChange={(e) => setBatchNotes(e.target.value)}
-                  placeholder="Ghi chú ca chạy..."
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-                />
-              </div>
-            </div>
+                <Col xs={12}>
+                  <Form.Label className="small fw-semibold text-secondary">Ghi Chú Vận Hành Mẻ</Form.Label>
+                  <Form.Control
+                    placeholder="Ghi chú hóa chất, số hiệu mẻ chạy, thông số kỹ thuật..."
+                    value={batchNotes}
+                    onChange={(e) => setBatchNotes(e.target.value)}
+                  />
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
 
-            {/* Actions Bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#f8fafc', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '13px', color: '#475569' }}>
-                Đang chọn giếng: <strong style={{ color: '#2563eb', fontSize: '15px' }}>{selectedWell}</strong> |
-                Đã xếp: <strong>{Object.keys(assignedWells).length + 2}</strong> / {selectedAnalyzer.capacity} giếng (gồm 2 mẫu IQC)
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  onClick={handleAutoFill}
-                  style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#3b82f6', color: '#ffffff', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  ⚡ Tự Động Điền Khay (Ưu tiên STAT)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAssignedWells({})}
-                  style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#64748b', fontSize: '13px', cursor: 'pointer' }}
-                >
-                  Dọn Khay Trống
-                </button>
-              </div>
-            </div>
+          {/* Sơ đồ khay giếng (Well Plate Grid) */}
+          <Row className="g-4 mb-4">
+            {/* Khay giếng */}
+            <Col lg={8}>
+              <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
+                <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                  <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                    <FaMicroscope className="text-primary" />
+                    <span>Sơ Đồ Giếng Chạy Máy (Well Plate Layout — {selectedAnalyzer.name})</span>
+                  </h5>
+                  <div className="d-flex gap-2 small">
+                    <Badge bg="danger">A1/A2: Mẫu IQC</Badge>
+                    <Badge bg="primary">Mẫu BN</Badge>
+                    <Badge bg="warning" text="dark">STAT Cấp cứu</Badge>
+                  </div>
+                </Card.Header>
 
-            {/* Interactive Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${selectedAnalyzer.cols}, 1fr)`,
-              gap: '6px',
-              padding: '16px',
-              backgroundColor: '#f1f5f9',
-              borderRadius: '10px',
-              border: '1px solid #cbd5e1'
-            }}>
-              {rows.map(r => 
-                cols.map(c => {
-                  const coord = `${r}${c}`;
-                  const isIqc = coord === 'A1' || coord === 'A2';
-                  const assigned = assignedWells[coord];
-                  const isCurrent = selectedWell === coord;
+                <Card.Body className="p-4">
+                  <div className="table-responsive">
+                    <table className="table table-bordered text-center align-middle mb-0" style={{ tableLayout: 'fixed' }}>
+                      <thead className="table-light">
+                        <tr>
+                          <th style={{ width: '40px' }}></th>
+                          {cols.map(c => (
+                            <th key={c} className="py-1 small">{c}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map(r => (
+                          <tr key={r}>
+                            <th className="table-light py-2 small fw-bold">{r}</th>
+                            {cols.map(c => {
+                              const coord = `${r}${c}`;
+                              const isA1 = coord === 'A1';
+                              const isA2 = coord === 'A2';
+                              const sample = assignedWells[coord];
+                              const isAssigned = Boolean(sample);
+                              const isStat = sample?.priority === 'STAT';
 
-                  return (
-                    <div
-                      key={coord}
-                      onClick={() => !isIqc && setSelectedWell(coord)}
-                      style={{
-                        minHeight: '68px',
-                        padding: '6px',
-                        borderRadius: '6px',
-                        cursor: isIqc ? 'not-allowed' : 'pointer',
-                        border: isCurrent ? '2px solid #2563eb' : isIqc ? '2px solid #8b5cf6' : assigned?.priority === 'STAT' ? '2px solid #ef4444' : '1px solid #cbd5e1',
-                        backgroundColor: isIqc ? '#f5f3ff' : assigned?.priority === 'STAT' ? '#fef2f2' : assigned ? '#ffffff' : '#f8fafc',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        position: 'relative',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '800', color: isIqc ? '#6d28d9' : '#334155' }}>
-                          {coord}
-                        </span>
-                        {isIqc && (
-                          <span style={{ fontSize: '9px', fontWeight: '800', color: '#6d28d9', backgroundColor: '#ede9fe', padding: '1px 3px', borderRadius: '3px' }}>
-                            {coord === 'A1' ? 'L1' : 'L2'}
-                          </span>
-                        )}
-                        {assigned?.priority === 'STAT' && (
-                          <span style={{ fontSize: '9px', fontWeight: '800', color: '#dc2626', backgroundColor: '#fee2e2', padding: '1px 3px', borderRadius: '3px' }}>
-                            STAT
-                          </span>
-                        )}
-                        {assigned && (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); removeSampleFromWell(coord); }}
-                            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '11px', padding: '0 2px' }}
-                            title="Xóa mẫu khỏi giếng này"
+                              return (
+                                <td
+                                  key={coord}
+                                  className={`p-1 position-relative ${
+                                    isA1 || isA2
+                                      ? 'bg-danger-subtle'
+                                      : isAssigned
+                                      ? isStat
+                                        ? 'bg-warning-subtle'
+                                        : 'bg-primary-subtle'
+                                      : 'bg-white'
+                                  }`}
+                                  style={{
+                                    height: '52px',
+                                    cursor: isA1 || isA2 ? 'not-allowed' : 'pointer',
+                                    border: selectedWell === coord ? '2px solid #0d6efd' : undefined
+                                  }}
+                                  onClick={() => {
+                                    if (!isA1 && !isA2) setSelectedWell(coord);
+                                  }}
+                                >
+                                  {isA1 ? (
+                                    <div className="small fw-bold text-danger">
+                                      <div>IQC-1</div>
+                                      <div style={{ fontSize: '0.62rem' }}>Normal</div>
+                                    </div>
+                                  ) : isA2 ? (
+                                    <div className="small fw-bold text-danger">
+                                      <div>IQC-2</div>
+                                      <div style={{ fontSize: '0.62rem' }}>High</div>
+                                    </div>
+                                  ) : isAssigned ? (
+                                    <div className="small text-truncate" title={sample.patientName}>
+                                      <div className="fw-bold font-monospace" style={{ fontSize: '0.68rem' }}>
+                                        {sample.barcode || sample.id}
+                                      </div>
+                                      <div className="text-dark text-truncate" style={{ fontSize: '0.62rem' }}>
+                                        {sample.patientName}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-muted opacity-50 small" style={{ fontSize: '0.68rem' }}>
+                                      {coord}
+                                    </div>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <span className="small text-muted">
+                      Đã xếp: <strong className="text-primary">{Object.keys(assignedWells).length + 2}</strong> / {selectedAnalyzer.capacity} vị trí (Gồm 2 mẫu IQC bắt buộc)
+                    </span>
+                    <div className="d-flex gap-2">
+                      <Button variant="outline-secondary" size="sm" onClick={() => setAssignedWells({})}>
+                        Xóa tất cả mẫu trên khay
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="fw-semibold px-4 shadow-sm"
+                        disabled={loading || Object.keys(assignedWells).length === 0}
+                        onClick={handleCreateBatch}
+                      >
+                        {loading ? <Spinner size="sm" animation="border" /> : <FaCheckCircle className="me-1" />}
+                        Xác Nhận Tạo Mẻ Xét Nghiệm
+                      </Button>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* Danh sách mẫu chờ xếp vào giếng */}
+            <Col lg={4}>
+              <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
+                <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                  <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-1">
+                    <FaClock className="text-warning" />
+                    <span>Mẫu Chờ Xếp Khay ({safePendingSamples.length})</span>
+                  </h5>
+                  <Badge bg="info">Giếng chọn: {selectedWell}</Badge>
+                </Card.Header>
+
+                <Card.Body className="p-3" style={{ maxHeight: '480px', overflowY: 'auto' }}>
+                  {safePendingSamples.length === 0 ? (
+                    <div className="text-center py-4 text-muted small">
+                      Không có mẫu bệnh phẩm nào đang chờ xếp khay cho chuyên khoa này.
+                    </div>
+                  ) : (
+                    <div className="d-flex flex-column gap-2">
+                      {safePendingSamples.map((sample) => {
+                        const isPlaced = Object.values(assignedWells).some(a => a?.id === sample?.id || a?.barcode === sample?.barcode);
+                        const isStat = sample?.priority === 'STAT';
+
+                        return (
+                          <div
+                            key={sample.id || sample.barcode}
+                            className={`p-2 rounded border small d-flex justify-content-between align-items-center ${
+                              isPlaced ? 'bg-light opacity-50' : isStat ? 'border-danger bg-danger-subtle' : 'bg-white'
+                            }`}
                           >
-                            ✕
-                          </button>
-                        )}
-                      </div>
+                            <div>
+                              <div className="fw-bold font-monospace text-primary">
+                                {sample.barcode || sample.id}
+                                {isStat && <Badge bg="danger" className="ms-1">STAT</Badge>}
+                              </div>
+                              <div className="text-dark fw-medium">{sample.patientName}</div>
+                              <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                                {sample.testPackageName || sample.sampleType} &bull; {sample.volumeMl || 3} mL
+                              </div>
+                            </div>
 
-                      <div style={{ fontSize: '10px', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {isIqc ? (coord === 'A1' ? 'IQC Level 1' : 'IQC Level 2') : assigned ? (assigned.patientName || assigned.barcode) : 'Trống'}
-                      </div>
-                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>
-                        {assigned?.barcode || (isIqc ? iqcLotNumber : '')}
-                      </div>
+                            <div>
+                              {isPlaced ? (
+                                <Badge bg="secondary">Đã xếp</Badge>
+                              ) : (
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  className="px-2 py-0.5"
+                                  style={{ fontSize: '0.72rem' }}
+                                  onClick={() => assignSampleToWell(sample, selectedWell)}
+                                >
+                                  + Gán {selectedWell}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })
-              )}
-            </div>
-
-            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setActiveTab('list')}
-                style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', fontWeight: '600' }}
-              >
-                Hủy bỏ
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleCreateBatch}
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#10b981', color: '#ffffff', fontSize: '14px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}
-              >
-                {loading ? 'Đang lưu mẻ...' : '🚀 Xác Nhận Nạp Mẻ Xét Nghiệm'}
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Pending Samples Queue */}
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: 'fit-content' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', margin: 0, color: '#0f172a' }}>
-                Ống Mẫu Chờ Xếp ({pendingSamples.length})
-              </h3>
-              <button onClick={() => loadPendingSamples()} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px' }}>
-                🔄 Tải lại
-              </button>
-            </div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px' }}>
-              Nhấp vào mẫu bên dưới để gán vào giếng đang chọn <strong>({selectedWell})</strong>:
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '600px', overflowY: 'auto' }}>
-              {pendingSamples.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
-                  Không còn mẫu nào đang chờ xếp cho danh mục này.
-                </div>
-              ) : (
-                pendingSamples.map(sample => {
-                  const isAssigned = Object.values(assignedWells).some(a => a.id === sample.id || a.barcode === sample.barcode);
-                  const isStat = sample.priority === 'STAT';
-
-                  return (
-                    <div
-                      key={sample.id || sample._id}
-                      onClick={() => !isAssigned && assignSampleToWell(sample, selectedWell)}
-                      style={{
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: isStat ? '1px solid #fca5a5' : '1px solid #e2e8f0',
-                        backgroundColor: isAssigned ? '#f1f5f9' : isStat ? '#fff1f2' : '#ffffff',
-                        opacity: isAssigned ? 0.6 : 1,
-                        cursor: isAssigned ? 'default' : 'pointer',
-                        transition: 'transform 0.1s ease',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '700', fontSize: '13px', color: '#0f172a' }}>
-                          {sample.barcode || 'SAMP-xxx'}
-                        </span>
-                        {isStat && (
-                          <span style={{ fontSize: '10px', fontWeight: '700', color: '#dc2626', backgroundColor: '#fee2e2', padding: '1px 5px', borderRadius: '4px' }}>
-                            STAT
-                          </span>
-                        )}
-                        {isAssigned && (
-                          <span style={{ fontSize: '10px', fontWeight: '700', color: '#16a34a' }}>
-                            ✓ Đã gán
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#334155', fontWeight: '500' }}>
-                        {sample.patientName || 'Bệnh nhân'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                        Loại mẫu: {sample.sampleType || selectedAnalyzer.category}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+                  )}
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
         </div>
       )}
-    </div>
+
+      {/* TAB 3: CHI TIẾT MẺ */}
+      {activeTab === 'detail' && selectedBatch && (
+        <Card className="border-0 shadow-sm rounded-3 bg-white">
+          <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+              <FaInfoCircle className="text-primary" />
+              <span>Chi Tiết Khay Mẻ: {selectedBatch.batchCode || selectedBatch.id} &mdash; {selectedBatch.analyzerName}</span>
+            </h5>
+            <Button variant="outline-secondary" size="sm" onClick={() => setActiveTab('list')}>
+              <FaArrowLeft className="me-1" /> Quay lại danh sách
+            </Button>
+          </Card.Header>
+
+          <Card.Body className="p-4">
+            <Row className="g-3 mb-4">
+              <Col md={3}>
+                <div className="text-muted small">Trạng Thái Mẻ:</div>
+                <Badge bg={selectedBatch.status === 'Completed' ? 'success' : 'primary'} className="fs-6 mt-1">
+                  {selectedBatch.status}
+                </Badge>
+              </Col>
+              <Col md={3}>
+                <div className="text-muted small">Máy Phân Tích:</div>
+                <div className="fw-bold text-dark mt-1">{selectedBatch.analyzerName}</div>
+              </Col>
+              <Col md={3}>
+                <div className="text-muted small">Thời Gian Tạo:</div>
+                <div className="fw-semibold text-dark mt-1">
+                  {selectedBatch.createdAt ? new Date(selectedBatch.createdAt).toLocaleString('vi-VN') : '—'}
+                </div>
+              </Col>
+              <Col md={3}>
+                <div className="text-muted small">Ghi Chú Kỹ Thuật:</div>
+                <div className="text-dark mt-1">{selectedBatch.notes || 'Không có ghi chú'}</div>
+              </Col>
+            </Row>
+
+            <h6 className="fw-bold text-dark mb-3">Danh Sách Vị Trí Giếng Trong Mẻ ({Array.isArray(selectedBatch.positions) ? selectedBatch.positions.length : 0})</h6>
+            <div className="table-responsive">
+              <Table hover align="middle" className="mb-0 table-sm">
+                <thead className="table-light small text-uppercase">
+                  <tr>
+                    <th>Tọa Độ Giếng</th>
+                    <th>Loại Vị Trí</th>
+                    <th>Mã Ống Mẫu / Lô QC</th>
+                    <th>Bệnh Nhân / Cấp Độ IQC</th>
+                    <th>Loại Xét Nghiệm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(Array.isArray(selectedBatch.positions) ? selectedBatch.positions : []).map((pos, idx) => (
+                    <tr key={idx} className={pos.isIqcControl ? 'table-danger' : pos.isStat ? 'table-warning' : undefined}>
+                      <td className="fw-bold font-monospace">{pos.coordinate}</td>
+                      <td>
+                        {pos.isIqcControl ? (
+                          <Badge bg="danger">Mẫu Nội Kiểm IQC</Badge>
+                        ) : pos.isStat ? (
+                          <Badge bg="warning" text="dark">Mẫu Cấp Cứu STAT</Badge>
+                        ) : (
+                          <Badge bg="light" text="dark" className="border">Mẫu Bệnh Nhân</Badge>
+                        )}
+                      </td>
+                      <td className="font-monospace text-primary">
+                        {pos.isIqcControl ? pos.iqcLotNumber : pos.barcode || pos.sampleId}
+                      </td>
+                      <td className="fw-semibold text-dark">
+                        {pos.isIqcControl ? pos.iqcControlLevel : pos.patientName || '—'}
+                      </td>
+                      <td className="small text-muted">{pos.testType || 'Xét nghiệm'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
+      )}
+    </Container>
   );
 }

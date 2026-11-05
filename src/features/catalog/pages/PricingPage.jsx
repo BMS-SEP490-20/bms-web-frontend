@@ -107,13 +107,14 @@ export default function PricingPage() {
       <PortalNavbar />
 
       {/* Header Banner */}
-      <section style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.06)', padding: '40px 0 32px' }}>
-        <Container style={{ maxWidth: '1280px' }}>
+      <section style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.06)', padding: '36px 0 28px' }}>
+        <Container style={{ maxWidth: '1400px' }}>
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
               <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2"
-                   style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontSize: '12.5px', fontWeight: 650 }}>
-                <FaShieldAlt /> TIÊU CHUẨN ISO 15189:2022 • NIÊM YẾT MINH BẠCH 100%
+                   style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontSize: '12px', fontWeight: 650 }}>
+                <img src="/bmsicon.ico" alt="BMS" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
+                <span>TIÊU CHUẨN ISO 15189:2022 • NIÊM YẾT MINH BẠCH 100%</span>
               </div>
               <h1 className="fw-bold mb-2" style={{ fontSize: '28px', color: '#0F172A', letterSpacing: '-0.025em' }}>
                 Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm

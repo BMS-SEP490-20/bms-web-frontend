@@ -147,8 +147,8 @@ export default function PublicQueueBoardPage() {
       >
         <div className="d-flex align-items-center gap-3">
           <div
-            className="p-2 rounded-3 bg-primary text-white d-flex align-items-center justify-content-center"
-            style={{ width: '48px', height: '48px' }}
+            className="p-2 rounded-3 text-white d-flex align-items-center justify-content-center"
+            style={{ width: '48px', height: '48px', backgroundColor: '#5E85E6' }}
           >
             <FaHospital className="fs-3" />
           </div>
@@ -156,7 +156,7 @@ export default function PublicQueueBoardPage() {
             <h4 className="fw-bold mb-0 text-white tracking-wide">
               BỆNH VIỆN & PHÒNG KHÁM ĐA KHOA QUỐC TẾ BMS
             </h4>
-            <div className="small text-info text-uppercase fw-semibold">
+            <div className="small text-uppercase fw-semibold" style={{ color: '#93c5fd' }}>
               Hệ Thống Hàng Đợi Thông Minh (Smart Queue Kiosk)
             </div>
           </div>
@@ -165,9 +165,9 @@ export default function PublicQueueBoardPage() {
         <div className="d-flex align-items-center gap-4">
           {/* Clock Display */}
           <div className="text-end d-flex align-items-center gap-2">
-            <FaClock className="text-warning fs-4" />
+            <FaClock className="fs-4" style={{ color: '#E7BC4C' }} />
             <div>
-              <div className="fs-4 fw-bold font-monospace text-warning leading-none">
+              <div className="fs-4 fw-bold font-monospace leading-none" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>
                 {currentTime.toLocaleTimeString('vi-VN')}
               </div>
               <div className="small text-white-50">
@@ -181,15 +181,16 @@ export default function PublicQueueBoardPage() {
             <Button
               variant={audioEnabled ? 'success' : 'outline-light'}
               size="sm"
+              style={{ borderRadius: '9999px', padding: '6px 16px' }}
               onClick={() => {
                 setAudioEnabled(!audioEnabled);
                 if (!audioEnabled) playChime();
               }}
               title={audioEnabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt (Nhấp để bật)'}
             >
-              <FaVolumeUp /> {audioEnabled ? 'Loa BẬT' : 'Bật Loa'}
+              <FaVolumeUp className="me-1" /> {audioEnabled ? 'Loa BẬT' : 'Bật Loa'}
             </Button>
-            <Button variant="outline-light" size="sm" onClick={toggleFullscreen} title="Toàn màn hình">
+            <Button variant="outline-light" size="sm" style={{ borderRadius: '9999px' }} onClick={toggleFullscreen} title="Toàn màn hình">
               {isFullscreen ? <FaCompress /> : <FaExpand />}
             </Button>
           </div>
@@ -205,11 +206,11 @@ export default function PublicQueueBoardPage() {
               className="h-100 border-0 rounded-4 shadow-lg overflow-hidden d-flex flex-column"
               style={{ backgroundColor: '#1C2541' }}
             >
-              <div className="bg-primary text-white py-3 px-4 d-flex justify-content-between align-items-center">
+              <div className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#5E85E6' }}>
                 <span className="fw-bold text-uppercase fs-5 d-flex align-items-center gap-2">
                   <FaUserCheck /> ĐANG GỌI VÀO PHÒNG KHÁM
                 </span>
-                <span className="badge bg-warning text-dark fs-6 px-3 py-1.5 rounded-pill">
+                <span className="badge fs-6 px-3 py-1.5 rounded-pill" style={{ backgroundColor: '#E7BC4C', color: '#1E293B', fontWeight: 'bold' }}>
                   {current?.roomId || 'TẤT CẢ PHÒNG'}
                 </span>
               </div>

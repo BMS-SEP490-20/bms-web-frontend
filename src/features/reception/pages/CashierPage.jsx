@@ -17,9 +17,9 @@ import { Container, Card, Alert } from "react-bootstrap";
 export default function CashierPage() {
     return (
         <Container className="py-4">
-            <Card className="shadow-sm p-4 text-center border-0">
-                <Alert variant="info" className="m-0">
-                    <i className="bi bi-qr-code-scan me-2"></i>
+            <Card className="shadow-sm p-4 text-center rounded-4" style={{ border: '1px solid #E5E9EB', backgroundColor: '#FFFFFF' }}>
+                <Alert variant="info" className="m-0" style={{ borderRadius: '14px', border: '1px solid rgba(94, 133, 230, 0.3)', backgroundColor: 'rgba(94, 133, 230, 0.08)', color: '#2B4C8C' }}>
+                    <i className="bi bi-qr-code-scan me-2" style={{ color: '#5E85E6' }}></i>
                     <strong>Quầy Thu Ngân POS & Thanh Toán QR:</strong> Hệ thống kết nối cổng thanh toán VNPay và máy in phiếu thu tự động.
                 </Alert>
             </Card>

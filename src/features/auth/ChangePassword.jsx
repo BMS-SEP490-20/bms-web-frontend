@@ -86,12 +86,12 @@ const ChangePassword = () => {
   };
 
   return (
-    <Card className="shadow-sm border-0 rounded-4">
-      <Card.Header className="bg-white border-bottom py-3 px-4">
-        <h5 className="fw-bold mb-0 text-primary">
+    <Card className="shadow-sm border rounded-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+      <Card.Header className="bg-white border-bottom py-3.5 px-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+        <h5 className="fw-bold mb-1" style={{ color: 'var(--bms-primary, #5E85E6)', fontSize: '18px' }}>
           <i className="bi bi-key-fill me-2"></i>Thay Đổi Mật Khẩu Bảo Mật
         </h5>
-        <small className="text-muted">Bảo vệ tài khoản y tế BMS theo chuẩn định danh y khoa (BR-IAM-01)</small>
+        <small className="text-muted" style={{ fontSize: '12px' }}>Bảo vệ tài khoản y tế BMS theo chuẩn định danh y khoa (BR-IAM-01)</small>
       </Card.Header>
       <Card.Body className="p-4">
         {errorMsg && <Alert variant="danger" dismissible onClose={() => setErrorMsg('')}>{errorMsg}</Alert>}
@@ -100,7 +100,7 @@ const ChangePassword = () => {
         <Form onSubmit={handleSubmit}>
           {/* Current Password */}
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">Mật khẩu hiện tại <span className="text-danger">*</span></Form.Label>
+            <Form.Label className="fw-semibold small">Mật khẩu hiện tại <span className="text-danger">*</span></Form.Label>
             <InputGroup>
               <Form.Control
                 type={showCurrent ? 'text' : 'password'}
@@ -117,7 +117,7 @@ const ChangePassword = () => {
 
           {/* New Password */}
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">Mật khẩu mới <span className="text-danger">*</span></Form.Label>
+            <Form.Label className="fw-semibold small">Mật khẩu mới <span className="text-danger">*</span></Form.Label>
             <InputGroup>
               <Form.Control
                 type={showNew ? 'text' : 'password'}
@@ -143,7 +143,7 @@ const ChangePassword = () => {
 
           {/* Confirm New Password */}
           <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold">Xác nhận mật khẩu mới <span className="text-danger">*</span></Form.Label>
+            <Form.Label className="fw-semibold small">Xác nhận mật khẩu mới <span className="text-danger">*</span></Form.Label>
             <InputGroup>
               <Form.Control
                 type={showConfirm ? 'text' : 'password'}
@@ -159,10 +159,10 @@ const ChangePassword = () => {
           </Form.Group>
 
           <div className="d-flex justify-content-end gap-2">
-            <Button variant="outline-secondary" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
+            <Button variant="outline-secondary" className="rounded-pill px-3.5" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
               Hủy bỏ
             </Button>
-            <Button variant="primary" type="submit" disabled={loading} className="fw-semibold px-4">
+            <Button variant="primary" type="submit" disabled={loading} className="rounded-pill fw-semibold px-4" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}>
               {loading ? <Spinner animation="border" size="sm" /> : 'Cập Nhật Mật Khẩu'}
             </Button>
           </div>

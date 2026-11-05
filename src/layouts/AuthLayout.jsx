@@ -16,16 +16,16 @@ import { Outlet, Link } from 'react-router-dom';
  */
 const AuthLayout = () => {
   return (
-    <div className="min-vh-100 d-flex flex-column justify-content-center bg-light py-4">
+    <div className="min-vh-100 d-flex flex-column justify-content-center py-4" style={{ backgroundColor: 'var(--bms-surface-card, #F1F4F7)', backgroundImage: 'radial-gradient(ellipse at 50% 0%, #FFFFFF 0%, #F1F4F7 100%)' }}>
       <Container>
         <div className="text-center mb-4">
           <Link to="/" className="text-decoration-none d-inline-flex align-items-center gap-3">
-            <div style={{ width: 48, height: 48, background: '#fff', borderRadius: 10, padding: 3, border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)', overflow: 'hidden' }}>
+            <div style={{ width: 48, height: 48, background: '#fff', borderRadius: 12, padding: 3, border: '1px solid #E5E9EB', boxShadow: '0 4px 12px rgba(94, 133, 230, 0.08)', overflow: 'hidden' }}>
               <img src="/assets/bms-logo.png" alt="BMS Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div className="text-start">
-              <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>BMS CLINICAL LABORATORY</h3>
-              <small className="text-muted" style={{ fontSize: '11px' }}>Hệ Thống Quản Lý Xét Nghiệm Y Khoa ISO 15189</small>
+              <h3 className="fw-bold mb-0" style={{ fontSize: '17px', color: 'var(--bms-text-primary, #20242B)', letterSpacing: '-0.01em' }}>BMS CLINICAL LABORATORY</h3>
+              <small className="text-muted" style={{ fontSize: '11px', letterSpacing: '0.02em' }}>Hệ Thống Quản Lý Xét Nghiệm Y Khoa ISO 15189</small>
             </div>
           </Link>
         </div>

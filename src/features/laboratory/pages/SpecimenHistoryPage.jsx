@@ -243,10 +243,10 @@ export default function SpecimenHistoryPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Truy Vấn Lịch Sử Mẫu Bệnh Phẩm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#648CF4', border: '1px solid rgba(94,133,230,0.2)' }}>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', border: '1px solid rgba(94,133,230,0.2)' }}>
                             UC70 • BR-212 / BR-213
                         </span>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#1A3311', border: '1px solid #A3E687' }}>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#1A3311', border: '1px solid #10B981' }}>
                             ISO 15189
                         </span>
                     </div>
@@ -259,7 +259,7 @@ export default function SpecimenHistoryPage() {
                     <button
                         type="button"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={() => {
                             loadSpecimenDetail(activeBarcode);
                             loadSpecimenDirectory();
@@ -295,7 +295,7 @@ export default function SpecimenHistoryPage() {
                     <form onSubmit={handleSearchSubmit} className="row g-2 align-items-center">
                         <div className="col-12 col-md-6 col-lg-7">
                             <div className="input-group">
-                                <span className="input-group-text border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#648CF4', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                                <span className="input-group-text border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                     <FaBarcode className="fs-5" />
                                 </span>
                                 <input
@@ -313,7 +313,7 @@ export default function SpecimenHistoryPage() {
                             <button
                                 type="submit"
                                 className="btn btn-lg w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-pill"
-                                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
+                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
                                 disabled={loadingSpecimen}
                             >
                                 <FaSearch />
@@ -332,7 +332,7 @@ export default function SpecimenHistoryPage() {
                                         className={`btn btn-sm py-0 px-2 rounded-pill font-monospace ${
                                             activeBarcode === item.barcode ? "btn-dark" : "btn-outline-secondary"
                                         }`}
-                                        style={activeBarcode === item.barcode ? { backgroundColor: '#648CF4', borderColor: '#648CF4' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
+                                        style={activeBarcode === item.barcode ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
                                         onClick={() => handleSelectSpecimen(item.barcode)}
                                     >
                                         {item.barcode}
@@ -366,7 +366,7 @@ export default function SpecimenHistoryPage() {
                     <div className="card-header bg-white border-bottom p-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <div className="row g-3 align-items-center justify-content-between">
                             <div className="col-12 col-md-auto d-flex align-items-center gap-3">
-                                <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#648CF4' }}>
+                                <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
                                     <FaBarcode className="display-6" />
                                 </div>
                                 <div>
@@ -388,7 +388,7 @@ export default function SpecimenHistoryPage() {
                                         {currentSpecimen.testPackageName && (
                                             <>
                                                 <span>•</span>
-                                                <span className="fw-semibold" style={{ color: '#648CF4' }}>{currentSpecimen.testPackageName}</span>
+                                                <span className="fw-semibold" style={{ color: '#1E60E6' }}>{currentSpecimen.testPackageName}</span>
                                             </>
                                         )}
                                     </div>
@@ -400,7 +400,7 @@ export default function SpecimenHistoryPage() {
                                     <button
                                         type="button"
                                         className="btn btn-outline-primary d-flex align-items-center gap-2 shadow-xs rounded-pill px-3"
-                                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
+                                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                                         onClick={() => setShowStorageModal(true)}
                                     >
                                         <FaWarehouse />
@@ -409,7 +409,7 @@ export default function SpecimenHistoryPage() {
                                     <button
                                         type="button"
                                         className="btn d-flex align-items-center gap-2 shadow-sm rounded-pill px-3"
-                                        style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
+                                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
                                         onClick={() => setShowEventModal(true)}
                                     >
                                         <FaHistory />
@@ -503,7 +503,7 @@ export default function SpecimenHistoryPage() {
                     <div className="row g-2 align-items-center justify-content-between">
                         <div className="col-12 col-md-auto">
                             <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-                                <FaFileAlt style={{ color: '#648CF4' }} />
+                                <FaFileAlt style={{ color: '#1E60E6' }} />
                                 Danh Sách Mẫu Bệnh Phẩm Toàn Viện
                             </h6>
                             <small className="text-muted">Tổng cộng {totalCount} mẫu bệnh phẩm được theo dõi</small>
@@ -517,7 +517,7 @@ export default function SpecimenHistoryPage() {
                                         key={tab.key}
                                         type="button"
                                         className={`btn ${statusFilter === tab.key ? "btn-primary" : "btn-outline-secondary"}`}
-                                        style={statusFilter === tab.key ? { backgroundColor: '#648CF4', borderColor: '#648CF4' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
+                                        style={statusFilter === tab.key ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
                                         onClick={() => {
                                             setStatusFilter(tab.key);
                                             setPageNumber(1);

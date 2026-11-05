@@ -310,14 +310,14 @@ export default function UserManagementPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-            <FaUserCog style={{ color: '#648CF4' }} /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
+            <FaUserCog style={{ color: '#1E60E6' }} /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
           </h2>
           <p className="text-muted mb-0 small">
             Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
           </p>
         </div>
         <div className="mt-2 mt-md-0">
-          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
             <FaPlus /> Thêm Tài Khoản Mới
           </Button>
         </div>
@@ -340,7 +340,7 @@ export default function UserManagementPage() {
         <Col xs={12} sm={6} md={3}>
           <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
                 <FaUser className="fs-4" />
               </div>
               <div>
@@ -379,7 +379,7 @@ export default function UserManagementPage() {
         <Col xs={12} sm={6} md={3}>
           <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
                 <FaUserCog className="fs-4" />
               </div>
               <div>
@@ -464,7 +464,7 @@ export default function UserManagementPage() {
                     <tr key={user.id} style={{ borderBottom: '1px solid #EEF2F6' }}>
                       <td className="ps-4" style={{ padding: '12px 16px' }}>
                         <div className="fw-semibold" style={{ color: '#0f2743' }}>{user.fullName || '—'}</div>
-                        <small className="font-monospace" style={{ color: '#648CF4' }}>{user.username}</small>
+                        <small className="font-monospace" style={{ color: '#1E60E6' }}>{user.username}</small>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <div>{user.email || '—'}</div>
@@ -489,7 +489,7 @@ export default function UserManagementPage() {
                             size="sm"
                             title="Xem chi tiết & Phân quyền chuyên môn"
                             onClick={() => handleOpenUserDetail(user)}
-                            style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
+                            style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                           >
                             Chi tiết
                           </Button>

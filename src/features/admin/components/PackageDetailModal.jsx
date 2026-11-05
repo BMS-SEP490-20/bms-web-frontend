@@ -22,7 +22,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
         <Modal show={Boolean(pkg)} onHide={onClose} size="lg" centered>
             <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                    <i className="bi bi-box-seam-fill" style={{ color: '#648CF4' }}></i>
+                    <i className="bi bi-box-seam-fill" style={{ color: '#1E60E6' }}></i>
                     Chi Tiết Gói Dịch Vụ Xét Nghiệm: {pkg.name}
                 </Modal.Title>
             </Modal.Header>
@@ -33,7 +33,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                     <Row className="g-3">
                         <Col md={4}>
                             <div className="text-muted small fw-medium">Mã Gói Dịch Vụ</div>
-                            <div className="fw-bold font-monospace fs-6" style={{ color: '#648CF4' }}>
+                            <div className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
                                 {pkg.code || "—"}
                             </div>
                         </Col>
@@ -54,7 +54,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
 
                         <Col md={4}>
                             <div className="text-muted small fw-medium">Đơn Giá Niêm Yết</div>
-                            <div className="fw-bold fs-5" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>
+                            <div className="fw-bold fs-5" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
                                 {formatMoney(pkg.price)}
                             </div>
                         </Col>
@@ -82,7 +82,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
 
                 {/* Tests List */}
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                    <i className="bi bi-list-check" style={{ color: '#648CF4' }}></i>
+                    <i className="bi bi-list-check" style={{ color: '#1E60E6' }}></i>
                     Danh Sách Xét Nghiệm Thành Phần Trong Gói ({tests.length})
                 </h6>
 
@@ -108,7 +108,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                                         <tr key={idx} style={{ borderBottom: '1px solid #EEF2F6' }}>
                                             <td className="text-muted small" style={{ padding: '10px 14px', fontVariantNumeric: 'tabular-nums' }}>{idx + 1}</td>
                                             <td style={{ padding: '10px 14px' }}>
-                                                <code className="fw-bold" style={{ color: '#648CF4' }}>{code}</code>
+                                                <code className="fw-bold" style={{ color: '#1E60E6' }}>{code}</code>
                                             </td>
                                             <td className="fw-semibold text-dark" style={{ padding: '10px 14px' }}>{name}</td>
                                         </tr>
@@ -132,7 +132,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                             onEdit(pkg);
                         }}
                         className="d-flex align-items-center gap-1"
-                        style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6' }}
                     >
                         <i className="bi bi-pencil"></i>
                         Chỉnh Sửa Gói Này

@@ -226,10 +226,10 @@ const QcFlagsPage = () => {
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-                  <FaFlask style={{ color: '#648CF4' }} />
+                  <FaFlask style={{ color: '#1E60E6' }} />
                   Cờ Kiểm Chuẩn QC (Quality Control Flags)
                 </h4>
-                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#648CF4', backgroundColor: 'rgba(94,133,230,0.1)' }}>
+                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>
                   Laboratory User / Manager
                 </Badge>
               </div>
@@ -243,7 +243,7 @@ const QcFlagsPage = () => {
                 size="sm"
                 onClick={() => setShowCreateModal(true)}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
                 <FaPlus />
                 <span>Tạo cờ QC mới</span>
@@ -289,14 +289,14 @@ const QcFlagsPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #648CF4' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #1E60E6' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Tổng số cờ QC</span>
                     <h3 className="fw-bold mb-0 mt-1" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalFlags}</h3>
                   </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#648CF4' }}>
+                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
                     <FaVial className="fs-4" />
                   </div>
                 </div>
@@ -334,7 +334,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #A3E687' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #10B981' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -503,7 +503,7 @@ const QcFlagsPage = () => {
                         variant="outline-primary"
                         size="sm"
                         className="rounded-pill px-3 py-2 d-flex align-items-center gap-1"
-                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={() => openEditModal(flag)}
                       >
                         <FaTools />
@@ -682,7 +682,7 @@ const QcFlagsPage = () => {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button variant="secondary" className="rounded-pill px-3" onClick={() => setShowCreateModal(false)}>Hủy</Button>
-            <Button className="rounded-pill px-3" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }} type="submit" disabled={submitting}>
+            <Button className="rounded-pill px-3" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} type="submit" disabled={submitting}>
               {submitting ? 'Đang tạo...' : 'Kích hoạt cờ QC'}
             </Button>
           </Modal.Footer>
@@ -751,7 +751,7 @@ const QcFlagsPage = () => {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button variant="secondary" className="rounded-pill px-3" onClick={() => setShowEditModal(false)}>Hủy</Button>
-            <Button variant="success" className="rounded-pill px-3" style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }} type="submit" disabled={submitting}>
+            <Button variant="success" className="rounded-pill px-3" style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }} type="submit" disabled={submitting}>
               {submitting ? 'Đang lưu...' : 'Lưu kết quả xử lý'}
             </Button>
           </Modal.Footer>

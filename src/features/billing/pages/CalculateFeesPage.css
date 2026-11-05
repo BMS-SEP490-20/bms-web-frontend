@@ -36,26 +36,26 @@
 }
 
 .calc-fees-page .btn-primary {
-  background-color: var(--primary, #648CF4) !important;
-  border-color: var(--primary, #648CF4) !important;
+  background-color: var(--primary, #1E60E6) !important;
+  border-color: var(--primary, #1E60E6) !important;
   box-shadow: var(--shadow-pill, 0 4px 14px rgba(100, 140, 244, 0.22));
   color: #FFFFFF !important;
 }
 
 .calc-fees-page .btn-primary:hover {
-  background-color: var(--primary-hover, #537be6) !important;
-  border-color: var(--primary-hover, #537be6) !important;
+  background-color: var(--primary-hover, #1550C4) !important;
+  border-color: var(--primary-hover, #1550C4) !important;
   box-shadow: 0 6px 18px rgba(100, 140, 244, 0.35);
   transform: translateY(-1px);
 }
 
 .calc-fees-page .btn-outline-primary {
-  border-color: var(--primary, #648CF4) !important;
-  color: var(--primary, #648CF4) !important;
+  border-color: var(--primary, #1E60E6) !important;
+  color: var(--primary, #1E60E6) !important;
 }
 
 .calc-fees-page .btn-outline-primary:hover {
-  background-color: var(--primary, #648CF4) !important;
+  background-color: var(--primary, #1E60E6) !important;
   color: #ffffff !important;
 }
 
@@ -69,7 +69,7 @@
 
 .calc-fees-page .form-control:focus,
 .calc-fees-page .form-select:focus {
-  border-color: var(--primary, #648CF4);
+  border-color: var(--primary, #1E60E6);
   background-color: #FFFFFF;
   box-shadow: var(--ring-focus, 0 0 0 3px rgba(100, 140, 244, 0.28));
 }

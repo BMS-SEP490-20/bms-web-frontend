@@ -42,7 +42,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
                     </Alert>
                 )}
                 <p className="mb-1" style={{ color: '#0f2743', fontSize: 15 }}>
-                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code style={{ color: '#648CF4' }}>{item?.code}</code>)?
+                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.name}</strong> (<code style={{ color: '#1E60E6' }}>{item?.code}</code>)?
                 </p>
                 <small className="text-muted">
                     Hành động này sẽ vô hiệu hóa và đánh dấu xóa gói trên toàn hệ thống quản lý.

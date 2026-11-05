@@ -204,7 +204,7 @@ export default function AlertThresholdViolationPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#648CF4', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC68</span>
+                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#1E60E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC68</span>
                         <h2 className="h4 mb-0 fw-bold text-dark">Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
@@ -224,7 +224,7 @@ export default function AlertThresholdViolationPage() {
                     </button>
                     <button
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
-                        style={{ borderRadius: '9999px', padding: '6px 16px', borderColor: '#648CF4', color: '#648CF4' }}
+                        style={{ borderRadius: '9999px', padding: '6px 16px', borderColor: '#1E60E6', color: '#1E60E6' }}
                         onClick={() => setActionType("SIMULATE")}
                         id="btn-simulate-iot-alert"
                     >
@@ -232,7 +232,7 @@ export default function AlertThresholdViolationPage() {
                     </button>
                     <button
                         className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadData}
                         disabled={isLoading}
                     >
@@ -313,9 +313,9 @@ export default function AlertThresholdViolationPage() {
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Đang Xử Lý (In Progress)</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#648CF4', borderRadius: '9999px' }}>Acknowledged</span>
+                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6', borderRadius: '9999px' }}>Acknowledged</span>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{summary.acknowledgedCount}</div>
+                        <div className="fs-2 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.acknowledgedCount}</div>
                         <div className="small text-muted mt-1">Kỹ thuật viên đã tiếp nhận</div>
                     </div>
                 </div>
@@ -327,7 +327,7 @@ export default function AlertThresholdViolationPage() {
                             <span className="text-muted small fw-semibold text-uppercase">Đã Khắc Phục (Resolved)</span>
                             <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>Hoàn tất</span>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#A3E687', fontVariantNumeric: 'tabular-nums' }}>{summary.resolvedTodayCount}</div>
+                        <div className="fs-2 fw-bold mt-1" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{summary.resolvedTodayCount}</div>
                         <div className="small text-muted mt-1">
                             Thời gian xử lý TB: <strong>{summary.averageResolutionMinutes} phút</strong>
                         </div>
@@ -358,10 +358,10 @@ export default function AlertThresholdViolationPage() {
                                         style={{
                                             borderRadius: '9999px',
                                             padding: '4px 14px',
-                                            backgroundColor: selectedStatus === st.key ? '#648CF4' : '#EEF2F6',
+                                            backgroundColor: selectedStatus === st.key ? '#1E60E6' : '#EEF2F6',
                                             color: selectedStatus === st.key ? '#ffffff' : '#475569',
                                             border: '1px solid',
-                                            borderColor: selectedStatus === st.key ? '#648CF4' : 'rgba(15, 23, 42, 0.05)',
+                                            borderColor: selectedStatus === st.key ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
                                             fontWeight: '600'
                                         }}
                                         onClick={() => setSelectedStatus(st.key)}
@@ -416,8 +416,8 @@ export default function AlertThresholdViolationPage() {
             {/* Alert Items Table */}
             <div className="card shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
-                        <FaBell style={{ color: '#648CF4' }} /> Danh Sách Cảnh Báo Vượt Ngưỡng
+                    <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
+                        <FaBell style={{ color: '#1E60E6' }} /> Danh Sách Cảnh Báo Vượt Ngưỡng
                     </h5>
                     <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         Hiển thị {filteredAlerts.length} bản ghi
@@ -427,7 +427,7 @@ export default function AlertThresholdViolationPage() {
                 <div className="card-body p-0">
                     {filteredAlerts.length === 0 ? (
                         <div className="text-center py-5 text-muted">
-                            <FaCheckCircle className="fs-1 mb-2" style={{ color: '#A3E687' }} />
+                            <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
                             <p className="mb-0 fw-semibold">Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</p>
                         </div>
                     ) : (
@@ -457,7 +457,7 @@ export default function AlertThresholdViolationPage() {
                                             ? "#dc2626"
                                             : alert.severity === "Critical"
                                             ? "#b48316"
-                                            : "#648CF4";
+                                            : "#1E60E6";
 
                                         return (
                                             <tr key={alert.id} style={{ borderBottom: '1px solid #EEF2F6' }}>
@@ -631,8 +631,8 @@ export default function AlertThresholdViolationPage() {
                                     className="btn fw-semibold text-white"
                                     style={{
                                         borderRadius: '9999px',
-                                        backgroundColor: actionType === 'RESOLVE' ? '#2b8a3e' : '#648CF4',
-                                        borderColor: actionType === 'RESOLVE' ? '#2b8a3e' : '#648CF4',
+                                        backgroundColor: actionType === 'RESOLVE' ? '#2b8a3e' : '#1E60E6',
+                                        borderColor: actionType === 'RESOLVE' ? '#2b8a3e' : '#1E60E6',
                                         padding: '6px 20px'
                                     }}
                                     onClick={actionType === "RESOLVE" ? handleResolve : handleAcknowledge}
@@ -652,7 +652,7 @@ export default function AlertThresholdViolationPage() {
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '20px', overflow: 'hidden' }}>
                             <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                <h5 className="modal-title fw-bold" style={{ color: '#648CF4' }}>
+                                <h5 className="modal-title fw-bold" style={{ color: '#1E60E6' }}>
                                     <FaPlay className="me-2" /> Kích Hoạt Diễn Tập Cảnh Báo Vượt Ngưỡng Môi Trường
                                 </h5>
                                 <button

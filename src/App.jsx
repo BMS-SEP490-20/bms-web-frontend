@@ -79,6 +79,8 @@ import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViol
 
 // Patient Services, Scheduling & Billing Views
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
+import PricingPage from "./features/catalog/pages/PricingPage.jsx";
+import IsoProcessPage from "./features/home/pages/IsoProcessPage.jsx";
 import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
 import AppointmentListPage from "./features/appointment/pages/AppointmentListPage.jsx";
 import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
@@ -160,7 +162,9 @@ export default function App() {
               <Route path="/guest" element={<GuestHomePage />} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/services" element={<ServiceCatalogPage />} />
-              <Route path="/catalog" element={<ServiceCatalogPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/catalog" element={<PricingPage />} />
+              <Route path="/iso-process" element={<IsoProcessPage />} />
               <Route path="/tracking" element={<TrackTestProgressPage />} />
               <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
               <Route path="/patient" element={<Navigate to="/" replace />} />

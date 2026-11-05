@@ -424,7 +424,7 @@ export default function MedicalAssessmentForm({
 
   return (
     <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-      <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#648CF4' }}>
+      <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
         <div>
           <h5 className="mb-0 fw-bold d-flex align-items-center gap-2">
             <FaStethoscope /> {isEditMode ? 'Cập Nhật Đánh Giá Y Khoa' : 'Thêm Mới Đánh Giá Y Khoa (Medical Assessment)'}
@@ -434,7 +434,7 @@ export default function MedicalAssessmentForm({
           </small>
         </div>
         {initialData?.assessmentCode && (
-          <Badge bg="light" className="px-3 py-2 fs-6 rounded-pill" style={{ color: '#648CF4' }}>
+          <Badge bg="light" className="px-3 py-2 fs-6 rounded-pill" style={{ color: '#1E60E6' }}>
             {initialData.assessmentCode}
           </Badge>
         )}
@@ -460,7 +460,7 @@ export default function MedicalAssessmentForm({
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <div>
-                <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+                <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
                   <FaUserInjured /> 1. Thông Tin Bệnh Nhân (Hồ Sơ Điện Tử) & Lượt Khám
                 </h6>
                 <small className="text-muted">
@@ -601,7 +601,7 @@ export default function MedicalAssessmentForm({
 
           {/* SECTION 2: Chief Complaint & Symptoms */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <FaNotesMedical /> 2. Diễn Biến Bệnh & Triệu Chứng Lâm Sàng
             </h6>
             <Row className="g-3">
@@ -638,7 +638,7 @@ export default function MedicalAssessmentForm({
           {/* SECTION 3: Vital Signs & Examination */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+              <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
                 <FaHeartbeat /> 3. Dấu Hiệu Sinh Tồn (Vitals) & Khám Thực Thể
               </h6>
               {bmi > 0 && (
@@ -769,7 +769,7 @@ export default function MedicalAssessmentForm({
 
           {/* SECTION 4: Diagnosis & WHO ICD-10 */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <FaStethoscope /> 4. Chẩn Đoán Y Khoa & Mã Bệnh WHO ICD-10 (Bắt buộc theo BR-DOC-01)
             </h6>
             <Row className="g-3">
@@ -823,7 +823,7 @@ export default function MedicalAssessmentForm({
                           onClick={() => handleSelectIcd(item)}
                         >
                           <div>
-                            <span className="fw-bold me-2 font-monospace" style={{ color: '#648CF4' }}>{item.code}</span>
+                            <span className="fw-bold me-2 font-monospace" style={{ color: '#1E60E6' }}>{item.code}</span>
                             <span>{item.name}</span>
                           </div>
                         </ListGroup.Item>
@@ -929,14 +929,14 @@ export default function MedicalAssessmentForm({
 
           {/* SECTION 5: Treatment Plan & Test Orders (DYNAMIC SERVICE PACKAGES FROM DB) */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+            <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <FaFilePrescription /> 5. Kế Hoạch Xử Trí & Đề Xuất Chỉ Định Xét Nghiệm (Plan & Orders)
             </h6>
 
             <div className="mb-3">
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <Form.Label className="fw-semibold mb-0 d-flex align-items-center gap-2">
-                  <FaVials style={{ color: '#648CF4' }} />
+                  <FaVials style={{ color: '#1E60E6' }} />
                   Đề Xuất Chỉ Định Xét Nghiệm Cận Lâm Sàng
                 </Form.Label>
                 <small className="text-muted">Nguồn: Quản lý gói dịch vụ xét nghiệm (CSDL)</small>
@@ -962,7 +962,7 @@ export default function MedicalAssessmentForm({
                         variant={selected ? 'primary' : 'outline-secondary'}
                         size="sm"
                         className="rounded-pill d-flex align-items-center gap-1 shadow-sm px-3 py-1"
-                        style={selected ? { backgroundColor: '#648CF4', borderColor: '#648CF4' } : {}}
+                        style={selected ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
                         onClick={() => handleTogglePackage(pkgTitle)}
                       >
                         {selected && <FaCheckCircle size={12} />}
@@ -1057,7 +1057,7 @@ export default function MedicalAssessmentForm({
                 onClick={() => handleSubmit('Finalized')}
                 disabled={submitting}
                 className="d-flex align-items-center gap-2 px-4 shadow-sm text-white"
-                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
               >
                 {submitting ? <Spinner size="sm" animation="border" /> : <FaLock />}
                 Hoàn Tất & Khóa Hồ Sơ

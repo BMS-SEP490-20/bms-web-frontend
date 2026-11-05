@@ -24,7 +24,7 @@ export default function DeleteLabProfileModal({ profile, onClose, onDeleted, onR
     <Modal.Body as={Form} id="delete-lab-profile-form" onSubmit={submit} className="p-4">
       {error && <Alert variant="danger" role="alert" style={{ borderRadius: 14 }}>{error}</Alert>}
       <p style={{ color: '#0f2743', fontSize: 16 }}>Xóa hồ sơ chuyên môn của <strong>{profile.fullName}</strong>?</p>
-      <p className="small font-monospace text-break" style={{ color: '#648CF4', background: 'rgba(94, 133, 230, 0.08)', padding: '6px 12px', borderRadius: 8 }}>{profile.id}</p>
+      <p className="small font-monospace text-break" style={{ color: '#1E60E6', background: 'rgba(94, 133, 230, 0.08)', padding: '6px 12px', borderRadius: 8 }}>{profile.id}</p>
       <Alert variant="warning" style={{ borderRadius: 14, background: 'rgba(231, 188, 76, 0.12)', border: '1px solid rgba(231, 188, 76, 0.3)', color: '#856404' }}>Hồ sơ sẽ được lưu trữ và ẩn khỏi danh sách. Tài khoản đăng nhập và lịch sử phân công được giữ nguyên. Nhân viên còn phân công trong ngày hoặc tương lai phải được xử lý phân công trước.</Alert>
       <Form.Group controlId="delete-lab-profile-reason"><Form.Label className="small fw-semibold text-secondary">Lý do xóa *</Form.Label><Form.Control as="textarea" rows={3} required minLength={5} maxLength={500} disabled={saving} value={reason} onChange={(e) => setReason(e.target.value)} style={{ background: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 10 }} /><Form.Text className="text-muted small">5–500 ký tự, được ghi nhận cùng người thực hiện.</Form.Text></Form.Group>
       {conflict && <Button className="mt-3" variant="outline-primary" onClick={onReload} style={{ borderRadius: 9999 }}>Đóng và tải lại hồ sơ</Button>}

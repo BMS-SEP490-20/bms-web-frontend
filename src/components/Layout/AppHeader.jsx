@@ -129,7 +129,7 @@ export default function AppHeader({ onToggleSidebar }) {
             <nav aria-label="breadcrumb" className="bms-header-breadcrumb">
               <span className="text-muted small">BMS Health</span>
               <span className="text-muted mx-1 small">/</span>
-              <span className="small fw-semibold" style={{ color: '#648CF4' }}>{currentTitle}</span>
+              <span className="small fw-semibold" style={{ color: '#1E60E6' }}>{currentTitle}</span>
             </nav>
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function AppHeader({ onToggleSidebar }) {
         <div className="d-flex align-items-center gap-3">
           {/* Clinical Status Indicator */}
           <div className="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF8EB' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#A3E687', flexShrink: 0 }} />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', flexShrink: 0 }} />
             <span style={{ color: '#0F3D1A', fontSize: '12px', fontWeight: 650 }}>Lab Hoạt Động (ISO 15189)</span>
           </div>
 
@@ -189,7 +189,7 @@ export default function AppHeader({ onToggleSidebar }) {
               className="bms-user-profile-btn d-flex align-items-center gap-2 border rounded-pill px-3 py-1 bg-white"
               style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}
             >
-              <div className="bms-avatar rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: 34, height: 34, fontSize: 14, backgroundColor: '#648CF4' }}>
+              <div className="bms-avatar rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: 34, height: 34, fontSize: 14, backgroundColor: '#1E60E6' }}>
                 {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
               <div className="d-none d-md-flex flex-column text-start">

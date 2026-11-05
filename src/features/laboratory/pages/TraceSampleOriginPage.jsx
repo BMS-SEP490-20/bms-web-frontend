@@ -185,7 +185,7 @@ export default function TraceSampleOriginPage() {
             <div className="row align-items-center mb-4">
                 <div className="col-lg-8">
                     <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-                        <FaHistory style={{ color: '#648CF4' }} />
+                        <FaHistory style={{ color: '#1E60E6' }} />
                         Trace sample origin
                     </h2>
                     <p className="text-muted mb-0">
@@ -209,7 +209,7 @@ export default function TraceSampleOriginPage() {
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
                             />
-                            <button className="btn px-4 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '0 9999px 9999px 0' }} type="submit">
+                            <button className="btn px-4 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }} type="submit">
                                 <FaSearch /> Trace
                             </button>
                         </div>

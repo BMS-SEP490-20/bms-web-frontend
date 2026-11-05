@@ -162,9 +162,9 @@ export default function LookupBiochemicalResultsPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-            <FaFlask style={{ color: '#648CF4' }} />
+            <FaFlask style={{ color: '#1E60E6' }} />
             <span>Tra Cứu Kết Quả Xét Nghiệm Sinh Hóa (Look Up Biochemical Results)</span>
-            <Badge pill bg="primary-subtle" className="ms-2 px-3 py-1 fw-semibold" style={{ color: '#648CF4', backgroundColor: 'rgba(94,133,230,0.1)' }}>UC75</Badge>
+            <Badge pill bg="primary-subtle" className="ms-2 px-3 py-1 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>UC75</Badge>
           </h3>
           <p className="text-muted small mb-0">
             Tra cứu kết quả xét nghiệm sinh hóa, huyết học, dải tham chiếu chuẩn WHO/ADA, cờ cảnh báo bất thường và thẩm định chữ ký số y khoa.
@@ -176,7 +176,7 @@ export default function LookupBiochemicalResultsPage() {
             <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} /> Làm mới
           </Button>
           {currentResult && (
-            <Button variant="outline-primary" size="sm" className="rounded-pill px-3" style={{ color: '#648CF4', borderColor: '#648CF4' }} onClick={handlePrint}>
+            <Button variant="outline-primary" size="sm" className="rounded-pill px-3" style={{ color: '#1E60E6', borderColor: '#1E60E6' }} onClick={handlePrint}>
               <FaPrint className="me-1" /> In Kết Quả
             </Button>
           )}
@@ -184,7 +184,7 @@ export default function LookupBiochemicalResultsPage() {
             <Button
               size="sm"
               className="rounded-pill px-3 fw-semibold shadow-sm"
-              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
               onClick={() => navigate('/laboratory/notifications')}
             >
               <FaBell className="me-1" /> Phát Thông Báo (UC60)
@@ -200,7 +200,7 @@ export default function LookupBiochemicalResultsPage() {
             <Row className="g-3 align-items-center">
               <Col xs={12} md={7} lg={8}>
                 <InputGroup>
-                  <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#648CF4', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                  <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                     <FaBarcode />
                   </InputGroup.Text>
                   <Form.Control
@@ -211,7 +211,7 @@ export default function LookupBiochemicalResultsPage() {
                     className="border-start-0 py-2 font-monospace"
                     style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
                   />
-                  <Button type="submit" disabled={loading} className="px-4 fw-semibold rounded-end-pill" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}>
+                  <Button type="submit" disabled={loading} className="px-4 fw-semibold rounded-end-pill" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}>
                     {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-1" /> Tra Cứu</>}
                   </Button>
                 </InputGroup>

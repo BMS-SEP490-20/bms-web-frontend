@@ -106,14 +106,14 @@ export const RolesManagementPage = () => {
       <div className="d-flex justify-content-between align-items-center bms-roles-header">
         <div>
           <h4 className="fw-bold m-0 text-dark d-flex align-items-center gap-2">
-            <FaShieldAlt style={{ color: '#648CF4' }} />
+            <FaShieldAlt style={{ color: '#1E60E6' }} />
             Quản Lý Phân Quyền Vai Trò (RBAC)
           </h4>
           <small className="text-muted">
             Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02)
           </small>
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm" style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
           <FaPlus />
           Thêm Vai Trò Mới
         </Button>
@@ -189,7 +189,7 @@ export const RolesManagementPage = () => {
               ) : safeRoles.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center py-5 text-muted">
-                    <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" style={{ color: '#648CF4' }} />
+                    <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" style={{ color: '#1E60E6' }} />
                     Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
                   </td>
                 </tr>
@@ -211,7 +211,7 @@ export const RolesManagementPage = () => {
                       {role.description || 'Không có mô tả chi tiết chức năng.'}
                     </td>
                     <td className="bms-align-center">
-                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', fontWeight: 600, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
                         {Array.isArray(role.permissions) ? role.permissions.length : 0} Quyền
                       </span>
                     </td>
@@ -235,7 +235,7 @@ export const RolesManagementPage = () => {
                           size="sm"
                           title="Chỉnh sửa vai trò & phân quyền"
                           onClick={() => handleOpenEditModal(role)}
-                          style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
+                          style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                         >
                           <FaPencilAlt />
                         </Button>

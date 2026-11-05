@@ -108,7 +108,7 @@ export default function AppHeader({ onToggleSidebar }) {
   };
 
   return (
-    <header className="bms-header bg-white sticky-top" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', boxShadow: '0 2px 12px rgba(28, 39, 61, 0.03)' }}>
+    <header className="bms-header bg-white sticky-top" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.08)', boxShadow: 'none' }}>
       <div className="bms-header-container d-flex align-items-center justify-content-between px-3 py-2.5">
         {/* Left: Sidebar Toggle & Breadcrumb Title */}
         <div className="d-flex align-items-center gap-3">

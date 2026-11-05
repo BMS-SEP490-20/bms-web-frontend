@@ -76,7 +76,7 @@ export default function PortalNavbar({ user: propUser = null }) {
             Trang Chủ
           </Link>
           <Link
-            className={`bms-capsule-item ${currentPath.startsWith('/services') ? 'active' : ''}`}
+            className={`bms-capsule-item ${currentPath === '/services' || (currentPath.startsWith('/services/') && !currentPath.startsWith('/services/pricing')) ? 'active' : ''}`}
             to="/services"
           >
             Gói Xét Nghiệm

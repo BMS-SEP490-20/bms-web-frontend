@@ -143,14 +143,17 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         </div>
       )}
 
-      {/* Clinical Specs Box */}
+      {/* Clinical Specs Box - Spacious padding, zero borders */}
       <div
-        className="p-2.5 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+        className="mb-2.5 d-flex flex-wrap justify-content-between align-items-center"
         style={{
           backgroundColor: '#F8FAFC',
-          borderRadius: '12px',
+          borderRadius: '14px',
+          padding: '14px 18px',
           fontSize: '12px',
-          border: 'none'
+          border: 'none',
+          boxShadow: 'none',
+          lineHeight: '1.6'
         }}
       >
         <div>
@@ -163,25 +166,28 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         </div>
       </div>
 
-      {/* Fasting Notice Pill */}
+      {/* Fasting Notice Pill - Generous breathing room, zero border */}
       <div
-        className="d-flex align-items-center gap-1.5 mb-3 px-3 py-1.5"
+        className="d-flex align-items-center gap-1.5 mb-4"
         style={{
           backgroundColor: '#FEF3C7',
           borderRadius: '10px',
+          padding: '9px 16px',
           fontSize: '11.5px',
           color: '#92400E',
           fontWeight: 500,
-          border: 'none'
+          border: 'none',
+          boxShadow: 'none',
+          lineHeight: '1.5'
         }}
       >
         <span>Lưu ý: <strong>{fastRule}</strong></span>
       </div>
 
-      {/* Price & Action Buttons */}
+      {/* Price & Action Buttons - Zero border, separated purely by whitespace */}
       <div
-        className="d-flex justify-content-between align-items-center pt-2 mt-auto"
-        style={{ borderTop: 'none' }}
+        className="d-flex justify-content-between align-items-center mt-auto"
+        style={{ border: 'none', borderTop: 'none', paddingTop: '4px' }}
       >
         <div>
           <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>Đơn giá niêm yết:</div>

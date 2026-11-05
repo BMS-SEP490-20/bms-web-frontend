@@ -115,13 +115,14 @@ body {
   font-size: 13.5px !important;
 }
 
-/* Global Navbar Shadow Stripping */
+/* Global Navbar Zero Shadow & Zero Border */
 header,
 .navbar,
 .bms-header,
 .bms-telehealth-header {
   box-shadow: none !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border: none !important;
+  border-bottom: none !important;
 }
 
 /* Expanded Max-Width for Spacious Layout */
@@ -133,12 +134,22 @@ header,
 }
 
 /* --- Compact Precision Typography Scale --- */
-h1, .h1 {
+h1:not(.bms-hero-heading), .h1:not(.bms-hero-heading) {
   font-size: 1.65rem !important; /* ~22-23px */
   font-weight: 750;
   color: var(--ink);
   letter-spacing: -0.025em;
   line-height: 1.25;
+}
+
+/* Home Hero Heading: Grand, Authoritative, Big */
+.bms-hero-heading,
+h1.bms-hero-heading {
+  font-size: clamp(38px, 4.4vw, 54px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.15 !important;
+  color: var(--ink) !important;
 }
 
 h2, .h2 {
@@ -182,18 +193,17 @@ p {
   box-shadow: var(--ring-focus) !important;
 }
 
-/* --- Compact Flat Cards (Zero Shadow) --- */
+/* --- Compact Flat Cards (Zero Shadow, Zero Border) --- */
 .card {
   background-color: var(--bg-card) !important;
   border-radius: var(--radius-card) !important;
   box-shadow: none !important;
-  border: 1px solid rgba(15, 23, 42, 0.06) !important;
-  transition: border-color 0.15s ease !important;
+  border: none !important;
 }
 
 .card:hover {
   box-shadow: none !important;
-  border-color: rgba(30, 96, 230, 0.25) !important;
+  border: none !important;
 }
 
 .card-header {

@@ -5,10 +5,11 @@
    ========================================================================== */
 
 .bms-tracking-page {
-  background-color: #f8fafc;
+  background-color: #F4F7F9;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: var(--font-sans);
 }
 
 .bms-tracking-main {
@@ -27,47 +28,45 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
-  background-color: rgba(94, 133, 230, 0.12);
-  color: #5E85E6;
-  border: 1px solid rgba(94, 133, 230, 0.3);
+  padding: 5px 14px;
+  background-color: #E8EFFE;
+  color: #648CF4;
   border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
 .bms-tracking-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--bms-text-primary, #20242B);
+  font-size: 28px;
+  font-weight: 750;
+  color: #1A1D21;
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .bms-tracking-subtitle {
   font-size: 14.5px;
-  color: var(--bms-text-secondary, #606873);
-  line-height: 1.5;
+  color: #6B7280;
+  line-height: 1.55;
   margin-bottom: 0;
 }
 
 /* Search Box Container */
 .bms-tracking-search-card {
   background: #ffffff;
-  border: 1px solid #E5E9EB;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-  padding: 20px 24px;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  border-radius: 28px;
+  box-shadow: 0 8px 28px rgba(28, 39, 61, 0.07);
+  padding: 24px 28px;
   margin-bottom: 32px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease;
 }
 
 .bms-tracking-search-card:focus-within {
-  border-color: #5E85E6;
-  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
+  box-shadow: 0 14px 40px rgba(28, 39, 61, 0.11);
 }
 
 .bms-search-input-group {
@@ -93,22 +92,22 @@
 
 .bms-search-input {
   width: 100%;
-  height: 48px;
+  height: 50px;
   padding: 10px 40px 10px 42px;
   font-size: 14.5px;
   font-family: inherit;
-  color: #0f172a;
-  background-color: var(--bms-surface-card, #F1F4F7);
-  border: 1px solid var(--bms-border, #E5E9EB);
-  border-radius: 12px;
+  color: #1A1D21;
+  background-color: #EEF2F6;
+  border: 1px solid transparent;
+  border-radius: 14px;
   transition: all 0.2s ease;
 }
 
 .bms-search-input:focus {
   outline: none;
   background-color: #ffffff;
-  border-color: #5E85E6;
-  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.18);
+  border-color: #648CF4;
+  box-shadow: 0 0 0 3px rgba(100, 140, 244, 0.28);
 }
 
 .bms-search-clear-btn {
@@ -133,9 +132,9 @@
 }
 
 .bms-search-submit-btn {
-  height: 48px;
-  padding: 0 24px;
-  background-color: #5E85E6;
+  height: 50px;
+  padding: 0 28px;
+  background-color: #648CF4;
   color: #ffffff;
   border: none;
   border-radius: 9999px;
@@ -146,13 +145,14 @@
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(94, 133, 230, 0.25);
+  box-shadow: 0 4px 14px rgba(100, 140, 244, 0.25);
   transition: all 0.2s ease;
 }
 
 .bms-search-submit-btn:hover:not(:disabled) {
-  background-color: #4a6ec7;
-  box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
+  background-color: #537be6;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35);
 }
 
 .bms-search-submit-btn:disabled {

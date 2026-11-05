@@ -21,7 +21,7 @@
 
 .bms-stepper-progress {
   height: 100%;
-  background: #5E85E6;
+  background: #648CF4;
   border-radius: 9999px;
   transition: width 0.35s ease;
 }
@@ -45,8 +45,8 @@
   height: 44px;
   border-radius: 50%;
   background-color: #ffffff;
-  border: 2px solid #E5E9EB;
-  color: #606873;
+  border: 2px solid rgba(15, 23, 42, 0.08);
+  color: #6B7280;
   font-weight: 700;
   font-size: 15px;
   margin: 0 auto 8px auto;
@@ -57,32 +57,32 @@
 }
 
 .bms-step-item.active .bms-step-circle {
-  background-color: #5E85E6;
-  border-color: #5E85E6;
+  background-color: #648CF4;
+  border-color: #648CF4;
   color: #ffffff;
-  box-shadow: 0 0 0 5px rgba(94, 133, 230, 0.2);
+  box-shadow: 0 0 0 5px rgba(100, 140, 244, 0.25);
 }
 
 .bms-step-item.completed .bms-step-circle {
-  background-color: #91DE83;
-  border-color: #91DE83;
-  color: #20242B;
+  background-color: #A3E687;
+  border-color: #A3E687;
+  color: #0F3D1A;
 }
 
 .bms-step-title {
   font-size: 13px;
   font-weight: 600;
-  color: #606873;
+  color: #6B7280;
   transition: color 0.3s ease;
 }
 
 .bms-step-item.active .bms-step-title {
-  color: #5E85E6;
+  color: #648CF4;
   font-weight: 700;
 }
 
 .bms-step-item.completed .bms-step-title {
-  color: #2b781a;
+  color: #0F3D1A;
 }
 
 .bms-step-desc {

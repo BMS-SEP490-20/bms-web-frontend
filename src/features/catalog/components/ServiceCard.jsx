@@ -38,21 +38,21 @@ function getCategoryBadge(category) {
     return { accent: '#e11d48', label: 'Tầm Soát Ung Thư', bg: '#ffe4e6' };
   }
   if (cat.includes('tổng quát') || cat.includes('wellness')) {
-    return { accent: '#2563eb', label: 'Khám Tổng Quát', bg: '#dbeafe' };
+    return { accent: '#5E85E6', label: 'Khám Tổng Quát', bg: '#edf2fc' };
   }
   if (cat.includes('gan') || cat.includes('thận') || cat.includes('sinh hóa')) {
-    return { accent: '#0284c7', label: 'Gan - Mật - Thận', bg: '#e0f2fe' };
+    return { accent: '#0ea5e9', label: 'Gan - Mật - Thận', bg: '#e0f2fe' };
   }
   if (cat.includes('tiểu đường') || cat.includes('tim mạch') || cat.includes('mỡ máu')) {
-    return { accent: '#7c3aed', label: 'Tiểu Đường & Tim Mạch', bg: '#f3e8ff' };
+    return { accent: '#8b5cf6', label: 'Tiểu Đường & Tim Mạch', bg: '#f5f3ff' };
   }
   if (cat.includes('tiền hôn nhân') || cat.includes('sản khoa') || cat.includes('mẹ')) {
-    return { accent: '#db2777', label: 'Tiền Hôn Nhân & Mẹ Bầu', bg: '#fce7f3' };
+    return { accent: '#ec4899', label: 'Tiền Hôn Nhân & Mẹ Bầu', bg: '#fdf2f8' };
   }
   if (cat.includes('huyết học') || cat.includes('đông máu')) {
-    return { accent: '#059669', label: 'Huyết Học & Đông Máu', bg: '#d1fae5' };
+    return { accent: '#10b981', label: 'Huyết Học & Đông Máu', bg: '#ecfdf5' };
   }
-  return { accent: '#1e40af', label: category || 'Gói Xét Nghiệm Tiêu Chuẩn', bg: '#eff6ff' };
+  return { accent: '#5E85E6', label: category || 'Gói Xét Nghiệm Tiêu Chuẩn', bg: '#edf2fc' };
 }
 
 /**
@@ -79,13 +79,13 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           position: 'absolute',
           top: '12px',
           right: '-28px',
-          background: 'linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%)',
+          background: 'linear-gradient(135deg, #5E85E6 0%, #4a6ec7 100%)',
           color: '#ffffff',
           fontSize: '10px',
           fontWeight: '700',
           padding: '3px 30px',
           transform: 'rotate(45deg)',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+          boxShadow: '0 2px 6px rgba(94, 133, 230, 0.3)',
           zIndex: 2,
           letterSpacing: '0.05em'
         }}>
@@ -97,50 +97,50 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         {/* Category & Service Code */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span
-            className="badge rounded-pill fw-semibold px-2 py-1"
+            className="badge rounded-pill fw-semibold px-2.5 py-1"
             style={{ backgroundColor: badge.bg, color: badge.accent, fontSize: '11px', letterSpacing: '0.02em' }}
           >
             {badge.label}
           </span>
-          <span className="text-muted small fw-bold font-monospace" style={{ fontSize: '11px' }}>
+          <span className="text-muted small fw-semibold font-monospace" style={{ fontSize: '11px', opacity: 0.8 }}>
             {pkg.packageCode || pkg.id || 'BMS-LAB'}
           </span>
         </div>
 
         {/* Package Title */}
-        <h3 className="card-title fw-bold text-dark mb-2" style={{ fontSize: '17px', lineHeight: '1.4', minHeight: '48px' }}>
+        <h3 className="card-title fw-bold text-dark mb-2" style={{ fontSize: '16.5px', lineHeight: '1.4', minHeight: '46px', letterSpacing: '-0.01em' }}>
           {pkg.packageName}
         </h3>
 
         {/* Marketing / Health Value Proposition */}
-        <p className="card-text text-muted small mb-3 flex-grow-1" style={{ lineHeight: '1.6', minHeight: '52px' }}>
+        <p className="card-text text-muted small mb-3 flex-grow-1" style={{ lineHeight: '1.6', minHeight: '48px', fontSize: '13px' }}>
           {pkg.description || 'Xét nghiệm chuyên sâu hỗ trợ tầm soát sớm và phát hiện bất thường sức khỏe theo tiêu chuẩn y tế.'}
         </p>
 
         {/* Clinical Specs Box */}
-        <div className="p-2 rounded-3 bg-light border mb-3 small d-flex flex-wrap justify-content-between align-items-center text-secondary gap-1"
-             style={{ fontSize: '12px' }}>
-          <div className="d-flex align-items-center gap-1">
+        <div className="p-2.5 rounded-3 mb-3 small d-flex flex-wrap justify-content-between align-items-center gap-1"
+             style={{ backgroundColor: 'var(--bms-surface-card, #F1F4F7)', fontSize: '12px', border: '1px solid #E5E9EB' }}>
+          <div className="d-flex align-items-center gap-1.5">
             <FaVial style={{ color: badge.accent }} />
-            <span>Mẫu: <strong>{sampleTube}</strong></span>
+            <span className="text-secondary">Mẫu: <strong className="text-dark">{sampleTube}</strong></span>
           </div>
-          <div className="d-flex align-items-center gap-1">
-            <FaClock className="text-primary" />
-            <span>Trả kết quả: <strong>{tat}</strong></span>
+          <div className="d-flex align-items-center gap-1.5">
+            <FaClock style={{ color: '#5E85E6' }} />
+            <span className="text-secondary">Trả kết quả: <strong className="text-dark">{tat}</strong></span>
           </div>
         </div>
 
         {/* Fasting Notice Pill */}
-        <div className="d-flex align-items-center gap-2 mb-3 px-2 py-1 rounded-2" style={{ backgroundColor: '#fffbeb', border: '1px solid #fef3c7', fontSize: '11px', color: '#92400e' }}>
-          <FaShieldAlt className="text-warning" />
+        <div className="d-flex align-items-center gap-2 mb-3 px-2.5 py-1 rounded-2" style={{ backgroundColor: 'rgba(231, 188, 76, 0.12)', border: '1px solid rgba(231, 188, 76, 0.3)', fontSize: '11.5px', color: '#92400e' }}>
+          <FaShieldAlt style={{ color: '#E7BC4C' }} />
           <span>Lưu ý: <strong>{fastRule}</strong></span>
         </div>
 
         {/* Price & Action Buttons */}
-        <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+        <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
           <div>
             <div className="text-muted" style={{ fontSize: '11px' }}>Giá trọn gói niêm yết:</div>
-            <div className="fw-bold fs-5" style={{ color: '#1e40af' }}>
+            <div className="fw-bold fs-5 tabular-nums" style={{ color: '#5E85E6', letterSpacing: '-0.02em' }}>
               {formatVnd(pkg.price)}
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
             <button
               type="button"
               className="btn btn-sm btn-primary rounded-pill px-3 d-flex align-items-center gap-1 fw-semibold"
-              style={{ backgroundColor: '#1e40af', borderColor: '#1e40af', fontSize: '12px' }}
+              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', fontSize: '12px' }}
               onClick={() => onBook(pkg)}
             >
               <FaCalendarCheck />

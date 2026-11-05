@@ -176,18 +176,18 @@ export default function PatientHomePage({ user: propUser }) {
               <p>Mã định danh bệnh nhân (PID): <strong className="text-primary font-monospace">{patientCode}</strong></p>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>ORD-20261024-009</span>
-                <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style={{ fontSize: 11 }}>
+            <div style={{ background: 'var(--bms-surface-card, #F1F4F7)', border: '1px solid var(--bms-border, #E5E9EB)', borderRadius: 14, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--bms-text-primary, #20242B)' }}>ORD-20261024-009</span>
+                <span className="badge rounded-pill px-2.5 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b781a', fontSize: 11, border: '1px solid rgba(145, 222, 131, 0.4)' }}>
                   <FaCheckCircle className="me-1" /> Đã có kết quả
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+              <div style={{ fontSize: 13, color: 'var(--bms-text-secondary, #606873)', marginBottom: 6 }}>
                 Tổng Phân Tích Tế Bào Máu (CBC 24 Chỉ Số)
               </div>
-              <div style={{ fontSize: 11, color: '#475569' }}>
-                Thẩm định: <strong>BS. CKII Lê Minh Đức (Đã ký số)</strong>
+              <div style={{ fontSize: 11.5, color: 'var(--bms-text-muted, #8D96A0)' }}>
+                Thẩm định: <strong className="text-dark">BS. CKII Lê Minh Đức (Đã ký số)</strong>
               </div>
               <a 
                 href="/results/ORD-20261024-009/report" 
@@ -198,20 +198,20 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             {/* Upcoming Appointment */}
-            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: 12, marginBottom: 14 }}>
+            <div style={{ background: 'rgba(94, 133, 230, 0.08)', border: '1px solid rgba(94, 133, 230, 0.25)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#5E85E6' }}>
                   <FaClock className="me-1" /> Lịch Hẹn Sắp Tới
                 </span>
-                <span style={{ fontSize: 11, color: '#1e40af', fontWeight: 600 }}>08:00 Ngày 31/10/2026</span>
+                <span style={{ fontSize: 11.5, color: '#5E85E6', fontWeight: 600 }}>08:00 Ngày 31/10/2026</span>
               </div>
-              <div style={{ fontSize: 11, color: '#334155' }}>
+              <div style={{ fontSize: 12, color: 'var(--bms-text-secondary, #606873)' }}>
                 Phòng Lấy Mẫu 102 - Cơ Sở 1 (Quận 1, TP.HCM)
               </div>
             </div>
 
             <div className="text-center">
-              <a href="/tracking" style={{ fontSize: 12, color: '#1e40af', textDecoration: 'none', fontWeight: 600 }}>
+              <a href="/tracking" style={{ fontSize: 12.5, color: '#5E85E6', textDecoration: 'none', fontWeight: 600 }}>
                 Tra cứu mã biên nhận hoặc Barcode khác &rarr;
               </a>
             </div>

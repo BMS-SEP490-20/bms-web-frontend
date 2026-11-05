@@ -236,6 +236,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
           <button
             type="button"
             className="btn btn-outline-light btn-sm d-flex align-items-center gap-1.5"
+            style={{ borderRadius: '9999px', padding: '6px 14px' }}
             onClick={handleCopyCode}
             title="Sao chép mã xác thực cơ quan thuế"
           >
@@ -246,6 +247,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
           <button
             type="button"
             className="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5"
+            style={{ borderRadius: '9999px', padding: '6px 14px', borderColor: '#5E85E6', color: '#93c5fd' }}
             onClick={handleDownloadXml}
             title="Tải file XML hóa đơn điện tử gốc theo chuẩn Bộ Tài chính"
           >
@@ -255,7 +257,8 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
 
           <button
             type="button"
-            className="btn btn-primary btn-sm fw-bold d-flex align-items-center gap-1.5 px-3"
+            className="btn btn-sm fw-bold d-flex align-items-center gap-1.5 px-3 text-white"
+            style={{ borderRadius: '9999px', backgroundColor: '#5E85E6', borderColor: '#5E85E6', padding: '6px 16px' }}
             onClick={handlePrint}
             title="In hóa đơn chuẩn khổ giấy A4"
           >

@@ -462,10 +462,10 @@ export default function MedicalAssessmentListPage() {
               </div>
 
               {/* Diagnosis and ICD-10 */}
-              <div className="p-3 rounded-3 mb-3 border" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
+              <div className="p-3 rounded-4 mb-3 border" style={{ backgroundColor: 'var(--bms-surface-card, #F1F4F7)', borderColor: 'var(--bms-border, #E5E9EB)' }}>
                 <div className="d-flex justify-content-between align-items-center mb-1">
-                  <span className="fw-bold" style={{ color: '#1e40af' }}>CHẨN ĐOÁN XÁC ĐỊNH & MÃ WHO ICD-10:</span>
-                  <Badge bg="primary" className="fs-6 px-2 font-monospace">{selectedAssessment.icd10Code}</Badge>
+                  <span className="fw-bold" style={{ color: '#5E85E6' }}>CHẨN ĐOÁN XÁC ĐỊNH & MÃ WHO ICD-10:</span>
+                  <Badge className="fs-6 px-2.5 py-1 font-monospace rounded-pill" style={{ backgroundColor: '#5E85E6' }}>{selectedAssessment.icd10Code}</Badge>
                 </div>
                 <h5 className="fw-bold text-dark mb-1">{selectedAssessment.finalDiagnosis}</h5>
                 <small className="text-muted d-block">{selectedAssessment.icd10Name}</small>

@@ -82,7 +82,7 @@ export default function AddMedicalAssessmentPage() {
             </Breadcrumb.Item>
           </Breadcrumb>
           <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaStethoscope style={{ color: '#0284c7' }} />
+            <FaStethoscope style={{ color: '#5E85E6' }} />
             {id ? 'Chỉnh Sửa Đánh Giá Y Khoa Lâm Sàng' : 'Kê Phiếu Đánh Giá Y Khoa Lâm Sàng'}
           </h4>
         </div>
@@ -90,14 +90,16 @@ export default function AddMedicalAssessmentPage() {
           <Button
             variant="outline-secondary"
             onClick={() => navigate('/medical-assessments')}
-            className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
+            className="d-flex align-items-center gap-2 shadow-sm"
+            style={{ borderRadius: '9999px' }}
           >
             <FaClipboardList /> Danh Sách Đánh Giá
           </Button>
           <Button
             variant="outline-primary"
             onClick={() => navigate('/doctor/console')}
-            className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
+            className="d-flex align-items-center gap-2 shadow-sm"
+            style={{ borderRadius: '9999px' }}
           >
             <FaUserMd /> Bàn Khám Bác Sĩ
           </Button>

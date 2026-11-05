@@ -458,8 +458,8 @@ export default function DoctorConsolePage() {
                   </div>
 
                   {/* Clinical Direct Actions: Chỉ định xét nghiệm, Đánh giá ICD-10, EMR */}
-                  <div className="p-3 rounded-3 mb-4 border" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
-                    <div className="small fw-bold text-uppercase mb-2" style={{ color: '#1e40af' }}>
+                  <div className="p-3 rounded-4 mb-4 border" style={{ backgroundColor: 'var(--bms-surface-card, #F1F4F7)', borderColor: 'var(--bms-border, #E5E9EB)' }}>
+                    <div className="small fw-bold text-uppercase mb-2" style={{ color: '#5E85E6', letterSpacing: '0.03em' }}>
                       Nghiệp Vụ Lâm Sàng Cho Bệnh Nhân Hiện Tại:
                     </div>
                     <div className="d-flex flex-wrap gap-2">
@@ -468,8 +468,8 @@ export default function DoctorConsolePage() {
                         to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId)}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}`}
                         variant="primary"
                         size="sm"
-                        className="d-flex align-items-center gap-1 fw-semibold shadow-sm"
-                        style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-sm"
+                        style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
                       >
                         <FaVial /> Chỉ Định Xét Nghiệm Máu
                       </Button>
@@ -479,7 +479,7 @@ export default function DoctorConsolePage() {
                         to={`/medical-assessments/add?patientId=${encodeURIComponent(currentServing.patientId || '')}&encounterId=${encodeURIComponent(currentServing.appointmentCode || currentServing.appointmentId)}&patientName=${encodeURIComponent(currentServing.patientName || '')}`}
                         variant="outline-primary"
                         size="sm"
-                        className="d-flex align-items-center gap-1 fw-semibold"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3"
                       >
                         <FaStethoscope /> Chẩn Đoán Khám (ICD-10)
                       </Button>
@@ -489,7 +489,7 @@ export default function DoctorConsolePage() {
                         to={`/doctor/emr?patientId=${encodeURIComponent(currentServing.patientId || '')}`}
                         variant="outline-secondary"
                         size="sm"
-                        className="d-flex align-items-center gap-1 fw-semibold"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3"
                       >
                         <FaFileMedicalAlt /> Xem Bệnh Án EMR
                       </Button>
@@ -499,7 +499,7 @@ export default function DoctorConsolePage() {
                         to={`/reports/${encodeURIComponent(currentServing.appointmentCode || currentServing.appointmentId)}`}
                         variant="outline-info"
                         size="sm"
-                        className="d-flex align-items-center gap-1 fw-semibold"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3"
                       >
                         <FaNotesMedical /> Xem Kết Quả Xét Nghiệm
                       </Button>

@@ -321,15 +321,16 @@ export default function CreateTestOrderPage() {
                 <Link to="/doctor/console" className="text-decoration-none text-secondary">Khám Lâm Sàng</Link>
               </li>
               <li className="breadcrumb-item text-secondary">Chỉ Định Xét Nghiệm</li>
-              <li className="breadcrumb-item active fw-semibold" style={{ color: "#0284c7" }} aria-current="page">Tạo Phiếu Mới</li>
+              <li className="breadcrumb-item active fw-semibold" style={{ color: "#5E85E6" }} aria-current="page">Tạo Phiếu Mới</li>
             </ol>
           </nav>
           <h2 className="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaVial style={{ color: "#0284c7" }} /> Kê Phiếu Chỉ Định Xét Nghiệm Máu & Cận Lâm Sàng
+            <FaVial style={{ color: "#5E85E6" }} /> Kê Phiếu Chỉ Định Xét Nghiệm Máu & Cận Lâm Sàng
           </h2>
         </div>
         <button
           className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
+          style={{ borderRadius: "9999px" }}
           onClick={() => navigate(-1)}
         >
           <FaArrowLeft /> Quay lại
@@ -338,23 +339,24 @@ export default function CreateTestOrderPage() {
 
       {/* Success Banner */}
       {orderSuccess && (
-        <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3" style={{ backgroundColor: "#ecfdf5", borderLeft: "5px solid #059669" }}>
+        <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", borderLeft: "5px solid #91DE83" }}>
           <div className="d-flex align-items-center gap-3">
-            <FaCheckCircle className="fs-2" style={{ color: "#059669" }} />
+            <FaCheckCircle className="fs-2" style={{ color: "#16a34a" }} />
             <div>
               <div className="fw-bold fs-6 text-dark">
                 Đã tạo thành công Phiếu Chỉ Định Xét Nghiệm #{orderSuccess.orderNumber || orderSuccess.id}!
               </div>
               <small className="text-muted">
                 Bệnh nhân: <strong>{orderSuccess.patientName || patient.name}</strong> ({orderSuccess.patientId || patient.id}) ·
-                Trạng thái: <span className="badge bg-warning text-dark ms-1">{orderSuccess.status || "Chờ lấy mẫu"}</span> ·
-                Ưu tiên: <span className="badge bg-primary ms-1">{orderSuccess.priority || priority}</span>
+                Trạng thái: <span className="badge rounded-pill bg-warning text-dark ms-1">{orderSuccess.status || "Chờ lấy mẫu"}</span> ·
+                Ưu tiên: <span className="badge rounded-pill text-white ms-1" style={{ backgroundColor: "#5E85E6" }}>{orderSuccess.priority || priority}</span>
               </small>
             </div>
           </div>
           <div className="d-flex gap-2">
             <button
               className="btn btn-sm btn-outline-success"
+              style={{ borderRadius: "9999px" }}
               onClick={() => {
                 setOrderSuccess(null);
                 setSelectedCodes(new Set());
@@ -362,7 +364,7 @@ export default function CreateTestOrderPage() {
             >
               Tạo Chỉ Định Mới
             </button>
-            <Link to="/doctor/console" className="btn btn-sm btn-primary" style={{ backgroundColor: "#0284c7", borderColor: "#0284c7" }}>
+            <Link to="/doctor/console" className="btn btn-sm text-white" style={{ backgroundColor: "#5E85E6", borderColor: "#5E85E6", borderRadius: "9999px" }}>
               Về Bàn Khám Bác Sĩ
             </Link>
           </div>
@@ -371,19 +373,19 @@ export default function CreateTestOrderPage() {
 
       {/* Error alert */}
       {errorMessage && (
-        <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-3">
+        <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-4">
           <FaExclamationTriangle className="text-danger fs-5" />
           <div className="fw-semibold">{errorMessage}</div>
         </div>
       )}
 
       {/* Patient & Appointment Demographic Banner */}
-      <div className="card border-0 shadow-sm rounded-3 mb-4 p-3" style={{ borderLeft: "5px solid #0284c7", borderColor: "#e2e8f0" }}>
+      <div className="card border-0 shadow-sm mb-4 p-3 rounded-4" style={{ borderLeft: "5px solid #5E85E6", border: "1px solid #E5E9EB" }}>
         <div className="row align-items-center g-3">
           <div className="col-auto">
             <div
               className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
-              style={{ width: "52px", height: "52px", backgroundColor: "#0284c7" }}
+              style={{ width: "52px", height: "52px", backgroundColor: "#5E85E6" }}
             >
               {(patient.name || "BN")
                 .split(" ")
@@ -397,15 +399,15 @@ export default function CreateTestOrderPage() {
           <div className="col">
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <h5 className="mb-0 fw-bold text-dark">{patient.name || "Chưa có tên bệnh nhân"}</h5>
-              <span className="badge bg-light text-dark border">Mã BN: {patient.id || "Chưa có"}</span>
-              <span className="badge bg-light text-dark border">{patient.gender} · {patient.age} tuổi</span>
-              <span className="badge bg-danger-subtle text-danger border border-danger-subtle">Nhóm máu: {patient.bloodType}</span>
-              <span className="badge bg-success-subtle text-success border border-success-subtle">Dị ứng: {patient.allergies}</span>
+              <span className="badge rounded-pill bg-light text-dark border">Mã BN: {patient.id || "Chưa có"}</span>
+              <span className="badge rounded-pill bg-light text-dark border">{patient.gender} · {patient.age} tuổi</span>
+              <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle">Nhóm máu: {patient.bloodType}</span>
+              <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle">Dị ứng: {patient.allergies}</span>
             </div>
             <div className="d-flex gap-4 mt-2 text-muted small flex-wrap">
               <div>
                 <span className="fw-semibold text-secondary">Lượt hẹn khám:</span>{" "}
-                <span className="fw-bold font-monospace" style={{ color: "#0284c7" }}>
+                <span className="fw-bold font-monospace" style={{ color: "#5E85E6" }}>
                   {appointmentId || "Khám vãng lai / Trực tiếp"}
                 </span>
               </div>
@@ -421,10 +423,10 @@ export default function CreateTestOrderPage() {
         {/* Left Column: Test Catalog & Clinical ICD-10 Selection */}
         <div className="col-lg-8">
           {/* Card 1: Select Tests from Catalog */}
-          <div className="card border-0 shadow-sm rounded-3 mb-4" style={{ borderColor: "#e2e8f0" }}>
-            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ borderColor: "#e2e8f0" }}>
+          <div className="card border-0 shadow-sm rounded-4 mb-4" style={{ border: "1px solid #E5E9EB" }}>
+            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                <FaClipboardList style={{ color: "#0284c7" }} /> Danh Mục Xét Nghiệm & Gói Cận Lâm Sàng
+                <FaClipboardList style={{ color: "#5E85E6" }} /> Danh Mục Xét Nghiệm & Gói Cận Lâm Sàng
               </h5>
               <div className="d-flex gap-2">
                 <div className="input-group input-group-sm" style={{ width: "260px" }}>
@@ -441,15 +443,19 @@ export default function CreateTestOrderPage() {
             </div>
 
             {/* Category filter pills */}
-            <div className="px-3 pt-3 pb-2 d-flex gap-2 border-bottom overflow-auto" style={{ borderColor: "#e2e8f0" }}>
+            <div className="px-3 pt-3 pb-2 d-flex gap-2 border-bottom overflow-auto" style={{ borderColor: "#E5E9EB" }}>
               {["Tất cả", "Sinh hóa", "Huyết học", "Miễn dịch"].map((cat) => (
                 <button
                   key={cat}
                   type="button"
-                  className={`btn btn-sm rounded-pill px-3 py-1 fw-semibold ${
-                    selectedCategory === cat ? "btn-primary text-white" : "btn-light text-secondary border"
+                  className={`btn btn-sm px-3 py-1 fw-semibold ${
+                    selectedCategory === cat ? "text-white" : "btn-light text-secondary border"
                   }`}
-                  style={selectedCategory === cat ? { backgroundColor: "#0284c7", borderColor: "#0284c7" } : {}}
+                  style={{
+                    borderRadius: "9999px",
+                    backgroundColor: selectedCategory === cat ? "#5E85E6" : undefined,
+                    borderColor: selectedCategory === cat ? "#5E85E6" : undefined
+                  }}
                   onClick={() => setSelectedCategory(cat)}
                 >
                   {cat}
@@ -495,7 +501,7 @@ export default function CreateTestOrderPage() {
                           key={itemCode}
                           style={{
                             cursor: "pointer",
-                            backgroundColor: isSelected ? "rgba(2, 132, 199, 0.08)" : "transparent"
+                            backgroundColor: isSelected ? "rgba(94, 133, 230, 0.08)" : "transparent"
                           }}
                           onClick={() => handleToggleTest(itemCode)}
                         >
@@ -512,7 +518,7 @@ export default function CreateTestOrderPage() {
                             {itemName}
                           </td>
                           <td className="text-start">
-                            <code className="text-primary bg-light px-2 py-1 rounded small font-monospace">
+                            <code className="bg-light px-2 py-1 rounded small font-monospace" style={{ color: "#5E85E6" }}>
                               {itemCode}
                             </code>
                           </td>
@@ -534,16 +540,16 @@ export default function CreateTestOrderPage() {
                           </td>
                           <td className="text-start">
                             {item.preparationNotes && item.preparationNotes.toLowerCase().includes("fast") ? (
-                              <span className="badge bg-danger-subtle text-danger border border-danger-subtle">
+                              <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle">
                                 Nhịn ăn
                               </span>
                             ) : (
-                              <span className="badge bg-light text-secondary border">
+                              <span className="badge rounded-pill bg-light text-secondary border">
                                 Bình thường
                               </span>
                             )}
                           </td>
-                          <td className="text-end pe-3 fw-bold text-dark font-monospace">
+                          <td className="text-end pe-3 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: "tabular-nums" }}>
                             {Number(item.price || 0).toLocaleString("vi-VN")} đ
                           </td>
                         </tr>
@@ -556,15 +562,15 @@ export default function CreateTestOrderPage() {
           </div>
 
           {/* Card 2: Clinical Details & ICD-10 Coding */}
-          <div className="card border-0 shadow-sm rounded-3" style={{ borderColor: "#e2e8f0" }}>
-            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#e2e8f0" }}>
+          <div className="card border-0 shadow-sm rounded-4" style={{ border: "1px solid #E5E9EB" }}>
+            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                <FaStethoscope style={{ color: "#0284c7" }} /> Chẩn Đoán ICD-10 & Y Lệnh Lâm Sàng
+                <FaStethoscope style={{ color: "#5E85E6" }} /> Chẩn Đoán ICD-10 & Y Lệnh Lâm Sàng
               </h5>
             </div>
             <div className="card-body p-4">
               {/* ICD-10 Diagnostic Picker (Ràng buộc nghiệp vụ bắt buộc) */}
-              <div className="mb-4 p-3 rounded-3 border" style={{ backgroundColor: "#f8fafc", borderColor: "#e2e8f0" }}>
+              <div className="mb-4 p-3 rounded-4 border" style={{ backgroundColor: "#F1F4F7", borderColor: "#E5E9EB" }}>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <label className="form-label fw-bold text-dark mb-0">
                     Mã Bệnh WHO ICD-10 (Bắt buộc theo BR-DOC-01) <span className="text-danger">*</span>
@@ -579,8 +585,8 @@ export default function CreateTestOrderPage() {
                     return (
                       <span
                         key={code}
-                        className="badge d-inline-flex align-items-center gap-2 px-3 py-2 fs-6 rounded-pill text-white"
-                        style={{ backgroundColor: "#0284c7" }}
+                        className="badge d-inline-flex align-items-center gap-2 px-3 py-2 fs-6 rounded-pill text-white shadow-sm"
+                        style={{ backgroundColor: "#5E85E6" }}
                       >
                         <span className="font-monospace fw-bold">{code}</span>
                         {info && <span className="fw-normal small">({info.name})</span>}
@@ -610,9 +616,10 @@ export default function CreateTestOrderPage() {
                         <button
                           key={icd.code}
                           type="button"
-                          className={`btn btn-sm py-0.5 px-2 rounded ${
+                          className={`btn btn-sm py-0.5 px-2.5 ${
                             isChosen ? "btn-secondary disabled opacity-50" : "btn-outline-primary"
                           }`}
+                          style={{ borderRadius: "9999px" }}
                           onClick={() => handleAddIcdCode(icd.code)}
                           disabled={isChosen}
                         >
@@ -641,8 +648,8 @@ export default function CreateTestOrderPage() {
                   />
                   <button
                     type="button"
-                    className="btn btn-primary"
-                    style={{ backgroundColor: "#0284c7", borderColor: "#0284c7" }}
+                    className="btn text-white"
+                    style={{ backgroundColor: "#5E85E6", borderColor: "#5E85E6", borderRadius: "0 9999px 9999px 0" }}
                     onClick={() => {
                       if (customIcdInput.trim()) handleAddIcdCode(customIcdInput.trim());
                     }}
@@ -707,10 +714,10 @@ export default function CreateTestOrderPage() {
 
         {/* Right Sticky Column: Order Summary & Actions */}
         <div className="col-lg-4">
-          <div className="card border-0 shadow-sm rounded-3 position-sticky" style={{ top: "24px", borderColor: "#e2e8f0" }}>
-            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#e2e8f0" }}>
+          <div className="card border-0 shadow-sm rounded-4 position-sticky" style={{ top: "24px", border: "1px solid #E5E9EB" }}>
+            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                <FaFileInvoiceDollar style={{ color: "#0284c7" }} /> Tóm Tắt Phiếu Chỉ Định
+                <FaFileInvoiceDollar style={{ color: "#5E85E6" }} /> Tóm Tắt Phiếu Chỉ Định
               </h5>
             </div>
             <div className="card-body p-4">
@@ -720,7 +727,7 @@ export default function CreateTestOrderPage() {
                   Xét nghiệm đã chọn ({selectedTests.length})
                 </div>
                 {selectedTests.length === 0 ? (
-                  <div className="text-muted small py-3 text-center bg-light rounded-2 border">
+                  <div className="text-muted small py-3 text-center bg-light rounded-3 border">
                     Chưa có xét nghiệm nào được chọn.
                   </div>
                 ) : (
@@ -734,7 +741,7 @@ export default function CreateTestOrderPage() {
                             <div className="fw-semibold text-dark">{itemName}</div>
                             <span className="text-muted font-monospace">{itemCode}</span>
                           </div>
-                          <span className="font-monospace fw-semibold text-dark">
+                          <span className="font-monospace fw-semibold text-dark" style={{ fontVariantNumeric: "tabular-nums" }}>
                             {Number(t.price || 0).toLocaleString("vi-VN")} đ
                           </span>
                         </div>
@@ -754,7 +761,7 @@ export default function CreateTestOrderPage() {
                   </small>
                 </div>
                 <div className="text-end">
-                  <div className="fs-4 fw-bold font-monospace" style={{ color: "#0284c7" }}>
+                  <div className="fs-4 fw-bold font-monospace" style={{ color: "#5E85E6", fontVariantNumeric: "tabular-nums" }}>
                     {totalAmount.toLocaleString("vi-VN")} đ
                   </div>
                 </div>
@@ -762,12 +769,12 @@ export default function CreateTestOrderPage() {
 
               {/* Reagent and Consumable Inventory Deduction Estimation */}
               {selectedTests.length > 0 && (
-                <div className="p-3 mb-3 rounded-2 border" style={{ backgroundColor: "#f8fafc", borderColor: "#e2e8f0" }}>
+                <div className="p-3 mb-3 rounded-3 border" style={{ backgroundColor: "#F1F4F7", borderColor: "#E5E9EB" }}>
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <span className="small fw-bold text-dark d-flex align-items-center gap-1">
-                      <FaVial style={{ color: "#0284c7" }} /> Trừ hao vật tư & hóa chất (Dự kiến):
+                      <FaVial style={{ color: "#5E85E6" }} /> Trừ hao vật tư & hóa chất (Dự kiến):
                     </span>
-                    <span className="badge bg-success-subtle text-success border border-success-subtle" style={{ fontSize: "11px" }}>
+                    <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style={{ fontSize: "11px" }}>
                       Sẵn sàng trong kho
                     </span>
                   </div>
@@ -802,8 +809,8 @@ export default function CreateTestOrderPage() {
               <div className="d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-primary btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm text-white"
-                  style={{ backgroundColor: "#0284c7", borderColor: "#0284c7" }}
+                  className="btn btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm text-white"
+                  style={{ backgroundColor: "#5E85E6", borderColor: "#5E85E6", borderRadius: "9999px" }}
                   disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
                   onClick={() => handleSubmitOrder(false)}
                 >
@@ -812,6 +819,7 @@ export default function CreateTestOrderPage() {
                 <button
                   type="button"
                   className="btn btn-outline-secondary fw-semibold d-flex align-items-center justify-content-center gap-2"
+                  style={{ borderRadius: "9999px" }}
                   disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
                   onClick={() => handleSubmitOrder(true)}
                 >

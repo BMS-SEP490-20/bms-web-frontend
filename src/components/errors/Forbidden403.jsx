@@ -4,12 +4,15 @@
  * Conforms to: Production Medical Standards & AGENTS-DESIGN.md.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaShieldAlt, FaHome, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
 
 export default function Forbidden403({ requiredRole, userRole }) {
   const navigate = useNavigate();
+  const user = useMemo(() => getStoredUser(), []);
+  const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
 
   const handleLogout = () => {
     localStorage.removeItem('bms_token');
@@ -43,13 +46,20 @@ export default function Forbidden403({ requiredRole, userRole }) {
         )}
 
         <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
-          <Link to="/dashboard" className="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            <FaTachometerAlt />
-            <span>Về Bảng Điều Khiển</span>
-          </Link>
+          {isPatient ? (
+            <Link to="/home" className="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+              <FaHome />
+              <span>Về Trang Chủ Bệnh Nhân</span>
+            </Link>
+          ) : (
+            <Link to="/dashboard" className="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+              <FaTachometerAlt />
+              <span>Về Bảng Điều Khiển</span>
+            </Link>
+          )}
           <Link to="/" className="btn btn-outline-secondary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
             <FaHome />
-            <span>Về Trang Chủ</span>
+            <span>Cổng Thông Tin</span>
           </Link>
           <button onClick={handleLogout} className="btn btn-outline-danger px-4 py-2 d-flex align-items-center justify-content-center gap-2">
             <FaSignOutAlt />

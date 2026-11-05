@@ -36,7 +36,7 @@ const DEFAULT_MOCK_RECORDS = [
         analyticalMinutes: 90,
         postAnalyticalMinutes: 12,
         totalTatMinutes: 132,
-        targetTatMinutes: 240,
+        targetTatMinutes: 120,
         isCompliant: true,
         delayMinutes: 0,
         technicianName: "KTV. Phạm Quốc Hưng"
@@ -96,7 +96,7 @@ const DEFAULT_MOCK_RECORDS = [
         analyticalMinutes: 126,
         postAnalyticalMinutes: 12,
         totalTatMinutes: 186,
-        targetTatMinutes: 240,
+        targetTatMinutes: 120,
         isCompliant: true,
         delayMinutes: 0,
         technicianName: "KTV. Vũ Trọng Khôi"
@@ -116,7 +116,7 @@ const DEFAULT_MOCK_RECORDS = [
         analyticalMinutes: 36,
         postAnalyticalMinutes: 6,
         totalTatMinutes: 54,
-        targetTatMinutes: 240,
+        targetTatMinutes: 120,
         isCompliant: true,
         delayMinutes: 0,
         technicianName: "KTV. Trần Tuyết Mai"
@@ -230,7 +230,7 @@ function calculateMockReport(params = {}) {
     const priorityBreakdown = priorities.map(p => {
         const pRecords = records.filter(r => r.priority.toLowerCase() === p.toLowerCase());
         const pCount = pRecords.length;
-        const target = p === "Stat" ? 60 : p === "Urgent" ? 120 : 240;
+        const target = p === "Stat" ? 60 : p === "Urgent" ? 120 : 240; // Mục tiêu: < 60p Stat, < 120p Urgent, < 240p Normal
         if (pCount === 0) {
             return {
                 priority: p,

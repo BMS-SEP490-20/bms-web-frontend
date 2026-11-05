@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Alert, Spinner } from "react-bootstrap";
-import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft, FaShieldAlt } from "react-icons/fa";
+import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft, FaShieldAlt, FaEye, FaEyeSlash } from "react-icons/fa";
 import { sendPasswordRecoveryOtp } from "../api/authApi";
 import api from "../../../config/api";
 import OtpInputGroup from "../../../components/common/OtpInputGroup";
@@ -24,6 +24,8 @@ export default function ForgotPassword({
   const [otpCode, setOtpCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -185,7 +187,16 @@ export default function ForgotPassword({
             {error && (
               <div className="bms-alert bms-alert-error" role="alert">
                 <i className="bi bi-exclamation-circle-fill" aria-hidden="true" />
-                <span>{error}</span>
+                <div>
+                  <span>{error}</span>
+                  {error.includes("không tồn tại") && (
+                    <div className="mt-1">
+                      <a href="/register" className="fw-bold text-decoration-underline text-danger" style={{ fontSize: '0.875rem' }}>
+                        Chưa có tài khoản y tế? Đăng ký ngay tại đây &rarr;
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -262,33 +273,51 @@ export default function ForgotPassword({
 
                 <div className="bms-field mb-2">
                   <label htmlFor="new-password">Mật khẩu mới (Tối thiểu 8 ký tự) <span className="text-danger">*</span></label>
-                  <div className="bms-input-wrap">
-                    <FaLock className="text-muted" />
+                  <div className="bms-input-wrap d-flex align-items-center">
+                    <FaLock className="text-muted ms-2" />
                     <input
                       id="new-password"
-                      type="password"
+                      type={showNewPassword ? "text" : "password"}
                       placeholder="Mật khẩu mới"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                       disabled={loading}
+                      style={{ flex: 1 }}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-link p-1 text-muted me-2"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      aria-label="Ẩn hiện mật khẩu mới"
+                    >
+                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                   </div>
                 </div>
 
                 <div className="bms-field mb-3">
                   <label htmlFor="confirm-password">Xác nhận mật khẩu mới <span className="text-danger">*</span></label>
-                  <div className="bms-input-wrap">
-                    <FaLock className="text-muted" />
+                  <div className="bms-input-wrap d-flex align-items-center">
+                    <FaLock className="text-muted ms-2" />
                     <input
                       id="confirm-password"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="Nhập lại mật khẩu mới"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       disabled={loading}
+                      style={{ flex: 1 }}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-link p-1 text-muted me-2"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label="Ẩn hiện xác nhận mật khẩu"
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                   </div>
                 </div>
 

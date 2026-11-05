@@ -1,14 +1,13 @@
 /**
  * @file MedicalRecordPage.jsx
  * @description UC33 – Electronic Medical Records (EMR) Clinical Workspace.
- * Full CRUD for medical records conforming to ISO 15189, Ministry of Health and WHO ICD-10 standards.
- * Features automated BMI calculation, blood pressure validation, ICD-10 autocomplete,
- * 24-hour edit lock enforcement, and audit-compliant soft deletion.
- * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * Quản lý bệnh án điện tử, dấu hiệu sinh tồn, chẩn đoán WHO ICD-10 và phác đồ điều trị.
+ * Tuân thủ quy định khóa sửa sau 24 giờ và giải trình xóa hồ sơ phục vụ kiểm toán y tế.
+ * Conforms to: Rule 19, Production Engineering Standards & AGENTS-DESIGN.md.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Card,
   Button,
@@ -36,39 +35,42 @@ import {
   FaUserInjured,
   FaUserMd,
   FaCalendarAlt,
-  FaWeight,
-  FaRulerVertical,
-  FaThermometerHalf,
-  FaLungs,
-  FaPrescriptionBottleAlt
+  FaPrescriptionBottleAlt,
+  FaVial
 } from 'react-icons/fa';
 import { medicalRecordApi } from '../api/medicalRecordApi';
 
-// Common WHO ICD-10 Catalog for clinical auto-complete
+// Common WHO ICD-10 Catalog for clinical diagnosis
 const COMMON_ICD10 = [
-  { code: 'E11', name: 'Đái tháo đường typ 2 (Type 2 diabetes mellitus)' },
-  { code: 'I10', name: 'Tăng huyết áp vô căn (Essential hypertension)' },
-  { code: 'J00', name: 'Viêm mũi họng cấp / Cảm lạnh (Acute nasopharyngitis)' },
-  { code: 'J20', name: 'Viêm phế quản cấp (Acute bronchitis)' },
-  { code: 'K29', name: 'Viêm dạ dày và tá tràng (Gastritis and duodenitis)' },
+  { code: 'E11.9', name: 'Đái tháo đường typ 2 không biến chứng' },
+  { code: 'I10', name: 'Tăng huyết áp vô căn (nguyên phát)' },
+  { code: 'J00', name: 'Viêm mũi họng cấp (Cảm lạnh)' },
+  { code: 'J20.9', name: 'Viêm phế quản cấp' },
+  { code: 'K29.7', name: 'Viêm dạ dày tá tràng' },
   { code: 'A09', name: 'Tiêu chảy và viêm dạ dày - ruột nhiễm trùng' },
-  { code: 'D50', name: 'Thiếu máu do thiếu sắt (Iron deficiency anaemia)' },
-  { code: 'E78', name: 'Rối loạn chuyển hóa lipoprotein và lipid máu (Dyslipidemia)' },
-  { code: 'M10', name: 'Bệnh Gút (Gout)' },
-  { code: 'N39', name: 'Rối loạn hệ tiết niệu (Disorders of urinary system)' },
-  { code: 'R50', name: 'Sốt không rõ nguyên nhân (Fever of other and unknown origin)' },
-  { code: 'Z00', name: 'Khám sức khỏe tổng quát (General examination)' },
+  { code: 'D50.9', name: 'Thiếu máu do thiếu sắt' },
+  { code: 'E78.5', name: 'Rối loạn chuyển hóa lipid máu (Tăng mỡ máu)' },
+  { code: 'M10.9', name: 'Bệnh Gút (Gout)' },
+  { code: 'N39.0', name: 'Nhiễm trùng đường tiết niệu' },
+  { code: 'R50.9', name: 'Sốt không rõ nguyên nhân' },
+  { code: 'Z00.0', name: 'Khám sức khỏe tổng quát định kỳ' },
 ];
 
+const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
+
 export default function MedicalRecordPage() {
+  const [searchParams] = useSearchParams();
+  const queryPatientId = searchParams.get('patientId') || searchParams.get('patientCode') || '';
+
   const canAddNotes = useMemo(() => {
     try {
-      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || 'null');
+      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || localStorage.getItem('user') || 'null');
       return (user?.role || user?.roleName || '').toLowerCase() === 'doctor';
     } catch { return false; }
   }, []);
-  const [patientId, setPatientId] = useState('PAT-261019-0005');
-  const [searchPatientInput, setSearchPatientInput] = useState('PAT-261019-0005');
+
+  const [patientId, setPatientId] = useState(() => queryPatientId || 'PAT-261019-0005');
+  const [searchPatientInput, setSearchPatientInput] = useState(() => queryPatientId || 'PAT-261019-0005');
   const [records, setRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -95,8 +97,8 @@ export default function MedicalRecordPage() {
     spo2: 98,
     heightCm: 170,
     weightKg: 65,
-    icd10Code: 'E11',
-    icd10Name: 'Đái tháo đường typ 2 (Type 2 diabetes mellitus)',
+    icd10Code: 'E11.9',
+    icd10Name: 'Đái tháo đường typ 2 không biến chứng',
     diagnosis: '',
     treatmentPlan: '',
     prescriptionNotes: '',
@@ -104,11 +106,19 @@ export default function MedicalRecordPage() {
 
   const [form, setForm] = useState(initialForm);
 
+  // Sync if queryPatientId changes
+  useEffect(() => {
+    if (queryPatientId) {
+      setPatientId(queryPatientId);
+      setSearchPatientInput(queryPatientId);
+    }
+  }, [queryPatientId]);
+
   // Auto-calculated BMI & Category
   const { bmi, bmiCategory, bmiColor } = useMemo(() => {
     const h = Number(form.heightCm);
     const w = Number(form.weightKg);
-    if (!h || h <= 0 || !w || w <= 0) return { bmi: 0, bmiCategory: 'N/A', bmiColor: 'secondary' };
+    if (!h || h <= 0 || !w || w <= 0) return { bmi: 0, bmiCategory: 'Chưa tính', bmiColor: 'secondary' };
 
     const hMeters = h / 100.0;
     const calculated = (w / (hMeters * hMeters)).toFixed(2);
@@ -117,16 +127,16 @@ export default function MedicalRecordPage() {
     let cat = 'Bình thường';
     let color = 'success';
     if (numBmi < 18.5) {
-      cat = 'Thiếu cân (Underweight)';
+      cat = 'Thiếu cân';
       color = 'info';
     } else if (numBmi <= 22.9) {
-      cat = 'Bình thường (Normal)';
+      cat = 'Bình thường';
       color = 'success';
     } else if (numBmi <= 24.9) {
-      cat = 'Thừa cân (Overweight)';
+      cat = 'Thừa cân';
       color = 'warning';
     } else {
-      cat = 'Béo phì (Obese)';
+      cat = 'Béo phì';
       color = 'danger';
     }
 
@@ -150,12 +160,16 @@ export default function MedicalRecordPage() {
 
   // Load medical records for current patient
   const fetchRecords = useCallback(async (pid) => {
-    if (!pid) return;
+    if (!pid || !pid.trim()) return;
     setLoading(true);
     setErrorMsg(null);
     try {
-      const res = await medicalRecordApi.getPatientRecords(pid);
-      const list = res.data || res || [];
+      const res = await medicalRecordApi.getPatientRecords(pid.trim());
+      const rawList = res?.data ?? res?.items ?? res;
+      const list = Array.isArray(rawList)
+        ? rawList
+        : (Array.isArray(rawList?.items) ? rawList.items : []);
+
       setRecords(list);
       if (list.length > 0) {
         setSelectedRecord(list[0]);
@@ -211,7 +225,7 @@ export default function MedicalRecordPage() {
       spo2: record.vitals?.spo2 || 98,
       heightCm: record.vitals?.heightCm || 170,
       weightKg: record.vitals?.weightKg || 65,
-      icd10Code: record.icd10Code || 'E11',
+      icd10Code: record.icd10Code || 'E11.9',
       icd10Name: record.icd10Name || '',
       diagnosis: record.diagnosis || '',
       treatmentPlan: record.treatmentPlan || '',
@@ -236,14 +250,20 @@ export default function MedicalRecordPage() {
       return;
     }
 
+    const upperIcd = form.icd10Code.trim().toUpperCase();
+    if (!ICD10_REGEX.test(upperIcd)) {
+      setErrorMsg(`Mã ICD-10 "${upperIcd}" không đúng định dạng chuẩn WHO (Ví dụ: E11.9, I10).`);
+      return;
+    }
+
     setSubmitLoading(true);
     setErrorMsg(null);
     setFeedbackMsg(null);
 
     const payload = {
-      patientId,
-      chiefComplaint: form.chiefComplaint,
-      clinicalSymptoms: form.clinicalSymptoms,
+      patientId: patientId.trim(),
+      chiefComplaint: form.chiefComplaint.trim(),
+      clinicalSymptoms: form.clinicalSymptoms?.trim() || '',
       vitals: {
         heartRate: Number(form.heartRate),
         systolicBp: Number(form.systolicBp),
@@ -253,11 +273,11 @@ export default function MedicalRecordPage() {
         heightCm: Number(form.heightCm),
         weightKg: Number(form.weightKg),
       },
-      icd10Code: form.icd10Code.trim().toUpperCase(),
-      icd10Name: form.icd10Name,
-      diagnosis: form.diagnosis,
-      treatmentPlan: form.treatmentPlan,
-      prescriptionNotes: form.prescriptionNotes,
+      icd10Code: upperIcd,
+      icd10Name: form.icd10Name?.trim() || '',
+      diagnosis: form.diagnosis.trim(),
+      treatmentPlan: form.treatmentPlan?.trim() || '',
+      prescriptionNotes: form.prescriptionNotes?.trim() || '',
     };
 
     try {
@@ -274,7 +294,7 @@ export default function MedicalRecordPage() {
       }
     } catch (err) {
       console.error('Error saving medical record:', err);
-      setErrorMsg(err.message || 'Lỗi khi lưu bệnh án.');
+      setErrorMsg(err.message || 'Lỗi khi lưu bệnh án điện tử.');
     } finally {
       setSubmitLoading(false);
     }
@@ -283,14 +303,14 @@ export default function MedicalRecordPage() {
   // Soft Delete Record Confirmation
   const handleDeleteConfirm = async () => {
     if (!recordToDelete || deleteReason.trim().length < 15) {
-      setErrorMsg('Lý do xóa bắt buộc tối thiểu 15 ký tự.');
+      setErrorMsg('Lý do xóa bắt buộc tối thiểu 15 ký tự theo quy định kiểm toán y tế.');
       return;
     }
 
     setSubmitLoading(true);
     setErrorMsg(null);
     try {
-      await medicalRecordApi.deleteRecord(recordToDelete.id, deleteReason);
+      await medicalRecordApi.deleteRecord(recordToDelete.id, deleteReason.trim());
       setFeedbackMsg(`Đã xóa bệnh án ${recordToDelete.recordCode} thành công.`);
       setShowDeleteModal(false);
       setRecordToDelete(null);
@@ -305,11 +325,11 @@ export default function MedicalRecordPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-lg-4">
+    <div className="container-fluid py-4 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border" style={{ borderColor: '#e2e8f0' }}>
         <div>
-          <h3 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
+          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
             <FaNotesMedical /> Phân Hệ Bệnh Án Điện Tử (EMR Workspace)
           </h3>
           <p className="small text-muted mb-0">
@@ -317,18 +337,26 @@ export default function MedicalRecordPage() {
           </p>
         </div>
 
-        {/* Patient Code Search Bar */}
-        <div className="d-flex align-items-center gap-2">
-          <InputGroup size="sm" style={{ width: '260px' }}>
-            <InputGroup.Text><FaUserInjured className="text-primary" /></InputGroup.Text>
+        {/* Patient Code Search Bar & Create Button */}
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <InputGroup size="sm" style={{ width: '280px' }}>
+            <InputGroup.Text className="bg-white"><FaUserInjured style={{ color: '#0284c7' }} /></InputGroup.Text>
             <Form.Control
               type="text"
-              placeholder="Nhập mã bệnh nhân..."
+              placeholder="Nhập mã bệnh nhân (PAT-...)"
               value={searchPatientInput}
               onChange={(e) => setSearchPatientInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setPatientId(searchPatientInput.trim());
+                  setIsCreatingNew(false);
+                  setIsEditing(false);
+                }
+              }}
             />
             <Button
               variant="primary"
+              style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
               onClick={() => {
                 setPatientId(searchPatientInput.trim());
                 setIsCreatingNew(false);
@@ -342,7 +370,8 @@ export default function MedicalRecordPage() {
           <Button
             variant="success"
             size="sm"
-            className="d-flex align-items-center gap-2 fw-semibold text-white px-3"
+            className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
+            style={{ backgroundColor: '#059669', borderColor: '#059669' }}
             onClick={handleStartCreate}
           >
             <FaPlus /> Tạo Bệnh Án Mới
@@ -368,13 +397,13 @@ export default function MedicalRecordPage() {
       <Row className="g-4">
         {/* Left Column: Patient Medical History Timeline */}
         <Col lg={4}>
-          <Card className="border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-            <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom">
+          <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
+            <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: '#e2e8f0' }}>
               <div>
-                <h6 className="fw-bold mb-0 text-dark">Lịch Sử Khám ({records.length})</h6>
-                <small className="text-muted">Mã: {patientId}</small>
+                <h6 className="fw-bold mb-0 text-dark">Lịch Sử Bệnh Án</h6>
+                <small className="text-muted">Bệnh nhân: <strong className="text-primary font-monospace">{patientId}</strong></small>
               </div>
-              <Badge bg="primary" className="rounded-pill px-2.5">
+              <Badge className="rounded-pill px-2.5" style={{ backgroundColor: '#0284c7' }}>
                 {records.length} Hồ sơ
               </Badge>
             </Card.Header>
@@ -385,11 +414,11 @@ export default function MedicalRecordPage() {
                   <Spinner animation="border" variant="primary" />
                   <div className="small text-muted mt-2">Đang tải hồ sơ bệnh án...</div>
                 </div>
-              ) : records.length === 0 ? (
+              ) : !Array.isArray(records) || records.length === 0 ? (
                 <div className="text-center py-5 text-muted">
                   <div className="fs-3 mb-2">📋</div>
                   <div className="fw-semibold">Chưa có hồ sơ bệnh án</div>
-                  <div className="small">Bệnh nhân chưa có lịch sử khám nào tại viện.</div>
+                  <div className="small">Bệnh nhân chưa có lịch sử khám nào tại cơ sở y tế.</div>
                 </div>
               ) : (
                 records.map((r) => {
@@ -402,7 +431,7 @@ export default function MedicalRecordPage() {
                         hour: '2-digit',
                         minute: '2-digit',
                       })
-                    : 'N/A';
+                    : '—';
 
                   return (
                     <div
@@ -413,19 +442,19 @@ export default function MedicalRecordPage() {
                           ? 'border-primary bg-primary bg-opacity-10 shadow-sm'
                           : 'bg-white hover-bg-light'
                       }`}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', borderColor: isSelected ? '#0284c7' : '#e2e8f0' }}
                     >
                       <div className="d-flex justify-content-between align-items-start mb-1">
-                        <span className="fw-bold font-monospace text-primary small">
-                          {r.recordCode}
+                        <span className="fw-bold font-monospace small" style={{ color: '#0284c7' }}>
+                          {r.recordCode || r.id}
                         </span>
                         {r.canEdit ? (
-                          <Badge bg="success" className="small">
+                          <Badge bg="success" className="small" style={{ backgroundColor: '#059669' }}>
                             Có thể sửa
                           </Badge>
                         ) : (
                           <Badge bg="secondary" className="small d-flex align-items-center gap-1">
-                            <FaLock size={10} /> Đã khóa (24h)
+                            <FaLock size={10} /> Đã khóa sau 24h
                           </Badge>
                         )}
                       </div>
@@ -439,7 +468,7 @@ export default function MedicalRecordPage() {
                           <FaCalendarAlt className="me-1" />
                           {dateStr}
                         </span>
-                        <Badge bg="light" text="dark" className="border">
+                        <Badge bg="light" text="dark" className="border font-monospace">
                           ICD: {r.icd10Code}
                         </Badge>
                       </div>
@@ -455,8 +484,8 @@ export default function MedicalRecordPage() {
         <Col lg={8}>
           {isCreatingNew || isEditing ? (
             /* CREATE / EDIT FORM */
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-              <Card.Header className="bg-primary text-white py-3 px-4 d-flex justify-content-between align-items-center">
+            <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
+              <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
                 <span className="fw-bold text-uppercase fs-6">
                   {isCreatingNew ? 'Tạo Bệnh Án Điện Tử Mới' : `Chỉnh Sửa Bệnh Án #${selectedRecord?.recordCode}`}
                 </span>
@@ -470,11 +499,11 @@ export default function MedicalRecordPage() {
                   {/* Chief Complaint */}
                   <Form.Group className="mb-3">
                     <Form.Label className="small fw-bold text-secondary">
-                      Lý do vào khám (Chief Complaint) <span className="text-danger">*</span>
+                      1. Lý do vào khám & Diễn biến cơ năng (S - Bệnh sử) <span className="text-danger">*</span>
                     </Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Ví dụ: Đau đầu kéo dài 3 ngày kèm sốt nhẹ..."
+                      placeholder="Ví dụ: Đau đầu kéo dài 3 ngày kèm sốt nhẹ, mệt mỏi..."
                       value={form.chiefComplaint}
                       onChange={(e) => setForm({ ...form, chiefComplaint: e.target.value })}
                       required
@@ -484,21 +513,21 @@ export default function MedicalRecordPage() {
                   {/* Clinical Symptoms */}
                   <Form.Group className="mb-3">
                     <Form.Label className="small fw-bold text-secondary">
-                      Triệu chứng lâm sàng & Tiền sử bệnh
+                      2. Triệu chứng lâm sàng & Thăm khám thực thể (O - Khám thực thể)
                     </Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
-                      placeholder="Ghi nhận triệu chứng cơ năng, thực thể..."
+                      placeholder="Ghi nhận triệu chứng cơ năng, thực thể của bệnh nhân..."
                       value={form.clinicalSymptoms}
                       onChange={(e) => setForm({ ...form, clinicalSymptoms: e.target.value })}
                     />
                   </Form.Group>
 
                   {/* Vitals Box with Clinical Ranges */}
-                  <div className="p-3 bg-light rounded-3 mb-4 border">
-                    <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                      <FaHeartbeat /> Dấu Hiệu Sinh Tồn (Vital Signs & BMI)
+                  <div className="p-3 bg-light rounded-3 mb-4 border" style={{ borderColor: '#e2e8f0' }}>
+                    <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
+                      <FaHeartbeat /> Dấu Hiệu Sinh Tồn & Chỉ Số BMI
                     </h6>
 
                     {!bpValidation.valid && (
@@ -510,7 +539,7 @@ export default function MedicalRecordPage() {
 
                     <Row className="g-3">
                       <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Mạch (Heart Rate)</Form.Label>
+                        <Form.Label className="small fw-semibold text-secondary">Mạch (Nhịp tim)</Form.Label>
                         <InputGroup size="sm">
                           <Form.Control
                             type="number"
@@ -525,7 +554,7 @@ export default function MedicalRecordPage() {
                       </Col>
 
                       <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Tâm thu (Systolic)</Form.Label>
+                        <Form.Label className="small fw-semibold text-secondary">Huyết áp tâm thu</Form.Label>
                         <InputGroup size="sm">
                           <Form.Control
                             type="number"
@@ -540,7 +569,7 @@ export default function MedicalRecordPage() {
                       </Col>
 
                       <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Tâm trương (Diastolic)</Form.Label>
+                        <Form.Label className="small fw-semibold text-secondary">Huyết áp tâm trương</Form.Label>
                         <InputGroup size="sm">
                           <Form.Control
                             type="number"
@@ -555,7 +584,7 @@ export default function MedicalRecordPage() {
                       </Col>
 
                       <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Thân nhiệt (Temp)</Form.Label>
+                        <Form.Label className="small fw-semibold text-secondary">Thân nhiệt</Form.Label>
                         <InputGroup size="sm">
                           <Form.Control
                             type="number"
@@ -669,11 +698,11 @@ export default function MedicalRecordPage() {
                   {/* Diagnosis */}
                   <Form.Group className="mb-3">
                     <Form.Label className="small fw-bold text-secondary">
-                      Chẩn đoán xác định của Bác sĩ <span className="text-danger">*</span>
+                      3. Chẩn đoán xác định của Bác sĩ (A - Chẩn đoán ICD-10) <span className="text-danger">*</span>
                     </Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Chẩn đoán xác định..."
+                      placeholder="Chẩn đoán xác định bệnh..."
                       value={form.diagnosis}
                       onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
                       required
@@ -682,7 +711,7 @@ export default function MedicalRecordPage() {
 
                   {/* Treatment Plan */}
                   <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-secondary">Hướng xử trí & Phác đồ điều trị</Form.Label>
+                    <Form.Label className="small fw-bold text-secondary">4. Hướng xử trí & Phác đồ điều trị (P - Kế hoạch)</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
@@ -694,7 +723,7 @@ export default function MedicalRecordPage() {
 
                   {/* Prescription Notes */}
                   <Form.Group className="mb-4">
-                    <Form.Label className="small fw-bold text-secondary">Đơn thuốc & Dặn dò bệnh nhân</Form.Label>
+                    <Form.Label className="small fw-bold text-secondary">5. Đơn thuốc & Tư vấn dặn dò (E - Đánh giá & Hẹn khám)</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
@@ -704,7 +733,7 @@ export default function MedicalRecordPage() {
                     />
                   </Form.Group>
 
-                  <div className="d-flex justify-content-end gap-2 pt-2 border-top">
+                  <div className="d-flex justify-content-end gap-2 pt-2 border-top" style={{ borderColor: '#e2e8f0' }}>
                     <Button variant="secondary" onClick={handleCancelForm}>
                       Hủy bỏ
                     </Button>
@@ -712,7 +741,8 @@ export default function MedicalRecordPage() {
                       variant="primary"
                       type="submit"
                       disabled={submitLoading || !bpValidation.valid}
-                      className="px-4 fw-bold"
+                      className="px-4 fw-bold shadow-sm"
+                      style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
                     >
                       {submitLoading ? (
                         <>
@@ -729,25 +759,46 @@ export default function MedicalRecordPage() {
             </Card>
           ) : selectedRecord ? (
             /* RECORD DETAIL VIEWER */
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-              <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+            <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
+              <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: '#e2e8f0' }}>
                 <div>
                   <span className="small text-muted text-uppercase fw-bold">Chi Tiết Bệnh Án</span>
-                  <div className="h4 fw-bold text-primary font-monospace mb-0">
-                    {selectedRecord.recordCode}
+                  <div className="h4 fw-bold font-monospace mb-0" style={{ color: '#0284c7' }}>
+                    {selectedRecord.recordCode || selectedRecord.id}
                   </div>
                 </div>
 
-                <div className="d-flex gap-2">
-                  {canAddNotes && <Button as={Link} variant="outline-primary" size="sm"
-                    to={`/doctor/medical-notes?recordId=${encodeURIComponent(selectedRecord.id)}`}>
-                    <FaNotesMedical className="me-1" /> Ghi chú y khoa
-                  </Button>}
-                  {selectedRecord.canEdit ? (
+                <div className="d-flex gap-2 flex-wrap">
+                  {/* Direct Clinical Shortcut: Chỉ định xét nghiệm */}
+                  <Button
+                    as={Link}
+                    to={`/doctor/orders/create?patientId=${encodeURIComponent(patientId)}&patientName=${encodeURIComponent(selectedRecord?.patientName || '')}`}
+                    variant="primary"
+                    size="sm"
+                    className="d-flex align-items-center gap-1 shadow-sm"
+                    style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                  >
+                    <FaVial /> Chỉ Định Xét Nghiệm
+                  </Button>
+
+                  {/* Direct Clinical Shortcut: Ghi chú y khoa tiến trình */}
+                  {canAddNotes && (
                     <Button
+                      as={Link}
                       variant="outline-primary"
                       size="sm"
-                      className="d-flex align-items-center gap-2"
+                      to={`/doctor/medical-notes?recordId=${encodeURIComponent(selectedRecord.id)}`}
+                      className="d-flex align-items-center gap-1"
+                    >
+                      <FaNotesMedical /> Ghi Chú Y Khoa
+                    </Button>
+                  )}
+
+                  {selectedRecord.canEdit ? (
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="d-flex align-items-center gap-1"
                       onClick={() => handleStartEdit(selectedRecord)}
                     >
                       <FaEdit /> Sửa Bệnh Án
@@ -761,7 +812,7 @@ export default function MedicalRecordPage() {
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    className="d-flex align-items-center gap-2"
+                    className="d-flex align-items-center gap-1"
                     onClick={() => {
                       setRecordToDelete(selectedRecord);
                       setShowDeleteModal(true);
@@ -774,68 +825,70 @@ export default function MedicalRecordPage() {
 
               <Card.Body className="p-4">
                 {/* Meta header */}
-                <Row className="g-3 mb-4 p-3 bg-light rounded-3 border">
+                <Row className="g-3 mb-4 p-3 bg-light rounded-3 border" style={{ borderColor: '#e2e8f0' }}>
                   <Col sm={6}>
                     <div className="small text-muted">Bệnh nhân</div>
                     <div className="fw-bold fs-5 text-dark">
-                      <FaUserInjured className="text-primary me-2" />
-                      {selectedRecord.patientName} ({selectedRecord.patientId})
+                      <FaUserInjured className="me-2" style={{ color: '#0284c7' }} />
+                      {selectedRecord.patientName || 'Bệnh nhân'} ({selectedRecord.patientId})
                     </div>
                   </Col>
                   <Col sm={6}>
                     <div className="small text-muted">Bác sĩ khám</div>
                     <div className="fw-bold fs-6 text-dark">
                       <FaUserMd className="text-success me-2" />
-                      {selectedRecord.doctorName}
+                      {selectedRecord.doctorName || 'BS. Chuyên Khoa'}
                     </div>
                     <div className="small text-muted">
                       Thời điểm khám:{' '}
                       {selectedRecord.createdAt
                         ? new Date(selectedRecord.createdAt).toLocaleString('vi-VN')
-                        : 'N/A'}
+                        : '—'}
                     </div>
                   </Col>
                 </Row>
 
                 {/* Vitals summary cards */}
-                <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
                   <FaHeartbeat /> Dấu Hiệu Sinh Tồn Đo Được
                 </h6>
 
                 <Row className="g-3 mb-4">
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs">
-                      <div className="small text-muted">Mạch (Heart Rate)</div>
-                      <div className="fs-4 fw-bold text-primary font-monospace">
-                        {selectedRecord.vitals?.heartRate} <small className="fs-6 text-muted">bpm</small>
+                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
+                      <div className="small text-muted">Mạch (Nhịp tim)</div>
+                      <div className="fs-4 fw-bold font-monospace" style={{ color: '#0284c7' }}>
+                        {selectedRecord.vitals?.heartRate ?? '—'} <small className="fs-6 text-muted">bpm</small>
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs">
+                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
                       <div className="small text-muted">Huyết Áp</div>
                       <div className="fs-4 fw-bold text-dark font-monospace">
-                        {selectedRecord.vitals?.systolicBp}/{selectedRecord.vitals?.diastolicBp}{' '}
+                        {selectedRecord.vitals?.systolicBp ?? '—'}/{selectedRecord.vitals?.diastolicBp ?? '—'}{' '}
                         <small className="fs-6 text-muted">mmHg</small>
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs">
+                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
                       <div className="small text-muted">Thân Nhiệt & SpO2</div>
                       <div className="fs-4 fw-bold text-dark font-monospace">
-                        {selectedRecord.vitals?.temperature}°C | {selectedRecord.vitals?.spo2}%
+                        {selectedRecord.vitals?.temperature ?? '—'}°C | {selectedRecord.vitals?.spo2 ?? '—'}%
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs">
+                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
                       <div className="small text-muted">Chỉ số BMI</div>
                       <div className="fs-4 fw-bold text-success font-monospace">
-                        {selectedRecord.vitals?.bmi}{' '}
-                        <Badge bg="success" className="fs-7 fw-normal">
-                          {selectedRecord.vitals?.bmiCategory}
-                        </Badge>
+                        {selectedRecord.vitals?.bmi ?? '—'}{' '}
+                        {selectedRecord.vitals?.bmiCategory && (
+                          <Badge bg="success" className="fs-7 fw-normal ms-1">
+                            {selectedRecord.vitals.bmiCategory}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </Col>
@@ -844,9 +897,9 @@ export default function MedicalRecordPage() {
                 {/* Diagnosis and ICD-10 */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-secondary text-uppercase small mb-2">Chẩn Đoán Bệnh</h6>
-                  <div className="p-3 bg-light rounded-3 border">
-                    <div className="d-flex align-items-center gap-2 mb-2">
-                      <Badge bg="primary" className="font-monospace fs-6 px-3 py-1.5">
+                  <div className="p-3 bg-light rounded-3 border" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                      <Badge className="font-monospace fs-6 px-3 py-1.5" style={{ backgroundColor: '#0284c7' }}>
                         ICD-10: {selectedRecord.icd10Code}
                       </Badge>
                       <span className="fw-semibold text-dark">{selectedRecord.icd10Name}</span>
@@ -871,20 +924,20 @@ export default function MedicalRecordPage() {
                 {/* Treatment plan & prescription */}
                 <Row className="g-3">
                   <Col md={6}>
-                    <div className="border rounded-3 p-3 h-100 bg-white">
+                    <div className="border rounded-3 p-3 h-100 bg-white" style={{ borderColor: '#e2e8f0' }}>
                       <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaStethoscope className="text-primary" /> Hướng Xử Trí & Phác Đồ
+                        <FaStethoscope style={{ color: '#0284c7' }} /> Hướng Xử Trí & Phác Đồ
                       </h6>
                       <p className="text-dark mb-0 small">
-                        {selectedRecord.treatmentPlan || 'Theo dõi định kỳ.'}
+                        {selectedRecord.treatmentPlan || 'Theo dõi định kỳ theo chỉ định.'}
                       </p>
                     </div>
                   </Col>
 
                   <Col md={6}>
-                    <div className="border rounded-3 p-3 h-100 bg-white">
+                    <div className="border rounded-3 p-3 h-100 bg-white" style={{ borderColor: '#e2e8f0' }}>
                       <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaPrescriptionBottleAlt className="text-success" /> Đơn Thuốc & Dặn Dò
+                        <FaPrescriptionBottleAlt style={{ color: '#059669' }} /> Đơn Thuốc & Dặn Dò
                       </h6>
                       <p className="text-dark mb-0 small">
                         {selectedRecord.prescriptionNotes || 'Tái khám sau 1 tuần hoặc khi có dấu hiệu bất thường.'}
@@ -895,16 +948,21 @@ export default function MedicalRecordPage() {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="border-0 shadow-sm rounded-4 text-center py-5">
+            <Card className="border-0 shadow-sm rounded-3 text-center py-5" style={{ borderColor: '#e2e8f0' }}>
               <div className="display-1 text-muted opacity-25 mb-3">
                 <FaNotesMedical />
               </div>
               <h5 className="fw-bold text-secondary mb-2">Chưa chọn hồ sơ bệnh án</h5>
               <p className="text-muted small mb-4">
-                Chọn một hồ sơ bệnh án từ danh sách bên trái hoặc nhấn &quot;Tạo Bệnh Án Mới&quot; để bắt đầu đợt khám.
+                Chọn một hồ sơ bệnh án từ danh sách bên trái hoặc nhấn &quot;Tạo Bệnh Án Mới&quot; để bắt đầu phiên khám bệnh.
               </p>
               <div>
-                <Button variant="primary" onClick={handleStartCreate}>
+                <Button
+                  variant="primary"
+                  onClick={handleStartCreate}
+                  style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                  className="shadow-sm"
+                >
                   <FaPlus className="me-2" /> Tạo Bệnh Án Mới
                 </Button>
               </div>
@@ -916,7 +974,7 @@ export default function MedicalRecordPage() {
       {/* Soft Delete Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title className="h5 fw-bold text-danger">Hủy / Xóa Hồ Sơ Bệnh Án</Modal.Title>
+          <Modal.Title className="h5 fw-bold" style={{ color: '#dc2626' }}>Hủy / Xóa Hồ Sơ Bệnh Án</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p className="small text-muted mb-3">
@@ -949,6 +1007,7 @@ export default function MedicalRecordPage() {
             size="sm"
             onClick={handleDeleteConfirm}
             disabled={submitLoading || deleteReason.trim().length < 15}
+            style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
           >
             {submitLoading ? 'Đang xử lý...' : 'Xác Nhận Xóa'}
           </Button>

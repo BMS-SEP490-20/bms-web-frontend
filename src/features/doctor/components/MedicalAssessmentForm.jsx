@@ -44,19 +44,21 @@ import { getPackages } from '../../admin/api/packageApi.jsx';
 
 // Standard WHO ICD-10 Catalog for clinical guidance
 export const COMMON_ICD10_LIST = [
-  { code: 'E11', name: 'Đái tháo đường typ 2 (Type 2 diabetes mellitus)' },
-  { code: 'I10', name: 'Tăng huyết áp vô căn (Essential hypertension)' },
+  { code: 'E11.9', name: 'Đái tháo đường typ 2 không biến chứng' },
+  { code: 'I10', name: 'Tăng huyết áp vô căn (nguyên phát)' },
   { code: 'J00', name: 'Viêm mũi họng cấp / Cảm lạnh (Acute nasopharyngitis)' },
-  { code: 'J20', name: 'Viêm phế quản cấp (Acute bronchitis)' },
-  { code: 'K29', name: 'Viêm dạ dày và tá tràng (Gastritis and duodenitis)' },
-  { code: 'K76', name: 'Các bệnh gan khác / Tăng men gan (Other diseases of liver)' },
-  { code: 'E78', name: 'Rối loạn chuyển hóa lipoprotein và lipid máu (Dyslipidemia)' },
-  { code: 'D50', name: 'Thiếu máu do thiếu sắt (Iron deficiency anaemia)' },
-  { code: 'M10', name: 'Bệnh Gút (Gout)' },
-  { code: 'N39', name: 'Rối loạn hệ tiết niệu (Disorders of urinary system)' },
-  { code: 'R50', name: 'Sốt không rõ nguyên nhân (Fever of unknown origin)' },
-  { code: 'Z00', name: 'Khám sức khỏe tổng quát (General examination)' },
+  { code: 'J20.9', name: 'Viêm phế quản cấp' },
+  { code: 'K29.7', name: 'Viêm dạ dày tá tràng' },
+  { code: 'K76.0', name: 'Các bệnh gan khác / Tăng men gan' },
+  { code: 'E78.5', name: 'Rối loạn chuyển hóa lipoprotein và lipid máu (Dyslipidemia)' },
+  { code: 'D50.9', name: 'Thiếu máu do thiếu sắt' },
+  { code: 'M10.9', name: 'Bệnh Gút (Gout)' },
+  { code: 'N39.0', name: 'Rối loạn hệ tiết niệu' },
+  { code: 'R50.9', name: 'Sốt không rõ nguyên nhân' },
+  { code: 'Z00.0', name: 'Khám sức khỏe tổng quát định kỳ' },
 ];
+
+const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
 
 export default function MedicalAssessmentForm({
   initialData = null,
@@ -97,8 +99,8 @@ export default function MedicalAssessmentForm({
       weightKg: initialData?.vitals?.weightKg ?? 65,
     },
     physicalExamination: initialData?.physicalExamination || '',
-    icd10Code: initialData?.icd10Code || 'E11',
-    icd10Name: initialData?.icd10Name || 'Đái tháo đường typ 2 (Type 2 diabetes mellitus)',
+    icd10Code: initialData?.icd10Code || 'E11.9',
+    icd10Name: initialData?.icd10Name || 'Đái tháo đường typ 2 không biến chứng',
     preliminaryDiagnosis: initialData?.preliminaryDiagnosis || '',
     finalDiagnosis: initialData?.finalDiagnosis || '',
     severity: initialData?.severity || 'Mild',
@@ -169,10 +171,12 @@ export default function MedicalAssessmentForm({
     setSearchingPatients(true);
     try {
       const res = await searchPatients({ search: keyword, pageSize: 30 });
-      const items = res?.items || (Array.isArray(res) ? res : []);
+      const raw = res?.items ?? res?.data ?? res;
+      const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
       setPatientList(items);
     } catch (err) {
       console.error('Failed to load patient list:', err);
+      setPatientList([]);
     } finally {
       setSearchingPatients(false);
     }
@@ -184,8 +188,10 @@ export default function MedicalAssessmentForm({
     setLoadingEncounters(true);
     try {
       const res = await medicalAssessmentApi.getPatientEncounters(pid);
-      if (res?.data && res.data.length > 0) {
-        setEncounters(res.data);
+      const raw = res?.data ?? res?.items ?? res;
+      const encList = Array.isArray(raw) ? raw : [];
+      if (encList.length > 0) {
+        setEncounters(encList);
       }
     } catch {
       // Keep existing default
@@ -205,7 +211,9 @@ export default function MedicalAssessmentForm({
       // If none provided, fetch first patient from DB as initial
       searchPatients({ pageSize: 1 })
         .then((res) => {
-          const first = res?.items?.[0];
+          const rawItems = res?.items ?? res?.data ?? res;
+          const safeItems = Array.isArray(rawItems) ? rawItems : (Array.isArray(rawItems?.items) ? rawItems.items : []);
+          const first = safeItems[0];
           if (first) {
             loadPatientProfile(first.id);
             fetchEncounters(first.id);
@@ -218,12 +226,14 @@ export default function MedicalAssessmentForm({
     setLoadingPackages(true);
     getPackages({ pageSize: 100 })
       .then((res) => {
-        const list = res?.items || (Array.isArray(res) ? res : []);
-        const active = list.filter((p) => !p.isDeleted && p.isActive !== false);
+        const raw = res?.items ?? res?.data ?? res;
+        const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
+        const active = list.filter((p) => p && !p.isDeleted && p.isActive !== false);
         setServicePackages(active);
       })
       .catch((err) => {
         console.error('Failed to load lab packages from DB:', err);
+        setServicePackages([]);
       })
       .finally(() => {
         setLoadingPackages(false);
@@ -243,16 +253,16 @@ export default function MedicalAssessmentForm({
     let cat = 'Bình thường';
     let color = 'success';
     if (numBmi < 18.5) {
-      cat = 'Thiếu cân (Underweight)';
+      cat = 'Thiếu cân';
       color = 'info';
     } else if (numBmi <= 22.9) {
-      cat = 'Bình thường (Normal)';
+      cat = 'Bình thường';
       color = 'success';
     } else if (numBmi <= 24.9) {
-      cat = 'Thừa cân (Overweight)';
+      cat = 'Thừa cân';
       color = 'warning';
     } else {
-      cat = 'Béo phì (Obese)';
+      cat = 'Béo phì';
       color = 'danger';
     }
 
@@ -326,11 +336,12 @@ export default function MedicalAssessmentForm({
       return;
     }
     if (!formData.chiefComplaint?.trim() || formData.chiefComplaint.trim().length < 3) {
-      setErrorMessage('Lý do khám (Chief Complaint) không được để trống và tối thiểu 3 ký tự.');
+      setErrorMessage('Lý do vào khám không được để trống và tối thiểu 3 ký tự.');
       return;
     }
-    if (!formData.icd10Code?.trim()) {
-      setErrorMessage('Vui lòng chọn hoặc nhập mã chẩn đoán ICD-10 theo quy định.');
+    const upperIcd = formData.icd10Code?.trim().toUpperCase();
+    if (!upperIcd || !ICD10_REGEX.test(upperIcd)) {
+      setErrorMessage(`Mã chẩn đoán ICD-10 "${formData.icd10Code || ''}" không đúng định dạng chuẩn WHO (Ví dụ: E11.9, I10, J00).`);
       return;
     }
     if (!formData.finalDiagnosis?.trim()) {
@@ -466,7 +477,7 @@ export default function MedicalAssessmentForm({
                   <Button
                     variant="outline-primary"
                     size="sm"
-                    className="d-flex align-items-center gap-1 px-2 py-1 shadow-xs"
+                    className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm"
                     onClick={() => {
                       setShowPatientSelectorModal(true);
                       fetchPatientList('');
@@ -561,27 +572,27 @@ export default function MedicalAssessmentForm({
                     value={formData.encounterId}
                     onChange={(e) => setFormData({ ...formData, encounterId: e.target.value })}
                   >
-                    {encounters.map((enc) => (
+                    {Array.isArray(encounters) && encounters.map((enc) => (
                       <option key={enc.encounterId} value={enc.encounterId}>
-                        {enc.encounterId} - {new Date(enc.encounterDate).toLocaleDateString('vi-VN')} ({enc.status})
+                        {enc.encounterId} - {enc.encounterDate ? new Date(enc.encounterDate).toLocaleDateString('vi-VN') : 'Hiện tại'} ({enc.status || 'Đang khám'})
                       </option>
                     ))}
-                    {!encounters.some((e) => e.encounterId === formData.encounterId) && (
-                      <option value={formData.encounterId}>{formData.encounterId} (Hiện tại)</option>
+                    {(!Array.isArray(encounters) || !encounters.some((e) => e.encounterId === formData.encounterId)) && (
+                      <option value={formData.encounterId}>{formData.encounterId} (Lượt khám hiện tại)</option>
                     )}
                   </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Loại Tiếp Nhận (Encounter Type)</Form.Label>
+                  <Form.Label className="fw-semibold">Hình Thức Tiếp Nhận Khám</Form.Label>
                   <Form.Select
                     value={formData.encounterType}
                     onChange={(e) => setFormData({ ...formData, encounterType: e.target.value })}
                   >
-                    <option value="ClinicVisit">Khám phòng khám ngoại trú (Clinic Visit)</option>
-                    <option value="FollowUp">Tái khám theo hẹn (Follow-up)</option>
-                    <option value="Emergency">Cấp cứu / Tiếp nhận nhanh</option>
+                    <option value="ClinicVisit">Khám phòng khám ngoại trú</option>
+                    <option value="FollowUp">Tái khám theo hẹn</option>
+                    <option value="Emergency">Cấp cứu / Tiếp nhận ưu tiên</option>
                     <option value="RoutineCheckup">Khám sức khỏe định kỳ</option>
                   </Form.Select>
                 </Form.Group>
@@ -592,13 +603,13 @@ export default function MedicalAssessmentForm({
           {/* SECTION 2: Chief Complaint & Symptoms */}
           <div className="bg-white p-3 p-md-4 rounded-3 shadow-sm mb-4 border">
             <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-              <FaNotesMedical /> 2. Lý Do Khám & Triệu Chứng Lâm Sàng
+              <FaNotesMedical /> 2. Diễn Biến Bệnh & Triệu Chứng Lâm Sàng
             </h6>
             <Row className="g-3">
               <Col md={12}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">
-                    Lý Do Đến Khám (Chief Complaint) <span className="text-danger">*</span>
+                    Lý Do Vào Khám & Bệnh Sử Cơ Năng <span className="text-danger">*</span>
                   </Form.Label>
                   <Form.Control
                     type="text"
@@ -607,7 +618,7 @@ export default function MedicalAssessmentForm({
                     placeholder="VD: Đau ngực trái từng cơn kèm khó thở khi gắng sức..."
                     required
                   />
-                  <Form.Text className="text-muted">Mô tả vắn tắt lý do chính khiến người bệnh đi khám.</Form.Text>
+                  <Form.Text className="text-muted">Mô tả triệu chứng chính và diễn biến bệnh sử của người bệnh.</Form.Text>
                 </Form.Group>
               </Col>
               <Col md={12}>
@@ -744,7 +755,7 @@ export default function MedicalAssessmentForm({
             <Row>
               <Col md={12}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Khám Thực Thể (Physical Examination)</Form.Label>
+                  <Form.Label className="fw-semibold">Khám Thực Thể & Các Cơ Quan</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
@@ -805,7 +816,7 @@ export default function MedicalAssessmentForm({
                       />
                     </div>
                     <ListGroup variant="flush" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                      {filteredIcd10.map((item) => (
+                      {Array.isArray(filteredIcd10) && filteredIcd10.map((item) => (
                         <ListGroup.Item
                           key={item.code}
                           action
@@ -837,7 +848,7 @@ export default function MedicalAssessmentForm({
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Chẩn Đoán Sơ Bộ (Preliminary Diagnosis)</Form.Label>
+                  <Form.Label className="fw-semibold">Chẩn Đoán Sơ Bộ</Form.Label>
                   <Form.Control
                     type="text"
                     value={formData.preliminaryDiagnosis}
@@ -850,7 +861,7 @@ export default function MedicalAssessmentForm({
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">
-                    Chẩn Đoán Xác Định (Final Diagnosis) <span className="text-danger">*</span>
+                    Chẩn Đoán Xác Định <span className="text-danger">*</span>
                   </Form.Label>
                   <Form.Control
                     type="text"
@@ -864,29 +875,29 @@ export default function MedicalAssessmentForm({
 
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Mức Độ Nghiêm Trọng (Severity)</Form.Label>
+                  <Form.Label className="fw-semibold">Mức Độ Bệnh</Form.Label>
                   <Form.Select
                     value={formData.severity}
                     onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
                   >
-                    <option value="Mild">Nhẹ (Mild)</option>
-                    <option value="Moderate">Trung bình (Moderate)</option>
-                    <option value="Severe">Nặng (Severe)</option>
-                    <option value="Critical">Nguy kịch (Critical)</option>
+                    <option value="Mild">Nhẹ</option>
+                    <option value="Moderate">Trung bình</option>
+                    <option value="Severe">Nặng</option>
+                    <option value="Critical">Nguy kịch</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
 
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Phân Cấp Nguy Cơ (Risk Level)</Form.Label>
+                  <Form.Label className="fw-semibold">Phân Cấp Nguy Cơ</Form.Label>
                   <Form.Select
                     value={formData.riskLevel}
                     onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value })}
                   >
-                    <option value="Low">Thấp (Low Risk)</option>
-                    <option value="Medium">Trung bình (Medium Risk)</option>
-                    <option value="High">Cao (High Risk)</option>
+                    <option value="Low">Nguy cơ thấp</option>
+                    <option value="Medium">Nguy cơ trung bình</option>
+                    <option value="High">Nguy cơ cao</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -904,7 +915,7 @@ export default function MedicalAssessmentForm({
 
               <Col md={12}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Nhận Định Lâm Sàng Tổng Quát (Clinical Impression)</Form.Label>
+                  <Form.Label className="fw-semibold">Nhận Định Lâm Sàng Của Bác Sĩ</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={2}
@@ -937,7 +948,7 @@ export default function MedicalAssessmentForm({
                   <Spinner size="sm" animation="border" className="me-2 text-primary" />
                   Đang tải danh mục gói xét nghiệm từ hệ thống...
                 </div>
-              ) : servicePackages.length === 0 ? (
+              ) : !Array.isArray(servicePackages) || servicePackages.length === 0 ? (
                 <div className="text-muted small py-2">
                   Chưa có gói xét nghiệm nào trong hệ thống.
                 </div>
@@ -951,7 +962,7 @@ export default function MedicalAssessmentForm({
                         key={pkg.id || pkg.code || pkgTitle}
                         variant={selected ? 'primary' : 'outline-secondary'}
                         size="sm"
-                        className="rounded-pill d-flex align-items-center gap-1 shadow-xs px-3 py-1"
+                        className="rounded-pill d-flex align-items-center gap-1 shadow-sm px-3 py-1"
                         onClick={() => handleTogglePackage(pkgTitle)}
                       >
                         {selected && <FaCheckCircle size={12} />}
@@ -1038,7 +1049,7 @@ export default function MedicalAssessmentForm({
                 className="d-flex align-items-center gap-2"
               >
                 {submitting ? <Spinner size="sm" animation="border" /> : <FaSave />}
-                Lưu Bản Nháp (Draft)
+                Lưu Bản Nháp
               </Button>
               <Button
                 variant="primary"
@@ -1047,7 +1058,7 @@ export default function MedicalAssessmentForm({
                 className="d-flex align-items-center gap-2 px-4 shadow-sm"
               >
                 {submitting ? <Spinner size="sm" animation="border" /> : <FaLock />}
-                Hoàn Tất & Khóa Đánh Giá (Finalize)
+                Hoàn Tất & Khóa Hồ Sơ
               </Button>
             </div>
           </div>
@@ -1076,7 +1087,7 @@ export default function MedicalAssessmentForm({
 
           {searchingPatients ? (
             <div className="text-center py-4 text-muted"><Spinner size="sm" /> Đang tìm kiếm hồ sơ...</div>
-          ) : patientList.length === 0 ? (
+          ) : !Array.isArray(patientList) || patientList.length === 0 ? (
             <div className="text-center py-4 text-muted">Không tìm thấy bệnh nhân phù hợp.</div>
           ) : (
             <div className="list-group list-group-flush" style={{ maxHeight: '360px', overflowY: 'auto' }}>

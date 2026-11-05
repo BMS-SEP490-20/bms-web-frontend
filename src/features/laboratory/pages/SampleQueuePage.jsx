@@ -406,6 +406,14 @@ const SampleQueuePage = () => {
     setStatusSubmitting(true);
     try {
       const res = await api.put(`/laboratory/samples/${encodeURIComponent(statusTargetSample.id)}/status`, payload);
+      if (statusForm.status === 'Rejected' && /tán huyết|hemol/i.test(statusForm.rejectionReason)) {
+        try {
+          await api.post(`/laboratory/samples/${encodeURIComponent(statusTargetSample.id)}/rerun`, {
+            reason: `Mẫu tán huyết (Hemolysis) - Khóa phân tích, yêu cầu lấy lại mẫu: ${statusForm.rejectionReason}`,
+            requestedBy: statusForm.technicianName || 'KTV Lab'
+          });
+        } catch { }
+      }
       setSuccessMsg(
         res.data?.message ||
         `Đã chuyển trạng thái mẫu ${statusTargetSample.barcode} sang "${STATUS_META[statusForm.status]?.label || statusForm.status}".`
@@ -469,21 +477,27 @@ const SampleQueuePage = () => {
   };
 
   // Summary counts
-  const collectedCount = samples.filter(s => ['Collected', 'InTransit', 'Received'].includes(s.status)).length;
-  const processingCount = samples.filter(s => ['Processing', 'Testing', 'RerunRequested'].includes(s.status)).length;
-  const completedCount = samples.filter(s => s.status === 'Completed').length;
+  const sampleListSafe = Array.isArray(samples) ? samples : [];
+  const collectedCount = sampleListSafe.filter(s => ['Collected', 'InTransit', 'Received'].includes(s?.status)).length;
+  const processingCount = sampleListSafe.filter(s => ['Processing', 'Testing', 'RerunRequested'].includes(s?.status)).length;
+  const completedCount = sampleListSafe.filter(s => s?.status === 'Completed').length;
 
   return (
     <div className="w-100 py-1">
       {/* Page Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
         <div>
-          <h3 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaVial className="text-primary" />
-            <span>Quản Lý Mẫu Bệnh Phẩm & Hàng Đợi Xét Nghiệm (ISO 15189)</span>
-          </h3>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <FaVial className="text-primary" />
+              <span>Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm</span>
+            </h4>
+            <Badge bg="primary-subtle" text="primary" className="border border-primary-subtle rounded-pill px-2.5 py-1">
+              Tiêu chuẩn ISO 15189
+            </Badge>
+          </div>
           <p className="text-muted small mb-0">
-            Ghi nhận thời gian lấy mẫu (Record Sample Time), cập nhật vòng đời mẫu (Update Sample Status) và kiểm soát TAT phòng Lab.
+            Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm.
           </p>
         </div>
 
@@ -643,7 +657,7 @@ const SampleQueuePage = () => {
               <Spinner animation="border" variant="primary" size="sm" className="me-2" />
               <span className="text-muted">Đang tải danh sách mẫu bệnh phẩm...</span>
             </div>
-          ) : samples.length === 0 ? (
+          ) : sampleListSafe.length === 0 ? (
             <div className="text-center py-5 text-muted">
               <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
@@ -678,7 +692,7 @@ const SampleQueuePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {samples.map((s) => (
+                  {sampleListSafe.map((s) => (
                     <tr key={s.id}>
                       <td className="ps-3">
                         <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
@@ -832,7 +846,7 @@ const SampleQueuePage = () => {
                   }}
                 >
                   <option value="">-- Chọn bệnh nhân để liên kết mẫu bệnh phẩm --</option>
-                  {patientOptions.map(p => (
+                  {(Array.isArray(patientOptions) ? patientOptions : []).map(p => (
                     <option key={p.id || p.patientCode} value={p.patientCode || p.id}>
                       [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phone || '—'}
                     </option>

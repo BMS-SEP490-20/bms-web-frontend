@@ -763,7 +763,13 @@ const testOrderService = {
 
       return { success: true, data };
     } catch (error) {
-      return { success: false, message: 'Lỗi lấy danh sách phòng lab', data: [] };
+      try {
+        const fallbackResp = await api.get('/laboratory/rooms');
+        const fallbackData = testOrderService._toArray(fallbackResp.data);
+        return { success: true, data: fallbackData };
+      } catch (fbErr) {
+        return { success: false, message: 'Lỗi lấy danh sách phòng lab', data: [] };
+      }
     }
   },
 

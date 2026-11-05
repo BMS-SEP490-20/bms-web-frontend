@@ -269,6 +269,21 @@ const QcFlagsPage = () => {
         </Alert>
       )}
 
+      {/* CẢNH BÁO KHÓA MÁY (WESTGARD 1_3s) */}
+      {Array.isArray(flags) && flags.some(f => f.status === 'ACTIVE' && (f.ruleType?.includes('1_3s') || f.severity === 'CRITICAL')) && (
+        <Alert variant="danger" className="rounded-4 border-danger shadow-sm mb-4 d-flex align-items-center gap-3">
+          <FaExclamationTriangle className="fs-2 text-danger flex-shrink-0" />
+          <div>
+            <strong className="fs-6 d-block">CẢNH BÁO KHÓA MÁY PHÂN TÍCH: PHÁT HIỆN CỜ NGUY HIỂM / VI PHẠM WESTGARD 1_3s!</strong>
+            <span className="small">
+              Có cờ kiểm chuẩn QC mức độ NGUY HIỂM (CRITICAL) hoặc vi phạm quy tắc Westgard 1_3s đang ở trạng thái ACTIVE. 
+              <strong>Theo tiêu chuẩn ISO 15189:2022, máy phân tích tương ứng đang bị tạm dừng phân tích mẫu bệnh nhân.</strong> 
+              Vui lòng thực hiện hành động khắc phục và chuyển cờ sang trạng thái RESOLVED.
+            </span>
+          </div>
+        </Alert>
+      )}
+
       {/* Statistics Cards */}
       {statistics && (
         <Row className="g-3 mb-4">
@@ -395,14 +410,14 @@ const QcFlagsPage = () => {
       </Card>
 
       {/* QC Flags Cards List */}
-      {loading && flags.length === 0 ? (
+      {loading && (!Array.isArray(flags) || flags.length === 0) ? (
         <div className="text-center py-5">
           <Spinner animation="border" variant="warning" />
           <p className="mt-3 text-muted small">Đang tải danh sách cờ kiểm chuẩn QC...</p>
         </div>
-      ) : flags.length > 0 ? (
+      ) : (Array.isArray(flags) && flags.length > 0) ? (
         <div className="d-flex flex-column gap-3">
-          {flags.map((flag) => {
+          {(Array.isArray(flags) ? flags : []).map((flag) => {
             const isOutOfRange = flag.observedValue < flag.lowerLimit || flag.observedValue > flag.upperLimit;
             return (
               <Card 

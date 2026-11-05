@@ -3,7 +3,8 @@
  * @description Master Employee & User Accounts Management Page (UC14 - Lâm Gia Bảo).
  * Supports: View, Create, Update, Delete Employee Accounts, Lock/Unlock, Role Filtering & Search.
  * Enforces BR-IAM-01 (Employee Codes & Password Policy) and BR-IAM-02 (RBAC Controls).
- * Conforms to: Production Standards, RBAC Architecture & OWASP Top 10.
+ * Separation of Duties: Admin controls identity, roles, and status; clinical diagnoses and test results remain strictly with medical clinicians.
+ * Conforms to: Production Medical Standards, ISO 15189, RBAC Architecture & OWASP Top 10.
  * @module features/users/pages/UserManagementPage
  */
 
@@ -18,6 +19,25 @@ import {
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService } from '../../../services/userManagementService';
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../../constants/roles';
+
+// Vietnamese standardized clinical and administrative role names
+const VIETNAMESE_ROLES = Object.freeze({
+  [ROLES.ADMIN]: 'Quản Trị Viên Hệ Thống',
+  [ROLES.MANAGER]: 'Quản Lý Phòng Xét Nghiệm',
+  [ROLES.LAB]: 'Kỹ Thuật Viên Xét Nghiệm',
+  [ROLES.DOCTOR]: 'Bác Sĩ Lâm Sàng',
+  [ROLES.RECEPTIONIST]: 'Lễ Tân Tiếp Đón',
+  [ROLES.PATIENT]: 'Bệnh Nhân',
+});
+
+const ROLE_BADGE_BG = Object.freeze({
+  [ROLES.ADMIN]: 'danger',
+  [ROLES.MANAGER]: 'primary',
+  [ROLES.LAB]: 'info',
+  [ROLES.DOCTOR]: 'success',
+  [ROLES.RECEPTIONIST]: 'warning',
+  [ROLES.PATIENT]: 'secondary',
+});
 
 /**
  * Unified administrative user and employee account management view.
@@ -52,7 +72,7 @@ export default function UserManagementPage() {
     username: '',
     email: '',
     phone: '',
-    roleId: ROLES.DOCTOR, // Default doctor (ID 4 in the 6-role table)
+    roleId: ROLES.DOCTOR,
     password: '',
     confirmPassword: '',
     isActive: true,
@@ -75,14 +95,20 @@ export default function UserManagementPage() {
     try {
       const usersRes = await userManagementService.getAllUsers();
       if (usersRes?.success) {
-        setUsers(usersRes.data || []);
+        let rawList = usersRes.data;
+        if (!Array.isArray(rawList)) {
+          rawList = Array.isArray(rawList?.items) 
+            ? rawList.items 
+            : (Array.isArray(rawList?.data) ? rawList.data : []);
+        }
+        setUsers(rawList);
       } else {
         setError(usersRes?.message || 'Không thể tải danh sách tài khoản. Vui lòng thử lại.');
       }
 
       try {
         const statsRes = await userManagementService.getUserStats();
-        if (statsRes?.success) {
+        if (statsRes?.success && statsRes.data) {
           setStats(statsRes.data);
         }
       } catch (e) {
@@ -93,14 +119,14 @@ export default function UserManagementPage() {
         const roomsFn = userManagementService.getLabRooms || userManagementService.getAllLabRooms;
         if (typeof roomsFn === 'function') {
           const rooms = await roomsFn();
-          setLabRooms(rooms || []);
+          setLabRooms(Array.isArray(rooms) ? rooms : []);
         }
       } catch (e) {
         console.warn('[UserManagementPage] Failed to load lab rooms:', e);
       }
     } catch (err) {
       console.error('[UserManagementPage] Error loading data:', err);
-      setError('Không thể tải danh sách tài khoản. Vui lòng thử lại.');
+      setError('Không thể kết nối đến máy chủ quản lý tài khoản.');
     } finally {
       setLoading(false);
     }
@@ -110,9 +136,12 @@ export default function UserManagementPage() {
     loadData();
   }, [loadData]);
 
+  // Safe users array guard
+  const safeUsers = useMemo(() => (Array.isArray(users) ? users : []), [users]);
+
   // Filtered users
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+    return safeUsers.filter(user => {
       const matchSearch =
         !searchTerm.trim() ||
         user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,7 +161,7 @@ export default function UserManagementPage() {
 
       return matchSearch && matchRole && matchStatus;
     });
-  }, [users, searchTerm, selectedRole, selectedStatus]);
+  }, [safeUsers, searchTerm, selectedRole, selectedStatus]);
 
   // Handle open user details
   const handleOpenUserDetail = async (user) => {
@@ -167,9 +196,9 @@ export default function UserManagementPage() {
     if (!selectedUser) return;
     const res = await userManagementService.changePassword(selectedUser.id, newPassword, selectedUser);
     if (res.success) {
-      setSuccess(`Đã cấp lại mật khẩu thành công cho ${selectedUser.fullName}.`);
+      setSuccess(`Đã cấp lại mật khẩu thành công cho nhân sự ${selectedUser.fullName}.`);
     } else {
-      throw new Error(res.message || 'Đổi mật khẩu thất bại.');
+      throw new Error(res.message || 'Cấp lại mật khẩu thất bại.');
     }
   };
 
@@ -179,15 +208,15 @@ export default function UserManagementPage() {
     setCreateError('');
 
     if (!createForm.fullName.trim()) {
-      setCreateError('Vui lòng nhập họ và tên.');
+      setCreateError('Vui lòng nhập họ và tên nhân viên.');
       return;
     }
     if (!createForm.email.trim() || !createForm.email.includes('@')) {
-      setCreateError('Địa chỉ email không hợp lệ.');
+      setCreateError('Địa chỉ email làm việc không hợp lệ.');
       return;
     }
     if (!createForm.password || createForm.password.length < 8) {
-      setCreateError('Mật khẩu nhân viên phải có độ dài tối thiểu 8 ký tự (chuẩn BR-IAM-01).');
+      setCreateError('Mật khẩu nhân viên phải có độ dài tối thiểu 8 ký tự theo chuẩn an toàn BR-IAM-01.');
       return;
     }
     const hasUpper = /[A-Z]/.test(createForm.password);
@@ -199,7 +228,7 @@ export default function UserManagementPage() {
       return;
     }
     if (createForm.password !== createForm.confirmPassword) {
-      setCreateError('Mật khẩu xác nhận không khớp.');
+      setCreateError('Mật khẩu xác nhận không trùng khớp.');
       return;
     }
 
@@ -207,7 +236,7 @@ export default function UserManagementPage() {
     try {
       const res = await userManagementService.createUser(createForm);
       if (res.success) {
-        setSuccess('Tạo tài khoản nhân viên mới thành công.');
+        setSuccess('Tạo tài khoản nhân viên y tế mới thành công.');
         setShowCreateModal(false);
         setCreateForm({
           fullName: '',
@@ -237,11 +266,11 @@ export default function UserManagementPage() {
     try {
       const newStatus = !userToToggle.isActive;
       await userManagementService.toggleUserStatus(userToToggle, newStatus);
-      setSuccess(`Tài khoản "${userToToggle.fullName}" đã được ${newStatus ? 'kích hoạt' : 'tạm khóa'}.`);
+      setSuccess(`Tài khoản "${userToToggle.fullName}" đã được ${newStatus ? 'kích hoạt hoạt động' : 'tạm khóa thành công'}.`);
       setUserToToggle(null);
       loadData();
     } catch {
-      setError('Thao tác đổi trạng thái thất bại.');
+      setError('Thao tác thay đổi trạng thái tài khoản thất bại.');
     } finally {
       setToggleLoading(false);
     }
@@ -257,19 +286,22 @@ export default function UserManagementPage() {
       setUserToDelete(null);
       loadData();
     } catch {
-      setError('Không thể xóa tài khoản. Vui lòng thử lại.');
+      setError('Không thể xóa tài khoản. Vui lòng thử lại sau.');
     } finally {
       setDeleteLoading(false);
     }
   };
 
   // Helper render role badge
-  const ROLE_BADGE_BG = { [ROLES.ADMIN]: 'danger', [ROLES.MANAGER]: 'dark', [ROLES.LAB]: 'info', [ROLES.DOCTOR]: 'primary', [ROLES.RECEPTIONIST]: 'warning', [ROLES.PATIENT]: 'secondary' };
   const renderRoleBadge = (role, roleId) => {
     const id = resolveRoleId(roleId) ?? resolveRoleId(role);
-    if (!id) return <Badge bg="light" className="text-dark border">Không rõ vai trò</Badge>;
+    if (!id) return <Badge bg="light" className="text-dark border">Chưa phân vai trò</Badge>;
     const dark = id === ROLES.LAB || id === ROLES.RECEPTIONIST;
-    return <Badge bg={ROLE_BADGE_BG[id]} className={dark ? 'text-dark' : undefined}>{ROLE_LABELS[id]}</Badge>;
+    return (
+      <Badge bg={ROLE_BADGE_BG[id]} className={dark ? 'text-dark fw-semibold' : 'fw-semibold'}>
+        {VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}
+      </Badge>
+    );
   };
 
   return (
@@ -278,15 +310,15 @@ export default function UserManagementPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-            <FaUserCog className="text-primary" /> Quản Lý Nhân Sự & Tài Khoản Y Tế
+            <FaUserCog className="text-primary" /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
           </h2>
           <p className="text-muted mb-0 small">
-            Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ, kỹ thuật viên xét nghiệm và nhân viên điều phối phòng lab.
+            Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
           </p>
         </div>
         <div className="mt-2 mt-md-0">
-          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm">
-            <FaPlus /> Thêm tài khoản mới
+          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold">
+            <FaPlus /> Thêm Tài Khoản Mới
           </Button>
         </div>
       </div>
@@ -313,7 +345,7 @@ export default function UserManagementPage() {
               </div>
               <div>
                 <div className="text-muted small fw-semibold">Tổng tài khoản</div>
-                <div className="fs-4 fw-bold text-dark">{stats.total || users.length}</div>
+                <div className="fs-4 fw-bold text-dark">{stats.total || safeUsers.length}</div>
               </div>
             </Card.Body>
           </Card>
@@ -326,7 +358,7 @@ export default function UserManagementPage() {
               </div>
               <div>
                 <div className="text-muted small fw-semibold">Đang hoạt động</div>
-                <div className="fs-4 fw-bold text-success">{stats.active || users.filter(u => u.isActive).length}</div>
+                <div className="fs-4 fw-bold text-success">{stats.active || safeUsers.filter(u => u.isActive).length}</div>
               </div>
             </Card.Body>
           </Card>
@@ -339,7 +371,7 @@ export default function UserManagementPage() {
               </div>
               <div>
                 <div className="text-muted small fw-semibold">Đang bị khóa</div>
-                <div className="fs-4 fw-bold text-danger">{stats.inactive || users.filter(u => !u.isActive).length}</div>
+                <div className="fs-4 fw-bold text-danger">{stats.inactive || safeUsers.filter(u => !u.isActive).length}</div>
               </div>
             </Card.Body>
           </Card>
@@ -353,7 +385,7 @@ export default function UserManagementPage() {
               <div>
                 <div className="text-muted small fw-semibold">Bác sĩ & Lab</div>
                 <div className="fs-4 fw-bold text-dark">
-                  {(stats.byRole?.doctor || 0) + (stats.byRole?.lab_user || 0)}
+                  {(stats.byRole?.doctor || 0) + (stats.byRole?.lab || stats.byRole?.lab_user || 0)}
                 </div>
               </div>
             </Card.Body>
@@ -371,7 +403,7 @@ export default function UserManagementPage() {
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
-                  placeholder="Tìm theo tên, email, tên đăng nhập hoặc SĐT..."
+                  placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="border-start-0"
@@ -381,12 +413,12 @@ export default function UserManagementPage() {
             <Col xs={6} md={3}>
               <Form.Select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
                 <option value="all">-- Tất cả vai trò --</option>
-                {ALL_ROLES.map(id => <option key={id} value={id}>{ROLE_LABELS[id]}</option>)}
+                {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
               </Form.Select>
             </Col>
             <Col xs={6} md={2}>
               <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)}>
-                <option value="all">-- Trạng thái --</option>
+                <option value="all">-- Tất cả trạng thái --</option>
                 <option value="active">Đang hoạt động</option>
                 <option value="inactive">Đang bị khóa</option>
               </Form.Select>
@@ -406,7 +438,7 @@ export default function UserManagementPage() {
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <div className="mt-2 text-muted">Đang tải danh sách tài khoản...</div>
+              <div className="mt-2 text-muted">Đang tải danh sách tài khoản nhân sự...</div>
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-5 text-muted">
@@ -416,12 +448,12 @@ export default function UserManagementPage() {
           ) : (
             <div className="table-responsive">
               <Table hover className="align-middle mb-0">
-                <thead className="table-light">
+                <thead className="table-light text-secondary small text-uppercase">
                   <tr>
                     <th className="ps-4">Họ và tên</th>
                     <th>Email / Tên đăng nhập</th>
                     <th>Số điện thoại</th>
-                    <th>Vai trò</th>
+                    <th>Vai trò hệ thống</th>
                     <th>Trạng thái</th>
                     <th className="text-end pe-4">Thao tác</th>
                   </tr>
@@ -441,11 +473,11 @@ export default function UserManagementPage() {
                       <td>
                         {user.isActive ? (
                           <Badge bg="success" className="d-inline-flex align-items-center gap-1">
-                            <span className="p-1 rounded-circle bg-white"></span> Hoạt động
+                            <span className="p-1 rounded-circle bg-white"></span> Đang hoạt động
                           </Badge>
                         ) : (
                           <Badge bg="danger" className="d-inline-flex align-items-center gap-1">
-                            <span className="p-1 rounded-circle bg-white"></span> Tạm khóa
+                            <span className="p-1 rounded-circle bg-white"></span> Đang bị khóa
                           </Badge>
                         )}
                       </td>
@@ -453,21 +485,21 @@ export default function UserManagementPage() {
                         <div className="btn-group btn-group-sm">
                           <Button
                             variant="outline-primary"
-                            title="Xem chi tiết & Chỉnh sửa hồ sơ"
+                            title="Xem chi tiết & Phân quyền chuyên môn"
                             onClick={() => handleOpenUserDetail(user)}
                           >
                             Chi tiết
                           </Button>
                           <Button
                             variant={user.isActive ? "outline-warning" : "outline-success"}
-                            title={user.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                            title={user.isActive ? "Tạm khóa tài khoản" : "Mở khóa tài khoản"}
                             onClick={() => setUserToToggle(user)}
                           >
                             {user.isActive ? <FaLock /> : <FaUnlock />}
                           </Button>
                           <Button
                             variant="outline-danger"
-                            title="Xóa tài khoản"
+                            title="Xóa tài khoản khỏi hệ thống"
                             onClick={() => setUserToDelete(user)}
                           >
                             <FaTrash />
@@ -502,7 +534,7 @@ export default function UserManagementPage() {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered size="lg">
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-5">
-            <FaPlus className="text-primary me-2" /> Tạo tài khoản nhân viên / người dùng mới
+            <FaPlus className="text-primary me-2" /> Tạo Tài Khoản Nhân Viên / Người Dùng Mới
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateUser}>
@@ -511,7 +543,7 @@ export default function UserManagementPage() {
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Họ và tên <span className="text-danger">*</span></Form.Label>
+                  <Form.Label className="fw-semibold">Họ và tên nhân sự <span className="text-danger">*</span></Form.Label>
                   <Form.Control
                     required
                     placeholder="VD: Bác sĩ Nguyễn Văn A"
@@ -532,11 +564,11 @@ export default function UserManagementPage() {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Email <span className="text-danger">*</span></Form.Label>
+                  <Form.Label className="fw-semibold">Email cơ quan <span className="text-danger">*</span></Form.Label>
                   <Form.Control
                     required
                     type="email"
-                    placeholder="example@bms.com"
+                    placeholder="example@bms.health.vn"
                     value={createForm.email}
                     onChange={e => setCreateForm({ ...createForm, email: e.target.value })}
                   />
@@ -544,7 +576,7 @@ export default function UserManagementPage() {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-semibold">Số điện thoại</Form.Label>
+                  <Form.Label className="fw-semibold">Số điện thoại liên hệ</Form.Label>
                   <Form.Control
                     placeholder="VD: 0912345678"
                     value={createForm.phone}
@@ -559,7 +591,9 @@ export default function UserManagementPage() {
                     value={createForm.roleId}
                     onChange={e => setCreateForm({ ...createForm, roleId: Number(e.target.value) })}
                   >
-                    {ALL_ROLES.map(id => <option key={id} value={id}>{ROLE_LABELS[id]}</option>)}
+                    {ALL_ROLES.map(id => (
+                      <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>
+                    ))}
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -570,7 +604,7 @@ export default function UserManagementPage() {
                     value={createForm.isActive ? 'true' : 'false'}
                     onChange={e => setCreateForm({ ...createForm, isActive: e.target.value === 'true' })}
                   >
-                    <option value="true">Kích hoạt ngay</option>
+                    <option value="true">Kích hoạt hoạt động ngay</option>
                     <option value="false">Tạm khóa tài khoản</option>
                   </Form.Select>
                 </Form.Group>
@@ -581,7 +615,7 @@ export default function UserManagementPage() {
                   <Form.Control
                     required
                     type="password"
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 8 ký tự (hoa, thường, số, ký tự đặc biệt)"
                     value={createForm.password}
                     onChange={e => setCreateForm({ ...createForm, password: e.target.value })}
                   />
@@ -593,7 +627,7 @@ export default function UserManagementPage() {
                   <Form.Control
                     required
                     type="password"
-                    placeholder="Nhập lại mật khẩu"
+                    placeholder="Nhập lại đúng mật khẩu khởi tạo"
                     value={createForm.confirmPassword}
                     onChange={e => setCreateForm({ ...createForm, confirmPassword: e.target.value })}
                   />
@@ -602,10 +636,10 @@ export default function UserManagementPage() {
             </Row>
           </Modal.Body>
           <Modal.Footer className="bg-light">
-            <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>Hủy</Button>
-            <Button variant="primary" type="submit" disabled={createLoading}>
+            <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>Hủy Bỏ</Button>
+            <Button variant="primary" type="submit" disabled={createLoading} className="fw-semibold">
               {createLoading ? <Spinner size="sm" animation="border" className="me-2" /> : <FaSave className="me-1" />}
-              Lưu tài khoản
+              Lưu Tài Khoản
             </Button>
           </Modal.Footer>
         </Form>
@@ -616,7 +650,7 @@ export default function UserManagementPage() {
         <Modal.Header closeButton>
           <Modal.Title className="fs-5">
             {userToToggle?.isActive ? <FaLock className="text-warning me-2" /> : <FaUnlock className="text-success me-2" />}
-            Xác nhận thay đổi trạng thái
+            Xác Nhận Thay Đổi Trạng Thái Tài Khoản
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -629,9 +663,10 @@ export default function UserManagementPage() {
             variant={userToToggle?.isActive ? 'warning' : 'success'}
             onClick={handleConfirmToggleStatus}
             disabled={toggleLoading}
+            className="fw-semibold"
           >
             {toggleLoading ? <Spinner size="sm" animation="border" className="me-1" /> : null}
-            Xác nhận {userToToggle?.isActive ? 'khóa' : 'kích hoạt'}
+            Xác Nhận {userToToggle?.isActive ? 'Khóa' : 'Kích Hoạt'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -640,19 +675,21 @@ export default function UserManagementPage() {
       <Modal show={Boolean(userToDelete)} onHide={() => setUserToDelete(null)} centered>
         <Modal.Header closeButton className="bg-danger bg-opacity-10 text-danger">
           <Modal.Title className="fs-5">
-            <FaTrash className="me-2" /> Xác nhận xóa tài khoản
+            <FaTrash className="me-2" /> Xác Nhận Xóa Tài Khoản
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           Hành động này sẽ xóa vĩnh viễn tài khoản <strong>{userToDelete?.fullName}</strong> ({userToDelete?.email}).
           <br />
-          <span className="text-danger small">Lưu ý: Dữ liệu xét nghiệm và lịch sử hoạt động y tế có thể bị ảnh hưởng.</span>
+          <span className="text-danger small fw-semibold">
+            Lưu ý: Dữ liệu phân quyền và lịch sử hoạt động y tế có thể bị ảnh hưởng.
+          </span>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setUserToDelete(null)}>Hủy bỏ</Button>
-          <Button variant="danger" onClick={handleConfirmDelete} disabled={deleteLoading}>
+          <Button variant="secondary" onClick={() => setUserToDelete(null)}>Hủy Bỏ</Button>
+          <Button variant="danger" onClick={handleConfirmDelete} disabled={deleteLoading} className="fw-semibold">
             {deleteLoading ? <Spinner size="sm" animation="border" className="me-1" /> : null}
-            Xóa vĩnh viễn
+            Xóa Vĩnh Viễn
           </Button>
         </Modal.Footer>
       </Modal>

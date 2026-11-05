@@ -1,13 +1,13 @@
-﻿/**
+/**
  * @file MedicalAssessmentListPage.jsx
- * @description UC50 – Medical Assessment Management and Query List (Iteration 3).
- * Provides searchable, filterable data table of clinical assessments with WHO ICD-10 diagnosis,
- * live severity badges, detail inspection modal, and quick navigation to Add Assessment.
- * Conforms to: Production Standards & AGENTS-DESIGN.md.
+ * @description UC50 – Medical Assessment Management and Query List.
+ * Quản lý danh sách đánh giá y khoa lâm sàng, chẩn đoán WHO ICD-10,
+ * phân loại mức độ nguy cơ, xem chi tiết và liên kết tạo mới đánh giá y khoa.
+ * Conforms to: Rule 19, Production Standards & AGENTS-DESIGN.md.
  * @module features/doctor/pages/MedicalAssessmentListPage
  */
 
-import React, { useState, useEffect, useCallback, useTransition } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Card,
@@ -20,13 +20,11 @@ import {
   InputGroup,
   Spinner,
   Alert,
-  Modal,
-  ListGroup
+  Modal
 } from 'react-bootstrap';
 import {
   FaPlus,
   FaSearch,
-  FaFilter,
   FaStethoscope,
   FaHeartbeat,
   FaEye,
@@ -34,13 +32,11 @@ import {
   FaTrashAlt,
   FaPrint,
   FaLock,
-  FaCheckCircle,
   FaClock,
   FaTimes,
-  FaCalendarAlt,
-  FaFilePrescription
+  FaUserMd
 } from 'react-icons/fa';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 
 export default function MedicalAssessmentListPage() {
@@ -66,7 +62,7 @@ export default function MedicalAssessmentListPage() {
   const [deleteReason, setDeleteReason] = useState('');
   const [deleting, setDeleting] = useState(false);
 
-  // Fetch assessments from API
+  // Fetch assessments from API with multi-tiered defensive checks
   const fetchAssessments = useCallback(async () => {
     setLoading(true);
     setErrorMsg(null);
@@ -77,16 +73,24 @@ export default function MedicalAssessmentListPage() {
         pageNumber,
         pageSize
       });
-      if (res?.data) {
-        setAssessments(res.data);
-        setTotalCount(res.total || res.data.length);
-      }
+      const raw = res?.data ?? res?.items ?? res;
+      const list = Array.isArray(raw)
+        ? raw
+        : (Array.isArray(raw?.items) ? raw.items : (Array.isArray(raw?.data) ? raw.data : []));
+
+      setAssessments(list);
+      setTotalCount(
+        Number.isFinite(res?.total)
+          ? res.total
+          : (Number.isFinite(res?.totalCount) ? res.totalCount : list.length)
+      );
     } catch (err) {
       if (err.status === 401 || err.message?.includes('401')) {
-        setErrorMsg('Phiên đăng nhập đã hết hạn hoặc chưa đăng nhập. Vui lòng đăng nhập với tài khoản Bác sĩ (Doctor / Doctor@123) để xem và quản lý đánh giá y khoa.');
+        setErrorMsg('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập với tài khoản Bác sĩ để xem và quản lý đánh giá y khoa.');
       } else {
         setErrorMsg(err.message || 'Không thể tải danh sách đánh giá y khoa.');
       }
+      setAssessments([]);
     } finally {
       setLoading(false);
     }
@@ -116,12 +120,12 @@ export default function MedicalAssessmentListPage() {
 
     setDeleting(true);
     try {
-      await medicalAssessmentApi.deleteAssessment(itemToDelete.id, deleteReason);
+      await medicalAssessmentApi.deleteAssessment(itemToDelete.id, deleteReason.trim());
       setShowDeleteModal(false);
       setItemToDelete(null);
       fetchAssessments();
     } catch (err) {
-      alert(err.message || 'Lỗi khi xóa hồ sơ đánh giá.');
+      alert(err.message || 'Lỗi khi xóa hồ sơ đánh giá y khoa.');
     } finally {
       setDeleting(false);
     }
@@ -135,7 +139,7 @@ export default function MedicalAssessmentListPage() {
     switch (sev) {
       case 'Critical': return <Badge bg="danger">Nguy kịch</Badge>;
       case 'Severe': return <Badge bg="warning" text="dark">Nặng</Badge>;
-      case 'Moderate': return <Badge bg="info">Trung bình</Badge>;
+      case 'Moderate': return <Badge bg="info" className="text-white">Trung bình</Badge>;
       case 'Mild':
       default:
         return <Badge bg="success">Nhẹ</Badge>;
@@ -153,23 +157,30 @@ export default function MedicalAssessmentListPage() {
   };
 
   return (
-    <Container fluid className="py-4 px-md-4">
+    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border" style={{ borderColor: '#e2e8f0' }}>
         <div>
-          <h4 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaStethoscope className="text-primary" />
-            Hồ Sơ Đánh Giá Y Khoa Lâm Sàng (Medical Assessments)
+          <h4 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
+            <FaStethoscope /> Hồ Sơ Đánh Giá Y Khoa Lâm Sàng
           </h4>
           <p className="text-muted small mb-0">
-            Quản lý bệnh án khám bệnh, mã chẩn đoán quốc tế WHO ICD-10 và đề xuất cận lâm sàng (UC50)
+            Quản lý bệnh án khám bệnh, mã chẩn đoán quốc tế WHO ICD-10 và đề xuất cận lâm sàng.
           </p>
         </div>
-        <div className="mt-3 mt-sm-0 d-flex gap-2">
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline-secondary"
+            onClick={() => navigate('/doctor/console')}
+            className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
+          >
+            <FaUserMd /> Bàn Khám Bác Sĩ
+          </Button>
           <Button
             variant="primary"
             onClick={() => navigate('/medical-assessments/add')}
-            className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold"
+            className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold text-white"
+            style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
           >
             <FaPlus /> Thêm Đánh Giá Y Khoa
           </Button>
@@ -177,7 +188,7 @@ export default function MedicalAssessmentListPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4">
+      <Card className="border-0 shadow-sm rounded-3 mb-4" style={{ borderColor: '#e2e8f0' }}>
         <Card.Body className="p-3">
           <Row className="g-3 align-items-center">
             <Col md={6}>
@@ -187,7 +198,7 @@ export default function MedicalAssessmentListPage() {
                 </InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Tìm theo mã ASM, tên bệnh nhân, mã ICD-10 hoặc chẩn đoán..."
+                  placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10 hoặc kết luận chẩn đoán..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border-start-0 ps-0"
@@ -205,12 +216,12 @@ export default function MedicalAssessmentListPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="">Tất cả trạng thái</option>
-                <option value="Draft">Bản nháp (Draft)</option>
-                <option value="Finalized">Đã hoàn tất / Đã khóa (Finalized)</option>
+                <option value="Draft">Bản nháp</option>
+                <option value="Finalized">Đã hoàn tất (Đã khóa)</option>
               </Form.Select>
             </Col>
             <Col md={3} className="text-md-end text-muted small">
-              Tổng số hồ sơ: <strong className="text-dark">{totalCount}</strong>
+              Tổng số hồ sơ: <strong className="text-dark font-monospace">{totalCount}</strong>
             </Col>
           </Row>
         </Card.Body>
@@ -218,30 +229,31 @@ export default function MedicalAssessmentListPage() {
 
       {/* Error alert */}
       {errorMsg && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)}>
+        <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="shadow-sm">
           {errorMsg}
         </Alert>
       )}
 
       {/* Data Table */}
-      <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+      <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
         <Card.Body className="p-0">
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
               <p className="mt-2 text-muted">Đang tải dữ liệu đánh giá y khoa...</p>
             </div>
-          ) : assessments.length === 0 ? (
+          ) : !Array.isArray(assessments) || assessments.length === 0 ? (
             <div className="text-center py-5">
               <FaStethoscope className="text-muted display-4 mb-3" />
               <h5 className="text-secondary">Chưa có bản ghi đánh giá y khoa nào</h5>
               <p className="text-muted small">
-                Bác sĩ có thể bấm "Thêm Đánh Giá Y Khoa" để bắt đầu ghi nhận bệnh án và chẩn đoán ICD-10.
+                Bác sĩ bấm &quot;Thêm Đánh Giá Y Khoa&quot; để ghi nhận bệnh án và chẩn đoán ICD-10.
               </p>
               <Button
                 variant="outline-primary"
                 onClick={() => navigate('/medical-assessments/add')}
                 className="mt-2"
+                style={{ color: '#0284c7', borderColor: '#0284c7' }}
               >
                 <FaPlus className="me-2" /> Tạo đánh giá ngay
               </Button>
@@ -250,10 +262,10 @@ export default function MedicalAssessmentListPage() {
             <Table responsive hover className="align-middle mb-0">
               <thead className="table-light">
                 <tr className="small text-muted text-uppercase">
-                  <th className="ps-4">Mã Đánh Giá</th>
-                  <th>Bệnh Nhân</th>
-                  <th>Lượt Khám / Bác Sĩ</th>
-                  <th>Chẩn Đoán (ICD-10)</th>
+                  <th className="ps-4 text-start">Mã Đánh Giá</th>
+                  <th className="text-start">Bệnh Nhân</th>
+                  <th className="text-start">Lượt Khám / Bác Sĩ</th>
+                  <th className="text-start">Chẩn Đoán (ICD-10)</th>
                   <th className="text-center">Đánh Giá Nguy Cơ</th>
                   <th className="text-center">Trạng Thái</th>
                   <th className="text-end">Thời Gian Khám</th>
@@ -263,33 +275,35 @@ export default function MedicalAssessmentListPage() {
               <tbody>
                 {assessments.map((item) => (
                   <tr key={item.id}>
-                    <td className="ps-4">
-                      <span className="fw-bold text-primary">{item.assessmentCode}</span>
+                    <td className="ps-4 text-start">
+                      <span className="fw-bold font-monospace" style={{ color: '#0284c7' }}>
+                        {item.assessmentCode || item.id}
+                      </span>
                     </td>
-                    <td>
+                    <td className="text-start">
                       <div className="fw-semibold text-dark">{item.patientName}</div>
-                      <small className="text-muted">
+                      <small className="text-muted font-monospace">
                         Mã: {item.patientCode || item.patientId} | {item.patientGender === 'Female' ? 'Nữ' : 'Nam'}
                       </small>
                     </td>
-                    <td>
+                    <td className="text-start">
                       <div>
                         <Badge bg="secondary" className="me-1">
-                          {item.encounterType || 'ClinicVisit'}
+                          {item.encounterType === 'ClinicVisit' ? 'Khám ngoại trú' : (item.encounterType || 'Khám bệnh')}
                         </Badge>
-                        <small className="text-muted">{item.encounterId}</small>
+                        <small className="text-muted font-monospace">{item.encounterId}</small>
                       </div>
                       <small className="text-muted">BS: {item.doctorName}</small>
                     </td>
-                    <td>
+                    <td className="text-start">
                       <div className="d-flex align-items-center gap-1">
-                        <Badge bg="primary">{item.icd10Code}</Badge>
-                        <span className="text-truncate" style={{ maxWidth: '220px' }}>
+                        <Badge bg="primary" className="font-monospace">{item.icd10Code}</Badge>
+                        <span className="text-truncate" style={{ maxWidth: '240px' }}>
                           {item.finalDiagnosis || item.icd10Name}
                         </span>
                       </div>
                       {item.chiefComplaint && (
-                        <small className="text-muted d-block text-truncate" style={{ maxWidth: '250px' }}>
+                        <small className="text-muted d-block text-truncate" style={{ maxWidth: '260px' }}>
                           Lý do: {item.chiefComplaint}
                         </small>
                       )}
@@ -300,7 +314,7 @@ export default function MedicalAssessmentListPage() {
                     </td>
                     <td className="text-center">
                       {item.status === 'Finalized' ? (
-                        <Badge bg="success" className="px-2 py-1 d-inline-flex align-items-center gap-1">
+                        <Badge bg="success" className="px-2 py-1 d-inline-flex align-items-center gap-1" style={{ backgroundColor: '#059669' }}>
                           <FaLock size={11} /> Đã Khóa
                         </Badge>
                       ) : (
@@ -361,7 +375,7 @@ export default function MedicalAssessmentListPage() {
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         {selectedAssessment && (
           <>
-            <Modal.Header closeButton className="bg-primary text-white">
+            <Modal.Header closeButton className="text-white" style={{ backgroundColor: '#0284c7' }}>
               <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
                 <FaStethoscope /> Phiếu Đánh Giá Y Khoa Lâm Sàng: {selectedAssessment.assessmentCode}
               </Modal.Title>
@@ -370,56 +384,56 @@ export default function MedicalAssessmentListPage() {
               <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                 <div>
                   <h5 className="fw-bold mb-1">{selectedAssessment.patientName}</h5>
-                  <p className="text-muted small mb-0">
-                    Mã BN: {selectedAssessment.patientCode || selectedAssessment.patientId} | Giới tính: {selectedAssessment.patientGender} | Lượt khám: {selectedAssessment.encounterId}
+                  <p className="text-muted small mb-0 font-monospace">
+                    Mã BN: {selectedAssessment.patientCode || selectedAssessment.patientId} | Giới tính: {selectedAssessment.patientGender === 'Female' ? 'Nữ' : 'Nam'} | Lượt khám: {selectedAssessment.encounterId}
                   </p>
                 </div>
                 <div className="text-end">
                   <Badge bg={selectedAssessment.status === 'Finalized' ? 'success' : 'warning'} className="fs-6 px-3 py-1">
-                    {selectedAssessment.status === 'Finalized' ? 'ĐÃ KHÓA (FINALIZED)' : 'BẢN NHÁP (DRAFT)'}
+                    {selectedAssessment.status === 'Finalized' ? 'ĐÃ KHÓA' : 'BẢN NHÁP'}
                   </Badge>
                   <div className="small text-muted mt-1">
-                    Ngày khám: {new Date(selectedAssessment.assessmentDate).toLocaleDateString('vi-VN')}
+                    Ngày khám: {new Date(selectedAssessment.assessmentDate || selectedAssessment.createdAt).toLocaleDateString('vi-VN')}
                   </div>
                 </div>
               </div>
 
               {/* Vitals Summary */}
-              <div className="bg-light p-3 rounded-3 mb-3">
-                <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
+              <div className="bg-light p-3 rounded-3 mb-3 border">
+                <h6 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
                   <FaHeartbeat /> Dấu Hiệu Sinh Tồn & Thể Trạng
                 </h6>
                 <Row className="g-2 text-center small">
                   <Col xs={4} md={2}>
                     <div className="text-muted">Mạch</div>
-                    <div className="fw-bold fs-6">{selectedAssessment.vitals?.heartRate} bpm</div>
+                    <div className="fw-bold fs-6 font-monospace">{selectedAssessment.vitals?.heartRate ?? '—'} bpm</div>
                   </Col>
                   <Col xs={4} md={2}>
                     <div className="text-muted">Huyết áp</div>
-                    <div className="fw-bold fs-6">{selectedAssessment.vitals?.systolicBp}/{selectedAssessment.vitals?.diastolicBp}</div>
+                    <div className="fw-bold fs-6 font-monospace">{selectedAssessment.vitals?.systolicBp ?? '—'}/{selectedAssessment.vitals?.diastolicBp ?? '—'}</div>
                   </Col>
                   <Col xs={4} md={2}>
                     <div className="text-muted">Nhiệt độ</div>
-                    <div className="fw-bold fs-6">{selectedAssessment.vitals?.temperature}°C</div>
+                    <div className="fw-bold fs-6 font-monospace">{selectedAssessment.vitals?.temperature ?? '—'}°C</div>
                   </Col>
                   <Col xs={4} md={2}>
                     <div className="text-muted">SpO2</div>
-                    <div className="fw-bold fs-6">{selectedAssessment.vitals?.spo2}%</div>
+                    <div className="fw-bold fs-6 font-monospace">{selectedAssessment.vitals?.spo2 ?? '—'}%</div>
                   </Col>
                   <Col xs={4} md={2}>
                     <div className="text-muted">BMI</div>
-                    <div className="fw-bold fs-6 text-primary">{selectedAssessment.vitals?.bmi}</div>
+                    <div className="fw-bold fs-6 font-monospace text-primary">{selectedAssessment.vitals?.bmi ?? '—'}</div>
                   </Col>
                   <Col xs={4} md={2}>
                     <div className="text-muted">Thể trạng</div>
-                    <div className="fw-bold small">{selectedAssessment.vitals?.bmiCategory}</div>
+                    <div className="fw-bold small">{selectedAssessment.vitals?.bmiCategory ?? '—'}</div>
                   </Col>
                 </Row>
               </div>
 
               {/* Chief Complaint & Symptoms */}
               <div className="mb-3">
-                <div className="fw-bold text-secondary small">LÝ DO ĐẾN KHÁM (CHIEF COMPLAINT):</div>
+                <div className="fw-bold text-secondary small">LÝ DO ĐẾN KHÁM:</div>
                 <p className="mb-2 fw-semibold text-dark">{selectedAssessment.chiefComplaint}</p>
 
                 {selectedAssessment.clinicalSymptoms && (
@@ -438,10 +452,10 @@ export default function MedicalAssessmentListPage() {
               </div>
 
               {/* Diagnosis and ICD-10 */}
-              <div className="p-3 bg-primary bg-opacity-10 rounded-3 mb-3 border border-primary border-opacity-25">
+              <div className="p-3 rounded-3 mb-3 border" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
                 <div className="d-flex justify-content-between align-items-center mb-1">
-                  <span className="fw-bold text-primary">CHẨN ĐOÁN XÁC ĐỊNH & MÃ WHO ICD-10:</span>
-                  <Badge bg="primary" className="fs-6 px-2">{selectedAssessment.icd10Code}</Badge>
+                  <span className="fw-bold" style={{ color: '#1e40af' }}>CHẨN ĐOÁN XÁC ĐỊNH & MÃ WHO ICD-10:</span>
+                  <Badge bg="primary" className="fs-6 px-2 font-monospace">{selectedAssessment.icd10Code}</Badge>
                 </div>
                 <h5 className="fw-bold text-dark mb-1">{selectedAssessment.finalDiagnosis}</h5>
                 <small className="text-muted d-block">{selectedAssessment.icd10Name}</small>
@@ -452,7 +466,7 @@ export default function MedicalAssessmentListPage() {
 
               {/* Plan and Recommendations */}
               <div className="mb-3">
-                {selectedAssessment.recommendedTestPackages && selectedAssessment.recommendedTestPackages.length > 0 && (
+                {Array.isArray(selectedAssessment.recommendedTestPackages) && selectedAssessment.recommendedTestPackages.length > 0 && (
                   <div className="mb-2">
                     <div className="fw-bold text-secondary small mb-1">XÉT NGHIỆM ĐỀ XUẤT:</div>
                     <div className="d-flex flex-wrap gap-1">
@@ -488,7 +502,7 @@ export default function MedicalAssessmentListPage() {
               </div>
 
               <div className="text-end text-muted small border-top pt-2">
-                Bác sĩ phụ trách: <strong>{selectedAssessment.doctorName}</strong> ({selectedAssessment.department})
+                Bác sĩ phụ trách: <strong>{selectedAssessment.doctorName}</strong> ({selectedAssessment.department || 'Khoa Khám Bệnh'})
               </div>
             </Modal.Body>
             <Modal.Footer>
@@ -506,7 +520,7 @@ export default function MedicalAssessmentListPage() {
       {/* SOFT DELETE MODAL */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title className="fs-5 text-danger fw-bold">Xác Nhận Xóa Mềm Đánh Giá Y Khoa</Modal.Title>
+          <Modal.Title className="fs-5 fw-bold" style={{ color: '#dc2626' }}>Xác Nhận Xóa Mềm Đánh Giá Y Khoa</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
@@ -527,7 +541,7 @@ export default function MedicalAssessmentListPage() {
           <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)} disabled={deleting}>
             Hủy Bỏ
           </Button>
-          <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting}>
+          <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting} style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}>
             {deleting ? <Spinner size="sm" animation="border" /> : 'Xác Nhận Xóa'}
           </Button>
         </Modal.Footer>

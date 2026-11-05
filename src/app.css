@@ -22,7 +22,7 @@
 }
 
 .bms-topbar-container {
-    width: min(1200px, calc(100% - 32px));
+    width: min(1440px, calc(100% - 32px));
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -68,16 +68,20 @@
 }
 
 .bms-navbar-container {
-    width: min(1200px, calc(100% - 32px));
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1440px;
     margin: 0 auto;
+    padding: 0 20px;
     height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 14px;
 }
 
 .bms-brand {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -108,10 +112,11 @@
 
 .bms-brand-text h1 {
     margin: 0;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.3px;
+    white-space: nowrap;
 }
 
 .bms-brand-text p {
@@ -119,23 +124,43 @@
     font-size: 11px;
     color: #64748b;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .bms-nav-links {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 10px;
     list-style: none;
+    flex-wrap: nowrap;
     margin: 0;
     padding: 0;
+    flex-shrink: 1;
+}
+
+.bms-nav-links li {
+    flex-shrink: 0;
+    white-space: nowrap !important;
+    list-style: none;
+    display: inline-flex;
 }
 
 .bms-nav-link {
     color: #334155;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap !important;
+    word-break: keep-all;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 4px;
     transition: color 0.15s ease;
+}
+
+.bms-nav-link.active {
+    color: #1e40af;
+    font-weight: 700;
 }
 
 .bms-nav-link:hover {
@@ -174,9 +199,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 .bms-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;

@@ -56,7 +56,7 @@ export default function QualityControlManagementPage() {
     // Record Run Modal / Form State
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [measuredValue, setMeasuredValue] = useState("");
-    const [operatorName, setOperatorName] = useState("Nguyễn Tấn Phát (KTV Lab)");
+    const [operatorName, setOperatorName] = useState("KTV. Lê Minh Tuấn");
     const [recordResult, setRecordResult] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
 
@@ -90,11 +90,12 @@ export default function QualityControlManagementPage() {
                 fetchQcDashboardSummary(),
                 fetchQcFlags()
             ]);
-            setLots(lotList);
+            const safeLotList = Array.isArray(lotList) ? lotList : [];
+            setLots(safeLotList);
             setSummary(summaryData);
-            setFlags(flagsData);
+            setFlags(Array.isArray(flagsData) ? flagsData : []);
 
-            if (lotList.length > 0 && !selectedLotId) {
+            if (safeLotList.length > 0 && !selectedLotId) {
                 setSelectedLotId(lotList[0].id);
             }
         } catch (error) {
@@ -255,6 +256,12 @@ export default function QualityControlManagementPage() {
         return { width, height, padding, lines, coords, polylinePoints, getY };
     }, [ljData]);
 
+    // RÀNG BUỘC NGHIỆP VỤ ISO 15189: Phát hiện vi phạm Westgard 1_3s để cảnh báo khóa máy
+    const has13sViolation = useMemo(() => {
+        if (!ljData || !Array.isArray(ljData.points)) return false;
+        return ljData.points.some(p => Math.abs(Number(p.zScore)) >= 3 || String(p.status || '').includes('1_3S') || String(p.status || '').includes('REJECTION'));
+    }, [ljData]);
+
     return (
         <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#f8fafc" }}>
             {/* Header Ribbon */}
@@ -262,7 +269,7 @@ export default function QualityControlManagementPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2">
                         <span className="badge bg-primary px-3 py-2 fs-6">UC73</span>
-                        <h2 className="h3 mb-0 fw-bold text-slate-800">Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đánh Giá Đa Quy Tắc Westgard</h2>
+                        <h2 className="h3 mb-0 fw-bold text-dark">Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đánh Giá Đa Quy Tắc Westgard</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
                         Quản lý hồ sơ lô kiểm chuẩn (QC Lots), biểu đồ Levey-Jennings trực quan, tự động phát hiện lỗi ngẫu nhiên và hệ thống theo luật Westgard (1_2s, 1_3s, 2_2s, R_4s, 4_1s, 10_x) và khóa máy khi vi phạm.
@@ -426,6 +433,19 @@ export default function QualityControlManagementPage() {
                         </div>
                     </div>
 
+                    {/* CẢNH BÁO VI PHẠM QUY TẮC WESTGARD 1_3S & KHÓA MÁY */}
+                    {has13sViolation && (
+                        <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center gap-3">
+                            <FaLock className="fs-2 text-danger flex-shrink-0" />
+                            <div>
+                                <strong className="fs-6 d-block">VI PHẠM QUY TẮC WESTGARD 1_3s — MÁY PHÂN TÍCH ĐÃ BỊ KHÓA TỰ ĐỘNG!</strong>
+                                <span className="small">
+                                    Phát hiện điểm đo nội kiểm IQC vượt quá giới hạn sai số ngẫu nhiên nghiêm trọng (&plusmn;3 SD). <strong>Quy chuẩn ISO 15189:2022 yêu cầu dừng ngay việc chạy mẫu bệnh nhân trên thiết bị này.</strong> Kỹ thuật viên bắt buộc phải kiểm tra hóa chất, hiệu chuẩn lại cảm biến đo và chạy lại mẫu kiểm chuẩn đạt mới được mở khóa chạy mẫu.
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Chart Canvas Card */}
                     <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
                         <div className="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
@@ -452,7 +472,7 @@ export default function QualityControlManagementPage() {
                                         style={{ width: "100%", maxWidth: "900px", height: "auto" }}
                                     >
                                         {/* Background Grid Lines */}
-                                        {chartRenderData.lines.map((line, idx) => {
+                                        {(Array.isArray(chartRenderData?.lines) ? chartRenderData.lines : []).map((line, idx) => {
                                             const y = chartRenderData.getY(line.value);
                                             return (
                                                 <g key={idx}>
@@ -488,7 +508,7 @@ export default function QualityControlManagementPage() {
                                         />
 
                                         {/* Data Points */}
-                                        {chartRenderData.coords.map((pt, idx) => {
+                                        {(Array.isArray(chartRenderData?.coords) ? chartRenderData.coords : []).map((pt, idx) => {
                                             const isPass = pt.status === "PASS";
                                             const isWarn = pt.status === "WARNING_1_2S";
                                             const isReject = !isPass && !isWarn;
@@ -560,7 +580,7 @@ export default function QualityControlManagementPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {lots.map(lot => (
+                                    {(Array.isArray(lots) ? lots : []).map(lot => (
                                         <tr key={lot.id}>
                                             <td>
                                                 <div className="fw-bold text-dark">{lot.lotNumber}</div>
@@ -645,7 +665,7 @@ export default function QualityControlManagementPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {flags.map(flag => (
+                                        {(Array.isArray(flags) ? flags : []).map(flag => (
                                             <tr key={flag.runId} className={flag.isLocked ? 'table-danger-subtle' : ''}>
                                                 <td>
                                                     <div className="fw-bold font-monospace text-dark">{flag.runId}</div>
@@ -659,7 +679,7 @@ export default function QualityControlManagementPage() {
                                                     </span>
                                                 </td>
                                                 <td className="text-center">
-                                                    {flag.violatedRules.map(r => (
+                                                    {(Array.isArray(flag.violatedRules) ? flag.violatedRules : []).map(r => (
                                                         <span key={r} className="badge bg-dark text-white me-1">
                                                             {r}
                                                         </span>

@@ -6,6 +6,14 @@ node_modules/
 # Production build outputs
 dist/
 build/
+test-results/
+playwright-report/
+e2e-report.json
+/*.png
+/*.jpg
+/*.spec.js
+/*.cjs
+anhdig_feThamKhao/
 
 # Environment files
 .env

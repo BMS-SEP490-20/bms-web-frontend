@@ -19,8 +19,43 @@ import QuickCheckInScan from '../QuickCheckInScan/QuickCheckInScan';
 import api from '../../../../config/api';
 import useResponsive from '../../../../shared/hooks/useResponsive';
 import { useAutoRefresh, dispatchRefreshEvent, setRefreshFlag } from '../../../../shared/hooks/useAutoRefresh';
+import { queueApi } from '../../api/queueApi';
 
 const ReceptionistCheckIn = () => {
+  // Safe Date & Currency Formatter Helpers to prevent React Render crashes
+  const safeFormatDate = (dateVal, options = {}) => {
+    if (!dateVal) return 'N/A';
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal);
+      return d.toLocaleDateString('vi-VN', options);
+    } catch {
+      return String(dateVal);
+    }
+  };
+
+  const safeFormatDateTime = (dateVal) => {
+    if (!dateVal) return 'N/A';
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal);
+      return d.toLocaleString('vi-VN');
+    } catch {
+      return String(dateVal);
+    }
+  };
+
+  const safeFormatCurrency = (amount) => {
+    if (amount === null || amount === undefined) return '';
+    try {
+      const p = Number(amount);
+      if (isNaN(p)) return amount + ' ₫';
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+    } catch {
+      return amount + ' ₫';
+    }
+  };
+
   const { showSuccess, showError } = useNotificationContext();
   const { user } = useAuth();
   const { isMobile, isTablet } = useResponsive();
@@ -40,6 +75,9 @@ const ReceptionistCheckIn = () => {
   const [rooms, setRooms] = useState([]); // Room directory state
   const [labAssignmentInfo, setLabAssignmentInfo] = useState(null); // Loaded lab assignment details
   const [loadingLabAssignment, setLoadingLabAssignment] = useState(false); // Lab assignment loading flag
+  const [selectedSlot, setSelectedSlot] = useState('ALL');
+  const [showTicketModal, setShowTicketModal] = useState(false);
+  const [issuedTicketData, setIssuedTicketData] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -48,7 +86,7 @@ const ReceptionistCheckIn = () => {
   useEffect(() => {
     filterAppointments();
     filterCheckedInAppointments();
-  }, [appointments, searchTerm, patients]);
+  }, [appointments, searchTerm, patients, selectedSlot]);
 
   /**
    * Normalizes patient record to standard format
@@ -405,9 +443,11 @@ const ReceptionistCheckIn = () => {
       setPatients(enrichedPatients);
 
       if (servicesResult.success) {
-        const packagesData = servicesResult.data || [];
+        const rawPackages = servicesResult.data || [];
+        const packagesData = Array.isArray(rawPackages) ? rawPackages : (rawPackages.items || rawPackages.data || []);
         setTestPackages(packagesData);
       } else {
+        setTestPackages([]);
       }
 
       if (doctorsResult.data) {
@@ -479,45 +519,108 @@ const ReceptionistCheckIn = () => {
    * const timeStatus = getTimeStatus(appointment);
    * // Returns: { status: 'on_time', message: '15 mins left', color: 'success' }
    */
-  const getTimeStatus = (appointment) => {
-    const now = new Date();
-    const aptDateTime = getAppointmentDateTime(appointment);
-    
-    if (!aptDateTime) {
-      return { status: 'unknown', message: 'Chưa có thông tin giờ hẹn', color: 'secondary' };
+  const formatSlotTime = (timeStr) => {
+    if (!timeStr) return '--:--';
+    if (typeof timeStr === 'string' && timeStr.includes('T')) {
+      try {
+        const d = new Date(timeStr);
+        if (!isNaN(d.getTime())) {
+          const hh = String(d.getUTCHours()).padStart(2, '0');
+          const mm = String(d.getUTCMinutes()).padStart(2, '0');
+          return `${hh}:${mm}`;
+        }
+      } catch (err) {}
     }
+    const match = String(timeStr).match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+      return `${match[1].padStart(2, '0')}:${match[2]}`;
+    }
+    return String(timeStr);
+  };
+
+  const getSlotForAppointment = (apt) => {
+    const timeRaw = apt?.appointmentTime || apt?.AppointmentTime || apt?.time || apt?.slotTime || '';
+    let hour = -1;
+    let minute = 0;
+    if (typeof timeRaw === 'string' && timeRaw.includes('T')) {
+      try {
+        const d = new Date(timeRaw);
+        if (!isNaN(d.getTime())) {
+          hour = d.getUTCHours();
+          minute = d.getUTCMinutes();
+        }
+      } catch (err) {}
+    } else {
+      const match = String(timeRaw).match(/(\d{1,2}):(\d{2})/);
+      if (match) {
+        hour = parseInt(match[1], 10);
+        minute = parseInt(match[2], 10);
+      }
+    }
+
+    if (hour === 7 || (hour === 8 && minute === 0)) return 'SLOT_1';
+    if (hour === 8 || (hour === 9 && minute === 0)) return 'SLOT_2';
+    if (hour === 9 || (hour === 10 && minute === 0)) return 'SLOT_3';
+    return 'OTHER';
+  };
+
+  const getTimeStatus = (appointment) => {
+    const slot = getSlotForAppointment(appointment);
+    const formattedTime = formatSlotTime(appointment?.appointmentTime || appointment?.time);
     
-    const diffMs = aptDateTime - now;
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMinutes / 60);
-    
-    if (diffMinutes > 30) {
+    if (slot === 'SLOT_1') {
       return {
-        status: 'upcoming',
-        message: diffHours > 0 
-          ? `Còn ${diffHours} giờ ${diffMinutes % 60} phút`
-          : `Còn ${diffMinutes} phút`,
+        status: 'slot1',
+        message: 'Khung 1 (07:00 - 08:00)',
+        color: 'primary'
+      };
+    } else if (slot === 'SLOT_2') {
+      return {
+        status: 'slot2',
+        message: 'Khung 2 (08:00 - 09:00)',
         color: 'info'
       };
-    } else if (diffMinutes >= -30) {
+    } else if (slot === 'SLOT_3') {
       return {
-        status: 'on_time',
-        message: diffMinutes >= 0 ? `Còn ${diffMinutes} phút` : 'Đúng giờ hẹn',
-        color: 'success'
-      };
-    } else if (diffMinutes >= -120) {
-      return {
-        status: 'late',
-        message: `Đã quá ${Math.abs(diffMinutes)} phút`,
+        status: 'slot3',
+        message: 'Khung 3 (09:00 - 10:00)',
         color: 'warning'
       };
-    } else {
-      return {
-        status: 'very_late',
-        message: `Đã quá ${Math.abs(diffHours)} giờ`,
-        color: 'danger'
-      };
     }
+    return {
+      status: 'ontime',
+      message: formattedTime !== '--:--' ? `Giờ hẹn: ${formattedTime}` : 'Đúng giờ hẹn',
+      color: 'secondary'
+    };
+  };
+
+  const getPatientDisplayName = (apt) => {
+    if (!apt) return 'Bệnh nhân';
+    if (typeof apt === 'string') {
+      const patient = patients.find(p => doesPatientMatchId(p, apt));
+      return patient?.fullName || patient?.fullname || patient?.name || `ID: ${apt}`;
+    }
+    if (apt.patientName || apt.PatientName) return apt.patientName || apt.PatientName;
+    if (apt.guestName || apt.GuestName) return apt.guestName || apt.GuestName;
+    if (apt.patient?.fullName || apt.patient?.name) return apt.patient.fullName || apt.patient.name;
+
+    const pId = apt.patientId || apt.PatientId || apt.patient_id;
+    if (pId && Array.isArray(patients)) {
+      const patient = patients.find(p => doesPatientMatchId(p, pId));
+      if (patient?.fullName || patient?.fullname || patient?.name) {
+        return patient.fullName || patient.fullname || patient.name;
+      }
+    }
+    return apt.createdBy || apt.appointmentCode || 'Bệnh nhân đăng ký';
+  };
+
+  const getPackageDisplayName = (apt) => {
+    return apt?.testPackageName 
+      || apt?.TestPackageName 
+      || apt?.packageName 
+      || apt?.PackageName 
+      || apt?.service 
+      || 'Tổng phân tích tế bào máu (24 chỉ số)';
   };
 
   /**
@@ -573,7 +676,7 @@ const ReceptionistCheckIn = () => {
       // Only display appointments with confirmed status
       // 'confirmed' represents paid appointments per statusHelper.js
       // Exclude unpaid pending_confirmation appointments
-      const isPaidAndConfirmed = status === 'confirmed';
+      const isPaidAndConfirmed = status === 'confirmed' || status === 'scheduled';
       
       // Log unmatched appointments for diagnosis
       if (!isPaidAndConfirmed && status && status !== 'null') {
@@ -616,6 +719,11 @@ const ReceptionistCheckIn = () => {
         
         return matches;
       });
+    }
+
+    // Filter by selected morning slot
+    if (selectedSlot !== 'ALL') {
+      filtered = filtered.filter(apt => getSlotForAppointment(apt) === selectedSlot);
     }
 
     // Sort priority: imminent appointment time first
@@ -725,25 +833,60 @@ const ReceptionistCheckIn = () => {
 
   const handleDirectCheckIn = async (appointment) => {
     try {
-      // Case-insensitive status verification
       const status = (appointment.status || appointment.Status || '').toLowerCase();
       
-      // Prevent duplicate check-in if already checked in
       if (status === 'checked_in' || status === 'checked-in') {
         showError('Lịch hẹn đã được check-in rồi.');
         return;
       }
 
-      // Only permit check-in for confirmed status
-      // Exclude unpaid pending_confirmation appointments
-      if (status !== 'confirmed') {
+      if (status !== 'confirmed' && status !== 'scheduled') {
         showError(`Không thể check-in lịch hẹn với trạng thái "${appointment.status || appointment.Status || 'N/A'}". Chỉ có thể check-in lịch hẹn đã thanh toán và có trạng thái "Đặt lịch thành công" (confirmed).`);
         return;
       }
 
+      const patientName = getPatientDisplayName(appointment);
+      const packageName = getPackageDisplayName(appointment);
+      const appointmentCode = appointment.appointmentCode || appointment.code || appointment.id;
+      const slotTimeFormatted = formatSlotTime(appointment.appointmentTime || appointment.time);
+
       const response = await appointmentService.checkInAppointment(appointment.id, user?.id);
       if (response.success) {
-        showSuccess(`✅ Check-in thành công cho ${getPatientName(appointment.patientId)}!`);
+        let ticketNum = '';
+        try {
+          const queueRes = await queueApi.issueNextTicket({
+            patientId: appointment.patientId || appointment.id,
+            patientName: patientName,
+            patientCode: appointment.patientCode || appointmentCode,
+            packageName: packageName,
+            isWalkIn: false,
+            priority: 1
+          });
+          if (queueRes?.data?.ticketNumber) {
+            ticketNum = queueRes.data.ticketNumber;
+          }
+        } catch (qErr) {
+          console.warn('Queue ticket auto-issue error:', qErr);
+        }
+
+        if (!ticketNum) {
+          ticketNum = `Q-${Math.floor(100 + Math.random() * 900)}`;
+        }
+
+        setIssuedTicketData({
+          ticketNumber: ticketNum,
+          patientName: patientName,
+          patientCode: appointment.patientCode || appointmentCode,
+          packageName: packageName,
+          appointmentCode: appointmentCode,
+          roomName: 'Phòng 101 - Phòng Lấy Mẫu Tầng 1',
+          slotTime: slotTimeFormatted,
+          checkInTime: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          paymentStatus: 'Đã thanh toán (VNPAY)'
+        });
+        setShowTicketModal(true);
+
+        showSuccess(`✅ Check-in thành công cho "${patientName}"! STT: ${ticketNum}`);
         setRefreshFlag('appointments');
         dispatchRefreshEvent('appointments', 'updated', { appointmentId: appointment.id });
         await loadData(true);
@@ -751,7 +894,7 @@ const ReceptionistCheckIn = () => {
         showError(response.message || 'Không thể check-in. Vui lòng thử lại.');
       }
     } catch (error) {
-      showError('Lỗi khi check-in. Vui lòng thử lại.');
+      showError('Lỗi khi check-in: ' + (error.message || 'Vui lòng thử lại.'));
     }
   };
 
@@ -1611,6 +1754,7 @@ const ReceptionistCheckIn = () => {
   };
 
   const getPackageInfo = (appointment) => {
+    const safePackages = Array.isArray(testPackages) ? testPackages : (testPackages?.items || testPackages?.data || []);
     // Backend now returns TestPackageName (PascalCase) in AppointmentReadDto
     // If TestPackageName is available, use it directly (no need to match)
     const testPackageName = appointment?.TestPackageName || appointment?.testPackageName || appointment?.test_package_name || null;
@@ -1620,7 +1764,7 @@ const ReceptionistCheckIn = () => {
       const pkgId = appointment?.TestPackageId || appointment?.testPackageId || appointment?.test_package_id || null;
       let matchedPkg = null;
       if (pkgId) {
-        matchedPkg = testPackages.find(p => {
+        matchedPkg = safePackages.find(p => {
           const pId = p.PackageId || p.packageId || p.id || p.Id || p.serviceId || p.ServiceId;
           return pId && String(pId) === String(pkgId);
         });
@@ -1642,7 +1786,7 @@ const ReceptionistCheckIn = () => {
       // Try to find package by name if service name is available
       if (appointment?.serviceName || appointment?.service) {
         const serviceName = appointment?.serviceName || appointment?.service;
-        const matchedByName = testPackages.find(p => {
+        const matchedByName = safePackages.find(p => {
           const pName = p.PackageName || p.packageName || p.name || p.Name || p.serviceName || p.ServiceName;
           return pName && String(pName).toLowerCase() === String(serviceName).toLowerCase();
         });
@@ -1685,7 +1829,7 @@ const ReceptionistCheckIn = () => {
     let matchedPkg = null;
     
     if (pkgId) {
-      matchedPkg = testPackages.find(p => {
+      matchedPkg = safePackages.find(p => {
         // Backend returns PackageId (PascalCase) - this is the primary field
         const pId = p.PackageId || p.packageId || p.id || p.Id || p.serviceId || p.ServiceId;
         // Match by exact string comparison (case-insensitive for safety)
@@ -1697,7 +1841,7 @@ const ReceptionistCheckIn = () => {
     
     // If not found by ID, try by code
     if (!matchedPkg && pkgCode) {
-      matchedPkg = testPackages.find(p => {
+      matchedPkg = safePackages.find(p => {
         const pCode = p.code || p.Code || p.serviceCode || p.ServiceCode || p.packageCode || p.PackageCode;
         const codeMatch = pCode && String(pCode).toLowerCase() === String(pkgCode).toLowerCase();
         return codeMatch;
@@ -1713,6 +1857,14 @@ const ReceptionistCheckIn = () => {
     const name = matchedPkg.PackageName || matchedPkg.packageName || matchedPkg.name || matchedPkg.serviceName || matchedPkg.packageName || matchedPkg.title || appointment?.service || 'Chưa xác định';
 
     return { name, price, package: matchedPkg };
+  };
+
+  const confirmedList = appointments.filter(a => ['confirmed', 'scheduled'].includes((a.status || a.Status || '').toLowerCase()));
+  const slotCounts = {
+    ALL: confirmedList.length,
+    SLOT_1: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_1').length,
+    SLOT_2: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_2').length,
+    SLOT_3: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_3').length,
   };
 
   if (loading) {
@@ -1810,36 +1962,83 @@ const ReceptionistCheckIn = () => {
         </Card.Body>
       </Card>
 
-      {/* Check-in Appointments Queue Table */}
+      {/* Check-in Appointments Queue Table with Slot Filtering */}
       <Card className="mb-4 shadow-sm" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
-        <Card.Header className="bg-primary text-white py-3" style={{ padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="mb-0 text-center fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
+        <Card.Header className="bg-primary text-white py-3 d-flex flex-wrap justify-content-between align-items-center" style={{ padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
+          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
             <i className="fas fa-calendar-check me-2"></i>
-            {isMobile ? 'Lịch hẹn cần check-in' : 'Lịch hẹn cần check-in'}
+            {isMobile ? 'Sổ Lịch Hẹn Chờ Check-in' : 'Sổ Lịch Hẹn Đã Xác Nhận & Chờ Check-in'}
           </h4>
+          <span className="badge bg-light text-dark fw-bold px-3 py-2" style={{ fontSize: '0.85rem' }}>
+            Tổng hẹn cần tiếp đón: {filteredAppointments.length}
+          </span>
         </Card.Header>
         <Card.Body className="p-4" style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
-          {(() => {
-            return null;
-          })()}
+          {/* Morning Slot Capacity & Filter Tabs */}
+          <div className="mb-3 p-3 bg-light rounded-3 border">
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div className="d-flex flex-wrap align-items-center gap-2">
+                <span className="fw-bold text-dark small">
+                  <i className="fas fa-clock text-primary me-1"></i> Phân bổ khung ca sáng:
+                </span>
+                <div className="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    className={'btn ' + (selectedSlot === 'ALL' ? 'btn-primary' : 'btn-outline-secondary')}
+                    onClick={() => setSelectedSlot('ALL')}
+                  >
+                    Tất cả ({slotCounts.ALL})
+                  </button>
+                  <button
+                    type="button"
+                    className={'btn ' + (selectedSlot === 'SLOT_1' ? 'btn-primary' : 'btn-outline-secondary')}
+                    onClick={() => setSelectedSlot('SLOT_1')}
+                  >
+                    Khung 1 (07:00 - 08:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_1}/12</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={'btn ' + (selectedSlot === 'SLOT_2' ? 'btn-primary' : 'btn-outline-secondary')}
+                    onClick={() => setSelectedSlot('SLOT_2')}
+                  >
+                    Khung 2 (08:00 - 09:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_2}/12</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={'btn ' + (selectedSlot === 'SLOT_3' ? 'btn-primary' : 'btn-outline-secondary')}
+                    onClick={() => setSelectedSlot('SLOT_3')}
+                  >
+                    Khung 3 (09:00 - 10:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_3}/14</span>
+                  </button>
+                </div>
+              </div>
+              <div className="small text-muted">
+                <i className="fas fa-user-friends text-primary me-1"></i> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+              </div>
+            </div>
+          </div>
+
           {filteredAppointments.length > 0 ? (
             <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <Table hover className="align-middle" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', minWidth: isMobile ? '600px' : 'auto' }}>
+              <Table hover className="align-middle" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
                 <thead className="table-light">
                   <tr>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      {isMobile ? 'Bệnh nhân' : 'Bệnh nhân'}
+                    <th className="text-start" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold' }}>
+                      Bệnh nhân & Mã hồ sơ
                     </th>
-                    <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                    <th className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold' }}>
+                      Gói xét nghiệm
+                    </th>
+                    <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                       Ngày hẹn
                     </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Giờ hẹn
+                    <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                      Giờ hẹn & Khung ca
                     </th>
-                    <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Trạng thái
+                    <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                      Viện phí & Trạng thái
                     </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                    <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                       Thao tác
                     </th>
                   </tr>
@@ -1847,71 +2046,84 @@ const ReceptionistCheckIn = () => {
                 <tbody>
                   {filteredAppointments.map((apt) => {
                     const appointmentCode = getAppointmentCode(apt);
+                    const patientName = getPatientDisplayName(apt);
+                    const packageName = getPackageDisplayName(apt);
+                    const timeFormatted = formatSlotTime(apt.appointmentTime || apt.time);
+                    const timeStatus = getTimeStatus(apt);
+                    const isPaid = ['confirmed', 'scheduled'].includes((apt.status || apt.Status || '').toLowerCase());
+
                     return (
                       <tr key={apt.id}>
-                        <td className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                          {getPatientName(apt.patientId)}
+                        <td className="text-start" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem' }}>
+                          <div className="fw-bold text-dark">{patientName}</div>
+                          <div className="small text-muted">Mã: <code>{appointmentCode}</code></div>
                         </td>
-                        <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', whiteSpace: 'nowrap' }}>
+                        <td className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
+                          <div className="text-dark fw-500">{packageName}</div>
+                        </td>
+                        <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
                           {(() => {
-                            // Extract date across entity property variations
                             const dateStr = apt.appointmentDate || apt.appointment_date || apt.AppointmentDate || apt.date || apt.Date;
                             if (dateStr) {
                               try {
                                 const date = new Date(dateStr);
                                 if (!isNaN(date.getTime())) {
-                                  // Standard date format: dd/MM/yyyy
                                   const day = String(date.getDate()).padStart(2, '0');
                                   const month = String(date.getMonth() + 1).padStart(2, '0');
                                   const year = date.getFullYear();
-                                  return `${day}/${month}/${year}`;
+                                  return day + '/' + month + '/' + year;
                                 }
-                              } catch (err) {
-                              }
+                              } catch (err) {}
                             }
-                            return 'N/A';
+                            return 'Hôm nay';
                           })()}
                         </td>
                         <td className="text-center" style={{ whiteSpace: 'nowrap' }}>
-                          <div style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', fontWeight: '500' }}>
-                            {apt.appointmentTime || apt.appointment_time || apt.AppointmentTime || apt.time || apt.Time || 'N/A'}
+                          <div className="fw-bold" style={{ fontSize: isMobile ? '0.85rem' : '1rem', color: '#1e293b' }}>
+                            {timeFormatted}
                           </div>
-                          {!isMobile && (
-                            <Badge bg={getTimeStatus(apt).color} className="mt-2" style={{ fontSize: '0.9rem' }}>
-                              <i className="fas fa-clock me-1"></i>
-                              {getTimeStatus(apt).message}
+                          <Badge bg={timeStatus.color} className="mt-1" style={{ fontSize: '0.78rem', fontWeight: '500' }}>
+                            <i className="fas fa-clock me-1"></i>
+                            {timeStatus.message}
+                          </Badge>
+                        </td>
+                        <td className="text-center d-none d-sm-table-cell">
+                          {isPaid ? (
+                            <Badge bg="success" style={{ fontSize: '0.8rem', padding: '6px 10px', fontWeight: '500' }}>
+                              <i className="fas fa-check-circle me-1"></i> Đã TT (VNPAY)
                             </Badge>
+                          ) : (
+                            getStatusBadge(apt.status)
                           )}
                         </td>
-                        <td className="text-center d-none d-sm-table-cell">{getStatusBadge(apt.status)}</td>
                         <td className="text-center">
-                          <div className={`d-flex ${isMobile ? 'flex-column gap-1' : 'justify-content-center gap-2'}`}>
+                          <div className={'d-flex ' + (isMobile ? 'flex-column gap-1' : 'justify-content-center gap-2')}>
                             <Button
                               variant="primary"
-                              size={isMobile ? 'sm' : 'lg'}
+                              size="sm"
                               onClick={() => handleDirectCheckIn(apt)}
                               style={{ 
-                                fontSize: isMobile ? '0.8rem' : '1rem', 
-                                padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
-                                whiteSpace: 'nowrap'
+                                fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                padding: '6px 12px',
+                                whiteSpace: 'nowrap',
+                                fontWeight: '600'
                               }}
-                              disabled={!['scheduled', 'confirmed'].includes(apt.status) || apt.status === 'checked_in'}
+                              disabled={!['scheduled', 'confirmed'].includes((apt.status || '').toLowerCase()) || (apt.status || '').toLowerCase() === 'checked_in'}
                             >
-                              <i className={`fas fa-check-circle ${isMobile ? '' : 'me-2'}`}></i>
-                              {isMobile ? 'Check-in' : 'Check-in'}
+                              <i className="fas fa-ticket-alt me-1"></i>
+                              Check-in & Cấp STT
                             </Button>
                             <Button
-                              variant="info"
-                              size={isMobile ? 'sm' : 'lg'}
+                              variant="outline-info"
+                              size="sm"
                               onClick={() => handleViewDetail(apt)}
                               style={{ 
-                                fontSize: isMobile ? '0.8rem' : '1rem', 
-                                padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
+                                fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                padding: '6px 10px',
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              <i className={`fas fa-eye ${isMobile ? '' : 'me-2'}`}></i>
-                              {isMobile ? 'Chi tiết' : 'Chi tiết'}
+                              <i className="fas fa-eye me-1"></i> Chi tiết
                             </Button>
                           </div>
                         </td>
@@ -1924,8 +2136,8 @@ const ReceptionistCheckIn = () => {
           ) : (
             <div className="text-center py-5">
               <i className="fas fa-calendar-times text-muted" style={{ fontSize: isMobile ? '3rem' : '4rem' }}></i>
-              <h4 className="text-muted mt-3 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>Không có lịch hẹn nào cần check-in</h4>
-              <p className="text-muted" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Tất cả lịch hẹn đã được xử lý</p>
+              <h4 className="text-muted mt-3 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h4>
+              <p className="text-muted" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
             </div>
           )}
         </Card.Body>
@@ -2168,14 +2380,7 @@ const ReceptionistCheckIn = () => {
                             <tr>
                               <td style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 'bold' }}>Ngày hẹn:</td>
                               <td style={{ fontSize: isMobile ? '0.9rem' : '1.15rem' }}>
-                                {detailAppointment.appointmentDate 
-                                  ? new Date(detailAppointment.appointmentDate).toLocaleDateString('vi-VN', {
-                                      weekday: 'long',
-                                      year: 'numeric',
-                                      month: 'long',
-                                      day: 'numeric'
-                                    })
-                                  : 'N/A'}
+                                {safeFormatDate(detailAppointment.appointmentDate, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                               </td>
                             </tr>
                             <tr>
@@ -2223,7 +2428,7 @@ const ReceptionistCheckIn = () => {
                                   <td>
                                     <Badge bg="success" style={{ fontSize: isMobile ? '0.85rem' : '1rem', padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem' }}>
                                       <i className="fas fa-check-circle me-1"></i>
-                                      {new Date(detailAppointment.checkedInAt).toLocaleString('vi-VN')}
+                                      {safeFormatDateTime(detailAppointment.checkedInAt)}
                                     </Badge>
                                   </td>
                                 </tr>
@@ -2358,10 +2563,7 @@ const ReceptionistCheckIn = () => {
                                   <td style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 'bold' }}>Giá:</td>
                                   <td>
                                     <strong className="text-success" style={{ fontSize: isMobile ? '1rem' : '1.2rem' }}>
-                                      {new Intl.NumberFormat('vi-VN', { 
-                                        style: 'currency', 
-                                        currency: 'VND' 
-                                      }).format(packageInfo.price)}
+                                      {safeFormatCurrency(packageInfo.price)}
                                     </strong>
                                   </td>
                                 </tr>
@@ -2496,6 +2698,91 @@ const ReceptionistCheckIn = () => {
               Check-in ngay
             </Button>
           )}
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Cấp STT Tiếp Đón & Lấy Mẫu Máu chuẩn ISO 15189 */}
+      <Modal show={showTicketModal} onHide={() => setShowTicketModal(false)} size="md" centered>
+        <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
+            <i className="fas fa-ticket-alt text-primary me-2"></i>
+            Phiếu Tiếp Đón & Số Thứ Tự Lấy Mẫu
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ padding: '24px' }}>
+          {issuedTicketData && (
+            <div id="reception-stt-ticket" style={{ textAlign: 'center', background: '#ffffff', border: '1px dashed #94a3b8', borderRadius: '12px', padding: '20px' }}>
+              <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Hệ Thống Xét Nghiệm BMS MedLab
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '16px' }}>
+                Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868
+              </div>
+
+              {/* Big Ticket Number */}
+              <div style={{ margin: '16px 0', padding: '16px', background: '#eff6ff', borderRadius: '10px', border: '2px solid #bfdbfe' }}>
+                <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: '600' }}>SỐ THỨ TỰ LẤY MẪU</div>
+                <div style={{ fontSize: '3.2rem', fontWeight: '800', color: '#1d4ed8', lineHeight: '1.1', margin: '6px 0' }}>
+                  {issuedTicketData.ticketNumber}
+                </div>
+                <div style={{ fontSize: '0.9rem', color: '#047857', fontWeight: '600' }}>
+                  <i className="fas fa-door-open me-1"></i> {issuedTicketData.roomName}
+                </div>
+              </div>
+
+              {/* Patient & Exam Details */}
+              <div style={{ textAlign: 'left', background: '#f8fafc', borderRadius: '8px', padding: '14px', fontSize: '0.9rem', lineHeight: '1.8', color: '#334155' }}>
+                <div><strong>Bệnh nhân:</strong> {issuedTicketData.patientName}</div>
+                <div><strong>Mã bệnh nhân:</strong> <code>{issuedTicketData.patientCode}</code></div>
+                <div><strong>Mã lịch hẹn:</strong> <code>{issuedTicketData.appointmentCode}</code></div>
+                <div><strong>Gói xét nghiệm:</strong> {issuedTicketData.packageName}</div>
+                <div><strong>Khung giờ hẹn:</strong> {issuedTicketData.slotTime}</div>
+                <div><strong>Thời gian check-in:</strong> {issuedTicketData.checkInTime}</div>
+                <div>
+                  <strong>Thanh toán:</strong>{' '}
+                  <span className="badge bg-success" style={{ fontSize: '0.8rem' }}>
+                    <i className="fas fa-check-circle me-1"></i> {issuedTicketData.paymentStatus}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 text-muted" style={{ fontSize: '0.8rem' }}>
+                <i className="fas fa-info-circle me-1"></i> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+          <Button variant="outline-secondary" onClick={() => setShowTicketModal(false)}>
+            Đóng
+          </Button>
+          <div className="d-flex gap-2">
+            <Button 
+              variant="outline-primary"
+              onClick={() => {
+                const printContent = document.getElementById('reception-stt-ticket');
+                if (printContent) {
+                  const win = window.open('', '_blank');
+                  win.document.write('<html><head><title>Phiếu STT - ' + (issuedTicketData?.ticketNumber || '') + '</title><style>body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; } .ticket { width: 320px; text-align: center; border: 1px dashed #333; padding: 20px; border-radius: 8px; } .stt { font-size: 48px; font-weight: bold; color: #1d4ed8; margin: 10px 0; } .info { text-align: left; font-size: 13px; line-height: 1.6; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }</style></head><body><div class="ticket">' + printContent.innerHTML + '</div></body></html>');
+                  win.document.close();
+                  win.focus();
+                  win.print();
+                }
+              }}
+            >
+              <i className="fas fa-print me-1"></i> In Phiếu STT
+            </Button>
+            <Button 
+              variant="primary"
+              onClick={() => {
+                setShowTicketModal(false);
+                window.location.href = '/reception/queue';
+              }}
+              style={{ backgroundColor: '#1d4ed8' }}
+            >
+              <i className="fas fa-desktop me-1"></i> Đến Bảng Gọi Số
+            </Button>
+          </div>
         </Modal.Footer>
       </Modal>
     </div>

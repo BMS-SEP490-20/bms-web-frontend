@@ -1,4 +1,11 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * @file ConfigureIotThresholdsPage.jsx
+ * @description UC67 — Cấu Hình Ngưỡng Cảnh Báo Cảm Biến Môi Trường IoT Tủ Trữ Mẫu Xét Nghiệm & Sinh Phẩm.
+ * Dành riêng cho thẩm quyền Trưởng Khoa / Quản Lý Phòng Lab (Manager) & Quản Trị Hệ Thống.
+ * Tuân thủ tiêu chuẩn: ISO 15189 (Quản lý chuỗi lạnh Cold-Chain 2°C - 8°C), Clean Medical Standard & AGENTS.md.
+ */
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     fetchIotThresholdsSummary,
@@ -8,11 +15,6 @@ import {
     removeAlertRecipient
 } from '../api/iotThresholdApi';
 
-/**
- * UC67 — Configure IoT Thresholds
- * Manager console environmental sensor threshold configuration & alarm management.
- * Strictly adheres to docs-output/screens/06-manager.html#uc67 and AGENTS.md rules.
- */
 export default function ConfigureIotThresholdsPage() {
     const navigate = useNavigate();
 
@@ -25,11 +27,11 @@ export default function ConfigureIotThresholdsPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Modal state for adding a recipient
+    // Modal thêm nhân sự nhận cảnh báo khẩn cấp
     const [showAddModal, setShowAddModal] = useState(false);
     const [newRecipient, setNewRecipient] = useState({
         fullName: '',
-        role: 'Lab Technician',
+        role: 'Kỹ thuật viên phòng Lab',
         email: '',
         phone: '',
         channels: ['Push', 'Email']
@@ -45,20 +47,22 @@ export default function ConfigureIotThresholdsPage() {
         try {
             const data = await fetchIotThresholdsSummary();
             if (data) {
-                setThresholds(data.thresholds || []);
-                setRecipients(data.recipients || []);
+                const rawThresholds = data.thresholds || (Array.isArray(data) ? data : []);
+                const rawRecipients = data.recipients || [];
+                setThresholds(Array.isArray(rawThresholds) ? rawThresholds : []);
+                setRecipients(Array.isArray(rawRecipients) ? rawRecipients : []);
                 setEscalationPolicy(data.escalationPolicy || '');
             }
         } catch (err) {
-            console.error('Error loading IoT thresholds:', err);
-            setErrorMessage('Unable to load IoT threshold configurations from server.');
+            console.error('Lỗi khi tải cấu hình ngưỡng cảm biến IoT:', err);
+            setErrorMessage('Không thể tải dữ liệu ngưỡng cảm biến IoT từ máy chủ.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleThresholdChange = (deviceId, field, value) => {
-        setThresholds(prev => prev.map(item => {
+        setThresholds(prev => (Array.isArray(prev) ? prev : []).map(item => {
             if (item.deviceId === deviceId) {
                 return {
                     ...item,
@@ -74,7 +78,7 @@ export default function ConfigureIotThresholdsPage() {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const payload = thresholds.map(t => ({
+            const payload = (Array.isArray(thresholds) ? thresholds : []).map(t => ({
                 deviceId: t.deviceId,
                 lowAlert: t.lowAlert,
                 highAlert: t.highAlert,
@@ -83,20 +87,21 @@ export default function ConfigureIotThresholdsPage() {
 
             const result = await batchUpdateIotThresholds(payload);
             if (result) {
-                setThresholds(result.thresholds || thresholds);
-                setSuccessMessage('All 10 device thresholds and telemetry intervals have been saved successfully.');
+                const updated = result.thresholds || (Array.isArray(result) ? result : thresholds);
+                setThresholds(Array.isArray(updated) ? updated : thresholds);
+                setSuccessMessage('Đã lưu thành công cấu hình ngưỡng cảnh báo và chu kỳ đo cho toàn bộ cảm biến IoT.');
                 setTimeout(() => setSuccessMessage(''), 4000);
             }
         } catch (err) {
-            console.error('Error saving thresholds:', err);
-            setErrorMessage('Failed to save threshold updates. Please verify boundary limits.');
+            console.error('Lỗi khi lưu ngưỡng IoT:', err);
+            setErrorMessage('Lỗi khi cập nhật cấu hình ngưỡng. Vui lòng kiểm tra lại dải giá trị giới hạn.');
         } finally {
             setSaving(false);
         }
     };
 
     const handleResetDefaults = async () => {
-        if (!window.confirm('Are you sure you want to restore all IoT alert thresholds to standard regulatory defaults?')) {
+        if (!window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ ngưỡng cảm biến về giá trị chuẩn y tế ISO 15189 (2°C - 8°C cho tủ lạnh bảo quản)?')) {
             return;
         }
 
@@ -106,13 +111,14 @@ export default function ConfigureIotThresholdsPage() {
         try {
             const result = await resetDefaultIotThresholds();
             if (result) {
-                setThresholds(result.thresholds || []);
-                setSuccessMessage('Thresholds restored to standard laboratory cold-chain defaults.');
+                const restored = result.thresholds || (Array.isArray(result) ? result : []);
+                setThresholds(Array.isArray(restored) ? restored : []);
+                setSuccessMessage('Đã khôi phục toàn bộ ngưỡng về quy chuẩn chuỗi lạnh y tế (Cold-Chain Standard).');
                 setTimeout(() => setSuccessMessage(''), 4000);
             }
         } catch (err) {
-            console.error('Error resetting defaults:', err);
-            setErrorMessage('Failed to reset default thresholds.');
+            console.error('Lỗi khi khôi phục chuẩn mặc định:', err);
+            setErrorMessage('Khôi phục ngưỡng chuẩn thất bại.');
         } finally {
             setResetting(false);
         }
@@ -122,13 +128,13 @@ export default function ConfigureIotThresholdsPage() {
         try {
             const ok = await removeAlertRecipient(recipientId);
             if (ok) {
-                setRecipients(prev => prev.filter(r => r.id !== recipientId));
-                setSuccessMessage('Alert recipient removed.');
+                setRecipients(prev => (Array.isArray(prev) ? prev : []).filter(r => r.id !== recipientId));
+                setSuccessMessage('Đã xóa nhân sự khỏi danh sách nhận cảnh báo.');
                 setTimeout(() => setSuccessMessage(''), 3000);
             }
         } catch (err) {
-            console.error('Error removing recipient:', err);
-            setErrorMessage('Could not remove recipient.');
+            console.error('Lỗi khi xóa nhân sự nhận cảnh báo:', err);
+            setErrorMessage('Không thể xóa nhân sự nhận cảnh báo.');
         }
     };
 
@@ -139,33 +145,41 @@ export default function ConfigureIotThresholdsPage() {
         try {
             const added = await addAlertRecipient(newRecipient);
             if (added) {
-                setRecipients(prev => [...prev, added]);
+                setRecipients(prev => [...(Array.isArray(prev) ? prev : []), added]);
                 setShowAddModal(false);
-                setNewRecipient({ fullName: '', role: 'Lab Technician', email: '', phone: '', channels: ['Push', 'Email'] });
-                setSuccessMessage(`Recipient '${added.fullName}' added to escalation chain.`);
+                setNewRecipient({ fullName: '', role: 'Kỹ thuật viên phòng Lab', email: '', phone: '', channels: ['Push', 'Email'] });
+                setSuccessMessage(`Đã thêm '${added.fullName}' vào danh sách trực tiếp nhận cảnh báo khẩn cấp.`);
                 setTimeout(() => setSuccessMessage(''), 3000);
             }
         } catch (err) {
-            console.error('Error adding recipient:', err);
-            setErrorMessage('Failed to add recipient.');
+            console.error('Lỗi khi thêm người nhận cảnh báo:', err);
+            setErrorMessage('Thêm người nhận cảnh báo thất bại.');
         }
     };
 
+    const safeThresholds = useMemo(() => Array.isArray(thresholds) ? thresholds : [], [thresholds]);
+    const safeRecipients = useMemo(() => Array.isArray(recipients) ? recipients : [], [recipients]);
+
     return (
         <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '24px 32px' }}>
-            {/* Page Header matching 06-manager.html#uc67 */}
+            {/* Thanh tiêu đề quản lý & Điều hướng */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
                 <div>
-                    <div style={{ fontSize: '12.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <span style={{ cursor: 'pointer' }} onClick={() => navigate('/manager/dashboard')}>Monitoring</span>
+                    <div style={{ fontSize: '13px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                        <span style={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>Bảng điều khiển</span>
                         <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                        <span style={{ cursor: 'pointer' }} onClick={() => navigate('/manager/iot')}>IoT dashboard</span>
+                        <span style={{ cursor: 'pointer' }} onClick={() => navigate('/manager/iot')}>Giám sát IoT</span>
                         <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                        <span style={{ color: '#0f172a', fontWeight: '600' }}>Thresholds</span>
+                        <span style={{ color: '#0f172a', fontWeight: '600' }}>Cấu hình ngưỡng bảo quản</span>
                     </div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>Configure IoT thresholds</h1>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>Set alert boundaries for each device</div>
+                    <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>
+                        Cấu Hình Ngưỡng Cảm Biến Môi Trường IoT Tủ Trữ Mẫu
+                    </h1>
+                    <div style={{ fontSize: '13px', color: '#64748b' }}>
+                        Thiết lập giới hạn an toàn nhiệt độ, độ ẩm và tần suất đo telemetry cho thiết bị lưu trữ mẫu y tế (Chuẩn ISO 15189)
+                    </div>
                 </div>
+
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <button
                         type="button"
@@ -174,21 +188,21 @@ export default function ConfigureIotThresholdsPage() {
                         onClick={handleResetDefaults}
                         disabled={resetting}
                     >
-                        {resetting ? 'Resetting...' : 'Reset defaults'}
+                        {resetting ? 'Đang khôi phục...' : 'Khôi phục chuẩn mặc định (2°C - 8°C)'}
                     </button>
                     <button
                         type="button"
                         className="btn btn-primary"
-                        style={{ background: '#6929c4', borderColor: '#6929c4', fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '6px' }}
+                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '6px' }}
                         onClick={handleSaveAll}
                         disabled={saving}
                     >
-                        <i className="bi bi-save me-1"></i> {saving ? 'Saving...' : 'Save all'}
+                        <i className="bi bi-save me-1"></i> {saving ? 'Đang lưu...' : 'Lưu tất cả ngưỡng'}
                     </button>
                 </div>
             </div>
 
-            {/* Notification Banners */}
+            {/* Thông báo Alert */}
             {errorMessage && (
                 <div className="alert alert-danger d-flex align-items-center mb-3" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
                     <i className="bi bi-exclamation-octagon-fill me-2"></i>
@@ -202,34 +216,38 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
 
-            {/* Card 1: Threshold configuration Table */}
+            {/* Thẻ 1: Bảng Cấu Hình Ngưỡng Thiết Bị Cảm Biến IoT */}
             <div className="card shadow-sm mb-4" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff' }}>
                 <div className="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>Threshold configuration</h3>
-                    <span style={{ fontSize: '12.5px', color: '#64748b' }}>{thresholds.length} devices · {thresholds.length} rules</span>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
+                        Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến
+                    </h3>
+                    <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                        {safeThresholds.length} thiết bị giám sát · Chuẩn ISO 15189
+                    </span>
                 </div>
 
                 {loading ? (
                     <div className="p-5 text-center text-muted">
                         <div className="spinner-border text-primary" role="status"></div>
-                        <div className="mt-2" style={{ fontSize: '13px' }}>Loading IoT device thresholds...</div>
+                        <div className="mt-2" style={{ fontSize: '13px' }}>Đang nạp dữ liệu ngưỡng cảm biến IoT...</div>
                     </div>
                 ) : (
                     <div className="table-responsive">
-                        <table className="table align-middle mb-0" style={{ fontSize: '12.5px' }}>
+                        <table className="table align-middle mb-0" style={{ fontSize: '13px' }}>
                             <thead style={{ background: '#f8fafc', color: '#475569', fontSize: '12px' }}>
                                 <tr>
-                                    <th style={{ paddingLeft: '20px' }}>Device</th>
-                                    <th>Location</th>
-                                    <th>Type</th>
-                                    <th style={{ textAlign: 'right' }}>Low alert</th>
-                                    <th style={{ textAlign: 'right' }}>High alert</th>
-                                    <th style={{ textAlign: 'center' }}>Interval (s)</th>
-                                    <th style={{ paddingRight: '20px' }}>Status</th>
+                                    <th style={{ paddingLeft: '20px' }}>Mã Thiết Bị (Device ID)</th>
+                                    <th>Vị Trí Tủ Trữ / Phòng Lab</th>
+                                    <th>Loại Cảm Biến</th>
+                                    <th style={{ textAlign: 'right' }}>Ngưỡng Dưới (Min)</th>
+                                    <th style={{ textAlign: 'right' }}>Ngưỡng Trên (Max)</th>
+                                    <th style={{ textAlign: 'center' }}>Chu Kỳ Đo (Giây)</th>
+                                    <th style={{ paddingRight: '20px' }}>Trạng Thái Cảm Biến</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {thresholds.map((device) => {
+                                {safeThresholds.map((device) => {
                                     const isTemp = device.sensorType === 'Temperature';
                                     return (
                                         <tr key={device.deviceId}>
@@ -242,11 +260,11 @@ export default function ConfigureIotThresholdsPage() {
                                             <td>
                                                 {isTemp ? (
                                                     <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
-                                                        <i className="bi bi-thermometer-half me-1"></i> Temp
+                                                        <i className="bi bi-thermometer-half me-1"></i> Nhiệt Độ (°C)
                                                     </span>
                                                 ) : (
                                                     <span style={{ background: '#f3e8ff', color: '#7e22ce', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
-                                                        <i className="bi bi-moisture me-1"></i> Humidity
+                                                        <i className="bi bi-moisture me-1"></i> Độ Ẩm (%)
                                                     </span>
                                                 )}
                                             </td>
@@ -255,34 +273,34 @@ export default function ConfigureIotThresholdsPage() {
                                                     type="number"
                                                     step="0.5"
                                                     className="form-control d-inline-block text-end"
-                                                    style={{ width: '75px', height: '30px', fontSize: '12px', padding: '2px 6px' }}
+                                                    style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.lowAlert}
                                                     onChange={(e) => handleThresholdChange(device.deviceId, 'lowAlert', e.target.value)}
-                                                /> {device.unit}
+                                                /> <span className="text-muted small">{device.unit}</span>
                                             </td>
                                             <td style={{ textAlign: 'right' }}>
                                                 <input
                                                     type="number"
                                                     step="0.5"
                                                     className="form-control d-inline-block text-end"
-                                                    style={{ width: '75px', height: '30px', fontSize: '12px', padding: '2px 6px' }}
+                                                    style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.highAlert}
                                                     onChange={(e) => handleThresholdChange(device.deviceId, 'highAlert', e.target.value)}
-                                                /> {device.unit}
+                                                /> <span className="text-muted small">{device.unit}</span>
                                             </td>
                                             <td style={{ textAlign: 'center' }}>
                                                 <input
                                                     type="number"
                                                     step="10"
                                                     className="form-control d-inline-block text-center"
-                                                    style={{ width: '65px', height: '30px', fontSize: '12px', padding: '2px 6px' }}
+                                                    style={{ width: '70px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.intervalSeconds}
                                                     onChange={(e) => handleThresholdChange(device.deviceId, 'intervalSeconds', e.target.value)}
                                                 />
                                             </td>
                                             <td style={{ paddingRight: '20px' }}>
                                                 <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '12px' }}>
-                                                    ● {device.status || 'Active'}
+                                                    ● {device.status === 'Active' || device.status === 'online' ? 'Đang Hoạt Động' : 'Trực Tuyến'}
                                                 </span>
                                             </td>
                                         </tr>
@@ -294,21 +312,23 @@ export default function ConfigureIotThresholdsPage() {
                 )}
             </div>
 
-            {/* Card 2: Alert recipients */}
+            {/* Thẻ 2: Danh Sách Nhân Sự Nhận Cảnh Báo Khẩn Cấp (Escalation Chain) */}
             <div className="card shadow-sm" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff' }}>
                 <div className="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>Alert recipients</h3>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
+                        Nhân Sự Trực Tiếp Nhận Cảnh Báo Khi Vi Phạm Ngưỡng
+                    </h3>
                     <button
-                        className="btn btn-outline-secondary btn-sm"
+                        className="btn btn-outline-primary btn-sm"
                         style={{ fontSize: '12.5px', fontWeight: '600' }}
                         onClick={() => setShowAddModal(true)}
                     >
-                        <i className="bi bi-plus-lg me-1"></i> Add recipient
+                        <i className="bi bi-person-plus me-1"></i> Thêm người nhận cảnh báo
                     </button>
                 </div>
                 <div className="card-body p-4">
                     <div className="d-flex flex-wrap gap-2 mb-3">
-                        {recipients.map((rec) => (
+                        {safeRecipients.map((rec) => (
                             <div
                                 key={rec.id}
                                 style={{
@@ -327,8 +347,9 @@ export default function ConfigureIotThresholdsPage() {
                                 <i className="bi bi-person-fill text-primary"></i>
                                 <span>{rec.fullName} ({rec.role})</span>
                                 <i
-                                    className="bi bi-x-circle-fill text-muted ms-1"
+                                    className="bi bi-x-circle-fill text-danger ms-1"
                                     style={{ cursor: 'pointer', fontSize: '13px' }}
+                                    title="Xóa người nhận"
                                     onClick={() => handleRemoveRecipient(rec.id)}
                                 ></i>
                             </div>
@@ -337,68 +358,68 @@ export default function ConfigureIotThresholdsPage() {
 
                     <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '10px 14px', fontSize: '12.5px', color: '#1e40af' }}>
                         <i className="bi bi-info-circle-fill me-2"></i>
-                        <span>{escalationPolicy || 'Alert channels: Push notification (FCM) + Email. SMS escalation after 5 min if not acknowledged.'}</span>
+                        <span>{escalationPolicy || 'Chính sách thông báo leo thang: Thông báo đẩy ứng dụng (Push) + Email nội viện tức thời. Tự động gửi SMS cảnh báo đến Trưởng Khoa nếu sau 5 phút không có xác nhận can thiệp.'}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Add Recipient Modal */}
+            {/* Modal Thêm Người Nhận Cảnh Báo */}
             {showAddModal && (
                 <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(15, 23, 42, 0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content" style={{ borderRadius: '10px' }}>
-                            <div className="modal-header">
-                                <h5 className="modal-title" style={{ fontSize: '16px', fontWeight: '700' }}>Add Alert Recipient</h5>
+                        <div className="modal-content shadow border-0" style={{ borderRadius: '10px' }}>
+                            <div className="modal-header bg-light">
+                                <h5 className="modal-title fw-bold" style={{ fontSize: '16px' }}>Thêm Nhân Sự Nhận Cảnh Báo</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
                             </div>
                             <form onSubmit={handleAddRecipientSubmit}>
-                                <div className="modal-body">
+                                <div className="modal-body p-4">
                                     <div className="mb-3">
-                                        <label className="form-label text-muted" style={{ fontSize: '12px', fontWeight: '600' }}>Full Name</label>
+                                        <label className="form-label text-muted small fw-bold">Họ và Tên Nhân Sự <span className="text-danger">*</span></label>
                                         <input
                                             type="text"
                                             className="form-control"
                                             required
                                             value={newRecipient.fullName}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, fullName: e.target.value })}
-                                            placeholder="e.g. Nguyễn Văn Khoa"
+                                            placeholder="VD: BSCKII. Lê Lan Anh"
                                         />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label text-muted" style={{ fontSize: '12px', fontWeight: '600' }}>Role / Title</label>
+                                        <label className="form-label text-muted small fw-bold">Chức Danh / Vị Trí <span className="text-danger">*</span></label>
                                         <input
                                             type="text"
                                             className="form-control"
                                             required
                                             value={newRecipient.role}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, role: e.target.value })}
-                                            placeholder="e.g. Cold storage lead"
+                                            placeholder="VD: Trưởng Khoa Xét Nghiệm / Trưởng Ca Trực"
                                         />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label text-muted" style={{ fontSize: '12px', fontWeight: '600' }}>Email Address</label>
+                                        <label className="form-label text-muted small fw-bold">Địa Chỉ Email Y Tế</label>
                                         <input
                                             type="email"
                                             className="form-control"
                                             value={newRecipient.email}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, email: e.target.value })}
-                                            placeholder="user@bms.health"
+                                            placeholder="lananh.le@medlab.bms.vn"
                                         />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label text-muted" style={{ fontSize: '12px', fontWeight: '600' }}>Phone (SMS escalation)</label>
+                                        <label className="form-label text-muted small fw-bold">Số Điện Thoại (SMS khẩn cấp)</label>
                                         <input
                                             type="text"
                                             className="form-control"
                                             value={newRecipient.phone}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, phone: e.target.value })}
-                                            placeholder="+84 901 ..."
+                                            placeholder="0912345678"
                                         />
                                     </div>
                                 </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowAddModal(false)}>Cancel</button>
-                                    <button type="submit" className="btn btn-primary btn-sm" style={{ background: '#6929c4', borderColor: '#6929c4' }}>Add Recipient</button>
+                                <div className="modal-footer bg-light">
+                                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowAddModal(false)}>Hủy Bỏ</button>
+                                    <button type="submit" className="btn btn-primary btn-sm fw-semibold">Xác Nhận Thêm</button>
                                 </div>
                             </form>
                         </div>

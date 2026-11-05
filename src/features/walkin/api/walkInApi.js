@@ -4,7 +4,7 @@
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/walk-in';
 
 function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  const token = localStorage.getItem('bms_access_token') || localStorage.getItem('bms_token') || sessionStorage.getItem('bms_access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
     Accept: 'application/json',

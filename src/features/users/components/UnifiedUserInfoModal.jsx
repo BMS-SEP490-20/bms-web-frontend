@@ -2,13 +2,13 @@
  * @file UnifiedUserInfoModal.jsx
  * @description Modal dialog for inspecting and modifying multi-role user accounts (UC14, UC08, UC09).
  * Features dedicated tabs for Account Credentials, Clinical Doctor/Lab Profile details, and Administrative Password Reset.
- * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
+ * Conforms to: Production Medical Standards, ISO 15189, Separation of Duties & AGENTS-DESIGN.md.
  * @module features/users/components/UnifiedUserInfoModal
  */
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Tabs, Tab, Alert } from 'react-bootstrap';
-import { FaEdit, FaSave, FaTimes, FaLock } from 'react-icons/fa';
+import { FaEdit, FaSave, FaTimes, FaLock, FaUserShield, FaInfoCircle } from 'react-icons/fa';
 
 /**
  * Unified multi-tab user detail and credential modification dialog.
@@ -74,7 +74,7 @@ const UnifiedUserInfoModal = ({
           email: profileData.email || user?.email || '',
           status: profileData.status || 'Active'
         });
-      } else if (user?.role === 'lab_user') {
+      } else if (user?.role === 'lab_user' || user?.role === 'lab') {
         setProfileForm({
           fullName: profileData.fullName || user?.fullName || '',
           jobTitle: profileData.jobTitle || 'Kỹ thuật viên xét nghiệm',
@@ -110,8 +110,8 @@ const UnifiedUserInfoModal = ({
           await onSaveProfile(profileForm);
         }
       } else if (activeTab === 'password') {
-        if (!passwordForm.newPassword || passwordForm.newPassword.length < 6) {
-          setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+        if (!passwordForm.newPassword || passwordForm.newPassword.length < 8) {
+          setError('Mật khẩu mới phải có tối thiểu 8 ký tự (chuẩn an toàn BR-IAM-01).');
           return;
         }
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -128,16 +128,16 @@ const UnifiedUserInfoModal = ({
     }
   };
 
-  const hasProfile = user?.role === 'doctor' || user?.role === 'lab_user' || user?.role === 'patient';
+  const hasProfile = user?.role === 'doctor' || user?.role === 'lab_user' || user?.role === 'lab' || user?.role === 'patient';
 
   if (!user) return null;
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg" backdrop="static">
       <Modal.Header closeButton className="bg-light">
-        <Modal.Title className="fs-5">
-          <i className="bi bi-person-badge me-2 text-primary"></i>
-          Chi tiết tài khoản: <strong>{user.fullName || user.username}</strong>
+        <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <FaUserShield className="text-primary" />
+          Chi Tiết Tài Khoản Nhân Sự: <span className="text-primary">{user.fullName || user.username}</span>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="p-4">
@@ -148,12 +148,12 @@ const UnifiedUserInfoModal = ({
           onSelect={(k) => { setActiveTab(k); setIsEditing(false); setError(''); }} 
           className="mb-4"
         >
-          <Tab eventKey="account" title="Thông tin tài khoản">
+          <Tab eventKey="account" title="Thông Tin Tài Khoản">
             <Form>
               <Row className="g-3">
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Họ và tên</Form.Label>
+                    <Form.Label className="fw-semibold">Họ và tên nhân sự</Form.Label>
                     <Form.Control
                       value={accountForm.fullName || ''}
                       onChange={e => setAccountForm({ ...accountForm, fullName: e.target.value })}
@@ -163,7 +163,7 @@ const UnifiedUserInfoModal = ({
                 </Col>
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Email</Form.Label>
+                    <Form.Label className="fw-semibold">Email cơ quan</Form.Label>
                     <Form.Control
                       type="email"
                       value={accountForm.email || ''}
@@ -190,12 +190,12 @@ const UnifiedUserInfoModal = ({
                       onChange={e => setAccountForm({ ...accountForm, role: e.target.value })}
                       disabled={!isEditing}
                     >
-                      <option value="admin">Quản trị viên (Admin)</option>
-                      <option value="manager">Quản lý (Manager)</option>
-                      <option value="doctor">Bác sĩ (Doctor)</option>
-                      <option value="lab_user">Kỹ thuật viên xét nghiệm (Lab User)</option>
-                      <option value="patient">Bệnh nhân (Patient)</option>
-                      <option value="receptionist">Lễ tân (Receptionist)</option>
+                      <option value="admin">Quản Trị Viên Hệ Thống</option>
+                      <option value="manager">Quản Lý Phòng Xét Nghiệm</option>
+                      <option value="doctor">Bác Sĩ Lâm Sàng</option>
+                      <option value="lab">Kỹ Thuật Viên Xét Nghiệm</option>
+                      <option value="receptionist">Lễ Tân Tiếp Đón</option>
+                      <option value="patient">Bệnh Nhân</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -207,8 +207,8 @@ const UnifiedUserInfoModal = ({
                       onChange={e => setAccountForm({ ...accountForm, isActive: e.target.value === 'true' })}
                       disabled={!isEditing}
                     >
-                      <option value="true">Đang hoạt động (Active)</option>
-                      <option value="false">Tạm khóa (Inactive)</option>
+                      <option value="true">Đang Hoạt Động</option>
+                      <option value="false">Tạm Khóa Hoạt Động</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -217,11 +217,11 @@ const UnifiedUserInfoModal = ({
           </Tab>
 
           {hasProfile && (
-            <Tab eventKey="profile" title="Hồ sơ nghiệp vụ">
+            <Tab eventKey="profile" title="Hồ Sơ Chuyên Môn">
               {profileLoading ? (
                 <div className="text-center py-4 text-muted">
                   <div className="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>
-                  Đang tải thông tin chuyên môn...
+                  Đang tải thông tin hồ sơ nghiệp vụ...
                 </div>
               ) : (
                 <Form>
@@ -229,7 +229,7 @@ const UnifiedUserInfoModal = ({
                     <Row className="g-3">
                       <Col md={6}>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Chuyên khoa khám</Form.Label>
+                          <Form.Label className="fw-semibold">Chuyên khoa khám bệnh</Form.Label>
                           <Form.Control
                             value={profileForm.specialization || ''}
                             onChange={e => setProfileForm({ ...profileForm, specialization: e.target.value })}
@@ -240,25 +240,25 @@ const UnifiedUserInfoModal = ({
                       </Col>
                       <Col md={6}>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Trạng thái bác sĩ</Form.Label>
+                          <Form.Label className="fw-semibold">Tình trạng trực lâm sàng</Form.Label>
                           <Form.Select
                             value={profileForm.status || 'Active'}
                             onChange={e => setProfileForm({ ...profileForm, status: e.target.value })}
                             disabled={!isEditing}
                           >
-                            <option value="Active">Đang làm việc</option>
-                            <option value="Inactive">Nghỉ phép / Tạm ngừng</option>
+                            <option value="Active">Đang Phục Vụ Lâm Sàng</option>
+                            <option value="Inactive">Nghỉ Phép / Tạm Ngừng Tiếp Nhận</option>
                           </Form.Select>
                         </Form.Group>
                       </Col>
                     </Row>
                   )}
 
-                  {user.role === 'lab_user' && (
+                  {(user.role === 'lab_user' || user.role === 'lab') && (
                     <Row className="g-3">
                       <Col md={6}>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Chức danh chuyên môn</Form.Label>
+                          <Form.Label className="fw-semibold">Chức danh kỹ thuật</Form.Label>
                           <Form.Control
                             value={profileForm.jobTitle || ''}
                             onChange={e => setProfileForm({ ...profileForm, jobTitle: e.target.value })}
@@ -275,8 +275,8 @@ const UnifiedUserInfoModal = ({
                             onChange={e => setProfileForm({ ...profileForm, defaultRoomId: e.target.value })}
                             disabled={!isEditing}
                           >
-                            <option value="">-- Chọn phòng xét nghiệm --</option>
-                            {labRooms.map(room => (
+                            <option value="">-- Phân công phòng xét nghiệm --</option>
+                            {Array.isArray(labRooms) && labRooms.map(room => (
                               <option key={room.id || room.roomId} value={room.id || room.roomId}>
                                 {room.roomName || room.name || room.id}
                               </option>
@@ -291,13 +291,14 @@ const UnifiedUserInfoModal = ({
                     <Row className="g-3">
                       <Col md={4}>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Mã bệnh nhân</Form.Label>
-                          <Form.Control value={profileForm.patientCode || 'Chưa cấp'} disabled />
+                          <Form.Label className="fw-semibold">Mã định danh bệnh nhân</Form.Label>
+                          <Form.Control value={profileForm.patientCode || 'Chưa cấp mã'} disabled />
+                          <Form.Text className="text-muted small">Bất biến theo hồ sơ EMR</Form.Text>
                         </Form.Group>
                       </Col>
                       <Col md={4}>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Số CCCD / Định danh</Form.Label>
+                          <Form.Label className="fw-semibold">Số CCCD / Hộ chiếu</Form.Label>
                           <Form.Control value={profileForm.identityCardNumber || 'Chưa cập nhật'} disabled />
                         </Form.Group>
                       </Col>
@@ -314,9 +315,10 @@ const UnifiedUserInfoModal = ({
             </Tab>
           )}
 
-          <Tab eventKey="password" title="Đổi mật khẩu">
-            <Alert variant="info" className="py-2 mb-3 small">
-              <i className="bi bi-info-circle me-1"></i> Quản trị viên có thể cấp lại mật khẩu mới cho người dùng (tối thiểu 6 ký tự).
+          <Tab eventKey="password" title="Cấp Lại Mật Khẩu">
+            <Alert variant="info" className="py-2 mb-3 small d-flex align-items-center gap-2">
+              <FaInfoCircle className="fs-5 flex-shrink-0" />
+              <span>Quản trị viên có quyền cấp lại mật khẩu an toàn cho nhân sự (tối thiểu 8 ký tự, tuân thủ BR-IAM-01).</span>
             </Alert>
             <Form>
               <Row className="g-3">
@@ -340,7 +342,7 @@ const UnifiedUserInfoModal = ({
                       value={passwordForm.confirmPassword}
                       onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                       disabled={!isEditing}
-                      placeholder="Nhập lại mật khẩu mới"
+                      placeholder="Nhập lại đúng mật khẩu mới"
                     />
                   </Form.Group>
                 </Col>
@@ -353,17 +355,17 @@ const UnifiedUserInfoModal = ({
         {!isEditing ? (
           <>
             <Button variant="outline-secondary" onClick={onHide}>Đóng</Button>
-            <Button variant="primary" onClick={() => setIsEditing(true)}>
-              <FaEdit className="me-1" /> Chỉnh sửa thông tin
+            <Button variant="primary" onClick={() => setIsEditing(true)} className="fw-semibold">
+              <FaEdit className="me-1" /> Chỉnh Sửa Thông Tin
             </Button>
           </>
         ) : (
           <>
             <Button variant="outline-secondary" onClick={() => { setIsEditing(false); setError(''); }}>
-              <FaTimes className="me-1" /> Hủy thao tác
+              <FaTimes className="me-1" /> Hủy Thao Tác
             </Button>
-            <Button variant="success" onClick={handleSave}>
-              <FaSave className="me-1" /> Lưu thay đổi
+            <Button variant="success" onClick={handleSave} className="fw-semibold">
+              <FaSave className="me-1" /> Lưu Thay Đổi
             </Button>
           </>
         )}

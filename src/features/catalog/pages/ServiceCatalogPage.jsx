@@ -128,7 +128,7 @@ export default function ServiceCatalogPage() {
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('category');
   const [sortDir, setSortDir] = useState('asc');
-  const [viewMode, setViewMode] = useState('table'); // 'table' (UC20 default) | 'grid'
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' (Soft Telehealth Bento default) | 'table'
 
   // Pagination state
   const [packages, setPackages] = useState([]);
@@ -648,20 +648,20 @@ export default function ServiceCatalogPage() {
 
           {/* Results Body */}
           {viewMode === 'table' ? (
-            /* UC20 Table View with FIXED column layout and persistent structure */
-            <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-              <div className="w-100 overflow-hidden">
-                <Table hover className="align-middle mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%', fontSize: '0.86rem' }}>
-                  <thead className="table-light">
-                    <tr>
-                      <th className="ps-4" style={{ width: '28%' }}>Tên Gói Xét Nghiệm & Mô Tả</th>
-                      <th style={{ width: '10%' }}>Mã Gói</th>
-                      <th style={{ width: '12%' }}>Chuyên Khoa</th>
-                      <th className="text-center" style={{ width: '8%' }}>Chỉ Số</th>
-                      <th style={{ width: '14%' }}>Ống Mẫu (Specimen)</th>
-                      <th style={{ width: '11%' }}>Chuẩn Bị</th>
-                      <th className="text-end" style={{ width: '10%' }}>Đơn Giá (₫)</th>
-                      <th className="text-end pe-4" style={{ width: '7%' }}>Thao Tác</th>
+            /* Spacious Clinical Table View (Soft Telehealth Grade) */
+            <div className="card shadow-sm rounded-4 overflow-hidden mb-4" style={{ background: '#FFFFFF', border: '1px solid rgba(15, 23, 42, 0.06)', borderRadius: '24px' }}>
+              <div className="table-responsive">
+                <Table hover className="align-middle mb-0" style={{ fontSize: '0.9rem' }}>
+                  <thead style={{ backgroundColor: '#F4F7F9' }}>
+                    <tr style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.06)' }}>
+                      <th className="ps-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tên Gói Xét Nghiệm & Mô Tả</th>
+                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Mã Gói</th>
+                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chuyên Khoa</th>
+                      <th className="text-center py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chỉ Số</th>
+                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Ống Mẫu (Specimen)</th>
+                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chuẩn Bị</th>
+                      <th className="text-end py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Đơn Giá (₫)</th>
+                      <th className="text-end pe-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -685,7 +685,7 @@ export default function ServiceCatalogPage() {
                           <Button
                             variant="outline-primary"
                             size="sm"
-                            className="rounded-pill px-3"
+                            className="rounded-pill px-4"
                             onClick={handleClearAllFilters}
                           >
                             Xóa Bộ Lọc & Xem Tất Cả
@@ -694,67 +694,60 @@ export default function ServiceCatalogPage() {
                       </tr>
                     ) : (
                       packages.map((pkg) => (
-                        <tr key={pkg.id || pkg.packageCode}>
-                          <td className="ps-4 text-truncate">
-                            <div className="fw-bold text-dark text-truncate" title={pkg.packageName}>{pkg.packageName}</div>
-                            <div
-                              className="text-muted small text-truncate"
-                              title={pkg.criteria?.length > 0 ? pkg.criteria.map(c => c.code || c.name).join(', ') : pkg.description}
-                            >
-                              {pkg.criteria?.length > 0
-                                ? pkg.criteria.map(c => c.code || c.name).join(', ')
-                                : pkg.description}
+                        <tr key={pkg.id || pkg.packageCode} style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.04)' }}>
+                          <td className="ps-4 py-3">
+                            <div className="fw-bold" style={{ color: '#1A1D21', fontSize: '14.5px' }}>{pkg.packageName}</div>
+                            <div className="text-muted small" style={{ fontSize: '12.5px', maxWidth: '340px' }}>
+                              {pkg.description || 'Gói xét nghiệm y khoa đạt chuẩn ISO 15189 tại BMS.'}
                             </div>
                           </td>
-                          <td className="text-truncate">
-                            <span className="badge bg-light text-dark border font-monospace text-truncate d-inline-block" style={{ maxWidth: '100%' }}>
+                          <td className="py-3">
+                            <span className="badge font-monospace px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '8px', fontSize: '11.5px' }}>
                               {pkg.packageCode}
                             </span>
                           </td>
-                          <td className="text-truncate">
-                            <Badge bg="primary" className="bg-opacity-10 text-primary fw-semibold px-2 py-1 text-truncate d-inline-block" style={{ maxWidth: '100%' }}>
+                          <td className="py-3">
+                            <span className="badge px-2.5 py-1" style={{ backgroundColor: '#E8EFFE', color: '#648CF4', borderRadius: '10px', fontWeight: 650, fontSize: '11.5px' }}>
                               {pkg.category}
-                            </Badge>
-                          </td>
-                          <td className="text-center text-truncate">
-                            <Badge bg="info" text="dark" className="bg-opacity-15 fw-semibold">
-                              {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
-                            </Badge>
-                          </td>
-                          <td className="text-truncate">
-                            <span className="badge bg-warning bg-opacity-15 text-dark border border-warning-subtle text-truncate d-inline-flex align-items-center" style={{ maxWidth: '100%' }}>
-                              <FaVial className="me-1 text-warning flex-shrink-0" />
-                              <span className="text-truncate">{pkg.sampleTube}</span>
                             </span>
                           </td>
-                          <td className="text-truncate">
-                            <span className="small text-secondary text-truncate d-block" title={pkg.fastingRule}>{pkg.fastingRule}</span>
+                          <td className="text-center py-3">
+                            <span className="badge px-2 py-1 tabular-nums" style={{ backgroundColor: '#EEF2F6', color: '#1A1D21', borderRadius: '8px', fontSize: '11.5px' }}>
+                              {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
+                            </span>
                           </td>
-                          <td className="text-end fw-bold font-monospace text-danger text-truncate">
+                          <td className="py-3">
+                            <span className="small fw-semibold d-inline-flex align-items-center gap-1.5" style={{ color: '#475569' }}>
+                              <FaVial style={{ color: '#648CF4', fontSize: '12px' }} />
+                              {pkg.sampleTube}
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            <span className="small text-muted" style={{ fontSize: '12px' }}>{pkg.fastingRule}</span>
+                          </td>
+                          <td className="text-end py-3 fw-bold tabular-nums" style={{ color: '#1A1D21', fontSize: '15px' }}>
                             {Number(pkg.price).toLocaleString('vi-VN')} ₫
                           </td>
-                          <td className="text-end pe-4">
-                            <div className="d-inline-flex gap-1">
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="px-2 py-1"
-                                style={{ fontSize: '0.78rem' }}
+                          <td className="text-end pe-4 py-3">
+                            <div className="d-inline-flex gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                style={{ fontSize: '12px', fontWeight: 600, backgroundColor: '#FFFFFF', color: '#1A1D21', borderColor: 'rgba(15, 23, 42, 0.08)' }}
                                 onClick={() => handleOpenDetail(pkg)}
                                 title="Xem chi tiết"
                               >
                                 Chi tiết
-                              </Button>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                className="px-2 py-1"
-                                style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', fontSize: '0.78rem' }}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-sm rounded-pill px-3 fw-bold"
+                                style={{ backgroundColor: '#A3E687', color: '#0F3D1A', border: 'none', fontSize: '12px', boxShadow: '0 4px 14px rgba(163, 230, 135, 0.35)' }}
                                 onClick={() => handleOpenBooking(pkg)}
                                 title="Đặt lịch"
                               >
                                 Đặt
-                              </Button>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -813,7 +806,7 @@ export default function ServiceCatalogPage() {
                 <>
                   <Row className="g-4 mb-4">
                     {packages.map((pkg) => (
-                      <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4} xl={3}>
+                      <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4}>
                         <ServiceCard
                           package={pkg}
                           onSelectDetail={handleOpenDetail}

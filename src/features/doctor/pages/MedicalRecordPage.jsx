@@ -396,7 +396,7 @@ export default function MedicalRecordPage() {
       <Row className="g-4">
         {/* Left Column: Patient Medical History Timeline */}
         <Col lg={4}>
-          <Card className="border-0 shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
             <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: '#E5E9EB' }}>
               <div>
                 <h6 className="fw-bold mb-0 text-dark">Lịch Sử Bệnh Án</h6>
@@ -487,7 +487,7 @@ export default function MedicalRecordPage() {
         <Col lg={8}>
           {isCreatingNew || isEditing ? (
             /* CREATE / EDIT FORM */
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
               <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#5E85E6' }}>
                 <span className="fw-bold text-uppercase fs-6">
                   {isCreatingNew ? 'Tạo Bệnh Án Điện Tử Mới' : `Chỉnh Sửa Bệnh Án #${selectedRecord?.recordCode}`}
@@ -762,7 +762,7 @@ export default function MedicalRecordPage() {
             </Card>
           ) : selectedRecord ? (
             /* RECORD DETAIL VIEWER */
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
               <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: '#E5E9EB' }}>
                 <div>
                   <span className="small text-muted text-uppercase fw-bold">Chi Tiết Bệnh Án</span>
@@ -954,7 +954,7 @@ export default function MedicalRecordPage() {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="border-0 shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid #E5E9EB' }}>
+            <Card className="shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid #E5E9EB' }}>
               <div className="display-1 text-muted opacity-25 mb-3">
                 <FaNotesMedical />
               </div>

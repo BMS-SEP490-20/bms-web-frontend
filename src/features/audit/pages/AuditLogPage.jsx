@@ -8,13 +8,13 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  Row, Col, Card, Table, Badge, Button, 
-  Form, InputGroup, Modal, Spinner 
+import {
+  Row, Col, Card, Table, Badge, Button,
+  Form, InputGroup, Modal, Spinner
 } from 'react-bootstrap';
-import { 
-  FaShieldAlt, FaSearch, FaSyncAlt, FaFileExport, 
-  FaExclamationTriangle, FaCheckCircle, FaTimesCircle, 
+import {
+  FaShieldAlt, FaSearch, FaSyncAlt, FaFileExport,
+  FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
   FaInfoCircle, FaLock, FaUserShield, FaEye
 } from 'react-icons/fa';
 import { auditLogService } from '../../../services/auditLogService';
@@ -52,8 +52,8 @@ const AuditLogPage = () => {
       if (logsRes && logsRes.success) {
         let rawLogs = logsRes.data;
         if (!Array.isArray(rawLogs)) {
-          rawLogs = Array.isArray(rawLogs?.items) 
-            ? rawLogs.items 
+          rawLogs = Array.isArray(rawLogs?.items)
+            ? rawLogs.items
             : (Array.isArray(rawLogs?.data) ? rawLogs.data : []);
         }
         setLogs(rawLogs);
@@ -83,8 +83,8 @@ const AuditLogPage = () => {
   const handleExportCSV = () => {
     if (safeLogs.length === 0) return;
     const headers = [
-      'Mã Kiểm Toán', 'Thời Gian', 'Mã Người Dùng', 'Họ Và Tên', 
-      'Vai Trò', 'Hành Động', 'Phân Loại', 'Mức Độ', 
+      'Mã Kiểm Toán', 'Thời Gian', 'Mã Người Dùng', 'Họ Và Tên',
+      'Vai Trò', 'Hành Động', 'Phân Loại', 'Mức Độ',
       'Trạng Thái', 'Địa Chỉ IP', 'Đối Tượng Tác Động', 'Nội Dung Chi Tiết'
     ];
     const rows = safeLogs.map(l => [
@@ -281,8 +281,8 @@ const AuditLogPage = () => {
               </InputGroup>
             </Col>
             <Col xs={6} sm={4} md={2}>
-              <Form.Select 
-                value={categoryFilter} 
+              <Form.Select
+                value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
@@ -294,8 +294,8 @@ const AuditLogPage = () => {
               </Form.Select>
             </Col>
             <Col xs={6} sm={4} md={3}>
-              <Form.Select 
-                value={severityFilter} 
+              <Form.Select
+                value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
                 style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
@@ -307,8 +307,8 @@ const AuditLogPage = () => {
               </Form.Select>
             </Col>
             <Col xs={12} sm={4} md={3}>
-              <Form.Select 
-                value={statusFilter} 
+              <Form.Select
+                value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >

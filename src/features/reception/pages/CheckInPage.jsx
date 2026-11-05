@@ -1252,3 +1252,6 @@ export default function CheckInPage() {
     </div>
   );
 }
+
+export { CheckInPage };
+

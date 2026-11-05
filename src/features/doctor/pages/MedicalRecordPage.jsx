@@ -327,9 +327,9 @@ export default function MedicalRecordPage() {
   return (
     <div className="container-fluid py-4 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border" style={{ borderColor: '#e2e8f0' }}>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: '#E5E9EB' }}>
         <div>
-          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
+          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#5E85E6' }}>
             <FaNotesMedical /> Phân Hệ Bệnh Án Điện Tử (EMR Workspace)
           </h3>
           <p className="small text-muted mb-0">
@@ -340,7 +340,7 @@ export default function MedicalRecordPage() {
         {/* Patient Code Search Bar & Create Button */}
         <div className="d-flex align-items-center gap-2 flex-wrap">
           <InputGroup size="sm" style={{ width: '280px' }}>
-            <InputGroup.Text className="bg-white"><FaUserInjured style={{ color: '#0284c7' }} /></InputGroup.Text>
+            <InputGroup.Text className="bg-white"><FaUserInjured style={{ color: '#5E85E6' }} /></InputGroup.Text>
             <Form.Control
               type="text"
               placeholder="Nhập mã bệnh nhân (PAT-...)"
@@ -356,7 +356,7 @@ export default function MedicalRecordPage() {
             />
             <Button
               variant="primary"
-              style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
               onClick={() => {
                 setPatientId(searchPatientInput.trim());
                 setIsCreatingNew(false);
@@ -368,10 +368,9 @@ export default function MedicalRecordPage() {
           </InputGroup>
 
           <Button
-            variant="success"
             size="sm"
             className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
-            style={{ backgroundColor: '#059669', borderColor: '#059669' }}
+            style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
             onClick={handleStartCreate}
           >
             <FaPlus /> Tạo Bệnh Án Mới
@@ -397,13 +396,13 @@ export default function MedicalRecordPage() {
       <Row className="g-4">
         {/* Left Column: Patient Medical History Timeline */}
         <Col lg={4}>
-          <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-            <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: '#e2e8f0' }}>
+          <Card className="border-0 shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+            <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: '#E5E9EB' }}>
               <div>
                 <h6 className="fw-bold mb-0 text-dark">Lịch Sử Bệnh Án</h6>
-                <small className="text-muted">Bệnh nhân: <strong className="text-primary font-monospace">{patientId}</strong></small>
+                <small className="text-muted">Bệnh nhân: <strong className="font-monospace" style={{ color: '#5E85E6' }}>{patientId}</strong></small>
               </div>
-              <Badge className="rounded-pill px-2.5" style={{ backgroundColor: '#0284c7' }}>
+              <Badge className="rounded-pill px-3 py-1.5" style={{ backgroundColor: '#5E85E6' }}>
                 {records.length} Hồ sơ
               </Badge>
             </Card.Header>
@@ -411,7 +410,7 @@ export default function MedicalRecordPage() {
             <Card.Body className="p-2 overflow-auto" style={{ maxHeight: '720px' }}>
               {loading ? (
                 <div className="text-center py-5">
-                  <Spinner animation="border" variant="primary" />
+                  <Spinner animation="border" style={{ color: '#5E85E6' }} />
                   <div className="small text-muted mt-2">Đang tải hồ sơ bệnh án...</div>
                 </div>
               ) : !Array.isArray(records) || records.length === 0 ? (
@@ -437,23 +436,27 @@ export default function MedicalRecordPage() {
                     <div
                       key={r.id}
                       onClick={() => handleSelectRecord(r)}
-                      className={`p-3 mb-2 rounded-3 border transition-all cursor-pointer ${
+                      className={`p-3 mb-2 rounded-4 border transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-primary bg-primary bg-opacity-10 shadow-sm'
+                          ? 'shadow-sm'
                           : 'bg-white hover-bg-light'
                       }`}
-                      style={{ cursor: 'pointer', borderColor: isSelected ? '#0284c7' : '#e2e8f0' }}
+                      style={{
+                        cursor: 'pointer',
+                        borderColor: isSelected ? '#5E85E6' : '#E5E9EB',
+                        backgroundColor: isSelected ? 'rgba(94, 133, 230, 0.08)' : undefined
+                      }}
                     >
                       <div className="d-flex justify-content-between align-items-start mb-1">
-                        <span className="fw-bold font-monospace small" style={{ color: '#0284c7' }}>
+                        <span className="fw-bold font-monospace small" style={{ color: '#5E85E6' }}>
                           {r.recordCode || r.id}
                         </span>
                         {r.canEdit ? (
-                          <Badge bg="success" className="small" style={{ backgroundColor: '#059669' }}>
+                          <Badge className="small rounded-pill text-white" style={{ backgroundColor: '#16a34a' }}>
                             Có thể sửa
                           </Badge>
                         ) : (
-                          <Badge bg="secondary" className="small d-flex align-items-center gap-1">
+                          <Badge bg="secondary" className="small rounded-pill d-flex align-items-center gap-1">
                             <FaLock size={10} /> Đã khóa sau 24h
                           </Badge>
                         )}
@@ -468,7 +471,7 @@ export default function MedicalRecordPage() {
                           <FaCalendarAlt className="me-1" />
                           {dateStr}
                         </span>
-                        <Badge bg="light" text="dark" className="border font-monospace">
+                        <Badge bg="light" text="dark" className="border rounded-pill font-monospace">
                           ICD: {r.icd10Code}
                         </Badge>
                       </div>
@@ -484,12 +487,12 @@ export default function MedicalRecordPage() {
         <Col lg={8}>
           {isCreatingNew || isEditing ? (
             /* CREATE / EDIT FORM */
-            <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-              <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+              <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#5E85E6' }}>
                 <span className="fw-bold text-uppercase fs-6">
                   {isCreatingNew ? 'Tạo Bệnh Án Điện Tử Mới' : `Chỉnh Sửa Bệnh Án #${selectedRecord?.recordCode}`}
                 </span>
-                <Button variant="light" size="sm" onClick={handleCancelForm}>
+                <Button variant="light" size="sm" style={{ borderRadius: '9999px' }} onClick={handleCancelForm}>
                   Hủy bỏ
                 </Button>
               </Card.Header>
@@ -525,8 +528,8 @@ export default function MedicalRecordPage() {
                   </Form.Group>
 
                   {/* Vitals Box with Clinical Ranges */}
-                  <div className="p-3 bg-light rounded-3 mb-4 border" style={{ borderColor: '#e2e8f0' }}>
-                    <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
+                  <div className="p-3 rounded-4 mb-4 border" style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                    <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#5E85E6' }}>
                       <FaHeartbeat /> Dấu Hiệu Sinh Tồn & Chỉ Số BMI
                     </h6>
 
@@ -649,8 +652,8 @@ export default function MedicalRecordPage() {
                       <Col md={3} sm={6}>
                         <Form.Label className="small fw-semibold text-secondary">Chỉ số BMI (Tự động)</Form.Label>
                         <div className="d-flex align-items-center gap-2 pt-1">
-                          <span className="fw-bold fs-6 text-dark font-monospace">{bmi}</span>
-                          <Badge bg={bmiColor} className="small">
+                          <span className="fw-bold fs-6 text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{bmi}</span>
+                          <Badge bg={bmiColor} className="small rounded-pill">
                             {bmiCategory}
                           </Badge>
                         </div>
@@ -733,8 +736,8 @@ export default function MedicalRecordPage() {
                     />
                   </Form.Group>
 
-                  <div className="d-flex justify-content-end gap-2 pt-2 border-top" style={{ borderColor: '#e2e8f0' }}>
-                    <Button variant="secondary" onClick={handleCancelForm}>
+                  <div className="d-flex justify-content-end gap-2 pt-2 border-top" style={{ borderColor: '#E5E9EB' }}>
+                    <Button variant="secondary" style={{ borderRadius: '9999px' }} onClick={handleCancelForm}>
                       Hủy bỏ
                     </Button>
                     <Button
@@ -742,7 +745,7 @@ export default function MedicalRecordPage() {
                       type="submit"
                       disabled={submitLoading || !bpValidation.valid}
                       className="px-4 fw-bold shadow-sm"
-                      style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                      style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
                     >
                       {submitLoading ? (
                         <>
@@ -759,11 +762,11 @@ export default function MedicalRecordPage() {
             </Card>
           ) : selectedRecord ? (
             /* RECORD DETAIL VIEWER */
-            <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-              <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: '#e2e8f0' }}>
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+              <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: '#E5E9EB' }}>
                 <div>
                   <span className="small text-muted text-uppercase fw-bold">Chi Tiết Bệnh Án</span>
-                  <div className="h4 fw-bold font-monospace mb-0" style={{ color: '#0284c7' }}>
+                  <div className="h4 fw-bold font-monospace mb-0" style={{ color: '#5E85E6' }}>
                     {selectedRecord.recordCode || selectedRecord.id}
                   </div>
                 </div>
@@ -776,7 +779,7 @@ export default function MedicalRecordPage() {
                     variant="primary"
                     size="sm"
                     className="d-flex align-items-center gap-1 shadow-sm"
-                    style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                    style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
                   >
                     <FaVial /> Chỉ Định Xét Nghiệm
                   </Button>
@@ -789,6 +792,7 @@ export default function MedicalRecordPage() {
                       size="sm"
                       to={`/doctor/medical-notes?recordId=${encodeURIComponent(selectedRecord.id)}`}
                       className="d-flex align-items-center gap-1"
+                      style={{ borderRadius: '9999px' }}
                     >
                       <FaNotesMedical /> Ghi Chú Y Khoa
                     </Button>
@@ -799,12 +803,13 @@ export default function MedicalRecordPage() {
                       variant="outline-secondary"
                       size="sm"
                       className="d-flex align-items-center gap-1"
+                      style={{ borderRadius: '9999px' }}
                       onClick={() => handleStartEdit(selectedRecord)}
                     >
                       <FaEdit /> Sửa Bệnh Án
                     </Button>
                   ) : (
-                    <Badge bg="secondary" className="px-3 py-2 d-flex align-items-center gap-1">
+                    <Badge bg="secondary" className="px-3 py-2 d-flex align-items-center gap-1 rounded-pill">
                       <FaLock /> Đã Khóa Sau 24h
                     </Badge>
                   )}
@@ -813,6 +818,7 @@ export default function MedicalRecordPage() {
                     variant="outline-danger"
                     size="sm"
                     className="d-flex align-items-center gap-1"
+                    style={{ borderRadius: '9999px' }}
                     onClick={() => {
                       setRecordToDelete(selectedRecord);
                       setShowDeleteModal(true);
@@ -825,11 +831,11 @@ export default function MedicalRecordPage() {
 
               <Card.Body className="p-4">
                 {/* Meta header */}
-                <Row className="g-3 mb-4 p-3 bg-light rounded-3 border" style={{ borderColor: '#e2e8f0' }}>
+                <Row className="g-3 mb-4 p-3 rounded-4 border" style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}>
                   <Col sm={6}>
                     <div className="small text-muted">Bệnh nhân</div>
                     <div className="fw-bold fs-5 text-dark">
-                      <FaUserInjured className="me-2" style={{ color: '#0284c7' }} />
+                      <FaUserInjured className="me-2" style={{ color: '#5E85E6' }} />
                       {selectedRecord.patientName || 'Bệnh nhân'} ({selectedRecord.patientId})
                     </div>
                   </Col>
@@ -849,43 +855,43 @@ export default function MedicalRecordPage() {
                 </Row>
 
                 {/* Vitals summary cards */}
-                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
+                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#5E85E6' }}>
                   <FaHeartbeat /> Dấu Hiệu Sinh Tồn Đo Được
                 </h6>
 
                 <Row className="g-3 mb-4">
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#E5E9EB' }}>
                       <div className="small text-muted">Mạch (Nhịp tim)</div>
-                      <div className="fs-4 fw-bold font-monospace" style={{ color: '#0284c7' }}>
+                      <div className="fs-4 fw-bold font-monospace" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
                         {selectedRecord.vitals?.heartRate ?? '—'} <small className="fs-6 text-muted">bpm</small>
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#E5E9EB' }}>
                       <div className="small text-muted">Huyết Áp</div>
-                      <div className="fs-4 fw-bold text-dark font-monospace">
+                      <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {selectedRecord.vitals?.systolicBp ?? '—'}/{selectedRecord.vitals?.diastolicBp ?? '—'}{' '}
                         <small className="fs-6 text-muted">mmHg</small>
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#E5E9EB' }}>
                       <div className="small text-muted">Thân Nhiệt & SpO2</div>
-                      <div className="fs-4 fw-bold text-dark font-monospace">
+                      <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {selectedRecord.vitals?.temperature ?? '—'}°C | {selectedRecord.vitals?.spo2 ?? '—'}%
                       </div>
                     </div>
                   </Col>
                   <Col md={3} sm={6}>
-                    <div className="border rounded-3 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: '#E5E9EB' }}>
                       <div className="small text-muted">Chỉ số BMI</div>
-                      <div className="fs-4 fw-bold text-success font-monospace">
+                      <div className="fs-4 fw-bold text-success font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {selectedRecord.vitals?.bmi ?? '—'}{' '}
                         {selectedRecord.vitals?.bmiCategory && (
-                          <Badge bg="success" className="fs-7 fw-normal ms-1">
+                          <Badge bg="success" className="fs-7 fw-normal ms-1 rounded-pill">
                             {selectedRecord.vitals.bmiCategory}
                           </Badge>
                         )}
@@ -897,9 +903,9 @@ export default function MedicalRecordPage() {
                 {/* Diagnosis and ICD-10 */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-secondary text-uppercase small mb-2">Chẩn Đoán Bệnh</h6>
-                  <div className="p-3 bg-light rounded-3 border" style={{ borderColor: '#e2e8f0' }}>
+                  <div className="p-3 rounded-4 border" style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}>
                     <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                      <Badge className="font-monospace fs-6 px-3 py-1.5" style={{ backgroundColor: '#0284c7' }}>
+                      <Badge className="font-monospace fs-6 px-3 py-1.5 rounded-pill text-white" style={{ backgroundColor: '#5E85E6' }}>
                         ICD-10: {selectedRecord.icd10Code}
                       </Badge>
                       <span className="fw-semibold text-dark">{selectedRecord.icd10Name}</span>
@@ -924,9 +930,9 @@ export default function MedicalRecordPage() {
                 {/* Treatment plan & prescription */}
                 <Row className="g-3">
                   <Col md={6}>
-                    <div className="border rounded-3 p-3 h-100 bg-white" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 h-100 bg-white" style={{ borderColor: '#E5E9EB' }}>
                       <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaStethoscope style={{ color: '#0284c7' }} /> Hướng Xử Trí & Phác Đồ
+                        <FaStethoscope style={{ color: '#5E85E6' }} /> Hướng Xử Trí & Phác Đồ
                       </h6>
                       <p className="text-dark mb-0 small">
                         {selectedRecord.treatmentPlan || 'Theo dõi định kỳ theo chỉ định.'}
@@ -935,9 +941,9 @@ export default function MedicalRecordPage() {
                   </Col>
 
                   <Col md={6}>
-                    <div className="border rounded-3 p-3 h-100 bg-white" style={{ borderColor: '#e2e8f0' }}>
+                    <div className="border rounded-4 p-3 h-100 bg-white" style={{ borderColor: '#E5E9EB' }}>
                       <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaPrescriptionBottleAlt style={{ color: '#059669' }} /> Đơn Thuốc & Dặn Dò
+                        <FaPrescriptionBottleAlt style={{ color: '#16a34a' }} /> Đơn Thuốc & Dặn Dò
                       </h6>
                       <p className="text-dark mb-0 small">
                         {selectedRecord.prescriptionNotes || 'Tái khám sau 1 tuần hoặc khi có dấu hiệu bất thường.'}
@@ -948,7 +954,7 @@ export default function MedicalRecordPage() {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="border-0 shadow-sm rounded-3 text-center py-5" style={{ borderColor: '#e2e8f0' }}>
+            <Card className="border-0 shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid #E5E9EB' }}>
               <div className="display-1 text-muted opacity-25 mb-3">
                 <FaNotesMedical />
               </div>
@@ -960,7 +966,7 @@ export default function MedicalRecordPage() {
                 <Button
                   variant="primary"
                   onClick={handleStartCreate}
-                  style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                  style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
                   className="shadow-sm"
                 >
                   <FaPlus className="me-2" /> Tạo Bệnh Án Mới
@@ -999,7 +1005,7 @@ export default function MedicalRecordPage() {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" size="sm" onClick={() => setShowDeleteModal(false)}>
+          <Button variant="secondary" size="sm" style={{ borderRadius: '9999px' }} onClick={() => setShowDeleteModal(false)}>
             Hủy Bỏ
           </Button>
           <Button
@@ -1007,7 +1013,7 @@ export default function MedicalRecordPage() {
             size="sm"
             onClick={handleDeleteConfirm}
             disabled={submitLoading || deleteReason.trim().length < 15}
-            style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+            style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', borderRadius: '9999px' }}
           >
             {submitLoading ? 'Đang xử lý...' : 'Xác Nhận Xóa'}
           </Button>

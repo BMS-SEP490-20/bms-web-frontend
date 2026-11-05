@@ -96,7 +96,8 @@ const PatientHeader = ({ setActiveTab }) => {
       expand="lg"
       className="sticky-top"
       style={{
-        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        border: 'none',
+        borderBottom: 'none',
         boxShadow: 'none',
         padding: '8px 0',
         minHeight: '60px'

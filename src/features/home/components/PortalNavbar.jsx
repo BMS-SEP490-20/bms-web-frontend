@@ -8,12 +8,14 @@
  * Conforms to: Soft Medical Telehealth UI Specification & DESIGN SYSTEM PROMPT.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
 export default function PortalNavbar({ user: propUser = null }) {
   const location = useLocation();
+  const trackRef = useRef(null);
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const user = useMemo(() => {
     if (propUser) return propUser;
@@ -28,6 +30,32 @@ export default function PortalNavbar({ user: propUser = null }) {
   const isStaff = Boolean(user && roleId && roleId !== ROLES.PATIENT);
   const staffRoleName = roleId ? ROLE_LABELS[roleId] : '';
   const currentPath = location.pathname;
+
+  // Quantum slider position calculation
+  useEffect(() => {
+    const updateSlider = () => {
+      if (!trackRef.current) return;
+      const activeEl = trackRef.current.querySelector('.bms-capsule-item.active');
+      if (activeEl) {
+        const trackRect = trackRef.current.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+        setSliderStyle({
+          left: activeRect.left - trackRect.left,
+          width: activeRect.width,
+          opacity: 1
+        });
+      } else {
+        setSliderStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    const t = setTimeout(updateSlider, 20);
+    window.addEventListener('resize', updateSlider);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', updateSlider);
+    };
+  }, [currentPath, isPatient]);
 
   const staffWorkspacePath = useMemo(() => {
     switch (roleId) {
@@ -67,23 +95,49 @@ export default function PortalNavbar({ user: propUser = null }) {
           />
         </Link>
 
-        {/* 2. Center: Capsule Pill Track Navigation */}
-        <nav className="bms-nav-capsule-track" aria-label="Main Navigation">
+        {/* 2. Center: Capsule Pill Track Navigation (Quantum Smooth Glide) */}
+        <nav
+          className="bms-nav-capsule-track"
+          ref={trackRef}
+          aria-label="Main Navigation"
+          style={{ position: 'relative' }}
+        >
+          {/* Quantum Sliding Indicator Pill */}
+          <div
+            className="bms-quantum-slider"
+            style={{
+              position: 'absolute',
+              top: '4px',
+              bottom: '4px',
+              left: `${sliderStyle.left}px`,
+              width: `${sliderStyle.width}px`,
+              backgroundColor: '#1E60E6',
+              borderRadius: '999px',
+              transition: 'left 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), width 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.2s ease',
+              pointerEvents: 'none',
+              zIndex: 1,
+              opacity: sliderStyle.opacity
+            }}
+          />
+
           <Link
             className={`bms-capsule-item ${currentPath === '/' || currentPath === '/home' ? 'active' : ''}`}
             to={isPatient ? "/home" : "/"}
+            style={{ position: 'relative', zIndex: 2 }}
           >
             Trang Chủ
           </Link>
           <Link
             className={`bms-capsule-item ${currentPath === '/services' || (currentPath.startsWith('/services/') && !currentPath.startsWith('/services/pricing')) ? 'active' : ''}`}
             to="/services"
+            style={{ position: 'relative', zIndex: 2 }}
           >
             Gói Xét Nghiệm
           </Link>
           <Link
             className={`bms-capsule-item ${currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/track-progress') ? 'active' : ''}`}
             to="/tracking"
+            style={{ position: 'relative', zIndex: 2 }}
           >
             Tiến Trình &amp; Kết Quả
           </Link>
@@ -93,18 +147,21 @@ export default function PortalNavbar({ user: propUser = null }) {
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/appointments') ? 'active' : ''}`}
                 to="/appointments"
+                style={{ position: 'relative', zIndex: 2 }}
               >
                 Lịch Khám Của Tôi
               </Link>
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/patient/test-history') ? 'active' : ''}`}
                 to="/patient/test-history"
+                style={{ position: 'relative', zIndex: 2 }}
               >
                 Lịch Sử Xét Nghiệm
               </Link>
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices') ? 'active' : ''}`}
                 to="/patient/payment-history"
+                style={{ position: 'relative', zIndex: 2 }}
               >
                 Lịch Sử Thanh Toán
               </Link>
@@ -114,12 +171,14 @@ export default function PortalNavbar({ user: propUser = null }) {
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/pricing') || currentPath.startsWith('/catalog') ? 'active' : ''}`}
                 to="/pricing"
+                style={{ position: 'relative', zIndex: 2 }}
               >
                 Bảng Giá Niêm Yết
               </Link>
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/iso-process') ? 'active' : ''}`}
                 to="/iso-process"
+                style={{ position: 'relative', zIndex: 2 }}
               >
                 Quy Trình ISO
               </Link>

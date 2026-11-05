@@ -164,7 +164,7 @@ const AuditLogPage = () => {
                 </Badge>
               </div>
               <p className="text-muted mb-0 small mt-1">
-                Theo dõi và kiểm tra toàn bộ vết kiểm toán an ninh, nhật ký truy cập, biến động dữ liệu và ghi đè bảo mật trên hệ thống y tế (UC64).
+                Theo dõi và kiểm tra toàn bộ vết kiểm toán an ninh, nhật ký truy cập, biến động dữ liệu và ghi đè bảo mật trên hệ thống y tế.
               </p>
             </div>
 

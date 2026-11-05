@@ -397,7 +397,7 @@ export default function DoctorSchedulePage() {
           </Button>
           {canManageShifts && (
             <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
-              <FaPlus /> Tạo Ca Làm Việc Mới (UC35)
+              <FaPlus /> Tạo Ca Làm Việc Mới
             </Button>
           )}
         </div>
@@ -703,7 +703,7 @@ export default function DoctorSchedulePage() {
                               <Button
                                 variant="outline-primary"
                                 size="sm"
-                                title="Cập nhật ca trực (UC35)"
+                                title="Cập nhật ca trực"
                                 onClick={() => handleOpenEdit(shift)}
                               >
                                 <FaEdit />
@@ -711,7 +711,7 @@ export default function DoctorSchedulePage() {
                               <Button
                                 variant="outline-danger"
                                 size="sm"
-                                title="Xoá ca trực (UC35)"
+                                title="Xoá ca trực"
                                 onClick={() => handleOpenDelete(shift)}
                               >
                                 <FaTrash />

@@ -244,7 +244,7 @@ export default function SpecimenHistoryPage() {
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Truy Vấn Lịch Sử Mẫu Bệnh Phẩm</h4>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
-                            UC70 • BR-212 / BR-213
+                            
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#1A3311', border: '1px solid #10B981' }}>
                             ISO 15189

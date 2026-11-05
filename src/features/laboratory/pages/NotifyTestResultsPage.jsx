@@ -238,7 +238,7 @@ export default function NotifyTestResultsPage() {
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
-                            UC60 • BR-182 / BR-183
+                            
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
                             Panic Value Escalation

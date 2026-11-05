@@ -175,7 +175,7 @@ export default function BillingInvoicesPage() {
               Quản lý Viện Phí &amp; In Biên Lai K80 (POS Billing)
             </h1>
             <span style={{ backgroundColor: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
-              UC43 COMPLIANT
+              ÄÃ£ xÃ¡c thá»±c
             </span>
           </div>
           <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '14px' }}>

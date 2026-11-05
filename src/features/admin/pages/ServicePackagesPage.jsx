@@ -243,7 +243,7 @@ export default function ServicePackagesPage({ onBack }) {
                         Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí
                     </h4>
                     <small className="text-muted">
-                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí (UC15)
+                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí
                     </small>
                 </div>
                 <div className="d-flex align-items-center gap-2">

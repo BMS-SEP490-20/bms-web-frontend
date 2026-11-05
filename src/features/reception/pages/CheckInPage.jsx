@@ -228,7 +228,7 @@ export default function CheckInPage() {
 
   const handleOpenCreateGuestModal = () => {
     if (!canCreateGuest) {
-      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai (UC25) yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
+      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
       return;
     }
     setGuestForm(INITIAL_GUEST_FORM);
@@ -346,7 +346,7 @@ export default function CheckInPage() {
             <span>Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai</span>
           </h3>
           <p className="text-muted small mb-0">
-            Tra cứu thông tin định danh, sinh hiệu, lịch sử khám (UC30) và khởi tạo hồ sơ khách vãng lai Walk-in (UC25).
+            Tra cứu thông tin định danh, sinh hiệu, lịch sử khám và khởi tạo hồ sơ khách vãng lai Walk-in.
           </p>
         </div>
 
@@ -359,13 +359,12 @@ export default function CheckInPage() {
               className="fw-semibold shadow-sm d-flex align-items-center gap-2 text-white"
               onClick={handleOpenCreateGuestModal}
               id="btn-create-guest-profile"
-              title="Khởi tạo hồ sơ khách vãng lai mới (UC25)"
+              title="Khởi tạo hồ sơ khách vãng lai mới"
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
             >
               <FaUserPlus />
               <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
-              <Badge bg="light" text="dark" className="ms-1" style={{ borderRadius: '9999px' }}>UC25</Badge>
-            </Button>
+              </Button>
           )}
         </div>
       </div>
@@ -425,7 +424,7 @@ export default function CheckInPage() {
             <Card.Body className="p-3">
               <div className="fw-bold small text-dark mb-2">
                 <FaUserShield className="me-1" style={{ color: '#1E60E6' }} />
-                Tra Cứu Nhanh Hồ Sơ Theo Mã BN / ID / CCCD (UC30):
+                Tra Cứu Nhanh Hồ Sơ Theo Mã BN / ID / CCCD:
               </div>
               <Form onSubmit={handleQuickLookupSubmit}>
                 <InputGroup size="sm">
@@ -635,7 +634,7 @@ export default function CheckInPage() {
           <Modal.Header closeButton={!createLoading} style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
               <FaUserPlus style={{ color: '#1E60E6' }} />
-              <span>Tạo Hồ Sơ Bệnh Nhân Khách Vãng Lai (Create Guest Profile - UC25)</span>
+              <span>Tạo Hồ Sơ Bệnh Nhân Khách Vãng Lai</span>
             </Modal.Title>
           </Modal.Header>
 
@@ -945,7 +944,7 @@ export default function CheckInPage() {
         <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
             <FaIdCard style={{ color: '#1E60E6' }} />
-            <span>Hồ Sơ Chi Tiết Bệnh Nhân (View Patient Information - UC30)</span>
+            <span>Hồ Sơ Chi Tiết Bệnh Nhân</span>
           </Modal.Title>
         </Modal.Header>
 

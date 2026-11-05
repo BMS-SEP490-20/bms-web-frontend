@@ -217,7 +217,7 @@ export default function AddMedicalNotesPage() {
                       className="py-0.5 px-2"
                       style={{ fontSize: "11px", borderRadius: '9999px' }}
                       onClick={() => setContent(
-`[S - Bệnh sử cơ năng]: Bệnh nhân khai triệu chứng cơ năng thuyên giảm, ăn ngủ được, không sốt.
+                        `[S - Bệnh sử cơ năng]: Bệnh nhân khai triệu chứng cơ năng thuyên giảm, ăn ngủ được, không sốt.
 [O - Khám thực thể & Sinh hiệu]: Mạch 76 bpm, Huyết áp 120/80 mmHg, SpO2 98%, Tim đều rõ, Phổi thông khí tốt.
 [A - Đánh giá lâm sàng]: Diễn tiến điều trị đáp ứng tốt với phác đồ hiện tại.
 [P - Kế hoạch xử trí]: Tiếp tục duy trì liều điều trị, theo dõi chỉ số cận lâm sàng định kỳ.
@@ -232,7 +232,7 @@ export default function AddMedicalNotesPage() {
                       className="py-0.5 px-2"
                       style={{ fontSize: "11px", borderRadius: '9999px' }}
                       onClick={() => setContent(
-`[Theo dõi cận lâm sàng]: Đã đối chiếu kết quả xét nghiệm máu phòng Lab. Các chỉ số men gan và glucose máu trong giới hạn kiểm soát. Tiếp tục duy trì phác đồ điều trị.`
+                        `[Theo dõi cận lâm sàng]: Đã đối chiếu kết quả xét nghiệm máu phòng Lab. Các chỉ số men gan và glucose máu trong giới hạn kiểm soát. Tiếp tục duy trì phác đồ điều trị.`
                       )}
                     >
                       Sau Xét Nghiệm
@@ -243,7 +243,7 @@ export default function AddMedicalNotesPage() {
                       className="py-0.5 px-2"
                       style={{ fontSize: "11px", borderRadius: '9999px' }}
                       onClick={() => setContent(
-`[Y lệnh & Tư vấn dùng thuốc]: Hướng dẫn bệnh nhân dùng thuốc đúng liều lượng sau bữa ăn. Cảnh báo các tác dụng phụ có thể gặp và hướng xử trí kịp thời.`
+                        `[Y lệnh & Tư vấn dùng thuốc]: Hướng dẫn bệnh nhân dùng thuốc đúng liều lượng sau bữa ăn. Cảnh báo các tác dụng phụ có thể gặp và hướng xử trí kịp thời.`
                       )}
                     >
                       Dặn Dò Thuốc

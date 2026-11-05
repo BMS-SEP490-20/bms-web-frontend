@@ -108,9 +108,9 @@ export default function AddMedicalNotesPage() {
         <Breadcrumb.Item active>Ghi Chú Y Khoa Tiến Trình</Breadcrumb.Item>
       </Breadcrumb>
 
-      <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: '#E5E9EB' }}>
+      <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
-          <h4 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#5E85E6' }}>
+          <h4 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
             <FaNotesMedical /> Ghi Chú Y Khoa & Tiến Trình Điều Trị
           </h4>
           <p className="text-muted small mb-0">Bổ sung diễn biến lâm sàng, chỉ dẫn điều trị và lời dặn vào hồ sơ bệnh án EMR.</p>
@@ -119,13 +119,13 @@ export default function AddMedicalNotesPage() {
           <Button as={Link} to="/doctor/console" variant="outline-secondary" size="sm" className="d-flex align-items-center gap-1 shadow-sm" style={{ borderRadius: '9999px' }}>
             <FaHospitalUser /> Bàn khám bác sĩ
           </Button>
-          <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-flex align-items-center gap-1 shadow-sm text-white" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}>
+          <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-flex align-items-center gap-1 shadow-sm text-white" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}>
             <FaUserMd /> Hồ sơ bệnh án EMR
           </Button>
         </div>
       </div>
 
-      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-3">
           <Form onSubmit={lookup}>
             <Form.Label htmlFor="medical-note-record" className="fw-semibold text-dark mb-1">Tra cứu hồ sơ bệnh án:</Form.Label>
@@ -139,7 +139,7 @@ export default function AddMedicalNotesPage() {
                 required
                 disabled={saving}
               />
-              <Button type="submit" disabled={!input.trim() || saving || loading} style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '0 9999px 9999px 0' }}>
+              <Button type="submit" disabled={!input.trim() || saving || loading} style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '0 9999px 9999px 0' }}>
                 <FaSearch className="me-2" /> Mở Bệnh Án
               </Button>
             </InputGroup>
@@ -162,16 +162,16 @@ export default function AddMedicalNotesPage() {
       )}
 
       {loading ? (
-        <Card className="shadow-sm rounded-4" aria-busy="true" aria-label="Đang tải bệnh án và ghi chú" style={{ border: '1px solid #E5E9EB' }}>
+        <Card className="shadow-sm rounded-4" aria-busy="true" aria-label="Đang tải bệnh án và ghi chú" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body>{[1, 2, 3, 4].map((key) => <div key={key} className="bms-skeleton mb-3" style={{ height: 36 }} />)}</Card.Body>
         </Card>
       ) : record ? (
         <Row className="g-4">
           <Col xl={5}>
-            <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
-              <Card.Header className="bg-white fw-bold py-3 d-flex justify-content-between align-items-center" style={{ borderColor: '#E5E9EB' }}>
+            <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+              <Card.Header className="bg-white fw-bold py-3 d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <span>Thông tin bệnh án</span>
-                <Badge className="font-monospace px-3 py-1.5 rounded-pill text-white" style={{ backgroundColor: '#5E85E6' }}>
+                <Badge className="font-monospace px-3 py-1.5 rounded-pill text-white" style={{ backgroundColor: '#648CF4' }}>
                   {record.recordCode || record.id}
                 </Badge>
               </Card.Header>
@@ -181,7 +181,7 @@ export default function AddMedicalNotesPage() {
                   <dd className="col-8 fw-semibold text-dark">{record.patientName}</dd>
 
                   <dt className="col-4 text-muted small">Mã bệnh nhân</dt>
-                  <dd className="col-8 text-break font-monospace" style={{ color: '#5E85E6' }}>{record.patientId}</dd>
+                  <dd className="col-8 text-break font-monospace" style={{ color: '#648CF4' }}>{record.patientId}</dd>
 
                   <dt className="col-4 text-muted small">Bác sĩ phụ trách</dt>
                   <dd className="col-8">{record.doctorName || 'BS. Chuyên Khoa'}</dd>
@@ -195,8 +195,8 @@ export default function AddMedicalNotesPage() {
               </Card.Body>
             </Card>
 
-            <Card className="shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB' }}>
-              <Card.Header className="bg-white fw-bold py-3" style={{ borderColor: '#E5E9EB' }}>
+            <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+              <Card.Header className="bg-white fw-bold py-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 Thêm Ghi Chú Y Khoa Mới
               </Card.Header>
               <Card.Body>
@@ -280,7 +280,7 @@ export default function AddMedicalNotesPage() {
                     <Button
                       type="submit"
                       disabled={saving || !content.trim()}
-                      style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}
+                      style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
                       className="shadow-sm text-white"
                     >
                       <FaSave className="me-2" />{saving ? 'Đang lưu…' : 'Lưu Ghi Chú'}
@@ -292,8 +292,8 @@ export default function AddMedicalNotesPage() {
           </Col>
 
           <Col xl={7}>
-            <Card className="shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB' }}>
-              <Card.Header className="bg-white fw-bold py-3 d-flex justify-content-between align-items-center" style={{ borderColor: '#E5E9EB' }}>
+            <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+              <Card.Header className="bg-white fw-bold py-3 d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <span>Lịch Sử Diễn Biến & Ghi Chú Lâm Sàng</span>
                 <Badge bg="secondary" className="rounded-pill">{totalNotes} ghi chú</Badge>
               </Card.Header>
@@ -306,10 +306,10 @@ export default function AddMedicalNotesPage() {
                   </div>
                 ) : (
                   notes.map((note) => (
-                    <article key={note.id} className="border rounded-4 p-3 mb-3 bg-white" style={{ borderColor: '#E5E9EB' }}>
-                      <div className="d-flex flex-wrap justify-content-between gap-2 border-bottom pb-2 mb-2" style={{ borderColor: '#E5E9EB' }}>
+                    <article key={note.id} className="border rounded-4 p-3 mb-3 bg-white" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                      <div className="d-flex flex-wrap justify-content-between gap-2 border-bottom pb-2 mb-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <span className="fw-semibold text-dark">
-                          <FaUserMd className="me-2" style={{ color: '#5E85E6' }} />{note.authorName || 'Bác sĩ phụ trách'}
+                          <FaUserMd className="me-2" style={{ color: '#648CF4' }} />{note.authorName || 'Bác sĩ phụ trách'}
                         </span>
                         <time className="text-muted small" dateTime={note.createdAt}>{formatDate(note.createdAt)}</time>
                       </div>
@@ -318,7 +318,7 @@ export default function AddMedicalNotesPage() {
                   ))
                 )}
                 {totalNotes > pageSize && (
-                  <div className="d-flex align-items-center justify-content-between gap-2 mt-3 pt-2 border-top" style={{ borderColor: '#E5E9EB' }}>
+                  <div className="d-flex align-items-center justify-content-between gap-2 mt-3 pt-2 border-top" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                     <Button variant="outline-primary" size="sm" style={{ borderRadius: '9999px' }} disabled={page <= 1 || saving} onClick={() => setPage((v) => v - 1)}>Trang Trước</Button>
                     <span className="small text-muted">Trang {page}/{Math.ceil(totalNotes / pageSize)}</span>
                     <Button variant="outline-primary" size="sm" style={{ borderRadius: '9999px' }} disabled={page * pageSize >= totalNotes || saving} onClick={() => setPage((v) => v + 1)}>Trang Sau</Button>
@@ -329,9 +329,9 @@ export default function AddMedicalNotesPage() {
           </Col>
         </Row>
       ) : !loadError && (
-        <Card className="shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+        <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body className="text-center text-muted py-5">
-            <FaNotesMedical size={40} className="mb-3" style={{ color: '#5E85E6' }} />
+            <FaNotesMedical size={40} className="mb-3" style={{ color: '#648CF4' }} />
             <h5 className="fw-bold text-secondary">Chọn hoặc Nhập Mã Bệnh Án Để Bắt Đầu</h5>
             <p className="mb-0 small">Nhập mã bệnh án EMR ở ô tìm kiếm phía trên hoặc mở trực tiếp từ phân hệ Hồ Sơ Bệnh Án EMR.</p>
           </Card.Body>

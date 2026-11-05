@@ -283,16 +283,16 @@ const FeedbackHubPage = () => {
   return (
     <div className="w-100">
       {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
         <Card.Body className="p-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                  <FaComments style={{ color: '#5E85E6' }} />
+                  <FaComments style={{ color: '#648CF4' }} />
                   Góp Ý & Đánh Giá Dịch Vụ (Patient Feedback)
                 </h4>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
                   {isPatient ? 'Bệnh nhân (Patient)' : isManagerOrAdmin ? 'Ban Quản Lý (Clinic Manager)' : 'Bác Sĩ & Nhân Viên'}
                 </Badge>
               </div>
@@ -312,7 +312,7 @@ const FeedbackHubPage = () => {
                   size="sm"
                   onClick={() => navigate('/patient/dashboard')}
                   className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                  style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
+                  style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
                 >
                   <FaArrowLeft />
                   <span>Quay về Dashboard</span>
@@ -326,7 +326,7 @@ const FeedbackHubPage = () => {
                   size="sm"
                   onClick={() => setShowCreateModal(true)}
                   className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                  style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                  style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                 >
                   <FaPlus />
                   <span>Gửi đánh giá mới</span>
@@ -339,7 +339,7 @@ const FeedbackHubPage = () => {
                 onClick={fetchFeedbacks}
                 disabled={loading}
                 className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2"
-                style={{ borderRadius: 9999, borderColor: '#E5E9EB' }}
+                style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
                 <FaSyncAlt className={loading ? 'fa-spin' : ''} />
                 <span>Làm mới</span>
@@ -360,7 +360,7 @@ const FeedbackHubPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} md={4}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
               <Card.Body className="p-4 text-center d-flex flex-column justify-content-center">
                 <div className="text-muted small fw-semibold text-uppercase mb-2">Đánh giá trung bình</div>
                 <div className="display-4 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>
@@ -378,7 +378,7 @@ const FeedbackHubPage = () => {
           </Col>
 
           <Col xs={12} md={5}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
               <Card.Body className="p-4">
                 <div className="text-muted small fw-semibold text-uppercase mb-3">Phân bổ xếp hạng sao</div>
                 {[5, 4, 3, 2, 1].map((star) => {
@@ -404,14 +404,14 @@ const FeedbackHubPage = () => {
           </Col>
 
           <Col xs={12} md={3}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
               <Card.Body className="p-4 d-flex flex-column justify-content-between">
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase mb-1">Đã phản hồi (Manager Reply)</div>
                   <h3 className="fw-bold text-success mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.respondedFeedbacks}</h3>
                   <small className="text-muted">Ban Quản Lý đã giải đáp</small>
                 </div>
-                <hr className="my-2" style={{ borderColor: '#E5E9EB' }} />
+                <hr className="my-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }} />
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase mb-1">Chờ tiếp nhận</div>
                   <h3 className="fw-bold mb-0" style={{ color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>{statistics.pendingFeedbacks}</h3>
@@ -424,12 +424,12 @@ const FeedbackHubPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm mb-4 bg-white" style={{ border: '1px solid #E5E9EB', borderRadius: 18 }}>
+      <Card className="border-0 shadow-sm mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
               <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
+                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
@@ -437,7 +437,7 @@ const FeedbackHubPage = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border-start-0"
-                  style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
+                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                 />
               </InputGroup>
             </Col>

@@ -738,7 +738,7 @@ export default function CalculateFeesPage() {
                         size="lg"
                         onClick={() => navigate("/invoices")}
                         className="py-3 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2"
-                        style={{ backgroundColor: "#5E85E6", borderColor: "#5E85E6" }}
+                        style={{ backgroundColor: "#648CF4", borderColor: "#648CF4" }}
                       >
                         <FaReceipt />
                         <span>Quầy Thu Viện Phí & Hóa Đơn VAT</span>

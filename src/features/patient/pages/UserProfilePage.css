@@ -13,14 +13,14 @@
 
 .bms-profile-card {
   background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid #E5E9EB;
+  border-radius: var(--radius-card, 28px);
+  border: 1px solid rgba(15, 23, 42, 0.05);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
 .bms-profile-card-header {
-  background: linear-gradient(135deg, #5E85E6 0%, #4a6ec7 100%);
+  background: linear-gradient(135deg, #648CF4 0%, #5078E0 100%);
   color: #ffffff;
   padding: 20px 24px;
 }
@@ -83,7 +83,7 @@
   align-items: center;
   gap: 6px;
   background-color: rgba(94, 133, 230, 0.12);
-  color: #5E85E6;
+  color: #648CF4;
   border: 1px solid rgba(94, 133, 230, 0.3);
   font-size: 12px;
   font-weight: 600;
@@ -104,7 +104,7 @@
   font-weight: 500;
   color: #0f172a;
   background-color: var(--bms-surface-card, #F1F4F7);
-  border: 1px solid var(--bms-border, #E5E9EB);
+  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
   border-radius: 12px;
   padding: 10px 14px;
   min-height: 42px;
@@ -145,14 +145,14 @@
 }
 
 .fast-tag-item:hover {
-  border-color: #5E85E6;
-  color: #5E85E6;
+  border-color: #648CF4;
+  color: #648CF4;
   background: rgba(94, 133, 230, 0.08);
 }
 
 .fast-tag-item.selected {
-  background: #5E85E6;
-  border-color: #5E85E6;
+  background: #648CF4;
+  border-color: #648CF4;
   color: #ffffff;
   box-shadow: 0 2px 6px rgba(94, 133, 230, 0.25);
 }

@@ -1910,10 +1910,10 @@ const ReceptionistCheckIn = () => {
         boxSizing: 'border-box'
       }}>
       {/* Quick Check-in QR Button */}
-      <Card className="mb-4 shadow-sm rounded-4" style={{ border: '1px solid #E5E9EB', backgroundColor: '#FFFFFF' }}>
+      <Card className="mb-4 shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', backgroundColor: '#FFFFFF' }}>
         <Card.Body className="py-5 text-center">
           <h3 className="mb-2 fw-bold" style={{ color: '#2B3674' }}>
-            <i className="fas fa-qrcode me-2" style={{ color: '#5E85E6' }}></i>
+            <i className="fas fa-qrcode me-2" style={{ color: '#648CF4' }}></i>
             Check-in bệnh nhân
           </h3>
           <p className="text-muted mb-4" style={{ fontSize: '1.05rem' }}>
@@ -1923,7 +1923,7 @@ const ReceptionistCheckIn = () => {
             size="lg"
             onClick={() => handleOpenQuickQRModal('camera')}
             className="px-5 py-3 fw-semibold shadow-sm rounded-pill"
-            style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff', fontSize: '1.1rem', transition: 'all 0.2s ease' }}
+            style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff', fontSize: '1.1rem', transition: 'all 0.2s ease' }}
           >
             <i className="fas fa-camera me-2"></i>
             Mở máy quét QR / Nhập mã
@@ -1932,24 +1932,24 @@ const ReceptionistCheckIn = () => {
       </Card>
 
       {/* Search filter for check-in queue */}
-      <Card className="mb-4 shadow-sm rounded-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid #E5E9EB' }}>
+      <Card className="mb-4 shadow-sm rounded-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="py-4" style={{ padding: isMobile ? '1rem' : '1.5rem', width: '100%', boxSizing: 'border-box' }}>
           <Row className="justify-content-center">
             <Col xs={12} md={10}>
               <Row>
                 <Col xs={12}>
                   <Form.Label className="fw-semibold small" style={{ fontSize: isMobile ? '0.95rem' : '1rem', color: '#2B3674' }}>
-                    <i className="fas fa-search me-2" style={{ color: '#5E85E6' }}></i>
+                    <i className="fas fa-search me-2" style={{ color: '#648CF4' }}></i>
                     {isMobile ? 'Tìm kiếm' : 'Tìm kiếm lịch hẹn cần check-in'}
                   </Form.Label>
                   <InputGroup size={isMobile ? 'md' : 'lg'}>
-                    <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#F1F4F7', color: '#5E85E6', borderColor: '#E5E9EB' }}>
+                    <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#648CF4', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                       <i className="fas fa-search"></i>
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
                       className="border-start-0 rounded-end-pill"
-                      style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB', fontSize: isMobile ? '0.9rem' : '1.05rem' }}
+                      style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', fontSize: isMobile ? '0.9rem' : '1.05rem' }}
                       placeholder={isMobile ? 'Tìm kiếm...' : 'Tìm theo tên bệnh nhân, mã lịch hẹn...'}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -1963,29 +1963,29 @@ const ReceptionistCheckIn = () => {
       </Card>
 
       {/* Check-in Appointments Queue Table with Slot Filtering */}
-      <Card className="mb-4 shadow-sm rounded-4 overflow-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid #E5E9EB' }}>
-        <Card.Header className="bg-white py-3 d-flex flex-wrap justify-content-between align-items-center border-bottom" style={{ borderColor: '#E5E9EB', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
+      <Card className="mb-4 shadow-sm rounded-4 overflow-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+        <Card.Header className="bg-white py-3 d-flex flex-wrap justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
           <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#2B3674' }}>
-            <i className="fas fa-calendar-check me-2" style={{ color: '#5E85E6' }}></i>
+            <i className="fas fa-calendar-check me-2" style={{ color: '#648CF4' }}></i>
             {isMobile ? 'Sổ Lịch Hẹn Chờ Check-in' : 'Sổ Lịch Hẹn Đã Xác Nhận & Chờ Check-in'}
           </h4>
-          <span className="badge rounded-pill fw-semibold px-3 py-2" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#5E85E6', fontSize: '0.85rem' }}>
+          <span className="badge rounded-pill fw-semibold px-3 py-2" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#648CF4', fontSize: '0.85rem' }}>
             Tổng hẹn cần tiếp đón: {filteredAppointments.length}
           </span>
         </Card.Header>
         <Card.Body className="p-4" style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
           {/* Morning Slot Capacity & Filter Tabs */}
-          <div className="mb-3 p-3 rounded-4 border" style={{ backgroundColor: '#F1F4F7', borderColor: '#E5E9EB' }}>
+          <div className="mb-3 p-3 rounded-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
               <div className="d-flex flex-wrap align-items-center gap-2">
                 <span className="fw-semibold text-dark small">
-                  <i className="fas fa-clock me-1" style={{ color: '#5E85E6' }}></i> Phân bổ khung ca sáng:
+                  <i className="fas fa-clock me-1" style={{ color: '#648CF4' }}></i> Phân bổ khung ca sáng:
                 </span>
                 <div className="btn-group btn-group-sm" role="group">
                   <button
                     type="button"
                     className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'ALL' ? { backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' } : { borderColor: '#E5E9EB', color: '#64748b' }}
+                    style={selectedSlot === 'ALL' ? { backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
                     onClick={() => setSelectedSlot('ALL')}
                   >
                     Tất cả ({slotCounts.ALL})
@@ -1993,7 +1993,7 @@ const ReceptionistCheckIn = () => {
                   <button
                     type="button"
                     className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'SLOT_1' ? { backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' } : { borderColor: '#E5E9EB', color: '#64748b' }}
+                    style={selectedSlot === 'SLOT_1' ? { backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
                     onClick={() => setSelectedSlot('SLOT_1')}
                   >
                     Khung 1 (07:00 - 08:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_1}/12</span>
@@ -2001,7 +2001,7 @@ const ReceptionistCheckIn = () => {
                   <button
                     type="button"
                     className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'SLOT_2' ? { backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' } : { borderColor: '#E5E9EB', color: '#64748b' }}
+                    style={selectedSlot === 'SLOT_2' ? { backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
                     onClick={() => setSelectedSlot('SLOT_2')}
                   >
                     Khung 2 (08:00 - 09:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_2}/12</span>
@@ -2009,7 +2009,7 @@ const ReceptionistCheckIn = () => {
                   <button
                     type="button"
                     className="btn rounded-pill px-3"
-                    style={selectedSlot === 'SLOT_3' ? { backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' } : { borderColor: '#E5E9EB', color: '#64748b' }}
+                    style={selectedSlot === 'SLOT_3' ? { backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
                     onClick={() => setSelectedSlot('SLOT_3')}
                   >
                     Khung 3 (09:00 - 10:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_3}/14</span>
@@ -2017,7 +2017,7 @@ const ReceptionistCheckIn = () => {
                 </div>
               </div>
               <div className="small text-muted">
-                <i className="fas fa-user-friends me-1" style={{ color: '#5E85E6' }}></i> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+                <i className="fas fa-user-friends me-1" style={{ color: '#648CF4' }}></i> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
               </div>
             </div>
           </div>
@@ -2110,8 +2110,8 @@ const ReceptionistCheckIn = () => {
                                 fontSize: isMobile ? '0.8rem' : '0.88rem', 
                                 padding: '6px 14px',
                                 whiteSpace: 'nowrap',
-                                backgroundColor: '#5E85E6',
-                                borderColor: '#5E85E6',
+                                backgroundColor: '#648CF4',
+                                borderColor: '#648CF4',
                                 color: '#ffffff'
                               }}
                               disabled={!['scheduled', 'confirmed'].includes((apt.status || '').toLowerCase()) || (apt.status || '').toLowerCase() === 'checked_in'}
@@ -2128,8 +2128,8 @@ const ReceptionistCheckIn = () => {
                                 fontSize: isMobile ? '0.8rem' : '0.88rem', 
                                 padding: '6px 12px',
                                 whiteSpace: 'nowrap',
-                                color: '#5E85E6',
-                                borderColor: '#5E85E6'
+                                color: '#648CF4',
+                                borderColor: '#648CF4'
                               }}
                             >
                               <i className="fas fa-eye me-1"></i> Chi tiết
@@ -2144,7 +2144,7 @@ const ReceptionistCheckIn = () => {
             </div>
           ) : (
             <div className="text-center py-5">
-              <i className="fas fa-calendar-times text-muted" style={{ fontSize: isMobile ? '3rem' : '4rem', color: '#5E85E6' }}></i>
+              <i className="fas fa-calendar-times text-muted" style={{ fontSize: isMobile ? '3rem' : '4rem', color: '#648CF4' }}></i>
               <h4 className="text-muted mt-3 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h4>
               <p className="text-muted" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
             </div>
@@ -2153,8 +2153,8 @@ const ReceptionistCheckIn = () => {
       </Card>
 
       {/* Checked-in Patients List */}
-      <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid #E5E9EB' }}>
-        <Card.Header className={`bg-white border-bottom ${isMobile ? 'flex-column' : 'd-flex justify-content-between'} align-items-center py-3`} style={{ borderColor: '#E5E9EB', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
+      <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+        <Card.Header className={`bg-white border-bottom ${isMobile ? 'flex-column' : 'd-flex justify-content-between'} align-items-center py-3`} style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
           <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#2B3674', marginBottom: isMobile ? '0.5rem' : '0' }}>
             <i className="fas fa-user-check me-2" style={{ color: '#16a34a' }}></i>
             {isMobile ? `Đã check-in (${checkedInAppointments.length})` : `Danh sách bệnh nhân đã check-in (${checkedInAppointments.length})`}
@@ -2170,7 +2170,7 @@ const ReceptionistCheckIn = () => {
                 fontSize: isMobile ? '0.8rem' : '0.9rem', 
                 padding: '6px 14px',
                 whiteSpace: 'nowrap',
-                borderColor: '#E5E9EB'
+                borderColor: 'rgba(15, 23, 42, 0.05)'
               }}
             >
               <i className={`fas fa-file-csv ${isMobile ? '' : 'me-2'}`}></i>
@@ -2186,8 +2186,8 @@ const ReceptionistCheckIn = () => {
                 fontSize: isMobile ? '0.8rem' : '0.9rem', 
                 padding: '6px 14px',
                 whiteSpace: 'nowrap',
-                color: '#5E85E6',
-                borderColor: '#5E85E6'
+                color: '#648CF4',
+                borderColor: '#648CF4'
               }}
             >
               <i className={`fas fa-print ${isMobile ? '' : 'me-2'}`}></i>

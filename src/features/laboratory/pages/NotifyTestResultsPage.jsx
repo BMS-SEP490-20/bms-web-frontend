@@ -237,7 +237,7 @@ export default function NotifyTestResultsPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#5E85E6', border: '1px solid rgba(94,133,230,0.2)' }}>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#648CF4', border: '1px solid rgba(94,133,230,0.2)' }}>
                             UC60 • BR-182 / BR-183
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -253,7 +253,7 @@ export default function NotifyTestResultsPage() {
                     <button
                         type="button"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-                        style={{ color: '#5E85E6', borderColor: '#5E85E6' }}
+                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
                         onClick={loadData}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
@@ -263,7 +263,7 @@ export default function NotifyTestResultsPage() {
                         <button
                             type="button"
                             className="btn btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-4 fw-semibold"
-                            style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' }}
+                            style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
                             onClick={() => setShowDispatchModal(true)}
                         >
                             <FaPaperPlane />
@@ -294,14 +294,14 @@ export default function NotifyTestResultsPage() {
             {/* 4 Stat KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tổng Số Thông Báo</span>
                                 <h3 className="fw-bold mb-0" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
                                 <small className="text-muted">Đã phát hành toàn viện</small>
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#5E85E6' }}>
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#648CF4' }}>
                                 <FaBell className="fs-4" />
                             </div>
                         </div>
@@ -309,7 +309,7 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tỷ Lệ Tiếp Nhận</span>
@@ -324,7 +324,7 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Báo Động Nguy Kịch</span>
@@ -339,7 +339,7 @@ export default function NotifyTestResultsPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Chờ Xử Lý / Thất Bại</span>

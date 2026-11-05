@@ -383,7 +383,7 @@ export default function DoctorSchedulePage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
           <h2 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaCalendarAlt style={{ color: '#5E85E6' }} />
+            <FaCalendarAlt style={{ color: '#648CF4' }} />
             <span>Quản Lý Ca Trực & Điều Phối Lịch Làm Việc</span>
           </h2>
           <p className="text-muted small mb-0">
@@ -396,7 +396,7 @@ export default function DoctorSchedulePage() {
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
           {canManageShifts && (
-            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '9999px' }}>
+            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}>
               <FaPlus /> Tạo Ca Làm Việc Mới (UC35)
             </Button>
           )}
@@ -420,21 +420,21 @@ export default function DoctorSchedulePage() {
       {/* KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Tổng Ca Làm Việc</div>
                 <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
                 <div className="text-muted" style={{ fontSize: '0.75rem' }}>Hiển thị {shifts.length} ca trên trang</div>
               </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#F1F4F7', color: '#5E85E6' }}>
+              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#648CF4' }}>
                 <FaCalendarAlt />
               </div>
             </Card.Body>
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Ca Đã Duyệt / Đang Trực</div>
@@ -448,11 +448,11 @@ export default function DoctorSchedulePage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Công Suất Tiếp Nhận</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{totalBooked} / {totalCapacity}</div>
+                <div className="fs-4 fw-bold font-monospace" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{totalBooked} / {totalCapacity}</div>
                 <div className="text-muted" style={{ fontSize: '0.75rem' }}>Lượt đăng ký / Tổng chỉ tiêu</div>
               </div>
               <div className="rounded-3 bg-info-subtle text-info-emphasis p-3 fs-4">
@@ -462,7 +462,7 @@ export default function DoctorSchedulePage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Phòng Đang Phân Ca</div>
@@ -478,7 +478,7 @@ export default function DoctorSchedulePage() {
       </Row>
 
       {/* Filter & Search Toolbar */}
-      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-3">
           <Row className="g-2 align-items-end">
             <Col xs={12} lg={3}>

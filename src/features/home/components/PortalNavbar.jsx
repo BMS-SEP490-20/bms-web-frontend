@@ -1,26 +1,19 @@
+/**
+ * @file PortalNavbar.jsx
+ * @description Master Centered-Pill Navigation Bar (MEDLINE / Apple macOS Grade).
+ * Features:
+ * - Brand logo (high-res BMS cross mark + wordmark)
+ * - Centered capsule pill track with solid active segment and soft hover wash
+ * - Top-right identity & CTA cluster with mint-green positive CTA and soft-blue primary actions
+ * Conforms to: Soft Medical Telehealth UI Specification & DESIGN SYSTEM PROMPT.
+ */
+
 import React, { useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  FaPhoneAlt, 
-  FaClock, 
-  FaVial, 
-  FaArrowRight, 
-  FaCalendarCheck, 
-  FaSignOutAlt, 
-  FaCalendarAlt, 
-  FaHistory, 
-  FaFileInvoiceDollar, 
-  FaUserCircle 
-} from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
-/**
- * PortalNavbar - Unified Header for Public Guests and Authenticated Patients.
- * Guaranteed 100% synchronization across all routes without layout jumping or header morphing.
- */
 export default function PortalNavbar({ user: propUser = null }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const user = useMemo(() => {
     if (propUser) return propUser;
@@ -60,147 +53,129 @@ export default function PortalNavbar({ user: propUser = null }) {
   };
 
   const patientName = user?.fullName || user?.username || 'Bệnh Nhân';
+  const initial = patientName ? patientName.trim().charAt(0).toUpperCase() : 'B';
 
   return (
-    <>
-      {/* 1. Master Topbar */}
-      <div className="bms-topbar">
-        <div className="bms-topbar-container">
-          <div className="bms-topbar-info">
-            <div className="bms-topbar-item">
-              <FaPhoneAlt />
-              <span>Hotline Đặt Lịch &amp; Tư Vấn: <strong>1900 6868</strong></span>
-            </div>
-            <div className="bms-topbar-item">
-              <FaClock />
-              <span>Tiếp nhận mẫu: 06:00 – 20:30 (Thứ 2 – CN)</span>
-            </div>
-          </div>
-          <div className="bms-topbar-badge">Giấy phép BYT: 08892/BYT-GPHĐ</div>
-        </div>
-      </div>
+    <header className="bms-telehealth-header">
+      <div className="bms-telehealth-header-inner">
+        {/* 1. Left: Brand Logo & Title */}
+        <Link className="bms-brand-cluster" to={isPatient ? "/home" : "/"}>
+          <img
+            src="/assets/bms-logo.png"
+            alt="BMS Clinical Laboratory"
+            className="bms-brand-img"
+          />
+        </Link>
 
-      {/* 2. Unified Navbar */}
-      <header className="bms-navbar">
-        <div className="bms-navbar-container">
-          <Link className="bms-brand" to={isPatient ? "/home" : "/"}>
-            <div className="bms-brand-logo">
-              <img src="/assets/bms-logo.png" alt="BMS Logo" onError={(e) => { e.target.style.display = 'none'; }} />
-            </div>
-            <div className="bms-brand-text">
-              <h1>BMS CLINICAL LABORATORY</h1>
-              <p>Tiêu Chuẩn Quốc Tế ISO 15189</p>
-            </div>
+        {/* 2. Center: Capsule Pill Track Navigation */}
+        <nav className="bms-nav-capsule-track" aria-label="Main Navigation">
+          <Link
+            className={`bms-capsule-item ${currentPath === '/' || currentPath === '/home' ? 'active' : ''}`}
+            to={isPatient ? "/home" : "/"}
+          >
+            Trang Chủ
+          </Link>
+          <Link
+            className={`bms-capsule-item ${currentPath.startsWith('/services') || currentPath.startsWith('/catalog') ? 'active' : ''}`}
+            to="/services"
+          >
+            Gói Xét Nghiệm
+          </Link>
+          <Link
+            className={`bms-capsule-item ${currentPath.startsWith('/tracking') ? 'active' : ''}`}
+            to="/tracking"
+          >
+            Tiến Trình &amp; Kết Quả
           </Link>
 
-          <ul className="bms-nav-links" style={{ flexWrap: "nowrap", whiteSpace: "nowrap", display: "flex", alignItems: "center" }}>
-            <li>
-              <Link 
-                style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath === '/' || currentPath === '/home' ? 'active text-primary' : ''}`} 
-                to={isPatient ? "/home" : "/"}
+          {isPatient ? (
+            <>
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/appointments') ? 'active' : ''}`}
+                to="/appointments"
               >
-                Trang Chủ
+                Lịch Khám Của Tôi
               </Link>
-            </li>
-            <li>
-              <Link 
-                style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath.startsWith('/services') || currentPath.startsWith('/catalog') ? 'active text-primary' : ''}`} 
-                to="/services"
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/patient/test-history') ? 'active' : ''}`}
+                to="/patient/test-history"
               >
-                Gói Xét Nghiệm
+                Lịch Sử Xét Nghiệm
               </Link>
-            </li>
-            <li>
-              <Link 
-                style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath.startsWith('/tracking') ? 'active text-primary' : ''}`} 
-                to="/tracking"
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices') ? 'active' : ''}`}
+                to="/patient/payment-history"
               >
-                <FaVial className="text-primary me-1" /> Tiến Trình &amp; Kết Quả
+                Lịch Sử Thanh Toán
               </Link>
-            </li>
+            </>
+          ) : (
+            <>
+              <Link
+                className={`bms-capsule-item ${currentPath === '/catalog' ? 'active' : ''}`}
+                to="/catalog"
+              >
+                Bảng Giá Niêm Yết
+              </Link>
+              <a className="bms-capsule-item" href="#quy-trinh">
+                Quy Trình ISO
+              </a>
+            </>
+          )}
+        </nav>
 
-            {/* Patient-Only Synced Navigation Items */}
-            {isPatient ? (
-              <>
-                <li>
-                  <Link 
-                    style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath.startsWith('/appointments') ? 'active text-primary' : ''}`} 
-                    to="/appointments"
-                  >
-                    <FaCalendarAlt className="me-1 text-secondary" /> Lịch Khám Của Tôi
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath.startsWith('/patient/test-history') ? 'active text-primary' : ''}`} 
-                    to="/patient/test-history"
-                  >
-                    <FaHistory className="me-1 text-secondary" /> Lịch Sử Xét Nghiệm
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    style={{ whiteSpace: "nowrap", flexShrink: 0 }} className={`bms-nav-link ${currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/patient/payments') || currentPath.startsWith('/invoices') ? 'active text-primary' : ''}`} 
-                    to="/patient/payment-history"
-                  >
-                    <FaFileInvoiceDollar className="me-1 text-secondary" /> Lịch Sử Thanh Toán
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link className="bms-nav-link" to="/catalog">Bảng Giá &amp; BHYT</Link>
-                </li>
-                <li>
-                  <a className="bms-nav-link" href="#quy-trinh">Quy Trình ISO</a>
-                </li>
-              </>
-            )}
-          </ul>
-
-          <div className="bms-header-actions">
-            {isPatient ? (
-              <div className="bms-user-nav-dropdown">
-                <Link className="bms-user-pill" to="/profile" title="Xem hồ sơ cá nhân">
-                  <div className="bms-user-avatar">{patientName ? patientName[0].toUpperCase() : 'B'}</div>
-                  <div className="bms-user-meta">
-                    <span className="bms-user-name">{patientName}</span>
-                  </div>
-                </Link>
-                <button type="button" className="bms-btn bms-btn-danger-outline bms-btn-sm" onClick={handleLogout}>
-                  <FaSignOutAlt /> Đăng Xuất
-                </button>
-              </div>
-            ) : isStaff ? (
-              <div className="bms-user-nav-dropdown d-flex align-items-center gap-2">
-                <Link to={staffWorkspacePath} className="bms-btn bms-btn-primary bms-btn-sm text-nowrap">
-                  Vào Bàn Làm Việc <FaArrowRight className="ms-1" />
-                </Link>
-                <div className="bms-user-pill" title="Tài khoản nhân viên">
-                  <div className="bms-user-avatar bg-dark text-white">{patientName ? patientName[0].toUpperCase() : 'N'}</div>
-                  <div className="bms-user-meta">
-                    <span className="bms-user-name">{patientName}</span>
-                    <small className="text-primary fw-semibold" style={{ fontSize: 10 }}>({staffRoleName})</small>
-                  </div>
+        {/* 3. Right: Identity & Positive CTA Cluster */}
+        <div className="bms-identity-cluster">
+          {isPatient ? (
+            <div className="bms-user-dock">
+              <Link className="bms-user-profile-tile" to="/profile" title="Xem hồ sơ y tế">
+                <div className="bms-avatar-circle">{initial}</div>
+                <div className="bms-user-text">
+                  <span className="bms-user-fullname">{patientName}</span>
+                  <span className="bms-user-sub">Bệnh nhân</span>
                 </div>
-                <button type="button" className="bms-btn bms-btn-danger-outline bms-btn-sm" onClick={handleLogout}>
-                  <FaSignOutAlt /> Đăng Xuất
-                </button>
+              </Link>
+              <button
+                type="button"
+                className="bms-btn-ghost-danger"
+                onClick={handleLogout}
+                title="Đăng xuất khỏi hệ thống"
+              >
+                Đăng Xuất
+              </button>
+            </div>
+          ) : isStaff ? (
+            <div className="bms-user-dock">
+              <Link to={staffWorkspacePath} className="bms-btn-mint-cta">
+                Bàn Làm Việc
+              </Link>
+              <div className="bms-user-profile-tile">
+                <div className="bms-avatar-circle bms-avatar-staff">{initial}</div>
+                <div className="bms-user-text">
+                  <span className="bms-user-fullname">{patientName}</span>
+                  <span className="bms-user-sub">{staffRoleName}</span>
+                </div>
               </div>
-            ) : (
-              <>
-                <Link className="bms-btn bms-btn-outline" to="/appointments/book">
-                  <FaCalendarCheck /> Đặt Lịch Lấy Mẫu
-                </Link>
-                <Link className="bms-btn bms-btn-primary" to="/login">
-                  Đăng Nhập <FaArrowRight />
-                </Link>
-              </>
-            )}
-          </div>
+              <button
+                type="button"
+                className="bms-btn-ghost-danger"
+                onClick={handleLogout}
+              >
+                Đăng Xuất
+              </button>
+            </div>
+          ) : (
+            <div className="bms-guest-actions">
+              <Link className="bms-btn-mint-cta" to="/appointments/book">
+                Đặt Lịch Lấy Mẫu
+              </Link>
+              <Link className="bms-btn-blue-cta" to="/login">
+                Đăng Nhập
+              </Link>
+            </div>
+          )}
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   );
 }

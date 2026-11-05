@@ -90,17 +90,18 @@ export default function ReceiptPrintModal({ printData, onClose }) {
             <button
               onClick={handlePrint}
               style={{
-                backgroundColor: '#2563eb',
+                backgroundColor: '#5E85E6',
                 color: '#ffffff',
                 border: 'none',
-                padding: '8px 16px',
-                borderRadius: '8px',
+                padding: '8px 18px',
+                borderRadius: '9999px',
                 fontWeight: '600',
                 fontSize: '13px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
+                boxShadow: '0 2px 8px rgba(94, 133, 230, 0.3)',
               }}
             >
               🖨️ In Ngay (Print)
@@ -111,8 +112,8 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                 backgroundColor: '#334155',
                 color: '#ffffff',
                 border: 'none',
-                padding: '8px 12px',
-                borderRadius: '8px',
+                padding: '8px 14px',
+                borderRadius: '9999px',
                 fontSize: '13px',
                 cursor: 'pointer',
               }}

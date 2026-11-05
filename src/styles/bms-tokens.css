@@ -214,3 +214,12 @@ body {
   box-shadow: var(--shadow-float);
   transform: translateY(-1px);
 }
+
+/* Granular Micro-Alignment Spacing Utilities (Cross-framework bridge) */
+.px-2\.5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+.py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.px-3\.5 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+.py-3\.5 { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
+.p-3\.5  { padding: 0.875rem !important; }
+.gap-1\.5 { gap: 0.375rem !important; }
+

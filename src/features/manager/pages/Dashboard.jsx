@@ -610,6 +610,14 @@ const ManagerDashboard = () => {
       width: '100%',
       boxSizing: 'border-box'
     }}>
+      {/* Access Denied Alert */}
+      {accessDeniedMessage && (
+        <Alert variant="danger" dismissible onClose={() => setAccessDeniedMessage(null)} className="mb-4 shadow-sm" style={{ borderRadius: 14 }}>
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {accessDeniedMessage}
+        </Alert>
+      )}
+
       {/* Header */}
       <Row className="mb-4">
         <Col>

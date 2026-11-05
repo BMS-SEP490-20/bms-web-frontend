@@ -380,7 +380,7 @@ export default function CreateTestOrderPage() {
       )}
 
       {/* Patient & Appointment Demographic Banner */}
-      <div className="card border-0 shadow-sm mb-4 p-3 rounded-4" style={{ borderLeft: "5px solid #5E85E6", border: "1px solid #E5E9EB" }}>
+      <div className="card shadow-sm mb-4 p-3 rounded-4" style={{ border: "1px solid #E5E9EB", borderLeft: "5px solid #5E85E6" }}>
         <div className="row align-items-center g-3">
           <div className="col-auto">
             <div
@@ -423,7 +423,7 @@ export default function CreateTestOrderPage() {
         {/* Left Column: Test Catalog & Clinical ICD-10 Selection */}
         <div className="col-lg-8">
           {/* Card 1: Select Tests from Catalog */}
-          <div className="card border-0 shadow-sm rounded-4 mb-4" style={{ border: "1px solid #E5E9EB" }}>
+          <div className="card shadow-sm rounded-4 mb-4" style={{ border: "1px solid #E5E9EB" }}>
             <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
                 <FaClipboardList style={{ color: "#5E85E6" }} /> Danh Mục Xét Nghiệm & Gói Cận Lâm Sàng
@@ -562,7 +562,7 @@ export default function CreateTestOrderPage() {
           </div>
 
           {/* Card 2: Clinical Details & ICD-10 Coding */}
-          <div className="card border-0 shadow-sm rounded-4" style={{ border: "1px solid #E5E9EB" }}>
+          <div className="card shadow-sm rounded-4" style={{ border: "1px solid #E5E9EB" }}>
             <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
                 <FaStethoscope style={{ color: "#5E85E6" }} /> Chẩn Đoán ICD-10 & Y Lệnh Lâm Sàng
@@ -714,7 +714,7 @@ export default function CreateTestOrderPage() {
 
         {/* Right Sticky Column: Order Summary & Actions */}
         <div className="col-lg-4">
-          <div className="card border-0 shadow-sm rounded-4 position-sticky" style={{ top: "24px", border: "1px solid #E5E9EB" }}>
+          <div className="card shadow-sm rounded-4 position-sticky" style={{ top: "24px", border: "1px solid #E5E9EB" }}>
             <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "#E5E9EB" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
                 <FaFileInvoiceDollar style={{ color: "#5E85E6" }} /> Tóm Tắt Phiếu Chỉ Định

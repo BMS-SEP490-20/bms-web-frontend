@@ -195,12 +195,16 @@ p {
   border-radius: var(--radius-btn) !important;
   padding: 9px 20px !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
   cursor: pointer !important;
+}
+
+.btn:focus-visible {
+  outline: none !important;
+  box-shadow: var(--ring-focus) !important;
 }
 
 .btn:hover {

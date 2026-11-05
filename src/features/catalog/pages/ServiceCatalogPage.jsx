@@ -436,23 +436,23 @@ export default function ServiceCatalogPage() {
       <PortalNavbar user={user} />
 
       {/* 3. CATALOG HERO SECTION */}
-      <section className="py-4" style={{ background: 'linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)', borderBottom: '1px solid #e2e8f0' }}>
+      <section className="py-4" style={{ background: 'linear-gradient(180deg, #F1F4F7 0%, #FFFFFF 100%)', borderBottom: '1px solid var(--bms-border, #E5E9EB)' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div className="text-center mx-auto mb-3" style={{ maxWidth: 840 }}>
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2"
-                 style={{ backgroundColor: '#dbeafe', color: '#1e40af', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
+                 style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#5E85E6', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
               <FaShieldAlt /> TRA CỨU & TÌM KIẾM GÓI XÉT NGHIỆM (UC20 - ISO 15189:2012)
             </div>
-            <h2 className="fw-bold text-dark mb-2" style={{ fontSize: '28px', color: '#0f172a' }}>
+            <h2 className="fw-bold mb-2" style={{ fontSize: '26px', color: 'var(--bms-text-primary, #20242B)' }}>
               Tìm Kiếm Gói Xét Nghiệm & Chỉ Số Lâm Sàng
             </h2>
-            <p className="text-secondary mb-3" style={{ fontSize: '15px' }}>
+            <p className="text-secondary mb-3" style={{ fontSize: '14.5px' }}>
               Tra cứu theo tên gói, mã gói (CBC, LIPID, LFT...), tên chỉ số sinh học (WBC, GLU, HbA1c, ALT...), loại ống mẫu hoặc khoảng giá.
             </p>
           </div>
 
           {/* Advanced Multi-Facet Search Toolbar Card (matching UC20 screen) */}
-          <div className="bg-white p-3 rounded-4 shadow-sm border">
+          <div className="bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
             <Row className="g-2 align-items-center">
               <Col xs={12} lg={4}>
                 <div className="input-group">
@@ -566,8 +566,8 @@ export default function ServiceCatalogPage() {
                       : 'btn-light text-secondary border'
                   }`}
                   style={{
-                    backgroundColor: selectedCategory === cat ? '#1e40af' : '#f8fafc',
-                    borderColor: selectedCategory === cat ? '#1e40af' : '#e2e8f0',
+                    backgroundColor: selectedCategory === cat ? '#5E85E6' : 'var(--bms-surface-card, #F1F4F7)',
+                    borderColor: selectedCategory === cat ? '#5E85E6' : 'var(--bms-border, #E5E9EB)',
                     fontSize: '12px'
                   }}
                   onClick={() => {
@@ -749,7 +749,7 @@ export default function ServiceCatalogPage() {
                                 variant="primary"
                                 size="sm"
                                 className="px-2 py-1"
-                                style={{ backgroundColor: '#1e40af', borderColor: '#1e40af', fontSize: '0.78rem' }}
+                                style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', fontSize: '0.78rem' }}
                                 onClick={() => handleOpenBooking(pkg)}
                                 title="Đặt lịch"
                               >
@@ -851,9 +851,9 @@ export default function ServiceCatalogPage() {
                 <div style={{
                   width: 38,
                   height: 38,
-                  backgroundColor: '#eff6ff',
-                  color: '#1e40af',
-                  borderRadius: 8,
+                  backgroundColor: 'rgba(94, 133, 230, 0.12)',
+                  color: '#5E85E6',
+                  borderRadius: 10,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -975,7 +975,8 @@ export default function ServiceCatalogPage() {
                 </Button>
                 <Button
                   variant="primary"
-                  style={{ backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+                  className="rounded-pill px-4 fw-semibold"
+                  style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
                   onClick={() => {
                     setShowDetailModal(false);
                     handleOpenBooking(selectedPackage);
@@ -1001,8 +1002,8 @@ export default function ServiceCatalogPage() {
           <div style={{
             width: 56,
             height: 56,
-            backgroundColor: '#eff6ff',
-            color: '#1e40af',
+            backgroundColor: 'rgba(94, 133, 230, 0.12)',
+            color: '#5E85E6',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -1020,7 +1021,7 @@ export default function ServiceCatalogPage() {
           <div className="d-grid gap-2">
             <a
               className="btn btn-primary rounded-pill py-2 fw-semibold"
-              style={{ backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
               href={`/login?redirect=catalog&package=${encodeURIComponent(bookingPackage?.packageName || "")}`}
             >
               Đăng Nhập Cổng Y Tế <FaArrowRight className="ms-1" />

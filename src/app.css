@@ -1,24 +1,28 @@
 /* ==========================================================================
-   BMS Clinical Design System - Patient Landing Page (Non-AI Human-Centered)
-   Standard: Clinical Hospital Information System (HIS / LIS)
-   Primary Color: Medical Blue (#1E40AF), Slate (#F8FAFC), Sterile White (#FFFFFF)
+   BMS Modern Soft Healthcare SaaS — Patient Landing & Portal Design System
+   Specification: DESIGNRULE.md
+   Colors: #5E85E6 (Primary), #91DE83 (Success), #E7BC4C (Warning)
+   Surfaces: #FFFFFF (Base), #F1F4F7 (Card Surface), #E8EDF2 (Muted)
+   Text: #20242B (Primary), #7D8794 (Secondary)
+   Typography: Geist Sans | Border Radius: 16–22px | Pill Buttons: 9999px
    ========================================================================== */
 
 .bms-landing-wrapper {
     min-height: 100vh;
-    color: #1e293b;
-    background-color: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--bms-text-main);
+    background-color: var(--bms-background);
+    font-family: var(--bms-font-family);
     -webkit-font-smoothing: antialiased;
 }
 
 /* Top Announcement & Emergency Contact Bar */
 .bms-topbar {
-    background-color: #0f172a;
-    color: #cbd5e1;
+    background-color: var(--bms-card-bg);
+    color: var(--bms-text-secondary);
     font-size: 12px;
+    font-weight: 500;
     padding: 8px 0;
-    border-bottom: 1px solid #1e293b;
+    border-bottom: 1px solid var(--bms-border);
 }
 
 .bms-topbar-container {
@@ -45,26 +49,26 @@
 }
 
 .bms-topbar-item svg {
-    color: #38bdf8;
+    color: var(--bms-primary);
 }
 
 .bms-topbar-badge {
-    background-color: #1e3a8a;
-    color: #93c5fd;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
+    background-color: var(--bms-primary-light);
+    color: var(--bms-primary);
+    padding: 2px 10px;
+    border-radius: var(--bms-radius-full);
+    font-weight: 550;
     font-size: 11px;
 }
 
 /* Main Navigation Header */
 .bms-navbar {
     background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--bms-border);
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: var(--bms-shadow-sm);
 }
 
 .bms-navbar-container {
@@ -72,12 +76,12 @@
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
     height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
 }
 
 .bms-brand {
@@ -90,16 +94,16 @@
 }
 
 .bms-brand-logo {
-    width: 48px;
-    height: 48px;
-    background: #ffffff;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    background: var(--bms-card-bg);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    padding: 4px;
+    border: none;
+    box-shadow: var(--bms-shadow-sm);
     flex-shrink: 0;
     overflow: hidden;
 }
@@ -112,25 +116,25 @@
 
 .bms-brand-text h1 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.3px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bms-text-main);
+    letter-spacing: -0.2px;
     white-space: nowrap;
 }
 
 .bms-brand-text p {
     margin: 0;
     font-size: 11px;
-    color: #64748b;
-    font-weight: 500;
+    color: var(--bms-text-secondary);
+    font-weight: 400;
     white-space: nowrap;
 }
 
 .bms-nav-links {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     list-style: none;
     flex-wrap: nowrap;
     margin: 0;
@@ -146,53 +150,49 @@
 }
 
 .bms-nav-link {
-    color: #334155;
+    color: var(--bms-text-secondary);
     font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     white-space: nowrap !important;
     word-break: keep-all;
     display: inline-flex;
     align-items: center;
-    padding: 6px 4px;
-    transition: color 0.15s ease;
+    padding: 7px 14px;
+    border-radius: var(--bms-radius-full);
+    transition: var(--bms-transition);
 }
 
-.bms-nav-link.active {
-    color: #1e40af;
-    font-weight: 700;
-}
-
+.bms-nav-link.active,
 .bms-nav-link:hover {
-    color: #1e40af;
+    color: var(--bms-primary);
+    background-color: var(--bms-primary-light);
+    font-weight: 550;
 }
 
 .bms-nav-btn {
     background: transparent;
     border: none;
-    color: #334155;
-    font-size: 14px;
-    font-weight: 600;
+    color: var(--bms-text-secondary);
+    font-size: 13.5px;
+    font-weight: 500;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 6px 12px;
-    border-radius: 6px;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: var(--bms-radius-full);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: var(--bms-transition);
     font-family: inherit;
     outline: none;
 }
 
-.bms-nav-btn:hover {
-    color: #1e40af;
-    background-color: #eff6ff;
-}
-
+.bms-nav-btn:hover,
 .bms-nav-btn:focus,
 .bms-nav-btn.active {
-    color: #1e40af;
-    background-color: #dbeafe;
+    color: var(--bms-primary);
+    background-color: var(--bms-primary-light);
+    font-weight: 550;
 }
 
 .bms-header-actions {
@@ -209,45 +209,42 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 9px 18px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border-radius: var(--bms-radius-full);
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.15s ease;
-    border: 1px solid transparent;
+    transition: var(--bms-transition);
+    border: none;
 }
 
 .bms-btn-outline {
-    background-color: #ffffff;
-    border-color: #cbd5e1;
-    color: #334155;
+    background-color: var(--bms-card-bg);
+    color: var(--bms-text-main);
+    border: 1px solid transparent;
 }
 
 .bms-btn-outline:hover {
-    background-color: #f1f5f9;
-    border-color: #94a3b8;
-    color: #0f172a;
+    background-color: var(--bms-muted-surface);
+    color: var(--bms-text-main);
 }
 
 .bms-btn-primary {
-    background-color: #1e40af;
+    background-color: var(--bms-primary);
     color: #ffffff;
-    border-color: #1e40af;
 }
 
 .bms-btn-primary:hover {
-    background-color: #1d4ed8;
-    border-color: #1d4ed8;
+    background-color: var(--bms-primary-hover);
     color: #ffffff;
 }
 
 /* Hero Section */
 .bms-hero-section {
-    padding: 48px 0 60px;
-    background: linear-gradient(180deg, #f0f7ff 0%, #f8fafc 100%);
-    border-bottom: 1px solid #e2e8f0;
+    padding: 64px 0 76px;
+    background: linear-gradient(180deg, #F1F4F7 0%, #FFFFFF 100%);
+    border-bottom: 1px solid var(--bms-border);
 }
 
 .bms-hero-container {
@@ -255,7 +252,7 @@
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
-    gap: 40px;
+    gap: 48px;
     align-items: center;
 }
 
@@ -263,130 +260,140 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
-    background-color: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
+    padding: 5px 14px;
+    background-color: var(--bms-primary-light);
+    color: var(--bms-primary);
+    border: 1px solid #d4e2fa;
+    border-radius: var(--bms-radius-full);
+    font-size: 11.5px;
+    font-weight: 550;
     margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.02em;
 }
 
 .bms-hero-title {
-    font-size: clamp(28px, 3.5vw, 42px);
-    font-weight: 800;
-    color: #0f172a;
+    font-size: clamp(28px, 3.8vw, 42px);
+    font-weight: 600;
+    color: var(--bms-text-main);
     line-height: 1.25;
     margin-bottom: 16px;
-    letter-spacing: -0.8px;
+    letter-spacing: -0.02em;
 }
 
 .bms-hero-title span {
-    color: #1e40af;
+    color: var(--bms-primary);
+    font-weight: 600;
 }
 
 .bms-hero-desc {
-    font-size: 15px;
-    color: #475569;
-    line-height: 1.7;
+    font-size: 14.5px;
+    color: var(--bms-text-secondary);
+    line-height: 1.65;
     margin-bottom: 28px;
+    max-width: 580px;
 }
 
-/* Hero Search Bar */
+/* Hero Search Bar — Modern Pill */
 .bms-search-bar {
     display: flex;
     background: #ffffff;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-    margin-bottom: 28px;
-    transition: border-color 0.2s;
+    border: 1px solid var(--bms-border);
+    border-radius: var(--bms-radius-full);
+    padding: 4px 6px;
+    box-shadow: var(--bms-shadow-md);
+    margin-bottom: 32px;
+    transition: var(--bms-transition);
 }
 
 .bms-search-bar:focus-within {
-    border-color: #1e40af;
+    border-color: var(--bms-primary);
+    box-shadow: var(--bms-shadow-focus);
 }
 
 .bms-search-icon {
     display: flex;
     align-items: center;
     padding-left: 16px;
-    color: #64748b;
-    font-size: 16px;
+    color: var(--bms-text-secondary);
+    font-size: 15px;
 }
 
 .bms-search-input {
     flex: 1;
     border: none;
-    padding: 14px 12px;
-    font-size: 14px;
+    padding: 12px 14px;
+    font-size: 13.5px;
     outline: none;
-    color: #0f172a;
+    color: var(--bms-text-main);
+    font-family: var(--bms-font-family);
+    background: transparent;
+}
+
+.bms-search-input::placeholder {
+    color: var(--bms-text-secondary);
+    opacity: 0.8;
 }
 
 .bms-search-btn {
-    background-color: #1e40af;
+    background-color: var(--bms-primary);
     color: #ffffff;
     border: none;
-    padding: 0 24px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: var(--bms-radius-full);
+    padding: 10px 24px;
+    font-size: 13.5px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: var(--bms-transition);
 }
 
 .bms-search-btn:hover {
-    background-color: #1d4ed8;
+    background-color: var(--bms-primary-hover);
 }
 
 /* Trust Metric Counter Pills */
 .bms-hero-metrics {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+    gap: 20px;
+    padding-top: 24px;
+    border-top: 1px solid var(--bms-divider);
 }
 
 .bms-metric-item h3 {
     margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    color: #1e40af;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--bms-primary);
     font-variant-numeric: tabular-nums;
 }
 
 .bms-metric-item p {
-    margin: 2px 0 0;
+    margin: 4px 0 0;
     font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
+    color: var(--bms-text-secondary);
+    font-weight: 400;
 }
 
-/* Hero Right Utility Card */
+/* Hero Right Utility Card — Soft Surface */
 .bms-utility-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    background: var(--bms-card-bg);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 26px 28px;
+    box-shadow: var(--bms-shadow-sm);
 }
 
 .bms-utility-header {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--bms-border);
     padding-bottom: 16px;
     margin-bottom: 20px;
 }
 
 .bms-utility-header h3 {
     margin: 0;
-    font-size: 17px;
-    font-weight: 700;
-    color: #0f172a;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--bms-text-main);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -395,7 +402,7 @@
 .bms-utility-header p {
     margin: 4px 0 0;
     font-size: 12px;
-    color: #64748b;
+    color: var(--bms-text-secondary);
 }
 
 .bms-form-group {
@@ -405,34 +412,37 @@
 .bms-form-label {
     display: block;
     font-size: 12px;
-    font-weight: 600;
-    color: #334155;
+    font-weight: 550;
+    color: var(--bms-text-main);
     margin-bottom: 6px;
 }
 
 .bms-form-control {
     width: 100%;
     padding: 10px 14px;
-    font-size: 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    font-size: 13.5px;
+    background-color: #ffffff;
+    border: 1px solid var(--bms-border);
+    border-radius: var(--bms-radius);
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: var(--bms-transition);
+    color: var(--bms-text-main);
+    font-family: var(--bms-font-family);
 }
 
 .bms-form-control:focus {
-    border-color: #1e40af;
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    border-color: var(--bms-primary);
+    box-shadow: var(--bms-shadow-focus);
 }
 
 .bms-utility-alert {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-size: 11px;
-    color: #64748b;
+    background-color: #ffffff;
+    border: 1px solid var(--bms-border);
+    border-radius: var(--bms-radius);
+    padding: 10px 14px;
+    font-size: 11.5px;
+    color: var(--bms-text-secondary);
     margin-top: 16px;
     display: flex;
     align-items: center;
@@ -441,11 +451,11 @@
 
 /* Clinical Workflow Section (4 Steps) */
 .bms-section {
-    padding: 64px 0;
+    padding: 72px 0;
 }
 
 .bms-section-alt {
-    background-color: #f1f5f9;
+    background-color: var(--bms-card-bg);
 }
 
 .bms-container {
@@ -461,24 +471,23 @@
 
 .bms-section-subtitle {
     font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #0284c7;
-    letter-spacing: 1px;
+    font-weight: 600;
+    color: var(--bms-primary);
+    letter-spacing: 0.05em;
     margin-bottom: 8px;
 }
 
 .bms-section-title {
-    font-size: 26px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.5px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--bms-text-main);
+    letter-spacing: -0.015em;
     margin: 0 0 12px;
 }
 
 .bms-section-desc {
     font-size: 14px;
-    color: #64748b;
+    color: var(--bms-text-secondary);
     margin: 0;
     line-height: 1.6;
 }
@@ -490,30 +499,37 @@
 }
 
 .bms-step-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    background: var(--bms-card-bg);
+    border: none;
+    border-radius: var(--bms-card-radius);
     padding: 24px;
     position: relative;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--bms-shadow-sm);
+    transition: var(--bms-transition);
+}
+
+.bms-step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bms-shadow-md);
+    background: #ffffff;
 }
 
 .bms-step-number {
     position: absolute;
     top: 16px;
     right: 16px;
-    font-size: 28px;
-    font-weight: 900;
-    color: #e2e8f0;
+    font-size: 26px;
+    font-weight: 600;
+    color: #DDE3EA;
     font-variant-numeric: tabular-nums;
 }
 
 .bms-step-icon {
     width: 44px;
     height: 44px;
-    background-color: #eff6ff;
-    color: #1e40af;
-    border-radius: 8px;
+    background-color: var(--bms-primary-light);
+    color: var(--bms-primary);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -524,14 +540,14 @@
 .bms-step-card h4 {
     margin: 0 0 8px;
     font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
+    font-weight: 600;
+    color: var(--bms-text-main);
 }
 
 .bms-step-card p {
     margin: 0;
-    font-size: 12px;
-    color: #64748b;
+    font-size: 12.5px;
+    color: var(--bms-text-secondary);
     line-height: 1.6;
 }
 
@@ -539,83 +555,86 @@
 .bms-packages-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
 }
 
 .bms-package-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    background: var(--bms-card-bg);
+    border: 1px solid transparent;
+    border-radius: var(--bms-card-radius);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--bms-shadow-sm);
+    transition: var(--bms-transition);
 }
 
 .bms-package-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.08);
+    transform: translateY(-3px);
+    box-shadow: var(--bms-shadow-md);
+    background: #ffffff;
+    border-color: var(--bms-border);
 }
 
 .bms-package-card.featured {
-    border-color: #0284c7;
+    border-color: var(--bms-primary);
     position: relative;
 }
 
 .bms-package-ribbon {
-    background: #0284c7;
+    background: var(--bms-primary);
     color: #ffffff;
     font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: 600;
     padding: 4px 12px;
     text-align: center;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.05em;
 }
 
 .bms-package-body {
-    padding: 20px;
+    padding: 22px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
 .bms-package-title {
-    margin: 0 0 6px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #0f172a;
+    margin: 0 0 8px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--bms-text-main);
 }
 
 .bms-package-summary {
-    font-size: 12px;
-    color: #64748b;
+    font-size: 12.5px;
+    color: var(--bms-text-secondary);
     margin: 0 0 16px;
     line-height: 1.5;
     flex-grow: 1;
 }
 
 .bms-package-meta {
-    background-color: #f8fafc;
-    border-radius: 6px;
-    padding: 10px 12px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid var(--bms-border);
+    padding: 10px 14px;
     margin-bottom: 16px;
 }
 
 .bms-meta-row {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
-    padding: 2px 0;
+    font-size: 11.5px;
+    padding: 3px 0;
 }
 
 .bms-meta-label {
-    color: #64748b;
+    color: var(--bms-text-secondary);
 }
 
 .bms-meta-val {
-    font-weight: 600;
-    color: #334155;
+    font-weight: 550;
+    color: var(--bms-text-main);
 }
 
 .bms-package-price {
@@ -624,14 +643,14 @@
 
 .bms-price-val {
     font-size: 20px;
-    font-weight: 800;
-    color: #1e40af;
+    font-weight: 600;
+    color: var(--bms-primary);
     font-variant-numeric: tabular-nums;
 }
 
 .bms-price-unit {
     font-size: 12px;
-    color: #64748b;
+    color: var(--bms-text-secondary);
     margin-left: 4px;
 }
 
@@ -643,20 +662,27 @@
 }
 
 .bms-trust-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    background: var(--bms-card-bg);
+    border: none;
+    border-radius: var(--bms-card-radius);
     padding: 24px;
     display: flex;
     gap: 16px;
+    box-shadow: var(--bms-shadow-sm);
+    transition: var(--bms-transition);
+}
+
+.bms-trust-card:hover {
+    background: #ffffff;
+    box-shadow: var(--bms-shadow-md);
 }
 
 .bms-trust-icon {
     width: 48px;
     height: 48px;
-    background-color: #ecfdf5;
-    color: #059669;
-    border-radius: 8px;
+    background-color: var(--bms-success-light);
+    color: var(--bms-success-text);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -667,23 +693,24 @@
 .bms-trust-text h4 {
     margin: 0 0 6px;
     font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
+    font-weight: 600;
+    color: var(--bms-text-main);
 }
 
 .bms-trust-text p {
     margin: 0;
-    font-size: 12px;
-    color: #64748b;
+    font-size: 12.5px;
+    color: var(--bms-text-secondary);
     line-height: 1.6;
 }
 
-/* Footer Section */
+/* Modern Dark Slate Footer Section */
 .bms-footer {
-    background-color: #0f172a;
-    color: #94a3b8;
-    padding: 48px 0 24px;
+    background-color: #1e2229;
+    color: #7D8794;
+    padding: 56px 0 28px;
     font-size: 13px;
+    font-family: var(--bms-font-family);
 }
 
 .bms-footer-grid {
@@ -696,9 +723,9 @@
 .bms-footer-col h4 {
     color: #ffffff;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0 0 16px;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.01em;
 }
 
 .bms-footer-col p {
@@ -717,17 +744,17 @@
 }
 
 .bms-footer-links a {
-    color: #94a3b8;
+    color: #7D8794;
     text-decoration: none;
-    transition: color 0.15s;
+    transition: var(--bms-transition);
 }
 
 .bms-footer-links a:hover {
-    color: #ffffff;
+    color: var(--bms-primary);
 }
 
 .bms-footer-bottom {
-    border-top: 1px solid #1e293b;
+    border-top: 1px solid #2a2f38;
     padding-top: 24px;
     display: flex;
     justify-content: space-between;
@@ -735,6 +762,7 @@
     flex-wrap: wrap;
     gap: 12px;
     font-size: 12px;
+    color: #64748b;
 }
 
 /* Responsive adjustments */

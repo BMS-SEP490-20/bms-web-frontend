@@ -1,11 +1,11 @@
 /**
  * @file TrackTestProgressPage.jsx
- * @description Dedicated Patient Portal and Clinical view for tracking 6-stage test specimen progress in real time (UC48 / Issue I3-002).
- * Conforms to: Production Standards, ISO 15189, HIPAA Patient Privacy & AGENTS-DESIGN.md.
+ * @description Dedicated Patient Portal and Clinical view for tracking 6-stage test specimen progress in real time (UC48).
+ * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import { 
     FaSearch, 
     FaVial, 
@@ -22,9 +22,22 @@ import {
     FaBarcode, 
     FaArrowRight, 
     FaPrint, 
-    FaPhoneAlt 
+    FaPhoneAlt,
+    FaTimes,
+    FaInfoCircle,
+    FaIdCard,
+    FaCheck
 } from "react-icons/fa";
 import { fetchTrackingByCode } from "../api/trackingApi";
+import PortalNavbar from "../../home/components/PortalNavbar";
+import MegaFooter from "../../home/components/MegaFooter";
+import "./TrackTestProgressPage.css";
+
+const QUICK_DEMO_CODES = [
+    { code: "BC-20261009-001", label: "Mẫu Thường (Routine)", desc: "Xét nghiệm tổng quát • Đang chạy máy" },
+    { code: "BC-20261011-0004", label: "Cấp Cứu (STAT)", desc: "Đông máu toàn bộ • Chạy lại (Rerun)" },
+    { code: "BC-20261009-002", label: "Mẫu Sinh Hóa", desc: "Bộ mỡ máu toàn phần • Hoàn thành" }
+];
 
 export default function TrackTestProgressPage() {
     const [searchParams] = useSearchParams();
@@ -35,6 +48,7 @@ export default function TrackTestProgressPage() {
     const [loading, setLoading] = useState(false);
     const [trackingData, setTrackingData] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [hasSearched, setHasSearched] = useState(false);
 
     // Initialize search from route param or query string
     useEffect(() => {
@@ -54,14 +68,14 @@ export default function TrackTestProgressPage() {
 
         setLoading(true);
         setErrorMessage("");
+        setHasSearched(true);
         try {
             const data = await fetchTrackingByCode(code);
             if (!data) {
-                setErrorMessage(`Không tìm thấy tiến trình xét nghiệm cho mã "${code}". Vui lòng kiểm tra lại thông tin.`);
+                setErrorMessage(`Không tìm thấy tiến trình xét nghiệm cho mã "${code}". Vui lòng kiểm tra lại mã in trên phiếu hẹn.`);
                 setTrackingData(null);
             } else {
                 setTrackingData(data);
-                // Update URL query parameter without full reload
                 navigate(`?code=${encodeURIComponent(code)}`, { replace: true });
             }
         } catch (err) {
@@ -76,6 +90,19 @@ export default function TrackTestProgressPage() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         handleTrackLookup(searchInput);
+    };
+
+    const handleChipClick = (code) => {
+        setSearchInput(code);
+        handleTrackLookup(code);
+    };
+
+    const handleClearSearch = () => {
+        setSearchInput("");
+        setTrackingData(null);
+        setErrorMessage("");
+        setHasSearched(false);
+        navigate("/tracking", { replace: true });
     };
 
     const formatDateTime = (dateStr) => {
@@ -99,22 +126,43 @@ export default function TrackTestProgressPage() {
         switch (status) {
             case "Completed":
             case 2:
-                return <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><FaCheckCircle className="me-1" /> Đã hoàn tất</span>;
+                return (
+                    <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-semibold">
+                        <FaCheckCircle className="me-1" /> Đã hoàn tất
+                    </span>
+                );
             case "InProgress":
             case 1:
-                return <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"><FaClock className="me-1 spinner-border spinner-border-sm" /> Đang xử lý</span>;
+                return (
+                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-semibold">
+                        <FaClock className="me-1" /> Đang xử lý
+                    </span>
+                );
             case "Warning":
             case 3:
-                return <span className="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1"><FaExclamationTriangle className="me-1" /> Cảnh báo / Rerun</span>;
+                return (
+                    <span className="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 fw-semibold">
+                        <FaExclamationTriangle className="me-1" /> Cần chạy lại (Rerun)
+                    </span>
+                );
             case "Rejected":
             case 4:
-                return <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><FaTimesCircle className="me-1" /> Mẫu từ chối</span>;
+                return (
+                    <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-semibold">
+                        <FaTimesCircle className="me-1" /> Mẫu từ chối
+                    </span>
+                );
             default:
-                return <span className="badge bg-light text-muted border px-2 py-1">Chờ thực hiện</span>;
+                return (
+                    <span className="badge bg-light text-muted border px-2 py-1 fw-normal">
+                        Chờ thực hiện
+                    </span>
+                );
         }
     };
 
-    const getStepIcon = (stepNumber) => {
+    const getStepIcon = (stepNumber, status) => {
+        if (status === "Completed" || status === 2) return <FaCheck />;
         switch (stepNumber) {
             case 1: return <FaHospital />;
             case 2: return <FaVial />;
@@ -127,260 +175,364 @@ export default function TrackTestProgressPage() {
     };
 
     return (
-        <div className="bms-tracking-page py-4 bg-light min-vh-100">
-            <div className="container" style={{ maxWidth: 1100 }}>
-                {/* 1. HEADER SECTION */}
-                <div className="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
-                    <div className="bg-primary text-white p-4" style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)" }}>
-                        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                            <div>
-                                <div className="badge bg-white text-primary mb-2 px-3 py-1 fw-bold">
-                                    <FaShieldAlt className="me-1" /> TIÊU CHUẨN ISO 15189:2012
-                                </div>
-                                <h2 className="fw-bold mb-1">Theo Dõi Lộ Trình Mẫu Máu & Xét Nghiệm</h2>
-                                <p className="mb-0 text-white-50 small">
-                                    Hệ thống cập nhật thời gian thực từng chặng từ khâu tiếp nhận đến thẩm định chữ ký số điện tử.
-                                </p>
-                            </div>
-                            <div className="d-flex gap-2">
-                                <a href="tel:19006868" className="btn btn-outline-light btn-sm px-3 d-flex align-items-center gap-2">
-                                    <FaPhoneAlt /> Hotline: 1900 6868
-                                </a>
-                            </div>
+        <div className="bms-tracking-page">
+            <PortalNavbar />
+            
+            <main className="bms-tracking-main">
+                <div className="container" style={{ maxWidth: 1040 }}>
+                    
+                    {/* 1. CLEAN PAGE HEADER */}
+                    <header className="bms-tracking-header">
+                        <div className="bms-tracking-badge">
+                            <FaShieldAlt /> TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022
                         </div>
+                        <h1 className="bms-tracking-title">Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm</h1>
+                        <p className="bms-tracking-subtitle">
+                            Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
+                        </p>
+                    </header>
 
-                        {/* Search Input Bar */}
-                        <form onSubmit={handleFormSubmit} className="mt-4">
-                            <div className="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
-                                <span className="input-group-text bg-white border-0 text-primary ps-3">
-                                    <FaBarcode />
-                                </span>
-                                <input
-                                    type="text"
-                                    className="form-control border-0 py-3"
-                                    placeholder="Nhập Mã đơn xét nghiệm (ORD-2026-...) hoặc Mã vạch Barcode..."
-                                    value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
-                                    autoFocus
-                                />
-                                <button type="submit" className="btn btn-dark px-4 fw-bold" disabled={loading}>
+                    {/* 2. MINIMALIST SEARCH CARD */}
+                    <div className="bms-tracking-search-card">
+                        <form onSubmit={handleFormSubmit}>
+                            <div className="bms-search-input-group">
+                                <div className="bms-search-input-wrapper">
+                                    <FaBarcode className="bms-search-icon" />
+                                    <input
+                                        type="text"
+                                        className="bms-search-input"
+                                        placeholder="Nhập mã đơn xét nghiệm (VD: BC-20261009-001 hoặc ORD-...)"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        autoFocus
+                                    />
+                                    {searchInput && (
+                                        <button 
+                                            type="button" 
+                                            className="bms-search-clear-btn" 
+                                            onClick={() => setSearchInput("")}
+                                            title="Xóa nội dung"
+                                        >
+                                            <FaTimes />
+                                        </button>
+                                    )}
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    className="bms-search-submit-btn" 
+                                    disabled={loading}
+                                >
                                     {loading ? (
                                         <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                            Đang Tra Cứu...
+                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            <span>Đang tìm...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <FaSearch className="me-2" /> Tra Cứu Ngay
+                                            <FaSearch />
+                                            <span>Tra Cứu</span>
                                         </>
                                     )}
                                 </button>
                             </div>
-                            <div className="small text-white-50 mt-2">
-                                * Gợi ý: Tra cứu nhanh với mã mẫu thử nghiệm ví dụ: <code>ORD-2026-0001</code> hoặc <code>BC-2026-0001</code>
-                            </div>
                         </form>
-                    </div>
-                </div>
 
-                {/* Error Banner */}
-                {errorMessage && (
-                    <div className="alert alert-warning border-0 shadow-sm rounded-4 d-flex align-items-center gap-3 p-3 mb-4">
-                        <FaExclamationTriangle className="text-warning fs-3 flex-shrink-0" />
-                        <div>
-                            <h6 className="fw-bold mb-1">Thông Báo Tra Cứu</h6>
-                            <p className="mb-0 small">{errorMessage}</p>
+                        {/* Quick Demo Chips */}
+                        <div className="bms-demo-chips">
+                            <span className="bms-demo-chips-label">
+                                <FaInfoCircle /> Mã mẫu kiểm thử nhanh:
+                            </span>
+                            {QUICK_DEMO_CODES.map((item) => (
+                                <button
+                                    key={item.code}
+                                    type="button"
+                                    className="bms-demo-chip"
+                                    onClick={() => handleChipClick(item.code)}
+                                    title={item.desc}
+                                >
+                                    <span>{item.code}</span>
+                                    <span className="bms-demo-chip-badge">{item.label}</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                )}
 
-                {/* 2. TRACKING DETAILS CARD */}
-                {trackingData && (
-                    <div className="row g-4">
-                        {/* Summary Left Column */}
-                        <div className="col-lg-4">
-                            <div className="card shadow-sm border-0 rounded-4 p-4 sticky-top" style={{ top: 20 }}>
-                                <div className="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <div className="text-muted small">Mã Đơn / Barcode</div>
-                                        <h4 className="fw-bold text-primary font-monospace mb-0">{trackingData.orderNumber}</h4>
-                                    </div>
-                                    <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger" : "bg-primary"} px-2 py-1`}>
-                                        {trackingData.priority === "Stat" ? "⚡ CẤP CỨU STAT" : "Chuẩn Routine"}
-                                    </span>
+                    {/* 3. ERROR NOTIFICATION */}
+                    {errorMessage && (
+                        <div className="alert alert-warning border border-warning-subtle rounded-3 p-3 mb-4 d-flex align-items-center gap-3">
+                            <FaExclamationTriangle className="text-warning fs-4 flex-shrink-0" />
+                            <div>
+                                <div className="fw-bold text-dark mb-0">Không tìm thấy dữ liệu</div>
+                                <div className="small text-secondary">{errorMessage}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 4. DEFAULT GUIDE STATE (When no search has been performed) */}
+                    {!trackingData && !loading && (
+                        <div className="bms-guide-container">
+                            {/* 3 Step Guide Cards */}
+                            <div className="bms-guide-grid">
+                                <div className="bms-guide-card">
+                                    <div className="bms-guide-step-num">01</div>
+                                    <h3 className="bms-guide-card-title">Nhận Mã Phiếu Lấy Mẫu</h3>
+                                    <p className="bms-guide-card-desc">
+                                        Mã vạch Barcode (Code 128) được in trực tiếp trên phiếu tiếp nhận lấy mẫu hoặc gửi qua tin nhắn SMS sau khi hoàn tất thủ tục đăng ký.
+                                    </p>
                                 </div>
 
-                                <hr className="my-3 opacity-25" />
-
-                                <div className="mb-3">
-                                    <div className="text-muted small">Bệnh nhân</div>
-                                    <div className="fw-bold text-dark fs-5">{trackingData.patientName}</div>
-                                    <div className="text-secondary small">
-                                        Giới tính: {trackingData.patientGender} • {trackingData.patientAge} tuổi
-                                    </div>
+                                <div className="bms-guide-card">
+                                    <div className="bms-guide-step-num">02</div>
+                                    <h3 className="bms-guide-card-title">Nhập Mã Tra Cứu</h3>
+                                    <p className="bms-guide-card-desc">
+                                        Điền mã vạch vào thanh tìm kiếm phía trên. Hệ thống hỗ trợ tra cứu nhanh cả mã vạch ống máu (BC-...) và mã phiếu khám (ORD-...).
+                                    </p>
                                 </div>
 
-                                <div className="mb-3">
-                                    <div className="text-muted small">Gói xét nghiệm chỉ định</div>
-                                    <ul className="list-unstyled mb-0 mt-1">
-                                        {trackingData.testPackageNames?.map((pkg, idx) => (
-                                            <li key={idx} className="small text-dark fw-semibold mb-1 d-flex align-items-center gap-1">
-                                                <FaVial className="text-primary" style={{ fontSize: 11 }} /> {pkg}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <div className="bms-guide-card">
+                                    <div className="bms-guide-step-num">03</div>
+                                    <h3 className="bms-guide-card-title">Theo Dõi Thời Gian Thực</h3>
+                                    <p className="bms-guide-card-desc">
+                                        Nắm rõ vị trí mẫu máu đang ở đâu trong chu trình 6 chặng chuẩn ISO 15189, thời gian dự kiến trả kết quả và chữ ký số bác sĩ.
+                                    </p>
                                 </div>
+                            </div>
 
-                                <div className="mb-3 p-3 bg-light rounded-3 border">
-                                    <div className="d-flex justify-content-between small mb-1">
-                                        <span className="text-muted">Thời gian đăng ký:</span>
-                                        <strong>{formatDateTime(trackingData.orderedAt)}</strong>
+                            {/* 6-Stage Workflow Strip */}
+                            <div className="bms-stages-overview">
+                                <h4 className="bms-stages-overview-title">Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế ISO 15189</h4>
+                                <p className="bms-stages-overview-subtitle">
+                                    Toàn bộ mẫu bệnh phẩm được theo dõi bằng mã định danh duy nhất xuyên suốt phòng Lab tự động
+                                </p>
+                                
+                                <div className="bms-stages-pills-row">
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 1</span>
+                                        <div className="bms-stage-pill-name">Tiếp Nhận Chỉ Định</div>
                                     </div>
-                                    <div className="d-flex justify-content-between small mb-1">
-                                        <span className="text-muted">Dự kiến trả kết quả:</span>
-                                        <strong className="text-primary">{formatDateTime(trackingData.estimatedCompletionTime)}</strong>
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 2</span>
+                                        <div className="bms-stage-pill-name">Lấy Mẫu &amp; Barcode</div>
                                     </div>
-                                    <div className="d-flex justify-content-between small">
-                                        <span className="text-muted">Thời gian đã trôi qua:</span>
-                                        <span className="badge bg-secondary-subtle text-secondary">{trackingData.elapsedMinutes} phút</span>
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 3</span>
+                                        <div className="bms-stage-pill-name">Nhập Lab (LIS)</div>
+                                    </div>
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 4</span>
+                                        <div className="bms-stage-pill-name">Phân Tích Máy Tự Động</div>
+                                    </div>
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 5</span>
+                                        <div className="bms-stage-pill-name">Bác Sĩ Thẩm Định</div>
+                                    </div>
+                                    <div className="bms-stage-pill">
+                                        <span className="bms-stage-pill-num">Chặng 6</span>
+                                        <div className="bms-stage-pill-name">Ký Số &amp; Trả Kết Quả</div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {trackingData.isRejected && (
-                                    <div className="alert alert-danger py-2 px-3 small rounded-3 mb-3">
-                                        <strong><FaTimesCircle className="me-1" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
-                                    </div>
-                                )}
-
-                                {trackingData.isRerunRequested && (
-                                    <div className="alert alert-warning py-2 px-3 small rounded-3 mb-3">
-                                        <strong><FaExclamationTriangle className="me-1" /> Yêu cầu chạy lại:</strong> {trackingData.rerunReason}
-                                    </div>
-                                )}
-
-                                <div className="d-grid gap-2">
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2"
-                                        onClick={() => handleTrackLookup(trackingData.orderNumber)}
-                                    >
-                                        <FaRedoAlt /> Tải Lại Tiến Trình
-                                    </button>
-                                    {trackingData.isCompleted && (
-                                        <a 
-                                            href={`/results/${encodeURIComponent(trackingData.orderNumber)}/report`} 
-                                            className="btn btn-success d-flex align-items-center justify-content-center gap-2"
-                                        >
-                                            <FaFileMedicalAlt /> Xem Báo Cáo Kết Quả
-                                        </a>
-                                    )}
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1"
-                                        onClick={() => window.print()}
-                                    >
-                                        <FaPrint /> In Phiếu Lộ Trình
-                                    </button>
+                            {/* Trust & Support Strip */}
+                            <div className="bms-trust-box">
+                                <div className="bms-trust-item">
+                                    <FaShieldAlt />
+                                    <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Tên bệnh nhân được mã hóa PII khi tra cứu công khai).</span>
+                                </div>
+                                <div className="bms-trust-item">
+                                    <FaPhoneAlt />
+                                    <span>Tổng đài hỗ trợ: <strong>1900 6868</strong> (06:00 - 20:30 hàng ngày)</span>
                                 </div>
                             </div>
                         </div>
+                    )}
 
-                        {/* 6-Stage Stepper Right Column */}
-                        <div className="col-lg-8">
-                            <div className="card shadow-sm border-0 rounded-4 p-4">
-                                <div className="d-flex justify-content-between align-items-center mb-4">
-                                    <div>
-                                        <h4 className="fw-bold text-dark mb-0">6 Chặng Quy Trình Xét Nghiệm Khép Kín</h4>
-                                        <div className="text-muted small">Tuân thủ tiêu chuẩn chất lượng phòng xét nghiệm ISO 15189</div>
+                    {/* 5. SEARCH RESULTS VIEW (When Tracking Data is Available) */}
+                    {trackingData && (
+                        <div className="row g-4">
+                            {/* Left Column: Specimen Overview & Patient Metadata */}
+                            <div className="col-lg-4">
+                                <div className="bms-result-meta-card sticky-top" style={{ top: 24 }}>
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <div className="text-muted small" style={{ fontSize: 12 }}>MÃ VẠCH ĐỊNH DANH</div>
+                                            <h2 className="bms-specimen-id-badge">{trackingData.orderNumber}</h2>
+                                        </div>
+                                        <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger" : "bg-primary-subtle text-primary border border-primary-subtle"} px-2 py-1`}>
+                                            {trackingData.priority === "Stat" ? "⚡ CẤP CỨU STAT" : "Chuẩn Routine"}
+                                        </span>
                                     </div>
-                                    <span className="badge bg-primary px-3 py-2 fs-6">
-                                        Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}
-                                    </span>
-                                </div>
 
-                                {/* Step Timeline List */}
-                                <div className="bms-timeline position-relative ps-4" style={{ borderLeft: "3px solid #e2e8f0", marginLeft: 15 }}>
-                                    {trackingData.steps?.map((step) => {
-                                        const isCompleted = step.status === "Completed" || step.status === 2;
-                                        const isInProgress = step.status === "InProgress" || step.status === 1;
-                                        const isRejected = step.status === "Rejected" || step.status === 4;
-                                        const isWarning = step.status === "Warning" || step.status === 3;
-
-                                        let iconBg = "#94a3b8";
-                                        if (isCompleted) iconBg = "#10b981";
-                                        else if (isInProgress) iconBg = "#3b82f6";
-                                        else if (isRejected) iconBg = "#ef4444";
-                                        else if (isWarning) iconBg = "#f59e0b";
-
-                                        return (
-                                            <div key={step.stepNumber} className="mb-4 position-relative">
-                                                {/* Milestone Icon Node */}
-                                                <div 
-                                                    style={{
-                                                        position: "absolute",
-                                                        left: -32,
-                                                        top: 0,
-                                                        width: 34,
-                                                        height: 34,
-                                                        borderRadius: "50%",
-                                                        backgroundColor: iconBg,
-                                                        color: "#fff",
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent: "center",
-                                                        fontSize: 14,
-                                                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                                                        transition: "all 0.3s ease"
-                                                    }}
-                                                >
-                                                    {getStepIcon(step.stepNumber)}
-                                                </div>
-
-                                                {/* Card Content for Step */}
-                                                <div className={`p-3 rounded-4 border ${isInProgress ? "border-primary bg-primary-subtle shadow-sm" : isRejected ? "border-danger bg-danger-subtle" : isCompleted ? "border-success-subtle bg-white shadow-sm" : "bg-light"}`}>
-                                                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
-                                                        <h5 className="fw-bold mb-0 text-dark">
-                                                            {step.title}
-                                                        </h5>
-                                                        <div>{getStepStatusBadge(step.status)}</div>
-                                                    </div>
-
-                                                    <p className="text-secondary small mb-2">{step.description}</p>
-
-                                                    <div className="d-flex flex-wrap gap-3 small text-muted pt-2 border-top">
-                                                        <div>
-                                                            <FaClock className="me-1 text-primary" />
-                                                            <strong>Thời gian:</strong> {formatDateTime(step.timestamp)}
-                                                        </div>
-                                                        {step.handlerName && (
-                                                            <div>
-                                                                <FaUserMd className="me-1 text-success" />
-                                                                <strong>Phụ trách:</strong> {step.handlerName}
-                                                            </div>
-                                                        )}
-                                                        {step.department && (
-                                                            <div>
-                                                                <FaHospital className="me-1 text-secondary" />
-                                                                {step.department}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {step.notes && (
-                                                        <div className="mt-2 p-2 bg-white rounded border small text-danger fw-semibold">
-                                                            <FaExclamationTriangle className="me-1" /> {step.notes}
-                                                        </div>
-                                                    )}
-                                                </div>
+                                    <ul className="bms-specimen-detail-list">
+                                        <li className="bms-specimen-detail-item">
+                                            <span className="bms-specimen-detail-label">Bệnh nhân</span>
+                                            <span className="bms-specimen-detail-val">{trackingData.patientName}</span>
+                                        </li>
+                                        <li className="bms-specimen-detail-item">
+                                            <span className="bms-specimen-detail-label">Thông tin sinh hiệu</span>
+                                            <span className="bms-specimen-detail-val">
+                                                {trackingData.patientGender} • {trackingData.patientAge} tuổi
+                                            </span>
+                                        </li>
+                                        <li className="bms-specimen-detail-item">
+                                            <span className="bms-specimen-detail-label">Mã hồ sơ bệnh án</span>
+                                            <span className="bms-specimen-detail-val font-monospace text-secondary">
+                                                {trackingData.patientId || "—"}
+                                            </span>
+                                        </li>
+                                        <li className="bms-specimen-detail-item flex-column gap-1">
+                                            <span className="bms-specimen-detail-label">Gói xét nghiệm thực hiện:</span>
+                                            <div className="fw-semibold text-dark ps-2 border-start border-2 border-primary mt-1">
+                                                {trackingData.testPackageNames?.map((pkg, idx) => (
+                                                    <div key={idx} className="small py-0.5">{pkg}</div>
+                                                ))}
                                             </div>
-                                        );
-                                    })}
+                                        </li>
+                                        <li className="bms-specimen-detail-item">
+                                            <span className="bms-specimen-detail-label">Tiếp nhận lúc</span>
+                                            <span className="bms-specimen-detail-val">{formatDateTime(trackingData.orderedAt)}</span>
+                                        </li>
+                                        <li className="bms-specimen-detail-item">
+                                            <span className="bms-specimen-detail-label">Dự kiến hoàn tất</span>
+                                            <span className="bms-specimen-detail-val text-primary fw-bold">
+                                                {formatDateTime(trackingData.estimatedCompletionTime)}
+                                            </span>
+                                        </li>
+                                    </ul>
+
+                                    {/* Rejection / Rerun Alerts */}
+                                    {trackingData.isRejected && (
+                                        <div className="alert alert-danger py-2 px-3 small rounded-3 mt-3 mb-0">
+                                            <strong><FaTimesCircle className="me-1" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
+                                        </div>
+                                    )}
+
+                                    {trackingData.isRerunRequested && (
+                                        <div className="alert alert-warning py-2 px-3 small rounded-3 mt-3 mb-0">
+                                            <strong><FaExclamationTriangle className="me-1" /> Yêu cầu kiểm tra lại:</strong> {trackingData.rerunReason}
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="d-grid gap-2 mt-4 pt-3 border-top">
+                                        {trackingData.isCompleted && (
+                                            <a 
+                                                href={`/results/${encodeURIComponent(trackingData.orderNumber)}/report`} 
+                                                className="btn btn-success d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                            >
+                                                <FaFileMedicalAlt /> Xem Báo Cáo Kết Quả
+                                            </a>
+                                        )}
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                            onClick={() => handleTrackLookup(trackingData.orderNumber)}
+                                        >
+                                            <FaRedoAlt /> Tải Lại Tiến Trình
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                            onClick={() => window.print()}
+                                        >
+                                            <FaPrint /> In Phiếu Lộ Trình
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-link text-decoration-none text-muted small py-1"
+                                            onClick={handleClearSearch}
+                                        >
+                                            ← Tra cứu mã khác
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: 6-Stage Interactive Stepper */}
+                            <div className="col-lg-8">
+                                <div className="bms-stepper-container">
+                                    <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
+                                        <div>
+                                            <h3 className="h5 fw-bold text-dark mb-0">Chi Tiết Tiến Trình Xét Nghiệm</h3>
+                                            <div className="text-muted small">Tuân thủ quy trình kiểm soát chất lượng mẫu ISO 15189</div>
+                                        </div>
+                                        <span className="badge bg-primary px-3 py-2 fw-semibold">
+                                            Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}
+                                        </span>
+                                    </div>
+
+                                    {/* Timeline Stepper Nodes */}
+                                    <div className="bms-stepper-timeline">
+                                        {trackingData.steps?.map((step) => {
+                                            const isCompleted = step.status === "Completed" || step.status === 2;
+                                            const isInProgress = step.status === "InProgress" || step.status === 1;
+                                            const isRejected = step.status === "Rejected" || step.status === 4;
+                                            const isWarning = step.status === "Warning" || step.status === 3;
+
+                                            let nodeClass = "pending";
+                                            if (isCompleted) nodeClass = "completed";
+                                            else if (isInProgress) nodeClass = "inprogress";
+                                            else if (isRejected) nodeClass = "rejected";
+                                            else if (isWarning) nodeClass = "warning";
+
+                                            return (
+                                                <div key={step.stepNumber} className="bms-stepper-item">
+                                                    {/* Milestone Icon Node */}
+                                                    <div className={`bms-stepper-node ${nodeClass}`}>
+                                                        {getStepIcon(step.stepNumber, step.status)}
+                                                    </div>
+
+                                                    {/* Step Information Card */}
+                                                    <div className={`bms-step-card ${isInProgress ? "active-step" : ""}`}>
+                                                        <div className="bms-step-card-header">
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <span className="text-muted small fw-bold">#{step.stepNumber}</span>
+                                                                <h4 className="bms-step-title">{step.title}</h4>
+                                                            </div>
+                                                            <div>{getStepStatusBadge(step.status)}</div>
+                                                        </div>
+
+                                                        <p className="bms-step-desc">{step.description}</p>
+
+                                                        <div className="bms-step-meta">
+                                                            <div className="bms-step-meta-item">
+                                                                <FaClock className="text-secondary" />
+                                                                <span><strong>Thời gian:</strong> {formatDateTime(step.timestamp)}</span>
+                                                            </div>
+                                                            {step.handlerName && (
+                                                                <div className="bms-step-meta-item">
+                                                                    <FaUserMd className="text-primary" />
+                                                                    <span><strong>Phụ trách:</strong> {step.handlerName}</span>
+                                                                </div>
+                                                            )}
+                                                            {step.department && (
+                                                                <div className="bms-step-meta-item">
+                                                                    <FaHospital className="text-secondary" />
+                                                                    <span>{step.department}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {step.notes && (
+                                                            <div className="alert alert-warning py-1.5 px-2.5 small rounded-2 mt-2 mb-0 d-flex align-items-center gap-2">
+                                                                <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                                                                <span>{step.notes}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+
+                </div>
+            </main>
+
+            <MegaFooter />
         </div>
     );
 }

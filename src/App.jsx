@@ -23,7 +23,7 @@ import { NotificationProvider as NotificationContextProvider, useNotificationCon
 import NotificationProvider from "./shared/components/Notification/NotificationProvider";
 import ErrorBoundary from "./shared/components/ErrorBoundary/ErrorBoundary";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { ROLES, ALL_ROLES } from "./constants/roles";
+import { ROLES, ALL_ROLES, resolveRoleId, getStoredUser } from "./constants/roles";
 
 // Authentication & Http Error Views
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
@@ -32,11 +32,14 @@ import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
 import ChangePassword from "./features/auth/ChangePassword";
 import NotFound404 from "./components/errors/NotFound404";
 import Forbidden403 from "./components/errors/Forbidden403";
+import HomePage from "./features/home/HomePage.jsx";
+import GuestHomePage from "./features/home/GuestHomePage.jsx";
 
 // Clinical, Consultation & Receptionist Views
 import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
 import UserProfilePage from "./features/patient/pages/UserProfilePage";
 import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
+import ReceptionistCheckIn from "./features/reception/components/Receptionist/ReceptionistCheckIn.jsx";
 import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
 import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
 import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
@@ -83,9 +86,11 @@ import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
 import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
 import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPage.jsx";
 import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
+import PatientPaymentHistoryPage from "./features/patient/pages/PatientPaymentHistoryPage.jsx";
 import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
 import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
 import FeedbackHubPage from "./features/feedback/pages/FeedbackHubPage.jsx";
+import InitialMedicalProfileSetup from "./features/patient/pages/InitialMedicalProfileSetup.jsx";
 
 // System Administration, Notifications Center & Security Views
 import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
@@ -116,282 +121,9 @@ import "./app.css";
 const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
 
 // =============================================================================
-// PUBLIC CLINICAL PORTAL & LANDING PAGE (UC01 / UC81)
+// PUBLIC CLINICAL PORTAL & PATIENT PORTAL
 // =============================================================================
-
-/**
- * Public Clinical Landing Page.
- * Conforms to ISO 15189 public reporting guidelines and clinical UX requirements.
- */
-function HomePage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [lookupCode, setLookupCode] = useState("");
-  const [lookupPhone, setLookupPhone] = useState("");
-  const [featuredPackages, setFeaturedPackages] = useState([]);
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user");
-      return raw ? JSON.parse(raw) : null;
-    } catch { 
-      return null; 
-    }
-  });
-
-  const [showResultsModal, setShowResultsModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
-  const [bookingPackage, setBookingPackage] = useState(null);
-  const [collectionType, setCollectionType] = useState("clinic");
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [bookingCode, setBookingCode] = useState("");
-  const [bookingForm, setBookingForm] = useState({
-    patientName: "", 
-    phoneNumber: "", 
-    address: "",
-    bookingDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    bookingSlot: "07:00 - 08:30", 
-    notes: ""
-  });
-
-  useEffect(() => {
-    fetchServiceCatalog()
-      .then(res => res?.packages?.length && setFeaturedPackages(res.packages.slice(0, 4)))
-      .catch(() => {});
-  }, []);
-
-  const handleLogout = () => {
-    ["bms_token", "bms_access_token", "bms_user"].forEach(key => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
-    setUser(null);
-    window.location.href = "/";
-  };
-
-  const handleBookPackage = (pkg) => {
-    setBookingPackage(pkg);
-    setBookingSuccess(false);
-
-    // Business rule: Anonymous bookings are restricted under medical ISO compliance
-    if (!user) {
-      setShowRequireLoginModal(true);
-      return;
-    }
-
-    setBookingForm(prev => ({
-      ...prev,
-      patientName: user.fullName || user.username || "",
-      phoneNumber: user.phone || user.phoneNumber || "",
-      address: user.address || ""
-    }));
-    setShowBookingModal(true);
-  };
-
-  const handleBookingSubmit = (e) => {
-    e.preventDefault();
-    // Generate human-readable intake reference code for quick desk intake
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    setBookingCode(`ORD-${year}${month}-${randomSuffix}`);
-    setBookingSuccess(true);
-  };
-
-  return (
-    <div className="bms-landing-wrapper">
-      <div className="bms-topbar">
-        <div className="bms-topbar-container">
-          <div className="bms-topbar-info">
-            <div className="bms-topbar-item">
-              <FaPhoneAlt />
-              <span>Hotline Đặt Lịch & Tư Vấn: <strong>1900 6868</strong></span>
-            </div>
-            <div className="bms-topbar-item">
-              <FaClock />
-              <span>Tiếp nhận mẫu: 06:00 - 20:00 (Thứ 2 - CN)</span>
-            </div>
-          </div>
-          <div className="bms-topbar-badge">Giấy phép BYT: 08892/BYT-GPHĐ</div>
-        </div>
-      </div>
-
-      <header className="bms-navbar">
-        <div className="bms-navbar-container">
-          <a className="bms-brand" href="/">
-            <div className="bms-brand-logo"><img src="/assets/bms-logo.png" alt="BMS Logo" /></div>
-            <div className="bms-brand-text">
-              <h1>BMS CLINICAL LABORATORY</h1>
-              <p>Hệ Thống Xét Nghiệm Tiêu Chuẩn Quốc Tế ISO 15189</p>
-            </div>
-          </a>
-
-          <ul className="bms-nav-links">
-            <li><a className="bms-nav-link" href="/services">Gói Xét Nghiệm</a></li>
-            <li><a className="bms-nav-link" href="/tracking"><FaVial className="text-primary me-1" /> Lộ Trình Mẫu (UC48)</a></li>
-            {user && (
-              <>
-                <li>
-                  <button type="button" className="bms-nav-btn" onClick={() => setShowResultsModal(true)}>
-                    <FaHistory className="text-primary" /> Lịch Sử KQ
-                  </button>
-                </li>
-                <li>
-                  <button type="button" className="bms-nav-btn" onClick={() => setShowPaymentModal(true)}>
-                    <FaFileInvoiceDollar className="text-success" /> Thanh Toán
-                  </button>
-                </li>
-              </>
-            )}
-            <li><a className="bms-nav-link" href="#tra-cuu">Tra Cứu Online</a></li>
-            {/* WHY: UC53 fee calculation is Receptionist-only (matrix §1.8), so the public header no longer links to it. */}
-          </ul>
-
-          <div className="bms-header-actions">
-            {user ? (
-              <div className="bms-user-nav-dropdown">
-                <a className="bms-user-pill" href="/dashboard">
-                  <div className="bms-user-avatar">{user.fullName ? user.fullName[0].toUpperCase() : 'U'}</div>
-                  <div className="bms-user-meta"><span className="bms-user-name">{user.fullName || user.username}</span></div>
-                </a>
-                <a className="bms-btn bms-btn-outline bms-btn-sm" href="/dashboard">Bảng Điều Khiển</a>
-                <button type="button" className="bms-btn bms-btn-danger-outline bms-btn-sm" onClick={handleLogout}>
-                  <FaSignOutAlt /> Đăng Xuất
-                </button>
-              </div>
-            ) : (
-              <a className="bms-btn bms-btn-primary" href="/login">Đăng Nhập <FaArrowRight /></a>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <section className="bms-hero-section">
-        <div className="bms-hero-container">
-          <div className="bms-hero-content">
-            <div className="bms-hero-badge"><FaShieldAlt /> TIÊU CHUẨN ISO 15189 & CHỨNG NHẬN CAP</div>
-            <h2 className="bms-hero-title">Xét Nghiệm Máu Nhanh Chóng, <span>Chính Xác & Tin Cậy</span></h2>
-            <p className="bms-hero-desc">
-              Phòng Lab tự động hóa hoàn toàn với 80+ chỉ số huyết học, sinh hóa. Kết quả được thẩm định
-              bởi Bác sĩ Chuyên khoa, trả trực tuyến có chữ ký số sau 90-120 phút.
-            </p>
-            <form className="bms-search-bar" onSubmit={(e) => { e.preventDefault(); window.location.href = `/services?search=${encodeURIComponent(searchTerm)}`; }}>
-              <FaSearch className="bms-search-icon" />
-              <input type="text" className="bms-search-input" placeholder="Tìm gói xét nghiệm..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-              <button type="submit" className="bms-search-btn">Tìm Kiếm</button>
-            </form>
-          </div>
-
-          <div className="bms-utility-card" id="tra-cuu">
-            <div className="bms-utility-header">
-              <h3><FaFileMedicalAlt className="text-primary" /> Tra Cứu Kết Quả</h3>
-              <p>Dành cho bệnh nhân đã lấy mẫu tại phòng khám hoặc tại nhà</p>
-            </div>
-            <form onSubmit={(e) => { e.preventDefault(); window.location.href = `/login?redirect=results&code=${encodeURIComponent(lookupCode)}&phone=${encodeURIComponent(lookupPhone)}`; }}>
-              <div className="bms-form-group">
-                <label className="bms-form-label">Mã phiếu hẹn / Barcode *</label>
-                <input type="text" className="bms-form-control" required placeholder="Ví dụ: ORD-2026-0881" value={lookupCode} onChange={e => setLookupCode(e.target.value)} />
-              </div>
-              <div className="bms-form-group">
-                <label className="bms-form-label">Số điện thoại *</label>
-                <input type="tel" className="bms-form-control" required placeholder="Ví dụ: 0912 345 678" value={lookupPhone} onChange={e => setLookupPhone(e.target.value)} />
-              </div>
-              <button type="submit" className="bms-btn bms-btn-primary w-100 py-2.5 mt-2"><FaSearch /> Tra Cứu Ngay</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <section className="bms-section bms-section-alt">
-        <div className="bms-container">
-          <div className="bms-section-header">
-            <div className="bms-section-subtitle">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
-            <h3 className="bms-section-title">Gói Xét Nghiệm Máu Tiêu Biểu</h3>
-          </div>
-          <div className="bms-packages-grid">
-            {featuredPackages.map((pkg, idx) => (
-              <div key={pkg.id || idx} className={`bms-package-card ${idx === 0 ? 'featured' : ''}`}>
-                <div className="bms-package-body">
-                  <h4 className="bms-package-title">{pkg.packageName}</h4>
-                  <p className="bms-package-summary">{pkg.description || 'Xét nghiệm đạt chuẩn y tế ISO 15189.'}</p>
-                  <div className="bms-package-price">
-                    <span className="bms-price-val">{new Intl.NumberFormat('vi-VN').format(pkg.price || 0)}</span>
-                    <span className="bms-price-unit">VNĐ</span>
-                  </div>
-                  <button type="button" className="bms-btn bms-btn-primary w-100 mt-3" onClick={() => handleBookPackage(pkg)}>
-                    <FaCalendarCheck /> Đặt Lịch Xét Nghiệm
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Modal: Patient Login Requirement Notice */}
-      {showRequireLoginModal && (
-        <div className="bms-modal-backdrop" onClick={() => setShowRequireLoginModal(false)}>
-          <div className="bms-modal-card bms-modal-card-sm" onClick={e => e.stopPropagation()}>
-            <div className="bms-modal-head">
-              <h3 className="bms-modal-title"><FaLock className="text-primary" /> Yêu Cầu Đăng Nhập</h3>
-              <button type="button" className="bms-modal-close" onClick={() => setShowRequireLoginModal(false)}><FaTimes /></button>
-            </div>
-            <div className="bms-modal-body text-center py-3">
-              <p className="small text-muted mb-3">
-                Tuân thủ quy chuẩn bảo mật hồ sơ bệnh án ISO 15189, quý khách vui lòng đăng nhập tài khoản bệnh nhân để tiếp tục đặt lịch.
-              </p>
-              <a className="bms-btn bms-btn-primary w-100 py-2 mb-2" href={`/login?redirect=booking&pkg=${encodeURIComponent(bookingPackage?.packageName || "")}`}>
-                Đăng Nhập Cổng Y Tế <FaArrowRight />
-              </a>
-              <a className="bms-btn bms-btn-outline w-100 py-2" href="/register">Tạo Hồ Sơ Mới</a>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Clinical Appointment Booking Form */}
-      {showBookingModal && (
-        <div className="bms-modal-backdrop" onClick={() => setShowBookingModal(false)}>
-          <div className="bms-modal-card bms-modal-card-md" onClick={e => e.stopPropagation()}>
-            <div className="bms-modal-head">
-              <h3 className="bms-modal-title"><FaCalendarCheck className="text-primary" /> Đặt Lịch Hẹn Xét Nghiệm</h3>
-              <button type="button" className="bms-modal-close" onClick={() => setShowBookingModal(false)}><FaTimes /></button>
-            </div>
-            <div className="bms-modal-body">
-              {bookingSuccess ? (
-                <div className="text-center py-3">
-                  <FaCheckCircle className="text-success fs-1 mb-2" />
-                  <h4>Đăng Ký Thành Công!</h4>
-                  <p>Mã phiếu hẹn tiếp nhận: <strong className="text-primary font-monospace fs-5">{bookingCode}</strong></p>
-                  <button type="button" className="bms-btn bms-btn-primary mt-3" onClick={() => setShowBookingModal(false)}>Hoàn Tất</button>
-                </div>
-              ) : (
-                <form onSubmit={handleBookingSubmit}>
-                  <div className="mb-3">
-                    <label className="bms-form-label">Hình thức lấy mẫu *</label>
-                    <div className="d-flex gap-2">
-                      <button type="button" className={`btn btn-sm ${collectionType === 'clinic' ? 'btn-primary' : 'btn-outline-secondary'} flex-grow-1`} onClick={() => setCollectionType('clinic')}>Tại viện BMS</button>
-                      <button type="button" className={`btn btn-sm ${collectionType === 'home' ? 'btn-primary' : 'btn-outline-secondary'} flex-grow-1`} onClick={() => setCollectionType('home')}>Tại nhà (+150.000đ)</button>
-                    </div>
-                  </div>
-                  <div className="row g-2 mb-3">
-                    <div className="col-6"><input type="text" className="bms-form-control" required placeholder="Họ và tên" value={bookingForm.patientName} onChange={e => setBookingForm({...bookingForm, patientName: e.target.value})} /></div>
-                    <div className="col-6"><input type="tel" className="bms-form-control" required placeholder="Số điện thoại" value={bookingForm.phoneNumber} onChange={e => setBookingForm({...bookingForm, phoneNumber: e.target.value})} /></div>
-                  </div>
-                  <button type="submit" className="bms-btn bms-btn-primary w-100 py-2">Xác Nhận Đặt Lịch</button>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <footer className="bms-footer p-4 bg-dark text-white text-center">
-        <p className="m-0 small text-muted">&copy; 2026 BMS Health - Blood Laboratory Management System. ISO 15189 Certified.</p>
-      </footer>
-    </div>
-  );
-}
+// HomePage is imported from features/home/HomePage.jsx.
 
 // =============================================================================
 // ROOT APPLICATION ROUTER
@@ -401,6 +133,20 @@ function HomePage() {
  * Top-level application component assembling security providers and nested route tables.
  * Nested grouping minimizes route declarations while preserving atomic role permissions.
  */
+/**
+ * Smart Invoice / Payment History Route Handler.
+ * Staff (Receptionist, Manager) view official facility billing management.
+ * Patients view their personal electronic receipt and payment history.
+ */
+function InvoicesRoute() {
+  const user = getStoredUser();
+  const roleId = resolveRoleId(user);
+  if (roleId === ROLES.PATIENT) {
+    return <Navigate to="/patient/payment-history" replace />;
+  }
+  return <BillingInvoicesPage />;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -410,6 +156,7 @@ export default function App() {
             <Routes>
               {/* --- 1. Public Portals & Catalogs (UC01, UC15/UC20 view, UC48 lookup by code with PII masked) --- */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/guest" element={<GuestHomePage />} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/services" element={<ServiceCatalogPage />} />
               <Route path="/catalog" element={<ServiceCatalogPage />} />
@@ -424,6 +171,7 @@ export default function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Route>
 
+
               {/* --- 3. Queue board displays: login required until Phát approves a public board (TIEU-CHI C3) --- */}
               <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
                 <Route path="/reception/queue-board" element={<PublicQueueBoardPage />} />
@@ -433,13 +181,22 @@ export default function App() {
               {/* --- 4. Authenticated Medical Modules (MainLayout). Role lists follow ROLE-PERMISSION-MATRIX §1. --- */}
               <Route element={<MainLayout />}>
 
-                {/* Any signed-in role: dashboard (UC12), own profile/password (UC07-UC09), own notifications (UC58/UC59) */}
+                {/* Profile, password, own notifications & medical intake */}
                 <Route element={<ProtectedRoute allowedRoles={ALL_ROLES} />}>
-                  <Route path="/dashboard" element={<RoleBasedDashboard />} />
                   <Route path="/profile" element={<UserProfilePage />} />
+                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
                   <Route path="/change-password" element={<ChangePassword />} />
                   <Route path="/notifications" element={<PushNotificationCenterPage />} />
                   <Route path="/notifications/center" element={<PushNotificationCenterPage />} />
+                </Route>
+
+                {/* Operational Dashboard for Staff: Admin, Manager, Doctor, Lab, Receptionist */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST]} />}>
+                  <Route path="/dashboard" element={<RoleBasedDashboard />} />
+                </Route>
+
+                {/* Admin Notifications */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN]} />}>
                   <Route path="/admin/notifications" element={<PushNotificationCenterPage />} />
                 </Route>
 
@@ -448,10 +205,12 @@ export default function App() {
                   <Route path="/notifications/dispatch" element={<PushNotificationCenterPage />} />
                 </Route>
 
-                {/* UC79 feedback: Patient (own) submits, Manager reads/responds */}
+                {/* UC79 feedback: Patient submits, Manager reviews */}
                 <Route element={<ProtectedRoute allowedRoles={[MANAGER, PATIENT]} />}>
                   <Route path="/feedback" element={<FeedbackHubPage />} />
                   <Route path="/patient/feedback" element={<FeedbackHubPage />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
                   <Route path="/manager/feedback" element={<FeedbackHubPage />} />
                 </Route>
 
@@ -509,13 +268,9 @@ export default function App() {
                 {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
                   <Route path="/patients" element={<CheckInPage />} />
-                  <Route path="/reception/checkin" element={<CheckInPage />} />
-                  {/* WHY: the legacy "pages/receptionist/CheckIn|CreatePatient" modules were never committed.
-                      Keep the URLs the Sidebar links to, served by the team's existing check-in and
-                      walk-in registration pages. TODO(senior-dev, Đợt 3): decide whether to wire the
-                      QR-based features/reception/components/Receptionist/ReceptionistCheckIn.jsx instead. */}
-                  <Route path="/reception/check-in" element={<CheckInPage />} />
-                  <Route path="/receptionist/check-in" element={<CheckInPage />} />
+                  <Route path="/reception/checkin" element={<ReceptionistCheckIn />} />
+                  <Route path="/reception/check-in" element={<ReceptionistCheckIn />} />
+                  <Route path="/receptionist/check-in" element={<ReceptionistCheckIn />} />
                   <Route path="/reception/create-patient" element={<RegisterWalkInPatientPage />} />
                   <Route path="/receptionist/create-patient" element={<RegisterWalkInPatientPage />} />
                   <Route path="/reception/register-walkin" element={<RegisterWalkInPatientPage />} />
@@ -528,10 +283,16 @@ export default function App() {
                   <Route path="/patient/fee-calculator" element={<CalculateFeesPage />} />
                 </Route>
 
-                {/* UC54 invoices: Receptionist; Manager view only */}
+                {/* UC18 & UC54 Billing Invoices Management: Staff only (Receptionist, Manager) */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, MANAGER]} />}>
                   <Route path="/invoices" element={<BillingInvoicesPage />} />
                   <Route path="/billing/invoices" element={<BillingInvoicesPage />} />
+                </Route>
+
+                {/* Patient Payment History: Patient only */}
+                <Route element={<ProtectedRoute allowedRoles={[PATIENT]} />}>
+                  <Route path="/patient/payments" element={<PatientPaymentHistoryPage />} />
+                  <Route path="/patient/payment-history" element={<PatientPaymentHistoryPage />} />
                 </Route>
 
                 {/* Doctor work: console, notes (UC51), orders (UC32), new assessment (UC50) */}
@@ -607,6 +368,7 @@ export default function App() {
                   <Route path="/manager/inventory-management" element={<InventoryPage />} />
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
+                  <Route path="/laboratory/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                 </Route>
 
                 {/* UC35 shift rostering: Manager */}
@@ -675,7 +437,7 @@ export default function App() {
                 ["/patient/payments/checkout", "/payments/checkout"], ["/patient/results/export", "/patient/results"],
                 ["/reception/console", "/reception/checkin"], ["/reception/patients", "/patients"],
                 ["/reference-intervals", "/laboratory/reference-intervals"], ["/reports", "/reports/tat"],
-                ["/shifts", "/shifts/view"], ["/users", "/admin/users"]].map(([from, to]) => (
+                ["/shifts", "/shifts/view"], ["/users", "/admin/users"], ["/receptionist/appointments", "/appointments"], ["/reception/appointments", "/appointments"], ["/doctor/appointments", "/appointments"], ["/lab-user/appointments", "/appointments"], ["/receptionist/sample-management", "/laboratory/samples"], ["/lab-user/sample-management", "/laboratory/samples"], ["/manager/sample-management", "/laboratory/samples"], ["/receptionist/services", "/services"], ["/manager/services", "/packages"], ["/doctor/dashboard", "/dashboard"], ["/receptionist/dashboard", "/dashboard"], ["/lab-user/dashboard", "/dashboard"], ["/admin/dashboard", "/dashboard"], ["/manager/dashboard", "/dashboard"]].map(([from, to]) => (
                 <Route key={from} path={from} element={<Navigate to={to} replace />} />
               ))}
 

@@ -66,13 +66,13 @@ export default function AddMedicalAssessmentPage() {
   };
 
   return (
-    <Container fluid className="py-4 px-md-4">
+    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Top Header & Breadcrumb */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <div>
           <Breadcrumb className="mb-1">
-            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
-              Trang Chủ
+            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/doctor/console' }}>
+              Bàn Khám Bác Sĩ
             </Breadcrumb.Item>
             <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/medical-assessments' }}>
               Đánh Giá Y Khoa
@@ -82,8 +82,8 @@ export default function AddMedicalAssessmentPage() {
             </Breadcrumb.Item>
           </Breadcrumb>
           <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaStethoscope className="text-primary" />
-            {id ? 'Chỉnh Sửa Đánh Giá Y Khoa' : 'Kê Phiếu Đánh Giá Y Khoa (Add Medical Assessment)'}
+            <FaStethoscope style={{ color: '#0284c7' }} />
+            {id ? 'Chỉnh Sửa Đánh Giá Y Khoa Lâm Sàng' : 'Kê Phiếu Đánh Giá Y Khoa Lâm Sàng'}
           </h4>
         </div>
         <div className="mt-2 mt-sm-0 d-flex gap-2">

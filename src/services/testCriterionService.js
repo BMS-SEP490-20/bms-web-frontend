@@ -29,8 +29,11 @@ export const testCriterionService = {
     if (isActive !== null && isActive !== undefined) params.append('isActive', isActive);
 
     const response = await api.get(`/laboratory/criteria?${params.toString()}`);
-    if (response.data && response.data.success) {
-      return response.data.data;
+    if (response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return response.data.data;
+      }
+      return response.data.data || response.data;
     }
     throw new Error(response.data?.message || 'Không thể tải danh sách tiêu chí xét nghiệm từ máy chủ.');
   },
@@ -43,8 +46,11 @@ export const testCriterionService = {
    */
   async getCriterionById(id) {
     const response = await api.get(`/laboratory/criteria/${id}`);
-    if (response.data && response.data.success) {
-      return response.data.data;
+    if (response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return response.data.data;
+      }
+      return response.data.data || response.data;
     }
     throw new Error(response.data?.message || 'Không tìm thấy thông tin tiêu chí xét nghiệm.');
   },
@@ -57,8 +63,11 @@ export const testCriterionService = {
    */
   async createCriterion(data) {
     const response = await api.post('/laboratory/criteria', data);
-    if (response.data && response.data.success) {
-      return response.data.data;
+    if (response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return response.data.data;
+      }
+      return response.data.data || response.data;
     }
     throw new Error(response.data?.message || 'Thêm mới tiêu chí xét nghiệm thất bại.');
   },
@@ -72,8 +81,11 @@ export const testCriterionService = {
    */
   async updateCriterion(id, data) {
     const response = await api.put(`/laboratory/criteria/${id}`, data);
-    if (response.data && response.data.success) {
-      return response.data.data;
+    if (response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return response.data.data;
+      }
+      return response.data.data || response.data;
     }
     throw new Error(response.data?.message || 'Cập nhật tiêu chí xét nghiệm thất bại.');
   },
@@ -86,8 +98,11 @@ export const testCriterionService = {
    */
   async deactivateCriterion(id) {
     const response = await api.delete(`/laboratory/criteria/${id}`);
-    if (response.data && response.data.success) {
-      return response.data;
+    if (response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return response.data.data;
+      }
+      return response.data.data || response.data;
     }
     throw new Error(response.data?.message || 'Hủy kích hoạt tiêu chí xét nghiệm thất bại.');
   },

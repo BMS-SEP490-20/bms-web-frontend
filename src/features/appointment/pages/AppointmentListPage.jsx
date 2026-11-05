@@ -37,9 +37,54 @@ import {
   FaVial,
   FaUserInjured,
   FaNotesMedical,
-  FaQrcode
+  FaQrcode,
+  FaLock,
+  FaMoneyBillWave
 } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
+import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
+
+const HOLD_DURATION_MS = 15 * 60 * 1000;
+
+const isPaidOrConfirmed = (rawStatus) => {
+  if (!rawStatus && rawStatus !== 0) return false;
+  const s = String(rawStatus).toUpperCase();
+  return (
+    s === 'CONFIRMED' || s === '1' ||
+    s === 'CHECKEDIN' || s === 'CHECKED_IN' || s === '2' ||
+    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3' ||
+    s === 'COMPLETED' || s === '4'
+  );
+};
+
+const isPending = (rawStatus) => {
+  if (!rawStatus && rawStatus !== 0) return false;
+  const s = String(rawStatus).toUpperCase();
+  return s === 'PENDING' || s === '0';
+};
+
+const isCancelled = (rawStatus) => {
+  if (!rawStatus && rawStatus !== 0) return false;
+  const s = String(rawStatus).toUpperCase();
+  return s === 'CANCELLED' || s === '5';
+};
+
+const getRemainingSeconds = (createdAt, now = Date.now()) => {
+  if (!createdAt) return 0;
+  const createdTime = new Date(createdAt).getTime();
+  const expiresAt = createdTime + HOLD_DURATION_MS;
+  const remaining = Math.floor((expiresAt - now) / 1000);
+  return Math.max(0, remaining);
+};
+
+const formatCountdown = (totalSeconds) => {
+  if (totalSeconds <= 0) return '00:00';
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+};
 
 export default function AppointmentListPage() {
   // Query parameters state
@@ -58,6 +103,9 @@ export default function AppointmentListPage() {
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
+  const navigate = useNavigate();
+  const user = useMemo(() => getStoredUser(), []);
+  const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
 
   // Data & UI states
   const [appointments, setAppointments] = useState([]);
@@ -71,6 +119,51 @@ export default function AppointmentListPage() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Live timer for reservation hold countdown (ticks every 1 second)
+  const [now, setNow] = useState(Date.now());
+  const autoCancelledIdsRef = React.useRef(new Set());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // When hold timer hits 0 for any pending appointment, automatically cancel hold & return slot
+  useEffect(() => {
+    appointments.forEach((apt) => {
+      const aptId = apt.appointmentId || apt.id;
+      if (!aptId) return;
+
+      if (isPending(apt.status) && apt.createdAt) {
+        const remaining = getRemainingSeconds(apt.createdAt, now);
+        if (remaining <= 0 && !autoCancelledIdsRef.current.has(aptId)) {
+          autoCancelledIdsRef.current.add(aptId);
+          appointmentApi.cancelAppointment(aptId, 'Hệ thống tự động hủy do hết thời gian giữ chỗ 15 phút (Quá hạn thanh toán)')
+            .then(() => {
+              setAppointments((prev) =>
+                prev.map((item) =>
+                  (item.appointmentId === aptId || item.id === aptId)
+                    ? { ...item, status: 'Cancelled', notes: 'Hệ thống tự động hủy do hết thời gian giữ chỗ 15 phút' }
+                    : item
+                )
+              );
+              setSelectedAppointment((prev) => {
+                if (prev && (prev.appointmentId === aptId || prev.id === aptId)) {
+                  return { ...prev, status: 'Cancelled', notes: 'Hệ thống tự động hủy do hết thời gian giữ chỗ 15 phút' };
+                }
+                return prev;
+              });
+            })
+            .catch((err) => {
+              console.error('Error auto-cancelling expired appointment:', err);
+            });
+        }
+      }
+    });
+  }, [appointments, now]);
 
   // Debounce keyword input (350ms)
   useEffect(() => {
@@ -120,7 +213,7 @@ export default function AppointmentListPage() {
 
       const res = await appointmentApi.getAppointments(params);
       if (res && res.data) {
-        setAppointments(res.data);
+        setAppointments(Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.items) ? res.data.items : []));
         setTotalCount(res.total || res.data.length);
         setTotalPages(res.totalPages || Math.ceil((res.total || res.data.length) / pageSize) || 1);
       } else {
@@ -239,13 +332,20 @@ export default function AppointmentListPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
           <h2 className="fw-bold mb-1 text-primary d-flex align-items-center gap-2">
-            <FaCalendarAlt /> Quản Lý Lịch Hẹn Khám & Lấy Mẫu
+            <FaCalendarAlt /> {isPatient ? 'Lịch Khám & Hẹn Lấy Mẫu Của Tôi' : 'Quản Lý Lịch Hẹn Khám & Lấy Mẫu'}
           </h2>
           <p className="text-muted mb-0 small">
-            Theo dõi, tra cứu và điều phối danh sách cuộc hẹn khám bệnh & lấy mẫu tại phòng khám hoặc tại nhà.
+            {isPatient 
+              ? 'Theo dõi, tra cứu thời gian hẹn và thông tin phòng khám hoặc lấy mẫu tại nhà của bạn.' 
+              : 'Theo dõi, tra cứu và điều phối danh sách cuộc hẹn khám bệnh & lấy mẫu tại phòng khám hoặc tại nhà.'}
           </p>
         </div>
         <div className="d-flex align-items-center gap-2">
+          {isPatient && (
+            <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3">
+              <FaCalendarAlt /> Đặt Lịch Khám Mới
+            </Link>
+          )}
           <Button
             variant="outline-secondary"
             size="sm"
@@ -375,25 +475,35 @@ export default function AppointmentListPage() {
                 <th className="py-3">Hình Thức</th>
                 <th className="py-3">Địa Chỉ / Phòng Khám</th>
                 <th className="py-3 text-center">Trạng Thái</th>
+                <th className="py-3 text-center" style={{ minWidth: '130px' }}>Mã QR Check-in</th>
                 <th className="py-3 text-center" style={{ minWidth: '90px' }}>Thao Tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-5">
+                  <td colSpan={8} className="text-center py-5">
                     <Spinner animation="border" variant="primary" className="mb-2" />
                     <div className="text-muted small">Đang tải dữ liệu cuộc hẹn...</div>
                   </td>
                 </tr>
               ) : appointments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-5">
+                  <td colSpan={8} className="text-center py-5">
                     <div className="text-muted mb-2 fs-4">📋</div>
-                    <div className="fw-semibold text-secondary">Không tìm thấy cuộc hẹn nào</div>
-                    <div className="text-muted small">
-                      Thử điều chỉnh khoảng ngày hoặc bộ lọc trạng thái để tìm kiếm.
+                    <div className="fw-semibold text-secondary">
+                      {isPatient ? 'Bạn chưa có lịch hẹn khám nào trong khoảng thời gian này.' : 'Không tìm thấy cuộc hẹn nào'}
                     </div>
+                    <div className="text-muted small mb-3">
+                      {isPatient 
+                        ? 'Bạn có thể đặt lịch lấy mẫu tại nhà hoặc đặt hẹn khám tại phòng khám ngay bây giờ.' 
+                        : 'Thử điều chỉnh khoảng ngày hoặc bộ lọc trạng thái để tìm kiếm.'}
+                    </div>
+                    {isPatient && (
+                      <Link to="/appointments/book" className="btn btn-primary btn-sm px-3 shadow-sm">
+                        <FaCalendarAlt className="me-1" /> Đặt Lịch Lấy Mẫu Ngay
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -455,6 +565,39 @@ export default function AppointmentListPage() {
                       </td>
                       <td className="text-center">
                         {renderStatusBadge(apt.status)}
+                      </td>
+                      <td className="text-center">
+                        {isPaidOrConfirmed(apt.status) ? (
+                          <Button
+                            variant="outline-success"
+                            size="sm"
+                            className="px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
+                            onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
+                            title="Bấm để xem Mã QR & Check-in Tiếp Đón"
+                          >
+                            <FaQrcode className="text-success" /> Mã Check-in
+                          </Button>
+                        ) : isPending(apt.status) ? (
+                          <div className="d-inline-flex flex-column align-items-center">
+                            <Badge bg="warning-subtle" text="dark" className="border border-warning-subtle px-2 py-1 d-inline-flex align-items-center gap-1">
+                              <FaLock className="text-warning" /> <span>Chưa mở (Cần TT)</span>
+                            </Badge>
+                            {apt.createdAt && (
+                              <span className="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace mt-1 px-1.5 py-0.5" style={{ fontSize: '0.75rem' }}>
+                                <FaClock className="me-1" />
+                                {formatCountdown(getRemainingSeconds(apt.createdAt, now))}
+                              </span>
+                            )}
+                          </div>
+                        ) : isCancelled(apt.status) ? (
+                          <Badge bg="light" text="muted" className="border px-2 py-1">
+                            <FaTimesCircle className="text-danger me-1" /> Đã hủy
+                          </Badge>
+                        ) : (
+                          <Badge bg="light" text="muted" className="border px-2 py-1">
+                            N/A
+                          </Badge>
+                        )}
                       </td>
                       <td className="text-center">
                         <Button
@@ -597,13 +740,113 @@ export default function AppointmentListPage() {
               </Row>
 
               {selectedAppointment.testPackageName && (
-                <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-0">
+                <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
                   <FaVial className="text-primary" />
                   <span>
                     <strong>Gói xét nghiệm chỉ định:</strong> {selectedAppointment.testPackageName}
                   </span>
                 </div>
               )}
+
+              {/* Check-in Slip & QR Code Section */}
+              {isPaidOrConfirmed(selectedAppointment.status) ? (
+                <div className="p-4 bg-light border border-2 border-success-subtle rounded-4 text-center mt-3 shadow-sm">
+                  <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                    <Badge bg="success" className="px-3 py-1.5 fs-6 shadow-xs">
+                      <FaCheckCircle className="me-1" /> Đã Thanh Toán &amp; Đủ Điều Kiện Check-in
+                    </Badge>
+                  </div>
+                  <h6 className="fw-bold text-success text-uppercase mb-1 d-flex align-items-center justify-content-center gap-2">
+                    <FaQrcode /> Phiếu Tiếp Đón &amp; Check-in Xét Nghiệm
+                  </h6>
+                  <p className="small text-muted mb-3">
+                    Quý khách vui lòng xuất trình mã QR này tại quầy Lễ tân hoặc máy quét tự động khi đến phòng xét nghiệm.
+                  </p>
+
+                  <div className="p-3 bg-white d-inline-block rounded-3 border border-success-subtle shadow-sm mb-3">
+                    <QRCodeSVG
+                      value={selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'BMS-APT'}
+                      size={170}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+
+                  {/* Prominent Manual Check-in Code */}
+                  <div className="mx-auto" style={{ maxWidth: '420px' }}>
+                    <div className="small text-muted fw-semibold mb-1">Mã Nhập Tay Phụ (Manual Check-in Code):</div>
+                    <div className="h4 fw-bold font-monospace text-primary bg-white border border-primary p-2 rounded-3 shadow-sm mb-1 tracking-wider">
+                      {selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'N/A'}
+                    </div>
+                    <div className="text-muted small" style={{ fontSize: '0.8rem' }}>
+                      (Dành cho Lễ tân nhập trực tiếp vào hệ thống nếu thiết bị quét mã QR gặp sự cố)
+                    </div>
+                  </div>
+                </div>
+              ) : isPending(selectedAppointment.status) ? (
+                <div className="p-4 bg-light border border-2 border-warning-subtle rounded-4 text-center mt-3 shadow-sm">
+                  <div className="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-2" style={{ fontSize: '36px' }}>
+                    <FaLock />
+                  </div>
+                  <h5 className="fw-bold text-dark text-uppercase mb-1">
+                    Mã QR Check-in Tiếp Đón Đang Tạm Khóa
+                  </h5>
+                  <p className="text-muted small mb-3 mx-auto" style={{ maxWidth: '480px' }}>
+                    Theo quy định an toàn xét nghiệm, <strong>Mã QR tiếp đón và Mã check-in tự động tại phòng Lab sẽ chỉ được hiển thị sau khi đơn xét nghiệm hoàn tất thanh toán</strong>.
+                  </p>
+
+                  {/* Reservation countdown box */}
+                  {(() => {
+                    const remaining = getRemainingSeconds(selectedAppointment.createdAt, now);
+                    const isExpired = remaining <= 0;
+                    return (
+                      <div className="p-3 bg-white border border-warning rounded-3 d-inline-block mb-3 shadow-xs" style={{ minWidth: '280px' }}>
+                        <div className="small text-muted fw-semibold mb-1">
+                          <FaClock className="me-1 text-warning" /> THỜI GIAN GIỮ CHỖ CÒN LẠI:
+                        </div>
+                        <div className={`h2 fw-bold font-monospace mb-0 ${isExpired ? 'text-danger' : 'text-danger'}`}>
+                          {formatCountdown(remaining)}
+                        </div>
+                        <div className="text-muted small mt-1" style={{ fontSize: '0.78rem' }}>
+                          {selectedAppointment.createdAt
+                            ? `(Đếm ngược 15 phút từ lúc đặt hẹn: ${new Date(selectedAppointment.createdAt).toLocaleTimeString('vi-VN')})`
+                            : '(Giữ chỗ trong 15 phút)'}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div>
+                    {getRemainingSeconds(selectedAppointment.createdAt, now) > 0 ? (
+                      <Button
+                        variant="success"
+                        size="lg"
+                        className="fw-bold px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2"
+                        onClick={() => {
+                          setShowDetailModal(false);
+                          navigate(`/payments/checkout?appointmentId=${selectedAppointment.appointmentId || selectedAppointment.id}&code=${selectedAppointment.appointmentCode}`);
+                        }}
+                      >
+                        <FaMoneyBillWave /> Tiến Hành Thanh Toán Qua VNPAY Ngay
+                      </Button>
+                    ) : (
+                      <div className="alert alert-danger py-2 small mb-0">
+                        <FaTimesCircle className="me-1" /> Lịch hẹn này đã hết hạn giữ chỗ (15 phút) và hệ thống đã hoàn trả slot khám.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : isCancelled(selectedAppointment.status) ? (
+                <div className="p-4 bg-light border border-2 border-danger-subtle rounded-4 text-center mt-3 shadow-sm">
+                  <div className="text-danger mb-2" style={{ fontSize: '36px' }}>
+                    <FaTimesCircle />
+                  </div>
+                  <h5 className="fw-bold text-danger text-uppercase mb-1">Lịch Hẹn Đã Bị Hủy</h5>
+                  <p className="text-muted small mb-0">
+                    {selectedAppointment.notes || 'Lịch hẹn đã hủy hoặc hết hạn giữ chỗ 15 phút. Slot khám đã được giải phóng trở lại cho hệ thống.'}
+                  </p>
+                </div>
+              ) : null}
             </div>
           ) : (
             <Alert variant="danger" className="mb-0">

@@ -1,0 +1,524 @@
+/* ==========================================================================
+   BMS VAT INVOICE MODAL & A4 PRINT STYLESHEET
+   Strictly adheres to Thông tư 78/2021/TT-BTC & Nghị định 123/2020/NĐ-CP
+   ========================================================================== */
+
+/* Fullscreen Backdrop Overlay */
+.bms-vat-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: bmsVatFadeIn 0.2s ease-out;
+}
+
+@keyframes bmsVatFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Floating Action Toolbar at the top */
+.bms-vat-toolbar {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.bms-vat-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bms-vat-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Scrollable Viewport containing the A4 sheet */
+.bms-vat-viewport {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #334155;
+}
+
+/* Official A4 Electronic VAT Invoice Sheet */
+.bms-vat-sheet {
+  width: 100%;
+  max-width: 820px;
+  min-height: 1120px;
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 4px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.45);
+  position: relative;
+  padding: 24px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Subtle Security Guilloche Watermark */
+.bms-vat-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 26px;
+  font-weight: 800;
+  color: rgba(14, 116, 144, 0.04);
+  letter-spacing: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+/* Double Security Border Inner Container */
+.bms-vat-frame {
+  border: 3px double #0284c7;
+  padding: 20px;
+  position: relative;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Header Grid: Seller (Left) & Invoice Metadata (Right) */
+.bms-vat-header-grid {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+@media (max-width: 768px) {
+  .bms-vat-header-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bms-vat-seller-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.bms-vat-logo-badge {
+  width: 44px;
+  height: 44px;
+  background: #e0f2fe;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bms-vat-brand-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0369a1;
+  letter-spacing: 0.5px;
+}
+
+.bms-vat-brand-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.bms-vat-seller-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 6px 0 4px 0;
+}
+
+.bms-vat-meta-line {
+  font-size: 12px;
+  color: #334155;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.bms-vat-label {
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.bms-vat-taxcode {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 1px;
+}
+
+/* Invoice Legal Identification Block (Right) */
+.bms-vat-invoice-id-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bms-vat-id-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.bms-vat-id-lbl {
+  color: #64748b;
+}
+
+.bms-vat-id-val {
+  color: #0f172a;
+  font-family: monospace;
+}
+
+.bms-vat-id-no {
+  color: #dc2626;
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.bms-vat-id-cqt-box {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.bms-vat-cqt-code {
+  font-family: monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #0369a1;
+  word-break: break-all;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+/* Title Section */
+.bms-vat-title-section {
+  text-align: center;
+  padding: 16px 0 12px 0;
+}
+
+.bms-vat-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0369a1;
+  margin: 0 0 2px 0;
+  letter-spacing: 1px;
+}
+
+.bms-vat-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.bms-vat-date {
+  font-size: 12px;
+  color: #334155;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Buyer / Patient Information Box */
+.bms-vat-buyer-box {
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+/* Items Table */
+.bms-vat-table-container {
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+
+.bms-vat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.bms-vat-table th {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  font-weight: 700;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
+.bms-vat-table td {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  vertical-align: middle;
+}
+
+.bms-vat-item-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.badge-tax {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Totals Summary Box */
+.bms-vat-totals-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+}
+
+.bms-vat-totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12.5px;
+}
+
+.bms-vat-totals-lbl {
+  color: #334155;
+}
+
+.bms-vat-totals-val {
+  font-weight: 700;
+  color: #0f172a;
+  font-family: monospace;
+}
+
+.bms-vat-grand-total {
+  border-top: 1px dashed #cbd5e1;
+  margin-top: 6px;
+  padding-top: 8px;
+}
+
+.bms-vat-in-words {
+  border-top: 1px dotted #cbd5e1;
+  margin-top: 6px;
+  padding-top: 6px;
+  font-size: 12.5px;
+}
+
+/* Dual Column Signature Block */
+.bms-vat-signatures-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .bms-vat-signatures-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bms-vat-signature-card {
+  text-align: center;
+}
+
+.bms-vat-sig-title {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.bms-vat-sig-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.bms-vat-sig-stamp {
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: left;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.buyer-stamp {
+  background: #f0fdf4;
+  border: 1px dashed #86efac;
+}
+
+.seller-stamp {
+  background: #fef2f2;
+  border: 2px solid #ef4444;
+  position: relative;
+}
+
+.bms-vat-sig-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.bms-vat-valid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #dc2626;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.bms-vat-sig-corp {
+  font-size: 11px;
+  color: #991b1b;
+  margin-bottom: 3px;
+  line-height: 1.35;
+}
+
+.bms-vat-sig-meta {
+  font-size: 10.5px;
+  color: #7f1d1d;
+  margin-bottom: 2px;
+}
+
+/* Footer Section: QR Code & GDT Legal Disclaimer */
+.bms-vat-footer-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #cbd5e1;
+}
+
+.bms-vat-qr-box {
+  flex-shrink: 0;
+  text-align: center;
+  background: #ffffff;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.bms-vat-qr-caption {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.bms-vat-legal-notice {
+  flex: 1;
+}
+
+/* ==========================================================================
+   PRINT SPECIFICATION (Khổ Giấy In A4 Chuẩn)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 15mm;
+  }
+
+  /* Hide entire web application except the VAT invoice sheet */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .bms-vat-overlay,
+  .bms-vat-viewport,
+  #official-vat-invoice-sheet,
+  #official-vat-invoice-sheet * {
+    visibility: visible !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .bms-vat-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    inset: auto !important;
+    overflow: visible !important;
+  }
+
+  .bms-vat-viewport {
+    background: transparent !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .bms-vat-sheet {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: auto !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .bms-vat-frame {
+    border: 2px double #0284c7 !important;
+    padding: 12mm 10mm !important;
+  }
+
+  .bms-vat-watermark {
+    display: none !important;
+  }
+}
+

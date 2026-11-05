@@ -12,6 +12,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
 import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaVial, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import api from "../../../config/api";
+import { ROLES, resolveRoleId } from "../../../constants/roles";
 import "./LoginPage.css";
 
 /**
@@ -85,34 +86,29 @@ export default function LoginPage({
    * Redirects user to their role-specific dashboard.
    */
   const routeUserByRole = (user) => {
-    const role = normalizeRole(user?.role || user?.roleName);
+    const roleId = resolveRoleId(user);
     let target = "/dashboard";
-    switch (role) {
-      case "WAREHOUSESTAFF":
-        target = "/inventory";
-        break;
-      case "ADMIN":
-      case "MANAGER":
+    switch (roleId) {
+      case ROLES.ADMIN:
+      case ROLES.MANAGER:
         target = "/dashboard";
         break;
-      case "DOCTOR":
-        target = "/schedule";
+      case ROLES.DOCTOR:
+        target = "/doctor/console";
         break;
-      case "LABHEAD":
-      case "LABTECH":
+      case ROLES.LAB:
         target = "/lab/queue";
         break;
-      case "RECEPTIONIST":
-        target = "/schedule";
+      case ROLES.RECEPTIONIST:
+        target = "/receptionist/check-in";
         break;
-      case "PATIENT":
-        target = "/";
+      case ROLES.PATIENT:
+        target = user?.medicalProfileCompleted ? "/home" : "/patient/medical-profile-setup";
         break;
       default:
-        target = "/";
+        target = "/dashboard";
         break;
     }
-    // Perform full navigation to refresh layout with authenticated user session
     window.location.href = target;
   };
 
@@ -455,6 +451,13 @@ export default function LoginPage({
                   onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
                 >
                   Admin
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-dark"
+                  onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
+                >
+                  Quản Lý
                 </button>
                 <button
                   type="button"

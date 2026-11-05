@@ -87,7 +87,7 @@ const ChangePassword = () => {
 
   return (
     <Card className="shadow-sm border rounded-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
-      <Card.Header className="bg-white border-bottom py-3.5 px-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+      <Card.Header className="bg-white border-bottom py-3 px-4" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
         <h5 className="fw-bold mb-1" style={{ color: 'var(--bms-primary, #5E85E6)', fontSize: '18px' }}>
           <i className="bi bi-key-fill me-2"></i>Thay Đổi Mật Khẩu Bảo Mật
         </h5>
@@ -159,7 +159,7 @@ const ChangePassword = () => {
           </Form.Group>
 
           <div className="d-flex justify-content-end gap-2">
-            <Button variant="outline-secondary" className="rounded-pill px-3.5" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
+            <Button variant="outline-secondary" className="rounded-pill px-3" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
               Hủy bỏ
             </Button>
             <Button variant="primary" type="submit" disabled={loading} className="rounded-pill fw-semibold px-4" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}>

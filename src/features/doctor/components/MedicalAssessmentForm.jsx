@@ -423,7 +423,7 @@ export default function MedicalAssessmentForm({
   };
 
   return (
-    <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid #E5E9EB' }}>
+    <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid #E5E9EB' }}>
       <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#5E85E6' }}>
         <div>
           <h5 className="mb-0 fw-bold d-flex align-items-center gap-2">

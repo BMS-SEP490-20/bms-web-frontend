@@ -420,7 +420,7 @@ export default function DoctorSchedulePage() {
       {/* KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Tổng Ca Làm Việc</div>
@@ -434,7 +434,7 @@ export default function DoctorSchedulePage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Ca Đã Duyệt / Đang Trực</div>
@@ -448,7 +448,7 @@ export default function DoctorSchedulePage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Công Suất Tiếp Nhận</div>
@@ -462,7 +462,7 @@ export default function DoctorSchedulePage() {
           </Card>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E5E9EB' }}>
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Phòng Đang Phân Ca</div>
@@ -478,7 +478,7 @@ export default function DoctorSchedulePage() {
       </Row>
 
       {/* Filter & Search Toolbar */}
-      <Card className="shadow-sm border-0 rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
+      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid #E5E9EB' }}>
         <Card.Body className="p-3">
           <Row className="g-2 align-items-end">
             <Col xs={12} lg={3}>

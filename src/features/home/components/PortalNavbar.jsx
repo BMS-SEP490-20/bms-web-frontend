@@ -8,14 +8,22 @@
  * Conforms to: Soft Medical Telehealth UI Specification & DESIGN SYSTEM PROMPT.
  */
 
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
+
+// Module-level persistent cache across route transitions
+let lastKnownPillPos = { left: 0, width: 0, initialized: false };
 
 export default function PortalNavbar({ user: propUser = null }) {
   const location = useLocation();
   const trackRef = useRef(null);
-  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [sliderStyle, setSliderStyle] = useState(() => ({
+    left: lastKnownPillPos.left,
+    width: lastKnownPillPos.width,
+    opacity: lastKnownPillPos.initialized ? 1 : 0,
+    animate: lastKnownPillPos.initialized
+  }));
 
   const user = useMemo(() => {
     if (propUser) return propUser;
@@ -31,25 +39,28 @@ export default function PortalNavbar({ user: propUser = null }) {
   const staffRoleName = roleId ? ROLE_LABELS[roleId] : '';
   const currentPath = location.pathname;
 
-  // Quantum slider position calculation
-  useEffect(() => {
+  // Quantum slider position calculation with persistent start position
+  useLayoutEffect(() => {
     const updateSlider = () => {
       if (!trackRef.current) return;
       const activeEl = trackRef.current.querySelector('.bms-capsule-item.active');
       if (activeEl) {
         const trackRect = trackRef.current.getBoundingClientRect();
         const activeRect = activeEl.getBoundingClientRect();
-        setSliderStyle({
+        const newPos = {
           left: activeRect.left - trackRect.left,
           width: activeRect.width,
-          opacity: 1
-        });
-      } else {
-        setSliderStyle(prev => ({ ...prev, opacity: 0 }));
+          opacity: 1,
+          animate: true
+        };
+        lastKnownPillPos = { left: newPos.left, width: newPos.width, initialized: true };
+        setSliderStyle(newPos);
       }
     };
 
-    const t = setTimeout(updateSlider, 20);
+    updateSlider();
+    // Run an additional micro-delay measurement in case fonts/styles shift
+    const t = setTimeout(updateSlider, 40);
     window.addEventListener('resize', updateSlider);
     return () => {
       clearTimeout(t);
@@ -113,7 +124,9 @@ export default function PortalNavbar({ user: propUser = null }) {
               width: `${sliderStyle.width}px`,
               backgroundColor: '#1E60E6',
               borderRadius: '999px',
-              transition: 'left 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), width 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.2s ease',
+              transition: sliderStyle.animate
+                ? 'left 0.38s cubic-bezier(0.2, 0.9, 0.2, 1), width 0.38s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.2s ease'
+                : 'opacity 0.2s ease',
               pointerEvents: 'none',
               zIndex: 1,
               opacity: sliderStyle.opacity

@@ -1,19 +1,19 @@
 
 .login-page {
-    --login-primary: #5E85E6;
-    --login-primary-hover: #4a6ec7;
-    --login-navy: #20242B;
-    --login-text: #20242B;
-    --login-muted: #606873;
-    --login-border: #E5E9EB;
+    --login-primary: #648CF4;
+    --login-primary-hover: #537be6;
+    --login-navy: #1A1D21;
+    --login-text: #1A1D21;
+    --login-muted: #6B7280;
+    --login-border: rgba(15, 23, 42, 0.08);
     min-height: 100vh;
     padding: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #F1F4F7;
+    background: #F4F7F9;
     color: var(--login-text);
-    font-family: var(--bms-font-family, 'Geist Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-family: var(--bms-font-family, 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
 
 .login-page *,
@@ -30,9 +30,9 @@
     min-height: 740px;
     overflow: hidden;
     background: #fff;
-    border: 1px solid #E5E9EB;
-    border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(94, 133, 230, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.04);
+    border-radius: 28px;
+    box-shadow: 0 16px 48px rgba(28, 39, 61, 0.10);
 }
 
 .login-brand-panel {
@@ -242,7 +242,7 @@
 
 .login-heading h2 {
     margin: 12px 0 8px;
-    color: #172b4d;
+    color: #1A1D21;
     font-size: 30px;
     font-weight: 700;
     letter-spacing: -0.9px;
@@ -251,7 +251,7 @@
 .login-heading p {
     margin: 0;
     color: var(--login-muted);
-    font-size: 13px;
+    font-size: 13.5px;
     line-height: 1.7;
 }
 
@@ -263,8 +263,8 @@
 .login-label-row > label {
     display: block;
     margin-bottom: 10px;
-    color: #334155;
-    font-size: 12px;
+    color: #1A1D21;
+    font-size: 12.5px;
     font-weight: 650;
 }
 
@@ -284,16 +284,16 @@
     align-items: center;
     gap: 11px;
     min-height: 48px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: 1px solid var(--login-border);
-    border-radius: 12px;
-    background: #F1F4F7;
+    border-radius: 14px;
+    background: #F4F7F9;
     transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
 .login-input-wrap:focus-within {
-    border-color: #5E85E6;
-    box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.18);
+    border-color: #648CF4;
+    box-shadow: 0 0 0 3px rgba(100, 140, 244, 0.28);
     background: #ffffff;
 }
 

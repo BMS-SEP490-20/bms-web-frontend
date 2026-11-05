@@ -1,175 +1,216 @@
 /**
- * BMS Design Tokens — Modern Soft Healthcare SaaS Specification (DESIGNRULE.md)
- * 
- * Character: Clean, calm, professional, welcoming, friendly without looking childish.
- * Color Identity:
- *   - Primary Blue: #5E85E6
- *   - Soft Green: #91DE83
- *   - Soft Yellow: #E7BC4C
- *   - Base Surface: #FFFFFF
- *   - Card Surface: #F1F4F7 (replaces harsh borders)
- *   - Muted Surface: #E8EDF2
- *   - Primary Text: #20242B (never pure black)
- *   - Secondary Text: #7D8794
- *   - Subtle Divider: #DDE3EA
- * Typography: Geist Sans
+ * BMS Design Tokens — Soft Medical Telehealth UI Specification (MEDLINE-class)
+ * macOS / Apple Grade Visual Hierarchy, Typography & Diffuse Soft Glass Surfaces
+ * Reference: User Design System Prompt & DESIGNRULE.md
  */
 
 :root {
-  /* --- 1. Primary Brand & Interaction Accent --- */
-  --bms-primary: #5E85E6;
-  --bms-primary-hover: #4d74d5;
-  --bms-primary-active: #3c62c3;
-  --bms-primary-subtle: #edf2fc;
-  --bms-primary-border: #c4d4f7;
-  --bms-primary-dark: #3b63c4;
+  /* Canvas */
+  --bg-page: #F4F7F9;          /* cool soft gray page */
+  --bg-card: #FFFFFF;          /* pure white surfaces */
+  --bg-muted: #EEF2F6;         /* subtle inset / track / idle chip */
+  --bg-nav-idle: #FFFFFF;      /* idle pill segments */
 
-  /* --- 2. Semantic States (Positive, Warning, Destructive) --- */
-  --bms-success: #91DE83;
-  --bms-success-hover: #7ece70;
-  --bms-success-text: #246a1a;
-  --bms-success-subtle: #f0faf0;
-  --bms-normal-icon: #2e8b20;
+  /* Ink */
+  --ink: #1A1D21;              /* primary text — near black, soft, high contrast */
+  --ink-secondary: #6B7280;    /* labels, meta, timestamps */
+  --ink-tertiary: #9CA3AF;     /* placeholders, hints */
+  --ink-on-blue: #FFFFFF;
+  --ink-on-green: #0F3D1A;     /* dark green text on mint buttons */
 
-  --bms-warning: #E7BC4C;
-  --bms-warning-hover: #d7ac3b;
-  --bms-warning-text: #7d5b06;
-  --bms-warning-strong: #6d4f04;
-  --bms-warning-subtle: #fdfaf0;
+  /* Brand / interactive */
+  --primary: #648CF4;          /* soft sky-royal blue — ACTIVE nav, bars, links, focus */
+  --primary-hover: #537be6;    /* interactive hover state */
+  --primary-soft: #E8EFFE;     /* selected row / soft chip fill */
+  --primary-grad-end: #7BA0F7; /* soft gradient end on blue promo cards */
 
-  --bms-danger: #eb5757;
-  --bms-danger-hover: #d84545;
-  --bms-danger-text: #991b1b;
-  --bms-danger-subtle: #fef3f3;
+  /* Semantic */
+  --success: #A3E687;          /* mint — Repeat / Upgrade / positive CTA fill */
+  --success-hover: #92d875;
+  --success-ink: #1F3B14;
+  --warn: #F5A623;             /* soft orange — Moderate / caution badge */
+  --warn-soft: #FFF4E5;
+  --danger: #F04438;           /* End call / destructive */
+  --danger-soft: #FEECEC;
 
-  --bms-info: #5E85E6;
-  --bms-info-text: #25499c;
-  --bms-info-subtle: #edf2fc;
+  /* Gauge */
+  --gauge-start: #F6C945;      /* yellow */
+  --gauge-end: #8FD86A;        /* green */
 
-  /* --- 3. Surface & Neutral Hierarchy (Surface contrast instead of heavy borders) --- */
-  --bms-bg: #FFFFFF;
-  --bms-card-bg: #F1F4F7;
-  --bms-muted-surface: #E8EDF2;
-  --bms-body: #20242B;
-  --bms-text-primary: #20242B;
-  --bms-text-secondary: #7D8794;
-  --bms-text-muted: #9aa4b2;
-  --bms-secondary: #7D8794;
-  --bms-muted: #7D8794;
+  /* Chrome & Diffuse Soft Shadows */
+  --shadow-card: 0 8px 28px rgba(28, 39, 61, 0.07);
+  --shadow-float: 0 14px 40px rgba(28, 39, 61, 0.11);
+  --shadow-soft: 0 4px 14px rgba(28, 39, 61, 0.05);
+  --shadow-pill: 0 4px 14px rgba(100, 140, 244, 0.22);
+  --ring-focus: 0 0 0 3px rgba(100, 140, 244, 0.28);
 
-  /* --- 4. Borders & Subtle Dividers --- */
-  --bms-border: #DDE3EA;
-  --bms-divider: #DDE3EA;
-  --bms-input-border: #DDE3EA;
-  --bms-card-border: transparent;
+  /* Geometry & Large Corner Radii */
+  --radius-card: 28px;
+  --radius-panel: 24px;
+  --radius-control: 999px;     /* pills */
+  --radius-btn: 999px;
+  --radius-chip: 10px;
+  --radius-media: 22px;
+  --radius-avatar: 999px;
 
-  /* --- 5. Geometry & Border Radii --- */
-  --bms-radius-sm: 8px;
-  --bms-radius-md: 12px;
-  --bms-radius-lg: 16px;
-  --bms-radius-xl: 20px;
-  --bms-radius-pill: 9999px;
-  --bms-card-radius: 18px;
+  /* Bridges for existing token consumers */
+  --bms-primary: var(--primary);
+  --bms-primary-hover: var(--primary-hover);
+  --bms-primary-subtle: var(--primary-soft);
+  --bms-success: var(--success);
+  --bms-success-hover: var(--success-hover);
+  --bms-success-text: var(--ink-on-green);
+  --bms-warning: var(--warn);
+  --bms-warning-subtle: var(--warn-soft);
+  --bms-danger: var(--danger);
+  --bms-danger-subtle: var(--danger-soft);
+  --bms-bg: var(--bg-card);
+  --bms-card-bg: var(--bg-muted);
+  --bms-body: var(--ink);
+  --bms-text-primary: var(--ink);
+  --bms-text-secondary: var(--ink-secondary);
+  --bms-text-muted: var(--ink-secondary);
+  --bms-border: rgba(15, 23, 42, 0.06);
+  --bms-card-radius: var(--radius-card);
+  --bms-radius-pill: var(--radius-btn);
+  --bms-shadow-sm: var(--shadow-soft);
+  --bms-shadow-md: var(--shadow-card);
+  --bms-shadow-lg: var(--shadow-float);
+  --bms-focus: var(--ring-focus);
+  --bms-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* --- 6. Shadows (Ultra-soft, never heavy) --- */
-  --bms-shadow-sm: 0 1px 3px rgba(32, 36, 43, 0.03);
-  --bms-shadow-md: 0 4px 14px rgba(32, 36, 43, 0.04);
-  --bms-shadow-lg: 0 10px 28px rgba(32, 36, 43, 0.06);
-
-  /* --- 7. Focus & Interaction Transitions --- */
-  --bms-focus: 0 0 0 3px rgba(94, 133, 230, 0.22);
-  --bms-transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* --- 8. Typography --- */
-  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Typography */
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Tabular Numbers for ISO 15189 Clinical & Financial precision */
+/* Global Typography Anti-Aliasing & Enforcement */
+*,
+*::before,
+*::after {
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+body {
+  background-color: var(--bg-page) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+/* Clinical & Financial Tabular Numbers */
+.tabular-nums,
 .bms-num {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em;
 }
 
-/* Global Focus Ring */
-.bms-focusable:focus-visible,
-.bms-scope :is(button, a, input, select, textarea):focus-visible {
-  outline: none;
-  box-shadow: var(--bms-focus);
+/* Accessible Soft Focus Ring */
+:focus-visible {
+  outline: none !important;
+  box-shadow: var(--ring-focus) !important;
 }
 
-/* Modern Soft Form Controls */
-.bms-scope .form-control,
-.bms-scope .form-select {
-  background-color: var(--bms-card-bg);
-  border: 1px solid transparent;
-  border-radius: var(--bms-radius-md);
-  color: var(--bms-text-primary);
-  font-size: 13.5px;
-  padding: 10px 14px;
-  transition: var(--bms-transition);
+/* High Contrast Pill Buttons */
+.btn-pill-primary,
+.bms-btn-primary {
+  background-color: var(--primary) !important;
+  color: var(--ink-on-blue) !important;
+  border-radius: var(--radius-btn) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  padding: 10px 22px !important;
+  box-shadow: var(--shadow-pill) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bms-scope .form-control:focus,
-.bms-scope .form-select:focus {
-  background-color: var(--bms-bg);
-  border-color: var(--bms-primary);
-  box-shadow: var(--bms-focus);
+.btn-pill-primary:hover,
+.bms-btn-primary:hover {
+  background-color: var(--primary-hover) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(100, 140, 244, 0.32) !important;
 }
 
-.bms-scope .form-control::placeholder {
-  color: var(--bms-text-secondary);
-  opacity: 0.85;
+.btn-pill-primary:active,
+.bms-btn-primary:active {
+  transform: translateY(0);
 }
 
-/* Modern Pill & Soft Button Utilities */
-.bms-scope .btn-primary {
-  background-color: var(--bms-primary);
-  border-color: var(--bms-primary);
-  color: #ffffff;
-  border-radius: var(--bms-radius-pill);
-  font-weight: 500;
-  font-size: 13.5px;
-  padding: 8px 18px;
-  box-shadow: none;
-  transition: var(--bms-transition);
+/* Mint Positive CTA Button */
+.btn-pill-success,
+.bms-btn-success {
+  background-color: var(--success) !important;
+  color: var(--ink-on-green) !important;
+  border-radius: var(--radius-btn) !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 10px 22px !important;
+  box-shadow: 0 4px 14px rgba(163, 230, 135, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bms-scope .btn-primary:hover,
-.bms-scope .btn-primary:focus {
-  background-color: var(--bms-primary-hover);
-  border-color: var(--bms-primary-hover);
-  color: #ffffff;
+.btn-pill-success:hover,
+.bms-btn-success:hover {
+  background-color: var(--success-hover) !important;
+  color: var(--ink-on-green) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(163, 230, 135, 0.45) !important;
 }
 
-.bms-scope .btn-success {
-  background-color: var(--bms-success);
-  border-color: var(--bms-success);
-  color: #1a4a15;
-  border-radius: var(--bms-radius-pill);
-  font-weight: 500;
-  font-size: 13.5px;
-  padding: 8px 18px;
-  box-shadow: none;
-  transition: var(--bms-transition);
+/* Neutral White Pill Button */
+.btn-pill-neutral,
+.bms-btn-neutral,
+.bms-btn-outline {
+  background-color: #FFFFFF !important;
+  color: var(--ink) !important;
+  border-radius: var(--radius-btn) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  font-weight: 600 !important;
+  padding: 10px 22px !important;
+  box-shadow: var(--shadow-soft) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bms-scope .btn-success:hover {
-  background-color: var(--bms-success-hover);
-  border-color: var(--bms-success-hover);
-  color: #143d10;
+.btn-pill-neutral:hover,
+.bms-btn-neutral:hover,
+.bms-btn-outline:hover {
+  background-color: var(--bg-muted) !important;
+  color: var(--ink) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card) !important;
 }
 
-.bms-scope .text-success {
-  color: var(--bms-success-text) !important;
+/* Soft Floating Card */
+.bms-soft-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  padding: 24px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.bms-scope .text-muted {
-  color: var(--bms-text-secondary) !important;
-}
-
-/* Accessibility: Respect Reduced Motion Preferences */
-@media (prefers-reduced-motion: reduce) {
-  .bms-scope * {
-    animation: none !important;
-    transition: none !important;
-  }
+.bms-soft-card:hover {
+  box-shadow: var(--shadow-float);
+  transform: translateY(-1px);
 }

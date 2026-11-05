@@ -35,6 +35,7 @@ import {
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
 import { sampleService } from '../../../services/sampleService';
 import api from '../../../config/api';
+import { getStoredUser } from '../../../constants/roles';
 
 // Các tiêu chuẩn đánh giá chất lượng tiền phân tích theo ISO 15189:2022
 const QUALITY_ASSESSMENT_OPTIONS = [
@@ -120,7 +121,7 @@ const ValidateSample = () => {
       setSamples(Array.isArray(sampleList) ? sampleList : []);
     } catch (err) {
       console.error('Lỗi khi tải danh sách mẫu:', err);
-      setError('Không thể tải danh sách mẫu xét nghiệm. Vui lòng kiểm tra lại kết nối.');
+      setError(err?.response?.data?.message || 'Không thể tải danh sách mẫu xét nghiệm. Vui lòng thử lại.');
       setSamples([]);
     } finally {
       setLoading(false);
@@ -152,6 +153,9 @@ const ValidateSample = () => {
     const selectedOption = QUALITY_ASSESSMENT_OPTIONS.find(o => o.id === assessmentType) || QUALITY_ASSESSMENT_OPTIONS[0];
     const isApproved = selectedOption.status === 'validated';
     const isHemolysis = selectedOption.isHemolysis || assessmentType === 'HEMOLYSIS';
+    const currentUser = getStoredUser();
+    const labUserId = currentUser?.id || currentUser?.username || 'lab_user';
+    const labUserName = currentUser?.fullName || currentUser?.name || 'KTV. BMS';
 
     setSubmitting(true);
     try {
@@ -159,8 +163,11 @@ const ValidateSample = () => {
       await sampleService.validateSample(sampleId, {
         isValid: isApproved,
         status: selectedOption.status,
+        Status: selectedOption.status,
         notes: `[${selectedOption.label}] ${notes}`,
-        labUserId: 'lab_minhtuan'
+        Notes: `[${selectedOption.label}] ${notes}`,
+        labUserId: labUserId,
+        LabUserId: labUserId
       });
 
       // 2. RÀNG BUỘC NGHIỆP VỤ: Mẫu bị tán huyết (Hemolysis) -> Khóa phân tích & Kích hoạt Rerun/Recollect
@@ -168,7 +175,7 @@ const ValidateSample = () => {
         try {
           await api.post(`/laboratory/samples/${encodeURIComponent(sampleId)}/rerun`, {
             reason: `Mẫu tán huyết (Hemolysis) vi phạm tiêu chuẩn tiền phân tích ISO 15189: ${notes}`,
-            requestedBy: 'KTV. Lê Minh Tuấn'
+            requestedBy: labUserName
           });
         } catch {
           // Bỏ qua nếu mẫu đã có yêu cầu rerun
@@ -179,7 +186,7 @@ const ValidateSample = () => {
           await api.put(`/laboratory/samples/${encodeURIComponent(sampleId)}/status`, {
             status: 'Rejected',
             rejectionReason: `Tán huyết (Hemolysis) - Khóa phân tích: ${notes}`,
-            technicianName: 'KTV. Lê Minh Tuấn'
+            technicianName: labUserName
           });
         } catch {
           // Non-blocking
@@ -190,7 +197,7 @@ const ValidateSample = () => {
           await api.put(`/laboratory/samples/${encodeURIComponent(sampleId)}/status`, {
             status: 'Rejected',
             rejectionReason: `${selectedOption.label}: ${notes}`,
-            technicianName: 'KTV. Lê Minh Tuấn'
+            technicianName: labUserName
           });
         } catch {
           // Non-blocking

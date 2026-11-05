@@ -1,7 +1,7 @@
 /**
  * @file testReportApi.js
- * @description API client for laboratory test report generation and PDF retrieval (UC42).
- * Conforms to: Production Standards & AGENTS.md.
+ * Patient & Doctor Test Report & Official Medical Document Export API (ISO 15189:2022).
+ * Integrates dual-signature validation, verification hashes, and diagnostic lab data.
  */
 
 import api from "../../../config/api";
@@ -14,7 +14,8 @@ import api from "../../../config/api";
  */
 export const fetchReportByOrder = async (orderId) => {
     try {
-        const response = await api.get(`/testreports/order/${orderId}`).catch(() => api.get(`/reports/order/${orderId}`));
+        const encoded = encodeURIComponent(orderId || '');
+        const response = await api.get(`/reports/order/${encoded}`).catch(() => api.get(`/testreports/order/${encoded}`));
         if (response?.data?.data) {
             return response.data.data;
         }
@@ -87,15 +88,16 @@ export const fetchReportByOrder = async (orderId) => {
 };
 
 /**
- * Generate or re-issue an official diagnostic report.
- * @param {string} orderId Order identifier.
- * @param {Object} data Notes and approver details.
+ * Trigger backend report generation and PDF compile for an approved sample.
+ * @param {string} orderId 
+ * @param {Object} data 
  * @returns {Promise<Object>} Created report.
  */
 export const generateReport = async (orderId, data = {}) => {
     try {
-        const response = await api.post(`/testreports/order/${orderId}/generate`, data).catch(() =>
-            api.post(`/reports/order/${orderId}/generate`, data)
+        const encoded = encodeURIComponent(orderId || '');
+        const response = await api.post(`/reports/order/${encoded}/generate`, data).catch(() =>
+            api.post(`/testreports/order/${encoded}/generate`, data)
         );
         return response.data;
     } catch (error) {
@@ -105,14 +107,15 @@ export const generateReport = async (orderId, data = {}) => {
 };
 
 /**
- * Retrieve exportable PDF payload.
- * @param {string} orderId Order identifier.
+ * Download signed PDF document byte stream metadata.
+ * @param {string} orderId 
  * @returns {Promise<Object>} PDF export metadata.
  */
 export const fetchReportPdf = async (orderId) => {
     try {
-        const response = await api.get(`/testreports/order/${orderId}/pdf`).catch(() =>
-            api.get(`/reports/order/${orderId}/pdf`)
+        const encoded = encodeURIComponent(orderId || '');
+        const response = await api.get(`/reports/order/${encoded}/pdf`).catch(() =>
+            api.get(`/testreports/order/${encoded}/pdf`)
         );
         return response.data?.data;
     } catch (error) {

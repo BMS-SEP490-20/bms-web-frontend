@@ -75,7 +75,9 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                 }
             })
             .catch((err) => {
-                console.error("Error loading completed patients:", err);
+                if (active) {
+                    setErrorMessage(err?.response?.data?.message || err?.message || "Không thể tải danh sách bệnh nhân hoàn thành xét nghiệm.");
+                }
             })
             .finally(() => {
                 if (active) setLoadingPatients(false);

@@ -38,13 +38,17 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
+import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 
 export default function MedicalAssessmentListPage() {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
+  const canManageAssessments = hasRole(currentUser, ROLES.DOCTOR);
   const [assessments, setAssessments] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -108,13 +112,15 @@ export default function MedicalAssessmentListPage() {
   const handleOpenDelete = (item) => {
     setItemToDelete(item);
     setDeleteReason('Sai sót thông tin lâm sàng cần tạo lại');
+    setDeleteError(null);
     setShowDeleteModal(true);
   };
 
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
+    setDeleteError(null);
     if (!deleteReason || deleteReason.trim().length < 5) {
-      alert('Vui lòng nhập lý do xóa tối thiểu 5 ký tự.');
+      setDeleteError('Vui lòng nhập lý do xóa tối thiểu 5 ký tự.');
       return;
     }
 
@@ -125,7 +131,7 @@ export default function MedicalAssessmentListPage() {
       setItemToDelete(null);
       fetchAssessments();
     } catch (err) {
-      alert(err.message || 'Lỗi khi xóa hồ sơ đánh giá y khoa.');
+      setDeleteError(err.message || 'Lỗi khi xóa hồ sơ đánh giá y khoa.');
     } finally {
       setDeleting(false);
     }
@@ -176,14 +182,16 @@ export default function MedicalAssessmentListPage() {
           >
             <FaUserMd /> Bàn Khám Bác Sĩ
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => navigate('/medical-assessments/add')}
-            className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold text-white"
-            style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
-          >
-            <FaPlus /> Thêm Đánh Giá Y Khoa
-          </Button>
+          {canManageAssessments && (
+            <Button
+              variant="primary"
+              onClick={() => navigate('/medical-assessments/add')}
+              className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold text-white"
+              style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+            >
+              <FaPlus /> Thêm Đánh Giá Y Khoa
+            </Button>
+          )}
         </div>
       </div>
 
@@ -249,14 +257,16 @@ export default function MedicalAssessmentListPage() {
               <p className="text-muted small">
                 Bác sĩ bấm &quot;Thêm Đánh Giá Y Khoa&quot; để ghi nhận bệnh án và chẩn đoán ICD-10.
               </p>
-              <Button
-                variant="outline-primary"
-                onClick={() => navigate('/medical-assessments/add')}
-                className="mt-2"
-                style={{ color: '#0284c7', borderColor: '#0284c7' }}
-              >
-                <FaPlus className="me-2" /> Tạo đánh giá ngay
-              </Button>
+              {canManageAssessments && (
+                <Button
+                  variant="outline-primary"
+                  onClick={() => navigate('/medical-assessments/add')}
+                  className="mt-2"
+                  style={{ color: '#0284c7', borderColor: '#0284c7' }}
+                >
+                  <FaPlus className="me-2" /> Tạo đánh giá ngay
+                </Button>
+              )}
             </div>
           ) : (
             <Table responsive hover className="align-middle mb-0">
@@ -341,7 +351,7 @@ export default function MedicalAssessmentListPage() {
                         >
                           <FaEye />
                         </Button>
-                        {item.canEdit && (
+                        {canManageAssessments && item.canEdit && (
                           <Button
                             variant="outline-primary"
                             size="sm"
@@ -351,7 +361,7 @@ export default function MedicalAssessmentListPage() {
                             <FaEdit />
                           </Button>
                         )}
-                        {item.canEdit && (
+                        {canManageAssessments && item.canEdit && (
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -523,6 +533,11 @@ export default function MedicalAssessmentListPage() {
           <Modal.Title className="fs-5 fw-bold" style={{ color: '#dc2626' }}>Xác Nhận Xóa Mềm Đánh Giá Y Khoa</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {deleteError && (
+            <Alert variant="danger" className="py-2 small">
+              {deleteError}
+            </Alert>
+          )}
           <p>
             Bạn có chắc chắn muốn xóa hồ sơ đánh giá y khoa mã <strong>{itemToDelete?.assessmentCode}</strong> của bệnh nhân <strong>{itemToDelete?.patientName}</strong>?
           </p>

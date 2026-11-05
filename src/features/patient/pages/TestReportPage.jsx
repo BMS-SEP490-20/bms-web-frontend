@@ -27,6 +27,7 @@ export default function TestReportPage() {
 
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(Boolean(orderId));
+    const [errorMessage, setErrorMessage] = useState("");
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -37,11 +38,13 @@ export default function TestReportPage() {
 
         const loadReport = async () => {
             setLoading(true);
+            setErrorMessage("");
             try {
                 const data = await fetchReportByOrder(orderId);
                 setReport(data);
             } catch (err) {
                 console.error("Lỗi khi tải phiếu kết quả xét nghiệm:", err);
+                setErrorMessage(err?.response?.data?.message || err?.message || "Không thể tải báo cáo kết quả xét nghiệm.");
             } finally {
                 setLoading(false);
             }
@@ -85,7 +88,7 @@ export default function TestReportPage() {
         return (
             <div className="container py-5 text-center text-muted" style={{ minHeight: "80vh" }}>
                 <FaExclamationCircle className="text-danger fs-1 mb-3" />
-                <h5>Không tìm thấy phiếu kết quả xét nghiệm cho mã chỉ định #{orderId}</h5>
+                <h5>{errorMessage || `Không tìm thấy phiếu kết quả xét nghiệm cho mã chỉ định #${orderId}`}</h5>
                 <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
                     Quay lại
                 </button>

@@ -277,15 +277,15 @@ export default function Sidebar({
             style={{
               width: '40px',
               height: '40px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #5E85E6 0%, #4a6ec7 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
               fontSize: '20px',
               flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(37,99,235,0.35)'
+              boxShadow: '0 4px 12px rgba(94, 133, 230, 0.35)'
             }}
           >
             <FaVial />
@@ -355,8 +355,8 @@ export default function Sidebar({
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            background: '#10b981',
-            boxShadow: '0 0 8px #10b981',
+            background: '#91DE83',
+            boxShadow: '0 0 8px #91DE83',
             flexShrink: 0,
             margin: isCollapsed ? '0 auto' : 0
           }}
@@ -369,7 +369,7 @@ export default function Sidebar({
             <div
               style={{
                 fontSize: '0.82rem',
-                color: '#38bdf8',
+                color: '#5E85E6',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
@@ -425,20 +425,20 @@ export default function Sidebar({
                     gap: isCollapsed ? '0' : '12px',
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                     padding: isCollapsed ? '11px 0' : '9px 12px',
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     textDecoration: 'none',
                     color: active ? '#ffffff' : '#cbd5e1',
                     background: active
-                      ? 'linear-gradient(90deg, rgba(37,99,235,0.9) 0%, rgba(29,78,216,0.9) 100%)'
+                      ? '#5E85E6'
                       : 'transparent',
-                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
+                    boxShadow: active ? '0 4px 14px rgba(94,133,230,0.35)' : 'none',
                     fontWeight: active ? 600 : 500,
                     fontSize: '0.86rem',
                     transition: 'all 0.15s ease',
                     position: 'relative'
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                    if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
                   }}
                   onMouseLeave={(e) => {
                     if (!active) e.currentTarget.style.background = 'transparent';

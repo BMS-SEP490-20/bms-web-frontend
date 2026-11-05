@@ -23,7 +23,10 @@ export default function MegaFooter() {
           
           {/* Column 1: Brand & MOH License */}
           <div className="bms-footer-col">
-            <h4 style={{ color: '#ffffff', fontSize: 16 }}>BMS CLINICAL LABORATORY</h4>
+            <h4 style={{ color: '#ffffff', fontSize: 16, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img src="/bmsicon.ico" alt="BMS" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+              <span>BMS CLINICAL LABORATORY</span>
+            </h4>
             <p style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.6 }}>
               Hệ thống phòng xét nghiệm y khoa tự động hóa đạt tiêu chuẩn quốc tế <strong>ISO 15189:2022</strong>. Chuyên sâu huyết học, sinh hóa, miễn dịch và sàng lọc sớm với độ chính xác và tin cậy cao nhất.
             </p>

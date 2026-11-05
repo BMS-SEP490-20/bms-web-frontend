@@ -230,6 +230,7 @@ export default function ServiceCatalogPage() {
               <Col lg={7}>
                 <div className="d-flex align-items-center gap-2 mb-2.5">
                   <span
+                    className="d-flex align-items-center gap-1.5"
                     style={{
                       background: '#EFF6FF',
                       color: '#1E60E6',
@@ -240,7 +241,8 @@ export default function ServiceCatalogPage() {
                       borderRadius: '6px'
                     }}
                   >
-                    ISO 15189:2022 ACCREDITED LABORATORY
+                    <img src="/bmsicon.ico" alt="BMS" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
+                    <span>ISO 15189:2022 ACCREDITED LABORATORY</span>
                   </span>
                   <span style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 600 }}>
                     • Hệ Thống BMS Lab

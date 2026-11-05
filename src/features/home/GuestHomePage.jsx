@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
@@ -84,8 +85,9 @@ export default function GuestHomePage() {
         <div className="bms-hero-grid">
           {/* Left Column: Hero Narrative & Metrics */}
           <div className="bms-hero-narrative">
-            <div className="bms-status-chip">
-              TIÊU CHUẨN ISO 15189 &amp; CHỨNG NHẬN CAP
+            <div className="bms-status-chip d-flex align-items-center gap-2">
+              <img src="/bmsicon.ico" alt="BMS" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+              <span>TIÊU CHUẨN ISO 15189 &amp; CHỨNG NHẬN CAP</span>
             </div>
 
             <h1 className="bms-hero-heading">

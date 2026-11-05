@@ -3,50 +3,40 @@
  * 
  * Header component for patients in the Blood Laboratory Management System.
  * Provides patient-specific navigation, user profile access, and logout functionality.
+ * Conforms to: Soft Medical Telehealth UI Specification (MEDLINE / macOS Grade).
  * 
  * @author Blood Laboratory Management Team
- * @version 1.0.0
+ * @version 2.0.0
  * @since 2024
  */
 
 import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { useAuth } from '../../shared/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { patientService } from '../../services/patientService';
 import NotificationHistoryModal from '../../shared/components/Notification/NotificationHistoryModal';
 import '../../shared/styles/guest-header.css';
 
-/**
- * Patient Header Component
- * 
- * Header component for patient users with navigation to patient-specific pages.
- * Features user profile dropdown and logout functionality.
- * 
- * @param {Function} setActiveTab - Function to set active tab
- * @returns {React.ReactNode} Patient header component
- */
 const PatientHeader = ({ setActiveTab }) => {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [displayName, setDisplayName] = useState('');
 
   // Load patient fullName when component mounts or user changes
   useEffect(() => {
     const loadPatientFullName = async () => {
       if (!user?.email) {
-        // Fallback to username if no email
         setDisplayName(user?.fullName || user?.username || 'Bệnh nhân');
         return;
       }
 
-      // If user already has fullName and it's not the same as username, use it
       if (user?.fullName && user?.fullName !== user?.username) {
         setDisplayName(user.fullName);
         return;
       }
 
-      // Try to load patient data to get fullName
       try {
         const patientResult = await patientService.getPatientByEmail(user.email);
         if (patientResult.success && patientResult.data) {
@@ -58,7 +48,6 @@ const PatientHeader = ({ setActiveTab }) => {
           if (patientFullName && patientFullName.trim() !== '') {
             setDisplayName(patientFullName);
 
-            // Update user context with fullName if it's different
             if (user?.fullName !== patientFullName) {
               const updatedUser = {
                 ...user,
@@ -69,15 +58,12 @@ const PatientHeader = ({ setActiveTab }) => {
               updateUser(updatedUser);
             }
           } else {
-            // No fullName in patient data, use username
             setDisplayName(user?.username || 'Bệnh nhân');
           }
         } else {
-          // Patient record doesn't exist yet, use username
           setDisplayName(user?.username || 'Bệnh nhân');
         }
       } catch (error) {
-        // Error loading patient data, use username as fallback
         setDisplayName(user?.fullName || user?.username || 'Bệnh nhân');
       }
     };
@@ -90,266 +76,159 @@ const PatientHeader = ({ setActiveTab }) => {
     navigate('/');
   };
 
+  const navLinkStyle = (path) => {
+    const isActive = location.pathname.startsWith(path);
+    return {
+      color: isActive ? '#648CF4' : '#6B7280',
+      backgroundColor: isActive ? '#E8EFFE' : 'transparent',
+      fontWeight: isActive ? 650 : 500,
+      fontSize: '13.5px',
+      padding: '8px 16px',
+      borderRadius: '999px',
+      transition: 'all 0.18s ease',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap'
+    };
+  };
+
   return (
-    <Navbar bg="white" expand="lg" className="guest-header shadow-sm sticky-top">
-      <Container>
-        <Navbar.Brand href="/patient/dashboard" className="d-flex align-items-center" style={{
-          background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-          borderRadius: '10px',
-          padding: '10px 20px',
-          boxShadow: '0 4px 15px rgba(30, 60, 114, 0.3)'
-        }}>
+    <Navbar
+      bg="white"
+      expand="lg"
+      className="sticky-top"
+      style={{
+        borderBottom: '1px solid rgba(15, 23, 42, 0.05)',
+        boxShadow: '0 4px 20px rgba(28, 39, 61, 0.03)',
+        padding: '10px 0'
+      }}
+    >
+      <Container style={{ maxWidth: '1360px' }}>
+        <Navbar.Brand
+          onClick={() => navigate('/home')}
+          className="d-flex align-items-center"
+          style={{ cursor: 'pointer', padding: 0 }}
+        >
           <img
-            src="/logo1.png"
-            alt="Logo"
+            src="/assets/bms-logo.png"
+            alt="BMS Clinical Laboratory"
             style={{
-              height: '60px',
-              width: '60px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              marginRight: '15px',
-              boxShadow: '0 4px 15px rgba(13, 110, 253, 0.2)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.1)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(13, 110, 253, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(13, 110, 253, 0.2)';
+              height: '38px',
+              width: 'auto',
+              objectFit: 'contain'
             }}
           />
-          <span className="fw-bold" style={{ color: '#ffffff', fontWeight: 'bold' }}>Phòng Xét Nghiệm Máu</span>
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto align-items-center" style={{ gap: '0.5rem' }}>
+        <Navbar.Toggle aria-controls="patient-navbar-nav" style={{ border: 'none' }} />
+        <Navbar.Collapse id="patient-navbar-nav">
+          <Nav className="mx-auto align-items-center" style={{ gap: '4px', background: '#EEF2F6', padding: '4px 6px', borderRadius: '999px' }}>
             <Nav.Link
-              onClick={() => navigate('/patient/appointments')}
-              className="fw-medium nav-link"
-              style={{
-                color: '#333',
-                transition: 'all 0.3s ease',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontSize: '1rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#0d6efd';
-                e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              onClick={() => navigate('/appointments')}
+              style={navLinkStyle('/appointments')}
             >
-              <i className="fas fa-calendar-alt me-2"></i>
-              Lịch hẹn appointments
+              Lịch Khám Của Tôi
             </Nav.Link>
             <Nav.Link
-              onClick={() => navigate('/patient/results')}
-              className="fw-medium nav-link"
-              style={{
-                color: '#333',
-                transition: 'all 0.3s ease',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontSize: '1rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#0d6efd';
-                e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              onClick={() => navigate('/services')}
+              style={navLinkStyle('/services')}
             >
-              <i className="fas fa-flask me-2"></i>
-              Kết quả
+              Gói Xét Nghiệm
             </Nav.Link>
-
+            <Nav.Link
+              onClick={() => navigate('/tracking')}
+              style={navLinkStyle('/tracking')}
+            >
+              Tiến Trình &amp; Kết Quả
+            </Nav.Link>
             <Nav.Link
               onClick={() => navigate('/patient/payment-history')}
-              className="fw-medium nav-link"
-              style={{
-                color: '#333',
-                transition: 'all 0.3s ease',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontSize: '1rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#0d6efd';
-                e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              style={navLinkStyle('/patient/payment-history')}
             >
-              <i className="fas fa-credit-card me-2"></i>
-              Lịch sử thanh toán
+              Lịch Sử Thanh Toán
             </Nav.Link>
-
             <Nav.Link
-              onClick={() => navigate('/notifications')}
-              className="fw-medium nav-link"
-              style={{
-                color: '#333',
-                transition: 'all 0.3s ease',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontSize: '1rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#fd7e14';
-                e.currentTarget.style.backgroundColor = 'rgba(253, 126, 20, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              onClick={() => navigate('/feedback')}
+              style={navLinkStyle('/feedback')}
             >
-              <i className="fas fa-bell me-2 text-warning"></i>
-              Thông báo notify
+              Góp Ý &amp; Đánh Giá
             </Nav.Link>
+          </Nav>
 
-            <Nav.Link
-              onClick={() => navigate('/patient/feedback')}
-              className="fw-medium nav-link"
-              style={{
-                color: '#333',
-                transition: 'all 0.3s ease',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontSize: '1rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#ffc107';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <i className="fas fa-star me-2 text-warning"></i>
-              Góp ý & Đánh giá
-            </Nav.Link>
-
+          <div className="d-flex align-items-center gap-2">
             {/* Notifications History Bell */}
-            <div className="ms-2">
+            <div>
               <NotificationHistoryModal variant="light" />
             </div>
 
-            <Dropdown className="ms-2">
+            <Dropdown>
               <Dropdown.Toggle
-                variant="outline-primary"
-                id="dropdown-basic"
+                id="patient-profile-dropdown"
                 style={{
-                  borderRadius: '25px',
+                  borderRadius: '999px',
                   fontWeight: '600',
-                  transition: 'all 0.3s ease',
+                  fontSize: '13.5px',
+                  transition: 'all 0.2s ease',
                   border: 'none',
-                  padding: '10px 20px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+                  padding: '8px 18px',
+                  background: '#648CF4',
+                  color: '#FFFFFF',
+                  boxShadow: '0 4px 14px rgba(100, 140, 244, 0.25)',
                   whiteSpace: 'nowrap',
-                  fontSize: '1rem',
-                  maxWidth: '200px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
               >
-                <i className="fas fa-user me-2"></i>
-                <span style={{ color: 'white' }}>{(displayName || user?.fullName || user?.username || 'Bệnh nhân').split(' ').slice(-2).join(' ')}</span>
+                <span>{(displayName || user?.fullName || user?.username || 'Bệnh nhân').split(' ').slice(-2).join(' ')}</span>
               </Dropdown.Toggle>
+
               <Dropdown.Menu
+                align="end"
                 style={{
-                  borderRadius: '12px',
-                  border: 'none',
-                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.15)',
-                  padding: '8px 0'
+                  borderRadius: '20px',
+                  border: '1px solid rgba(15, 23, 42, 0.04)',
+                  boxShadow: '0 12px 36px rgba(28, 39, 61, 0.10)',
+                  padding: '8px'
                 }}
               >
                 <Dropdown.Item
-                  onClick={() => navigate('/patient/profile-edit')}
+                  onClick={() => navigate('/profile')}
                   style={{
-                    padding: '10px 20px',
-                    transition: 'all 0.3s ease',
-                    borderRadius: '8px',
-                    margin: '4px 8px',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
-                    e.currentTarget.style.color = '#0d6efd';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = 'inherit';
+                    padding: '9px 16px',
+                    borderRadius: '12px',
+                    fontSize: '13.5px',
+                    color: '#1A1D21'
                   }}
                 >
-                  <i className="fas fa-user-circle me-2"></i>
-                  Thông tin cá nhân
+                  Thông tin hồ sơ y tế
                 </Dropdown.Item>
-                <Dropdown.Divider />
+                <Dropdown.Item
+                  onClick={() => navigate('/change-password')}
+                  style={{
+                    padding: '9px 16px',
+                    borderRadius: '12px',
+                    fontSize: '13.5px',
+                    color: '#1A1D21'
+                  }}
+                >
+                  Đổi mật khẩu
+                </Dropdown.Item>
+                <Dropdown.Divider style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }} />
                 <Dropdown.Item
                   onClick={handleLogout}
-                  className="text-danger"
                   style={{
-                    padding: '10px 20px',
-                    transition: 'all 0.3s ease',
-                    borderRadius: '8px',
-                    margin: '4px 8px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-                    e.currentTarget.style.color = '#dc3545';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#dc3545';
+                    padding: '9px 16px',
+                    borderRadius: '12px',
+                    fontSize: '13.5px',
+                    color: '#F04438',
+                    fontWeight: 600
                   }}
                 >
-                  <i className="fas fa-sign-out-alt me-2"></i>
                   Đăng xuất
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-          </Nav>
+          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>

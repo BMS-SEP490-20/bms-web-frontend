@@ -1,339 +1,343 @@
 /* ==========================================================================
-   BMS Design System — Modern Soft Healthcare SaaS Specification
-   Reference: DESIGNRULE.md
-   Typography: Geist Sans | Colors: #5E85E6, #91DE83, #E7BC4C, #F1F4F7, #20242B
+   BMS Design System — Soft Medical Telehealth UI Specification (MEDLINE-class)
+   Reference: User Design System Prompt & DESIGNRULE.md
+   macOS / Apple Grade Precision, Geometry & Typography
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  /* --- Primary & Brand Accent --- */
-  --bms-primary: #5E85E6;
-  --bms-primary-hover: #4d74d5;
-  --bms-primary-light: #edf2fc;
-  --bms-primary-50: #f4f7fe;
-  --bms-primary-100: #e4ecfc;
-  --bms-primary-600: #4d74d5;
-  --bms-primary-700: #3b63c4;
-  --bms-primary-800: #2a51b2;
+  /* Canvas */
+  --bg-page: #F4F7F9;          /* cool soft gray page */
+  --bg-card: #FFFFFF;          /* pure white surfaces */
+  --bg-muted: #EEF2F6;         /* subtle inset / track / idle chip */
+  --bg-nav-idle: #FFFFFF;      /* idle pill segments */
 
-  /* --- Semantic States --- */
-  --bms-success: #91DE83;
-  --bms-success-hover: #7ece70;
-  --bms-success-light: #f0faf0;
-  --bms-success-text: #246a1a;
-  
-  --bms-warning: #E7BC4C;
-  --bms-warning-hover: #d7ac3b;
-  --bms-warning-light: #fdfaf0;
-  --bms-warning-text: #7d5b06;
+  /* Ink */
+  --ink: #1A1D21;              /* primary text — near black, soft, high contrast */
+  --ink-secondary: #6B7280;    /* labels, meta, timestamps */
+  --ink-tertiary: #9CA3AF;     /* placeholders, hints */
+  --ink-on-blue: #FFFFFF;
+  --ink-on-green: #0F3D1A;     /* dark green text on mint buttons */
 
-  --bms-danger: #eb5757;
-  --bms-danger-hover: #d84545;
-  --bms-danger-light: #fef3f3;
-  --bms-danger-text: #991b1b;
+  /* Brand / interactive */
+  --primary: #648CF4;          /* soft sky-royal blue — ACTIVE nav, bars, links, focus */
+  --primary-hover: #537be6;
+  --primary-soft: #E8EFFE;     /* selected row / soft chip fill */
+  --primary-grad-end: #7BA0F7; /* soft gradient end on blue promo cards */
 
-  --bms-info: #5E85E6;
-  --bms-info-light: #edf2fc;
+  /* Semantic */
+  --success: #A3E687;          /* mint — Repeat / Upgrade / positive CTA fill */
+  --success-hover: #92d875;
+  --success-ink: #1F3B14;
+  --warn: #F5A623;             /* soft orange — Moderate / caution badge */
+  --warn-soft: #FFF4E5;
+  --danger: #F04438;           /* End call / destructive */
+  --danger-soft: #FEECEC;
 
-  /* --- Surface & Background Hierarchy --- */
-  --bms-surface: #FFFFFF;
-  --bms-background: #FFFFFF;
-  --bms-card-bg: #F1F4F7;
-  --bms-muted-surface: #E8EDF2;
-  --bms-border: #DDE3EA;
-  --bms-border-focus: #5E85E6;
+  /* Gauge */
+  --gauge-start: #F6C945;      /* yellow */
+  --gauge-end: #8FD86A;        /* green */
 
-  /* --- Text Hierarchy (Primary: #20242B, Secondary: #7D8794) --- */
-  --bms-text-main: #20242B;
-  --bms-text-secondary: #7D8794;
-  --bms-text-muted: #7D8794;
-  --bms-text-disabled: #9aa4b2;
-  --bms-text-inverse: #FFFFFF;
+  /* Chrome & Diffuse Soft Shadows */
+  --shadow-card: 0 8px 28px rgba(28, 39, 61, 0.07);
+  --shadow-float: 0 14px 40px rgba(28, 39, 61, 0.11);
+  --shadow-soft: 0 4px 14px rgba(28, 39, 61, 0.05);
+  --shadow-pill: 0 4px 14px rgba(100, 140, 244, 0.22);
+  --ring-focus: 0 0 0 3px rgba(100, 140, 244, 0.28);
 
-  /* --- Typography: Geist Sans --- */
-  --bms-font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --bms-font-mono: 'Geist Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  /* Geometry & Large Corner Radii */
+  --radius-card: 28px;
+  --radius-panel: 24px;
+  --radius-control: 999px;     /* pills */
+  --radius-btn: 999px;
+  --radius-chip: 10px;
+  --radius-media: 22px;
+  --radius-avatar: 999px;
 
-  /* --- Spacing & Radii (Cards: 16-22px, Buttons/Badges: Pill) --- */
-  --bms-radius-sm: 8px;
-  --bms-radius: 12px;
-  --bms-radius-lg: 16px;
-  --bms-radius-xl: 20px;
-  --bms-radius-full: 9999px;
-  --bms-card-radius: 18px;
+  /* Typography */
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  --bms-font-family: var(--font-sans);
 
-  /* --- Ultra-soft Shadows (Never heavy) --- */
-  --bms-shadow-sm: 0 1px 3px rgba(32, 36, 43, 0.03);
-  --bms-shadow: 0 3px 8px rgba(32, 36, 43, 0.04);
-  --bms-shadow-md: 0 6px 16px rgba(32, 36, 43, 0.05);
-  --bms-shadow-lg: 0 12px 28px rgba(32, 36, 43, 0.06);
-  --bms-shadow-focus: 0 0 0 3px rgba(94, 133, 230, 0.22);
-
-  /* --- Transitions --- */
-  --bms-transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  --bms-transition-fast: all 120ms ease-in-out;
+  /* Semantic bridges */
+  --bms-primary: var(--primary);
+  --bms-primary-hover: var(--primary-hover);
+  --bms-primary-light: var(--primary-soft);
+  --bms-success: var(--success);
+  --bms-success-hover: var(--success-hover);
+  --bms-success-text: var(--ink-on-green);
+  --bms-success-light: #EEF8EB;
+  --bms-warning: var(--warn);
+  --bms-warning-light: var(--warn-soft);
+  --bms-warning-text: #8C5300;
+  --bms-danger: var(--danger);
+  --bms-danger-light: var(--danger-soft);
+  --bms-danger-text: #B42318;
+  --bms-card-bg: var(--bg-card);
+  --bms-text-main: var(--ink);
+  --bms-text-secondary: var(--ink-secondary);
+  --bms-text-muted: var(--ink-secondary);
+  --bms-border: rgba(15, 23, 42, 0.06);
+  --bms-card-radius: var(--radius-card);
+  --bms-radius-full: var(--radius-btn);
+  --bms-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --bms-shadow-sm: var(--shadow-soft);
+  --bms-shadow-md: var(--shadow-card);
+  --bms-shadow-lg: var(--shadow-float);
+  --bms-shadow-focus: var(--ring-focus);
 }
 
-/* --- Global Reset & Base Typography --- */
+/* --- Global Reset & Anti-aliasing --- */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
 }
 
 html {
   font-size: 15px;
   -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: var(--bms-font-family);
-  color: var(--bms-text-main);
-  background-color: var(--bms-background);
-  line-height: 1.55;
+  font-family: var(--font-sans) !important;
+  color: var(--ink) !important;
+  background-color: var(--bg-page) !important;
+  line-height: 1.5;
   letter-spacing: -0.01em;
 }
 
-/* --- Heading Hierarchy --- */
+/* --- Apple macOS Grade Typography Scale --- */
 h1, .h1 {
-  font-size: 1.75rem; /* 26-28px */
-  font-weight: 600;
-  color: var(--bms-text-main);
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  font-size: 2rem; /* 30-32px */
+  font-weight: 750;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 h2, .h2 {
-  font-size: 1.25rem; /* 18-20px */
-  font-weight: 600;
-  color: var(--bms-text-main);
-  letter-spacing: -0.015em;
-  line-height: 1.3;
+  font-size: 1.5rem; /* 22-24px */
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+  line-height: 1.25;
 }
 
 h3, .h3 {
-  font-size: 1.05rem; /* 16px */
-  font-weight: 550;
-  color: var(--bms-text-main);
+  font-size: 1.15rem; /* 17-18px */
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: -0.015em;
   line-height: 1.35;
 }
 
 h4, .h4, h5, .h5, h6, .h6 {
-  font-weight: 550;
-  color: var(--bms-text-main);
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: -0.01em;
 }
 
-/* --- Bootstrap Overrides for Modern Soft SaaS --- */
+p {
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+/* Tabular numbers for clinical data */
+.tabular-nums,
+.bms-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.02em;
+}
+
+/* Focus outline */
+:focus-visible {
+  outline: none !important;
+  box-shadow: var(--ring-focus) !important;
+}
+
+/* --- Card Architecture (Floating 28px Soft Surfaces) --- */
 .card {
-  background-color: var(--bms-card-bg);
-  border: 1px solid transparent;
-  border-radius: var(--bms-card-radius);
-  box-shadow: var(--bms-shadow-sm);
-  transition: var(--bms-transition);
+  background-color: var(--bg-card) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card) !important;
+  border: 1px solid rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-float) !important;
 }
 
 .card-header {
-  background-color: transparent;
-  border-bottom: 1px solid var(--bms-border);
-  padding: 16px 20px;
-  font-weight: 550;
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+  padding: 18px 24px !important;
+  font-weight: 650 !important;
+  color: var(--ink) !important;
 }
 
 .card-body {
-  padding: 20px 24px;
+  padding: 24px 28px !important;
 }
 
-/* --- Pill & Soft Buttons --- */
+/* --- Pill & Soft Action Buttons --- */
 .btn {
-  font-family: var(--bms-font-family);
-  font-size: 13.5px;
-  font-weight: 500;
-  border-radius: var(--bms-radius-full);
-  padding: 8px 18px;
-  transition: var(--bms-transition);
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-btn) !important;
+  padding: 9px 20px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+}
+
+.btn:hover {
+  transform: translateY(-1px) !important;
+}
+
+.btn:active {
+  transform: translateY(0) !important;
 }
 
 .btn-primary {
-  background-color: var(--bms-primary);
-  border-color: var(--bms-primary);
-  color: #ffffff;
+  background-color: var(--primary) !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--shadow-pill) !important;
 }
 
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-  background-color: var(--bms-primary-hover);
-  border-color: var(--bms-primary-hover);
-  color: #ffffff;
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--primary-hover) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35) !important;
 }
 
-.btn-secondary {
-  background-color: var(--bms-muted-surface);
-  border-color: transparent;
-  color: var(--bms-text-main);
+.btn-success {
+  background-color: var(--success) !important;
+  border: none !important;
+  color: var(--ink-on-green) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(163, 230, 135, 0.35) !important;
 }
 
-.btn-secondary:hover {
-  background-color: #dfe5ec;
-  border-color: transparent;
-  color: var(--bms-text-main);
+.btn-success:hover, .btn-success:focus {
+  background-color: var(--success-hover) !important;
+  color: var(--ink-on-green) !important;
+  box-shadow: 0 8px 24px rgba(163, 230, 135, 0.45) !important;
+}
+
+.btn-secondary, .btn-outline-secondary {
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  color: var(--ink) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.btn-secondary:hover, .btn-outline-secondary:hover {
+  background-color: var(--bg-muted) !important;
+  color: var(--ink) !important;
+  box-shadow: var(--shadow-card) !important;
 }
 
 .btn-outline-primary {
-  color: var(--bms-primary);
-  border-color: var(--bms-primary);
-  background-color: transparent;
+  background-color: transparent !important;
+  border: 1.5px solid var(--primary) !important;
+  color: var(--primary) !important;
 }
 
 .btn-outline-primary:hover {
-  background-color: var(--bms-primary-light);
-  border-color: var(--bms-primary);
-  color: var(--bms-primary);
+  background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
 }
 
-/* --- Soft Inputs & Controls --- */
+/* --- Form Controls --- */
 .form-control, .form-select {
-  background-color: var(--bms-card-bg);
-  border: 1px solid transparent;
-  border-radius: var(--bms-radius);
-  color: var(--bms-text-main);
-  font-family: var(--bms-font-family);
-  font-size: 13.5px;
-  padding: 9px 14px;
-  transition: var(--bms-transition);
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 14px !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  padding: 10px 16px !important;
+  box-shadow: 0 1px 3px rgba(28, 39, 61, 0.02) !important;
+  transition: all 0.2s ease !important;
 }
 
 .form-control:focus, .form-select:focus {
-  background-color: #ffffff;
-  border-color: var(--bms-primary);
-  box-shadow: var(--bms-shadow-focus);
-  color: var(--bms-text-main);
+  background-color: #FFFFFF !important;
+  border-color: var(--primary) !important;
+  box-shadow: var(--ring-focus) !important;
+  color: var(--ink) !important;
 }
 
 .form-control::placeholder {
-  color: var(--bms-text-secondary);
-  opacity: 0.8;
+  color: var(--ink-tertiary) !important;
 }
 
-/* --- Badges & Status Indicators --- */
+/* --- Badges & Micro Chips --- */
 .badge {
-  font-family: var(--bms-font-family);
-  font-size: 11.5px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: var(--bms-radius-full);
-  letter-spacing: 0.01em;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 5px 12px !important;
+  border-radius: var(--radius-chip) !important;
+  letter-spacing: 0.01em !important;
+  border: none !important;
 }
 
 .badge.bg-primary {
-  background-color: var(--bms-primary-light) !important;
-  color: var(--bms-primary) !important;
+  background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
 }
 
 .badge.bg-success {
-  background-color: var(--bms-success-light) !important;
-  color: var(--bms-success-text) !important;
+  background-color: #EEF8EB !important;
+  color: #1A5320 !important;
 }
 
 .badge.bg-warning {
-  background-color: var(--bms-warning-light) !important;
-  color: var(--bms-warning-text) !important;
+  background-color: var(--warn-soft) !important;
+  color: #8C5300 !important;
 }
 
 .badge.bg-danger {
-  background-color: var(--bms-danger-light) !important;
-  color: var(--bms-danger-text) !important;
+  background-color: var(--danger-soft) !important;
+  color: #B42318 !important;
 }
 
 .badge.bg-secondary, .badge.bg-light {
-  background-color: var(--bms-muted-surface) !important;
-  color: var(--bms-text-secondary) !important;
+  background-color: var(--bg-muted) !important;
+  color: var(--ink-secondary) !important;
 }
 
-/* --- Tables with Modern Soft Spacing --- */
+/* --- Clean Modern Tables --- */
 .table {
-  color: var(--bms-text-main);
-  margin-bottom: 0;
+  color: var(--ink) !important;
+  margin-bottom: 0 !important;
 }
 
 .table > :not(caption) > * > * {
-  padding: 12px 16px;
-  border-bottom-color: var(--bms-border);
+  padding: 14px 18px !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+  background-color: transparent !important;
 }
 
 .table > thead > tr > th {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--bms-text-secondary);
-  text-transform: none;
-  background-color: var(--bms-card-bg);
-  border-bottom: 1px solid var(--bms-border);
-}
-
-/* --- Animations & Utilities --- */
-@keyframes bms-shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
-}
-
-.bms-shake {
-  animation: bms-shake 0.4s ease-in-out;
-}
-
-@keyframes bms-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.bms-skeleton {
-  background: linear-gradient(90deg, #f1f4f7 25%, #e8edf2 50%, #f1f4f7 75%);
-  background-size: 200% 100%;
-  animation: bms-shimmer 1.5s infinite ease-in-out;
-  border-radius: var(--bms-radius);
-}
-
-/* --- Toast Notification --- */
-.bms-toast {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 9999;
-  min-width: 320px;
-  padding: 14px 20px;
-  border-radius: var(--bms-radius-lg);
-  box-shadow: var(--bms-shadow-lg);
-  font-family: var(--bms-font-family);
-  font-size: 13.5px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transform: translateX(120%);
-  transition: transform 0.3s ease-out;
-  background: #ffffff;
-}
-
-.bms-toast.show {
-  transform: translateX(0);
-}
-
-.bms-toast.bms-toast-success {
-  background: #ffffff;
-  color: var(--bms-text-main);
-  border-left: 4px solid var(--bms-success);
-}
-
-.bms-toast.bms-toast-error {
-  background: #ffffff;
-  color: var(--bms-text-main);
-  border-left: 4px solid var(--bms-danger);
-}
-
-.bms-toast.bms-toast-warning {
-  background: #ffffff;
-  color: var(--bms-text-main);
-  border-left: 4px solid var(--bms-warning);
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  color: var(--ink-secondary) !important;
+  background-color: var(--bg-muted) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
 }

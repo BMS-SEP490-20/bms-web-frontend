@@ -21,7 +21,8 @@
 
 .bms-stepper-progress {
   height: 100%;
-  background: linear-gradient(90deg, #1e40af 0%, #0d6efd 100%);
+  background: #5E85E6;
+  border-radius: 9999px;
   transition: width 0.35s ease;
 }
 
@@ -43,11 +44,11 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: #f8fafc;
-  border: 3px solid #cbd5e1;
-  color: #64748b;
+  background-color: #ffffff;
+  border: 2px solid #E5E9EB;
+  color: #606873;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
   margin: 0 auto 8px auto;
   display: flex;
   align-items: center;
@@ -56,37 +57,37 @@
 }
 
 .bms-step-item.active .bms-step-circle {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #5E85E6;
+  border-color: #5E85E6;
   color: #ffffff;
-  box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 0 0 5px rgba(94, 133, 230, 0.2);
 }
 
 .bms-step-item.completed .bms-step-circle {
-  background-color: #10b981;
-  border-color: #10b981;
-  color: #ffffff;
+  background-color: #91DE83;
+  border-color: #91DE83;
+  color: #20242B;
 }
 
 .bms-step-title {
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: #606873;
   transition: color 0.3s ease;
 }
 
 .bms-step-item.active .bms-step-title {
-  color: #0d6efd;
+  color: #5E85E6;
   font-weight: 700;
 }
 
 .bms-step-item.completed .bms-step-title {
-  color: #10b981;
+  color: #2b781a;
 }
 
 .bms-step-desc {
   font-size: 11px;
-  color: #94a3b8;
+  color: #8D96A0;
 }
 
 .bms-wizard-content {
@@ -94,9 +95,9 @@
 }
 
 .bms-review-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--bms-surface-card, #F1F4F7);
+  border: 1px solid var(--bms-border, #E5E9EB);
+  border-radius: 16px;
   padding: 1.25rem;
 }
 

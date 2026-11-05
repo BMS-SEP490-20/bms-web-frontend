@@ -16,7 +16,6 @@ import { useAuth } from '../../shared/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { patientService } from '../../services/patientService';
 import NotificationHistoryModal from '../../shared/components/Notification/NotificationHistoryModal';
-import '../../shared/styles/guest-header.css';
 
 const PatientHeader = ({ setActiveTab }) => {
   const { user, logout, updateUser } = useAuth();
@@ -97,12 +96,13 @@ const PatientHeader = ({ setActiveTab }) => {
       expand="lg"
       className="sticky-top"
       style={{
-        borderBottom: '1px solid rgba(15, 23, 42, 0.05)',
-        boxShadow: '0 4px 20px rgba(28, 39, 61, 0.03)',
-        padding: '10px 0'
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        boxShadow: 'none',
+        padding: '8px 0',
+        minHeight: '60px'
       }}
     >
-      <Container style={{ maxWidth: '1360px' }}>
+      <Container style={{ maxWidth: '1400px' }}>
         <Navbar.Brand
           onClick={() => navigate('/home')}
           className="d-flex align-items-center"
@@ -112,7 +112,7 @@ const PatientHeader = ({ setActiveTab }) => {
             src="/assets/bms-logo.png"
             alt="BMS Clinical Laboratory"
             style={{
-              height: '38px',
+              height: '34px',
               width: 'auto',
               objectFit: 'contain'
             }}
@@ -166,13 +166,12 @@ const PatientHeader = ({ setActiveTab }) => {
                 style={{
                   borderRadius: '999px',
                   fontWeight: '600',
-                  fontSize: '13.5px',
-                  transition: 'all 0.2s ease',
+                  fontSize: '13px',
                   border: 'none',
-                  padding: '8px 18px',
+                  padding: '7px 16px',
                   background: '#1E60E6',
                   color: '#FFFFFF',
-                  boxShadow: '0 4px 14px rgba(100, 140, 244, 0.25)',
+                  boxShadow: 'none',
                   whiteSpace: 'nowrap',
                   display: 'flex',
                   alignItems: 'center',
@@ -185,9 +184,9 @@ const PatientHeader = ({ setActiveTab }) => {
               <Dropdown.Menu
                 align="end"
                 style={{
-                  borderRadius: '20px',
-                  border: '1px solid rgba(15, 23, 42, 0.04)',
-                  boxShadow: '0 12px 36px rgba(28, 39, 61, 0.10)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'none',
                   padding: '8px'
                 }}
               >

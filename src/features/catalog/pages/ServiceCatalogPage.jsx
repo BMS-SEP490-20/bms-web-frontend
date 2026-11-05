@@ -216,19 +216,20 @@ export default function ServiceCatalogPage() {
       <main className="flex-grow-1 py-4">
         <div className="container" style={{ maxWidth: '1400px' }}>
           
-          {/* 2. Top Spotlight Header (Asymmetrical SaaS Showcase) */}
+          {/* 2. Top Spotlight Header (Pure Flat, High Contrast SaaS Showcase) */}
           <section
-            className="mb-4 p-4 p-md-4.5"
+            className="mb-4"
             style={{
               background: '#FFFFFF',
-              borderRadius: '20px',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
-              boxShadow: 'none'
+              borderRadius: '24px',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '36px 40px'
             }}
           >
             <Row className="align-items-center g-4">
               <Col lg={7}>
-                <div className="d-flex align-items-center gap-2 mb-2.5">
+                <div className="d-flex align-items-center gap-2 mb-4">
                   <span
                     className="d-flex align-items-center gap-1.5"
                     style={{
@@ -238,51 +239,52 @@ export default function ServiceCatalogPage() {
                       fontWeight: 700,
                       letterSpacing: '0.04em',
                       padding: '4px 10px',
-                      borderRadius: '6px'
+                      borderRadius: '6px',
+                      border: 'none'
                     }}
                   >
                     <img src="/bmsicon.ico" alt="BMS" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
                     <span>ISO 15189:2022 ACCREDITED LABORATORY</span>
                   </span>
-                  <span style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 600 }}>
                     • Hệ Thống BMS Lab
                   </span>
                 </div>
 
                 <h1
-                  className="fw-bold mb-2.5"
+                  className="fw-bold mb-3"
                   style={{
-                    fontSize: '24px',
-                    lineHeight: '1.25',
+                    fontSize: '34px',
+                    lineHeight: '1.18',
                     color: '#0F172A',
-                    letterSpacing: '-0.02em'
+                    letterSpacing: '-0.03em'
                   }}
                 >
                   Danh Mục Gói Xét Nghiệm Lâm Sàng
                 </h1>
 
                 <p
-                  className="mb-3.5"
+                  className="mb-4"
                   style={{
-                    fontSize: '13.5px',
-                    lineHeight: '1.6',
-                    color: '#475569',
-                    maxWidth: '620px'
+                    fontSize: '12px',
+                    lineHeight: '1.7',
+                    color: '#64748B',
+                    maxWidth: '640px'
                   }}
                 >
                   Tra cứu đầy đủ các gói xét nghiệm tiêu chuẩn và chuyên sâu. Toàn bộ mẫu bệnh phẩm được xử lý trên hệ thống máy sinh hóa, huyết học tự động với thời gian trả kết quả nhanh chóng, kết nối trực tuyến với hồ sơ sức khỏe điện tử.
                 </p>
 
-                {/* Key Spec Badges */}
+                {/* Key Spec Badges - Pure Flat, No Borders */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div
                     style={{
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
+                      background: '#F1F5F9',
+                      border: 'none',
                       borderRadius: '8px',
-                      padding: '5px 12px',
-                      fontSize: '12px',
-                      color: '#334155',
+                      padding: '6px 14px',
+                      fontSize: '11.5px',
+                      color: '#475569',
                       fontWeight: 600
                     }}
                   >
@@ -290,12 +292,12 @@ export default function ServiceCatalogPage() {
                   </div>
                   <div
                     style={{
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
+                      background: '#F1F5F9',
+                      border: 'none',
                       borderRadius: '8px',
-                      padding: '5px 12px',
-                      fontSize: '12px',
-                      color: '#334155',
+                      padding: '6px 14px',
+                      fontSize: '11.5px',
+                      color: '#475569',
                       fontWeight: 600
                     }}
                   >
@@ -303,12 +305,12 @@ export default function ServiceCatalogPage() {
                   </div>
                   <div
                     style={{
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
+                      background: '#F1F5F9',
+                      border: 'none',
                       borderRadius: '8px',
-                      padding: '5px 12px',
-                      fontSize: '12px',
-                      color: '#334155',
+                      padding: '6px 14px',
+                      fontSize: '11.5px',
+                      color: '#475569',
                       fontWeight: 600
                     }}
                   >
@@ -317,27 +319,28 @@ export default function ServiceCatalogPage() {
                 </div>
               </Col>
 
-              {/* Right: Featured Panel Spotlight Card */}
+              {/* Right: Featured Panel Spotlight Card - Pure Flat, Zero Border */}
               {featuredItem && (
                 <Col lg={5}>
                   <div
                     style={{
                       background: '#F0FDF4',
-                      border: '1px solid #BBF7D0',
-                      borderRadius: '16px',
-                      padding: '20px 22px',
+                      border: 'none',
+                      borderRadius: '20px',
+                      padding: '26px 28px',
                       boxShadow: 'none'
                     }}
                   >
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2.5">
                       <span
                         style={{
                           background: '#DCFCE7',
                           color: '#15803D',
                           fontSize: '11px',
                           fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: '6px'
+                          padding: '4px 9px',
+                          borderRadius: '6px',
+                          border: 'none'
                         }}
                       >
                         GÓI ĐƯỢC CHỈ ĐỊNH NHIỀU NHẤT
@@ -348,23 +351,23 @@ export default function ServiceCatalogPage() {
                     </div>
 
                     <h4
-                      className="fw-bold mb-1.5"
-                      style={{ fontSize: '16px', color: '#0F172A', lineHeight: '1.3' }}
+                      className="fw-bold mb-2"
+                      style={{ fontSize: '17px', color: '#0F172A', lineHeight: '1.35' }}
                     >
                       {featuredItem.packageName}
                     </h4>
 
                     <p
-                      className="mb-3 text-truncate-2"
-                      style={{ fontSize: '12.5px', color: '#475569', lineHeight: '1.5' }}
+                      className="mb-4 text-truncate-2"
+                      style={{ fontSize: '12px', color: '#475569', lineHeight: '1.6' }}
                     >
                       {featuredItem.description}
                     </p>
 
-                    <div className="d-flex justify-content-between align-items-center pt-2 border-top border-success-subtle">
+                    <div className="d-flex justify-content-between align-items-center pt-2" style={{ borderTop: 'none' }}>
                       <div>
-                        <div style={{ fontSize: '11px', color: '#64748B' }}>Đơn giá niêm yết:</div>
-                        <div className="fw-bold fs-6 tabular-nums" style={{ color: '#0F172A' }}>
+                        <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>Đơn giá niêm yết:</div>
+                        <div className="fw-bold fs-5 tabular-nums" style={{ color: '#0F172A' }}>
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(featuredItem.price)}
                         </div>
                       </div>
@@ -375,11 +378,12 @@ export default function ServiceCatalogPage() {
                           className="btn btn-sm"
                           style={{
                             background: '#FFFFFF',
-                            border: '1px solid #CBD5E1',
+                            border: 'none',
                             fontSize: '12px',
                             fontWeight: 600,
                             borderRadius: '8px',
-                            padding: '6px 12px'
+                            padding: '7px 15px',
+                            boxShadow: 'none'
                           }}
                           onClick={() => handleOpenDetail(featuredItem)}
                         >
@@ -394,7 +398,8 @@ export default function ServiceCatalogPage() {
                             border: 'none',
                             fontSize: '12px',
                             borderRadius: '8px',
-                            padding: '6px 14px'
+                            padding: '7px 18px',
+                            boxShadow: 'none'
                           }}
                           onClick={() => handleBook(featuredItem)}
                         >
@@ -408,18 +413,55 @@ export default function ServiceCatalogPage() {
             </Row>
           </section>
 
-          {/* 3. Search & Category Filter Bar (Flat, Clean, Spacious) */}
+          {/* 3. Search & Category Filter Bar (Compact Toolbar, Pure Flat, No Borders) */}
           <section
             className="mb-4 p-3.5"
             style={{
               background: '#FFFFFF',
-              borderRadius: '16px',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
+              borderRadius: '18px',
+              border: 'none',
               boxShadow: 'none'
             }}
           >
-            {/* Top row: Search input + Refinements */}
-            <Row className="g-2.5 align-items-center mb-3">
+            {/* Top row: Category Pills Track & Result Count */}
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              <div className="d-flex flex-wrap gap-1.5 align-items-center">
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setPage(1);
+                      }}
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: isActive ? 650 : 500,
+                        backgroundColor: isActive ? '#1E60E6' : '#F1F5F9',
+                        color: isActive ? '#FFFFFF' : '#475569',
+                        border: 'none',
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        boxShadow: 'none',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 500 }}>
+                Hiển thị <strong>{packages.length}</strong> / {totalItems} gói xét nghiệm
+              </div>
+            </div>
+
+            {/* Bottom row: Compact borderless inputs */}
+            <Row className="g-2 align-items-center">
               <Col md={6} lg={5}>
                 <div className="position-relative">
                   <input
@@ -429,10 +471,11 @@ export default function ServiceCatalogPage() {
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     style={{
-                      height: '38px',
-                      fontSize: '13px',
-                      borderRadius: '10px',
-                      border: '1px solid #CBD5E1',
+                      height: '35px',
+                      fontSize: '12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: '#F1F5F9',
                       paddingLeft: '14px',
                       paddingRight: searchInput ? '34px' : '14px',
                       boxShadow: 'none'
@@ -442,7 +485,7 @@ export default function ServiceCatalogPage() {
                     <button
                       type="button"
                       className="btn position-absolute top-50 end-0 translate-middle-y me-1 p-1 text-muted"
-                      style={{ border: 'none', background: 'transparent', fontSize: '14px' }}
+                      style={{ border: 'none', background: 'transparent', fontSize: '13px' }}
                       onClick={() => setSearchInput('')}
                     >
                       ✕
@@ -460,10 +503,11 @@ export default function ServiceCatalogPage() {
                     setPage(1);
                   }}
                   style={{
-                    height: '38px',
-                    fontSize: '13px',
-                    borderRadius: '10px',
-                    border: '1px solid #CBD5E1',
+                    height: '35px',
+                    fontSize: '12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#F1F5F9',
                     boxShadow: 'none'
                   }}
                 >
@@ -484,10 +528,11 @@ export default function ServiceCatalogPage() {
                     setPage(1);
                   }}
                   style={{
-                    height: '38px',
-                    fontSize: '13px',
-                    borderRadius: '10px',
-                    border: '1px solid #CBD5E1',
+                    height: '35px',
+                    fontSize: '12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#F1F5F9',
                     boxShadow: 'none'
                   }}
                 >
@@ -510,10 +555,11 @@ export default function ServiceCatalogPage() {
                     setPage(1);
                   }}
                   style={{
-                    height: '38px',
-                    fontSize: '13px',
-                    borderRadius: '10px',
-                    border: '1px solid #CBD5E1',
+                    height: '35px',
+                    fontSize: '12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#F1F5F9',
                     boxShadow: 'none'
                   }}
                 >
@@ -524,43 +570,6 @@ export default function ServiceCatalogPage() {
                 </select>
               </Col>
             </Row>
-
-            {/* Bottom row: Category Pills track */}
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-2 border-top border-light">
-              <div className="d-flex flex-wrap gap-1.5 align-items-center">
-                {categories.map((cat) => {
-                  const isActive = selectedCategory === cat;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      className="btn btn-sm"
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setPage(1);
-                      }}
-                      style={{
-                        fontSize: '12.5px',
-                        fontWeight: isActive ? 650 : 500,
-                        backgroundColor: isActive ? '#1E60E6' : '#F1F5F9',
-                        color: isActive ? '#FFFFFF' : '#334155',
-                        border: 'none',
-                        borderRadius: '8px',
-                        padding: '6px 14px',
-                        boxShadow: 'none',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {cat}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
-                Hiển thị <strong>{packages.length}</strong> / {totalItems} gói xét nghiệm
-              </div>
-            </div>
           </section>
 
           {/* 4. Packages Grid Showcase */}

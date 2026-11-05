@@ -53,20 +53,20 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
         <div
             className="modal show d-block"
             tabIndex="-1"
-            style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 1050 }}
+            style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0">
-                    <div className="modal-header bg-dark text-white">
+                <div className="modal-content shadow border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="modal-header py-3" style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaDatabase className="fs-5 text-primary" />
-                            <h5 className="modal-title fw-bold mb-0">
+                            <FaDatabase className="fs-5" style={{ color: '#5E85E6' }} />
+                            <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Chi Tiết Bản Sao Lưu Dữ Liệu Xét Nghiệm
                             </h5>
                         </div>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                         ></button>
                     </div>
@@ -75,12 +75,12 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                         {/* Header Profile */}
                         <div className="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
                             <div>
-                                <h5 className="fw-bold text-dark mb-1">{backup.backupName}</h5>
+                                <h5 className="fw-bold mb-1" style={{ color: '#0f2743' }}>{backup.backupName}</h5>
                                 <div className="text-secondary small">
-                                    Mã Lưu Trữ: <strong className="font-monospace text-primary">{backup.backupId}</strong>
+                                    Mã Lưu Trữ: <strong className="font-monospace" style={{ color: '#5E85E6' }}>{backup.backupId}</strong>
                                 </div>
                             </div>
-                            <span className="badge bg-success-subtle text-success border border-success px-3 py-2">
+                            <span className="badge rounded-pill px-3 py-2" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
                                 <FaCheckCircle className="me-1" /> {backup.status}
                             </span>
                         </div>
@@ -88,15 +88,15 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                         {/* Metric Tiles */}
                         <div className="row g-3 mb-4">
                             <div className="col-6 col-md-3">
-                                <div className="p-3 bg-light rounded text-center">
+                                <div className="p-3 text-center" style={{ background: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: 14 }}>
                                     <span className="text-muted small d-block mb-1">Tổng Bản Ghi</span>
-                                    <strong className="fs-4 text-dark">{backup.totalRecords || 0}</strong>
+                                    <strong className="fs-4 text-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>{backup.totalRecords || 0}</strong>
                                 </div>
                             </div>
                             <div className="col-6 col-md-3">
-                                <div className="p-3 bg-light rounded text-center">
+                                <div className="p-3 text-center" style={{ background: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: 14 }}>
                                     <span className="text-muted small d-block mb-1">Dung Lượng Tệp</span>
-                                    <strong className="fs-4 text-primary">
+                                    <strong className="fs-4" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
                                         {backup.fileSizeFormatted || "1.8 MB"}
                                     </strong>
                                 </div>
@@ -206,12 +206,13 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                         </div>
                     </div>
 
-                    <div className="modal-footer bg-light d-flex justify-content-between">
+                    <div className="modal-footer py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                         <button
                             type="button"
                             className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
                             onClick={handleDownload}
                             disabled={isDownloading}
+                            style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
                         >
                             {isDownloading ? (
                                 <div className="spinner-border spinner-border-sm" role="status"></div>
@@ -226,6 +227,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                                 type="button"
                                 className="btn btn-outline-secondary"
                                 onClick={onHide}
+                                style={{ borderRadius: 9999 }}
                             >
                                 Đóng
                             </button>
@@ -237,6 +239,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                                         onHide();
                                         onRestoreTrigger(backup);
                                     }}
+                                    style={{ borderRadius: 9999, boxShadow: '0 4px 14px rgba(239, 68, 68, 0.25)' }}
                                 >
                                     Khôi Phục Bản Này
                                 </button>

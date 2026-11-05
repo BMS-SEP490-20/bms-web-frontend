@@ -106,21 +106,21 @@ export const RolesManagementPage = () => {
       <div className="d-flex justify-content-between align-items-center bms-roles-header">
         <div>
           <h4 className="fw-bold m-0 text-dark d-flex align-items-center gap-2">
-            <FaShieldAlt className="text-primary" />
+            <FaShieldAlt style={{ color: '#5E85E6' }} />
             Quản Lý Phân Quyền Vai Trò (RBAC)
           </h4>
           <small className="text-muted">
             Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02)
           </small>
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm">
+        <Button variant="primary" onClick={handleOpenCreateModal} className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm" style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
           <FaPlus />
           Thêm Vai Trò Mới
         </Button>
       </div>
 
       {errorMessage && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 shadow-sm">
+        <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 shadow-sm" style={{ borderRadius: 14 }}>
           {errorMessage}
         </Alert>
       )}
@@ -132,7 +132,7 @@ export const RolesManagementPage = () => {
           <div className="row g-3 align-items-center">
             <div className="col-12 col-md-5">
               <InputGroup>
-                <InputGroup.Text className="bg-white border-end-0">
+                <InputGroup.Text className="border-end-0" style={{ background: '#F1F4F7', borderColor: '#E5E9EB' }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
@@ -141,6 +141,7 @@ export const RolesManagementPage = () => {
                   className="border-start-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: '0 10px 10px 0' }}
                 />
               </InputGroup>
             </div>
@@ -149,6 +150,7 @@ export const RolesManagementPage = () => {
               <Form.Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ background: '#F1F4F7', borderColor: '#E5E9EB', borderRadius: 10 }}
               >
                 <option value="">-- Tất Cả Trạng Thái --</option>
                 <option value="true">Đang Hoạt Động</option>
@@ -156,7 +158,7 @@ export const RolesManagementPage = () => {
               </Form.Select>
             </div>
 
-            <div className="col-6 col-md-4 text-end text-muted small">
+            <div className="col-6 col-md-4 text-end text-muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>
               Hiển thị <strong>{safeRoles.length}</strong> trên tổng số <strong>{totalCount}</strong> vai trò
             </div>
           </div>
@@ -164,7 +166,7 @@ export const RolesManagementPage = () => {
 
         {/* Data Table */}
         <div className="table-responsive">
-          <Table hover className="bms-roles-table m-0">
+          <Table hover className="bms-roles-table m-0 align-middle">
             <thead>
               <tr>
                 <th className="bms-align-center" style={{ width: '160px' }}>Mã Vai Trò</th>
@@ -187,7 +189,7 @@ export const RolesManagementPage = () => {
               ) : safeRoles.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center py-5 text-muted">
-                    <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" />
+                    <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" style={{ color: '#5E85E6' }} />
                     Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
                   </td>
                 </tr>
@@ -198,9 +200,9 @@ export const RolesManagementPage = () => {
                       <span className="bms-role-code-cell">{role.roleCode}</span>
                     </td>
                     <td>
-                      <div className="fw-bold text-dark">{role.roleName}</div>
+                      <div className="fw-bold" style={{ color: '#0f2743' }}>{role.roleName}</div>
                       {role.isSystemRole && (
-                        <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: '10px' }}>
+                        <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: '10px', borderRadius: 9999 }}>
                           <FaLock className="me-1" />Hệ Thống Cốt Lõi
                         </Badge>
                       )}
@@ -209,11 +211,11 @@ export const RolesManagementPage = () => {
                       {role.description || 'Không có mô tả chi tiết chức năng.'}
                     </td>
                     <td className="bms-align-center">
-                      <Badge bg="secondary" className="px-2 py-1">
+                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6', fontWeight: 600, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
                         {Array.isArray(role.permissions) ? role.permissions.length : 0} Quyền
-                      </Badge>
+                      </span>
                     </td>
-                    <td className="bms-align-right fw-semibold">
+                    <td className="bms-align-right fw-semibold" style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {role.userCount || 0}
                     </td>
                     <td className="bms-align-center">
@@ -233,6 +235,7 @@ export const RolesManagementPage = () => {
                           size="sm"
                           title="Chỉnh sửa vai trò & phân quyền"
                           onClick={() => handleOpenEditModal(role)}
+                          style={{ borderRadius: 9999, borderColor: '#5E85E6', color: '#5E85E6' }}
                         >
                           <FaPencilAlt />
                         </Button>
@@ -242,6 +245,7 @@ export const RolesManagementPage = () => {
                           title={role.isSystemRole ? 'Vai trò hệ thống cốt lõi không được xóa' : 'Xóa vai trò'}
                           onClick={() => handleOpenDeleteModal(role)}
                           disabled={role.isSystemRole}
+                          style={{ borderRadius: 9999 }}
                         >
                           <FaTrash />
                         </Button>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file RestoreConfirmationModal.jsx
  * @description Safe two-step restoration modal dialog with SHA-256 pre-flight validation and confirmation phrase (UC80 / BR-243).
  * Conforms to: Production Medical Standards, Clinical Emergency Rollback & AGENTS-DESIGN.md.
@@ -89,20 +89,20 @@ export default function RestoreConfirmationModal({
         <div
             className="modal show d-block"
             tabIndex="-1"
-            style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 1050 }}
+            style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0">
-                    <div className="modal-header bg-danger text-white">
+                <div className="modal-content shadow border-0" style={{ border: '1px solid #E5E9EB', borderRadius: 18, overflow: 'hidden' }}>
+                    <div className="modal-header py-3" style={{ borderBottom: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaUndo className="fs-5" />
-                            <h5 className="modal-title fw-bold mb-0">
+                            <FaUndo className="fs-5" style={{ color: '#EF4444' }} />
+                            <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm (UC80)
                             </h5>
                         </div>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                             disabled={restoring}
                         ></button>
@@ -110,13 +110,13 @@ export default function RestoreConfirmationModal({
 
                     <div className="modal-body p-4">
                         {errorMessage && (
-                            <div className="alert alert-danger py-2 small mb-3">
+                            <div className="alert alert-danger py-2 small mb-3" style={{ borderRadius: 14 }}>
                                 {errorMessage}
                             </div>
                         )}
 
                         {/* Backup Summary Banner */}
-                        <div className="p-3 bg-light rounded border mb-4">
+                        <div className="p-3 mb-4" style={{ background: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: 14 }}>
                             <div className="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 className="fw-bold text-dark mb-1">{backup.backupName}</h6>
@@ -243,13 +243,14 @@ export default function RestoreConfirmationModal({
                         )}
                     </div>
 
-                    <div className="modal-footer bg-light">
+                    <div className="modal-footer py-2 px-3" style={{ borderTop: '1px solid #E5E9EB', background: '#F8FAFC' }}>
                         {step === 1 ? (
                             <>
                                 <button
                                     type="button"
                                     className="btn btn-outline-secondary"
                                     onClick={onHide}
+                                    style={{ borderRadius: 9999 }}
                                 >
                                     Đóng
                                 </button>
@@ -258,6 +259,7 @@ export default function RestoreConfirmationModal({
                                     className="btn btn-primary"
                                     onClick={() => setStep(2)}
                                     disabled={validating || !validationResult?.canRestore}
+                                    style={{ borderRadius: 9999, background: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                                 >
                                     Tiếp Tục Xác Nhận Khôi Phục &rarr;
                                 </button>
@@ -269,6 +271,7 @@ export default function RestoreConfirmationModal({
                                     className="btn btn-outline-secondary"
                                     onClick={() => setStep(1)}
                                     disabled={restoring}
+                                    style={{ borderRadius: 9999 }}
                                 >
                                     &larr; Quay Lại
                                 </button>
@@ -277,6 +280,7 @@ export default function RestoreConfirmationModal({
                                     className="btn btn-danger d-flex align-items-center gap-2"
                                     onClick={handleExecuteRestore}
                                     disabled={!isPhraseValid || !acknowledged || restoring}
+                                    style={{ borderRadius: 9999, boxShadow: '0 4px 14px rgba(239, 68, 68, 0.25)' }}
                                 >
                                     {restoring ? (
                                         <>

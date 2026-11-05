@@ -161,11 +161,11 @@ export default function QueueBoardPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
           <div className="text-muted small">
-            Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#648CF4' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
+            Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#1E60E6' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
           </div>
           <h1 className="h4 fw-bold mb-1" style={{ color: '#2B3674' }}>Bảng Gọi Số & Điều Phối Tiếp Đón</h1>
           <div className="text-muted small">
-            Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#648CF4' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
+            Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#1E60E6' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
           </div>
         </div>
         <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
@@ -249,7 +249,7 @@ export default function QueueBoardPage() {
                         key={ticket.id}
                         className={ticket.status === "Called" ? "table-success" : ""}
                       >
-                        <td className="fw-bold font-monospace fs-5" style={{ color: '#648CF4' }}>
+                        <td className="fw-bold font-monospace fs-5" style={{ color: '#1E60E6' }}>
                           {ticket.ticketNumber}
                         </td>
                         <td>
@@ -296,7 +296,7 @@ export default function QueueBoardPage() {
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi cập nhật" : ""}
                               className="btn btn-success btn-sm px-3 py-1 rounded-pill shadow-sm"
-                              style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#1A3311' }}
+                              style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
                             >
                               Vào lấy mẫu
                             </button>
@@ -308,7 +308,7 @@ export default function QueueBoardPage() {
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi gọi" : ""}
                               className="btn btn-sm px-3 py-1 rounded-pill shadow-sm text-white"
-                              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+                              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                             >
                               <FaBullhorn className="me-1" /> Gọi số
                             </button>
@@ -338,7 +338,7 @@ export default function QueueBoardPage() {
                 style={{
                   fontSize: "68px",
                   fontWeight: "800",
-                  color: "#648CF4",
+                  color: "#1E60E6",
                   fontFamily: "monospace",
                   lineHeight: 1,
                   letterSpacing: "-2px",
@@ -353,7 +353,7 @@ export default function QueueBoardPage() {
                 onClick={handleIssueTicket}
                 disabled={issuing}
                 className="btn btn-lg w-100 mt-4 fw-bold shadow-sm rounded-pill"
-                style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
               >
                 <FaPrint className="me-2" />
                 {issuing ? "Đang cấp số..." : (data.nextNumber ? `Cấp STT Vãng Lai (${data.nextNumber})` : "Cấp STT Mới")}
@@ -391,7 +391,7 @@ export default function QueueBoardPage() {
               </div>
               <div className="d-flex justify-content-between align-items-center py-2">
                 <span className="text-muted small">Quầy đang mở</span>
-                <span className="fw-bold fs-5" style={{ color: '#648CF4' }}>
+                <span className="fw-bold fs-5" style={{ color: '#1E60E6' }}>
                   {data.stats.countersActive}
                 </span>
               </div>

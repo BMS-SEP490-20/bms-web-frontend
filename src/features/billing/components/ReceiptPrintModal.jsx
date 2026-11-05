@@ -90,7 +90,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                         <button
                             onClick={handlePrint}
                             style={{
-                                backgroundColor: '#648CF4',
+                                backgroundColor: '#1E60E6',
                                 color: '#ffffff',
                                 border: 'none',
                                 padding: '8px 18px',
@@ -354,7 +354,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 padding: '8px 22px',
                                 borderRadius: '9999px',
                                 border: 'none',
-                                backgroundColor: '#648CF4',
+                                backgroundColor: '#1E60E6',
                                 color: '#ffffff',
                                 fontWeight: '700',
                                 cursor: 'pointer',

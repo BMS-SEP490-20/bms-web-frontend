@@ -150,10 +150,10 @@ const AuditLogPage = () => {
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                  <FaShieldAlt style={{ color: '#648CF4' }} />
+                  <FaShieldAlt style={{ color: '#1E60E6' }} />
                   Nhật Ký Kiểm Toán An Ninh Hệ Thống
                 </h4>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
+                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
                   Quản Trị Viên / Trưởng Bộ Phận
                 </Badge>
                 <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: '#EEF2F6', color: '#64748b', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
@@ -207,7 +207,7 @@ const AuditLogPage = () => {
                     <span className="text-muted small fw-medium">Tổng số sự kiện</span>
                     <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalLogs ?? safeLogs.length}</h3>
                   </div>
-                  <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
+                  <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
                     <FaShieldAlt className="fs-4" />
                   </div>
                 </div>

@@ -6,8 +6,8 @@
 }
 
 .appt-page .btn-primary {
-  background-color: var(--primary, #648CF4);
-  border-color: var(--primary, #648CF4);
+  background-color: var(--primary, #1E60E6);
+  border-color: var(--primary, #1E60E6);
   border-radius: var(--radius-btn, 9999px);
   font-weight: 600;
   box-shadow: 0 4px 14px rgba(100, 140, 244, 0.25);
@@ -15,8 +15,8 @@
 }
 
 .appt-page .btn-primary:hover {
-  background-color: var(--primary-hover, #537be6);
-  border-color: var(--primary-hover, #537be6);
+  background-color: var(--primary-hover, #1550C4);
+  border-color: var(--primary-hover, #1550C4);
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35);
 }

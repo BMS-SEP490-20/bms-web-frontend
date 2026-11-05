@@ -285,7 +285,7 @@ const ReceptionistDashboard = () => {
       {/* Header Banner */}
       <Row className="mb-4">
         <Col>
-          <Card className="shadow-sm rounded-4 border-0" style={{ background: 'linear-gradient(135deg, #648CF4 0%, #3B5BDB 100%)', color: '#fff' }}>
+          <Card className="shadow-sm rounded-4 border-0" style={{ background: 'linear-gradient(135deg, #1E60E6 0%, #3B5BDB 100%)', color: '#fff' }}>
             <Card.Body className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div>
                 <h4 className="mb-1 fw-bold">
@@ -302,7 +302,7 @@ const ReceptionistDashboard = () => {
                 onClick={loadReceptionData} 
                 disabled={loading}
                 className="fw-semibold shadow-sm"
-                style={{ color: '#648CF4', borderRadius: '9999px', padding: '6px 18px' }}
+                style={{ color: '#1E60E6', borderRadius: '9999px', padding: '6px 18px' }}
               >
                 <FaSync className={`me-1 ${loading ? 'fa-spin' : ''}`} /> Làm mới
               </Button>
@@ -322,12 +322,12 @@ const ReceptionistDashboard = () => {
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#648CF4' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}
               >
                 <FaQrcode style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 fw-bold" style={{ color: '#648CF4' }}>Quét QR Check-in</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#1E60E6' }}>Quét QR Check-in</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Quét mã QR tiếp nhận bệnh nhân
                 </small>
@@ -391,12 +391,12 @@ const ReceptionistDashboard = () => {
             <Card.Body className="d-flex align-items-center p-3">
               <div 
                 className="me-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#648CF4' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}
               >
                 <FaCalendarAlt style={{ fontSize: '1.4rem' }} />
               </div>
               <div>
-                <h6 className="mb-1 fw-bold" style={{ color: '#648CF4' }}>Quản Lý Lịch Hẹn</h6>
+                <h6 className="mb-1 fw-bold" style={{ color: '#1E60E6' }}>Quản Lý Lịch Hẹn</h6>
                 <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                   Xem & điều phối danh sách lịch
                 </small>
@@ -434,22 +434,22 @@ const ReceptionistDashboard = () => {
         <Col xs={6} md={3}>
           <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <small className="text-muted fw-semibold">Tổng tiếp nhận</small>
-            <h3 className="fw-bold my-1" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{stats.totalToday}</h3>
+            <h3 className="fw-bold my-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalToday}</h3>
             <small className="text-muted">lịch hẹn</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
           <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <small className="text-muted fw-semibold">Đã Check-in</small>
-            <h3 className="fw-bold my-1" style={{ color: '#A3E687', fontVariantNumeric: 'tabular-nums' }}>{stats.checkedIn}</h3>
+            <h3 className="fw-bold my-1" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{stats.checkedIn}</h3>
             <small style={{ color: '#2b8a3e' }}><FaCheckCircle className="me-1" />hoàn tất tiếp đón</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
           <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <small className="text-muted fw-semibold">Đã cấp Barcode</small>
-            <h3 className="fw-bold my-1" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{stats.hasBarcode}</h3>
-            <small style={{ color: '#648CF4' }}><FaBarcode className="me-1" />có mã ống mẫu</small>
+            <h3 className="fw-bold my-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{stats.hasBarcode}</h3>
+            <small style={{ color: '#1E60E6' }}><FaBarcode className="me-1" />có mã ống mẫu</small>
           </Card>
         </Col>
         <Col xs={6} md={3}>
@@ -466,11 +466,11 @@ const ReceptionistDashboard = () => {
         <Col>
           <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Header className="py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h5 className="mb-0 fw-bold" style={{ color: '#648CF4' }}>
-                <FaBarcode className="me-2" style={{ color: '#648CF4' }} />
+              <h5 className="mb-0 fw-bold" style={{ color: '#1E60E6' }}>
+                <FaBarcode className="me-2" style={{ color: '#1E60E6' }} />
                 Danh Sách Tiếp Nhận & Mã Barcode (Lễ Tân)
               </h5>
-              <Badge bg="primary" className="px-3 py-2 font-monospace" style={{ fontSize: '0.85rem', backgroundColor: '#648CF4', borderRadius: '9999px' }}>
+              <Badge bg="primary" className="px-3 py-2 font-monospace" style={{ fontSize: '0.85rem', backgroundColor: '#1E60E6', borderRadius: '9999px' }}>
                 {appointments.length} bệnh nhân
               </Badge>
             </Card.Header>
@@ -478,7 +478,7 @@ const ReceptionistDashboard = () => {
             <Card.Body className="p-0">
               {loading ? (
                 <div className="text-center py-5">
-                  <Spinner animation="border" style={{ color: '#648CF4' }} />
+                  <Spinner animation="border" style={{ color: '#1E60E6' }} />
                   <p className="mt-2 text-muted">Đang tải danh sách bệnh nhân và mã barcode...</p>
                 </div>
               ) : appointments.length > 0 ? (
@@ -518,7 +518,7 @@ const ReceptionistDashboard = () => {
                           <tr key={appointment.id || Math.random()} style={{ borderBottom: '1px solid #EEF2F6' }}>
                             {/* Appointment ID */}
                             <td style={{ padding: '14px 16px' }}>
-                              <span className="badge px-2.5 py-1.5 font-monospace" style={{ backgroundColor: '#EEF2F6', color: '#648CF4', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '8px' }}>
+                              <span className="badge px-2.5 py-1.5 font-monospace" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '8px' }}>
                                 {appointment.appointmentCode || (appointment.id ? `APT-${String(appointment.id).substring(0, 6).toUpperCase()}` : 'N/A')}
                               </span>
                             </td>
@@ -528,7 +528,7 @@ const ReceptionistDashboard = () => {
                               <div className="d-flex align-items-center">
                                 <div 
                                   className="me-2 rounded-circle d-flex align-items-center justify-content-center text-white"
-                                  style={{ width: '32px', height: '32px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#648CF4' }}
+                                  style={{ width: '32px', height: '32px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#1E60E6' }}
                                 >
                                   <FaUser />
                                 </div>
@@ -544,7 +544,7 @@ const ReceptionistDashboard = () => {
                                 <div className="d-flex align-items-center gap-2">
                                   <span 
                                     className="badge px-2.5 py-1.5 font-monospace"
-                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', border: '1px solid rgba(94, 133, 230, 0.3)', borderRadius: '9999px' }}
+                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(94, 133, 230, 0.3)', borderRadius: '9999px' }}
                                     onClick={() => handleOpenBarcodeModal(appointment)}
                                     title="Mã Barcode - Nhấn để xem và in"
                                   >
@@ -562,7 +562,7 @@ const ReceptionistDashboard = () => {
                             {/* Service / Test Code */}
                             <td className="d-none d-lg-table-cell" style={{ padding: '14px 16px' }}>
                               <span className="text-secondary" style={{ fontSize: '0.9rem' }}>
-                                <FaFlask className="me-1" style={{ fontSize: '0.8rem', color: '#648CF4' }} />
+                                <FaFlask className="me-1" style={{ fontSize: '0.8rem', color: '#1E60E6' }} />
                                 {serviceName}
                               </span>
                             </td>
@@ -587,7 +587,7 @@ const ReceptionistDashboard = () => {
                                   variant="outline-primary"
                                   size="sm"
                                   className="fw-semibold px-2.5 py-1"
-                                  style={{ borderRadius: '9999px', borderColor: '#648CF4', color: '#648CF4' }}
+                                  style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                                   onClick={() => handleOpenBarcodeModal(appointment)}
                                   title="In nhãn mã vạch dán ống nghiệm"
                                 >
@@ -597,7 +597,7 @@ const ReceptionistDashboard = () => {
                                   variant="outline-success"
                                   size="sm"
                                   className="fw-semibold px-2.5 py-1"
-                                  style={{ borderRadius: '9999px', borderColor: '#A3E687', color: '#2b8a3e' }}
+                                  style={{ borderRadius: '9999px', borderColor: '#10B981', color: '#2b8a3e' }}
                                   onClick={() => handleOpenReceiptModal(appointment)}
                                   title="Tính phí & Xuất biên lai thanh toán"
                                 >
@@ -625,7 +625,7 @@ const ReceptionistDashboard = () => {
       {/* Barcode Print Modal for Receptionist */}
       <Modal show={showBarcodeModal} onHide={handleCloseBarcodeModal} centered>
         <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Modal.Title style={{ fontSize: '1.1rem', color: '#648CF4', fontWeight: 'bold' }}>
+          <Modal.Title style={{ fontSize: '1.1rem', color: '#1E60E6', fontWeight: 'bold' }}>
             <FaBarcode className="me-2" /> In Nhãn Mã Vạch Tiếp Nhận (Lễ Tân)
           </Modal.Title>
         </Modal.Header>
@@ -674,7 +674,7 @@ const ReceptionistDashboard = () => {
                   <div className="fw-bold fs-6 text-dark">{selectedReceiptAppointment.patientName || 'Bệnh nhân'}</div>
                   <small className="text-muted">Mã lịch hẹn: {selectedReceiptAppointment.id || selectedReceiptAppointment.appointmentId || 'N/A'}</small>
                 </div>
-                <Badge className="px-3 py-2 fs-6" style={{ backgroundColor: '#A3E687', color: '#14532d', borderRadius: '9999px', fontVariantNumeric: 'tabular-nums' }}>
+                <Badge className="px-3 py-2 fs-6" style={{ backgroundColor: '#10B981', color: '#14532d', borderRadius: '9999px', fontVariantNumeric: 'tabular-nums' }}>
                   {calculateTotal().toLocaleString('vi-VN')} VNĐ
                 </Badge>
               </Alert>
@@ -798,7 +798,7 @@ const ReceptionistDashboard = () => {
           <Button variant="outline-secondary" onClick={() => setShowReceiptModal(false)} disabled={generatingReceipt} style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             Hủy
           </Button>
-          <Button onClick={handleGenerateReceipt} disabled={generatingReceipt} style={{ backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#14532d', borderRadius: '9999px', fontWeight: '600' }}>
+          <Button onClick={handleGenerateReceipt} disabled={generatingReceipt} style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#14532d', borderRadius: '9999px', fontWeight: '600' }}>
             {generatingReceipt ? 'Đang tạo biên lai...' : 'Xác nhận & Xuất Biên Lai'}
           </Button>
         </Modal.Footer>
@@ -894,7 +894,7 @@ const ReceptionistDashboard = () => {
           )}
         </Modal.Body>
         <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Button variant="outline-primary" onClick={() => window.print()} style={{ borderRadius: '9999px', borderColor: '#648CF4', color: '#648CF4' }}>
+          <Button variant="outline-primary" onClick={() => window.print()} style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}>
             <FaPrint className="me-2" /> In Biên Lai
           </Button>
           <Button variant="secondary" onClick={() => setShowGeneratedReceiptModal(false)} style={{ borderRadius: '9999px', padding: '6px 20px' }}>

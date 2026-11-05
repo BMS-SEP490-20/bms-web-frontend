@@ -76,13 +76,13 @@ export default function PortalNavbar({ user: propUser = null }) {
             Trang Chủ
           </Link>
           <Link
-            className={`bms-capsule-item ${currentPath.startsWith('/services') || currentPath.startsWith('/catalog') ? 'active' : ''}`}
+            className={`bms-capsule-item ${currentPath.startsWith('/services') ? 'active' : ''}`}
             to="/services"
           >
             Gói Xét Nghiệm
           </Link>
           <Link
-            className={`bms-capsule-item ${currentPath.startsWith('/tracking') ? 'active' : ''}`}
+            className={`bms-capsule-item ${currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/track-progress') ? 'active' : ''}`}
             to="/tracking"
           >
             Tiến Trình &amp; Kết Quả
@@ -112,14 +112,17 @@ export default function PortalNavbar({ user: propUser = null }) {
           ) : (
             <>
               <Link
-                className={`bms-capsule-item ${currentPath === '/catalog' ? 'active' : ''}`}
-                to="/catalog"
+                className={`bms-capsule-item ${currentPath.startsWith('/pricing') || currentPath.startsWith('/catalog') ? 'active' : ''}`}
+                to="/pricing"
               >
                 Bảng Giá Niêm Yết
               </Link>
-              <a className="bms-capsule-item" href="#quy-trinh">
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/iso-process') ? 'active' : ''}`}
+                to="/iso-process"
+              >
                 Quy Trình ISO
-              </a>
+              </Link>
             </>
           )}
         </nav>

@@ -239,7 +239,7 @@ export default function ServicePackagesPage({ onBack }) {
             <div className="d-flex justify-content-between align-items-center bms-roles-header">
                 <div>
                     <h4 className="fw-bold m-0" style={{ color: '#0f2743' }}>
-                        <i className="bi bi-box-seam-fill me-2" style={{ color: '#648CF4' }}></i>
+                        <i className="bi bi-box-seam-fill me-2" style={{ color: '#1E60E6' }}></i>
                         Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí
                     </h4>
                     <small className="text-muted">
@@ -256,7 +256,7 @@ export default function ServicePackagesPage({ onBack }) {
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                         style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
                     >
-                        <i className="bi bi-eye-fill me-1" style={{ color: '#648CF4' }}></i>
+                        <i className="bi bi-eye-fill me-1" style={{ color: '#1E60E6' }}></i>
                         Xem Cổng Bệnh Nhân ↗
                     </Button>
 
@@ -265,7 +265,7 @@ export default function ServicePackagesPage({ onBack }) {
                             variant="primary"
                             onClick={openCreate}
                             className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                            style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                         >
                             <i className="bi bi-plus-circle-fill"></i>
                             Thêm Gói Mới
@@ -373,7 +373,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                 {pkg.description || "Không có mô tả chi tiết."}
                                             </div>
                                             <div className="mt-1">
-                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#648CF4', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
+                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
                                                     {pkg.tests?.length || 0} Chỉ Số
                                                 </span>
                                                 {pkg.tests?.length > 0 && (
@@ -385,7 +385,7 @@ export default function ServicePackagesPage({ onBack }) {
                                             </div>
                                         </td>
                                         <td className="bms-align-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                            <div className="fw-bold" style={{ color: '#648CF4', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
+                                            <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
                                             {pkg.discountPrice ? (
                                                 <small className="text-muted text-decoration-line-through d-block">
                                                     {formatMoney(pkg.discountPrice)}
@@ -415,7 +415,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                     title="Chỉnh sửa gói dịch vụ"
                                                     onClick={() => openEdit(pkg)}
                                                     disabled={!canManage}
-                                                    style={{ borderRadius: 9999, borderColor: '#648CF4', color: '#648CF4' }}
+                                                    style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                                                 >
                                                     <i className="bi bi-pencil"></i>
                                                 </Button>

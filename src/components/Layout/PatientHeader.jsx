@@ -79,7 +79,7 @@ const PatientHeader = ({ setActiveTab }) => {
   const navLinkStyle = (path) => {
     const isActive = location.pathname.startsWith(path);
     return {
-      color: isActive ? '#648CF4' : '#6B7280',
+      color: isActive ? '#1E60E6' : '#6B7280',
       backgroundColor: isActive ? '#E8EFFE' : 'transparent',
       fontWeight: isActive ? 650 : 500,
       fontSize: '13.5px',
@@ -170,7 +170,7 @@ const PatientHeader = ({ setActiveTab }) => {
                   transition: 'all 0.2s ease',
                   border: 'none',
                   padding: '8px 18px',
-                  background: '#648CF4',
+                  background: '#1E60E6',
                   color: '#FFFFFF',
                   boxShadow: '0 4px 14px rgba(100, 140, 244, 0.25)',
                   whiteSpace: 'nowrap',

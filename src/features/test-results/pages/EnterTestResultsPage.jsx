@@ -281,7 +281,7 @@ export function EnterTestResultsPage() {
   return (
     <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Tiêu đề trang chuẩn y khoa ISO 15189 */}
-      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm" style={{ backgroundColor: '#648CF4' }}>
+      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm" style={{ backgroundColor: '#1E60E6' }}>
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div>
             <div className="small opacity-75 mb-1">
@@ -295,7 +295,7 @@ export function EnterTestResultsPage() {
               Nhập và đối chiếu giá trị đo với khoảng tham chiếu sinh học. Bắt buộc kích hoạt quy trình báo động đỏ khi có chỉ số CRITICAL.
             </p>
           </div>
-          <Badge bg="light" className="border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#648CF4' }}>
+          <Badge bg="light" className="border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#1E60E6' }}>
             ISO 15189:2022 §7.4
           </Badge>
         </div>
@@ -306,7 +306,7 @@ export function EnterTestResultsPage() {
         <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body className="p-4">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FaFlask style={{ color: '#648CF4' }} />
+              <FaFlask style={{ color: '#1E60E6' }} />
               <span>Thông Tin Mẻ Phân Tích &amp; Thiết Bị Đo</span>
             </h6>
             <Row className="g-3">
@@ -647,7 +647,7 @@ export function EnterTestResultsPage() {
                     type="submit"
                     disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
                     className="d-flex align-items-center gap-2 shadow-sm px-4 fw-semibold text-white"
-                    style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                   >
                     {loading ? (
                       <>
@@ -676,10 +676,10 @@ export function EnterTestResultsPage() {
             <Card className="border-0 shadow-sm mb-3 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
                 <h6 className="fw-bold text-dark mb-2">Thông Tin Ống Mẫu Xét Nghiệm</h6>
-                <div className="badge border mb-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#648CF4', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                <div className="badge border mb-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   Đang phân tích (Testing)
                 </div>
-                <div className="fw-bold font-monospace fs-6" style={{ color: '#648CF4' }}>
+                <div className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
                   {sampleId || 'Chưa chọn mẫu'}
                 </div>
                 {sampleDetails ? (

@@ -1,7 +1,7 @@
 
 .login-page {
-    --login-primary: #648CF4;
-    --login-primary-hover: #537be6;
+    --login-primary: #1E60E6;
+    --login-primary-hover: #1550C4;
     --login-navy: #1A1D21;
     --login-text: #1A1D21;
     --login-muted: #6B7280;
@@ -171,7 +171,7 @@
     height: 34px;
     border: 1px solid rgba(145, 222, 131, 0.3);
     border-radius: 10px;
-    color: #A3E687;
+    color: #10B981;
     background: rgba(145, 222, 131, 0.15);
     font-size: 17px;
 }
@@ -292,7 +292,7 @@
 }
 
 .login-input-wrap:focus-within {
-    border-color: #648CF4;
+    border-color: #1E60E6;
     box-shadow: 0 0 0 3px rgba(100, 140, 244, 0.28);
     background: #ffffff;
 }

@@ -133,13 +133,13 @@ export default function TatStatisticsDashboardPage() {
     const summary = report.summary || {};
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#f8fafc" }}>
+        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#F1F4F7" }}>
             {/* Page Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge bg-primary px-3 py-2 fs-6">UC63</span>
-                        <h2 className="h3 mb-0 fw-bold text-slate-800">Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (Turnaround Time - TAT)</h2>
+                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#5E85E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC63</span>
+                        <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
                         Giám sát chỉ số chất lượng xét nghiệm theo chuẩn ISO 15189: Đánh giá trung bình, trung vị (Median), phân vị 90 (P90), phân rã 3 giai đoạn và phát hiện vi phạm SLA.
@@ -148,14 +148,16 @@ export default function TatStatisticsDashboardPage() {
 
                 <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
                     <button
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
+                        style={{ borderRadius: '9999px', padding: '6px 18px', borderColor: '#E5E9EB' }}
                         onClick={loadData}
                         disabled={isLoading}
                     >
                         <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
                     </button>
                     <button
-                        className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
+                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#14532d', fontWeight: '600' }}
                         onClick={handleExportCsv}
                         disabled={isExporting}
                         id="btn-export-tat-csv"
@@ -166,20 +168,29 @@ export default function TatStatisticsDashboardPage() {
             </div>
 
             {/* Filter Toolbar */}
-            <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
+            <div className="card shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB' }}>
                 <div className="card-body p-3">
                     <div className="row g-3 align-items-center">
                         {/* Timeframe Buttons */}
                         <div className="col-12 col-md-5 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaCalendarAlt className="me-1" /> Khung thời gian:
+                                <FaCalendarAlt className="me-1" style={{ color: '#5E85E6' }} /> Khung thời gian:
                             </label>
-                            <div className="btn-group btn-group-sm w-100" role="group">
+                            <div className="d-flex flex-wrap gap-1" role="group">
                                 {TIMEFRAMES.map(tf => (
                                     <button
                                         key={tf.key}
                                         type="button"
-                                        className={`btn ${selectedTimeframe === tf.key ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                        className="btn btn-sm"
+                                        style={{
+                                            borderRadius: '9999px',
+                                            padding: '4px 14px',
+                                            backgroundColor: selectedTimeframe === tf.key ? '#5E85E6' : '#F1F4F7',
+                                            color: selectedTimeframe === tf.key ? '#ffffff' : '#475569',
+                                            border: '1px solid',
+                                            borderColor: selectedTimeframe === tf.key ? '#5E85E6' : '#E5E9EB',
+                                            fontWeight: '600'
+                                        }}
                                         onClick={() => setSelectedTimeframe(tf.key)}
                                     >
                                         {tf.label}
@@ -191,10 +202,11 @@ export default function TatStatisticsDashboardPage() {
                         {/* Department Filter */}
                         <div className="col-12 col-sm-6 col-md-4 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaFlask className="me-1" /> Chuyên khoa xét nghiệm:
+                                <FaFlask className="me-1" style={{ color: '#5E85E6' }} /> Chuyên khoa xét nghiệm:
                             </label>
                             <select
                                 className="form-select form-select-sm"
+                                style={{ borderRadius: '12px', backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}
                                 value={selectedDepartment}
                                 onChange={e => setSelectedDepartment(e.target.value)}
                             >
@@ -207,10 +219,11 @@ export default function TatStatisticsDashboardPage() {
                         {/* Priority Filter */}
                         <div className="col-12 col-sm-6 col-md-3 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaBolt className="me-1" /> Độ ưu tiên (Urgency):
+                                <FaBolt className="me-1" style={{ color: '#E7BC4C' }} /> Độ ưu tiên (Urgency):
                             </label>
                             <select
                                 className="form-select form-select-sm"
+                                style={{ borderRadius: '12px', backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}
                                 value={selectedPriority}
                                 onChange={e => setSelectedPriority(e.target.value)}
                             >
@@ -228,9 +241,9 @@ export default function TatStatisticsDashboardPage() {
             <div className="row g-3 mb-4">
                 {/* Average TAT */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">TAT Trung Bình (Mean)</div>
-                        <div className="fs-3 fw-bold text-primary mt-1">{summary.averageTatFormatted || "0m"}</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{summary.averageTatFormatted || "0m"}</div>
                         <div className="small text-muted mt-1 font-monospace" style={{ fontSize: "0.75rem" }}>
                             {summary.averageTatMinutes} phút
                         </div>
@@ -239,9 +252,9 @@ export default function TatStatisticsDashboardPage() {
 
                 {/* Median TAT (P50) */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-info border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Trung Vị (Median P50)</div>
-                        <div className="fs-3 fw-bold text-info mt-1">{summary.medianTatFormatted || "0m"}</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{summary.medianTatFormatted || "0m"}</div>
                         <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
                             50% mẫu hoàn tất sớm hơn
                         </div>
@@ -250,9 +263,9 @@ export default function TatStatisticsDashboardPage() {
 
                 {/* 90th Percentile (P90) */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-secondary border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Phân Vị 90 (P90 SLA)</div>
-                        <div className="fs-3 fw-bold text-dark mt-1">{summary.p90TatFormatted || "0m"}</div>
+                        <div className="fs-3 fw-bold text-dark mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.p90TatFormatted || "0m"}</div>
                         <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
                             Chuẩn cam kết ISO SLA
                         </div>
@@ -261,14 +274,14 @@ export default function TatStatisticsDashboardPage() {
 
                 {/* Target Compliance Rate */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-success border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn</div>
-                        <div className="fs-3 fw-bold text-success mt-1">{summary.targetComplianceRate || 100}%</div>
-                        <div className="progress mt-2" style={{ height: "4px" }}>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#91DE83', fontVariantNumeric: 'tabular-nums' }}>{summary.targetComplianceRate || 100}%</div>
+                        <div className="progress mt-2" style={{ height: "4px", borderRadius: '9999px' }}>
                             <div
-                                className="progress-bar bg-success"
+                                className="progress-bar"
                                 role="progressbar"
-                                style={{ width: `${summary.targetComplianceRate || 100}%` }}
+                                style={{ width: `${summary.targetComplianceRate || 100}%`, backgroundColor: '#91DE83', borderRadius: '9999px' }}
                             ></div>
                         </div>
                     </div>
@@ -276,9 +289,9 @@ export default function TatStatisticsDashboardPage() {
 
                 {/* Total Processed */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Tổng Mẫu Hoàn Tất</div>
-                        <div className="fs-3 fw-bold text-dark mt-1">{summary.totalCompletedTests || 0}</div>
+                        <div className="fs-3 fw-bold text-dark mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.totalCompletedTests || 0}</div>
                         <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
                             Đã phê duyệt &amp; ký số
                         </div>
@@ -287,10 +300,10 @@ export default function TatStatisticsDashboardPage() {
 
                 {/* Overdue Violations */}
                 <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-danger border-4">
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Mẫu Vượt Ngưỡng (Trễ)</div>
-                        <div className="fs-3 fw-bold text-danger mt-1">{summary.violationCount || 0}</div>
-                        <div className="small text-danger fw-semibold mt-1" style={{ fontSize: "0.75rem" }}>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{summary.violationCount || 0}</div>
+                        <div className="small fw-semibold mt-1" style={{ fontSize: "0.75rem", color: '#b48316' }}>
                             Cần rà soát tắc nghẽn
                         </div>
                     </div>
@@ -298,24 +311,30 @@ export default function TatStatisticsDashboardPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="card border-0 shadow-sm rounded-3 mb-4">
-                <div className="card-header bg-white border-bottom p-0">
+            <div className="card shadow-sm rounded-4 mb-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+                <div className="card-header border-bottom p-0" style={{ backgroundColor: '#F8FAFC', borderColor: '#E5E9EB' }}>
                     <ul className="nav nav-tabs border-0 px-3 pt-2 gap-1">
                         {[
                             { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: FaBolt },
                             { key: "PHASES", label: "Phân Rã 3 Giai Đoạn (ISO 15189)", icon: FaLayerGroup },
                             { key: "DEPARTMENTS", label: "Theo Chuyên Khoa Lab", icon: FaFlask },
                             { key: "TRENDS", label: "Biểu Đồ Xu Hướng Ngày", icon: FaChartLine },
-                            { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: FaExclamationTriangle, badge: "bg-danger text-white" }
+                            { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: FaExclamationTriangle }
                         ].map(tab => {
                             const Icon = tab.icon;
+                            const isActive = activeTab === tab.key;
                             return (
                                 <li className="nav-item" key={tab.key}>
                                     <button
-                                        className={`nav-link py-3 px-3 fw-semibold border-0 border-bottom border-3 d-flex align-items-center gap-2 ${activeTab === tab.key ? 'active border-primary text-primary' : 'text-muted border-transparent'}`}
+                                        className="nav-link py-3 px-3 fw-semibold border-0 border-bottom border-3 d-flex align-items-center gap-2"
+                                        style={{
+                                            color: isActive ? '#5E85E6' : '#64748B',
+                                            borderBottomColor: isActive ? '#5E85E6' : 'transparent',
+                                            backgroundColor: 'transparent'
+                                        }}
                                         onClick={() => setActiveTab(tab.key)}
                                     >
-                                        <Icon />
+                                        <Icon style={{ color: isActive ? '#5E85E6' : '#94A3B8' }} />
                                         <span>{tab.label}</span>
                                     </button>
                                 </li>
@@ -333,13 +352,13 @@ export default function TatStatisticsDashboardPage() {
                                 {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
                                     const isStat = p.priority.toLowerCase() === "stat";
                                     const isUrgent = p.priority.toLowerCase() === "urgent";
-                                    const theme = isStat ? "danger" : isUrgent ? "warning" : "primary";
+                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#E7BC4C" : "#5E85E6";
 
                                     return (
                                         <div className="col-12 col-md-4" key={p.priority}>
-                                            <div className={`card border rounded-3 p-3 bg-white h-100 border-top border-4 border-${theme} shadow-sm`}>
+                                            <div className="card shadow-sm rounded-4 p-4 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                                                 <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <span className={`badge bg-${theme}-subtle text-${theme} px-2 py-1 fs-6 fw-bold`}>
+                                                    <span className="badge px-3 py-1.5 fs-6 fw-bold" style={{ backgroundColor: `${themeColor}15`, color: themeColor, borderRadius: '9999px', border: `1px solid ${themeColor}30` }}>
                                                         {p.priority.toLowerCase() === "stat" ? "CẤP CỨU (STAT)" : p.priority.toLowerCase() === "urgent" ? "KHẨN CẤP" : "THƯỜNG QUY"}
                                                     </span>
                                                     <span className="small text-muted">
@@ -349,7 +368,7 @@ export default function TatStatisticsDashboardPage() {
 
                                                 <div className="my-3">
                                                     <div className="text-muted small">Thời gian trung bình thực tế:</div>
-                                                    <div className={`fs-2 fw-bold text-${theme}`}>
+                                                    <div className="fs-2 fw-bold" style={{ color: themeColor, fontVariantNumeric: 'tabular-nums' }}>
                                                         {p.averageTatFormatted}
                                                     </div>
                                                     <div className="small text-muted font-monospace">{p.averageTatMinutes} phút</div>
@@ -360,16 +379,16 @@ export default function TatStatisticsDashboardPage() {
                                                         <span>Tỷ lệ đạt chuẩn SLA:</span>
                                                         <span className="fw-bold text-dark">{p.complianceRate}%</span>
                                                     </div>
-                                                    <div className="progress" style={{ height: "8px" }}>
+                                                    <div className="progress" style={{ height: "6px", borderRadius: '9999px' }}>
                                                         <div
-                                                            className={`progress-bar bg-${theme}`}
+                                                            className="progress-bar"
                                                             role="progressbar"
-                                                            style={{ width: `${p.complianceRate}%` }}
+                                                            style={{ width: `${p.complianceRate}%`, backgroundColor: themeColor, borderRadius: '9999px' }}
                                                         ></div>
                                                     </div>
                                                 </div>
 
-                                                <div className="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                                                <div className="d-flex justify-content-between align-items-center pt-2 border-top small text-muted" style={{ borderColor: '#F1F4F7' }}>
                                                     <span>Tổng số mẫu: <strong>{p.totalCount}</strong></span>
                                                     <span>Vi phạm: <strong className={p.violationCount > 0 ? "text-danger" : "text-success"}>{p.violationCount}</strong></span>
                                                 </div>
@@ -415,13 +434,13 @@ export default function TatStatisticsDashboardPage() {
                                     const badges = ["Giai đoạn 1", "Giai đoạn 2", "Giai đoạn 3"];
                                     return (
                                         <div className="col-12 col-md-4" key={ph.phaseName}>
-                                            <div className="card border rounded-3 p-3 bg-light h-100">
+                                            <div className="card shadow-sm rounded-4 p-4 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <span className="badge bg-secondary">{badges[idx]}</span>
+                                                    <span className="badge px-3 py-1" style={{ backgroundColor: '#F1F4F7', color: '#64748B', borderRadius: '9999px', border: '1px solid #E5E9EB' }}>{badges[idx]}</span>
                                                     <span className="fs-5 fw-bold text-dark">{ph.percentageOfTotal}%</span>
                                                 </div>
                                                 <h6 className="fw-bold mt-2 mb-1">{ph.phaseDescription}</h6>
-                                                <div className="fs-3 fw-bold text-primary mt-2">{ph.averageFormatted}</div>
+                                                <div className="fs-3 fw-bold mt-2" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>{ph.averageFormatted}</div>
                                                 <div className="small text-muted font-monospace">{ph.averageMinutes} phút trung bình</div>
                                             </div>
                                         </div>
@@ -435,57 +454,57 @@ export default function TatStatisticsDashboardPage() {
                     {activeTab === "DEPARTMENTS" && (
                         <div>
                             <h5 className="fw-bold mb-3 text-dark">Hiệu Suất Thời Gian Quay Vòng Theo Chuyên Khoa Phòng Lab</h5>
-                            <div className="table-responsive">
-                                <table className="table table-hover align-middle border">
-                                    <thead className="table-light small text-muted text-uppercase">
+                            <div className="table-responsive rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+                                <table className="table table-hover align-middle mb-0">
+                                    <thead style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB', color: '#475569', fontSize: '12px' }} className="text-uppercase">
                                         <tr>
-                                            <th>Chuyên Khoa / Phòng Lab</th>
-                                            <th className="text-center">Số Lượng Mẫu</th>
-                                            <th className="text-center">TAT Trung Bình</th>
-                                            <th>Tỷ Lệ Đạt Chuẩn SLA</th>
-                                            <th className="text-center">Số Mẫu Trễ</th>
-                                            <th className="text-end">Đánh Giá ISO</th>
+                                            <th className="ps-3 py-3">Chuyên Khoa / Phòng Lab</th>
+                                            <th className="text-center py-3">Số Lượng Mẫu</th>
+                                            <th className="text-center py-3">TAT Trung Bình</th>
+                                            <th className="py-3">Tỷ Lệ Đạt Chuẩn SLA</th>
+                                            <th className="text-center py-3">Số Mẫu Trễ</th>
+                                            <th className="text-end pe-3 py-3">Đánh Giá ISO</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
-                                            <tr key={d.department}>
-                                                <td className="fw-bold text-dark">
-                                                    <FaFlask className="me-2 text-primary" />
+                                            <tr key={d.department} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                                <td className="fw-bold text-dark ps-3 py-3">
+                                                    <FaFlask className="me-2" style={{ color: '#5E85E6' }} />
                                                     {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
                                                      d.department === "Hematology" ? "Huyết Học (Hematology)" :
                                                      d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
                                                      d.department === "Urinalysis" ? "Nước Tiểu (Urinalysis)" :
                                                      d.department === "Microbiology" ? "Vi Sinh (Microbiology)" : d.department}
                                                 </td>
-                                                <td className="text-center">{d.totalCount}</td>
-                                                <td className="text-center fw-bold text-primary">
+                                                <td className="text-center py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.totalCount}</td>
+                                                <td className="text-center fw-bold py-3" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
                                                     {d.averageTatFormatted} ({d.averageTatMinutes}m)
                                                 </td>
-                                                <td style={{ minWidth: "180px" }}>
+                                                <td style={{ minWidth: "180px" }} className="py-3">
                                                     <div className="d-flex align-items-center gap-2">
-                                                        <div className="progress flex-grow-1" style={{ height: "6px" }}>
+                                                        <div className="progress flex-grow-1" style={{ height: "6px", borderRadius: '9999px' }}>
                                                             <div
-                                                                className={`progress-bar ${d.complianceRate >= 90 ? 'bg-success' : 'bg-warning'}`}
+                                                                className="progress-bar"
                                                                 role="progressbar"
-                                                                style={{ width: `${d.complianceRate}%` }}
+                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#91DE83' : '#E7BC4C', borderRadius: '9999px' }}
                                                             ></div>
                                                         </div>
-                                                        <span className="small fw-bold">{d.complianceRate}%</span>
+                                                        <span className="small fw-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.complianceRate}%</span>
                                                     </div>
                                                 </td>
-                                                <td className="text-center">
-                                                    <span className={`badge ${d.violationCount > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}`}>
+                                                <td className="text-center py-3">
+                                                    <span className="badge px-2.5 py-1" style={{ backgroundColor: d.violationCount > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(145, 222, 131, 0.2)', color: d.violationCount > 0 ? '#dc2626' : '#2b8a3e', borderRadius: '9999px' }}>
                                                         {d.violationCount} mẫu
                                                     </span>
                                                 </td>
-                                                <td className="text-end">
+                                                <td className="text-end pe-3 py-3">
                                                     {d.complianceRate >= 90 ? (
-                                                        <span className="badge bg-success-subtle text-success border border-success-subtle">
+                                                        <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px', border: '1px solid rgba(145, 222, 131, 0.4)' }}>
                                                             <FaCheckCircle className="me-1" /> Đạt ISO 15189
                                                         </span>
                                                     ) : (
-                                                        <span className="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                        <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.3)' }}>
                                                             <FaExclamationTriangle className="me-1" /> Cần cải tiến
                                                         </span>
                                                     )}
@@ -505,15 +524,15 @@ export default function TatStatisticsDashboardPage() {
                             <div className="row g-3">
                                 {(Array.isArray(report.trends) ? report.trends : []).map(t => (
                                     <div className="col-12 col-sm-6 col-md-4 col-xl-3" key={t.dateLabel}>
-                                        <div className="card border rounded-3 p-3 bg-white shadow-sm">
+                                        <div className="card shadow-sm rounded-4 p-3 bg-white" style={{ border: '1px solid #E5E9EB' }}>
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <span className="fw-bold text-dark">{t.dateLabel}</span>
-                                                <span className="badge bg-light text-muted border">{t.volume} mẫu</span>
+                                                <span className="badge px-2.5 py-1" style={{ backgroundColor: '#F1F4F7', color: '#64748B', borderRadius: '9999px', border: '1px solid #E5E9EB' }}>{t.volume} mẫu</span>
                                             </div>
-                                            <div className="fs-4 fw-bold text-primary mt-2">
+                                            <div className="fs-4 fw-bold mt-2" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
                                                 {Math.round(t.averageTatMinutes)} phút
                                             </div>
-                                            <div className="d-flex justify-content-between small text-muted mt-2 pt-2 border-top">
+                                            <div className="d-flex justify-content-between small text-muted mt-2 pt-2 border-top" style={{ borderColor: '#F1F4F7' }}>
                                                 <span>Đạt SLA: <strong>{t.complianceRate}%</strong></span>
                                                 <span>Trễ: <strong className={t.violationCount > 0 ? 'text-danger' : 'text-success'}>{t.violationCount}</strong></span>
                                             </div>
@@ -531,52 +550,52 @@ export default function TatStatisticsDashboardPage() {
                                 <h5 className="fw-bold text-danger mb-0 d-flex align-items-center gap-2">
                                     <FaExclamationTriangle /> Danh Sách Mẫu Vượt Ngưỡng Thời Gian (Outlier Violations)
                                 </h5>
-                                <span className="badge bg-danger-subtle text-danger px-3 py-1">
+                                <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                                     {(Array.isArray(report.recentViolations) ? report.recentViolations : []).length} trường hợp phát hiện
                                 </span>
                             </div>
 
                             {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
                                 <div className="text-center py-5 text-muted">
-                                    <FaCheckCircle className="fs-1 text-success mb-2" />
+                                    <FaCheckCircle className="fs-1 mb-2" style={{ color: '#91DE83' }} />
                                     <p className="mb-0 fw-semibold">Tuyệt vời! Không ghi nhận trường hợp mẫu nào vượt ngưỡng thời gian cam kết.</p>
                                 </div>
                             ) : (
-                                <div className="table-responsive">
-                                    <table className="table table-hover align-middle border">
-                                        <thead className="table-danger small text-danger text-uppercase">
+                                <div className="table-responsive rounded-4 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
+                                    <table className="table table-hover align-middle mb-0">
+                                        <thead style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#b91c1c', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '12px' }} className="text-uppercase">
                                             <tr>
-                                                <th>Mã Barcode</th>
-                                                <th>Bệnh Nhân</th>
-                                                <th>Gói Xét Nghiệm</th>
-                                                <th>Ưu Tiên</th>
-                                                <th className="text-center">TAT Thực Tế</th>
-                                                <th className="text-center">Mục Tiêu</th>
-                                                <th className="text-center">Thời Gian Trễ</th>
-                                                <th>Giai Đoạn Nghẽn</th>
-                                                <th>KTV Phụ Trách</th>
+                                                <th className="ps-3 py-3">Mã Barcode</th>
+                                                <th className="py-3">Bệnh Nhân</th>
+                                                <th className="py-3">Gói Xét Nghiệm</th>
+                                                <th className="py-3">Ưu Tiên</th>
+                                                <th className="text-center py-3">TAT Thực Tế</th>
+                                                <th className="text-center py-3">Mục Tiêu</th>
+                                                <th className="text-center py-3">Thời Gian Trễ</th>
+                                                <th className="py-3">Giai Đoạn Nghẽn</th>
+                                                <th className="text-end pe-3 py-3">KTV Phụ Trách</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
-                                                <tr key={v.sampleId || v.barcode}>
-                                                    <td className="font-monospace fw-bold text-dark">{v.barcode}</td>
-                                                    <td>{v.patientName}</td>
-                                                    <td className="text-truncate" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
-                                                    <td>
-                                                        <span className="badge bg-danger text-white">{v.priority?.toLowerCase() === "stat" ? "Cấp cứu (STAT)" : v.priority?.toLowerCase() === "urgent" ? "Khẩn cấp" : "Thường quy"}</span>
+                                                <tr key={v.sampleId || v.barcode} style={{ borderBottom: '1px solid #F1F4F7' }}>
+                                                    <td className="font-monospace fw-bold ps-3 py-3" style={{ color: '#5E85E6' }}>{v.barcode}</td>
+                                                    <td className="py-3">{v.patientName}</td>
+                                                    <td className="text-truncate py-3" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
+                                                    <td className="py-3">
+                                                        <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>{v.priority?.toLowerCase() === "stat" ? "Cấp cứu (STAT)" : v.priority?.toLowerCase() === "urgent" ? "Khẩn cấp" : "Thường quy"}</span>
                                                     </td>
-                                                    <td className="text-center fw-bold text-danger">{v.actualTatMinutes}m</td>
-                                                    <td className="text-center text-muted">&le; {v.targetTatMinutes}m</td>
-                                                    <td className="text-center fw-bold text-danger">+{v.delayMinutes}m</td>
-                                                    <td>
-                                                        <span className="badge bg-warning-subtle text-dark border">
+                                                    <td className="text-center fw-bold text-danger py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{v.actualTatMinutes}m</td>
+                                                    <td className="text-center text-muted py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>&le; {v.targetTatMinutes}m</td>
+                                                    <td className="text-center fw-bold text-danger py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>+{v.delayMinutes}m</td>
+                                                    <td className="py-3">
+                                                        <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.3)' }}>
                                                             {v.bottleneckPhase === "PreAnalytical" ? "Tiền phân tích (Lấy/Chuyển mẫu)" :
                                                              v.bottleneckPhase === "Analytical" ? "Trong phân tích (Chạy máy)" :
                                                              v.bottleneckPhase === "PostAnalytical" ? "Sau phân tích (Duyệt kết quả)" : v.bottleneckPhase}
                                                         </span>
                                                     </td>
-                                                    <td className="small text-muted">{v.technicianName || "Chưa gán"}</td>
+                                                    <td className="small text-muted text-end pe-3 py-3">{v.technicianName || "Chưa gán"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

@@ -86,11 +86,11 @@ export default function GuestHomePage() {
           {/* Left Column: Hero Narrative & Metrics */}
           <div className="bms-hero-narrative">
             <div className="bms-status-chip d-flex align-items-center gap-2">
-              <img src="/bmsicon.ico" alt="BMS" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+              <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
               <span>TIÊU CHUẨN ISO 15189 &amp; CHỨNG NHẬN CAP</span>
             </div>
 
-            <h1 className="bms-hero-heading" style={{ fontSize: 'clamp(36px, 4.2vw, 52px)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.035em' }}>
+            <h1 className="bms-hero-heading" style={{ fontSize: 'clamp(30px, 3.2vw, 40px)', fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.025em' }}>
               Xét Nghiệm Máu Nhanh Chóng,<br />
               <span className="bms-highlight-blue">Chính Xác &amp; Tin Cậy</span>
             </h1>

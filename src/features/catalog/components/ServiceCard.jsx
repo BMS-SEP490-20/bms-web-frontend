@@ -68,16 +68,17 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
       }}
     >
       {/* Category & Service Code */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '18px' }}>
         <span
-          className="badge px-2.5 py-1"
+          className="badge"
           style={{
             backgroundColor: badge.bg,
             color: badge.accent,
             fontSize: '11.5px',
             fontWeight: 650,
             borderRadius: '8px',
-            border: 'none'
+            border: 'none',
+            padding: '6px 11px'
           }}
         >
           {badge.label}
@@ -92,12 +93,13 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
 
       {/* Package Title */}
       <h3
-        className="fw-bold mb-2"
+        className="fw-bold"
         style={{
           fontSize: '17px',
           lineHeight: '1.4',
           color: '#0F172A',
           letterSpacing: '-0.015em',
+          marginBottom: '12px',
           minHeight: '48px'
         }}
       >
@@ -106,11 +108,12 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
 
       {/* Health Value Proposition */}
       <p
-        className="small mb-3 flex-grow-1"
+        className="small flex-grow-1"
         style={{
-          lineHeight: '1.55',
+          lineHeight: '1.6',
           fontSize: '13px',
           color: '#475569',
+          marginBottom: '18px',
           minHeight: '44px'
         }}
       >
@@ -119,7 +122,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
 
       {/* Biomarker Pill Tags Preview if present */}
       {criteriaList.length > 0 && (
-        <div className="d-flex flex-wrap gap-1 mb-3">
+        <div className="d-flex flex-wrap" style={{ gap: '6px', marginBottom: '18px' }}>
           {criteriaList.slice(0, 4).map((c, i) => (
             <span
               key={i}
@@ -143,51 +146,40 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         </div>
       )}
 
-      {/* Clinical Specs Box - Spacious padding, zero borders */}
+      {/* Clinical Specs - flat rows on one soft surface, explicit spacing (no fractional utility classes) */}
       <div
-        className="mb-2.5 d-flex flex-wrap justify-content-between align-items-center"
         style={{
           backgroundColor: '#F8FAFC',
-          borderRadius: '14px',
-          padding: '14px 18px',
+          borderRadius: '16px',
+          padding: '18px 20px',
+          marginBottom: '22px',
+          border: 'none',
+          boxShadow: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
           fontSize: '12px',
-          border: 'none',
-          boxShadow: 'none',
-          lineHeight: '1.6'
-        }}
-      >
-        <div>
-          <span style={{ color: '#64748B' }}>Mẫu: </span>
-          <strong style={{ color: '#0F172A' }}>{sampleTube}</strong>
-        </div>
-        <div>
-          <span style={{ color: '#64748B' }}>Trả KQ: </span>
-          <strong style={{ color: '#0F172A' }}>{tat}</strong>
-        </div>
-      </div>
-
-      {/* Fasting Notice Pill - Generous breathing room, zero border */}
-      <div
-        className="d-flex align-items-center gap-1.5 mb-4"
-        style={{
-          backgroundColor: '#FEF3C7',
-          borderRadius: '10px',
-          padding: '9px 16px',
-          fontSize: '11.5px',
-          color: '#92400E',
-          fontWeight: 500,
-          border: 'none',
-          boxShadow: 'none',
           lineHeight: '1.5'
         }}
       >
-        <span>Lưu ý: <strong>{fastRule}</strong></span>
+        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+          <span style={{ color: '#64748B' }}>Mẫu bệnh phẩm</span>
+          <strong style={{ color: '#0F172A', textAlign: 'right' }}>{sampleTube}</strong>
+        </div>
+        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+          <span style={{ color: '#64748B' }}>Trả kết quả</span>
+          <strong style={{ color: '#0F172A', textAlign: 'right' }}>{tat}</strong>
+        </div>
+        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+          <span style={{ color: '#64748B' }}>Lưu ý</span>
+          <strong style={{ color: '#B45309', textAlign: 'right' }}>{fastRule}</strong>
+        </div>
       </div>
 
       {/* Price & Action Buttons - Zero border, separated purely by whitespace */}
       <div
         className="d-flex justify-content-between align-items-center mt-auto"
-        style={{ border: 'none', borderTop: 'none', paddingTop: '4px' }}
+        style={{ border: 'none', borderTop: 'none', paddingTop: '2px' }}
       >
         <div>
           <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>Đơn giá niêm yết:</div>

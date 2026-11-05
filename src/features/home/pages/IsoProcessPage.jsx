@@ -79,7 +79,7 @@ export default function IsoProcessPage() {
           <div className="text-center mx-auto" style={{ maxWidth: '820px' }}>
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3"
                  style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontSize: '12.5px', fontWeight: 650 }}>
-              <img src="/bmsicon.ico" alt="BMS" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
+              <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
               <span>HỆ THỐNG QUẢN LÝ CHẤT LƯỢNG TIÊU CHUẨN QUỐC TẾ ISO 15189:2022</span>
             </div>
             <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em' }}>

@@ -63,9 +63,8 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         background: '#FFFFFF',
         borderRadius: '20px',
         boxShadow: 'none',
-        border: isPopular ? '1.5px solid #1E60E6' : '1px solid rgba(15, 23, 42, 0.06)',
-        padding: '24px 26px',
-        transition: 'border-color 0.15s ease'
+        border: 'none',
+        padding: '24px 26px'
       }}
     >
       {/* Category & Service Code */}
@@ -151,7 +150,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           backgroundColor: '#F8FAFC',
           borderRadius: '12px',
           fontSize: '12px',
-          border: '1px solid rgba(15, 23, 42, 0.04)'
+          border: 'none'
         }}
       >
         <div>
@@ -172,7 +171,8 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           borderRadius: '10px',
           fontSize: '11.5px',
           color: '#92400E',
-          fontWeight: 500
+          fontWeight: 500,
+          border: 'none'
         }}
       >
         <span>Lưu ý: <strong>{fastRule}</strong></span>
@@ -180,8 +180,8 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
 
       {/* Price & Action Buttons */}
       <div
-        className="d-flex justify-content-between align-items-center pt-3 mt-auto"
-        style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}
+        className="d-flex justify-content-between align-items-center pt-2 mt-auto"
+        style={{ borderTop: 'none' }}
       >
         <div>
           <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>Đơn giá niêm yết:</div>
@@ -199,11 +199,11 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
               type="button"
               className="btn btn-sm rounded-pill px-3"
               style={{
-                fontSize: '12.5px',
+                fontSize: '12px',
                 fontWeight: 600,
                 backgroundColor: '#F1F5F9',
                 color: '#0F172A',
-                border: '1px solid rgba(15, 23, 42, 0.06)',
+                border: 'none',
                 boxShadow: 'none'
               }}
               onClick={() => onSelectDetail(pkg)}
@@ -219,7 +219,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
               backgroundColor: '#10B981',
               color: '#FFFFFF',
               border: 'none',
-              fontSize: '12.5px',
+              fontSize: '12px',
               boxShadow: 'none'
             }}
             onClick={() => onBook(pkg)}

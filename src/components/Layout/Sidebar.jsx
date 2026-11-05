@@ -339,7 +339,7 @@ export default function Sidebar({
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            background: '#A3E687',
+            background: '#10B981',
             boxShadow: '0 0 6px rgba(163, 230, 135, 0.6)',
             flexShrink: 0,
             margin: isCollapsed ? '0 auto' : 0
@@ -411,7 +411,7 @@ export default function Sidebar({
                     borderRadius: '9999px',
                     textDecoration: 'none',
                     color: active ? '#FFFFFF' : '#6B7280',
-                    background: active ? '#648CF4' : 'transparent',
+                    background: active ? '#1E60E6' : 'transparent',
                     boxShadow: active ? '0 4px 14px rgba(100, 140, 244, 0.22)' : 'none',
                     fontWeight: active ? 650 : 500,
                     fontSize: '0.86rem',
@@ -452,7 +452,7 @@ export default function Sidebar({
                         padding: '2px 8px',
                         borderRadius: '9999px',
                         backgroundColor: item.badge.bg === 'warning' ? '#FFF4E5' : '#E8EFFE',
-                        color: item.badge.bg === 'warning' ? '#8C5300' : '#648CF4'
+                        color: item.badge.bg === 'warning' ? '#8C5300' : '#1E60E6'
                       }}
                     >
                       {item.badge.text}

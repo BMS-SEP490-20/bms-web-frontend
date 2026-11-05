@@ -247,7 +247,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
           <button
             type="button"
             className="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5"
-            style={{ borderRadius: '9999px', padding: '6px 14px', borderColor: '#648CF4', color: '#93c5fd' }}
+            style={{ borderRadius: '9999px', padding: '6px 14px', borderColor: '#1E60E6', color: '#93c5fd' }}
             onClick={handleDownloadXml}
             title="Tải file XML hóa đơn điện tử gốc theo chuẩn Bộ Tài chính"
           >
@@ -258,7 +258,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
           <button
             type="button"
             className="btn btn-sm fw-bold d-flex align-items-center gap-1.5 px-3 text-white"
-            style={{ borderRadius: '9999px', backgroundColor: '#648CF4', borderColor: '#648CF4', padding: '6px 16px' }}
+            style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', padding: '6px 16px' }}
             onClick={handlePrint}
             title="In hóa đơn chuẩn khổ giấy A4"
           >

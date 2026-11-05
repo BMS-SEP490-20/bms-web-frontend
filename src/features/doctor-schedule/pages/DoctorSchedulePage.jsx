@@ -383,7 +383,7 @@ export default function DoctorSchedulePage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
           <h2 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaCalendarAlt style={{ color: '#648CF4' }} />
+            <FaCalendarAlt style={{ color: '#1E60E6' }} />
             <span>Quản Lý Ca Trực & Điều Phối Lịch Làm Việc</span>
           </h2>
           <p className="text-muted small mb-0">
@@ -396,7 +396,7 @@ export default function DoctorSchedulePage() {
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
           {canManageShifts && (
-            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}>
+            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
               <FaPlus /> Tạo Ca Làm Việc Mới (UC35)
             </Button>
           )}
@@ -427,7 +427,7 @@ export default function DoctorSchedulePage() {
                 <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
                 <div className="text-muted" style={{ fontSize: '0.75rem' }}>Hiển thị {shifts.length} ca trên trang</div>
               </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#648CF4' }}>
+              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}>
                 <FaCalendarAlt />
               </div>
             </Card.Body>
@@ -452,7 +452,7 @@ export default function DoctorSchedulePage() {
             <Card.Body className="d-flex align-items-center justify-content-between p-3">
               <div>
                 <div className="text-muted small fw-medium">Công Suất Tiếp Nhận</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{totalBooked} / {totalCapacity}</div>
+                <div className="fs-4 fw-bold font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{totalBooked} / {totalCapacity}</div>
                 <div className="text-muted" style={{ fontSize: '0.75rem' }}>Lượt đăng ký / Tổng chỉ tiêu</div>
               </div>
               <div className="rounded-3 bg-info-subtle text-info-emphasis p-3 fs-4">

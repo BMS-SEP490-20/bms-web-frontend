@@ -293,7 +293,7 @@ export default function BillingInvoicesPage() {
 
                 return (
                   <tr key={inv.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#648CF4' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#1E60E6' }}>
                       {inv.invoiceCode}
                     </td>
                     <td style={{ padding: '12px 16px' }}>

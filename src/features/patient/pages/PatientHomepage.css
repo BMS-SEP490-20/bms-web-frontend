@@ -3,8 +3,8 @@
 .patient-home {
   --navy: #1A1D21;
   --brand: #F04438;
-  --blue: #648CF4;
-  --p: #648CF4;
+  --blue: #1E60E6;
+  --p: #1E60E6;
   --g10: #1A1D21;
   --g9: #2A2F35;
   --g6: #6B7280;
@@ -31,7 +31,7 @@
 }
 
 .patient-home a {
-  color: #648CF4;
+  color: #1E60E6;
   text-decoration: none;
   cursor: pointer;
 }
@@ -111,7 +111,7 @@
 }
 
 .ph-links a.active {
-  background: #648CF4;
+  background: #1E60E6;
   color: #ffffff;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(100, 140, 244, 0.3);
@@ -130,7 +130,7 @@
   height: 36px;
   border-radius: 50%;
   background: #E8EFFE;
-  color: #648CF4;
+  color: #1E60E6;
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -168,7 +168,7 @@
   padding: 4px 12px;
   border-radius: 9999px;
   background: #E8EFFE;
-  color: #648CF4;
+  color: #1E60E6;
   font-size: 11.5px;
   letter-spacing: 0.04em;
   margin-bottom: 12px;
@@ -216,7 +216,7 @@
 }
 
 .ph-button.primary {
-  background: #648CF4;
+  background: #1E60E6;
   border: none;
   color: #fff;
   padding: 10px 20px;
@@ -225,7 +225,7 @@
 }
 
 .ph-button.primary:hover {
-  background: #537be6;
+  background: #1550C4;
   box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35);
 }
 
@@ -326,7 +326,7 @@
   height: 38px;
   border-radius: 50%;
   background: #E8EFFE;
-  color: #648CF4;
+  color: #1E60E6;
   font-size: 14px;
   font-weight: 700;
   display: flex;
@@ -356,7 +356,7 @@
   justify-content: center;
   padding: 9px 20px;
   border-radius: 9999px;
-  background: #648CF4;
+  background: #1E60E6;
   color: #ffffff;
   font-size: 13.5px;
   font-weight: 600;
@@ -367,7 +367,7 @@
 }
 
 .ph-login-button:hover {
-  background: #537be6;
+  background: #1550C4;
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35);
 }

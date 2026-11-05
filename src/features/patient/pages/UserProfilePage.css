@@ -20,7 +20,7 @@
 }
 
 .bms-profile-card-header {
-  background: linear-gradient(135deg, #648CF4 0%, #5078E0 100%);
+  background: linear-gradient(135deg, #1E60E6 0%, #5078E0 100%);
   color: #ffffff;
   padding: 20px 24px;
 }
@@ -83,7 +83,7 @@
   align-items: center;
   gap: 6px;
   background-color: rgba(94, 133, 230, 0.12);
-  color: #648CF4;
+  color: #1E60E6;
   border: 1px solid rgba(94, 133, 230, 0.3);
   font-size: 12px;
   font-weight: 600;
@@ -145,14 +145,14 @@
 }
 
 .fast-tag-item:hover {
-  border-color: #648CF4;
-  color: #648CF4;
+  border-color: #1E60E6;
+  color: #1E60E6;
   background: rgba(94, 133, 230, 0.08);
 }
 
 .fast-tag-item.selected {
-  background: #648CF4;
-  border-color: #648CF4;
+  background: #1E60E6;
+  border-color: #1E60E6;
   color: #ffffff;
   box-shadow: 0 2px 6px rgba(94, 133, 230, 0.25);
 }

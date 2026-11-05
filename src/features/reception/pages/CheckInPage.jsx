@@ -342,7 +342,7 @@ export default function CheckInPage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <h3 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaUserInjured style={{ color: '#648CF4' }} />
+            <FaUserInjured style={{ color: '#1E60E6' }} />
             <span>Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai</span>
           </h3>
           <p className="text-muted small mb-0">
@@ -360,7 +360,7 @@ export default function CheckInPage() {
               onClick={handleOpenCreateGuestModal}
               id="btn-create-guest-profile"
               title="Khởi tạo hồ sơ khách vãng lai mới (UC25)"
-              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
             >
               <FaUserPlus />
               <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
@@ -371,7 +371,7 @@ export default function CheckInPage() {
       </div>
 
       {successMsg && (
-        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="mb-3" style={{ borderRadius: '14px', border: '1px solid #A3E687' }}>
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="mb-3" style={{ borderRadius: '14px', border: '1px solid #10B981' }}>
           <FaCheckCircle className="me-2" style={{ color: '#2b8a3e' }} />
           {successMsg}
         </Alert>
@@ -390,10 +390,10 @@ export default function CheckInPage() {
             <Card.Body className="p-3 d-flex align-items-center justify-content-between">
               <div>
                 <div className="text-muted small">Tổng Hồ Sơ Tìm Thấy</div>
-                <div className="fs-3 fw-bold" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
+                <div className="fs-3 fw-bold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
                 <div className="text-muted" style={{ fontSize: '11px' }}>Đang hiển thị {patients.length} hồ sơ</div>
               </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
+              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
                 <FaIdCard />
               </div>
             </Card.Body>
@@ -414,7 +414,7 @@ export default function CheckInPage() {
           <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Card.Body className="p-3">
               <div className="text-muted small">Đã Có Tài Khoản</div>
-              <div className="fs-3 fw-bold" style={{ color: '#A3E687', fontVariantNumeric: 'tabular-nums' }}>{registeredCount}</div>
+              <div className="fs-3 fw-bold" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{registeredCount}</div>
               <div className="text-muted" style={{ fontSize: '11px' }}>Trên trang hiện tại</div>
             </Card.Body>
           </Card>
@@ -424,7 +424,7 @@ export default function CheckInPage() {
           <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(94, 133, 230, 0.25)', backgroundColor: 'rgba(94, 133, 230, 0.04)' }}>
             <Card.Body className="p-3">
               <div className="fw-bold small text-dark mb-2">
-                <FaUserShield className="me-1" style={{ color: '#648CF4' }} />
+                <FaUserShield className="me-1" style={{ color: '#1E60E6' }} />
                 Tra Cứu Nhanh Hồ Sơ Theo Mã BN / ID / CCCD (UC30):
               </div>
               <Form onSubmit={handleQuickLookupSubmit}>
@@ -437,7 +437,7 @@ export default function CheckInPage() {
                     className="bg-white"
                     style={{ borderRadius: '9999px 0 0 9999px', border: '1px solid rgba(15, 23, 42, 0.05)', paddingLeft: '14px' }}
                   />
-                  <Button type="submit" disabled={lookupLoading || !quickLookupId.trim()} style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '0 9999px 9999px 0' }}>
+                  <Button type="submit" disabled={lookupLoading || !quickLookupId.trim()} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }}>
                     {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye className="me-1" /> Xem Hồ Sơ</>}
                   </Button>
                 </InputGroup>
@@ -541,7 +541,7 @@ export default function CheckInPage() {
               {loading ? (
                 <tr>
                   <td colSpan="8" className="text-center py-5">
-                    <Spinner animation="border" size="sm" className="me-2" style={{ color: '#648CF4' }} />
+                    <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
                     <span className="text-muted">Đang tải danh sách hồ sơ bệnh nhân...</span>
                   </td>
                 </tr>
@@ -556,7 +556,7 @@ export default function CheckInPage() {
                 patients.map((pt) => (
                   <tr key={pt.id || pt.patientCode} style={{ borderBottom: '1px solid #EEF2F6' }}>
                     <td className="ps-4 py-3">
-                      <div className="fw-bold font-monospace" style={{ color: '#648CF4' }}>{pt.patientCode || pt.id}</div>
+                      <div className="fw-bold font-monospace" style={{ color: '#1E60E6' }}>{pt.patientCode || pt.id}</div>
                       <small className="text-muted font-monospace">{pt.id}</small>
                     </td>
                     <td className="py-3">
@@ -590,7 +590,7 @@ export default function CheckInPage() {
                       <Button
                         variant="outline-primary"
                         size="sm"
-                        style={{ borderRadius: '9999px', borderColor: '#648CF4', color: '#648CF4' }}
+                        style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                         onClick={() => handleViewPatient(pt)}
                       >
                         <FaEye className="me-1" /> Xem Chi Tiết
@@ -634,7 +634,7 @@ export default function CheckInPage() {
         <Form onSubmit={handleCreateGuestSubmit}>
           <Modal.Header closeButton={!createLoading} style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
-              <FaUserPlus style={{ color: '#648CF4' }} />
+              <FaUserPlus style={{ color: '#1E60E6' }} />
               <span>Tạo Hồ Sơ Bệnh Nhân Khách Vãng Lai (Create Guest Profile - UC25)</span>
             </Modal.Title>
           </Modal.Header>
@@ -663,12 +663,12 @@ export default function CheckInPage() {
                     {duplicateMatches.map((m) => (
                       <div key={m.id} className="small bg-white p-2 rounded-3 border mb-1 d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <div>
-                          <strong>{m.fullName}</strong> · <span className="font-monospace" style={{ color: '#648CF4' }}>{m.patientCode || m.id}</span> · SĐT: {m.phoneNumber} · CCCD: {m.identityNumber || '—'}
+                          <strong>{m.fullName}</strong> · <span className="font-monospace" style={{ color: '#1E60E6' }}>{m.patientCode || m.id}</span> · SĐT: {m.phoneNumber} · CCCD: {m.identityNumber || '—'}
                         </div>
                         <Button
                           variant="outline-primary"
                           size="sm"
-                          style={{ borderRadius: '9999px', borderColor: '#648CF4', color: '#648CF4' }}
+                          style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                           onClick={() => {
                             setShowCreateModal(false);
                             handleViewPatient(m);
@@ -687,7 +687,7 @@ export default function CheckInPage() {
             )}
 
             {/* 1. Identity & Demographics */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#648CF4', borderColor: 'rgba(94, 133, 230, 0.2)' }}>1. Thông Tin Định Danh Cơ Bản</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>1. Thông Tin Định Danh Cơ Bản</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -760,7 +760,7 @@ export default function CheckInPage() {
             </Row>
 
             {/* 2. Contact & Emergency */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#648CF4', borderColor: 'rgba(94, 133, 230, 0.2)' }}>2. Thông Tin Liên Hệ & Khẩn Cấp</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>2. Thông Tin Liên Hệ & Khẩn Cấp</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -821,7 +821,7 @@ export default function CheckInPage() {
             </Row>
 
             {/* 3. Clinical Notes & Vitals */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#648CF4', borderColor: 'rgba(94, 133, 230, 0.2)' }}>3. Chỉ Số Sinh Hiệu & Tiền Sử Y Khoa (Tùy Chọn)</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>3. Chỉ Số Sinh Hiệu & Tiền Sử Y Khoa (Tùy Chọn)</h6>
             <Row className="g-2 mb-3">
               <Col xs={6} md={2}>
                 <Form.Label className="small">Chiều cao (cm)</Form.Label>
@@ -922,7 +922,7 @@ export default function CheckInPage() {
             <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)} disabled={createLoading} style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               Hủy bỏ
             </Button>
-            <Button type="submit" disabled={createLoading} style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}>
+            <Button type="submit" disabled={createLoading} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
               {createLoading ? (
                 <><Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...</>
               ) : (
@@ -944,7 +944,7 @@ export default function CheckInPage() {
       >
         <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
-            <FaIdCard style={{ color: '#648CF4' }} />
+            <FaIdCard style={{ color: '#1E60E6' }} />
             <span>Hồ Sơ Chi Tiết Bệnh Nhân (View Patient Information - UC30)</span>
           </Modal.Title>
         </Modal.Header>
@@ -959,7 +959,7 @@ export default function CheckInPage() {
 
           {detailLoading && !selectedPatient ? (
             <div className="text-center py-5">
-              <Spinner animation="border" style={{ color: '#648CF4' }} />
+              <Spinner animation="border" style={{ color: '#1E60E6' }} />
               <div className="mt-2 text-muted">Đang tải hồ sơ y tế bệnh nhân...</div>
             </div>
           ) : selectedPatient ? (

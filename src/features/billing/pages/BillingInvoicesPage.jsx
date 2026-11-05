@@ -189,7 +189,7 @@ export default function BillingInvoicesPage() {
             padding: '10px 20px',
             borderRadius: '8px',
             border: 'none',
-            backgroundColor: '#2563eb',
+            backgroundColor: '#1E60E6',
             color: '#ffffff',
             fontWeight: '600',
             cursor: 'pointer',
@@ -367,7 +367,7 @@ export default function BillingInvoicesPage() {
                                 borderRadius: '6px',
                                 border: '1px solid #cbd5e1',
                                 backgroundColor: '#ffffff',
-                                color: '#2563eb',
+                                color: '#1E60E6',
                                 fontSize: '12px',
                                 fontWeight: '600',
                                 cursor: 'pointer'
@@ -526,7 +526,7 @@ export default function BillingInvoicesPage() {
               <button
                 type="submit"
                 disabled={loading}
-                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#2563eb', color: '#ffffff', fontWeight: '600', cursor: 'pointer' }}
+                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#1E60E6', color: '#ffffff', fontWeight: '600', cursor: 'pointer' }}
               >
                 Tạo Hóa Đơn
               </button>

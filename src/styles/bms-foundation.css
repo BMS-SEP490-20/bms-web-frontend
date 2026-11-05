@@ -1,0 +1,202 @@
+/* ==========================================================================
+   BMS Foundation - loaded last. One calm flat system over Bootstrap:
+   Geist type scale, one accent blue, no shadows, no borders, no uppercase,
+   status as text + dot, icons removed from decorative contexts.
+   ========================================================================== */
+
+:root {
+  --bs-primary: #1E60E6;
+  --bs-primary-rgb: 30, 96, 230;
+  --bs-link-color: #1E60E6;
+  --bs-link-hover-color: #1550C4;
+  --bs-body-font-family: var(--font-sans);
+  --bs-font-monospace: var(--font-mono);
+  --bs-border-color: transparent;
+
+  /* Type scale */
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 28px;
+  --fs-3xl: 36px;
+
+  /* Radius scale */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+}
+
+code, kbd, pre, samp, .font-monospace, .adm-code {
+  font-family: var(--font-mono) !important;
+  font-size: 0.92em;
+}
+
+/* ---- Type hierarchy ---- */
+h1, .h1 { font-size: var(--fs-2xl) !important; font-weight: 700 !important; letter-spacing: -0.03em !important; line-height: 1.2 !important; }
+h2, .h2 { font-size: var(--fs-xl) !important; font-weight: 650 !important; letter-spacing: -0.02em !important; line-height: 1.3 !important; }
+h3, .h3 { font-size: var(--fs-lg) !important; font-weight: 650 !important; letter-spacing: -0.015em !important; }
+h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650 !important; }
+.bms-hero-heading, h1.bms-hero-heading { font-size: clamp(30px, 3.2vw, 40px) !important; }
+.fs-1 { font-size: var(--fs-3xl) !important; }
+.fs-2 { font-size: var(--fs-2xl) !important; }
+.fs-3 { font-size: var(--fs-xl) !important; }
+.fs-4 { font-size: var(--fs-xl) !important; }
+.fs-5 { font-size: var(--fs-lg) !important; }
+.fs-6 { font-size: var(--fs-md) !important; }
+.small, small { font-size: var(--fs-xs) !important; }
+.text-muted, .text-secondary { color: #64748B !important; }
+
+/* ---- No uppercase micro-labels anywhere ---- */
+.text-uppercase, thead th, th, .card-header, .badge, label, .form-label { text-transform: none !important; }
+
+/* ---- No shadows ---- */
+.shadow, .shadow-sm, .shadow-lg, .shadow-xs, .modal-content, .dropdown-menu, .toast, .popover {
+  box-shadow: none !important;
+}
+.dropdown-menu, .modal-content { border: none !important; border-radius: var(--r-lg) !important; }
+.modal-content { background: #FFFFFF; }
+.modal-backdrop.show { opacity: 0.35; }
+
+/* ---- No borders: cards, headers, footers, tables, list groups ---- */
+.card, .card-header, .card-footer, .list-group-item, .modal-header, .modal-footer,
+.border, .border-top, .border-bottom, .border-start, .border-end,
+.table > :not(caption) > * > *, .table thead th, .table tbody td {
+  border: none !important;
+}
+.card { background: #FFFFFF !important; border-radius: var(--r-lg) !important; }
+.card-header, .card-footer, .modal-header, .modal-footer { background: transparent !important; }
+.card-header { padding: 20px 24px 8px !important; font-size: var(--fs-md); font-weight: 650; }
+.card-body { padding: 20px 24px !important; }
+hr { border: none; height: 0; margin: 20px 0; opacity: 0; }
+
+/* ---- Tables: sentence-case header, whitespace instead of lines ---- */
+.table { --bs-table-bg: transparent; --bs-table-hover-bg: #F8FAFC; --bs-table-striped-bg: transparent; }
+.table > thead > tr > th {
+  font-size: var(--fs-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  color: #64748B !important;
+  background: transparent !important;
+  padding: 10px 16px !important;
+  white-space: nowrap;
+}
+.table > tbody > tr > td {
+  padding: 14px 16px !important;
+  font-size: var(--fs-sm);
+  color: #0F172A;
+  vertical-align: middle;
+}
+.table > tbody > tr:nth-child(odd) > td { background: transparent; }
+.table-light, .table-light > * > * { background: transparent !important; }
+.table-responsive { border-radius: var(--r-md); }
+
+/* ---- Status: text + dot, never a filled rainbow pill ---- */
+.badge[class*="bg-"]:not([style*="background"]),
+.badge[class*="text-bg-"]:not([style*="background"]) {
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  color: #475569 !important;
+  border-radius: 0 !important;
+}
+.badge[class*="bg-"]:not([style*="background"])::before,
+.badge[class*="text-bg-"]:not([style*="background"])::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+.badge.bg-primary:not([style*="background"]), .badge.text-bg-primary { color: #1E60E6 !important; }
+.badge.bg-success:not([style*="background"]), .badge.text-bg-success { color: #047857 !important; }
+.badge.bg-warning:not([style*="background"]), .badge.text-bg-warning { color: #B45309 !important; }
+.badge.bg-danger:not([style*="background"]), .badge.text-bg-danger { color: #B91C1C !important; }
+.badge.bg-info:not([style*="background"]), .badge.text-bg-info { color: #0369A1 !important; }
+.badge.bg-secondary:not([style*="background"]), .badge.bg-light:not([style*="background"]), .badge.bg-dark:not([style*="background"]) { color: #475569 !important; }
+.badge.bg-primary-subtle, .badge.bg-success-subtle, .badge.bg-warning-subtle, .badge.bg-danger-subtle, .badge.bg-info-subtle, .badge.bg-secondary-subtle { background: transparent !important; padding: 0 !important; }
+
+/* ---- Alerts: calm inline note ---- */
+.alert {
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  padding: 14px 18px !important;
+  font-size: var(--fs-sm);
+  background: #F1F5F9;
+  color: #334155;
+}
+.alert-warning { background: #FFF8E6; color: #92400E; }
+.alert-danger { background: #FEF2F2; color: #991B1B; }
+.alert-success { background: #ECFDF5; color: #065F46; }
+.alert-info, .alert-primary { background: #EEF4FD; color: #1E40AF; }
+
+/* ---- Forms and buttons: flat, one radius set ---- */
+.form-control, .form-select {
+  background: #F1F5F9 !important;
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  height: 40px !important;
+}
+textarea.form-control { height: auto !important; }
+.form-control:focus, .form-select:focus { background: #FFFFFF !important; box-shadow: 0 0 0 2px #1E60E6 !important; }
+.form-label { font-size: var(--fs-xs); font-weight: 600; color: #475569; margin-bottom: 6px; }
+.btn-secondary, .btn-outline-secondary, .btn-light, .btn-outline-light { border: none !important; background: #F1F5F9 !important; color: #0F172A !important; }
+.btn-outline-primary { border: none !important; background: #EEF4FD !important; color: #1E60E6 !important; }
+.btn-outline-danger { border: none !important; background: #FEF2F2 !important; color: #B91C1C !important; }
+.btn-outline-success { border: none !important; background: #ECFDF5 !important; color: #047857 !important; }
+.btn-success { background: #1E60E6 !important; border-color: #1E60E6 !important; }
+.btn-success:hover { background: #1550C4 !important; border-color: #1550C4 !important; }
+.nav-tabs { border: none !important; gap: 4px; }
+.nav-tabs .nav-link { border: none !important; border-radius: 999px !important; color: #64748B; font-weight: 600; }
+.nav-tabs .nav-link.active { background: #EEF4FD !important; color: #1E60E6 !important; }
+.page-link { border: none !important; border-radius: var(--r-sm) !important; margin: 0 2px; color: #475569; }
+.page-item.active .page-link { background: #1E60E6 !important; color: #FFF !important; }
+.progress { box-shadow: none !important; background: #F1F5F9 !important; }
+
+/* ---- Icons: removed from decorative contexts (buttons keep theirs) ---- */
+h1 svg, h2 svg, h3 svg, h4 svg, h5 svg, h6 svg,
+.card-header svg, thead svg, label svg, .form-label svg,
+.badge svg, .alert svg, .bms-sidebar svg, .bms-sidebar .bi,
+h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
+.card-header .bi, thead .bi, .badge .bi, .alert .bi {
+  display: none !important;
+}
+
+/* ---- Shared page primitives (used by PageHeader, StatRow, Field) ---- */
+.bms-page { max-width: 1400px; margin: 0 auto; padding: 32px 32px 56px; }
+.bms-page-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 32px; }
+.bms-page-title { margin: 0 0 10px; color: #0F172A; }
+.bms-page-lead { margin: 0; max-width: 64ch; font-size: var(--fs-md); line-height: 1.65; color: #475569; }
+.bms-page-lead strong { color: #0F172A; font-weight: 600; }
+.bms-page-meta { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-xs); color: #94A3B8; }
+.bms-page-meta span + span::before { content: "·"; margin-right: 18px; color: #CBD5E1; }
+.bms-page-actions { display: flex; gap: 10px; align-items: center; }
+
+.bms-statrow { display: flex; flex-wrap: wrap; gap: 12px 56px; padding: 4px 0 28px; }
+.bms-stat-value { display: block; font-size: var(--fs-2xl); font-weight: 700; letter-spacing: -0.03em; color: #0F172A; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.bms-stat-value.is-primary { color: #1E60E6; }
+.bms-stat-label { display: block; margin-top: 6px; font-size: var(--fs-xs); color: #64748B; }
+
+.bms-section { background: #FFFFFF; border-radius: var(--r-lg); padding: 24px 28px; }
+.bms-section + .bms-section { margin-top: 20px; }
+.bms-section-title { font-size: var(--fs-md); font-weight: 650; color: #0F172A; margin: 0 0 18px; }
+
+.bms-field { display: flex; flex-direction: column; gap: 4px; }
+.bms-field-label { font-size: var(--fs-xs); color: #64748B; }
+.bms-field-value { font-size: var(--fs-md); font-weight: 600; color: #0F172A; }
+
+.bms-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px 40px; }
+.bms-step-num { font-size: var(--fs-2xl); font-weight: 700; color: #1E60E6; letter-spacing: -0.03em; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.bms-step-title { font-size: var(--fs-md); font-weight: 650; color: #0F172A; margin: 0 0 6px; }
+.bms-step-desc { font-size: var(--fs-sm); line-height: 1.65; color: #64748B; margin: 0; }
+
+@media (max-width: 767px) {
+  .bms-page { padding: 24px 20px 40px; }
+  .bms-statrow { gap: 20px 36px; }
+}

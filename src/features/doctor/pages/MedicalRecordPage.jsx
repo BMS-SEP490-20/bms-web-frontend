@@ -444,7 +444,7 @@ export default function MedicalRecordPage() {
                       style={{
                         cursor: 'pointer',
                         borderColor: isSelected ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                        backgroundColor: isSelected ? 'rgba(94, 133, 230, 0.08)' : undefined
+                        backgroundColor: isSelected ? 'rgba(30, 96, 230, 0.08)' : undefined
                       }}
                     >
                       <div className="d-flex justify-content-between align-items-start mb-1">

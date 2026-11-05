@@ -393,7 +393,7 @@ export default function CheckInPage() {
                 <div className="fs-3 fw-bold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
                 <div className="text-muted" style={{ fontSize: '11px' }}>Đang hiển thị {patients.length} hồ sơ</div>
               </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                 <FaIdCard />
               </div>
             </Card.Body>
@@ -421,7 +421,7 @@ export default function CheckInPage() {
         </Col>
 
         <Col xs={12} md={5}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(94, 133, 230, 0.25)', backgroundColor: 'rgba(94, 133, 230, 0.04)' }}>
+          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(30, 96, 230, 0.25)', backgroundColor: 'rgba(30, 96, 230, 0.04)' }}>
             <Card.Body className="p-3">
               <div className="fw-bold small text-dark mb-2">
                 <FaUserShield className="me-1" style={{ color: '#1E60E6' }} />
@@ -640,7 +640,7 @@ export default function CheckInPage() {
           </Modal.Header>
 
           <Modal.Body className="p-4" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
-            <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>
+            <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px', border: '1px solid rgba(30, 96, 230, 0.3)' }}>
               <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
             </Alert>
 
@@ -687,7 +687,7 @@ export default function CheckInPage() {
             )}
 
             {/* 1. Identity & Demographics */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>1. Thông Tin Định Danh Cơ Bản</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>1. Thông Tin Định Danh Cơ Bản</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -760,7 +760,7 @@ export default function CheckInPage() {
             </Row>
 
             {/* 2. Contact & Emergency */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>2. Thông Tin Liên Hệ & Khẩn Cấp</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>2. Thông Tin Liên Hệ & Khẩn Cấp</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -821,7 +821,7 @@ export default function CheckInPage() {
             </Row>
 
             {/* 3. Clinical Notes & Vitals */}
-            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.2)' }}>3. Chỉ Số Sinh Hiệu & Tiền Sử Y Khoa (Tùy Chọn)</h6>
+            <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>3. Chỉ Số Sinh Hiệu & Tiền Sử Y Khoa (Tùy Chọn)</h6>
             <Row className="g-2 mb-3">
               <Col xs={6} md={2}>
                 <Form.Label className="small">Chiều cao (cm)</Form.Label>

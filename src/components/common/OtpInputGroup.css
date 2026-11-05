@@ -44,7 +44,7 @@
 
 /* State: Filled value */
 .bms-otp-input.is-filled {
-  border-color: var(--bms-primary-600, #2563eb);
+  border-color: var(--bms-primary-600, #1E60E6);
   background-color: var(--bms-primary-light, #eff6ff);
   color: var(--bms-primary-800, #1e40af);
 }

@@ -552,7 +552,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/appointments')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0d6efd' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaCalendarAlt size={20} />
@@ -637,7 +637,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/reports')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0d6efd' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaChartLine size={20} />

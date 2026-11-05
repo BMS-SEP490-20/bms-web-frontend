@@ -2,7 +2,7 @@
  * @file ServiceCard.jsx
  * @description Modern Pure Flat Clinical Laboratory Service Card Component (Big Tech Clean Grade).
  * Implements: 20px flat cards, zero blurry glow, crisp emerald CTA,
- * high-contrast Plus Jakarta Sans typography and tabular-nums.
+ * high-contrast Geist typography and tabular-nums.
  * Conforms to: Flat Healthcare SaaS Design Standards.
  */
 

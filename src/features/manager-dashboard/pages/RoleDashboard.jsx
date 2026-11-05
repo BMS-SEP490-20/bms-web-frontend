@@ -186,7 +186,7 @@ const ClinicalRoleDashboard = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
-          <span className="px-3 py-1.5 border rounded-pill small fw-semibold shadow-sm d-inline-flex align-items-center" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.3)' }}>
+          <span className="px-3 py-1.5 border rounded-pill small fw-semibold shadow-sm d-inline-flex align-items-center" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.3)' }}>
             <i className="bi bi-person-badge me-1"></i>Trưởng Khoa / Quản Lý: {stats?.userName || currentUser?.fullName || 'BSCKII. Lê Lan Anh'}
           </span>
           <Button
@@ -216,7 +216,7 @@ const ClinicalRoleDashboard = () => {
       ) : stats ? (
         <>
           {/* Banner chào mừng & Thông tin phiên làm việc */}
-          <div className="d-flex flex-wrap justify-content-between align-items-center py-3 px-4 mb-4 rounded-4 shadow-sm" style={{ background: 'rgba(94, 133, 230, 0.08)', border: '1px solid rgba(94, 133, 230, 0.2)' }}>
+          <div className="d-flex flex-wrap justify-content-between align-items-center py-3 px-4 mb-4 rounded-4 shadow-sm" style={{ background: 'rgba(30, 96, 230, 0.08)', border: '1px solid rgba(30, 96, 230, 0.2)' }}>
             <div className="d-flex align-items-center gap-2">
               <span className="rounded-circle p-1 d-inline-block" style={{ width: 10, height: 10, backgroundColor: '#10B981' }}></span>
               <span className="fw-bold text-dark">{stats.userName}</span>
@@ -237,7 +237,7 @@ const ClinicalRoleDashboard = () => {
                   <Card.Body className="p-3.5">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '11.5px', letterSpacing: '0.03em' }}>{card.title}</span>
-                      <div className="p-2 rounded-3 fs-5" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}>
+                      <div className="p-2 rounded-3 fs-5" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6' }}>
                         <i className={`bi ${card.icon || 'bi-speedometer2'}`}></i>
                       </div>
                     </div>

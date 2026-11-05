@@ -265,7 +265,7 @@ export default function ServicePackagesPage({ onBack }) {
                             variant="primary"
                             onClick={openCreate}
                             className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         >
                             <i className="bi bi-plus-circle-fill"></i>
                             Thêm Gói Mới
@@ -373,7 +373,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                 {pkg.description || "Không có mô tả chi tiết."}
                                             </div>
                                             <div className="mt-1">
-                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
+                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
                                                     {pkg.tests?.length || 0} Chỉ Số
                                                 </span>
                                                 {pkg.tests?.length > 0 && (

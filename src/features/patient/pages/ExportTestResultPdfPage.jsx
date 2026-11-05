@@ -485,11 +485,11 @@ export default function ExportTestResultPdfPage() {
                             flagColor = '#ffffff';
                             flagLabel = 'H (Cao)';
                           } else if (flagRaw === 'LL') {
-                            flagBg = '#1d4ed8';
+                            flagBg = '#1E60E6';
                             flagColor = '#ffffff';
                             flagLabel = 'LL (Nguy kịch)';
                           } else if (flagRaw === 'L') {
-                            flagBg = '#3b82f6';
+                            flagBg = '#1E60E6';
                             flagColor = '#ffffff';
                             flagLabel = 'L (Thấp)';
                           } else {
@@ -505,7 +505,7 @@ export default function ExportTestResultPdfPage() {
                               </td>
                               <td className="text-end font-monospace" style={{
                                 fontWeight: isAbnormal ? '700' : '500',
-                                color: isCrit ? '#dc2626' : (isHigh ? '#d97706' : (isLow ? '#2563eb' : '#0f172a')),
+                                color: isCrit ? '#dc2626' : (isHigh ? '#d97706' : (isLow ? '#1E60E6' : '#0f172a')),
                                 fontSize: '13.5px'
                               }}>
                                 {param.Value ?? param.value ?? '—'}

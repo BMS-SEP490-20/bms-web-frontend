@@ -225,11 +225,11 @@ const QcFlagsPage = () => {
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
                   <FaFlask style={{ color: '#1E60E6' }} />
                   Cờ Kiểm Chuẩn QC (Quality Control Flags)
                 </h4>
-                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>
+                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(30, 96, 230,0.1)' }}>
                   Laboratory User / Manager
                 </Badge>
               </div>
@@ -294,9 +294,9 @@ const QcFlagsPage = () => {
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Tổng số cờ QC</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalFlags}</h3>
+                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalFlags}</h3>
                   </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
+                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
                     <FaVial className="fs-4" />
                   </div>
                 </div>

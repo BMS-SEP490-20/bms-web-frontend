@@ -476,14 +476,14 @@
 .bms-stepper-node.inprogress {
   background-color: #1E60E6;
   color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(94, 133, 230, 0.25);
+  box-shadow: 0 0 0 4px rgba(30, 96, 230, 0.25);
   animation: pulse-node 2s infinite;
 }
 
 @keyframes pulse-node {
-  0% { box-shadow: 0 0 0 0 rgba(94, 133, 230, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(94, 133, 230, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(94, 133, 230, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(30, 96, 230, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(30, 96, 230, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(30, 96, 230, 0); }
 }
 
 .bms-stepper-node.warning {
@@ -513,8 +513,8 @@
 }
 
 .bms-step-card.active-step {
-  border-color: rgba(94, 133, 230, 0.4);
-  background-color: rgba(94, 133, 230, 0.05);
+  border-color: rgba(30, 96, 230, 0.4);
+  background-color: rgba(30, 96, 230, 0.05);
 }
 
 .bms-step-card-header {

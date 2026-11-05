@@ -355,7 +355,7 @@ const UnifiedUserInfoModal = ({
         {!isEditing ? (
           <>
             <Button variant="outline-secondary" onClick={onHide} style={{ borderRadius: 9999 }}>Đóng</Button>
-            <Button variant="primary" onClick={() => setIsEditing(true)} className="fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+            <Button variant="primary" onClick={() => setIsEditing(true)} className="fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}>
               <FaEdit className="me-1" /> Chỉnh Sửa Thông Tin
             </Button>
           </>

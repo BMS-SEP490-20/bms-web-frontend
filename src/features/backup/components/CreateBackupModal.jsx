@@ -119,7 +119,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                 cursor: "pointer",
                                                 borderRadius: 14,
                                                 borderColor: scope === 1 ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                                                background: scope === 1 ? 'rgba(94, 133, 230, 0.08)' : '#EEF2F6'
+                                                background: scope === 1 ? 'rgba(30, 96, 230, 0.08)' : '#EEF2F6'
                                             }}
                                         >
                                             <div className="form-check">
@@ -150,7 +150,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                 cursor: "pointer",
                                                 borderRadius: 14,
                                                 borderColor: scope === 2 ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                                                background: scope === 2 ? 'rgba(94, 133, 230, 0.08)' : '#EEF2F6'
+                                                background: scope === 2 ? 'rgba(30, 96, 230, 0.08)' : '#EEF2F6'
                                             }}
                                         >
                                             <div className="form-check">
@@ -300,7 +300,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 type="submit"
                                 className="btn btn-primary d-flex align-items-center gap-2"
                                 disabled={submitting || !backupName.trim()}
-                                style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                                style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                             >
                                 {submitting ? (
                                     <>

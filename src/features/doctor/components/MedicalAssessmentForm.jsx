@@ -159,8 +159,8 @@ export default function MedicalAssessmentForm({
           }
         }));
       }
-    } catch (err) {
-      console.warn('Could not fetch patient profile detail:', err);
+    } catch {
+      // Non-blocking fallback
     } finally {
       setLoadingPatient(false);
     }
@@ -174,8 +174,7 @@ export default function MedicalAssessmentForm({
       const raw = res?.items ?? res?.data ?? res;
       const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
       setPatientList(items);
-    } catch (err) {
-      console.error('Failed to load patient list:', err);
+    } catch {
       setPatientList([]);
     } finally {
       setSearchingPatients(false);
@@ -231,8 +230,7 @@ export default function MedicalAssessmentForm({
         const active = list.filter((p) => p && !p.isDeleted && p.isActive !== false);
         setServicePackages(active);
       })
-      .catch((err) => {
-        console.error('Failed to load lab packages from DB:', err);
+      .catch(() => {
         setServicePackages([]);
       })
       .finally(() => {

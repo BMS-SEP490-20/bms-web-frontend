@@ -113,7 +113,6 @@ export default function ServicePackagesPage({ onBack }) {
             );
             setCriteria(normalizeArray(criteriaResponse));
         } catch (err) {
-            console.error("Lỗi tải gói dịch vụ:", err);
             setError(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||
@@ -199,7 +198,6 @@ export default function ServicePackagesPage({ onBack }) {
             setDeleting(null);
             await load();
         } catch (err) {
-            console.error("Lỗi xóa gói dịch vụ:", err);
             setError(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||

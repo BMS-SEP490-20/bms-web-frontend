@@ -17,10 +17,13 @@ import {
 } from 'react-icons/fa';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
+import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 
 export default function LookupBiochemicalResultsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const currentUser = getStoredUser();
+  const canNotify = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
 
   // Search state
   const initialQuery = searchParams.get('barcode') || searchParams.get('sampleId') || searchParams.get('patientId') || searchParams.get('search') || '';
@@ -43,7 +46,7 @@ export default function LookupBiochemicalResultsPage() {
       const items = Array.isArray(res?.data) ? res.data : [];
       setRecentResults(items);
     } catch (err) {
-      console.error('Failed to load recent results:', err);
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Không thể tải danh sách kết quả xét nghiệm gần đây.');
     } finally {
       setLoadingRecent(false);
     }
@@ -177,13 +180,15 @@ export default function LookupBiochemicalResultsPage() {
               <FaPrint className="me-1" /> In Kết Quả
             </Button>
           )}
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate('/laboratory/notifications')}
-          >
-            <FaBell className="me-1" /> Phát Thông Báo (UC60)
-          </Button>
+          {canNotify && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/laboratory/notifications')}
+            >
+              <FaBell className="me-1" /> Phát Thông Báo (UC60)
+            </Button>
+          )}
         </div>
       </div>
 
@@ -210,38 +215,25 @@ export default function LookupBiochemicalResultsPage() {
                 </InputGroup>
               </Col>
 
-              <Col xs={12} md={5} lg={4}>
-                <div className="d-flex flex-wrap gap-1 align-items-center">
-                  <span className="small text-muted me-1">Mẫu nhanh:</span>
-                  <Badge
-                    bg="light"
-                    text="dark"
-                    className="border cursor-pointer hover-shadow"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleQuickSelect({ id: 'RES-20261009-001', barcode: 'BC-20261009-001' })}
-                  >
-                    BC-20261009-001 (CBC)
-                  </Badge>
-                  <Badge
-                    bg="light"
-                    text="danger"
-                    className="border border-danger cursor-pointer hover-shadow"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleQuickSelect({ id: 'RES-20261009-002', barcode: 'SMP-20261009-002' })}
-                  >
-                    SMP-002 ⚠️ (Panic GLU)
-                  </Badge>
-                  <Badge
-                    bg="light"
-                    text="primary"
-                    className="border border-primary cursor-pointer hover-shadow"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleQuickSelect({ id: 'SMP-20261023-8351', barcode: 'SMP-20261023-787825' })}
-                  >
-                    Hua Khanh Duy
-                  </Badge>
-                </div>
-              </Col>
+              {recentResults.length > 0 && (
+                <Col xs={12} md={5} lg={4}>
+                  <div className="d-flex flex-wrap gap-1 align-items-center">
+                    <span className="small text-muted me-1">Mẫu gần đây:</span>
+                    {recentResults.slice(0, 3).map((item, idx) => (
+                      <Badge
+                        key={item.id || idx}
+                        bg="light"
+                        text="dark"
+                        className="border cursor-pointer hover-shadow"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleQuickSelect(item)}
+                      >
+                        {item.barcode || item.sampleId || item.id}
+                      </Badge>
+                    ))}
+                  </div>
+                </Col>
+              )}
             </Row>
           </Form>
         </Card.Body>
@@ -265,14 +257,16 @@ export default function LookupBiochemicalResultsPage() {
                 Phát hiện chỉ số xét nghiệm vượt ngưỡng báo động đe dọa tính mạng (Đường huyết &gt; 20.0 mmol/L hoặc các bất thường huyết học nghiêm trọng).
               </div>
               <div className="d-flex flex-wrap gap-2">
-                <Button
-                  variant="danger"
-                  size="sm"
-                  className="fw-bold"
-                  onClick={() => navigate('/laboratory/notifications')}
-                >
-                  <FaBell className="me-1" /> Bắn Còi Báo Động Nguy Kịch (UC60)
-                </Button>
+                {canNotify && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="fw-bold"
+                    onClick={() => navigate('/laboratory/notifications')}
+                  >
+                    <FaBell className="me-1" /> Bắn Còi Báo Động Nguy Kịch (UC60)
+                  </Button>
+                )}
                 <Button
                   variant="outline-danger"
                   size="sm"

@@ -2,34 +2,50 @@
  * @file LoginPage.jsx
  * @description Authentication screen for patients and clinical staff (UC05 - Log In to System).
  * @issue I1-018 | BR-018 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
- * Implements multi-identifier login (CCCD / Email / Phone / Employee Code), account lockout on 5 failed attempts (BR-IAM-03),
- * and dynamic role-based redirection to target clinical/admin portals.
+ * Implements Username / Email login, account lockout on 5 failed attempts (BR-IAM-03),
+ * and dynamic role-based redirection to target clinical/admin portals (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient).
  * Conforms to: BR-IAM-01, BR-IAM-02, BR-IAM-03 & AGENTS-DESIGN.md.
  */
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
-import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaVial, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
 import "./LoginPage.css";
 
 /**
- * Normalizes role string to standard uppercase format.
+ * Canonical role names indexed by RoleId (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient, 6=Manager).
  */
-function normalizeRole(role) {
-  if (!role) return "PATIENT";
-  const r = role.toString().trim().toUpperCase();
-  if (r.includes("ADMIN")) return "ADMIN";
-  if (r.includes("MANAGER")) return "MANAGER";
-  if (r.includes("WAREHOUSE")) return "WAREHOUSESTAFF";
-  if (r.includes("DOCTOR") || r.includes("BACSI")) return "DOCTOR";
-  if (r.includes("HEAD")) return "LABHEAD";
-  if (r.includes("TECH") || r.includes("LAB") || r.includes("KTV")) return "LABTECH";
-  if (r.includes("RECEPT") || r.includes("LETAN")) return "RECEPTIONIST";
-  if (r.includes("CASHIER") || r.includes("THUNGAN")) return "CASHIER";
-  return "PATIENT";
+const CANONICAL_ROLE_BY_ID = Object.freeze({
+  [ROLES.ADMIN]: "Admin",
+  [ROLES.DOCTOR]: "Doctor",
+  [ROLES.LAB]: "Lab",
+  [ROLES.RECEPTIONIST]: "Receptionist",
+  [ROLES.PATIENT]: "Patient",
+  [ROLES.MANAGER]: "Manager",
+});
+
+/**
+ * Normalizes the authenticated user payload so roleId, role, and roleName always match
+ * the canonical role mapping (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient).
+ */
+function normalizeAuthenticatedUser(rawUser) {
+  if (!rawUser || typeof rawUser !== "object") return rawUser;
+  const numericRoleId = Number(rawUser.roleId ?? rawUser.RoleId ?? rawUser.role_id);
+  const roleId =
+    Number.isFinite(numericRoleId) && CANONICAL_ROLE_BY_ID[numericRoleId]
+      ? numericRoleId
+      : resolveRoleId(rawUser);
+  const canonicalRole =
+    CANONICAL_ROLE_BY_ID[roleId] || rawUser.role || rawUser.roleName || "Patient";
+  return {
+    ...rawUser,
+    roleId: roleId ?? rawUser.roleId,
+    role: canonicalRole,
+    roleName: canonicalRole,
+  };
 }
 
 export default function LoginPage({
@@ -83,10 +99,12 @@ export default function LoginPage({
   const isLocked = lockoutTime > Date.now();
 
   /**
-   * Redirects user to their role-specific dashboard.
+   * Redirects user to their role-specific workspace based on RoleId:
+   * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient, 6 = Manager.
    */
   const routeUserByRole = (user) => {
-    const roleId = resolveRoleId(user);
+    const normalizedUser = typeof normalizeAuthenticatedUser === "function" ? normalizeAuthenticatedUser(user) : user;
+    const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
     let target = "/dashboard";
     switch (roleId) {
       case ROLES.ADMIN:
@@ -103,12 +121,20 @@ export default function LoginPage({
         target = "/receptionist/check-in";
         break;
       case ROLES.PATIENT:
-        target = user?.medicalProfileCompleted ? "/home" : "/patient/medical-profile-setup";
+        target = (normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted) ? "/home" : "/patient/medical-profile-setup";
         break;
       default:
         target = "/dashboard";
         break;
     }
+
+    try {
+      window.dispatchEvent(new Event("storage"));
+    } catch {
+      /* ignore storage event dispatch error */
+    }
+
+    // Perform navigation to refresh layout with authenticated user session
     window.location.href = target;
   };
 
@@ -127,7 +153,7 @@ export default function LoginPage({
     }
 
     if (!identifier.trim() || !password) {
-      setError("Vui lòng nhập Email, Số CCCD, SĐT hoặc Mã nhân viên và Mật khẩu.");
+      setError("Vui lòng nhập Tên đăng nhập hoặc Email và Mật khẩu.");
       return;
     }
 
@@ -154,15 +180,17 @@ export default function LoginPage({
         if (!token) {
           throw new Error("Không nhận được mã xác thực hợp lệ từ máy chủ BMS.");
         }
-        const user = data?.user;
-        if (!user) {
+        const rawUser = data?.user;
+        if (!rawUser) {
           throw new Error("Không tìm thấy thông tin tài khoản người dùng.");
         }
+        const user = normalizeAuthenticatedUser(rawUser);
 
         // Reset failed login counter on success
         localStorage.removeItem("bms_failed_login_attempts");
         localStorage.removeItem("bms_login_lockout_until");
         setFailedAttempts(0);
+        setLockoutTime(0);
 
         const storage = rememberMe ? localStorage : sessionStorage;
         const refreshToken = data?.refreshToken;
@@ -179,27 +207,43 @@ export default function LoginPage({
 
         routeUserByRole(user);
       } catch (apiErr) {
-        // Track failed attempt (BR-IAM-03)
-        const nextAttempts = failedAttempts + 1;
-        setFailedAttempts(nextAttempts);
-        localStorage.setItem("bms_failed_login_attempts", nextAttempts.toString());
-
-        if (nextAttempts >= 5) {
-          const lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lockout
-          setLockoutTime(lockUntil);
-          localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
-          setError("Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu 5 lần liên tiếp (Quy chuẩn BR-IAM-03).");
+        if (!apiErr.response) {
+          setError("Không thể kết nối đến máy chủ BMS. Vui lòng kiểm tra dịch vụ mạng hoặc kết nối cơ sở dữ liệu.");
           return;
         }
 
-        if (!apiErr.response) {
-          throw new Error("Không thể kết nối đến máy chủ BMS. Vui lòng kiểm tra dịch vụ mạng hoặc kết nối cơ sở dữ liệu.");
+        const status = apiErr.response.status;
+        const respData = apiErr.response.data;
+
+        // If backend returned account lockout (423) or custom lockout time (BR-IAM-03)
+        if (status === 423 || respData?.code === "ACCOUNT_LOCKED") {
+          const retryMinutes = respData?.retryAfterMinutes || 15;
+          const lockUntil = Date.now() + retryMinutes * 60 * 1000;
+          setLockoutTime(lockUntil);
+          localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
+          setError(respData?.message || `Tài khoản tạm thời bị khóa trong ${retryMinutes} phút do đăng nhập sai quá 5 lần liên tiếp.`);
+          return;
         }
 
-        throw new Error(
-          apiErr.response?.data?.message ||
-          apiErr.response?.data?.title ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin tài khoản hoặc mật khẩu."
+        // Only count credential failure (401) towards client lockout
+        if (status === 401) {
+          const nextAttempts = failedAttempts + 1;
+          setFailedAttempts(nextAttempts);
+          localStorage.setItem("bms_failed_login_attempts", nextAttempts.toString());
+
+          if (nextAttempts >= 5) {
+            const lockUntil = Date.now() + 15 * 60 * 1000;
+            setLockoutTime(lockUntil);
+            localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
+            setError("Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu 5 lần liên tiếp (Quy chuẩn BR-IAM-03).");
+            return;
+          }
+        }
+
+        setError(
+          respData?.message ||
+          respData?.title ||
+          "Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng thử lại!"
         );
       }
     } catch (err) {
@@ -227,14 +271,16 @@ export default function LoginPage({
       if (!token) {
         throw new Error("Không nhận được mã xác thực hợp lệ từ máy chủ BMS.");
       }
-      const user = data?.user;
-      if (!user) {
+      const rawUser = data?.user;
+      if (!rawUser) {
         throw new Error("Không tìm thấy thông tin tài khoản người dùng.");
       }
+      const user = normalizeAuthenticatedUser(rawUser);
 
       localStorage.removeItem("bms_failed_login_attempts");
       localStorage.removeItem("bms_login_lockout_until");
       setFailedAttempts(0);
+      setLockoutTime(0);
 
       const refreshToken = data?.refreshToken;
       localStorage.setItem("bms_token", token);
@@ -250,7 +296,6 @@ export default function LoginPage({
 
       routeUserByRole(user);
     } catch (apiErr) {
-      console.error("Quick login error:", apiErr);
       setError(
         apiErr.response?.data?.message ||
         apiErr.response?.data?.title ||
@@ -361,7 +406,7 @@ export default function LoginPage({
             <form onSubmit={handleSubmit} noValidate>
               <div className="login-field">
                 <label htmlFor="login-email">
-                  Email, CCCD, SĐT hoặc Mã Nhân Viên <span className="text-danger">*</span>
+                  Tên đăng nhập hoặc Email <span className="text-danger">*</span>
                 </label>
                 <div className="login-input-wrap">
                   <FaUser className="text-muted ms-2" />
@@ -369,7 +414,7 @@ export default function LoginPage({
                     id="login-email"
                     type="text"
                     autoComplete="username"
-                    placeholder="name@bms.health.vn hoặc NV-0001"
+                    placeholder="name@bms.health.vn hoặc username"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
@@ -450,7 +495,7 @@ export default function LoginPage({
                   className="btn btn-sm btn-outline-primary"
                   onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
                 >
-                  Admin
+                  Admin (Role 1)
                 </button>
                 <button
                   type="button"
@@ -464,28 +509,28 @@ export default function LoginPage({
                   className="btn btn-sm btn-outline-info"
                   onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
                 >
-                  Bác Sĩ
+                  Bác Sĩ (Role 2)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-success"
                   onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
                 >
-                  KTV Lab
+                  KTV Lab (Role 3)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-warning"
                   onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
                 >
-                  Lễ Tân
+                  Lễ Tân (Role 4)
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
                 >
-                  Bệnh Nhân
+                  Bệnh Nhân (Role 5)
                 </button>
               </div>
             </div>

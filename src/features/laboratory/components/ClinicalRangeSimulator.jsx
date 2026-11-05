@@ -4,10 +4,11 @@
  * Demonstrates live automatic flag detection: NORMAL, Low (L - yellow/orange), High (H - red), and PANIC (red alert - BR-LAB-03).
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Row, Col, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { FaHeartbeat, FaVial, FaExclamationTriangle, FaCheckCircle, FaBell, FaInfoCircle } from 'react-icons/fa';
 import referenceIntervalService from '../../../services/referenceIntervalService';
+import testCriterionService from '../../../services/testCriterionService';
 
 const COMMON_CRITERIA = [
   { code: 'GLU', name: 'Glucose máu lúc đói (Fasting Glucose)', unit: 'mmol/L', defaultVal: 5.2 },
@@ -23,6 +24,7 @@ const COMMON_CRITERIA = [
 ];
 
 export default function ClinicalRangeSimulator({ onCriterionChange }) {
+  const [criteriaOptions, setCriteriaOptions] = useState(COMMON_CRITERIA);
   const [criterionCode, setCriterionCode] = useState('HGB');
   const [testValue, setTestValue] = useState('140');
   const [patientGender, setPatientGender] = useState('Male');
@@ -32,10 +34,34 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
   const [evalResult, setEvalResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    testCriterionService
+      .getCriteria({ page: 1, pageSize: 100, isActive: true })
+      .then((res) => {
+        const items = res?.items || (Array.isArray(res) ? res : []);
+        if (items.length > 0) {
+          const mapped = items.map((c) => {
+            const code = (c.criterionCode || c.code || '').toUpperCase();
+            const fallback = COMMON_CRITERIA.find((fc) => fc.code === code);
+            return {
+              code,
+              name: c.criterionName || c.name || fallback?.name || code,
+              unit: c.unit || fallback?.unit || '',
+              defaultVal: fallback?.defaultVal ?? 100
+            };
+          }).filter((c) => c.code);
+          if (mapped.length > 0) setCriteriaOptions(mapped);
+        }
+      })
+      .catch(() => {
+        // Keep COMMON_CRITERIA fallback
+      });
+  }, []);
+
   const handleCriterionSelect = (e) => {
     const code = e.target.value;
     setCriterionCode(code);
-    const selected = COMMON_CRITERIA.find((c) => c.code === code);
+    const selected = criteriaOptions.find((c) => c.code === code);
     if (selected) {
       setTestValue(String(selected.defaultVal));
     }
@@ -68,7 +94,7 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
     }
   };
 
-  const currentUnit = COMMON_CRITERIA.find((c) => c.code === criterionCode)?.unit || '';
+  const currentUnit = criteriaOptions.find((c) => c.code === criterionCode)?.unit || '';
 
   return (
     <Card className="shadow-sm border-0 mb-4" style={{ borderRadius: '12px' }}>
@@ -107,7 +133,7 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
               <Form.Group>
                 <Form.Label className="small fw-semibold text-secondary">Chỉ số xét nghiệm</Form.Label>
                 <Form.Select value={criterionCode} onChange={handleCriterionSelect} className="form-select-sm">
-                  {COMMON_CRITERIA.map((c) => (
+                  {criteriaOptions.map((c) => (
                     <option key={c.code} value={c.code}>
                       {c.code} - {c.name} ({c.unit})
                     </option>

@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import { searchPatients } from '../../../services/patientService';
+import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 
 /**
  * ISO 15189 Permitted Sample Status Transitions (matches LabQueueService.AllowedStatusTransitions in BE).
@@ -92,6 +93,12 @@ function extractApiError(err, fallback = 'Không thể thực hiện thao tác t
 }
 
 const SampleQueuePage = () => {
+  const currentUser = getStoredUser();
+  const canRecordSampleTime = hasRole(currentUser, ROLES.LAB);
+  const canUpdateSampleStatus = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
+  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'CN.XN Phạm Minh Tuấn';
+  const defaultOperatorId = currentUser?.id || currentUser?.username || 'LAB-001';
+
   const [samples, setSamples] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -104,8 +111,10 @@ const SampleQueuePage = () => {
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [labRoomFilter, setLabRoomFilter] = useState('');
 
-  // Patients list for quick selection in Record Sample Time modal
+  // Dynamic lookups from backend APIs
   const [patientOptions, setPatientOptions] = useState([]);
+  const [appointmentOptions, setAppointmentOptions] = useState([]);
+  const [labRooms, setLabRooms] = useState(['LAB-ROOM-01', 'LAB-ROOM-02', 'LAB-BIOCHEM-01', 'LAB-HEMATOLOGY-01']);
 
   // =========================================================================
   // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
@@ -119,8 +128,8 @@ const SampleQueuePage = () => {
     patientId: '',
     appointmentId: '',
     collectedAt: toLocalDateTimeInput(),
-    collectorName: 'ĐD. Hoàng Mai Lan',
-    collectedBy: 'NURSE-01',
+    collectorName: defaultOperatorName,
+    collectedBy: defaultOperatorId,
     sampleType: 'Blood',
     tubeColor: 'Purple',
     anticoagulant: 'K2-EDTA',
@@ -140,8 +149,8 @@ const SampleQueuePage = () => {
   const [statusDetailLoading, setStatusDetailLoading] = useState(false);
   const [statusForm, setStatusForm] = useState({
     status: '',
-    technicianName: 'CN.XN Phạm Minh Tuấn',
-    technicianId: 'LAB-001',
+    technicianName: defaultOperatorName,
+    technicianId: defaultOperatorId,
     labRoom: 'LAB-ROOM-01',
     timestamp: toLocalDateTimeInput(),
     rejectionReason: '',
@@ -192,17 +201,40 @@ const SampleQueuePage = () => {
     fetchQueue();
   }, [fetchQueue]);
 
-  // Load patient options once for the Record Sample Time modal
-  const loadPatientsForLookup = async () => {
-    if (patientOptions.length > 0) return;
+  // Load patient, appointment, and lab room options dynamically from backend APIs
+  const loadLookups = useCallback(async () => {
     try {
-      const res = await searchPatients({ page: 1, pageSize: 30 });
-      const items = res?.items || res?.Items || [];
-      setPatientOptions(items);
+      if (patientOptions.length === 0) {
+        const res = await searchPatients({ page: 1, pageSize: 50 });
+        const items = res?.items || res?.Items || [];
+        if (items.length > 0) setPatientOptions(items);
+      }
     } catch {
       // Non-blocking
     }
-  };
+
+    try {
+      if (appointmentOptions.length === 0) {
+        const aptRes = await api.get('/appointments');
+        const aptList = Array.isArray(aptRes.data?.data) ? aptRes.data.data : (Array.isArray(aptRes.data) ? aptRes.data : []);
+        if (aptList.length > 0) setAppointmentOptions(aptList.slice(0, 30));
+      }
+    } catch {
+      // Non-blocking
+    }
+
+    try {
+      const roomRes = await api.get('/shifts/rooms');
+      const rList = Array.isArray(roomRes.data?.data) ? roomRes.data.data : (Array.isArray(roomRes.data) ? roomRes.data : []);
+      if (rList.length > 0) setLabRooms(rList);
+    } catch {
+      // Non-blocking
+    }
+  }, [patientOptions.length, appointmentOptions.length]);
+
+  useEffect(() => {
+    loadLookups();
+  }, [loadLookups]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -213,7 +245,7 @@ const SampleQueuePage = () => {
   // HANDLERS: RECORD SAMPLE TIME MODAL
   // =========================================================================
   const openRecordCollectionModal = (sample = null) => {
-    loadPatientsForLookup();
+    loadLookups();
     setCollectionTargetSample(sample);
     setCollectionError('');
 
@@ -223,16 +255,16 @@ const SampleQueuePage = () => {
         barcode: sample.barcode || '',
         rfidTag: sample.rfidTag || '',
         patientId: sample.patientId || '',
-        appointmentId: sample.appointmentId || '',
+        appointmentId: sample.appointmentId || sample.testOrderId || '',
         collectedAt: toLocalDateTimeInput(sample.collectedAt || new Date()),
-        collectorName: sample.collectorName || 'ĐD. Hoàng Mai Lan',
-        collectedBy: sample.collectedBy || 'NURSE-01',
+        collectorName: sample.collectorName || defaultOperatorName,
+        collectedBy: sample.collectedBy || defaultOperatorId,
         sampleType: sample.sampleType || 'Blood',
         tubeColor: sample.tubeColor || 'Purple',
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
         volumeMl: sample.volumeMl || 3.0,
         priority: sample.priority || 'Normal',
-        labRoom: sample.labRoom || 'LAB-ROOM-01',
+        labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: sample.notes || ''
       });
     } else {
@@ -244,14 +276,14 @@ const SampleQueuePage = () => {
         patientId: '',
         appointmentId: '',
         collectedAt: toLocalDateTimeInput(new Date()),
-        collectorName: 'ĐD. Hoàng Mai Lan',
-        collectedBy: 'NURSE-01',
+        collectorName: defaultOperatorName,
+        collectedBy: defaultOperatorId,
         sampleType: 'Blood',
         tubeColor: 'Purple',
         anticoagulant: 'K2-EDTA',
         volumeMl: 3.0,
         priority: 'Normal',
-        labRoom: 'LAB-ROOM-01',
+        labRoom: (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
         notes: ''
       });
     }
@@ -349,9 +381,9 @@ const SampleQueuePage = () => {
     setStatusError('');
     setStatusForm({
       status: defaultNext,
-      technicianName: sample.assignedTechnicianName || 'CN.XN Phạm Minh Tuấn',
-      technicianId: sample.assignedTechnicianId || 'LAB-001',
-      labRoom: sample.labRoom || 'LAB-ROOM-01',
+      technicianName: sample.assignedTechnicianName || defaultOperatorName,
+      technicianId: sample.assignedTechnicianId || defaultOperatorId,
+      labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
       timestamp: toLocalDateTimeInput(new Date()),
       rejectionReason: sample.rejectionReason || '',
       notes: ''
@@ -444,7 +476,7 @@ const SampleQueuePage = () => {
     try {
       await api.post(`/laboratory/samples/${encodeURIComponent(selectedSample.id)}/rerun`, {
         reason: rerunReason.trim(),
-        requestedBy: 'CN.XN Phạm Minh Tuấn'
+        requestedBy: defaultOperatorName
       });
       setSuccessMsg(`Đã gửi yêu cầu chạy lại (Rerun) cho mẫu ${selectedSample.barcode}.`);
       setShowRerunModal(false);
@@ -505,14 +537,16 @@ const SampleQueuePage = () => {
           <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="d-flex align-items-center gap-1 px-3 py-2">
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => openRecordCollectionModal(null)}
-            className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
-          >
-            <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
-          </Button>
+          {canRecordSampleTime && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => openRecordCollectionModal(null)}
+              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
+            >
+              <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
+            </Button>
+          )}
         </div>
       </div>
 
@@ -662,9 +696,11 @@ const SampleQueuePage = () => {
               <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
-              <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay
-              </Button>
+              {canRecordSampleTime && (
+                <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
+                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay (UC40)
+                </Button>
+              )}
             </div>
           ) : (
             <div className="table-responsive" style={{ overflowX: 'hidden' }}>
@@ -754,40 +790,46 @@ const SampleQueuePage = () => {
 
                       <td className="text-end pe-3">
                         <div className="d-flex gap-1 justify-content-end align-items-center">
-                          <Button
-                            variant="outline-info"
-                            size="sm"
-                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
-                            onClick={() => openRecordCollectionModal(s)}
-                          >
-                            <FaClock />
-                            <span>Giờ lấy</span>
-                          </Button>
+                          {canRecordSampleTime && (
+                            <Button
+                              variant="outline-info"
+                              size="sm"
+                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Ghi nhận / Cập nhật thời gian lấy mẫu (Record Sample Time - UC40)"
+                              onClick={() => openRecordCollectionModal(s)}
+                            >
+                              <FaClock />
+                              <span>Giờ lấy</span>
+                            </Button>
+                          )}
 
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
-                            onClick={() => openStatusUpdateModal(s)}
-                          >
-                            <FaExchangeAlt />
-                            <span>Trạng thái</span>
-                          </Button>
+                          {canUpdateSampleStatus && (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Cập nhật trạng thái vòng đời mẫu (Update Sample Status - UC45)"
+                              onClick={() => openStatusUpdateModal(s)}
+                            >
+                              <FaExchangeAlt />
+                              <span>Trạng thái</span>
+                            </Button>
+                          )}
 
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            className="px-2 py-1"
-                            style={{ fontSize: '0.75rem' }}
-                            title="Yêu cầu chạy lại mẫu (Rerun)"
-                            onClick={() => openRerunModal(s)}
-                          >
-                            <FaRedoAlt />
-                          </Button>
+                          {canRecordSampleTime && (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              className="px-2 py-1"
+                              style={{ fontSize: '0.75rem' }}
+                              title="Yêu cầu chạy lại mẫu (Rerun)"
+                              onClick={() => openRerunModal(s)}
+                            >
+                              <FaRedoAlt />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -848,9 +890,42 @@ const SampleQueuePage = () => {
                   <option value="">-- Chọn bệnh nhân để liên kết mẫu bệnh phẩm --</option>
                   {(Array.isArray(patientOptions) ? patientOptions : []).map(p => (
                     <option key={p.id || p.patientCode} value={p.patientCode || p.id}>
-                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phone || '—'}
+                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phoneNumber || p.phone || '—'}
                     </option>
                   ))}
+                </Form.Select>
+              </div>
+            )}
+
+            {!collectionTargetSample && appointmentOptions.length > 0 && (
+              <div className="p-3 rounded-3 bg-light border mb-3">
+                <Form.Label className="small fw-bold text-secondary mb-1">
+                  Chọn nhanh Lịch hẹn / Phiếu chỉ định từ hệ thống (tự động điền Appointment ID & Patient ID)
+                </Form.Label>
+                <Form.Select
+                  size="sm"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const aid = e.target.value;
+                    const apt = appointmentOptions.find(a => (a.id || a.appointmentId) === aid);
+                    if (apt) {
+                      setCollectionForm(prev => ({
+                        ...prev,
+                        appointmentId: apt.id || apt.appointmentId,
+                        patientId: apt.patientId || prev.patientId
+                      }));
+                    }
+                  }}
+                >
+                  <option value="">-- Chọn lịch hẹn / chỉ định xét nghiệm từ CSDL --</option>
+                  {appointmentOptions.map(a => {
+                    const aid = a.id || a.appointmentId;
+                    return (
+                      <option key={aid} value={aid}>
+                        [{aid}] {a.patientName || a.patientId || 'Bệnh nhân'} — {a.status || 'Active'}
+                      </option>
+                    );
+                  })}
                 </Form.Select>
               </div>
             )}
@@ -993,13 +1068,26 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col md={4}>
-                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: LAB-ROOM-01"
-                  value={collectionForm.labRoom}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
-                />
+                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (CSDL)</Form.Label>
+                {labRooms.length > 0 ? (
+                  <Form.Select
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  >
+                    {labRooms.map(r => (
+                      <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                        {r.name ? `${r.id || r.roomNumber} — ${r.name}` : (r.id || r.roomNumber)}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    placeholder="VD: LAB-ROOM-01"
+                    value={collectionForm.labRoom}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                  />
+                )}
               </Col>
 
               <Col xs={12}>
@@ -1132,10 +1220,17 @@ const SampleQueuePage = () => {
                     <Form.Label className="small fw-semibold">Phòng Lab Xử Lý</Form.Label>
                     <Form.Control
                       type="text"
+                      list="status-lab-room-options"
                       placeholder="VD: LAB-ROOM-01"
                       value={statusForm.labRoom}
                       onChange={(e) => setStatusForm(prev => ({ ...prev, labRoom: e.target.value }))}
                     />
+                    <datalist id="status-lab-room-options">
+                      {labRooms.map((rm) => {
+                        const code = typeof rm === 'string' ? rm : (rm.id || rm.roomNumber || 'LAB-ROOM-01');
+                        return <option key={code} value={code} />;
+                      })}
+                    </datalist>
                   </Col>
 
                   <Col md={6}>

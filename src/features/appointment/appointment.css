@@ -1,19 +1,26 @@
 /* UC21 – Book appointment feature styles */
 .appt-page {
-  background: #f5f7fb;
+  background: var(--bms-surface-card, #F1F4F7);
   min-height: 100vh;
 }
 
 .appt-page .btn-primary {
-  background-color: #1e40af;
-  border-color: #1e40af;
+  background-color: var(--bms-primary, #5E85E6);
+  border-color: var(--bms-primary, #5E85E6);
+  border-radius: var(--bms-radius-pill, 9999px);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(94, 133, 230, 0.25);
+  transition: all 0.2s ease;
 }
 
 .appt-page .btn-primary:hover {
-  background-color: #1e3a8a;
-  border-color: #1e3a8a;
+  background-color: var(--bms-primary-hover, #4a6ec7);
+  border-color: var(--bms-primary-hover, #4a6ec7);
+  box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
 }
 
 .appt-guide-card {
-  background: #eff6ff;
+  background: var(--bms-surface-card, #F1F4F7);
+  border: 1px solid var(--bms-border, #E5E9EB);
+  border-radius: var(--bms-radius-lg, 16px);
 }

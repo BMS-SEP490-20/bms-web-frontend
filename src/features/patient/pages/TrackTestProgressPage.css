@@ -28,9 +28,9 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background-color: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background-color: rgba(94, 133, 230, 0.12);
+  color: #5E85E6;
+  border: 1px solid rgba(94, 133, 230, 0.3);
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
@@ -40,16 +40,16 @@
 }
 
 .bms-tracking-title {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--bms-text-primary, #20242B);
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
 .bms-tracking-subtitle {
-  font-size: 15px;
-  color: #475569;
+  font-size: 14.5px;
+  color: var(--bms-text-secondary, #606873);
   line-height: 1.5;
   margin-bottom: 0;
 }
@@ -57,17 +57,17 @@
 /* Search Box Container */
 .bms-tracking-search-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  border: 1px solid #E5E9EB;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 20px 24px;
   margin-bottom: 32px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bms-tracking-search-card:focus-within {
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  border-color: #5E85E6;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.15);
 }
 
 .bms-search-input-group {
@@ -95,20 +95,20 @@
   width: 100%;
   height: 48px;
   padding: 10px 40px 10px 42px;
-  font-size: 15px;
+  font-size: 14.5px;
   font-family: inherit;
   color: #0f172a;
-  background-color: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  background-color: var(--bms-surface-card, #F1F4F7);
+  border: 1px solid var(--bms-border, #E5E9EB);
+  border-radius: 12px;
   transition: all 0.2s ease;
 }
 
 .bms-search-input:focus {
   outline: none;
   background-color: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #5E85E6;
+  box-shadow: 0 0 0 3px rgba(94, 133, 230, 0.18);
 }
 
 .bms-search-clear-btn {
@@ -135,23 +135,24 @@
 .bms-search-submit-btn {
   height: 48px;
   padding: 0 24px;
-  background-color: #1e40af;
+  background-color: #5E85E6;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 15px;
+  border-radius: 9999px;
+  font-size: 14px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(94, 133, 230, 0.25);
   transition: all 0.2s ease;
 }
 
 .bms-search-submit-btn:hover:not(:disabled) {
-  background-color: #1d4ed8;
-  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.2);
+  background-color: #4a6ec7;
+  box-shadow: 0 4px 14px rgba(94, 133, 230, 0.35);
 }
 
 .bms-search-submit-btn:disabled {
@@ -467,28 +468,28 @@
 }
 
 .bms-stepper-node.completed {
-  background-color: #10b981;
-  color: #ffffff;
-  box-shadow: 0 0 0 4px #ecfdf5;
+  background-color: #91DE83;
+  color: #20242B;
+  box-shadow: 0 0 0 4px rgba(145, 222, 131, 0.25);
 }
 
 .bms-stepper-node.inprogress {
-  background-color: #2563eb;
+  background-color: #5E85E6;
   color: #ffffff;
-  box-shadow: 0 0 0 4px #eff6ff;
+  box-shadow: 0 0 0 4px rgba(94, 133, 230, 0.25);
   animation: pulse-node 2s infinite;
 }
 
 @keyframes pulse-node {
-  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(94, 133, 230, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(94, 133, 230, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(94, 133, 230, 0); }
 }
 
 .bms-stepper-node.warning {
-  background-color: #f59e0b;
-  color: #ffffff;
-  box-shadow: 0 0 0 4px #fef3c7;
+  background-color: #E7BC4C;
+  color: #20242B;
+  box-shadow: 0 0 0 4px rgba(231, 188, 76, 0.25);
 }
 
 .bms-stepper-node.rejected {
@@ -498,22 +499,22 @@
 }
 
 .bms-stepper-node.pending {
-  background-color: #e2e8f0;
-  color: #64748b;
+  background-color: #E5E9EB;
+  color: #606873;
   border: 1px solid #cbd5e1;
 }
 
 .bms-step-card {
   padding: 16px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  border: 1px solid #E5E9EB;
   background-color: #ffffff;
   transition: all 0.15s ease;
 }
 
 .bms-step-card.active-step {
-  border-color: #93c5fd;
-  background-color: #f0f7ff;
+  border-color: rgba(94, 133, 230, 0.4);
+  background-color: rgba(94, 133, 230, 0.05);
 }
 
 .bms-step-card-header {

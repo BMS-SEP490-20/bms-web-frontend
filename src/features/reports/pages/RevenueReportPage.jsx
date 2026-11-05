@@ -214,12 +214,12 @@ export default function RevenueReportPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#F1F4F7" }}>
+        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#EEF2F6" }}>
             {/* Header Ribbon */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#5E85E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC78</span>
+                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#648CF4', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC78</span>
                         <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
@@ -230,7 +230,7 @@ export default function RevenueReportPage() {
                 <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
                     <button
                         className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#91DE83', borderColor: '#91DE83', color: '#14532d', fontWeight: '600' }}
+                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#14532d', fontWeight: '600' }}
                         onClick={handleExportCSV}
                         id="btn-export-revenue-csv"
                     >
@@ -238,7 +238,7 @@ export default function RevenueReportPage() {
                     </button>
                     <button
                         className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
+                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#648CF4', borderColor: '#648CF4' }}
                         onClick={loadReport}
                         disabled={isLoading}
                     >
@@ -248,13 +248,13 @@ export default function RevenueReportPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="card shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid #E5E9EB' }}>
+            <div className="card shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 <div className="card-body p-3">
                     <div className="row g-3 align-items-center">
                         {/* Time Presets */}
                         <div className="col-12 col-lg-5">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaCalendarAlt className="me-1" style={{ color: '#5E85E6' }} /> Mốc thời gian báo cáo:
+                                <FaCalendarAlt className="me-1" style={{ color: '#648CF4' }} /> Mốc thời gian báo cáo:
                             </label>
                             <div className="d-flex flex-wrap gap-1" role="group">
                                 {[
@@ -270,10 +270,10 @@ export default function RevenueReportPage() {
                                         style={{
                                             borderRadius: '9999px',
                                             padding: '4px 14px',
-                                            backgroundColor: datePreset === p.key ? '#5E85E6' : '#F1F4F7',
+                                            backgroundColor: datePreset === p.key ? '#648CF4' : '#EEF2F6',
                                             color: datePreset === p.key ? '#ffffff' : '#475569',
                                             border: '1px solid',
-                                            borderColor: datePreset === p.key ? '#5E85E6' : '#E5E9EB',
+                                            borderColor: datePreset === p.key ? '#648CF4' : 'rgba(15, 23, 42, 0.05)',
                                             fontWeight: '600'
                                         }}
                                         onClick={() => handlePresetChange(p.key)}
@@ -290,7 +290,7 @@ export default function RevenueReportPage() {
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}
+                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
                                 value={fromDate}
                                 onChange={e => {
                                     setFromDate(e.target.value);
@@ -304,7 +304,7 @@ export default function RevenueReportPage() {
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}
+                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
                                 value={toDate}
                                 onChange={e => {
                                     setToDate(e.target.value);
@@ -316,11 +316,11 @@ export default function RevenueReportPage() {
                         {/* Category Filter */}
                         <div className="col-12 col-sm-6 col-lg-3">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaFilter className="me-1" style={{ color: '#5E85E6' }} /> Chuyên khoa:
+                                <FaFilter className="me-1" style={{ color: '#648CF4' }} /> Chuyên khoa:
                             </label>
                             <select
                                 className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB' }}
+                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
                                 value={categoryFilter}
                                 onChange={e => setCategoryFilter(e.target.value)}
                             >
@@ -340,14 +340,14 @@ export default function RevenueReportPage() {
             <div className="row g-3 mb-4">
                 {/* Gross Revenue */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Doanh Thu Gộp</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                                 <FaFileInvoiceDollar />
                             </div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2" style={{ color: '#5E85E6', fontVariantNumeric: 'tabular-nums' }}>
+                        <div className="fs-3 fw-bold mt-2" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>
                             {summary.formattedGrossRevenue}
                         </div>
                         <div className="small text-muted mt-1">
@@ -358,14 +358,14 @@ export default function RevenueReportPage() {
 
                 {/* Net Revenue */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Doanh Thu Thuần (Net)</span>
                             <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e' }}>
                                 <FaMoneyBillWave />
                             </div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2" style={{ color: '#91DE83', fontVariantNumeric: 'tabular-nums' }}>
+                        <div className="fs-3 fw-bold mt-2" style={{ color: '#A3E687', fontVariantNumeric: 'tabular-nums' }}>
                             {summary.formattedNetRevenue}
                         </div>
                         <div className="small mt-1 d-flex align-items-center gap-1" style={{ color: summary.growthRateVsPreviousPeriod >= 0 ? '#2b8a3e' : '#dc2626' }}>
@@ -377,10 +377,10 @@ export default function RevenueReportPage() {
 
                 {/* BHYT Insurance Coverage */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">BHYT Chi Trả</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#5E85E6' }}>
+                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#648CF4' }}>
                                 <FaHospitalUser />
                             </div>
                         </div>
@@ -395,7 +395,7 @@ export default function RevenueReportPage() {
 
                 {/* Average Order Value (AOV) */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid #E5E9EB' }}>
+                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Giá Trị Đơn Trung Bình</span>
                             <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316' }}>
@@ -413,7 +413,7 @@ export default function RevenueReportPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="d-flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-4 shadow-sm" style={{ border: '1px solid #E5E9EB' }}>
+            <div className="d-flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-4 shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 {[
                     { key: "overview", label: "Biểu Đồ Doanh Thu & Xu Hướng", icon: FaChartLine },
                     { key: "breakdown", label: "Cơ Cấu Chuyên Khoa & Phương Thức", icon: FaChartPie },
@@ -428,7 +428,7 @@ export default function RevenueReportPage() {
                             style={{
                                 borderRadius: '9999px',
                                 padding: '6px 18px',
-                                backgroundColor: isActive ? '#5E85E6' : 'transparent',
+                                backgroundColor: isActive ? '#648CF4' : 'transparent',
                                 color: isActive ? '#ffffff' : '#64748B',
                                 border: 'none',
                                 fontWeight: '600'
@@ -446,12 +446,12 @@ export default function RevenueReportPage() {
                 <div className="row g-4">
                     {/* Trend Line Chart */}
                     <div className="col-12 col-xl-8">
-                        <div className="card shadow-sm rounded-4 bg-white h-100 overflow-hidden" style={{ border: '1px solid #E5E9EB' }}>
-                            <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: '#E5E9EB' }}>
-                                <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#5E85E6' }}>
-                                    <FaChartLine style={{ color: '#5E85E6' }} /> Xu Hướng Doanh Thu Thuần Thực Thu Theo Thời Gian
+                        <div className="card shadow-sm rounded-4 bg-white h-100 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                            <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                                <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
+                                    <FaChartLine style={{ color: '#648CF4' }} /> Xu Hướng Doanh Thu Thuần Thực Thu Theo Thời Gian
                                 </h5>
-                                <span className="badge px-3 py-1.5" style={{ backgroundColor: '#F1F4F7', color: '#64748B', borderRadius: '9999px', border: '1px solid #E5E9EB' }}>
+                                <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                                     {report?.trend?.length || 0} điểm dữ liệu
                                 </span>
                             </div>
@@ -467,8 +467,8 @@ export default function RevenueReportPage() {
                                         >
                                             <defs>
                                                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="0%" stopColor="#5E85E6" stopOpacity="0.35" />
-                                                    <stop offset="100%" stopColor="#5E85E6" stopOpacity="0.02" />
+                                                    <stop offset="0%" stopColor="#648CF4" stopOpacity="0.35" />
+                                                    <stop offset="100%" stopColor="#648CF4" stopOpacity="0.02" />
                                                 </linearGradient>
                                             </defs>
 
@@ -481,7 +481,7 @@ export default function RevenueReportPage() {
                                             {/* Polyline */}
                                             <polyline
                                                 fill="none"
-                                                stroke="#5E85E6"
+                                                stroke="#648CF4"
                                                 strokeWidth="3"
                                                 points={trendRender.polylinePoints}
                                             />
@@ -493,7 +493,7 @@ export default function RevenueReportPage() {
                                                         cx={pt.x}
                                                         cy={pt.y}
                                                         r="4.5"
-                                                        fill="#5E85E6"
+                                                        fill="#648CF4"
                                                         stroke="#ffffff"
                                                         strokeWidth="2"
                                                         style={{ cursor: "pointer" }}

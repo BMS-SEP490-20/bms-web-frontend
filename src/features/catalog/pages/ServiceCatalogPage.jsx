@@ -436,11 +436,11 @@ export default function ServiceCatalogPage() {
       <PortalNavbar user={user} />
 
       {/* 3. CATALOG HERO SECTION */}
-      <section className="py-4" style={{ background: 'linear-gradient(180deg, #F1F4F7 0%, #FFFFFF 100%)', borderBottom: '1px solid var(--bms-border, #E5E9EB)' }}>
+      <section className="py-4" style={{ background: 'linear-gradient(180deg, #EEF2F6 0%, #FFFFFF 100%)', borderBottom: '1px solid var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div className="text-center mx-auto mb-3" style={{ maxWidth: 840 }}>
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2"
-                 style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#5E85E6', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
+                 style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#648CF4', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
               <FaShieldAlt /> TRA CỨU & TÌM KIẾM GÓI XÉT NGHIỆM (UC20 - ISO 15189:2012)
             </div>
             <h2 className="fw-bold mb-2" style={{ fontSize: '26px', color: 'var(--bms-text-primary, #20242B)' }}>
@@ -452,7 +452,7 @@ export default function ServiceCatalogPage() {
           </div>
 
           {/* Advanced Multi-Facet Search Toolbar Card (matching UC20 screen) */}
-          <div className="bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+          <div className="bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
             <Row className="g-2 align-items-center">
               <Col xs={12} lg={4}>
                 <div className="input-group">
@@ -566,8 +566,8 @@ export default function ServiceCatalogPage() {
                       : 'btn-light text-secondary border'
                   }`}
                   style={{
-                    backgroundColor: selectedCategory === cat ? '#5E85E6' : 'var(--bms-surface-card, #F1F4F7)',
-                    borderColor: selectedCategory === cat ? '#5E85E6' : 'var(--bms-border, #E5E9EB)',
+                    backgroundColor: selectedCategory === cat ? '#648CF4' : 'var(--bms-surface-card, #EEF2F6)',
+                    borderColor: selectedCategory === cat ? '#648CF4' : 'var(--bms-border, rgba(15, 23, 42, 0.05))',
                     fontSize: '12px'
                   }}
                   onClick={() => {
@@ -845,7 +845,7 @@ export default function ServiceCatalogPage() {
                   width: 38,
                   height: 38,
                   backgroundColor: 'rgba(94, 133, 230, 0.12)',
-                  color: '#5E85E6',
+                  color: '#648CF4',
                   borderRadius: 10,
                   display: 'flex',
                   alignItems: 'center',
@@ -969,7 +969,7 @@ export default function ServiceCatalogPage() {
                 <Button
                   variant="primary"
                   className="rounded-pill px-4 fw-semibold"
-                  style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
+                  style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
                   onClick={() => {
                     setShowDetailModal(false);
                     handleOpenBooking(selectedPackage);
@@ -996,7 +996,7 @@ export default function ServiceCatalogPage() {
             width: 56,
             height: 56,
             backgroundColor: 'rgba(94, 133, 230, 0.12)',
-            color: '#5E85E6',
+            color: '#648CF4',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -1014,7 +1014,7 @@ export default function ServiceCatalogPage() {
           <div className="d-grid gap-2">
             <a
               className="btn btn-primary rounded-pill py-2 fw-semibold"
-              style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6' }}
+              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
               href={`/login?redirect=catalog&package=${encodeURIComponent(bookingPackage?.packageName || "")}`}
             >
               Đăng Nhập Cổng Y Tế <FaArrowRight className="ms-1" />

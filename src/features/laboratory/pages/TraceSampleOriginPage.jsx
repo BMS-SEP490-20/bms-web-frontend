@@ -185,7 +185,7 @@ export default function TraceSampleOriginPage() {
             <div className="row align-items-center mb-4">
                 <div className="col-lg-8">
                     <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-                        <FaHistory style={{ color: '#5E85E6' }} />
+                        <FaHistory style={{ color: '#648CF4' }} />
                         Trace sample origin
                     </h2>
                     <p className="text-muted mb-0">
@@ -195,7 +195,7 @@ export default function TraceSampleOriginPage() {
             </div>
 
             {/* Search Card */}
-            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ border: '1px solid #E5E9EB' }}>
+            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 <div className="card-body p-3">
                     <form onSubmit={handleSearchSubmit} className="d-flex flex-wrap gap-2 align-items-center">
                         <div className="input-group" style={{ maxWidth: 650 }}>
@@ -209,7 +209,7 @@ export default function TraceSampleOriginPage() {
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
                             />
-                            <button className="btn px-4 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', borderRadius: '0 9999px 9999px 0' }} type="submit">
+                            <button className="btn px-4 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '0 9999px 9999px 0' }} type="submit">
                                 <FaSearch /> Trace
                             </button>
                         </div>

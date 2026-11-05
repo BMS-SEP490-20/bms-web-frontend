@@ -601,7 +601,7 @@ export default function ProcessPaymentPage() {
                     <Button
                       variant="primary"
                       className="w-100 py-3 rounded-pill fw-bold fs-5 shadow d-flex align-items-center justify-content-center gap-2 mb-2"
-                      style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', minHeight: 54 }}
+                      style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', minHeight: 54 }}
                       onClick={() => handleFastDemoPay(false)}
                       disabled={submittingPay || isExpired}
                     >

@@ -82,7 +82,7 @@ export default function AddMedicalAssessmentPage() {
             </Breadcrumb.Item>
           </Breadcrumb>
           <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaStethoscope style={{ color: '#5E85E6' }} />
+            <FaStethoscope style={{ color: '#648CF4' }} />
             {id ? 'Chỉnh Sửa Đánh Giá Y Khoa Lâm Sàng' : 'Kê Phiếu Đánh Giá Y Khoa Lâm Sàng'}
           </h4>
         </div>

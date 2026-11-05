@@ -108,28 +108,28 @@ export default function AppHeader({ onToggleSidebar }) {
   };
 
   return (
-    <header className="bms-header shadow-sm bg-white border-bottom sticky-top" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
-      <div className="bms-header-container d-flex align-items-center justify-content-between px-3 py-2">
+    <header className="bms-header bg-white sticky-top" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', boxShadow: '0 2px 12px rgba(28, 39, 61, 0.03)' }}>
+      <div className="bms-header-container d-flex align-items-center justify-content-between px-3 py-2.5">
         {/* Left: Sidebar Toggle & Breadcrumb Title */}
         <div className="d-flex align-items-center gap-3">
           <Button
             variant="light"
-            className="bms-header-toggle-btn border p-2 rounded-3 d-flex align-items-center justify-content-center"
-            style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}
+            className="bms-header-toggle-btn p-2 rounded-pill d-flex align-items-center justify-content-center"
+            style={{ background: '#EEF2F6', border: 'none', width: '36px', height: '36px' }}
             onClick={onToggleSidebar}
             aria-label="Đóng mở thanh điều hướng"
           >
-            <FaBars className="text-secondary" />
+            <FaBars style={{ color: '#6B7280' }} />
           </Button>
 
           <div className="bms-header-title-box">
-            <h1 className="bms-header-title h5 mb-0 fw-bold" style={{ color: 'var(--bms-text-primary, #20242B)' }}>
+            <h1 className="bms-header-title h5 mb-0 fw-bold" style={{ color: '#1A1D21', letterSpacing: '-0.02em', fontSize: '18px' }}>
               {currentTitle}
             </h1>
             <nav aria-label="breadcrumb" className="bms-header-breadcrumb">
-              <span className="text-muted small">Hệ Thống BMS</span>
+              <span className="text-muted small">BMS Health</span>
               <span className="text-muted mx-1 small">/</span>
-              <span className="small fw-semibold" style={{ color: '#5E85E6' }}>{currentTitle}</span>
+              <span className="small fw-semibold" style={{ color: '#648CF4' }}>{currentTitle}</span>
             </nav>
           </div>
         </div>
@@ -137,9 +137,9 @@ export default function AppHeader({ onToggleSidebar }) {
         {/* Right: Operational Status + Notifications + Profile Dropdown */}
         <div className="d-flex align-items-center gap-3">
           {/* Clinical Status Indicator */}
-          <div className="d-none d-lg-flex align-items-center gap-2 bms-system-status px-2.5 py-1 bg-light rounded-pill border" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
-            <FaCheckCircle style={{ color: '#2b781a' }} className="small" />
-            <span className="text-muted small">Lab Online (ISO 15189)</span>
+          <div className="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF8EB' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#A3E687', flexShrink: 0 }} />
+            <span style={{ color: '#0F3D1A', fontSize: '12px', fontWeight: 650 }}>Lab Hoạt Động (ISO 15189)</span>
           </div>
 
           {/* Quick Notification Bell */}
@@ -147,17 +147,17 @@ export default function AppHeader({ onToggleSidebar }) {
             <Dropdown.Toggle
               as={Button}
               variant="light"
-              className="bms-icon-btn position-relative border rounded-circle p-2"
-              style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}
+              className="bms-icon-btn position-relative border-0 rounded-circle p-2 d-flex align-items-center justify-content-center"
+              style={{ background: '#EEF2F6', width: '36px', height: '36px' }}
               aria-label="Thông báo hệ thống"
             >
-              <FaBell className="text-secondary" />
+              <FaBell style={{ color: '#6B7280', fontSize: '14px' }} />
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>
                 2
               </span>
             </Dropdown.Toggle>
-            <Dropdown.Menu className="shadow-lg border rounded-4 p-2" style={{ minWidth: 320, borderColor: 'var(--bms-border, #E5E9EB)' }}>
-              <div className="d-flex justify-content-between align-items-center px-2 py-1 border-bottom mb-2" style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}>
+            <Dropdown.Menu className="shadow-lg border rounded-4 p-2" style={{ minWidth: 320, borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
+              <div className="d-flex justify-content-between align-items-center px-2 py-1 border-bottom mb-2" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
                 <span className="fw-bold small text-dark">Cảnh Báo Lâm Sàng & Hệ Thống</span>
                 <span className="badge bg-danger-subtle text-danger small">2 Mới</span>
               </div>
@@ -187,9 +187,9 @@ export default function AppHeader({ onToggleSidebar }) {
             <Dropdown.Toggle
               as="button"
               className="bms-user-profile-btn d-flex align-items-center gap-2 border rounded-pill px-3 py-1 bg-white"
-              style={{ borderColor: 'var(--bms-border, #E5E9EB)' }}
+              style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}
             >
-              <div className="bms-avatar rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: 34, height: 34, fontSize: 14, backgroundColor: '#5E85E6' }}>
+              <div className="bms-avatar rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: 34, height: 34, fontSize: 14, backgroundColor: '#648CF4' }}>
                 {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
               <div className="d-none d-md-flex flex-column text-start">

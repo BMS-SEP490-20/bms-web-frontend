@@ -710,13 +710,13 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
               }
             }}
             style={scanMode === 'camera' ? {
-              backgroundColor: '#5E85E6',
-              borderColor: '#5E85E6',
+              backgroundColor: '#648CF4',
+              borderColor: '#648CF4',
               fontWeight: '600',
               borderRadius: '9999px 0 0 9999px'
             } : {
-              color: '#5E85E6',
-              borderColor: '#E5E9EB',
+              color: '#648CF4',
+              borderColor: 'rgba(15, 23, 42, 0.05)',
               fontWeight: '600',
               borderRadius: '9999px 0 0 9999px'
             }}
@@ -741,12 +741,12 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
               }
             }}
             style={scanMode === 'file' ? {
-              backgroundColor: '#5E85E6',
-              borderColor: '#5E85E6',
+              backgroundColor: '#648CF4',
+              borderColor: '#648CF4',
               fontWeight: '600'
             } : {
-              color: '#5E85E6',
-              borderColor: '#E5E9EB',
+              color: '#648CF4',
+              borderColor: 'rgba(15, 23, 42, 0.05)',
               fontWeight: '600'
             }}
           >
@@ -768,13 +768,13 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
               }
             }}
             style={scanMode === 'manual' ? {
-              backgroundColor: '#5E85E6',
-              borderColor: '#5E85E6',
+              backgroundColor: '#648CF4',
+              borderColor: '#648CF4',
               fontWeight: '600',
               borderRadius: '0 9999px 9999px 0'
             } : {
-              color: '#5E85E6',
-              borderColor: '#E5E9EB',
+              color: '#648CF4',
+              borderColor: 'rgba(15, 23, 42, 0.05)',
               fontWeight: '600',
               borderRadius: '0 9999px 9999px 0'
             }}

@@ -195,27 +195,27 @@ export default function AddTestNotePage() {
   return (
     <div className="container-fluid py-4 px-md-4" style={{ maxWidth: "1400px", minHeight: "100vh" }}>
       {/* Tiêu đề & Hành động đầu trang */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom" style={{ borderColor: '#E5E9EB' }}>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb mb-1 text-muted small">
               <li className="breadcrumb-item">
-                <Link to="/lab/queue" className="text-decoration-none" style={{ color: '#5E85E6' }}>Phòng xét nghiệm</Link>
+                <Link to="/lab/queue" className="text-decoration-none" style={{ color: '#648CF4' }}>Phòng xét nghiệm</Link>
               </li>
               <li className="breadcrumb-item">
-                <Link to="/laboratory/samples" className="text-decoration-none" style={{ color: '#5E85E6' }}>Mẫu bệnh phẩm</Link>
+                <Link to="/laboratory/samples" className="text-decoration-none" style={{ color: '#648CF4' }}>Mẫu bệnh phẩm</Link>
               </li>
-              <li className="breadcrumb-item active fw-semibold" style={{ color: '#5E85E6' }} aria-current="page">
+              <li className="breadcrumb-item active fw-semibold" style={{ color: '#648CF4' }} aria-current="page">
                 Ghi chú kỹ thuật
               </li>
             </ol>
           </nav>
           <div className="d-flex align-items-center gap-2">
             <h2 className="h4 fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
-              <FaShieldAlt style={{ color: '#5E85E6' }} />
+              <FaShieldAlt style={{ color: '#648CF4' }} />
               <span>Ghi Chú Kỹ Thuật Xét Nghiệm (Add Test Note)</span>
             </h2>
-            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#5E85E6', border: '1px solid rgba(94,133,230,0.2)' }}>
+            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#648CF4', border: '1px solid rgba(94,133,230,0.2)' }}>
               Tiêu chuẩn ISO 15189:2022
             </span>
           </div>
@@ -229,7 +229,7 @@ export default function AddTestNotePage() {
             type="button"
             onClick={() => navigate(-1)}
             className="btn btn-outline-secondary btn-sm px-3 shadow-sm rounded-pill"
-            style={{ borderColor: '#E5E9EB' }}
+            style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
           >
             <FaArrowLeft className="me-1" /> Quay lại
           </button>
@@ -238,7 +238,7 @@ export default function AddTestNotePage() {
             onClick={handleSubmit}
             disabled={submitting}
             className="btn btn-sm px-4 fw-semibold shadow-sm d-flex align-items-center gap-1 rounded-pill"
-            style={{ backgroundColor: '#5E85E6', borderColor: '#5E85E6', color: '#ffffff' }}
+            style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
           >
             {submitting ? <FaSpinner className="fa-spin" /> : <FaSave />}
             <span>{submitting ? "Đang lưu..." : "Lưu Ghi Chú"}</span>

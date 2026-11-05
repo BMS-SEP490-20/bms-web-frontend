@@ -161,14 +161,14 @@ export default function ConfigureIotThresholdsPage() {
     const safeRecipients = useMemo(() => Array.isArray(recipients) ? recipients : [], [recipients]);
 
     return (
-        <div style={{ background: '#F1F4F7', minHeight: '100vh', padding: '24px 32px' }}>
+        <div style={{ background: '#EEF2F6', minHeight: '100vh', padding: '24px 32px' }}>
             {/* Thanh tiêu đề quản lý & Điều hướng */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
                 <div>
                     <div style={{ fontSize: '13px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <span style={{ cursor: 'pointer', color: '#5E85E6' }} onClick={() => navigate('/dashboard')}>Bảng điều khiển</span>
+                        <span style={{ cursor: 'pointer', color: '#648CF4' }} onClick={() => navigate('/dashboard')}>Bảng điều khiển</span>
                         <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                        <span style={{ cursor: 'pointer', color: '#5E85E6' }} onClick={() => navigate('/manager/iot')}>Giám sát IoT</span>
+                        <span style={{ cursor: 'pointer', color: '#648CF4' }} onClick={() => navigate('/manager/iot')}>Giám sát IoT</span>
                         <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
                         <span style={{ color: '#0f172a', fontWeight: '600' }}>Cấu hình ngưỡng bảo quản</span>
                     </div>
@@ -184,7 +184,7 @@ export default function ConfigureIotThresholdsPage() {
                     <button
                         type="button"
                         className="btn btn-outline-secondary"
-                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '9999px', borderColor: '#E5E9EB' }}
+                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}
                         onClick={handleResetDefaults}
                         disabled={resetting}
                     >
@@ -193,7 +193,7 @@ export default function ConfigureIotThresholdsPage() {
                     <button
                         type="button"
                         className="btn text-white"
-                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 20px', borderRadius: '9999px', backgroundColor: '#5E85E6', borderColor: '#5E85E6', boxShadow: '0 2px 10px rgba(94, 133, 230, 0.3)' }}
+                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 20px', borderRadius: '9999px', backgroundColor: '#648CF4', borderColor: '#648CF4', boxShadow: '0 2px 10px rgba(94, 133, 230, 0.3)' }}
                         onClick={handleSaveAll}
                         disabled={saving}
                     >
@@ -210,19 +210,19 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
             {successMessage && (
-                <div className="alert alert-success d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px', border: '1px solid #91DE83' }}>
+                <div className="alert alert-success d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px', border: '1px solid #A3E687' }}>
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#2b8a3e' }}></i>
                     <div>{successMessage}</div>
                 </div>
             )}
 
             {/* Thẻ 1: Bảng Cấu Hình Ngưỡng Thiết Bị Cảm Biến IoT */}
-            <div className="card shadow-sm mb-4" style={{ border: '1px solid #E5E9EB', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
-                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#5E85E6' }}>
+            <div className="card shadow-sm mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
+                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#648CF4' }}>
                         Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến
                     </h3>
-                    <span className="badge px-3 py-1.5" style={{ fontSize: '12px', backgroundColor: '#F1F4F7', color: '#64748B', borderRadius: '9999px', border: '1px solid #E5E9EB' }}>
+                    <span className="badge px-3 py-1.5" style={{ fontSize: '12px', backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         {safeThresholds.length} thiết bị giám sát · Chuẩn ISO 15189
                     </span>
                 </div>
@@ -313,14 +313,14 @@ export default function ConfigureIotThresholdsPage() {
             </div>
 
             {/* Thẻ 2: Danh Sách Nhân Sự Nhận Cảnh Báo Khẩn Cấp (Escalation Chain) */}
-            <div className="card shadow-sm" style={{ border: '1px solid #E5E9EB', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
-                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#5E85E6' }}>
+            <div className="card shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
+                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#648CF4' }}>
                         Nhân Sự Trực Tiếp Nhận Cảnh Báo Khi Vi Phạm Ngưỡng
                     </h3>
                     <button
                         className="btn btn-sm"
-                        style={{ fontSize: '12.5px', fontWeight: '600', borderRadius: '9999px', borderColor: '#5E85E6', color: '#5E85E6', border: '1px solid #5E85E6', padding: '6px 14px' }}
+                        style={{ fontSize: '12.5px', fontWeight: '600', borderRadius: '9999px', borderColor: '#648CF4', color: '#648CF4', border: '1px solid #648CF4', padding: '6px 14px' }}
                         onClick={() => setShowAddModal(true)}
                     >
                         <i className="bi bi-person-plus me-1"></i> Thêm người nhận cảnh báo
@@ -332,8 +332,8 @@ export default function ConfigureIotThresholdsPage() {
                             <div
                                 key={rec.id}
                                 style={{
-                                    background: '#F1F4F7',
-                                    border: '1px solid #E5E9EB',
+                                    background: '#EEF2F6',
+                                    border: '1px solid rgba(15, 23, 42, 0.05)',
                                     borderRadius: '9999px',
                                     padding: '6px 14px',
                                     fontSize: '12.5px',
@@ -344,7 +344,7 @@ export default function ConfigureIotThresholdsPage() {
                                     gap: '6px'
                                 }}
                             >
-                                <i className="bi bi-person-fill" style={{ color: '#5E85E6' }}></i>
+                                <i className="bi bi-person-fill" style={{ color: '#648CF4' }}></i>
                                 <span>{rec.fullName} ({rec.role})</span>
                                 <i
                                     className="bi bi-x-circle-fill text-danger ms-1"
@@ -357,7 +357,7 @@ export default function ConfigureIotThresholdsPage() {
                     </div>
 
                     <div style={{ background: 'rgba(94, 133, 230, 0.08)', border: '1px solid rgba(94, 133, 230, 0.25)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
-                        <i className="bi bi-info-circle-fill me-2" style={{ color: '#5E85E6' }}></i>
+                        <i className="bi bi-info-circle-fill me-2" style={{ color: '#648CF4' }}></i>
                         <span>{escalationPolicy || 'Chính sách thông báo leo thang: Thông báo đẩy ứng dụng (Push) + Email nội viện tức thời. Tự động gửi SMS cảnh báo đến Trưởng Khoa nếu sau 5 phút không có xác nhận can thiệp.'}</span>
                     </div>
                 </div>
@@ -368,8 +368,8 @@ export default function ConfigureIotThresholdsPage() {
                 <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow-lg border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
-                            <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E9EB' }}>
-                                <h5 className="modal-title fw-bold" style={{ fontSize: '16px', color: '#5E85E6' }}>Thêm Nhân Sự Nhận Cảnh Báo</h5>
+                            <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                                <h5 className="modal-title fw-bold" style={{ fontSize: '16px', color: '#648CF4' }}>Thêm Nhân Sự Nhận Cảnh Báo</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
                             </div>
                             <form onSubmit={handleAddRecipientSubmit}>
@@ -379,7 +379,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
                                             required
                                             value={newRecipient.fullName}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, fullName: e.target.value })}
@@ -391,7 +391,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
                                             required
                                             value={newRecipient.role}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, role: e.target.value })}
@@ -403,7 +403,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="email"
                                             className="form-control"
-                                            style={{ backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
                                             value={newRecipient.email}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, email: e.target.value })}
                                             placeholder="lananh.le@medlab.bms.vn"
@@ -414,16 +414,16 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#F1F4F7', border: '1px solid #E5E9EB', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
                                             value={newRecipient.phone}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, phone: e.target.value })}
                                             placeholder="0912345678"
                                         />
                                     </div>
                                 </div>
-                                <div className="modal-footer" style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid #E5E9EB' }}>
-                                    <button type="button" className="btn btn-outline-secondary btn-sm" style={{ borderRadius: '9999px', borderColor: '#E5E9EB', padding: '6px 16px' }} onClick={() => setShowAddModal(false)}>Hủy Bỏ</button>
-                                    <button type="submit" className="btn btn-sm fw-semibold text-white" style={{ borderRadius: '9999px', backgroundColor: '#5E85E6', borderColor: '#5E85E6', padding: '6px 20px' }}>Xác Nhận Thêm</button>
+                                <div className="modal-footer" style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                                    <button type="button" className="btn btn-outline-secondary btn-sm" style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)', padding: '6px 16px' }} onClick={() => setShowAddModal(false)}>Hủy Bỏ</button>
+                                    <button type="submit" className="btn btn-sm fw-semibold text-white" style={{ borderRadius: '9999px', backgroundColor: '#648CF4', borderColor: '#648CF4', padding: '6px 20px' }}>Xác Nhận Thêm</button>
                                 </div>
                             </form>
                         </div>

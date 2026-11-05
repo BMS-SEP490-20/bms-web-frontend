@@ -209,7 +209,7 @@ export default function SampleRerunPage() {
                         <div className="card border-0 shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                             <div className="card-header bg-white border-bottom py-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                 <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                    <FaRedo style={{ color: '#648CF4' }} /> Rerun request — <span className="font-monospace" style={{ color: '#648CF4' }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
+                                    <FaRedo style={{ color: '#1E60E6' }} /> Rerun request — <span className="font-monospace" style={{ color: '#1E60E6' }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
                                 </h5>
                             </div>
                             <div className="card-body p-4">
@@ -329,7 +329,7 @@ export default function SampleRerunPage() {
                                     <button
                                         type="button"
                                         className="btn d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm text-white"
-                                        style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+                                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                                         disabled={submitting}
                                         onClick={handleSubmit}
                                     >

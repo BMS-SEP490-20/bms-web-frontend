@@ -1,62 +1,63 @@
 /* ==========================================================================
-   BMS Design System — Soft Medical Telehealth UI Specification (MEDLINE-class)
-   Reference: User Design System Prompt & DESIGNRULE.md
-   macOS / Apple Grade Precision, Geometry & Typography
+   BMS Design System — Modern Flat Healthcare SaaS (Big Tech Clean Grade)
+   Typography: Plus Jakarta Sans | Palette: Clinical Medical Blue #1E60E6 & Emerald
+   Pure Flat Architecture: Zero Sến Súa Glow / Shadows / Blurry Hover
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Canvas */
-  --bg-page: #F4F7F9;          /* cool soft gray page */
-  --bg-card: #FFFFFF;          /* pure white surfaces */
-  --bg-muted: #EEF2F6;         /* subtle inset / track / idle chip */
+  /* Canvas & Pure Flat Surfaces */
+  --bg-page: #F8FAFC;          /* crisp light slate canvas */
+  --bg-card: #FFFFFF;          /* solid pure white surface */
+  --bg-muted: #F1F5F9;         /* crisp flat track / inset */
   --bg-nav-idle: #FFFFFF;      /* idle pill segments */
 
-  /* Ink */
-  --ink: #1A1D21;              /* primary text — near black, soft, high contrast */
-  --ink-secondary: #6B7280;    /* labels, meta, timestamps */
-  --ink-tertiary: #9CA3AF;     /* placeholders, hints */
+  /* Ink & High-Contrast Typography */
+  --ink: #0F172A;              /* deep slate ink — crisp readability */
+  --ink-secondary: #475569;    /* authoritative metadata & labels */
+  --ink-tertiary: #94A3B8;     /* placeholders & hints */
   --ink-on-blue: #FFFFFF;
-  --ink-on-green: #0F3D1A;     /* dark green text on mint buttons */
+  --ink-on-green: #064E3B;     /* deep forest ink on emerald */
 
-  /* Brand / interactive */
-  --primary: #648CF4;          /* soft sky-royal blue — ACTIVE nav, bars, links, focus */
-  --primary-hover: #537be6;
-  --primary-soft: #E8EFFE;     /* selected row / soft chip fill */
-  --primary-grad-end: #7BA0F7; /* soft gradient end on blue promo cards */
+  /* Brand: True Clinical Medical Blue (Zero purple / violet tint) */
+  --primary: #1E60E6;          /* crisp authoritative clinical blue */
+  --primary-hover: #1550C4;
+  --primary-soft: #EEF4FD;     /* clean ice blue tint */
+  --primary-border: #D1E1FA;
+  --primary-grad-end: #3B82F6;
 
   /* Semantic */
-  --success: #A3E687;          /* mint — Repeat / Upgrade / positive CTA fill */
-  --success-hover: #92d875;
-  --success-ink: #1F3B14;
-  --warn: #F5A623;             /* soft orange — Moderate / caution badge */
-  --warn-soft: #FFF4E5;
-  --danger: #F04438;           /* End call / destructive */
-  --danger-soft: #FEECEC;
+  --success: #10B981;          /* crisp medical emerald */
+  --success-hover: #059669;
+  --success-ink: #064E3B;
+  --warn: #F59E0B;             /* clean amber */
+  --warn-soft: #FEF3C7;
+  --danger: #EF4444;           /* clean destructive red */
+  --danger-soft: #FEE2E2;
 
   /* Gauge */
-  --gauge-start: #F6C945;      /* yellow */
-  --gauge-end: #8FD86A;        /* green */
+  --gauge-start: #FBBF24;
+  --gauge-end: #10B981;
 
-  /* Chrome & Diffuse Soft Shadows */
-  --shadow-card: 0 8px 28px rgba(28, 39, 61, 0.07);
-  --shadow-float: 0 14px 40px rgba(28, 39, 61, 0.11);
-  --shadow-soft: 0 4px 14px rgba(28, 39, 61, 0.05);
-  --shadow-pill: 0 4px 14px rgba(100, 140, 244, 0.22);
-  --ring-focus: 0 0 0 3px rgba(100, 140, 244, 0.28);
+  /* Pure Flat Chrome: NO Blurry Glow / Heavy Shadows */
+  --shadow-card: none;
+  --shadow-float: 0 4px 20px rgba(15, 23, 42, 0.08); /* only for floating dropdown/modals */
+  --shadow-soft: none;
+  --shadow-pill: none;
+  --ring-focus: 0 0 0 3px rgba(30, 96, 230, 0.18);
 
   /* Geometry & Large Corner Radii */
-  --radius-card: 28px;
-  --radius-panel: 24px;
-  --radius-control: 999px;     /* pills */
-  --radius-btn: 999px;
-  --radius-chip: 10px;
-  --radius-media: 22px;
-  --radius-avatar: 999px;
+  --radius-card: 24px;
+  --radius-panel: 20px;
+  --radius-control: 9999px;    /* clean pills */
+  --radius-btn: 9999px;
+  --radius-chip: 8px;
+  --radius-media: 18px;
+  --radius-avatar: 9999px;
 
-  /* Typography */
-  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  /* Distinctive Typography: Plus Jakarta Sans */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --bms-font-family: var(--font-sans);
 
   /* Semantic bridges */
@@ -66,13 +67,13 @@
   --bms-success: var(--success);
   --bms-success-hover: var(--success-hover);
   --bms-success-text: var(--ink-on-green);
-  --bms-success-light: #EEF8EB;
+  --bms-success-light: #ECFDF5;
   --bms-warning: var(--warn);
   --bms-warning-light: var(--warn-soft);
-  --bms-warning-text: #8C5300;
+  --bms-warning-text: #92400E;
   --bms-danger: var(--danger);
   --bms-danger-light: var(--danger-soft);
-  --bms-danger-text: #B42318;
+  --bms-danger-text: #B91C1C;
   --bms-card-bg: var(--bg-card);
   --bms-text-main: var(--ink);
   --bms-text-secondary: var(--ink-secondary);
@@ -80,9 +81,9 @@
   --bms-border: rgba(15, 23, 42, 0.06);
   --bms-card-radius: var(--radius-card);
   --bms-radius-full: var(--radius-btn);
-  --bms-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --bms-shadow-sm: var(--shadow-soft);
-  --bms-shadow-md: var(--shadow-card);
+  --bms-transition: all 0.15s ease-out;
+  --bms-shadow-sm: none;
+  --bms-shadow-md: none;
   --bms-shadow-lg: var(--shadow-float);
   --bms-shadow-focus: var(--ring-focus);
 }
@@ -162,22 +163,23 @@ p {
   box-shadow: var(--ring-focus) !important;
 }
 
-/* --- Card Architecture (Floating 28px Soft Surfaces) --- */
+/* --- Card Architecture (Crisp Pure Flat Surfaces) --- */
 .card {
   background-color: var(--bg-card) !important;
   border-radius: var(--radius-card) !important;
-  box-shadow: var(--shadow-card) !important;
-  border: 1px solid rgba(15, 23, 42, 0.04) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  transition: border-color 0.15s ease !important;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-float) !important;
+  box-shadow: none !important;
+  border-color: rgba(30, 96, 230, 0.25) !important;
 }
 
 .card-header {
   background-color: transparent !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
   padding: 18px 24px !important;
   font-weight: 650 !important;
   color: var(--ink) !important;
@@ -187,19 +189,20 @@ p {
   padding: 24px 28px !important;
 }
 
-/* --- Pill & Soft Action Buttons --- */
+/* --- Pill & Clean Action Buttons (Pure Flat, Zero Blurry Glow) --- */
 .btn {
   font-family: var(--font-sans) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   border-radius: var(--radius-btn) !important;
   padding: 9px 20px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.15s ease-out !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
   cursor: pointer !important;
+  box-shadow: none !important;
 }
 
 .btn:focus-visible {
@@ -208,51 +211,54 @@ p {
 }
 
 .btn:hover {
-  transform: translateY(-1px) !important;
+  transform: none !important; /* NO sến lift */
 }
 
 .btn:active {
-  transform: translateY(0) !important;
+  transform: none !important;
+  opacity: 0.92 !important;
 }
 
 .btn-primary {
   background-color: var(--primary) !important;
-  border: none !important;
+  border: 1px solid var(--primary) !important;
   color: #FFFFFF !important;
-  box-shadow: var(--shadow-pill) !important;
+  box-shadow: none !important;
 }
 
 .btn-primary:hover, .btn-primary:focus {
   background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
   color: #FFFFFF !important;
-  box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35) !important;
+  box-shadow: none !important;
 }
 
 .btn-success {
   background-color: var(--success) !important;
-  border: none !important;
-  color: var(--ink-on-green) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 4px 14px rgba(163, 230, 135, 0.35) !important;
+  border: 1px solid var(--success) !important;
+  color: #FFFFFF !important;
+  font-weight: 650 !important;
+  box-shadow: none !important;
 }
 
 .btn-success:hover, .btn-success:focus {
   background-color: var(--success-hover) !important;
-  color: var(--ink-on-green) !important;
-  box-shadow: 0 8px 24px rgba(163, 230, 135, 0.45) !important;
+  border-color: var(--success-hover) !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
 }
 
 .btn-secondary, .btn-outline-secondary {
-  background-color: #FFFFFF !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background-color: var(--bg-muted) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
   color: var(--ink) !important;
-  box-shadow: var(--shadow-soft) !important;
+  box-shadow: none !important;
 }
 
 .btn-secondary:hover, .btn-outline-secondary:hover {
-  background-color: var(--bg-muted) !important;
+  background-color: #E2E8F0 !important;
   color: var(--ink) !important;
-  box-shadow: var(--shadow-card) !important;
+  box-shadow: none !important;
 }
 
 .btn-outline-primary {

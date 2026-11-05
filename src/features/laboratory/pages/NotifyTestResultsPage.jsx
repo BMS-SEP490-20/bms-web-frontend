@@ -237,7 +237,7 @@ export default function NotifyTestResultsPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#648CF4', border: '1px solid rgba(94,133,230,0.2)' }}>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', border: '1px solid rgba(94,133,230,0.2)' }}>
                             UC60 • BR-182 / BR-183
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -253,7 +253,7 @@ export default function NotifyTestResultsPage() {
                     <button
                         type="button"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-                        style={{ color: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadData}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
@@ -263,7 +263,7 @@ export default function NotifyTestResultsPage() {
                         <button
                             type="button"
                             className="btn btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-4 fw-semibold"
-                            style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', color: '#ffffff' }}
+                            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
                             onClick={() => setShowDispatchModal(true)}
                         >
                             <FaPaperPlane />
@@ -301,7 +301,7 @@ export default function NotifyTestResultsPage() {
                                 <h3 className="fw-bold mb-0" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
                                 <small className="text-muted">Đã phát hành toàn viện</small>
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#648CF4' }}>
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
                                 <FaBell className="fs-4" />
                             </div>
                         </div>

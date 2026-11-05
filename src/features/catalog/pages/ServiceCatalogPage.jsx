@@ -436,14 +436,14 @@ export default function ServiceCatalogPage() {
       <PortalNavbar user={user} />
 
       {/* 3. CATALOG HERO SECTION */}
-      <section className="py-4" style={{ background: 'linear-gradient(180deg, #EEF2F6 0%, #FFFFFF 100%)', borderBottom: '1px solid var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
+      <section className="py-4" style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.06)' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div className="text-center mx-auto mb-3" style={{ maxWidth: 840 }}>
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2"
-                 style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#648CF4', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
-              <FaShieldAlt /> TRA CỨU & TÌM KIẾM GÓI XÉT NGHIỆM (UC20 - ISO 15189:2012)
+                 style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>
+              <FaShieldAlt /> TRA CỨU & TÌM KIẾM GÓI XÉT NGHIỆM (UC20 - ISO 15189:2022)
             </div>
-            <h2 className="fw-bold mb-2" style={{ fontSize: '26px', color: 'var(--bms-text-primary, #20242B)' }}>
+            <h2 className="fw-bold mb-2" style={{ fontSize: '26px', color: '#0F172A', letterSpacing: '-0.025em' }}>
               Tìm Kiếm Gói Xét Nghiệm & Chỉ Số Lâm Sàng
             </h2>
             <p className="text-secondary mb-3" style={{ fontSize: '14.5px' }}>
@@ -451,12 +451,12 @@ export default function ServiceCatalogPage() {
             </p>
           </div>
 
-          {/* Advanced Multi-Facet Search Toolbar Card (matching UC20 screen) */}
-          <div className="bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
+          {/* Advanced Multi-Facet Search Toolbar Card (Pure Flat) */}
+          <div className="bg-white p-3 rounded-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.06)' }}>
             <Row className="g-2 align-items-center">
               <Col xs={12} lg={4}>
                 <div className="input-group">
-                  <span className="input-group-text bg-white border-end-0 text-primary">
+                  <span className="input-group-text bg-white border-end-0" style={{ color: '#1E60E6' }}>
                     <FaSearch />
                   </span>
                   <input
@@ -552,23 +552,106 @@ export default function ServiceCatalogPage() {
       {/* 4. MAIN CATALOG BODY */}
       <main className="py-4">
         <div className="container" style={{ maxWidth: 1200 }}>
-          {/* Category Quick Chips + View Switcher Bar */}
-          <div className="mb-3 p-3 bg-white rounded-4 shadow-sm border d-flex flex-wrap align-items-center justify-content-between gap-2">
+          {/* Top Spotlight: Featured Comprehensive Health Panel */}
+          {packages.length > 0 && !hasActiveFilters && (
+            <div
+              className="p-4 p-md-5 mb-4"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '1.5px solid #1E60E6',
+                borderRadius: '24px'
+              }}
+            >
+              <div className="row align-items-center g-4">
+                <div className="col-lg-8">
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <span className="badge px-3 py-1 text-white" style={{ backgroundColor: '#1E60E6', fontSize: '11.5px', fontWeight: 700, borderRadius: '8px' }}>
+                      TIÊU BIỂU • BÁN CHẠY NHẤT
+                    </span>
+                    <span className="badge px-2.5 py-1" style={{ backgroundColor: '#ECFDF5', color: '#059669', fontSize: '11.5px', fontWeight: 650, borderRadius: '8px' }}>
+                      Chuẩn ISO 15189
+                    </span>
+                  </div>
+                  <h3 className="fw-bold mb-2" style={{ color: '#0F172A', fontSize: '22px', letterSpacing: '-0.02em' }}>
+                    {packages[0].packageName}
+                  </h3>
+                  <p className="text-secondary mb-3" style={{ fontSize: '14px', maxWidth: '680px', lineHeight: '1.6' }}>
+                    {packages[0].description || 'Gói xét nghiệm tầm soát định kỳ phát hiện sớm các nguy cơ chuyển hóa, gan thận và tế bào máu toàn diện.'}
+                  </p>
+
+                  <div className="d-flex flex-wrap gap-2 mb-3">
+                    {packages[0].criteria?.slice(0, 6).map((c, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          backgroundColor: '#F1F5F9',
+                          color: '#475569',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          padding: '4px 10px',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        {c.code || c.name}
+                      </span>
+                    ))}
+                    {(packages[0].criteria?.length || 0) > 6 && (
+                      <span className="small text-muted align-self-center">
+                        +{(packages[0].criteria?.length || 0) - 6} chỉ số lâm sàng
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="d-flex align-items-center gap-3 text-muted small">
+                    <span className="d-inline-flex align-items-center gap-1.5"><FaVial style={{ color: '#1E60E6' }} /> Mẫu: {packages[0].sampleTube}</span>
+                    <span>•</span>
+                    <span className="d-inline-flex align-items-center gap-1.5"><FaClock style={{ color: '#1E60E6' }} /> Trả kết quả: {packages[0].tat}</span>
+                  </div>
+                </div>
+
+                <div className="col-lg-4 text-lg-end">
+                  <div className="small text-muted mb-1">Đơn giá trọn gói niêm yết:</div>
+                  <div className="fw-bold mb-3 tabular-nums" style={{ fontSize: '30px', color: '#0F172A', letterSpacing: '-0.03em' }}>
+                    {Number(packages[0].price).toLocaleString('vi-VN')} ₫
+                  </div>
+                  <div className="d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary rounded-pill px-4 py-2"
+                      style={{ fontSize: '13.5px', fontWeight: 600, backgroundColor: '#FFFFFF', borderColor: 'rgba(15, 23, 42, 0.1)' }}
+                      onClick={() => handleOpenDetail(packages[0])}
+                    >
+                      Xem Toàn Bộ Chỉ Số
+                    </button>
+                    <button
+                      type="button"
+                      className="btn rounded-pill px-4 py-2 text-white fw-semibold"
+                      style={{ backgroundColor: '#10B981', borderColor: '#10B981', fontSize: '13.5px' }}
+                      onClick={() => handleOpenBooking(packages[0])}
+                    >
+                      Đặt Lịch Ngay
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Category Quick Chips Bar (Pure Flat) */}
+          <div className="mb-4 p-3 bg-white rounded-4 border d-flex flex-wrap align-items-center justify-content-between gap-3" style={{ borderColor: 'rgba(15, 23, 42, 0.06)' }}>
             <div className="d-flex flex-wrap align-items-center gap-2">
-              <span className="fw-bold small text-dark me-1"><FaFilter className="me-1 text-primary" />Chuyên khoa:</span>
+              <span className="fw-bold small text-dark me-1"><FaFilter className="me-1" style={{ color: '#1E60E6' }} />Chuyên khoa:</span>
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
-                  className={`btn btn-sm rounded-pill px-3 fw-semibold ${
-                    selectedCategory === cat
-                      ? 'btn-primary'
-                      : 'btn-light text-secondary border'
-                  }`}
+                  className="btn btn-sm rounded-pill px-3 fw-semibold"
                   style={{
-                    backgroundColor: selectedCategory === cat ? '#648CF4' : 'var(--bms-surface-card, #EEF2F6)',
-                    borderColor: selectedCategory === cat ? '#648CF4' : 'var(--bms-border, rgba(15, 23, 42, 0.05))',
-                    fontSize: '12px'
+                    backgroundColor: selectedCategory === cat ? '#1E60E6' : '#F1F5F9',
+                    borderColor: selectedCategory === cat ? '#1E60E6' : 'transparent',
+                    color: selectedCategory === cat ? '#FFFFFF' : '#475569',
+                    fontSize: '12.5px',
+                    boxShadow: 'none'
                   }}
                   onClick={() => {
                     setSelectedCategory(cat);
@@ -580,26 +663,8 @@ export default function ServiceCatalogPage() {
               ))}
             </div>
 
-            <div className="d-flex align-items-center gap-3">
-              <div className="text-muted small">
-                Tìm thấy: <strong className="text-primary">{totalItems}</strong> gói xét nghiệm
-              </div>
-              <div className="btn-group btn-group-sm" role="group" aria-label="Chế độ hiển thị">
-                <Button
-                  variant={viewMode === 'table' ? 'primary' : 'outline-secondary'}
-                  onClick={() => setViewMode('table')}
-                  title="Hiển thị dạng bảng (Chuẩn UC20)"
-                >
-                  <FaListUl className="me-1" /> Bảng
-                </Button>
-                <Button
-                  variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'}
-                  onClick={() => setViewMode('grid')}
-                  title="Hiển thị dạng thẻ"
-                >
-                  <FaThLarge className="me-1" /> Thẻ
-                </Button>
-              </div>
+            <div className="text-muted small">
+              Hiển thị: <strong style={{ color: '#1E60E6' }}>{totalItems}</strong> gói xét nghiệm tiêu chuẩn
             </div>
           </div>
 
@@ -609,31 +674,31 @@ export default function ServiceCatalogPage() {
               <div className="d-flex flex-wrap align-items-center gap-2 small">
                 <span className="text-muted">Đang lọc theo:</span>
                 {debouncedSearch && (
-                  <Badge bg="primary" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                  <Badge bg="primary" className="d-inline-flex align-items-center gap-1 px-2.5 py-1 fw-normal" style={{ backgroundColor: '#EEF4FD !important', color: '#1E60E6 !important' }}>
                     Từ khóa: "{debouncedSearch}"
                     <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSearchInput('')} />
                   </Badge>
                 )}
                 {selectedCategory !== 'Tất Cả Gói Khám' && (
-                  <Badge bg="info" text="dark" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                  <Badge bg="info" className="d-inline-flex align-items-center gap-1 px-2.5 py-1 fw-normal text-dark" style={{ backgroundColor: '#F1F5F9 !important' }}>
                     Chuyên khoa: {selectedCategory}
                     <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSelectedCategory('Tất Cả Gói Khám')} />
                   </Badge>
                 )}
                 {sampleTube && (
-                  <Badge bg="secondary" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                  <Badge bg="secondary" className="d-inline-flex align-items-center gap-1 px-2.5 py-1 fw-normal text-dark" style={{ backgroundColor: '#F1F5F9 !important' }}>
                     Ống mẫu: {sampleTube}
                     <FaTimes style={{ cursor: 'pointer' }} onClick={() => setSampleTube('')} />
                   </Badge>
                 )}
                 {priceRangeId !== 'all' && (
-                  <Badge bg="warning" text="dark" className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-normal">
+                  <Badge bg="warning" className="d-inline-flex align-items-center gap-1 px-2.5 py-1 fw-normal text-dark" style={{ backgroundColor: '#FEF3C7 !important', color: '#92400E !important' }}>
                     Giá: {PRICE_RANGES.find(r => r.id === priceRangeId)?.label}
                     <FaTimes style={{ cursor: 'pointer' }} onClick={() => handlePriceRangeChange('all')} />
                   </Badge>
                 )}
               </div>
-              <Button variant="link" size="sm" className="text-decoration-none p-0" onClick={handleClearAllFilters}>
+              <Button variant="link" size="sm" className="text-decoration-none p-0" style={{ color: '#1E60E6' }} onClick={handleClearAllFilters}>
                 Xóa tất cả bộ lọc
               </Button>
             </div>
@@ -646,124 +711,48 @@ export default function ServiceCatalogPage() {
             </Alert>
           )}
 
-          {/* Results Body */}
-          {viewMode === 'table' ? (
-            /* Spacious Clinical Table View (Soft Telehealth Grade) */
-            <div className="card shadow-sm rounded-4 overflow-hidden mb-4" style={{ background: '#FFFFFF', border: '1px solid rgba(15, 23, 42, 0.06)', borderRadius: '24px' }}>
-              <div className="table-responsive">
-                <Table hover className="align-middle mb-0" style={{ fontSize: '0.9rem' }}>
-                  <thead style={{ backgroundColor: '#F4F7F9' }}>
-                    <tr style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.06)' }}>
-                      <th className="ps-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tên Gói Xét Nghiệm & Mô Tả</th>
-                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Mã Gói</th>
-                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chuyên Khoa</th>
-                      <th className="text-center py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chỉ Số</th>
-                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Ống Mẫu (Specimen)</th>
-                      <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Chuẩn Bị</th>
-                      <th className="text-end py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Đơn Giá (₫)</th>
-                      <th className="text-end pe-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Thao Tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr>
-                        <td colSpan={8} className="text-center py-5 text-muted">
-                          <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                          <span className="fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</span>
-                        </td>
-                      </tr>
-                    ) : packages.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="text-center py-5">
-                          <div className="text-muted mb-2 fs-2">
-                            <FaVial />
-                          </div>
-                          <div className="fw-bold text-dark fs-6 mb-1">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</div>
-                          <p className="text-muted small mb-3">
-                            Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
-                          </p>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="rounded-pill px-4"
-                            onClick={handleClearAllFilters}
-                          >
-                            Xóa Bộ Lọc & Xem Tất Cả
-                          </Button>
-                        </td>
-                      </tr>
-                    ) : (
-                      packages.map((pkg) => (
-                        <tr key={pkg.id || pkg.packageCode} style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.04)' }}>
-                          <td className="ps-4 py-3">
-                            <div className="fw-bold" style={{ color: '#1A1D21', fontSize: '14.5px' }}>{pkg.packageName}</div>
-                            <div className="text-muted small" style={{ fontSize: '12.5px', maxWidth: '340px' }}>
-                              {pkg.description || 'Gói xét nghiệm y khoa đạt chuẩn ISO 15189 tại BMS.'}
-                            </div>
-                          </td>
-                          <td className="py-3">
-                            <span className="badge font-monospace px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '8px', fontSize: '11.5px' }}>
-                              {pkg.packageCode}
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: '#E8EFFE', color: '#648CF4', borderRadius: '10px', fontWeight: 650, fontSize: '11.5px' }}>
-                              {pkg.category}
-                            </span>
-                          </td>
-                          <td className="text-center py-3">
-                            <span className="badge px-2 py-1 tabular-nums" style={{ backgroundColor: '#EEF2F6', color: '#1A1D21', borderRadius: '8px', fontSize: '11.5px' }}>
-                              {pkg.criteria?.length || pkg.testsIncluded?.length || 1} chỉ số
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="small fw-semibold d-inline-flex align-items-center gap-1.5" style={{ color: '#475569' }}>
-                              <FaVial style={{ color: '#648CF4', fontSize: '12px' }} />
-                              {pkg.sampleTube}
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="small text-muted" style={{ fontSize: '12px' }}>{pkg.fastingRule}</span>
-                          </td>
-                          <td className="text-end py-3 fw-bold tabular-nums" style={{ color: '#1A1D21', fontSize: '15px' }}>
-                            {Number(pkg.price).toLocaleString('vi-VN')} ₫
-                          </td>
-                          <td className="text-end pe-4 py-3">
-                            <div className="d-inline-flex gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                                style={{ fontSize: '12px', fontWeight: 600, backgroundColor: '#FFFFFF', color: '#1A1D21', borderColor: 'rgba(15, 23, 42, 0.08)' }}
-                                onClick={() => handleOpenDetail(pkg)}
-                                title="Xem chi tiết"
-                              >
-                                Chi tiết
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-sm rounded-pill px-3 fw-bold"
-                                style={{ backgroundColor: '#A3E687', color: '#0F3D1A', border: 'none', fontSize: '12px', boxShadow: '0 4px 14px rgba(163, 230, 135, 0.35)' }}
-                                onClick={() => handleOpenBooking(pkg)}
-                                title="Đặt lịch"
-                              >
-                                Đặt
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </Table>
+          {/* Results Bento Grid (Pure Flat) */}
+          {loading ? (
+            <div className="text-center py-5 bg-white rounded-4 border mb-4" style={{ borderColor: 'rgba(15, 23, 42, 0.06)' }}>
+              <Spinner animation="border" style={{ color: '#1E60E6' }} role="status" />
+              <div className="mt-3 text-muted fw-semibold">Đang tải gói xét nghiệm từ máy chủ BMS...</div>
+            </div>
+          ) : packages.length === 0 ? (
+            <div className="card rounded-4 text-center p-5 mx-auto mb-4" style={{ maxWidth: 540, backgroundColor: '#FFFFFF', border: '1px solid rgba(15, 23, 42, 0.06)' }}>
+              <div className="text-muted mb-3" style={{ fontSize: 48 }}>
+                <FaVial />
               </div>
-
-              {/* Persistent Table Footer */}
-              <div className="card-footer bg-light border-top p-3 d-flex flex-wrap justify-content-between align-items-center small text-muted">
-                <span>
-                  Hiển thị <strong>{packages.length}</strong> / <strong>{totalItems}</strong> gói xét nghiệm. Giá đã bao gồm phí lấy mẫu và phân tích chuẩn ISO 15189.
-                </span>
-                {totalPages > 1 && (
-                  <Pagination size="sm" className="m-0">
+              <h5 className="fw-bold text-dark">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</h5>
+              <p className="text-muted small">
+                Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
+              </p>
+              <div className="mt-2">
+                <Button
+                  variant="outline-primary"
+                  className="rounded-pill px-4"
+                  style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
+                  onClick={handleClearAllFilters}
+                >
+                  Xóa Bộ Lọc & Xem Tất Cả
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Row className="g-4 mb-4">
+                {packages.map((pkg) => (
+                  <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4}>
+                    <ServiceCard
+                      package={pkg}
+                      onSelectDetail={handleOpenDetail}
+                      onBook={handleOpenBooking}
+                    />
+                  </Col>
+                ))}
+              </Row>
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Pagination>
                     <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
                     {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
                       <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
@@ -772,63 +761,7 @@ export default function ServiceCatalogPage() {
                     ))}
                     <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
                   </Pagination>
-                )}
-              </div>
-            </div>
-          ) : (
-            /* Grid Card View */
-            <>
-              {loading ? (
-                <div className="text-center py-5 bg-white rounded-4 shadow-sm border mb-4">
-                  <Spinner animation="border" variant="primary" role="status" />
-                  <div className="mt-3 text-muted fw-semibold">Đang tìm kiếm gói xét nghiệm từ máy chủ BMS...</div>
                 </div>
-              ) : packages.length === 0 ? (
-                <div className="card border-0 shadow-sm rounded-4 text-center p-5 mx-auto mb-4" style={{ maxWidth: 540 }}>
-                  <div className="text-muted mb-3" style={{ fontSize: 48 }}>
-                    <FaVial />
-                  </div>
-                  <h5 className="fw-bold text-dark">Không Tìm Thấy Gói Xét Nghiệm Phù Hợp</h5>
-                  <p className="text-muted small">
-                    Không có gói xét nghiệm nào khớp với điều kiện tìm kiếm hiện tại. Vui lòng thử từ khóa khác hoặc xóa bộ lọc.
-                  </p>
-                  <div className="mt-2">
-                    <Button
-                      variant="outline-primary"
-                      className="rounded-pill px-4"
-                      onClick={handleClearAllFilters}
-                    >
-                      Xóa Bộ Lọc & Xem Tất Cả
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <Row className="g-4 mb-4">
-                    {packages.map((pkg) => (
-                      <Col key={pkg.id || pkg.packageCode} xs={12} md={6} lg={4}>
-                        <ServiceCard
-                          package={pkg}
-                          onSelectDetail={handleOpenDetail}
-                          onBook={handleOpenBooking}
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                  {totalPages > 1 && (
-                    <div className="d-flex justify-content-center mt-4">
-                      <Pagination>
-                        <Pagination.Prev disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} />
-                        {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
-                          <Pagination.Item key={pNum} active={pNum === page} onClick={() => setPage(pNum)}>
-                            {pNum}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
-                      </Pagination>
-                    </div>
-                  )}
-                </>
               )}
             </>
           )}
@@ -845,7 +778,7 @@ export default function ServiceCatalogPage() {
                   width: 38,
                   height: 38,
                   backgroundColor: 'rgba(94, 133, 230, 0.12)',
-                  color: '#648CF4',
+                  color: '#1E60E6',
                   borderRadius: 10,
                   display: 'flex',
                   alignItems: 'center',
@@ -969,7 +902,7 @@ export default function ServiceCatalogPage() {
                 <Button
                   variant="primary"
                   className="rounded-pill px-4 fw-semibold"
-                  style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                   onClick={() => {
                     setShowDetailModal(false);
                     handleOpenBooking(selectedPackage);
@@ -996,7 +929,7 @@ export default function ServiceCatalogPage() {
             width: 56,
             height: 56,
             backgroundColor: 'rgba(94, 133, 230, 0.12)',
-            color: '#648CF4',
+            color: '#1E60E6',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -1014,7 +947,7 @@ export default function ServiceCatalogPage() {
           <div className="d-grid gap-2">
             <a
               className="btn btn-primary rounded-pill py-2 fw-semibold"
-              style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               href={`/login?redirect=catalog&package=${encodeURIComponent(bookingPackage?.packageName || "")}`}
             >
               Đăng Nhập Cổng Y Tế <FaArrowRight className="ms-1" />

@@ -259,7 +259,7 @@ export default function RestoreConfirmationModal({
                                     className="btn btn-primary"
                                     onClick={() => setStep(2)}
                                     disabled={validating || !validationResult?.canRestore}
-                                    style={{ borderRadius: 9999, background: '#648CF4', borderColor: '#648CF4', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                                    style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
                                 >
                                     Tiếp Tục Xác Nhận Khôi Phục &rarr;
                                 </button>

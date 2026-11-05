@@ -176,8 +176,8 @@ const ClinicalRoleDashboard = () => {
       {/* Thanh tiêu đề quản lý & Thẩm quyền người dùng */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
         <div>
-          <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#648CF4' }}>
-            <FaShieldAlt style={{ color: '#648CF4' }} />
+          <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
+            <FaShieldAlt style={{ color: '#1E60E6' }} />
             Bảng Điều Khiển Quản Lý Vận Hành Phòng Xét Nghiệm
           </h2>
           <p className="text-muted small mb-0">
@@ -186,7 +186,7 @@ const ClinicalRoleDashboard = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
-          <span className="px-3 py-1.5 border rounded-pill small fw-semibold shadow-sm d-inline-flex align-items-center" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#648CF4', borderColor: 'rgba(94, 133, 230, 0.3)' }}>
+          <span className="px-3 py-1.5 border rounded-pill small fw-semibold shadow-sm d-inline-flex align-items-center" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6', borderColor: 'rgba(94, 133, 230, 0.3)' }}>
             <i className="bi bi-person-badge me-1"></i>Trưởng Khoa / Quản Lý: {stats?.userName || currentUser?.fullName || 'BSCKII. Lê Lan Anh'}
           </span>
           <Button
@@ -218,10 +218,10 @@ const ClinicalRoleDashboard = () => {
           {/* Banner chào mừng & Thông tin phiên làm việc */}
           <div className="d-flex flex-wrap justify-content-between align-items-center py-3 px-4 mb-4 rounded-4 shadow-sm" style={{ background: 'rgba(94, 133, 230, 0.08)', border: '1px solid rgba(94, 133, 230, 0.2)' }}>
             <div className="d-flex align-items-center gap-2">
-              <span className="rounded-circle p-1 d-inline-block" style={{ width: 10, height: 10, backgroundColor: '#A3E687' }}></span>
+              <span className="rounded-circle p-1 d-inline-block" style={{ width: 10, height: 10, backgroundColor: '#10B981' }}></span>
               <span className="fw-bold text-dark">{stats.userName}</span>
               <span className="text-muted">| Chức vụ:</span>
-              <Badge className="px-2.5 py-1 rounded-pill" style={{ backgroundColor: '#648CF4' }}>Trưởng Khoa / Quản Lý Lab</Badge>
+              <Badge className="px-2.5 py-1 rounded-pill" style={{ backgroundColor: '#1E60E6' }}>Trưởng Khoa / Quản Lý Lab</Badge>
               <span className="text-muted small ms-2">Hệ thống LIS hoạt động đồng bộ 100%</span>
             </div>
             <div className="text-muted small mt-2 mt-sm-0">
@@ -237,7 +237,7 @@ const ClinicalRoleDashboard = () => {
                   <Card.Body className="p-3.5">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '11.5px', letterSpacing: '0.03em' }}>{card.title}</span>
-                      <div className="p-2 rounded-3 fs-5" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#648CF4' }}>
+                      <div className="p-2 rounded-3 fs-5" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6' }}>
                         <i className={`bi ${card.icon || 'bi-speedometer2'}`}></i>
                       </div>
                     </div>
@@ -262,12 +262,12 @@ const ClinicalRoleDashboard = () => {
                     <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
                       <div>
                         <h5 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-                          <FaClipboardCheck style={{ color: '#648CF4' }} />
+                          <FaClipboardCheck style={{ color: '#1E60E6' }} />
                           Hàng Đợi Thẩm Định &amp; Ký Số Điện Tử
                         </h5>
                         <small className="text-muted">Mẫu đã hoàn tất đo lường phân tích, đang chờ Trưởng khoa phê duyệt</small>
                       </div>
-                      <Link to="/laboratory/verify-results" className="btn btn-sm btn-primary fw-semibold rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm" style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}>
+                      <Link to="/laboratory/verify-results" className="btn btn-sm btn-primary fw-semibold rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
                         <span>Vào Thẩm Định</span>
                         <FaArrowRight size={12} />
                       </Link>
@@ -318,7 +318,7 @@ const ClinicalRoleDashboard = () => {
                     <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
                       <div>
                         <h5 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-                          <FaStopwatch style={{ color: '#648CF4' }} />
+                          <FaStopwatch style={{ color: '#1E60E6' }} />
                           Hiệu Suất Thời Gian TAT (ISO 15189)
                         </h5>
                         <small className="text-muted">Chỉ số cam kết thời gian quay vòng toàn viện</small>

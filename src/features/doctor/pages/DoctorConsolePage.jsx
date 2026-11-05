@@ -459,7 +459,7 @@ export default function DoctorConsolePage() {
 
                   {/* Clinical Direct Actions: Chỉ định xét nghiệm, Đánh giá ICD-10, EMR */}
                   <div className="p-3 rounded-4 mb-4 border" style={{ backgroundColor: 'var(--bms-surface-card, #EEF2F6)', borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-                    <div className="small fw-bold text-uppercase mb-2" style={{ color: '#648CF4', letterSpacing: '0.03em' }}>
+                    <div className="small fw-bold text-uppercase mb-2" style={{ color: '#1E60E6', letterSpacing: '0.03em' }}>
                       Nghiệp Vụ Lâm Sàng Cho Bệnh Nhân Hiện Tại:
                     </div>
                     <div className="d-flex flex-wrap gap-2">
@@ -469,7 +469,7 @@ export default function DoctorConsolePage() {
                         variant="primary"
                         size="sm"
                         className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-sm"
-                        style={{ backgroundColor: '#648CF4', borderColor: '#648CF4' }}
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                       >
                         <FaVial /> Chỉ Định Xét Nghiệm Máu
                       </Button>

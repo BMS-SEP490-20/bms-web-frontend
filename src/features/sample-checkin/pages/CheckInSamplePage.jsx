@@ -148,7 +148,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh' }} className="py-3">
       {/* Banner đầu trang chuẩn y khoa ISO 15189 */}
-      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm mx-3" style={{ backgroundColor: '#648CF4' }}>
+      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm mx-3" style={{ backgroundColor: '#1E60E6' }}>
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div>
             <div className="small opacity-75 d-flex align-items-center gap-1 mb-1">
@@ -162,7 +162,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
               Quét mã vạch Code 128, kiểm tra tiêu chí tiền phân tích ISO 15189:2022 và xác nhận bàn giao vào phòng xét nghiệm.
             </p>
           </div>
-          <span className="badge bg-light border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#648CF4' }}>
+          <span className="badge bg-light border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#1E60E6' }}>
             ISO 15189:2022 §7.3
           </span>
         </div>
@@ -173,7 +173,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
         <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <div className="card-body p-4">
             <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-              <FaSearch style={{ color: '#648CF4' }} />
+              <FaSearch style={{ color: '#1E60E6' }} />
               <span>Quét hoặc Tra Cứu Mã Barcode Ống Mẫu</span>
             </h6>
             <div className="d-flex gap-2 flex-wrap">
@@ -188,7 +188,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
               <button
                 type="button"
                 className="btn d-flex align-items-center gap-2 px-4 shadow-sm text-white"
-                style={{ minHeight: 46, backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+                style={{ minHeight: 46, backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                 disabled={lookupLoading}
                 onClick={() => void onLookup()}
               >
@@ -371,7 +371,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                 <button
                   type="button"
                   className="btn d-flex align-items-center gap-2 shadow-sm text-white"
-                  style={{ backgroundColor: '#648CF4', borderColor: '#648CF4', borderRadius: '9999px' }}
+                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                   disabled={!canReceive || loading}
                   onClick={() => void onCheckIn(false)}
                 >

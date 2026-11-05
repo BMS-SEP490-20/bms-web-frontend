@@ -317,12 +317,12 @@ export default function QualityControlManagementPage() {
 
                 {/* Active Lots */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeftColor: '#648CF4' }}>
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeftColor: '#1E60E6' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Số Lô QC Đang Dùng</span>
-                            <span className="badge rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#648CF4' }}>Active</span>
+                            <span className="badge rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}>Active</span>
                         </div>
-                        <div className="fs-2 fw-bold mt-1 font-monospace" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{summary.activeLotsCount} lô</div>
+                        <div className="fs-2 fw-bold mt-1 font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.activeLotsCount} lô</div>
                         <div className="small text-muted mt-1">Tất cả các bộ phân tích</div>
                     </div>
                 </div>
@@ -359,7 +359,7 @@ export default function QualityControlManagementPage() {
                 <li className="nav-item">
                     <button
                         className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'chart' ? 'active text-white' : ''}`}
-                        style={activeTab === 'chart' ? { backgroundColor: '#648CF4' } : {}}
+                        style={activeTab === 'chart' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("chart")}
                     >
                         <FaChartLine /> Biểu Đồ Levey-Jennings
@@ -368,7 +368,7 @@ export default function QualityControlManagementPage() {
                 <li className="nav-item">
                     <button
                         className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'lots' ? 'active text-white' : ''}`}
-                        style={activeTab === 'lots' ? { backgroundColor: '#648CF4' } : {}}
+                        style={activeTab === 'lots' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("lots")}
                     >
                         <FaVial /> Quản Lý Lô Kiểm Chuẩn (QC Lots)
@@ -377,7 +377,7 @@ export default function QualityControlManagementPage() {
                 <li className="nav-item">
                     <button
                         className={`nav-link rounded-pill d-flex align-items-center gap-2 ${activeTab === 'flags' ? 'active text-white' : ''}`}
-                        style={activeTab === 'flags' ? { backgroundColor: '#648CF4' } : {}}
+                        style={activeTab === 'flags' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("flags")}
                     >
                         <FaExclamationTriangle /> Lịch Sử Cảnh Báo Vi Phạm Westgard ({flags.length})

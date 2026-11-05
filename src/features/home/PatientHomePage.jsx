@@ -233,6 +233,12 @@ export default function PatientHomePage({ user: propUser }) {
               </p>
             </div>
           </div>
+
+          <div className="text-center mt-4">
+            <Link to="/iso-process" className="bms-btn-neutral-pill">
+              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -270,10 +276,13 @@ export default function PatientHomePage({ user: propUser }) {
             ))}
           </div>
 
-          <div className="text-center mt-5">
-            <a href="/services" className="bms-btn-neutral-pill">
-              Xem Toàn Bộ Danh Mục Gói Xét Nghiệm &rarr;
-            </a>
+          <div className="text-center mt-5 d-flex justify-content-center flex-wrap gap-3">
+            <Link to="/services" className="bms-btn-blue-cta">
+              Xem Toàn Bộ Gói Xét Nghiệm &rarr;
+            </Link>
+            <Link to="/pricing" className="bms-btn-neutral-pill">
+              Tra Cứu Bảng Giá Niêm Yết &rarr;
+            </Link>
           </div>
         </div>
       </section>

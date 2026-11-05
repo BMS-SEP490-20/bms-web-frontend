@@ -138,7 +138,7 @@ export default function TatStatisticsDashboardPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#648CF4', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC63</span>
+                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#1E60E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC63</span>
                         <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
@@ -157,7 +157,7 @@ export default function TatStatisticsDashboardPage() {
                     </button>
                     <button
                         className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#A3E687', borderColor: '#A3E687', color: '#14532d', fontWeight: '600' }}
+                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#10B981', borderColor: '#10B981', color: '#14532d', fontWeight: '600' }}
                         onClick={handleExportCsv}
                         disabled={isExporting}
                         id="btn-export-tat-csv"
@@ -174,7 +174,7 @@ export default function TatStatisticsDashboardPage() {
                         {/* Timeframe Buttons */}
                         <div className="col-12 col-md-5 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaCalendarAlt className="me-1" style={{ color: '#648CF4' }} /> Khung thời gian:
+                                <FaCalendarAlt className="me-1" style={{ color: '#1E60E6' }} /> Khung thời gian:
                             </label>
                             <div className="d-flex flex-wrap gap-1" role="group">
                                 {TIMEFRAMES.map(tf => (
@@ -185,10 +185,10 @@ export default function TatStatisticsDashboardPage() {
                                         style={{
                                             borderRadius: '9999px',
                                             padding: '4px 14px',
-                                            backgroundColor: selectedTimeframe === tf.key ? '#648CF4' : '#EEF2F6',
+                                            backgroundColor: selectedTimeframe === tf.key ? '#1E60E6' : '#EEF2F6',
                                             color: selectedTimeframe === tf.key ? '#ffffff' : '#475569',
                                             border: '1px solid',
-                                            borderColor: selectedTimeframe === tf.key ? '#648CF4' : 'rgba(15, 23, 42, 0.05)',
+                                            borderColor: selectedTimeframe === tf.key ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
                                             fontWeight: '600'
                                         }}
                                         onClick={() => setSelectedTimeframe(tf.key)}
@@ -202,7 +202,7 @@ export default function TatStatisticsDashboardPage() {
                         {/* Department Filter */}
                         <div className="col-12 col-sm-6 col-md-4 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaFlask className="me-1" style={{ color: '#648CF4' }} /> Chuyên khoa xét nghiệm:
+                                <FaFlask className="me-1" style={{ color: '#1E60E6' }} /> Chuyên khoa xét nghiệm:
                             </label>
                             <select
                                 className="form-select form-select-sm"
@@ -243,7 +243,7 @@ export default function TatStatisticsDashboardPage() {
                 <div className="col-12 col-sm-6 col-xl-2">
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="text-muted small fw-semibold text-uppercase">TAT Trung Bình (Mean)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{summary.averageTatFormatted || "0m"}</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.averageTatFormatted || "0m"}</div>
                         <div className="small text-muted mt-1 font-monospace" style={{ fontSize: "0.75rem" }}>
                             {summary.averageTatMinutes} phút
                         </div>
@@ -254,7 +254,7 @@ export default function TatStatisticsDashboardPage() {
                 <div className="col-12 col-sm-6 col-xl-2">
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Trung Vị (Median P50)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{summary.medianTatFormatted || "0m"}</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.medianTatFormatted || "0m"}</div>
                         <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
                             50% mẫu hoàn tất sớm hơn
                         </div>
@@ -276,12 +276,12 @@ export default function TatStatisticsDashboardPage() {
                 <div className="col-12 col-sm-6 col-xl-2">
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#A3E687', fontVariantNumeric: 'tabular-nums' }}>{summary.targetComplianceRate || 100}%</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{summary.targetComplianceRate || 100}%</div>
                         <div className="progress mt-2" style={{ height: "4px", borderRadius: '9999px' }}>
                             <div
                                 className="progress-bar"
                                 role="progressbar"
-                                style={{ width: `${summary.targetComplianceRate || 100}%`, backgroundColor: '#A3E687', borderRadius: '9999px' }}
+                                style={{ width: `${summary.targetComplianceRate || 100}%`, backgroundColor: '#10B981', borderRadius: '9999px' }}
                             ></div>
                         </div>
                     </div>
@@ -328,13 +328,13 @@ export default function TatStatisticsDashboardPage() {
                                     <button
                                         className="nav-link py-3 px-3 fw-semibold border-0 border-bottom border-3 d-flex align-items-center gap-2"
                                         style={{
-                                            color: isActive ? '#648CF4' : '#64748B',
-                                            borderBottomColor: isActive ? '#648CF4' : 'transparent',
+                                            color: isActive ? '#1E60E6' : '#64748B',
+                                            borderBottomColor: isActive ? '#1E60E6' : 'transparent',
                                             backgroundColor: 'transparent'
                                         }}
                                         onClick={() => setActiveTab(tab.key)}
                                     >
-                                        <Icon style={{ color: isActive ? '#648CF4' : '#94A3B8' }} />
+                                        <Icon style={{ color: isActive ? '#1E60E6' : '#94A3B8' }} />
                                         <span>{tab.label}</span>
                                     </button>
                                 </li>
@@ -352,7 +352,7 @@ export default function TatStatisticsDashboardPage() {
                                 {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
                                     const isStat = p.priority.toLowerCase() === "stat";
                                     const isUrgent = p.priority.toLowerCase() === "urgent";
-                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#E7BC4C" : "#648CF4";
+                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#E7BC4C" : "#1E60E6";
 
                                     return (
                                         <div className="col-12 col-md-4" key={p.priority}>
@@ -440,7 +440,7 @@ export default function TatStatisticsDashboardPage() {
                                                     <span className="fs-5 fw-bold text-dark">{ph.percentageOfTotal}%</span>
                                                 </div>
                                                 <h6 className="fw-bold mt-2 mb-1">{ph.phaseDescription}</h6>
-                                                <div className="fs-3 fw-bold mt-2" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>{ph.averageFormatted}</div>
+                                                <div className="fs-3 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{ph.averageFormatted}</div>
                                                 <div className="small text-muted font-monospace">{ph.averageMinutes} phút trung bình</div>
                                             </div>
                                         </div>
@@ -470,7 +470,7 @@ export default function TatStatisticsDashboardPage() {
                                         {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
                                             <tr key={d.department} style={{ borderBottom: '1px solid #EEF2F6' }}>
                                                 <td className="fw-bold text-dark ps-3 py-3">
-                                                    <FaFlask className="me-2" style={{ color: '#648CF4' }} />
+                                                    <FaFlask className="me-2" style={{ color: '#1E60E6' }} />
                                                     {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
                                                      d.department === "Hematology" ? "Huyết Học (Hematology)" :
                                                      d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
@@ -478,7 +478,7 @@ export default function TatStatisticsDashboardPage() {
                                                      d.department === "Microbiology" ? "Vi Sinh (Microbiology)" : d.department}
                                                 </td>
                                                 <td className="text-center py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.totalCount}</td>
-                                                <td className="text-center fw-bold py-3" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>
+                                                <td className="text-center fw-bold py-3" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
                                                     {d.averageTatFormatted} ({d.averageTatMinutes}m)
                                                 </td>
                                                 <td style={{ minWidth: "180px" }} className="py-3">
@@ -487,7 +487,7 @@ export default function TatStatisticsDashboardPage() {
                                                             <div
                                                                 className="progress-bar"
                                                                 role="progressbar"
-                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#A3E687' : '#E7BC4C', borderRadius: '9999px' }}
+                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#10B981' : '#E7BC4C', borderRadius: '9999px' }}
                                                             ></div>
                                                         </div>
                                                         <span className="small fw-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.complianceRate}%</span>
@@ -529,7 +529,7 @@ export default function TatStatisticsDashboardPage() {
                                                 <span className="fw-bold text-dark">{t.dateLabel}</span>
                                                 <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>{t.volume} mẫu</span>
                                             </div>
-                                            <div className="fs-4 fw-bold mt-2" style={{ color: '#648CF4', fontVariantNumeric: 'tabular-nums' }}>
+                                            <div className="fs-4 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
                                                 {Math.round(t.averageTatMinutes)} phút
                                             </div>
                                             <div className="d-flex justify-content-between small text-muted mt-2 pt-2 border-top" style={{ borderColor: '#EEF2F6' }}>
@@ -557,7 +557,7 @@ export default function TatStatisticsDashboardPage() {
 
                             {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
                                 <div className="text-center py-5 text-muted">
-                                    <FaCheckCircle className="fs-1 mb-2" style={{ color: '#A3E687' }} />
+                                    <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
                                     <p className="mb-0 fw-semibold">Tuyệt vời! Không ghi nhận trường hợp mẫu nào vượt ngưỡng thời gian cam kết.</p>
                                 </div>
                             ) : (
@@ -579,7 +579,7 @@ export default function TatStatisticsDashboardPage() {
                                         <tbody>
                                             {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
                                                 <tr key={v.sampleId || v.barcode} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                                    <td className="font-monospace fw-bold ps-3 py-3" style={{ color: '#648CF4' }}>{v.barcode}</td>
+                                                    <td className="font-monospace fw-bold ps-3 py-3" style={{ color: '#1E60E6' }}>{v.barcode}</td>
                                                     <td className="py-3">{v.patientName}</td>
                                                     <td className="text-truncate py-3" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
                                                     <td className="py-3">

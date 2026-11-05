@@ -91,7 +91,7 @@ export default function RevenueReportPage() {
             ]);
 
             setReport(reportData);
-            setExportRows(txns);
+            setExportRows(Array.isArray(txns) ? txns : (txns?.data && Array.isArray(txns.data) ? txns.data : []));
         } catch (error) {
             console.error("Failed to load revenue report:", error);
         } finally {
@@ -520,7 +520,7 @@ export default function RevenueReportPage() {
                                 </h6>
                             </div>
                             <div className="card-body p-3">
-                                {report?.byChannel?.map((ch, idx) => (
+                                {(Array.isArray(report?.byChannel) ? report.byChannel : []).map((ch, idx) => (
                                     <div key={idx} className="mb-3">
                                         <div className="d-flex justify-content-between small fw-semibold mb-1">
                                             <span>{ch.channel}</span>
@@ -547,7 +547,7 @@ export default function RevenueReportPage() {
                                 </h6>
                             </div>
                             <div className="card-body p-3">
-                                {report?.topReferrals?.map((ref, idx) => (
+                                {(Array.isArray(report?.topReferrals) ? report.topReferrals : []).map((ref, idx) => (
                                     <div key={idx} className="d-flex justify-content-between align-items-center py-2 border-bottom">
                                         <div>
                                             <div className="fw-bold small text-dark">{ref.name}</div>
@@ -576,7 +576,7 @@ export default function RevenueReportPage() {
                                 </h5>
                             </div>
                             <div className="card-body p-4">
-                                {report?.byCategory?.map((cat, idx) => (
+                                {(Array.isArray(report?.byCategory) ? report.byCategory : []).map((cat, idx) => (
                                     <div key={idx} className="mb-4">
                                         <div className="d-flex justify-content-between fw-semibold small mb-1">
                                             <span>{cat.category}</span>
@@ -605,7 +605,7 @@ export default function RevenueReportPage() {
                                 </h5>
                             </div>
                             <div className="card-body p-4">
-                                {report?.byPaymentMethod?.map((method, idx) => (
+                                {(Array.isArray(report?.byPaymentMethod) ? report.byPaymentMethod : []).map((method, idx) => (
                                     <div key={idx} className="mb-4">
                                         <div className="d-flex justify-content-between fw-semibold small mb-1">
                                             <span>{method.paymentMethod}</span>

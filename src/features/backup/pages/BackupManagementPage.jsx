@@ -3,9 +3,10 @@
  * @description Master page for Database Backup & Restore procedures (UC80 / BR-243).
  * Specifically handles archiving and restoring patient laboratory diagnostic test data with SHA-256 integrity validation.
  * Conforms to: Production Medical Standards, ISO 15189 Quality Management & AGENTS-DESIGN.md.
+ * @module features/backup/pages/BackupManagementPage
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
     FaDatabase,
     FaShieldAlt,
@@ -20,7 +21,6 @@ import {
     FaHdd,
     FaCalendarAlt,
     FaHistory,
-    FaTrashAlt,
     FaCheck
 } from "react-icons/fa";
 import {
@@ -30,7 +30,6 @@ import {
     fetchRestoreHistory,
     getBackupDownloadUrl,
     downloadBackupArchive,
-    deleteBackup
 } from "../api/backupApi";
 import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import CreateBackupModal from "../components/CreateBackupModal";
@@ -41,7 +40,7 @@ const TABS = [
     { key: "ALL", label: "Tất Cả Bản Sao Lưu" },
     { key: "PATIENT", label: "Dữ Liệu Xét Nghiệm Bệnh Nhân", badgeClass: "bg-primary" },
     { key: "FULL", label: "Toàn Bộ Cơ Sở Dữ Liệu" },
-    { key: "HISTORY", label: "Lịch Sử Khôi Phục (Audits)", icon: FaHistory }
+    { key: "HISTORY", label: "Lịch Sử Khôi Phục Dữ Liệu", icon: FaHistory }
 ];
 
 export default function BackupManagementPage() {
@@ -78,19 +77,22 @@ export default function BackupManagementPage() {
     const [selectedBackup, setSelectedBackup] = useState(null);
     const [toastMessage, setToastMessage] = useState(null);
 
-    useEffect(() => {
-        loadData();
-    }, [activeTab, currentPage]);
-
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            const statsData = await fetchBackupStats();
-            setStats(statsData);
+            try {
+                const statsData = await fetchBackupStats();
+                if (statsData) setStats(statsData);
+            } catch (err) {
+                console.warn("[Backup Page] Error loading stats:", err);
+            }
 
             if (activeTab === "HISTORY") {
                 const historyData = await fetchRestoreHistory();
-                setRestoreHistory(historyData);
+                const safeHistory = Array.isArray(historyData)
+                    ? historyData
+                    : (Array.isArray(historyData?.items) ? historyData.items : (Array.isArray(historyData?.data) ? historyData.data : []));
+                setRestoreHistory(safeHistory);
             } else {
                 let scopeParam = null;
                 if (activeTab === "PATIENT") scopeParam = 1;
@@ -102,39 +104,52 @@ export default function BackupManagementPage() {
                     pageSize
                 });
 
-                setBackups(data.items || []);
-                setTotalCount(data.totalCount || 0);
+                const safeBackups = Array.isArray(data)
+                    ? data
+                    : (Array.isArray(data?.items) 
+                        ? data.items 
+                        : (Array.isArray(data?.Items) ? data.Items : (Array.isArray(data?.data) ? data.data : [])));
+
+                setBackups(safeBackups);
+                setTotalCount(data?.totalCount ?? data?.TotalCount ?? safeBackups.length);
             }
         } catch (err) {
+            console.error("[Backup Page] Error loading data:", err);
             setToastMessage({
                 type: "danger",
-                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách bản sao lưu."
+                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách bản sao lưu cơ sở dữ liệu."
             });
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab, currentPage, pageSize]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const handleVerify = async (backup) => {
-        setVerifyingId(backup.backupId);
+        const id = backup.backupId || backup.id;
+        setVerifyingId(id);
         try {
-            const res = await verifyBackupIntegrity(backup.backupId || backup.id);
+            const res = await verifyBackupIntegrity(id);
             if (res?.isValid) {
                 setToastMessage({
                     type: "success",
-                    text: `Bản sao lưu ${backup.backupId} hợp lệ! Mã băm SHA-256 khớp 100%.`
+                    text: `Bản sao lưu ${id} hợp lệ! Mã băm SHA-256 khớp 100%.`
                 });
             } else {
                 setToastMessage({
                     type: "danger",
-                    text: `Cảnh báo: Bản sao lưu ${backup.backupId} không khớp mã băm SHA-256!`
+                    text: `Cảnh báo: Bản sao lưu ${id} không khớp mã băm SHA-256!`
                 });
             }
             loadData();
         } catch (err) {
+            console.error("[Backup Page] Verify integrity error:", err);
             setToastMessage({
                 type: "danger",
-                text: err?.response?.data?.message || err?.message || "Lỗi trong quá trình xác thực mã băm."
+                text: err?.response?.data?.message || err?.message || "Lỗi trong quá trình xác thực mã băm SHA-256."
             });
         } finally {
             setVerifyingId(null);
@@ -144,14 +159,14 @@ export default function BackupManagementPage() {
     const handleBackupCreated = (newBackup) => {
         setToastMessage({
             type: "success",
-            text: `Đã khởi tạo bản sao lưu ${newBackup.backupId} thành công!`
+            text: `Đã khởi tạo bản sao lưu ${newBackup?.backupId || ''} thành công!`
         });
         loadData();
     };
 
     const handleDownload = async (item) => {
         const id = item.id || item.backupId;
-        const preferredName = item.fileName || `${item.backupId || item.id}.json`;
+        const preferredName = item.fileName || `${item.backupId || item.id}.json.gz`;
         try {
             setDownloadingId(item.backupId || item.id);
             await downloadBackupArchive(id, preferredName);
@@ -183,33 +198,38 @@ export default function BackupManagementPage() {
     const handleRestoreSuccess = (result) => {
         setToastMessage({
             type: "success",
-            text: `Khôi phục thành công ${result.restoredCount} bản ghi xét nghiệm vào hệ thống BMS!`
+            text: `Khôi phục thành công ${result.restoredCount || result.totalRecordsRestored || 'toàn bộ'} bản ghi dữ liệu y tế vào hệ thống BMS!`
         });
         loadData();
     };
 
-    const filteredBackups = backups.filter((b) => {
-        if (!searchTerm.trim()) return true;
+    // Safe filtered backups
+    const safeBackupsList = useMemo(() => (Array.isArray(backups) ? backups : []), [backups]);
+
+    const filteredBackups = useMemo(() => {
+        if (!searchTerm.trim()) return safeBackupsList;
         const term = searchTerm.toLowerCase();
-        return (
-            b.backupName?.toLowerCase().includes(term) ||
-            b.backupId?.toLowerCase().includes(term) ||
-            b.createdBy?.toLowerCase().includes(term)
-        );
-    });
+        return safeBackupsList.filter((b) => {
+            return (
+                b.backupName?.toLowerCase().includes(term) ||
+                b.backupId?.toLowerCase().includes(term) ||
+                b.createdBy?.toLowerCase().includes(term)
+            );
+        });
+    }, [safeBackupsList, searchTerm]);
 
     const renderStatusBadge = (status) => {
         switch (status) {
             case "Completed":
-                return <span className="badge bg-success"><FaCheckCircle className="me-1" /> Toàn vẹn</span>;
+                return <span className="badge bg-success"><FaCheckCircle className="me-1" /> Toàn Vẹn</span>;
             case "Restored":
-                return <span className="badge bg-primary"><FaUndo className="me-1" /> Đã khôi phục</span>;
+                return <span className="badge bg-primary"><FaUndo className="me-1" /> Đã Khôi Phục</span>;
             case "Corrupted":
-                return <span className="badge bg-danger"><FaExclamationTriangle className="me-1" /> Hư hỏng</span>;
+                return <span className="badge bg-danger"><FaExclamationTriangle className="me-1" /> Hư Hỏng</span>;
             case "Failed":
-                return <span className="badge bg-danger">Thất bại</span>;
+                return <span className="badge bg-danger">Thất Bại</span>;
             default:
-                return <span className="badge bg-warning text-dark">Đang xử lý</span>;
+                return <span className="badge bg-warning text-dark">Đang Xử Lý</span>;
         }
     };
 
@@ -219,16 +239,16 @@ export default function BackupManagementPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold text-dark mb-0">Quản Lý Sao Lưu & Khôi Phục Dữ Liệu</h4>
+                        <h4 className="fw-bold text-dark mb-0">Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
                         <span className="badge bg-primary-subtle text-primary border border-primary font-monospace">
-                            UC80 • BR-242 / BR-243
+                            ISO 15189 • Nghị Định 123/2020/NĐ-CP
                         </span>
                         <span className="badge bg-success-subtle text-success border border-success">
-                            ISO 15189 Archive
+                            Niêm Phong Số SHA-256 (Lưu Trữ 10 Năm)
                         </span>
                     </div>
                     <p className="text-secondary small mb-0">
-                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn.
+                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn (UC80).
                     </p>
                 </div>
 
@@ -248,7 +268,7 @@ export default function BackupManagementPage() {
                             onClick={() => setShowCreateModal(true)}
                         >
                             <FaPlus />
-                            <span>+ Sao Lưu Dữ Liệu Xét Nghiệm</span>
+                            <span>Sao Lưu Dữ Liệu Xét Nghiệm Mới</span>
                         </button>
                     )}
                 </div>
@@ -310,7 +330,7 @@ export default function BackupManagementPage() {
                                 </div>
                             </div>
                             <small className="text-secondary mt-2 d-block">
-                                Nén định dạng <code>.json.gz</code>
+                                Nén bảo mật định dạng <code>.json.gz</code>
                             </small>
                         </div>
                     </div>
@@ -352,7 +372,7 @@ export default function BackupManagementPage() {
                                 </div>
                             </div>
                             <small className="text-secondary mt-2 d-block">
-                                Tuân thủ nghiêm ngặt chuẩn ISO 15189
+                                Tuân thủ chuẩn ISO 15189 & Nghị định 123/2020/NĐ-CP (Tối thiểu 10 năm)
                             </small>
                         </div>
                     </div>
@@ -387,7 +407,7 @@ export default function BackupManagementPage() {
                         </ul>
 
                         {activeTab !== "HISTORY" && (
-                            <div className="input-group input-group-sm" style={{ maxWidth: "300px" }}>
+                            <div className="input-group input-group-sm" style={{ maxWidth: "320px" }}>
                                 <span className="input-group-text bg-light border-end-0">
                                     <FaSearch className="text-muted" />
                                 </span>
@@ -411,7 +431,7 @@ export default function BackupManagementPage() {
                     <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                         <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                             <FaHistory className="text-primary" />
-                            Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu (Restore Audit Trail)
+                            Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu
                         </h6>
                         <small className="text-muted">Tổng cộng {restoreHistory.length} phiên khôi phục ghi nhận</small>
                     </div>
@@ -438,7 +458,7 @@ export default function BackupManagementPage() {
                                             Đang tải nhật ký khôi phục...
                                         </td>
                                     </tr>
-                                ) : restoreHistory.length === 0 ? (
+                                ) : (!Array.isArray(restoreHistory) || restoreHistory.length === 0) ? (
                                     <tr>
                                         <td colSpan="8" className="text-center py-5 text-muted">
                                             Chưa ghi nhận phiên khôi phục nào trên hệ thống.
@@ -458,18 +478,18 @@ export default function BackupManagementPage() {
                                                 </span>
                                             </td>
                                             <td className="fw-semibold text-dark">{log.restoredBy}</td>
-                                            <td><span className="badge bg-secondary">{log.restoredByRole || "Admin"}</span></td>
-                                            <td className="fw-bold text-primary">{log.totalRecordsRestored} bản ghi</td>
+                                            <td><span className="badge bg-secondary">{log.restoredByRole || "Quản trị viên"}</span></td>
+                                            <td className="fw-bold text-primary">{log.totalRecordsRestored ?? 0} bản ghi</td>
                                             <td>
                                                 <span className="badge bg-success-subtle text-success border border-success">
                                                     <FaCheck className="me-1" /> Khớp 100%
                                                 </span>
                                             </td>
                                             <td className="small text-secondary">
-                                                {new Date(log.executedAt).toLocaleString("vi-VN")}
+                                                {log.executedAt ? new Date(log.executedAt).toLocaleString("vi-VN") : "—"}
                                             </td>
                                             <td>
-                                                <span className="badge bg-success">Hoàn thành</span>
+                                                <span className="badge bg-success">Hoàn Thành</span>
                                             </td>
                                         </tr>
                                     ))
@@ -528,16 +548,16 @@ export default function BackupManagementPage() {
                                             <td>
                                                 <div className="fw-bold text-dark">{item.backupName}</div>
                                                 <small className="text-muted">
-                                                    {item.totalRecords} bản ghi y khoa • Người tạo: {item.createdBy}
+                                                    {item.totalRecords || 0} bản ghi y khoa • Người tạo: {item.createdBy || 'Quản trị viên'}
                                                 </small>
                                             </td>
                                             <td>
                                                 <span className={`badge ${
-                                                    item.scope === "PatientTestResults"
+                                                    item.scope === "PatientTestResults" || item.scope === 1
                                                         ? "bg-primary-subtle text-primary border border-primary"
                                                         : "bg-secondary-subtle text-secondary border"
                                                 }`}>
-                                                    {item.scope === "PatientTestResults" ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
+                                                    {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
                                                 </span>
                                             </td>
                                             <td className="font-monospace text-secondary">
@@ -593,7 +613,7 @@ export default function BackupManagementPage() {
                                                     <button
                                                         type="button"
                                                         className="btn btn-outline-primary btn-sm"
-                                                        title="Xem chi tiết"
+                                                        title="Xem chi tiết bản sao lưu"
                                                         onClick={() => {
                                                             setSelectedBackup(item);
                                                             setShowDetailModal(true);

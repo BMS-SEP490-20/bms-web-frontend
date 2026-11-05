@@ -12,9 +12,22 @@ import {
   FaChevronRight,
   FaArrowLeft,
   FaSyncAlt,
+  FaLock,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import { appointmentApi } from "../api/appointmentApi";
 import { QRCodeSVG } from "qrcode.react";
+
+const isPaidOrConfirmed = (rawStatus) => {
+  if (!rawStatus && rawStatus !== 0) return false;
+  const s = String(rawStatus).toUpperCase();
+  return (
+    s === 'CONFIRMED' || s === '1' ||
+    s === 'CHECKEDIN' || s === 'CHECKED_IN' || s === '2' ||
+    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3' ||
+    s === 'COMPLETED' || s === '4'
+  );
+};
 
 export default function AppointmentConfirmationPage() {
   const { id } = useParams();
@@ -258,29 +271,52 @@ export default function AppointmentConfirmationPage() {
 
           <hr className="my-4 text-muted" />
 
-          {/* Real check-in QR code */}
+          {/* Check-in QR code */}
           <div className="my-4">
-            <div className="text-uppercase text-muted small fw-bold mb-2">
-              Check-in QR code
-            </div>
-            <div
-              className="d-inline-flex p-3 bg-white rounded-3 border shadow-sm align-items-center justify-content-center"
-              style={{ width: "160px", height: "160px" }}
-            >
-              {qrCodeText ? (
-                <QRCodeSVG
-                  value={qrCodeText}
-                  size={136}
-                  level="M"
-                  includeMargin={false}
-                />
-              ) : (
-                <div className="text-muted small">QR N/A</div>
-              )}
-            </div>
-            <div className="small font-monospace text-muted mt-2">
-              {data?.appointmentCode} · Scan at reception
-            </div>
+            {isPaidOrConfirmed(data?.status) ? (
+              <>
+                <div className="text-uppercase text-success small fw-bold mb-2">
+                  <FaCheckCircle className="me-1" /> Phiếu Tiếp Đón & Mã Check-in QR
+                </div>
+                <div
+                  className="d-inline-flex p-3 bg-white rounded-3 border border-success shadow-sm align-items-center justify-content-center"
+                  style={{ width: "160px", height: "160px" }}
+                >
+                  {qrCodeText ? (
+                    <QRCodeSVG
+                      value={qrCodeText}
+                      size={136}
+                      level="H"
+                      includeMargin={false}
+                    />
+                  ) : (
+                    <div className="text-muted small">QR N/A</div>
+                  )}
+                </div>
+                <div className="small font-monospace text-primary fw-bold mt-2">
+                  {data?.appointmentCode} · Xuất trình tại quầy Lễ tân
+                </div>
+              </>
+            ) : (
+              <div className="p-4 bg-light border border-warning rounded-4 mx-auto text-center" style={{ maxWidth: "480px" }}>
+                <div className="text-warning mb-2" style={{ fontSize: "32px" }}>
+                  <FaLock />
+                </div>
+                <h6 className="fw-bold text-dark text-uppercase mb-1">
+                  Mã QR Check-in Đang Tạm Khóa (Chờ Thanh Toán)
+                </h6>
+                <p className="text-muted small mb-3">
+                  Theo quy định an toàn xét nghiệm, <strong>Mã QR tiếp đón tại phòng Lab chỉ hiển thị sau khi đơn xét nghiệm hoàn tất thanh toán</strong>.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-success fw-bold px-4 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
+                  onClick={() => navigate(`/payments/checkout?appointmentId=${data?.appointmentId || targetId}&code=${data?.appointmentCode || targetId}`)}
+                >
+                  <FaMoneyBillWave /> Tiến Hành Thanh Toán Giữ Chỗ VNPAY Ngay
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

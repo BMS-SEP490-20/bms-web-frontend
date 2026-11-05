@@ -6,6 +6,7 @@ import {
   getReceiptPrintData
 } from '../api/billingApi';
 import ReceiptPrintModal from '../components/ReceiptPrintModal';
+import VatInvoiceModal from '../components/VatInvoiceModal';
 
 export default function BillingInvoicesPage() {
   const [invoices, setInvoices] = useState([]);
@@ -19,6 +20,8 @@ export default function BillingInvoicesPage() {
 
   // Modals
   const [printData, setPrintData] = useState(null);
+  const [showVatModal, setShowVatModal] = useState(false);
+  const [vatInvoiceData, setVatInvoiceData] = useState(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(1); // 1: Cash, 2: VNPay, 3: BankTransfer, 4: POS Card
@@ -64,6 +67,26 @@ export default function BillingInvoicesPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenVat = (invoice) => {
+    setVatInvoiceData({
+      ...invoice,
+      invoiceNumber: invoice.invoiceCode || invoice.invoiceNumber,
+      amount: invoice.finalAmount || invoice.totalAmount,
+      packageName: invoice.items?.[0]?.itemName || 'Dịch vụ xét nghiệm máu y khoa',
+      items: invoice.items?.map((it, idx) => ({
+        stt: idx + 1,
+        itemName: it.itemName,
+        unit: 'Lần',
+        quantity: it.quantity || 1,
+        unitPrice: it.unitPrice,
+        totalPrice: it.totalPrice,
+        taxRate: 'KCT',
+        taxAmount: 0
+      }))
+    });
+    setShowVatModal(true);
   };
 
   const handlePayInvoice = async () => {
@@ -224,7 +247,7 @@ export default function BillingInvoicesPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-        />
+          />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -335,21 +358,40 @@ export default function BillingInvoicesPage() {
                           </button>
                         )}
                         {isPaid && (
-                          <button
-                            onClick={() => handleOpenPrint(inv)}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              border: '1px solid #cbd5e1',
-                              backgroundColor: '#ffffff',
-                              color: '#2563eb',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            🖨️ In Biên Lai K80
-                          </button>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenPrint(inv)}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                border: '1px solid #cbd5e1',
+                                backgroundColor: '#ffffff',
+                                color: '#2563eb',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              🖨️ K80
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenVat(inv)}
+                              style={{
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid #0284c7',
+                                backgroundColor: '#f0f9ff',
+                                color: '#0369a1',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              🧾 HĐ VAT
+                            </button>
+                          </div>
                         )}
                       </div>
                     </td>
@@ -428,7 +470,7 @@ export default function BillingInvoicesPage() {
                 onChange={(e) => setNewPatientName(e.target.value)}
                 placeholder="Nguyễn Văn A"
                 style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-              />
+                />
             </div>
 
             <div style={{ marginBottom: '12px' }}>
@@ -439,7 +481,7 @@ export default function BillingInvoicesPage() {
                 onChange={(e) => setNewPatientPhone(e.target.value)}
                 placeholder="0912345678"
                 style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-              />
+                />
             </div>
 
             <div style={{ marginBottom: '12px' }}>
@@ -449,7 +491,7 @@ export default function BillingInvoicesPage() {
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
                 style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-              />
+                />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
@@ -460,8 +502,8 @@ export default function BillingInvoicesPage() {
                   value={newItemPrice}
                   onChange={(e) => setNewItemPrice(e.target.value)}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-                />
-              </div>
+                  />
+            </div>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Miễn Giảm (VNĐ)</label>
                 <input
@@ -469,8 +511,8 @@ export default function BillingInvoicesPage() {
                   value={newDiscount}
                   onChange={(e) => setNewDiscount(e.target.value)}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-                />
-              </div>
+                  />
+            </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -500,6 +542,19 @@ export default function BillingInvoicesPage() {
           onClose={() => setPrintData(null)}
         />
       )}
+
+      {/* Modal: Official VAT Invoice (Thông tư 78/2021/TT-BTC) */}
+      <VatInvoiceModal
+        show={showVatModal}
+        onClose={() => setShowVatModal(false)}
+        invoiceData={vatInvoiceData}
+        patientData={{
+          fullName: vatInvoiceData?.patientName,
+          patientCode: vatInvoiceData?.patientId,
+          citizenId: vatInvoiceData?.patientPhone,
+          address: 'TP. Hồ Chí Minh'
+        }}
+      />
     </div>
   );
 }

@@ -1,0 +1,28 @@
+/* ==========================================================================
+   CalculateFeesPage.css – BMS Clinical Fee Calculation & BHYT Estimator
+   Standards: Clean Medical UI (Rule 19), ISO 15189, Decree 123/2020/ND-CP
+   ========================================================================== */
+
+.calc-fees-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.calc-fees-page .card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.calc-fees-page .cursor-pointer {
+  cursor: pointer;
+}
+
+@media print {
+  .calc-fees-page {
+    background-color: #ffffff !important;
+    padding: 0 !important;
+  }
+  .calc-fees-page .btn,
+  .calc-fees-page .sticky-top {
+    position: static !important;
+  }
+}

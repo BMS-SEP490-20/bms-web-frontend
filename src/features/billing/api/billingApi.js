@@ -5,7 +5,7 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+  const token = localStorage.getItem('bms_access_token') || localStorage.getItem('bms_token') || sessionStorage.getItem('bms_access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -25,7 +25,7 @@ async function handleResponse(res) {
 export async function getInvoices(params = {}, signal) {
   const query = new URLSearchParams();
   if (params.patientId) query.set('patientId', params.patientId);
-  if (params.status !== undefined && params.status !== '') query.set('status', params.status);
+  if (params.status !== undefined && params.status !== '' && params.status !== 'ALL') query.set('status', params.status);
   if (params.fromDate) query.set('fromDate', params.fromDate);
   if (params.toDate) query.set('toDate', params.toDate);
   if (params.page) query.set('page', params.page);
@@ -36,6 +36,36 @@ export async function getInvoices(params = {}, signal) {
     signal,
   });
   return handleResponse(res);
+}
+
+export async function getInvoicesByPatient(patientId, params = {}, signal) {
+  const query = new URLSearchParams();
+  if (patientId) query.set('patientId', patientId);
+  if (params.status !== undefined && params.status !== '' && params.status !== 'ALL') query.set('status', params.status);
+  if (params.fromDate) query.set('fromDate', params.fromDate);
+  if (params.toDate) query.set('toDate', params.toDate);
+  if (params.page) query.set('page', params.page);
+  if (params.pageSize) query.set('pageSize', params.pageSize);
+
+  // Try /invoices with query first
+  try {
+    const res = await fetch(`${BASE_URL}/invoices?${query.toString()}`, {
+      headers: authHeaders(),
+      signal,
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    if (signal?.aborted) throw err;
+  }
+
+  // Fallback to /payments/patient/{patientId}
+  const fallbackRes = await fetch(`${BASE_URL}/payments/patient/${encodeURIComponent(patientId)}`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(fallbackRes);
 }
 
 export async function getInvoiceById(id, signal) {
@@ -84,6 +114,7 @@ export async function verifyReceipt(receiptNumber, signal) {
 
 export const billingApi = {
   getInvoices,
+  getInvoicesByPatient,
   getInvoiceById,
   createInvoice,
   payInvoice,

@@ -113,9 +113,23 @@ export async function createGuestProfile(payload) {
   }
 }
 
-export default {
-  searchPatients,
-  getPatientById,
-  getMyPatientInformation,
-  createGuestProfile,
-};
+/**
+ * Updates the authenticated user's clinical patient medical profile (PUT /api/patients/me).
+ *
+ * @param {Object} payload - UpdatePatientProfileRequest body.
+ * @returns {Promise<Object>} Updated PatientInformationDto.
+ */
+export async function updateMyPatientInformation(payload) {
+  try {
+    const response = await api.put('/patients/me', payload);
+    return response.data;
+  } catch (err) {
+    const error = new Error(extractError(err, 'Không thể cập nhật hồ sơ bệnh nhân.'));
+    error.status = err?.response?.status;
+    error.code = err?.response?.data?.code;
+    throw error;
+  }
+}
+
+export const patientService = { getAllPatients: async (params = {}) => { const res = await searchPatients(params); return { success: true, data: res.items || res }; }, searchPatients, getPatientById, getMyPatientInformation, updateMyPatientInformation, createGuestProfile, getPatientByEmail: async (email) => { const res = await searchPatients({ search: email }); return res.items?.[0] || null; } };
+export default patientService;

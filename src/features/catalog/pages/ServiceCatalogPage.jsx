@@ -16,7 +16,8 @@ import {
   FaClock, 
   FaCheckCircle, 
   FaExclamationTriangle, 
-  FaHospital, 
+  FaHospital,
+  FaUserMd, 
   FaPhoneAlt,
   FaShieldAlt,
   FaArrowRight,
@@ -29,7 +30,11 @@ import {
   FaFilter,
   FaSortAmountDown
 } from 'react-icons/fa';
+import PortalNavbar from '../../home/components/PortalNavbar';
+import MegaFooter from '../../home/components/MegaFooter';
+import { useNavigate } from 'react-router-dom';
 import { fetchServiceCatalog, searchTestPackages, fetchServiceById } from '../api/catalogApi';
+import { getAvailableDoctors, getAvailableSlots, bookAppointment } from '../../appointment/api/appointmentApi';
 import ServiceCard from '../components/ServiceCard';
 
 const DEFAULT_HEALTH_CATEGORIES = [
@@ -155,6 +160,112 @@ export default function ServiceCatalogPage() {
   });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingCode, setBookingCode] = useState('');
+  const navigate = useNavigate();
+  const [selectedShiftId, setSelectedShiftId] = useState('Morning');
+  const [availableShifts, setAvailableShifts] = useState([]);
+  const [shiftSlots, setShiftSlots] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
+
+  // Load shifts & assigned rooms for booking date
+  useEffect(() => {
+    if (!bookingForm.bookingDate) return;
+    let isMounted = true;
+    getAvailableDoctors(bookingForm.bookingDate)
+      .then((list) => {
+        if (isMounted) setAvailableShifts(list || []);
+      })
+      .catch(() => {
+        if (isMounted) setAvailableShifts([]);
+      });
+    return () => { isMounted = false; };
+  }, [bookingForm.bookingDate]);
+
+  // Map active shift to doctor & room
+  const activeShiftData = React.useMemo(() => {
+    const found = availableShifts.find(
+      (s) => (s.shiftType || '').toLowerCase() === selectedShiftId.toLowerCase()
+    );
+    if (found) return found;
+
+    if (selectedShiftId === 'Afternoon') {
+      return {
+        doctorId: '670560000000000000000002',
+        doctorName: 'BS. CKI Nguyễn Văn Minh',
+        specialty: 'Huyết học & Miễn dịch học lâm sàng',
+        shiftType: 'Afternoon',
+        shiftStart: '13:00',
+        shiftEnd: '17:00',
+        roomId: 'ROOM-102',
+        roomName: 'Phòng Lấy Mẫu & Khám Chuyên Sâu 102',
+        roomNumber: '102',
+        floor: 'Tầng 1 - Khu A'
+      };
+    }
+    if (selectedShiftId === 'Evening') {
+      return {
+        doctorId: '670560000000000000000002',
+        doctorName: 'BS. CKI Nguyễn Văn Minh',
+        specialty: 'Huyết học & Miễn dịch học lâm sàng',
+        shiftType: 'Evening',
+        shiftStart: '17:30',
+        shiftEnd: '20:30',
+        roomId: 'ROOM-103',
+        roomName: 'Phòng Tư Vấn Kết Quả & Xét Nghiệm Nhanh',
+        roomNumber: '103',
+        floor: 'Tầng 1 - Khu A'
+      };
+    }
+    return {
+      doctorId: '670560000000000000000002',
+      doctorName: 'BS. CKI Nguyễn Văn Minh',
+      specialty: 'Huyết học & Miễn dịch học lâm sàng',
+      shiftType: 'Morning',
+      shiftStart: '07:00',
+      shiftEnd: '11:30',
+      roomId: 'ROOM-101',
+      roomName: 'Phòng khám Huyết học Tổng quát 1',
+      roomNumber: '101',
+      floor: 'Tầng 1 - Khu A'
+    };
+  }, [availableShifts, selectedShiftId]);
+
+  // Load available slots inside active shift
+  useEffect(() => {
+    if (!activeShiftData?.doctorId || !bookingForm.bookingDate) return;
+    let isMounted = true;
+    getAvailableSlots(activeShiftData.doctorId, bookingForm.bookingDate)
+      .then((res) => {
+        if (!isMounted) return;
+        const all = res?.slots || [];
+        const start = activeShiftData.shiftStart || '07:00';
+        const end = activeShiftData.shiftEnd || '11:30';
+        const filtered = all.filter((s) => s >= start && s < end);
+        const finalSlots = filtered.length > 0 ? filtered : (
+          selectedShiftId === 'Morning'
+            ? ['07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00']
+            : selectedShiftId === 'Afternoon'
+              ? ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
+              : ['17:30', '18:00', '18:30', '19:00', '19:30', '20:00']
+        );
+        setShiftSlots(finalSlots);
+        if (!finalSlots.includes(bookingForm.bookingSlot)) {
+          setBookingForm((prev) => ({ ...prev, bookingSlot: finalSlots[0] || '08:00' }));
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        const defaultSlots = selectedShiftId === 'Morning'
+          ? ['07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00']
+          : selectedShiftId === 'Afternoon'
+            ? ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
+            : ['17:30', '18:00', '18:30', '19:00', '19:30', '20:00'];
+        setShiftSlots(defaultSlots);
+        setBookingForm((prev) => ({ ...prev, bookingSlot: defaultSlots[0] }));
+      });
+    return () => { isMounted = false; };
+  }, [activeShiftData, bookingForm.bookingDate, selectedShiftId]);
+
 
   // Sync user profile if available
   useEffect(() => {
@@ -230,6 +341,7 @@ export default function ServiceCatalogPage() {
       setTotalItems(res?.totalItems ?? res?.totalCount ?? normalized.length);
       setTotalPages(res?.totalPages || Math.ceil((res?.totalItems || normalized.length) / pageSize) || 1);
     } catch (err) {
+      console.error('[ServiceCatalogPage] Failed to search test packages:', err);
       setLoadError(err.response?.data?.message || err.response?.data?.title || err.message || 'Không thể tìm kiếm danh mục gói xét nghiệm từ máy chủ.');
       setPackages([]);
       setTotalItems(0);
@@ -275,30 +387,41 @@ export default function ServiceCatalogPage() {
   };
 
   const handleOpenBooking = (pkg) => {
-    setBookingPackage(pkg);
-    setBookingSuccess(false);
     if (!user) {
       setShowRequireLoginModal(true);
       return;
     }
-    setBookingForm(prev => ({
-      ...prev,
-      patientName: user.fullName || user.username || '',
-      phoneNumber: user.phone || user.phoneNumber || user.contactPhone || '',
-      identityCard: user.identityCard || user.idCard || '',
-      address: user.address || ''
-    }));
-    setShowBookingModal(true);
+    const pkgId = pkg?.packageCode || pkg?.id || '';
+    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book');
   };
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!bookingForm.patientName.trim() || !bookingForm.phoneNumber.trim()) {
       return;
     }
-    const genCode = `ORD-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
-    setBookingCode(genCode);
-    setBookingSuccess(true);
+    setBookingLoading(true);
+    setBookingError(null);
+    try {
+      const payload = {
+        patientId: user?.patientId || user?.id || 'BN-2026-670560000000000000000010',
+        doctorId: activeShiftData.doctorId,
+        appointmentDate: bookingForm.bookingDate,
+        slotTime: bookingForm.bookingSlot,
+        packageIds: [bookingPackage.id || bookingPackage.packageCode],
+        notes: bookingForm.notes
+          ? `${bookingForm.notes} (Bác sĩ: ${activeShiftData.doctorName} - Phòng: ${activeShiftData.roomName})`
+          : `Phòng khám: ${activeShiftData.roomName} (${activeShiftData.roomNumber})`,
+        type: 'ClinicVisit'
+      };
+      const res = await bookAppointment(payload);
+      setBookingCode(res?.appointmentCode || `APT-${Date.now().toString().slice(-6)}`);
+      setBookingSuccess(true);
+    } catch (err) {
+      setBookingError(err?.message || 'Không thể tạo cuộc hẹn. Vui lòng thử lại.');
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   const hasActiveFilters =
@@ -310,94 +433,7 @@ export default function ServiceCatalogPage() {
 
   return (
     <div className="bms-landing-wrapper">
-      {/* 1. TOP ANNOUNCEMENT & CONTACT BAR */}
-      <div className="bms-topbar">
-        <div className="bms-topbar-container">
-          <div className="bms-topbar-info">
-            <div className="bms-topbar-item">
-              <FaPhoneAlt />
-              <span>Hotline Đặt Lịch & Tư Vấn: <strong>1900 6868</strong></span>
-            </div>
-            <div className="bms-topbar-item">
-              <FaClock />
-              <span>Giờ tiếp nhận mẫu: 06:00 - 20:00 (Thứ 2 - Chủ Nhật & Ngày Lễ)</span>
-            </div>
-          </div>
-          <div className="bms-topbar-badge">
-            Giấy phép BYT: Số 08892/BYT-GPHĐ
-          </div>
-        </div>
-      </div>
-
-      {/* 2. MAIN BRAND HEADER */}
-      <header className="bms-navbar">
-        <div className="bms-navbar-container">
-          <a className="bms-brand" href="/">
-            <div className="bms-brand-logo">
-              <img src="/assets/bms-logo.png" alt="BMS Logo" />
-            </div>
-            <div className="bms-brand-text">
-              <h1>BMS CLINICAL LABORATORY</h1>
-              <p>Hệ Thống Xét Nghiệm Máu Tiêu Chuẩn Quốc Tế ISO 15189</p>
-            </div>
-          </a>
-
-          <ul className="bms-nav-links">
-            <li><a className="bms-nav-link active" href="/services">Tìm Kiếm Gói Xét Nghiệm</a></li>
-            {user ? (
-              <>
-                <li>
-                  <a className="bms-nav-link" href="/dashboard">
-                    Bảng Điều Khiển
-                  </a>
-                </li>
-                <li>
-                  <a className="bms-nav-link" href="/?tab=results">
-                    Lịch Sử Xét Nghiệm
-                  </a>
-                </li>
-              </>
-            ) : null}
-            <li><a className="bms-nav-link" href="/#tra-cuu">Tra Cứu Kết Quả</a></li>
-          </ul>
-
-          <div className="bms-header-actions">
-            {user ? (
-              <div className="bms-user-nav-dropdown">
-                <a className="bms-user-pill" href="/profile" title="Xem hồ sơ cá nhân">
-                  <div className="bms-user-avatar">
-                    {user.fullName ? user.fullName.trim().split(' ').slice(-1)[0][0].toUpperCase() : 'U'}
-                  </div>
-                  <div className="bms-user-meta">
-                    <span className="bms-user-name">{user.fullName || user.username}</span>
-                    <span className="bms-user-badge">{user.role || 'Bệnh Nhân'}</span>
-                  </div>
-                </a>
-                <a className="bms-btn bms-btn-outline bms-btn-sm" href="/profile">
-                  Hồ Sơ
-                </a>
-                <button
-                  type="button"
-                  className="bms-btn bms-btn-danger-outline bms-btn-sm"
-                  onClick={handleLogout}
-                  title="Đăng xuất khỏi hệ thống"
-                >
-                  <FaSignOutAlt /> Đăng Xuất
-                </button>
-              </div>
-            ) : (
-              <>
-                <a className="bms-btn bms-btn-outline" href="/#tra-cuu">
-                  <FaSearch /> Tra Cứu Nhanh
-                </a>
-                <a className="bms-btn bms-btn-primary" href="/login">
-                  Đăng Nhập Cổng Y Tế <FaArrowRight />
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      <PortalNavbar user={user} />
 
       {/* 3. CATALOG HERO SECTION */}
       <section className="py-4" style={{ background: 'linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)', borderBottom: '1px solid #e2e8f0' }}>
@@ -1000,209 +1036,9 @@ export default function ServiceCatalogPage() {
       </Modal>
 
       {/* 6. APPOINTMENT BOOKING MODAL WITH HOME COLLECTION */}
-      <Modal show={showBookingModal} onHide={() => setShowBookingModal(false)} centered size="md">
-        {bookingPackage && (
-          <Form onSubmit={handleBookingSubmit}>
-            <Modal.Header closeButton className="border-bottom">
-              <Modal.Title className="fw-bold h5 mb-0 text-primary d-flex align-items-center gap-2">
-                <FaCalendarCheck />
-                <span>Đăng Ký Lịch Xét Nghiệm</span>
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="p-4">
-              {bookingSuccess ? (
-                <div className="text-center py-4">
-                  <div style={{
-                    width: 64,
-                    height: 64,
-                    backgroundColor: '#dcfce7',
-                    color: '#15803d',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 32,
-                    margin: '0 auto 16px'
-                  }}>
-                    <FaCheckCircle />
-                  </div>
-                  <h5 className="fw-bold text-dark mb-2">Đăng Ký Lịch Khám Thành Công!</h5>
-                  <p className="text-secondary small mb-3">
-                    Mã phiếu hẹn của bạn là: <strong className="text-primary font-monospace fs-6">{bookingCode}</strong>
-                  </p>
-                  <div className="p-3 rounded-3 bg-light border text-start small mb-3">
-                    <div><strong>Gói xét nghiệm:</strong> {bookingPackage.packageName}</div>
-                    <div><strong>Hình thức:</strong> {collectionType === 'home' ? 'Lấy mẫu tận nhà' : 'Lấy mẫu tại Phòng khám BMS'}</div>
-                    <div><strong>Ngày hẹn:</strong> {bookingForm.bookingDate} ({bookingForm.bookingSlot})</div>
-                    <div><strong>Bệnh nhân:</strong> {bookingForm.patientName} ({bookingForm.phoneNumber})</div>
-                  </div>
-                  <Button
-                    variant="primary"
-                    className="w-100 rounded-pill"
-                    style={{ backgroundColor: '#1e40af' }}
-                    onClick={() => setShowBookingModal(false)}
-                  >
-                    Hoàn Tất & Đóng
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <div className="p-3 rounded-3 border mb-3" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
-                    <div className="small text-muted">Gói xét nghiệm đã chọn:</div>
-                    <div className="fw-bold text-dark">{bookingPackage.packageName} ({bookingPackage.packageCode})</div>
-                    <div className="fw-bold mt-1" style={{ color: '#1e40af' }}>
-                      Giá niêm yết: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingPackage.price)}
-                    </div>
-                  </div>
+      
 
-                  <div className="mb-3">
-                    <Form.Label className="fw-bold small text-dark mb-2">Hình thức lấy mẫu:</Form.Label>
-                    <div className="d-flex gap-2">
-                      <button
-                        type="button"
-                        className={`btn btn-sm flex-fill p-2 rounded-3 border text-start d-flex align-items-center gap-2 ${collectionType === 'clinic' ? 'btn-outline-primary border-primary bg-primary-subtle' : 'btn-light'}`}
-                        onClick={() => setCollectionType('clinic')}
-                      >
-                        <FaHospital className="text-primary fs-5" />
-                        <div>
-                          <div className="fw-bold small">Tại Phòng Khám BMS</div>
-                          <div className="text-muted" style={{ fontSize: '11px' }}>Phòng Lab Tầng 1, TP.HCM</div>
-                        </div>
-                      </button>
-
-                      <button
-                        type="button"
-                        className={`btn btn-sm flex-fill p-2 rounded-3 border text-start d-flex align-items-center gap-2 ${collectionType === 'home' ? 'btn-outline-primary border-primary bg-primary-subtle' : 'btn-light'}`}
-                        onClick={() => setCollectionType('home')}
-                      >
-                        <FaHome className="text-success fs-5" />
-                        <div>
-                          <div className="fw-bold small">Lấy Mẫu Tận Nhà</div>
-                          <div className="text-muted" style={{ fontSize: '11px' }}>Miễn phí đi lại 10km</div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold small">Họ và tên bệnh nhân <span className="text-danger">*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ví dụ: Hoàng Minh Anh"
-                      required
-                      value={bookingForm.patientName}
-                      onChange={(e) => setBookingForm(prev => ({ ...prev, patientName: e.target.value }))}
-                    />
-                  </Form.Group>
-
-                  <Row className="g-2 mb-3">
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold small">Số điện thoại <span className="text-danger">*</span></Form.Label>
-                        <Form.Control
-                          type="tel"
-                          placeholder="Ví dụ: 0912345678"
-                          required
-                          value={bookingForm.phoneNumber}
-                          onChange={(e) => setBookingForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold small">Số CCCD (12 số)</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Số căn cước"
-                          maxLength={12}
-                          value={bookingForm.identityCard}
-                          onChange={(e) => setBookingForm(prev => ({ ...prev, identityCard: e.target.value }))}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  {collectionType === 'home' && (
-                    <Form.Group className="mb-3">
-                      <Form.Label className="fw-semibold small">Địa chỉ lấy mẫu tận nhà <span className="text-danger">*</span></Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Số nhà, đường, phường/xã, quận/huyện..."
-                        required={collectionType === 'home'}
-                        value={bookingForm.address}
-                        onChange={(e) => setBookingForm(prev => ({ ...prev, address: e.target.value }))}
-                      />
-                    </Form.Group>
-                  )}
-
-                  <Row className="g-2 mb-3">
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold small">Ngày hẹn lấy mẫu</Form.Label>
-                        <Form.Control
-                          type="date"
-                          min={new Date().toISOString().split('T')[0]}
-                          value={bookingForm.bookingDate}
-                          onChange={(e) => setBookingForm(prev => ({ ...prev, bookingDate: e.target.value }))}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold small">Khung giờ thuận tiện</Form.Label>
-                        <Form.Select
-                          value={bookingForm.bookingSlot}
-                          onChange={(e) => setBookingForm(prev => ({ ...prev, bookingSlot: e.target.value }))}
-                        >
-                          <option value="06:30 - 08:00">06:30 - 08:00 (Sáng sớm)</option>
-                          <option value="08:00 - 09:30">08:00 - 09:30 (Buổi sáng)</option>
-                          <option value="09:30 - 11:30">09:30 - 11:30 (Sáng muộn)</option>
-                          <option value="13:30 - 16:30">13:30 - 16:30 (Buổi chiều)</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold small">Ghi chú lâm sàng</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      placeholder="Ghi chú dị ứng hoặc bệnh nền (nếu có)..."
-                      value={bookingForm.notes}
-                      onChange={(e) => setBookingForm(prev => ({ ...prev, notes: e.target.value }))}
-                    />
-                  </Form.Group>
-                </>
-              )}
-            </Modal.Body>
-            {!bookingSuccess && (
-              <Modal.Footer className="border-top">
-                <Button variant="secondary" onClick={() => setShowBookingModal(false)}>
-                  Hủy Bỏ
-                </Button>
-                <Button
-                  variant="primary"
-                  type="submit"
-                  style={{ backgroundColor: '#1e40af', borderColor: '#1e40af' }}
-                >
-                  Xác Nhận Đặt Lịch Xét Nghiệm
-                </Button>
-              </Modal.Footer>
-            )}
-          </Form>
-        )}
-      </Modal>
-
-      {/* 7. MEDICAL FOOTER */}
-      <footer className="bms-footer mt-5">
-        <div className="bms-container">
-          <div className="bms-footer-bottom">
-            <div>&copy; 2026 BMS Health - Biomedical Laboratory Management System. All rights reserved.</div>
-            <div>Hệ thống đạt chuẩn kiểm chuẩn ISO 15189:2022 & Bảo mật thông tin Bộ Y tế</div>
-          </div>
-        </div>
-      </footer>
+      <MegaFooter />
     </div>
   );
-}
+}

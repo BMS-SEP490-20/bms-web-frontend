@@ -47,7 +47,7 @@ async function list(from, to, specialty) {
   if (to) q.set('toDate', to);
   if (specialty) q.set('department', specialty);
   q.set('page', '1');
-  q.set('pageSize', '200');
+  q.set('pageSize', '100');
   const res = await fetch(`${BASE}?${q}`, { headers: authHeaders() });
   const data = await handle(res);
   return unwrapItems(data);
@@ -61,7 +61,7 @@ async function byDay(date) {
     q.set('toDate', date);
   }
   q.set('page', '1');
-  q.set('pageSize', '200');
+  q.set('pageSize', '100');
   const res = await fetch(`${BASE}?${q}`, { headers: authHeaders() });
   const data = await handle(res);
   return unwrapItems(data);

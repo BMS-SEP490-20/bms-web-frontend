@@ -1,0 +1,118 @@
+/**
+ * RegisterWizard.css
+ * Styling for BMS 4-Step Patient Registration Wizard.
+ * Conforms to: Clean Medical UI (Rule 19 / AGENTS-DESIGN.md).
+ */
+
+.bms-stepper-container {
+  padding: 0.5rem 0 2rem 0;
+  position: relative;
+}
+
+.bms-stepper-track {
+  position: absolute;
+  top: 36px;
+  left: 8%;
+  right: 8%;
+  height: 4px;
+  background-color: #e2e8f0;
+  z-index: 1;
+}
+
+.bms-stepper-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #1e40af 0%, #0d6efd 100%);
+  transition: width 0.35s ease;
+}
+
+.bms-stepper-steps {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+}
+
+.bms-step-item {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  user-select: none;
+}
+
+.bms-step-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #f8fafc;
+  border: 3px solid #cbd5e1;
+  color: #64748b;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0 auto 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.bms-step-item.active .bms-step-circle {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #ffffff;
+  box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
+}
+
+.bms-step-item.completed .bms-step-circle {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.bms-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+.bms-step-item.active .bms-step-title {
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+.bms-step-item.completed .bms-step-title {
+  color: #10b981;
+}
+
+.bms-step-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.bms-wizard-content {
+  min-height: 380px;
+}
+
+.bms-review-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.bms-review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.bms-review-row:last-child {
+  border-bottom: none;
+}
+
+.bms-otp-container {
+  max-width: 480px;
+  margin: 0 auto;
+}

@@ -1,109 +1,64 @@
 /**
- * UC21 – Appointment API.
- * Reads JWT from localStorage (accessToken | token) – same as auth feature.
+ * UC21 & UC23 – Appointment API Client.
+ * Connects directly to BMS Backend AppointmentsController using the unified Axios instance.
+ * Automatically injects JWT Bearer tokens and handles token refreshes.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
+import api from '../../../config/api';
 
-function authHeaders() {
-  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+export async function bookAppointment(payload) {
+  const res = await api.post('/appointments', payload);
+  return res.data;
 }
 
-async function handleResponse(res) {
-  if (res.ok) return res.json();
-  const body = await res.json().catch(() => null);
-  const error = new Error(body?.message ?? `HTTP ${res.status}`);
-  error.code = body?.code;
-  error.status = res.status;
-  throw error;
+export async function getAvailableSlots(doctorId, date) {
+  const res = await api.get('/appointments/slots', { params: { doctorId, date } });
+  return res.data;
 }
 
-export async function bookAppointment(payload, signal) {
-  const res = await fetch(`${BASE_URL}/appointments`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(payload),
-    signal,
+export async function getAvailableDoctors(date, specialty) {
+  const params = { date };
+  if (specialty) params.specialty = specialty;
+  const res = await api.get('/appointments/doctors', { params });
+  return res.data;
+}
+
+export async function getAppointments(params = {}) {
+  const res = await api.get('/appointments', { params });
+  return res.data;
+}
+
+export async function getAppointmentConfirmation(idOrCode) {
+  const res = await api.get(`/appointments/${encodeURIComponent(idOrCode)}/confirmation`);
+  return res.data;
+}
+
+export async function getAppointmentDetail(id) {
+  const res = await api.get(`/appointments/${id}/detail`);
+  return res.data;
+}
+
+export async function getPatientAppointments(patientId, params = {}) {
+  const res = await api.get(`/appointments/patient/${patientId}`, { params });
+  return res.data;
+}
+
+export async function sendAppointmentNotification(id, payload) {
+  const res = await api.post(`/appointments/${encodeURIComponent(id)}/notify`, payload ?? { channel: 1, type: 1 });
+  return res.data;
+}
+
+export async function updateAppointment(id, payload) {
+  const res = await api.put(`/appointments/${encodeURIComponent(id)}`, payload);
+  return res.data;
+}
+
+export async function cancelAppointment(id, notes = 'Hết hạn giữ chỗ 15 phút') {
+  const res = await api.put(`/appointments/${encodeURIComponent(id)}`, {
+    status: 'Cancelled',
+    notes
   });
-  return handleResponse(res);
-}
-
-export async function getAvailableSlots(doctorId, date, signal) {
-  const params = new URLSearchParams({ doctorId, date });
-  const res = await fetch(`${BASE_URL}/appointments/slots?${params}`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function getAvailableDoctors(date, specialty, signal) {
-  const params = new URLSearchParams({ date });
-  if (specialty) params.set('specialty', specialty);
-  const res = await fetch(`${BASE_URL}/appointments/doctors?${params}`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function getAppointments(params = {}, signal) {
-  const query = new URLSearchParams();
-  if (params.page) query.set('page', params.page);
-  if (params.pageSize) query.set('pageSize', params.pageSize);
-  if (params.fromDate) query.set('fromDate', params.fromDate);
-  if (params.toDate) query.set('toDate', params.toDate);
-  if (params.doctorId) query.set('doctorId', params.doctorId);
-  if (params.status) query.set('status', params.status);
-  if (params.keyword) query.set('keyword', params.keyword);
-
-  const res = await fetch(`${BASE_URL}/appointments?${query.toString()}`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function getAppointmentConfirmation(idOrCode, signal) {
-  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(idOrCode)}/confirmation`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function getAppointmentDetail(id, signal) {
-  const res = await fetch(`${BASE_URL}/appointments/${id}/detail`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function getPatientAppointments(patientId, params = {}, signal) {
-  const query = new URLSearchParams();
-  if (params.page) query.set('page', params.page);
-  if (params.pageSize) query.set('pageSize', params.pageSize);
-  const res = await fetch(`${BASE_URL}/appointments/patient/${patientId}?${query.toString()}`, {
-    headers: authHeaders(),
-    signal,
-  });
-  return handleResponse(res);
-}
-
-export async function sendAppointmentNotification(id, payload, signal) {
-  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(id)}/notify`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(payload ?? { channel: 1, type: 1 }),
-    signal,
-  });
-  return handleResponse(res);
+  return res.data;
 }
 
 export const appointmentApi = {
@@ -115,5 +70,8 @@ export const appointmentApi = {
   getPatientAppointments,
   getAppointmentConfirmation,
   sendAppointmentNotification,
+  updateAppointment,
+  cancelAppointment,
 };
 
+export default appointmentApi;

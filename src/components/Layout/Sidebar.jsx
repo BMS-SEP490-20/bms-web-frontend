@@ -1,99 +1,191 @@
 /**
- * @file Sidebar.jsx - BMS Role-based Navigation Sidebar (Compact & Optimized)
- * Conforms to: Production Medical Standards ISO 15189 & AGENTS-DESIGN.md
+ * @file Sidebar.jsx - BMS Strict Role-Based Navigation Sidebar (RBAC Separation of Duties)
+ * Conforms to: Production Medical Standards ISO 15189, ROLE-PERMISSION-MATRIX & AGENTS-DESIGN.md
  */
 
 import React, { useMemo } from 'react';
 import { Nav, OverlayTrigger, Tooltip, Badge, Button } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  FaTachometerAlt, FaVial, FaUserNurse, FaUserMd, FaStethoscope, FaUsersCog,
+  FaTachometerAlt, FaVial, FaUserMd, FaStethoscope, FaUsersCog,
   FaShieldAlt, FaBoxOpen, FaNotesMedical, FaKey, FaChevronLeft, FaChevronRight,
   FaHeartbeat, FaDatabase, FaBell, FaHistory, FaQrcode, FaUserPlus, FaCheckCircle,
-  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaSearch
+  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaCalendarAlt, FaSearch
 } from 'react-icons/fa';
 
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
 
-// WHY: roles come from src/constants/roles.js (6 roles, decision 30/10). Each list mirrors the route guard in
-// App.jsx and the row in ROLE-PERMISSION-MATRIX §1, so a menu item never leads to a 403/404 for its role.
 const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
 
-// Cấu trúc danh mục menu định nghĩa sẵn
+/**
+ * Strict Role-Permission Matrix (Separation of Duties):
+ * - ADMIN: System infrastructure, IAM accounts, roles RBAC, audit, database backup, packages. NO clinical data.
+ * - MANAGER: High-level medical oversight: result sign-off, QC review, reports (TAT/Revenue), lab config, roster.
+ * - LAB: Laboratory operations: sample queue, check-in, results entry, batches, QC Westgard, reagents.
+ * - DOCTOR: Clinical patient care: examination console, blood test order creation, EMR, ICD-10 assessment.
+ * - RECEPTIONIST: Front-desk patient intake: QR check-in, queue board, patient creation, fee calculation, invoices.
+ * - PATIENT: Patient portal: self appointments, sample tracking, test history, packages, feedback.
+ */
 const MENU_SECTIONS = [
+  // ================= ADMIN SECTIONS =================
   {
-    category: 'TỔNG QUAN',
+    category: 'QUẢN TRỊ HỆ THỐNG',
+    roles: [ADMIN],
     items: [
-      { id: 'dashboard', path: '/dashboard', label: 'Bảng Điều Khiển', icon: FaTachometerAlt, roles: ALL_ROLES },
-      { id: 'search-packages', path: '/services', label: 'Tra Cứu Gói XN', icon: FaSearch, roles: ALL_ROLES, badge: { text: 'UC20', bg: 'info' } },
-      { id: 'notifications', path: '/laboratory/notifications', label: 'Thông Báo', icon: FaBell, roles: [LAB, MANAGER], badge: { text: 'UC60', bg: 'primary' } }
+      { id: 'admin-dash', path: '/dashboard', label: 'Bảng Điều Khiển Admin', icon: FaTachometerAlt, roles: [ADMIN] },
+      { id: 'admin-users', path: '/admin/user-management', label: 'Quản Lý Tài Khoản (IAM)', icon: FaUserCog, roles: [ADMIN] },
+      { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: FaShieldAlt, roles: [ADMIN] },
+      { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: FaShieldAlt, roles: [ADMIN] },
+      { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: FaDatabase, roles: [ADMIN], badge: { text: 'UC80', bg: 'primary' } },
+      { id: 'admin-packages', path: '/admin/packages', label: 'Danh Mục Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN] },
+      { id: 'admin-shifts', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [ADMIN] },
+      { id: 'admin-view-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Toàn Viện', icon: FaClock, roles: [ADMIN] },
+      { id: 'admin-rev', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu Viện Phí', icon: FaChartBar, roles: [ADMIN] },
+      { id: 'admin-tat', path: '/reports/tat', label: 'Thống Kê Thời Gian TAT', icon: FaChartBar, roles: [ADMIN] }
+    ]
+  },
+
+  // ================= MANAGER SECTIONS =================
+  {
+    category: 'QUẢN LÝ & BÁO CÁO',
+    roles: [MANAGER],
+    items: [
+      { id: 'mgr-dash', path: '/dashboard', label: 'Bảng Điều Khiển Tổng Quan', icon: FaTachometerAlt, roles: [MANAGER] },
+      { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Duyệt & Ký Số Kết Quả', icon: FaCheckCircle, roles: [MANAGER], badge: { text: 'Duyệt', bg: 'warning' } },
+      { id: 'mgr-tat', path: '/reports/tat', label: 'Báo Cáo Hiệu Suất TAT', icon: FaChartBar, roles: [MANAGER], badge: { text: 'UC63', bg: 'info' } },
+      { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu Viện Phí', icon: FaChartBar, roles: [MANAGER], badge: { text: 'UC78', bg: 'success' } },
+      { id: 'mgr-search-packages', path: '/services', label: 'Tra Cứu Gói XN', icon: FaSearch, roles: [MANAGER], badge: { text: 'UC20', bg: 'info' } },
+      { id: 'mgr-feedback', path: '/feedback', label: 'Đánh Giá & Khảo Sát Bệnh Nhân', icon: FaStar, roles: [MANAGER] },
+      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Cảnh Báo & Thông Báo Khẩn', icon: FaBell, roles: [MANAGER], badge: { text: 'UC60', bg: 'primary' } }
     ]
   },
   {
-    category: 'TIẾP ĐÓN & BỆNH NHÂN',
+    category: 'GIÁM SÁT LAB & CẤU HÌNH Y TẾ',
+    roles: [MANAGER],
     items: [
-      { id: 'check-in', path: '/receptionist/check-in', label: 'Check-in QR Code', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
-      { id: 'create-pt', path: '/receptionist/create-patient', label: 'Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: [RECEPTIONIST] },
-      { id: 'patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST, DOCTOR, LAB, MANAGER], badge: { text: 'UC30', bg: 'info' } },
-      { id: 'appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: [RECEPTIONIST, MANAGER, DOCTOR, PATIENT] }
+      { id: 'mgr-lab-queue', path: '/lab/queue', label: 'Giám Sát Hàng Đợi Mẫu', icon: FaVial, roles: [MANAGER], badge: { text: 'UC40/45', bg: 'danger' } },
+      { id: 'mgr-validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu Tiền Phân Tích', icon: FaVial, roles: [MANAGER], badge: { text: 'QC', bg: 'warning' } },
+      { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FaFlask, roles: [MANAGER] },
+      { id: 'mgr-westgard', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [MANAGER], badge: { text: 'Flags', bg: 'danger' } },
+      { id: 'mgr-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [MANAGER] },
+      { id: 'mgr-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Y Tế', icon: FaHeartbeat, roles: [MANAGER], badge: { text: 'UC57', bg: 'success' } },
+      { id: 'mgr-biochem', path: '/laboratory/biochemical-results', label: 'Tra Cứu Kết Quả Sinh Hóa', icon: FaFlask, roles: [MANAGER], badge: { text: 'UC75', bg: 'primary' } },
+      { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: FaDoorOpen, roles: [MANAGER] },
+      { id: 'mgr-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Kỹ Thuật Máy Lab', icon: FaUsersCog, roles: [MANAGER], badge: { text: 'UC61', bg: 'primary' } },
+      { id: 'mgr-iot', path: '/manager/iot-thresholds', label: 'Cảm Biến IoT & Tủ Trữ Mẫu', icon: FaHeartbeat, roles: [MANAGER] },
+      { id: 'mgr-schedule', path: '/manage/schedule', label: 'Phân Bổ & Xếp Lịch Ca Trực', icon: FaClock, roles: [MANAGER], badge: { text: 'UC35', bg: 'primary' } },
+      { id: 'mgr-shifts', path: '/shifts/view', label: 'Xem Lịch Ca Trực', icon: FaClock, roles: [MANAGER] },
+      { id: 'mgr-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [MANAGER], badge: { text: 'UC56', bg: 'primary' } },
+      { id: 'mgr-invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: [MANAGER] },
+      { id: 'mgr-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [MANAGER], badge: { text: 'UC30', bg: 'info' } },
+      { id: 'mgr-appointments', path: '/appointments', label: 'Lịch Hẹn Bệnh Nhân', icon: FaClock, roles: [MANAGER] },
+      { id: 'mgr-assessments', path: '/medical-assessments', label: 'Đánh Giá ICD-10', icon: FaStethoscope, roles: [MANAGER], badge: { text: 'UC50', bg: 'primary' } },
+      { id: 'mgr-emr', path: '/doctor/emr', label: 'Tra Cứu Bệnh Án Điện Tử (EMR)', icon: FaNotesMedical, roles: [MANAGER] },
+      { id: 'mgr-timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu Bệnh Phẩm', icon: FaHistory, roles: [MANAGER] },
+      { id: 'mgr-test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [MANAGER] }
     ]
   },
-  {
-    category: 'CHẨN ĐOÁN & KHÁM',
-    items: [
-      { id: 'assessments', path: '/medical-assessments', label: 'Đánh Giá ICD-10', icon: FaStethoscope, roles: [DOCTOR, MANAGER], badge: { text: 'UC50', bg: 'primary' } },
-      { id: 'med-notes', path: '/doctor/medical-notes', label: 'Ghi Chú Y Khoa', icon: FaNotesMedical, roles: [DOCTOR], badge: { text: 'UC51', bg: 'primary' } },
-      // WHY: only the Manager signs results (decision 30/10 #1, UC49). The old link /doctor/dashboard?... had no route (404);
-      // the verification queue is the routed step of the approval chain until a signing screen is wired (Đợt 3).
-      { id: 'doc-approval', path: '/laboratory/verify-results', label: 'Duyệt Kết Quả Lab', icon: FaCheckCircle, roles: [MANAGER], badge: { text: 'Duyệt', bg: 'warning' } },
-      { id: 'feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý', icon: FaStar, roles: [MANAGER, PATIENT] }
-    ]
-  },
+
+  // ================= LAB TECHNICIAN SECTIONS =================
   {
     category: 'NGHIỆP VỤ XÉT NGHIỆM',
+    roles: [LAB],
     items: [
-      { id: 'validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'QC', bg: 'warning' } },
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu Lab', icon: FaVial, roles: [LAB, MANAGER], badge: { text: 'UC40/45', bg: 'danger' } },
-      { id: 'qc-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn QC', icon: FaFlask, roles: [LAB, MANAGER], badge: { text: 'Flags', bg: 'danger' } },
-      { id: 'lab-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm', icon: FaDoorOpen, roles: [MANAGER, ADMIN] },
-      { id: 'lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Lab', icon: FaUsersCog, roles: [MANAGER, ADMIN], badge: { text: 'UC61', bg: 'primary' } },
-      { id: 'criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [MANAGER, LAB, DOCTOR] },
-      { id: 'ref-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC57', bg: 'success' } },
-      { id: 'biochemical-results', path: '/laboratory/biochemical-results', label: 'Tra Cứu Sinh Hóa', icon: FaFlask, roles: [MANAGER, LAB, DOCTOR], badge: { text: 'UC75', bg: 'primary' } }
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Bệnh Phẩm', icon: FaVial, roles: [LAB], badge: { text: 'UC40/45', bg: 'danger' } },
+      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Tiếp Nhận Ống Mẫu Máu', icon: FaVial, roles: [LAB] },
+      { id: 'lab-enter-res', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FaNotesMedical, roles: [LAB] },
+      { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu Phân Tích', icon: FaFlask, roles: [LAB] },
+      { id: 'lab-validate', path: '/lab-user/validate-sample', label: 'Kiểm Chuẩn Mẫu Tiền Phân Tích', icon: FaVial, roles: [LAB], badge: { text: 'QC', bg: 'warning' } },
+      { id: 'lab-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (IQC/EQA)', icon: FaFlask, roles: [LAB] },
+      { id: 'lab-flags', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [LAB], badge: { text: 'Flags', bg: 'danger' } },
+      { id: 'lab-criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [LAB] },
+      { id: 'lab-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [LAB], badge: { text: 'UC57', bg: 'success' } },
+      { id: 'lab-biochem', path: '/laboratory/biochemical-results', label: 'Tra Cứu Sinh Hóa', icon: FaFlask, roles: [LAB], badge: { text: 'UC75', bg: 'primary' } }
     ]
   },
   {
-    category: 'LỊCH SỬ & THEO DÕI',
+    category: 'VẬN HÀNH & KHO LAB',
+    roles: [LAB],
     items: [
-      // WHY: UC71 timeline is lab-chain data. Matrix row UC71 + Quy trình ruling 30/10: Lab, Manager, Doctor only.
-      { id: 'timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu', icon: FaHistory, roles: [LAB, MANAGER, DOCTOR], badge: { text: 'UC71', bg: 'info' } },
-      { id: 'specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu', icon: FaHistory, roles: [LAB, MANAGER, DOCTOR], badge: { text: 'UC70', bg: 'info' } },
-      // WHY: restores LacPG's UC76 item (c8850ca) lost in the 18cd447 rewrite. Decision 10: Admin and Receptionist must not see clinical history; Patient sees own data only (server-scoped).
-      { id: 'test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [MANAGER, LAB, DOCTOR, PATIENT], badge: { text: 'UC76', bg: 'info' } }
+      { id: 'lab-timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu Bệnh Phẩm', icon: FaHistory, roles: [LAB] },
+      { id: 'lab-test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [LAB] },
+      { id: 'lab-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu Bệnh Phẩm', icon: FaHistory, roles: [LAB] },
+      { id: 'lab-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất & Vật Tư', icon: FaBoxOpen, roles: [LAB], badge: { text: 'UC56', bg: 'primary' } },
+      { id: 'lab-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [LAB], badge: { text: 'UC30', bg: 'info' } },
+      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB], badge: { text: 'UC35', bg: 'info' } },
+      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Nội Bộ Lab', icon: FaBell, roles: [LAB], badge: { text: 'UC60', bg: 'primary' } }
+    ]
+  },
+
+  // ================= DOCTOR SECTIONS =================
+  {
+    category: 'BÀN KHÁM & ĐIỀU TRỊ',
+    roles: [DOCTOR],
+    items: [
+      { id: 'doc-console', path: '/doctor/console', label: 'Bàn Khám Bác Sĩ & Gọi Số', icon: FaStethoscope, roles: [DOCTOR] },
+      { id: 'doc-order', path: '/doctor/orders/create', label: 'Chỉ Định Xét Nghiệm Máu', icon: FaNotesMedical, roles: [DOCTOR] },
+      { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án Điện Tử (EMR)', icon: FaNotesMedical, roles: [DOCTOR] },
+      { id: 'doc-assessment', path: '/medical-assessments', label: 'Chẩn Đoán Lâm Sàng (ICD-10)', icon: FaStethoscope, roles: [DOCTOR], badge: { text: 'UC50', bg: 'primary' } },
+      { id: 'doc-notes', path: '/doctor/medical-notes', label: 'Ghi Chú Y Khoa Tiến Trình', icon: FaNotesMedical, roles: [DOCTOR], badge: { text: 'UC51', bg: 'primary' } },
+      { id: 'doc-criteria', path: '/criteria', label: 'Chỉ Số Xét Nghiệm', icon: FaNotesMedical, roles: [DOCTOR] },
+      { id: 'doc-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu', icon: FaHeartbeat, roles: [DOCTOR] },
+      { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Tra Cứu Sinh Hóa', icon: FaFlask, roles: [DOCTOR] }
     ]
   },
   {
-    category: 'KHO & VẬN HÀNH',
+    category: 'LỊCH HẸN & THEO DÕI',
+    roles: [DOCTOR],
     items: [
-      { id: 'inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [ADMIN, MANAGER, LAB], badge: { text: 'UC56', bg: 'primary' } },
-      { id: 'shifts', path: '/shifts/view', label: 'Lịch Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST], badge: { text: 'UC35', bg: 'info' } },
-      { id: 'shift-roster', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [ADMIN, MANAGER], badge: { text: 'UC35', bg: 'primary' } },
-      { id: 'packages', path: '/admin/packages', label: 'Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN, MANAGER] },
-      { id: 'invoices', path: '/invoices', label: 'Biên Lai & Hóa Đơn', icon: FaReceipt, roles: [RECEPTIONIST, MANAGER] },
-      // WHY: /admin/reports had no route (404); the reports that exist are TAT (UC63) and revenue (UC78), Admin + Manager.
-      { id: 'reports', path: '/reports/tat', label: 'Báo Cáo Thống Kê', icon: FaChartBar, roles: [ADMIN, MANAGER] }
+      { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: FaClock, roles: [DOCTOR] },
+      { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [DOCTOR], badge: { text: 'UC30', bg: 'info' } },
+      { id: 'doc-patient-hist', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [DOCTOR] },
+      { id: 'doc-timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu Bệnh Phẩm', icon: FaHistory, roles: [DOCTOR] },
+      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Bác Sĩ', icon: FaClock, roles: [DOCTOR], badge: { text: 'UC35', bg: 'info' } }
+    ]
+  },
+
+  // ================= RECEPTIONIST SECTIONS =================
+  {
+    category: 'TIẾP ĐÓN & ĐIỀU PHỐI BỆNH NHÂN',
+    roles: [RECEPTIONIST],
+    items: [
+      { id: 'rec-checkin', path: '/receptionist/check-in', label: '1. Quầy Tiếp Đón & Check-in QR', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
+      { id: 'rec-queue', path: '/reception/queue', label: '2. Bảng Gọi Số & Hàng Đợi', icon: FaClock, roles: [RECEPTIONIST] },
+      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: '3. Tạo Hồ Sơ Bệnh Nhân (Vãng Lai)', icon: FaUserPlus, roles: [RECEPTIONIST] },
+      { id: 'rec-appointments', path: '/appointments', label: '4. Sổ Lịch Hẹn & Khung Giờ', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
+      { id: 'rec-patients', path: '/patients', label: '5. Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST], badge: { text: 'UC30', bg: 'info' } }
     ]
   },
   {
-    category: 'HỆ THỐNG',
+    category: 'VIỆN PHÍ & THU NGÂN',
+    roles: [RECEPTIONIST],
     items: [
-      { id: 'users', path: '/admin/user-management', label: 'Quản Lý Người Dùng', icon: FaUserCog, roles: [ADMIN] },
-      { id: 'employees', path: '/admin/employees', label: 'Quản Lý Nhân Sự', icon: FaUserNurse, roles: [ADMIN] },
-      { id: 'roles', path: '/roles', label: 'Phân Quyền Vai Trò', icon: FaShieldAlt, roles: [ADMIN] },
-      { id: 'audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit', icon: FaShieldAlt, roles: [ADMIN] },
-      { id: 'backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục', icon: FaDatabase, roles: [ADMIN], badge: { text: 'UC80', bg: 'primary' } },
-      { id: 'profile', path: '/profile', label: 'Hồ Sơ Cá Nhân', icon: FaUserMd, roles: ALL_ROLES },
-      { id: 'pwd', path: '/change-password', label: 'Đổi Mật Khẩu', icon: FaKey, roles: ALL_ROLES }
+      { id: 'rec-invoices', path: '/invoices', label: 'Quầy Thu Viện Phí & Hóa Đơn VAT', icon: FaReceipt, roles: [RECEPTIONIST] },
+      { id: 'rec-fees', path: '/calculate-fees', label: 'Tra Cứu Bảng Giá & Dự Toán BHYT', icon: FaReceipt, roles: [RECEPTIONIST] },
+      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST], badge: { text: 'UC35', bg: 'info' } }
+    ]
+  },
+
+  // ================= PATIENT SECTION =================
+  {
+    category: 'CỔNG BỆNH NHÂN',
+    roles: [PATIENT],
+    items: [
+      { id: 'pt-search-packages', path: '/services', label: 'Tra Cứu Gói Xét Nghiệm', icon: FaSearch, roles: [PATIENT], badge: { text: 'UC20', bg: 'info' } },
+      { id: 'pt-appointments', path: '/appointments', label: 'Lịch Khám & Hẹn Lấy Mẫu Của Tôi', icon: FaCalendarAlt, roles: [PATIENT] },
+      { id: 'pt-tracking', path: '/tracking', label: 'Tiến Trình & Kết Quả', icon: FaHeartbeat, roles: [PATIENT] },
+      { id: 'pt-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [PATIENT] },
+      { id: 'pt-feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý Y Tế', icon: FaStar, roles: [PATIENT] }
+    ]
+  },
+
+  // ================= COMMON ACCOUNT SECTION =================
+  {
+    category: 'TÀI KHOẢN CÁ NHÂN',
+    roles: ALL_ROLES,
+    items: [
+      { id: 'common-profile', path: '/profile', label: 'Thông Tin Tài Khoản', icon: FaUserMd, roles: ALL_ROLES },
+      { id: 'common-pwd', path: '/change-password', label: 'Thay Đổi Mật Khẩu', icon: FaKey, roles: ALL_ROLES }
     ]
   }
 ];
@@ -111,140 +203,330 @@ export default function Sidebar({
   const toggleSidebar = onToggle || onToggleCollapse;
   const closeSidebar = onCloseMobile || onClose;
 
-  // Lấy User và Role an toàn
+  // Safe user & role resolution
   const user = useMemo(() => {
     if (auth?.user) return auth.user;
     try {
-      const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');
+      const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || localStorage.getItem('user');
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   }, [auth?.user]);
 
-  // Unknown role => null => no role-specific menu (never silently treated as Patient).
   const roleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(auth?.userRoleId ?? auth?.userRole), [auth, user]);
-  const currentRole = roleId ? ROLE_LABELS[roleId] : 'Không rõ vai trò';
+  const currentRole = roleId ? ROLE_LABELS[roleId] : 'Nhân viên y tế';
 
-  // Lọc Menu theo Role
+  // Filter sections strictly by current roleId
   const filteredSections = useMemo(() => {
-    return MENU_SECTIONS.map(sec => ({
-      ...sec,
-      items: sec.items.filter(item => roleId !== null && item.roles.includes(roleId))
-    })).filter(sec => sec.items.length > 0);
+    return MENU_SECTIONS
+      .filter(sec => roleId !== null && sec.roles.includes(roleId))
+      .map(sec => ({
+        ...sec,
+        items: sec.items.filter(item => roleId !== null && item.roles.includes(roleId))
+      }))
+      .filter(sec => sec.items.length > 0);
   }, [roleId]);
 
   const isActive = (path) => {
-    const base = path.split('?')[0];
-    return base === '/dashboard' ? location.pathname.endsWith('/dashboard') : location.pathname.startsWith(base);
+    if (path === '/dashboard') return location.pathname === '/dashboard';
+    return location.pathname.startsWith(path);
   };
 
   return (
     <aside
-      className={`bms-sidebar d-flex flex-column text-white ${isCollapsed ? 'collapsed' : ''}`}
+      className={`bms-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobile ? 'mobile-show' : ''}`}
       style={{
-        width: isCollapsed ? '78px' : '260px',
+        width: isCollapsed ? '78px' : '265px',
+        minWidth: isCollapsed ? '78px' : '265px',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: '#0f172a',
+        color: '#f8fafc',
         height: '100vh',
-        backgroundColor: '#1b1b28',
-        position: isMobile ? 'relative' : 'fixed',
-        left: 0, top: 0, zIndex: 1050,
-        transition: 'width 0.25s ease'
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 1040,
+        position: isMobile ? 'fixed' : 'sticky',
+        top: 0,
+        left: 0,
+        boxShadow: '4px 0 24px rgba(0,0,0,0.18)',
+        borderRight: '1px solid rgba(255,255,255,0.06)'
       }}
     >
-      {/* 1. Header */}
-      <div className="d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-25" style={{ height: '64px' }}>
-        <Link to="/" className="d-flex align-items-center text-decoration-none text-white gap-2 overflow-hidden" onClick={() => isMobile && closeSidebar?.()}>
-          <img src="/assets/bms-logo.png" alt="BMS" style={{ width: '28px', height: '28px', objectFit: 'contain' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+      {/* Brand Header */}
+      <div
+        style={{
+          padding: isCollapsed ? '16px 8px' : '20px 18px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'space-between',
+          background: 'rgba(255,255,255,0.02)'
+        }}
+      >
+        <Link
+          to="/dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            textDecoration: 'none',
+            color: '#fff',
+            overflow: 'hidden'
+          }}
+        >
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '20px',
+              flexShrink: 0,
+              boxShadow: '0 4px 12px rgba(37,99,235,0.35)'
+            }}
+          >
+            <FaVial />
+          </div>
           {!isCollapsed && (
-            <div className="text-truncate lh-1">
-              <span className="fw-bold tracking-wide d-block" style={{ fontSize: '0.95rem' }}>BMS MEDLAB</span>
-              <small className="text-muted" style={{ fontSize: '0.65rem' }}>ISO 15189 STANDARDS</small>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+              <span style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '0.5px' }}>BMS CLINICAL</span>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                ISO 15189 LAB
+              </span>
             </div>
           )}
         </Link>
-        {isMobile && <Button variant="link" className="text-light p-0" onClick={closeSidebar}><FaTimes size={18} /></Button>}
+
+        {isMobile ? (
+          <button
+            onClick={closeSidebar}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#94a3b8',
+              fontSize: '18px',
+              cursor: 'pointer',
+              padding: '4px'
+            }}
+          >
+            <FaTimes />
+          </button>
+        ) : (
+          !isCollapsed && (
+            <button
+              onClick={toggleSidebar}
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#94a3b8',
+                borderRadius: '6px',
+                width: '28px',
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s'
+              }}
+              title="Thu gọn menu"
+            >
+              <FaChevronLeft size={12} />
+            </button>
+          )
+        )}
       </div>
 
-      {/* 2. Role Badge */}
-      {!isCollapsed && (
-        <div className="px-3 py-1.5 bg-black bg-opacity-25 border-bottom border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
-          <span className="text-muted text-uppercase" style={{ fontSize: '0.68rem' }}>Phân hệ</span>
-          <Badge bg="primary" className="text-uppercase" style={{ fontSize: '0.65rem' }}>{currentRole}</Badge>
-        </div>
-      )}
-
-      {/* 3. Navigation Items */}
-      <div className="flex-grow-1 overflow-auto custom-scrollbar p-2" style={{ minHeight: 0 }}>
-        <Nav className="flex-column gap-1">
-          {filteredSections.map((sec, idx) => (
-            <div key={sec.category} className="mb-2">
-              {!isCollapsed ? (
-                <div className="px-3 pt-2 pb-1 text-uppercase text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
-                  {sec.category}
-                </div>
-              ) : (
-                idx > 0 && <hr className="my-2 border-secondary opacity-25 w-75 mx-auto" />
-              )}
-
-              {sec.items.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
-
-                const link = (
-                  <Nav.Link
-                    as={Link}
-                    to={item.path}
-                    onClick={() => isMobile && closeSidebar?.()}
-                    className={`d-flex align-items-center rounded-2 px-3 py-2 text-white text-decoration-none ${
-                      active ? 'bg-primary shadow-sm fw-medium' : 'hover-item opacity-75'
-                    }`}
-                    style={{ fontSize: '0.88rem', transition: 'all 0.15s' }}
-                  >
-                    <Icon size={isCollapsed ? 18 : 16} className={isCollapsed ? 'mx-auto' : 'me-3 flex-shrink-0'} />
-                    {!isCollapsed && <span className="flex-grow-1 text-truncate">{item.label}</span>}
-                    {!isCollapsed && item.badge && <Badge bg={item.badge.bg} pill style={{ fontSize: '0.65rem' }}>{item.badge.text}</Badge>}
-                  </Nav.Link>
-                );
-
-                return isCollapsed ? (
-                  <OverlayTrigger key={item.id} placement="right" overlay={<Tooltip id={`t-${item.id}`}>{item.label}</Tooltip>}>
-                    <div>{link}</div>
-                  </OverlayTrigger>
-                ) : <React.Fragment key={item.id}>{link}</React.Fragment>;
-              })}
-            </div>
-          ))}
-        </Nav>
-      </div>
-
-      {/* 4. User Card */}
-      <div className="p-2 border-top border-secondary border-opacity-25 bg-black bg-opacity-20 d-flex align-items-center">
-        <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0 fw-bold" style={{ width: '34px', height: '34px', fontSize: '14px' }}>
-          {user?.fullName?.[0]?.toUpperCase() || currentRole[0]}
-        </div>
+      {/* Role Badge Indicator */}
+      <div
+        style={{
+          padding: isCollapsed ? '12px 6px' : '12px 18px',
+          background: 'rgba(255,255,255,0.03)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}
+      >
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#10b981',
+            boxShadow: '0 0 8px #10b981',
+            flexShrink: 0,
+            margin: isCollapsed ? '0 auto' : 0
+          }}
+        />
         {!isCollapsed && (
-          <div className="ms-2.5 overflow-hidden flex-grow-1 lh-sm">
-            <div className="text-white small fw-semibold text-truncate">{user?.fullName || user?.name || 'Nhân viên'}</div>
-            <div className="text-muted text-truncate" style={{ fontSize: '0.7rem' }}>{user?.email || currentRole}</div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
+              Phiên Làm Việc
+            </div>
+            <div
+              style={{
+                fontSize: '0.82rem',
+                color: '#38bdf8',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {currentRole}
+            </div>
           </div>
         )}
       </div>
 
-      {/* 5. Collapse Button (Desktop) */}
-      {!isMobile && (
-        <Button
-          variant="link"
-          className="text-secondary text-decoration-none py-2 text-center border-top border-secondary border-opacity-10 rounded-0"
-          onClick={toggleSidebar}
-          style={{ fontSize: '0.82rem' }}
-        >
-          {isCollapsed ? <FaChevronRight size={14} /> : <><FaChevronLeft className="me-1.5" size={12} /><span>Thu gọn</span></>}
-        </Button>
-      )}
+      {/* Navigation Sections */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: isCollapsed ? '12px 6px' : '16px 12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '18px'
+        }}
+      >
+        {filteredSections.map((section, idx) => (
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {!isCollapsed && (
+              <div
+                style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.8px',
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  padding: '4px 10px',
+                  marginBottom: '2px'
+                }}
+              >
+                {section.category}
+              </div>
+            )}
 
-      <style>{`
-        .bms-sidebar .hover-item:hover { background-color: rgba(255,255,255,0.08) !important; opacity: 1 !important; }
-        .bms-sidebar .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .bms-sidebar .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-      `}</style>
+            {section.items.map((item) => {
+              const active = isActive(item.path);
+              const Icon = item.icon;
+
+              const linkContent = (
+                <Link
+                  to={item.path}
+                  onClick={isMobile ? closeSidebar : undefined}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: isCollapsed ? '0' : '12px',
+                    justifyContent: isCollapsed ? 'center' : 'flex-start',
+                    padding: isCollapsed ? '11px 0' : '9px 12px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    color: active ? '#ffffff' : '#cbd5e1',
+                    background: active
+                      ? 'linear-gradient(90deg, rgba(37,99,235,0.9) 0%, rgba(29,78,216,0.9) 100%)'
+                      : 'transparent',
+                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
+                    fontWeight: active ? 600 : 500,
+                    fontSize: '0.86rem',
+                    transition: 'all 0.15s ease',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <Icon
+                    style={{
+                      fontSize: '16px',
+                      color: active ? '#ffffff' : '#94a3b8',
+                      flexShrink: 0
+                    }}
+                  />
+                  {!isCollapsed && (
+                    <span
+                      style={{
+                        flex: 1,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+                  {!isCollapsed && item.badge && (
+                    <Badge
+                      bg={item.badge.bg || 'primary'}
+                      style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        padding: '3px 6px',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      {item.badge.text}
+                    </Badge>
+                  )}
+                </Link>
+              );
+
+              if (isCollapsed) {
+                return (
+                  <OverlayTrigger
+                    key={item.id}
+                    placement="right"
+                    overlay={<Tooltip id={`tt-${item.id}`}>{item.label}</Tooltip>}
+                  >
+                    <div>{linkContent}</div>
+                  </OverlayTrigger>
+                );
+              }
+
+              return <div key={item.id}>{linkContent}</div>;
+            })}
+          </div>
+        ))}
+      </div>
+
+      {/* Collapse Footer Toggle (Desktop) */}
+      {!isMobile && isCollapsed && (
+        <div
+          style={{
+            padding: '12px',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <button
+            onClick={toggleSidebar}
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#94a3b8',
+              borderRadius: '6px',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+            title="Mở rộng menu"
+          >
+            <FaChevronRight size={14} />
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

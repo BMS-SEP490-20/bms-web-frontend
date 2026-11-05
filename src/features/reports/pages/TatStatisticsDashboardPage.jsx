@@ -217,7 +217,7 @@ export default function TatStatisticsDashboardPage() {
                                 <option value="ALL">Tất cả ưu tiên</option>
                                 <option value="Stat">Cấp cứu (STAT - Mục tiêu &le; 60m)</option>
                                 <option value="Urgent">Khẩn cấp (Urgent - Mục tiêu &le; 120m)</option>
-                                <option value="Normal">Thường quy (Normal - Mục tiêu &le; 240m)</option>
+                                <option value="Normal">Thường quy (Normal - Mục tiêu &le; 120m)</option>
                             </select>
                         </div>
                     </div>
@@ -330,7 +330,7 @@ export default function TatStatisticsDashboardPage() {
                         <div>
                             <h5 className="fw-bold mb-3 text-dark">Hiệu Suất Thời Gian Quay Vòng Theo Mức Độ Ưu Tiên Khám Chữa Bệnh</h5>
                             <div className="row g-4">
-                                {report.priorityBreakdown.map(p => {
+                                {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
                                     const isStat = p.priority.toLowerCase() === "stat";
                                     const isUrgent = p.priority.toLowerCase() === "urgent";
                                     const theme = isStat ? "danger" : isUrgent ? "warning" : "primary";
@@ -340,7 +340,7 @@ export default function TatStatisticsDashboardPage() {
                                             <div className={`card border rounded-3 p-3 bg-white h-100 border-top border-4 border-${theme} shadow-sm`}>
                                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                                     <span className={`badge bg-${theme}-subtle text-${theme} px-2 py-1 fs-6 fw-bold`}>
-                                                        {p.priority.toUpperCase()}
+                                                        {p.priority.toLowerCase() === "stat" ? "CẤP CỨU (STAT)" : p.priority.toLowerCase() === "urgent" ? "KHẨN CẤP" : "THƯỜNG QUY"}
                                                     </span>
                                                     <span className="small text-muted">
                                                         Mục tiêu chuẩn: &le; <strong>{p.targetMinutes} phút</strong>
@@ -393,7 +393,7 @@ export default function TatStatisticsDashboardPage() {
                             <div className="mb-4">
                                 <label className="small text-muted fw-bold text-uppercase d-block mb-2">Tỷ lệ đóng góp thời gian vào tổng quy trình TAT:</label>
                                 <div className="progress" style={{ height: "28px" }}>
-                                    {report.phaseBreakdown.map((ph, idx) => {
+                                    {(Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : []).map((ph, idx) => {
                                         const colors = ["bg-info", "bg-primary", "bg-success"];
                                         return (
                                             <div
@@ -411,7 +411,7 @@ export default function TatStatisticsDashboardPage() {
                             </div>
 
                             <div className="row g-3">
-                                {report.phaseBreakdown.map((ph, idx) => {
+                                {((Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : [])).map((ph, idx) => {
                                     const badges = ["Giai đoạn 1", "Giai đoạn 2", "Giai đoạn 3"];
                                     return (
                                         <div className="col-12 col-md-4" key={ph.phaseName}>
@@ -448,11 +448,15 @@ export default function TatStatisticsDashboardPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {report.departmentBreakdown.map(d => (
+                                        {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
                                             <tr key={d.department}>
                                                 <td className="fw-bold text-dark">
                                                     <FaFlask className="me-2 text-primary" />
-                                                    {d.department}
+                                                    {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
+                                                     d.department === "Hematology" ? "Huyết Học (Hematology)" :
+                                                     d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
+                                                     d.department === "Urinalysis" ? "Nước Tiểu (Urinalysis)" :
+                                                     d.department === "Microbiology" ? "Vi Sinh (Microbiology)" : d.department}
                                                 </td>
                                                 <td className="text-center">{d.totalCount}</td>
                                                 <td className="text-center fw-bold text-primary">
@@ -499,7 +503,7 @@ export default function TatStatisticsDashboardPage() {
                         <div>
                             <h5 className="fw-bold mb-3 text-dark">Biến Thiên Xu Hướng TAT Theo Từng Ngày Vận Hành</h5>
                             <div className="row g-3">
-                                {report.trends.map(t => (
+                                {(Array.isArray(report.trends) ? report.trends : []).map(t => (
                                     <div className="col-12 col-sm-6 col-md-4 col-xl-3" key={t.dateLabel}>
                                         <div className="card border rounded-3 p-3 bg-white shadow-sm">
                                             <div className="d-flex justify-content-between align-items-center">
@@ -528,11 +532,11 @@ export default function TatStatisticsDashboardPage() {
                                     <FaExclamationTriangle /> Danh Sách Mẫu Vượt Ngưỡng Thời Gian (Outlier Violations)
                                 </h5>
                                 <span className="badge bg-danger-subtle text-danger px-3 py-1">
-                                    {report.recentViolations.length} trường hợp phát hiện
+                                    {(Array.isArray(report.recentViolations) ? report.recentViolations : []).length} trường hợp phát hiện
                                 </span>
                             </div>
 
-                            {report.recentViolations.length === 0 ? (
+                            {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
                                 <div className="text-center py-5 text-muted">
                                     <FaCheckCircle className="fs-1 text-success mb-2" />
                                     <p className="mb-0 fw-semibold">Tuyệt vời! Không ghi nhận trường hợp mẫu nào vượt ngưỡng thời gian cam kết.</p>
@@ -554,20 +558,22 @@ export default function TatStatisticsDashboardPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {report.recentViolations.map(v => (
+                                            {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
                                                 <tr key={v.sampleId || v.barcode}>
                                                     <td className="font-monospace fw-bold text-dark">{v.barcode}</td>
                                                     <td>{v.patientName}</td>
                                                     <td className="text-truncate" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
                                                     <td>
-                                                        <span className="badge bg-danger text-white">{v.priority}</span>
+                                                        <span className="badge bg-danger text-white">{v.priority?.toLowerCase() === "stat" ? "Cấp cứu (STAT)" : v.priority?.toLowerCase() === "urgent" ? "Khẩn cấp" : "Thường quy"}</span>
                                                     </td>
                                                     <td className="text-center fw-bold text-danger">{v.actualTatMinutes}m</td>
                                                     <td className="text-center text-muted">&le; {v.targetTatMinutes}m</td>
                                                     <td className="text-center fw-bold text-danger">+{v.delayMinutes}m</td>
                                                     <td>
                                                         <span className="badge bg-warning-subtle text-dark border">
-                                                            {v.bottleneckPhase}
+                                                            {v.bottleneckPhase === "PreAnalytical" ? "Tiền phân tích (Lấy/Chuyển mẫu)" :
+                                                             v.bottleneckPhase === "Analytical" ? "Trong phân tích (Chạy máy)" :
+                                                             v.bottleneckPhase === "PostAnalytical" ? "Sau phân tích (Duyệt kết quả)" : v.bottleneckPhase}
                                                         </span>
                                                     </td>
                                                     <td className="small text-muted">{v.technicianName || "Chưa gán"}</td>

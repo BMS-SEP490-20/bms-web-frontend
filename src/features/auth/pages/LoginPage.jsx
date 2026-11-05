@@ -100,29 +100,31 @@ export default function LoginPage({
 
   /**
    * Redirects user to their role-specific workspace based on RoleId:
-   * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient.
+   * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient, 6 = Manager.
    */
   const routeUserByRole = (user) => {
-    const normalizedUser = normalizeAuthenticatedUser(user);
-    const roleId = resolveRoleId(normalizedUser);
-    let target = "/";
+    const normalizedUser = typeof normalizeAuthenticatedUser === "function" ? normalizeAuthenticatedUser(user) : user;
+    const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
+    let target = "/dashboard";
     switch (roleId) {
       case ROLES.ADMIN:
       case ROLES.MANAGER:
         target = "/dashboard";
         break;
       case ROLES.DOCTOR:
-        target = "/medical-assessments";
+        target = "/doctor/console";
         break;
       case ROLES.LAB:
         target = "/lab/queue";
         break;
       case ROLES.RECEPTIONIST:
-        target = "/patients";
+        target = "/receptionist/check-in";
         break;
       case ROLES.PATIENT:
+        target = (normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted) ? "/home" : "/patient/medical-profile-setup";
+        break;
       default:
-        target = "/";
+        target = "/dashboard";
         break;
     }
 
@@ -494,6 +496,13 @@ export default function LoginPage({
                   onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
                 >
                   Admin (Role 1)
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-dark"
+                  onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
+                >
+                  Quản Lý
                 </button>
                 <button
                   type="button"

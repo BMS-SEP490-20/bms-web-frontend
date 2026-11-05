@@ -12,9 +12,20 @@ import api from "../../../config/api";
  * @returns {Promise<Object|null>} Diagnostic result detail payload.
  */
 export const fetchPatientResult = async (orderId) => {
+    if (!orderId) return null;
     try {
         const response = await api.get(`/testresults/patient/order/${orderId}`);
-        return response.data?.data || null;
+        const data = response.data?.data || response.data;
+        if (data && (data.Parameters || data.parameters || data.OrderId || data.orderId)) {
+            return data;
+        }
+    } catch {
+        // Try fallback report endpoint
+    }
+
+    try {
+        const response = await api.get(`/reports/order/${orderId}`);
+        return response.data?.data || response.data || null;
     } catch (error) {
         console.error(`Failed to fetch patient result for order ${orderId}:`, error);
         return null;
@@ -27,9 +38,18 @@ export const fetchPatientResult = async (orderId) => {
  * @returns {Promise<Object>} PDF export metadata including printableHtml.
  */
 export const exportResultPdf = async (orderId) => {
+    if (!orderId) return null;
     try {
         const response = await api.get(`/testresults/patient/order/${orderId}/export-pdf`);
-        return response.data?.data || null;
+        const data = response.data?.data || response.data;
+        if (data && data.printableHtml) return data;
+    } catch {
+        // Try fallback PDF report endpoint
+    }
+
+    try {
+        const res = await api.get(`/reports/order/${orderId}/pdf`);
+        return res.data?.data || res.data || null;
     } catch (error) {
         console.error(`Failed to export PDF for order ${orderId}:`, error);
         throw error;
@@ -42,9 +62,10 @@ export const exportResultPdf = async (orderId) => {
  * @returns {Promise<Object>} Share token and URL payload.
  */
 export const shareResultWithDoctor = async (orderId) => {
+    if (!orderId) return null;
     try {
         const response = await api.post(`/testresults/patient/order/${orderId}/share`);
-        return response.data?.data || null;
+        return response.data?.data || response.data || null;
     } catch (error) {
         console.error(`Failed to generate share link for order ${orderId}:`, error);
         throw error;
@@ -57,11 +78,22 @@ export const shareResultWithDoctor = async (orderId) => {
  * @returns {Promise<Array>} List of patient diagnostic results.
  */
 export const fetchPatientResultsList = async (patientId) => {
+    if (!patientId) return [];
     try {
         const response = await api.get(`/testresults/patient/${patientId}`);
-        return response.data?.data || [];
-    } catch (error) {
-        console.error(`Failed to fetch patient results list for ${patientId}:`, error);
-        return [];
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data) && data.length > 0) return data;
+    } catch {
+        // Try fallback
     }
+
+    try {
+        const response = await api.get(`/reports/patient/${patientId}`);
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data)) return data;
+    } catch {
+        // ignore
+    }
+
+    return [];
 };

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file RestoreConfirmationModal.jsx
  * @description Safe two-step restoration modal dialog with SHA-256 pre-flight validation and confirmation phrase (UC80 / BR-243).
  * Conforms to: Production Medical Standards, Clinical Emergency Rollback & AGENTS-DESIGN.md.
@@ -82,7 +82,7 @@ export default function RestoreConfirmationModal({
     };
 
     const isPhraseValid =
-        confirmationPhrase.trim().toUpperCase() === "XAC_NHAN_KHOI_PHUC" ||
+        confirmationPhrase.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === "XAC_NHAN_KHOI_PHUC" || confirmationPhrase.trim().toUpperCase() === "XAC_NHAN_KHOI_PHUC" ||
         confirmationPhrase.trim().toUpperCase() === "CONFIRM_RESTORE";
 
     return (

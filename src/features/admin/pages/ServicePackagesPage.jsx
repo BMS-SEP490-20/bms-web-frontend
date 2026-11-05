@@ -23,6 +23,7 @@ import PackageDetailModal from "../components/PackageDetailModal.jsx";
 import "../../user-management/pages/RolesManagementPage.css";
 
 import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
+
 /**
  * Normalizes array payloads from diverse backend wrapper envelope formats.
  *
@@ -30,6 +31,7 @@ import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
  * @returns {any[]} Guaranteed JavaScript array.
  */
 function normalizeArray(response) {
+    if (!response) return [];
     if (Array.isArray(response)) return response;
     if (Array.isArray(response?.items)) return response.items;
     if (Array.isArray(response?.data)) return normalizeArray(response.data);
@@ -53,7 +55,7 @@ function normalizePackage(pkg) {
         description: pkg.description ?? pkg.Description ?? "",
         price: pkg.price ?? pkg.Price ?? 0,
         discountPrice: pkg.discountPrice ?? pkg.DiscountPrice ?? null,
-        tests: pkg.tests ?? pkg.Tests ?? [],
+        tests: Array.isArray(pkg.tests ?? pkg.Tests) ? (pkg.tests ?? pkg.Tests) : [],
         isActive: pkg.isActive ?? pkg.IsActive ?? (pkg.status === "ACTIVE"),
         isDeleted: pkg.isDeleted ?? pkg.IsDeleted ?? false,
         createdAt: pkg.createdAt ?? pkg.CreatedAt ?? null,
@@ -127,10 +129,12 @@ export default function ServicePackagesPage({ onBack }) {
         load();
     }, [load]);
 
+    const safePackages = useMemo(() => (Array.isArray(packages) ? packages : []), [packages]);
+
     const visible = useMemo(() => {
         const query = search.trim().toLowerCase();
 
-        return packages.filter((pkg) => {
+        return safePackages.filter((pkg) => {
             if (pkg.isDeleted) return false;
 
             const status = pkg.isActive ? "ACTIVE" : "DRAFT";
@@ -139,19 +143,21 @@ export default function ServicePackagesPage({ onBack }) {
                 return false;
             }
 
+            const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+
             return (
                 !query ||
                 pkg.name.toLowerCase().includes(query) ||
                 pkg.code.toLowerCase().includes(query) ||
                 pkg.description.toLowerCase().includes(query) ||
-                pkg.tests.some((test) =>
+                tests.some((test) =>
                     `${test.code || ""} ${test.name || ""}`
                         .toLowerCase()
                         .includes(query)
                 )
             );
         });
-    }, [packages, search, statusFilter]);
+    }, [safePackages, search, statusFilter]);
 
     // Reset pagination when search or status filter changes
     useEffect(() => {
@@ -204,8 +210,10 @@ export default function ServicePackagesPage({ onBack }) {
     }
 
     function testCodes(pkg) {
-        if (pkg.tests?.length) {
-            return pkg.tests
+        if (!pkg) return "";
+        const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+        if (tests.length) {
+            return tests
                 .map((test) =>
                     typeof test === "string"
                         ? test
@@ -215,11 +223,12 @@ export default function ServicePackagesPage({ onBack }) {
         }
 
         const ids = getTestIds(pkg, criteria);
+        const criteriaList = Array.isArray(criteria) ? criteria : [];
         const map = Object.fromEntries(
-            criteria.map((item) => [item._id || item.id, item])
+            criteriaList.map((item) => [item._id || item.id, item])
         );
 
-        return ids
+        return (Array.isArray(ids) ? ids : [])
             .map((id) => map[id]?.code || id)
             .join(", ");
     }
@@ -231,10 +240,10 @@ export default function ServicePackagesPage({ onBack }) {
                 <div>
                     <h4 className="fw-bold m-0 text-dark">
                         <i className="bi bi-box-seam-fill text-primary me-2"></i>
-                        Quản Lý Gói Dịch Vụ Xét Nghiệm
+                        Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí
                     </h4>
                     <small className="text-muted">
-                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết (UC15)
+                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí (UC15)
                     </small>
                 </div>
                 <div className="d-flex align-items-center gap-2">
@@ -243,20 +252,20 @@ export default function ServicePackagesPage({ onBack }) {
                         href="/services"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="fw-semibold"
+                        className="fw-semibold shadow-sm"
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                     >
                         <i className="bi bi-eye-fill me-1"></i>
-                        Xem Web Bệnh Nhân ↗
+                        Xem Cổng Bệnh Nhân ↗
                     </Button>
 
                     {canManage && (
                         <Button
                             variant="primary"
                             onClick={openCreate}
-                            className="text-white fw-semibold"
+                            className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
                         >
-                            <i className="bi bi-plus-circle-fill me-2"></i>
+                            <i className="bi bi-plus-circle-fill"></i>
                             Thêm Gói Mới
                         </Button>
                     )}
@@ -268,7 +277,7 @@ export default function ServicePackagesPage({ onBack }) {
                     variant="danger"
                     dismissible
                     onClose={() => setError("")}
-                    className="mb-4"
+                    className="mb-4 shadow-sm"
                 >
                     <i className="bi bi-exclamation-triangle-fill me-2"></i>
                     {error}
@@ -300,9 +309,9 @@ export default function ServicePackagesPage({ onBack }) {
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                             >
-                                <option value="ALL">Tất Cả Trạng Thái</option>
+                                <option value="ALL">-- Tất Cả Trạng Thái --</option>
                                 <option value="ACTIVE">Đang Hoạt Động</option>
-                                <option value="DRAFT">Tạm Khóa / Nháp</option>
+                                <option value="DRAFT">Tạm Khóa / Bản Nháp</option>
                             </Form.Select>
                         </div>
 
@@ -320,7 +329,7 @@ export default function ServicePackagesPage({ onBack }) {
                                 <th className="bms-align-center" style={{ width: "160px" }}>Mã Gói</th>
                                 <th>Tên Gói Dịch Vụ</th>
                                 <th>Mô Tả & Chỉ Số</th>
-                                <th className="bms-align-right" style={{ width: "160px" }}>Giá Niêm Yết</th>
+                                <th className="bms-align-right" style={{ width: "160px" }}>Đơn Giá Niêm Yết</th>
                                 <th className="bms-align-center" style={{ width: "140px" }}>Trạng Thái</th>
                                 <th className="bms-align-right" style={{ width: "130px" }}>Thao Tác</th>
                             </tr>
@@ -330,7 +339,7 @@ export default function ServicePackagesPage({ onBack }) {
                                 <tr>
                                     <td colSpan="6" className="text-center py-5">
                                         <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                                        Đang tải danh sách gói dịch vụ...
+                                        Đang tải danh sách gói dịch vụ xét nghiệm...
                                     </td>
                                 </tr>
                             ) : visible.length === 0 ? (
@@ -348,9 +357,11 @@ export default function ServicePackagesPage({ onBack }) {
                                         </td>
                                         <td>
                                             <div className="fw-bold text-dark">{pkg.name}</div>
-                                            <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px" }}>
-                                                <i className="bi bi-lock-fill me-1"></i>Hệ Thống Cốt Lõi
-                                            </Badge>
+                                            {pkg.code?.startsWith('BIOCHEM') || pkg.code?.startsWith('CBC') || pkg.code?.startsWith('COAG') || pkg.code?.startsWith('HEPA') || pkg.code?.startsWith('LIPID') ? (
+                                                <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px" }}>
+                                                    <i className="bi bi-lock-fill me-1"></i>Gói Mặc Định ISO
+                                                </Badge>
+                                            ) : null}
                                         </td>
                                         <td>
                                             <div className="text-muted small text-truncate" style={{ maxWidth: "350px" }}>
@@ -370,16 +381,16 @@ export default function ServicePackagesPage({ onBack }) {
                                         </td>
                                         <td className="bms-align-right">
                                             <div className="fw-bold text-primary">{formatMoney(pkg.price)}</div>
-                                            {pkg.discountPrice && (
+                                            {pkg.discountPrice ? (
                                                 <small className="text-muted text-decoration-line-through d-block">
                                                     {formatMoney(pkg.discountPrice)}
                                                 </small>
-                                            )}
+                                            ) : null}
                                         </td>
                                         <td className="bms-align-center">
                                             <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>
                                                 <i className="bi bi-circle-fill" style={{ fontSize: "7px" }}></i>
-                                                {pkg.isActive ? "Hoạt Động" : "Tạm Khóa"}
+                                                {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
                                             </span>
                                         </td>
                                         <td className="bms-align-right">

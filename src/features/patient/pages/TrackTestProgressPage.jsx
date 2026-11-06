@@ -162,7 +162,7 @@ export default function TrackTestProgressPage() {
     };
 
     return (
-        <div className="bms-tracking-page" style={{ overflowX: 'hidden' }}>
+        <div className="bms-tracking-page">
             <PortalNavbar />
             
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>

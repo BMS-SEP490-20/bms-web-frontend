@@ -29,12 +29,15 @@ export function isNoCoagulation(val) {
 export const NO_ALLERGY_STRINGS = Object.freeze([
   'không có',
   'không có dị ứng',
+  'không ghi nhận dị ứng',
   'không có ghi nhận dị ứng',
   'không có tiền sử dị ứng đã biết (nkda)',
   'không có tiền sử dị ứng đã biết',
   'nkda',
   'không dị ứng',
-  'chưa ghi nhận dị ứng'
+  'chưa ghi nhận dị ứng',
+  'chưa ghi nhận',
+  'không ghi nhận'
 ]);
 
 export const CANONICAL_NKDA = 'Không có tiền sử dị ứng đã biết (NKDA)';
@@ -138,13 +141,41 @@ const ALLERGY_CANONICAL_ALIASES = Object.freeze({
 
 /**
  * Splits text into individual trimmed tokens.
+ * Handles delimiters (;, \n, and comma) while respecting nested parentheses
+ * (e.g. "Hải sản (Tôm, Cua)" is preserved intact as a single token).
  */
 export function splitAllergyTokens(text) {
   if (!text) return [];
-  return text
-    .split(/[,;\n]+/)
-    .map(s => s.trim())
-    .filter(Boolean);
+  if (Array.isArray(text)) {
+    return text.flatMap(item => splitAllergyTokens(item)).map(s => s.trim()).filter(Boolean);
+  }
+  const str = String(text).trim();
+  if (!str) return [];
+
+  const tokens = [];
+  let current = '';
+  let parenDepth = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === '(' || char === '[' || char === '{') {
+      parenDepth++;
+      current += char;
+    } else if (char === ')' || char === ']' || char === '}') {
+      if (parenDepth > 0) parenDepth--;
+      current += char;
+    } else if (parenDepth === 0 && (char === ';' || char === '\n' || char === ',')) {
+      const trimmed = current.trim();
+      if (trimmed) tokens.push(trimmed);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  const last = current.trim();
+  if (last) tokens.push(last);
+  return tokens;
 }
 
 /**
@@ -172,3 +203,4 @@ export function isAllergyMatch(targetAllergy, candidateItemOrText) {
     });
   });
 }
+

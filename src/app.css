@@ -2096,4 +2096,94 @@
     border-bottom: none !important;
 }
 
+/* ==============================================================================
+   ZERO TABLE-IN-CARD GUARANTEE (ALL ROLES: ADMIN, DOCTOR, LAB, RECEPTION, MANAGER, PATIENT)
+   Automatically normalizes any Bootstrap .card containing a table into a Standalone Section
+   ============================================================================== */
+.card:has(table),
+.card:has(.table-responsive),
+div[class*="card"]:has(table),
+div[class*="card"]:has(.table-responsive) {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden !important;
+    margin-bottom: 24px !important;
+}
+
+.card:has(table) > .card-header,
+.card:has(.table-responsive) > .card-header,
+div[class*="card"]:has(table) > .card-header,
+div[class*="card"]:has(.table-responsive) > .card-header {
+    background: #FFFFFF !important;
+    padding: 18px 24px 16px !important;
+    border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+}
+
+.card:has(table) > .card-body,
+.card:has(.table-responsive) > .card-body,
+div[class*="card"]:has(table) > .card-body,
+div[class*="card"]:has(.table-responsive) > .card-body {
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+.card:has(table) .table-responsive,
+.card:has(.table-responsive) .table-responsive,
+div[class*="card"]:has(table) .table-responsive,
+div[class*="card"]:has(.table-responsive) .table-responsive {
+    margin-bottom: 0 !important;
+    border: none !important;
+}
+
+.card:has(table) table,
+.card:has(.table-responsive) table,
+div[class*="card"]:has(table) table,
+div[class*="card"]:has(.table-responsive) table {
+    margin-bottom: 0 !important;
+    border: none !important;
+    width: 100% !important;
+}
+
+.card:has(table) table thead th,
+.card:has(.table-responsive) table thead th,
+div[class*="card"]:has(table) table thead th,
+div[class*="card"]:has(.table-responsive) table thead th {
+    background: #F8FAFC !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+    padding: 14px 18px !important;
+}
+
+.card:has(table) table tbody td,
+.card:has(.table-responsive) table tbody td,
+div[class*="card"]:has(table) table tbody td,
+div[class*="card"]:has(.table-responsive) table tbody td {
+    padding: 14px 18px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
+    font-size: 13.5px !important;
+}
+
+.card:has(table) table tbody tr:hover,
+.card:has(.table-responsive) table tbody tr:hover,
+div[class*="card"]:has(table) table tbody tr:hover,
+div[class*="card"]:has(.table-responsive) table tbody tr:hover {
+    background-color: #F8FAFC !important;
+}
+
+.card:has(table) table tbody tr:last-child td,
+.card:has(.table-responsive) table tbody tr:last-child td,
+div[class*="card"]:has(table) table tbody tr:last-child td,
+div[class*="card"]:has(.table-responsive) table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
 

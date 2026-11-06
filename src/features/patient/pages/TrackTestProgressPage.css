@@ -1,305 +1,204 @@
 /* ==========================================================================
    BMS Clinical Specimen Tracking Page (UC48)
    Clean, Professional, Non-AI Human-Centered Medical Design
-   Compliant with AGENTS-DESIGN.md and ISO 15189:2022
+   Compliant with AGENTS-DESIGN.md, ISO 15189:2022 & 100% Pure 2D Flat Architecture
    ========================================================================== */
 
 .bms-tracking-page {
-  background-color: #F4F7F9;
+  background-color: #F8FAFC;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans, "Plus Jakarta Sans", sans-serif);
 }
 
 .bms-tracking-main {
   flex: 1;
-  padding: 32px 0 64px 0;
+  padding: 24px 0 48px 0;
 }
 
-/* Header Section */
-.bms-tracking-header {
-  text-align: center;
-  max-width: 760px;
-  margin: 0 auto 28px auto;
-}
+/* ==========================================================================
+   1. HERO SECTION (Compact, Integrated Search Aligned Right, 100% Borderless)
+   ========================================================================== */
 
-.bms-tracking-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  background-color: #E8EFFE;
-  color: #1E60E6;
-  border-radius: 9999px;
-  font-size: 11.5px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.bms-tracking-title {
-  font-size: 28px;
-  font-weight: 750;
-  color: #1A1D21;
-  margin-bottom: 8px;
-  letter-spacing: -0.025em;
-}
-
-.bms-tracking-subtitle {
-  font-size: 14.5px;
-  color: #6B7280;
-  line-height: 1.55;
-  margin-bottom: 0;
-}
-
-/* Search Box Container - Compact, Centered, 2D Pure Flat */
-.bms-tracking-search-card {
-  background: #ffffff;
-  border: none;
+.bms-tracking-hero {
+  background: #FFFFFF;
+  border: none !important;
   border-radius: 20px;
-  box-shadow: none;
-  padding: 8px 10px 8px 18px;
-  max-width: 680px;
-  margin: 0 auto 36px auto;
+  box-shadow: none !important;
+  padding: 22px 28px;
+}
+
+.bms-hero-search-wrapper {
+  width: 100%;
+}
+
+.bms-hero-search-box {
+  display: flex;
+  align-items: center;
+  background-color: #F1F5F9;
+  border: none !important;
+  border-radius: 14px;
+  padding: 4px 5px 4px 14px;
+  box-shadow: none !important;
   transition: background-color 0.15s ease;
 }
 
-.bms-tracking-search-card:focus-within {
-  border: none;
-  box-shadow: none;
+.bms-hero-search-box:focus-within {
+  background-color: #EEF4FD;
 }
 
-.bms-search-input-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.bms-hero-search-icon {
+  color: #64748B;
+  font-size: 15px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
-.bms-search-input-wrapper {
-  position: relative;
-  flex: 1;
-}
-
-.bms-search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 16px;
-  pointer-events: none;
-}
-
-.bms-search-input {
+.bms-hero-search-input {
   width: 100%;
-  height: 46px;
-  padding: 8px 40px 8px 44px;
-  font-size: 13.5px;
+  height: 38px;
+  padding: 0 6px;
+  font-size: 13px;
   font-family: inherit;
   color: #0F172A;
-  background-color: transparent !important;
+  background: transparent !important;
   border: none !important;
+  outline: none !important;
   box-shadow: none !important;
-  outline: none;
 }
 
-.bms-search-clear-btn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.bms-hero-search-input::placeholder {
+  color: #94A3B8;
+  font-size: 12.5px;
+}
+
+.bms-hero-search-clear {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #94A3B8;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 6px;
+  font-size: 12px;
+  margin-right: 4px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
 }
 
-.bms-search-clear-btn:hover {
+.bms-hero-search-clear:hover {
   color: #475569;
-  background-color: #f1f5f9;
+  background-color: #E2E8F0;
 }
 
-.bms-search-submit-btn {
-  height: 46px;
-  padding: 0 24px;
+.bms-hero-search-btn {
+  height: 38px;
+  padding: 0 18px;
   background-color: #1E60E6;
-  color: #ffffff;
+  color: #FFFFFF;
   border: none;
-  border-radius: 14px;
-  font-size: 13.5px;
+  border-radius: 10px;
+  font-size: 12.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   cursor: pointer;
   white-space: nowrap;
   box-shadow: none !important;
-  transform: none !important;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
-.bms-search-submit-btn:hover:not(:disabled) {
+.bms-hero-search-btn:hover:not(:disabled) {
   background-color: #1550C4;
-  box-shadow: none !important;
-  transform: none !important;
   filter: brightness(0.96);
 }
 
-.bms-search-submit-btn:disabled {
-  opacity: 0.7;
+.bms-hero-search-btn:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
-  box-shadow: none !important;
-  transform: none !important;
 }
 
-/* Quick Demo Chips */
-.bms-demo-chips {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 13px;
-}
+/* ==========================================================================
+   2. THREE-STEP GUIDE CARDS (Compact, Airy, Borderless)
+   ========================================================================== */
 
-.bms-demo-chips-label {
-  color: #64748b;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.bms-demo-chip {
-  background-color: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: Consolas, "Roboto Mono", monospace;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bms-demo-chip:hover {
-  background-color: #eff6ff;
-  border-color: #93c5fd;
-  color: #1e40af;
-}
-
-.bms-demo-chip-badge {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background-color: #e2e8f0;
-  color: #475569;
-}
-
-.bms-demo-chip:hover .bms-demo-chip-badge {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-/* Initial Guide Section (When No Search Yet) */
-.bms-guide-grid {
+.bms-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 28px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 @media (max-width: 768px) {
-  .bms-guide-grid {
+  .bms-steps {
     grid-template-columns: 1fr;
   }
 }
 
-.bms-guide-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.bms-step-card-box {
+  background: #FFFFFF;
+  border: none !important;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: none !important;
 }
 
-.bms-guide-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.06);
+.bms-step-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1E60E6;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
-.bms-guide-step-num {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background-color: #eff6ff;
-  color: #1e40af;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-
-.bms-guide-card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 8px;
-}
-
-.bms-guide-card-desc {
+.bms-step-card-box .bms-step-title {
   font-size: 13.5px;
-  color: #64748b;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.bms-step-card-box .bms-step-desc {
+  font-size: 12px;
+  color: #64748B;
   line-height: 1.5;
   margin-bottom: 0;
 }
 
-/* 6-Stage Overview Strip - Pure 2D Flat Surface */
+/* ==========================================================================
+   3. SIX-STAGE WORKFLOW OVERVIEW (Compact, Airy, Borderless)
+   ========================================================================== */
+
 .bms-stages-overview {
-  background: #ffffff;
+  background: #FFFFFF;
   border: none !important;
-  border-radius: 24px;
-  padding: 36px 40px;
-  margin-top: 24px;
-  margin-bottom: 24px;
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-top: 12px;
   box-shadow: none !important;
 }
 
 .bms-stages-overview-title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 750;
-  color: #0f172a;
-  margin-bottom: 6px;
+  color: #0F172A;
+  margin-bottom: 3px;
   letter-spacing: -0.015em;
 }
 
 .bms-stages-overview-subtitle {
-  font-size: 13.5px;
-  color: #64748b;
-  margin-bottom: 24px;
+  font-size: 11.5px;
+  color: #64748B;
+  margin-bottom: 12px;
 }
 
 .bms-stages-pills-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  gap: 8px;
 }
 
 @media (max-width: 992px) {
@@ -315,88 +214,80 @@
 }
 
 .bms-stage-pill {
-  padding: 16px 12px;
-  background-color: #f8fafc;
+  padding: 9px 8px;
+  background-color: #F8FAFC;
   border: none !important;
-  border-radius: 16px;
+  border-radius: 10px;
   text-align: center;
   transition: background-color 0.15s ease;
 }
 
 .bms-stage-pill:hover {
-  background-color: #eef4fd;
-  transform: none !important;
+  background-color: #EEF4FD;
 }
 
 .bms-stage-pill-num {
   display: inline-block;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: #1e60e6;
-  background-color: #eff6ff;
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  color: #1E60E6;
+  background-color: #EFF6FF;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
 
 .bms-stage-pill-name {
-  font-size: 12.5px;
+  font-size: 11px;
   font-weight: 650;
-  color: #0f172a;
-  line-height: 1.35;
+  color: #0F172A;
+  line-height: 1.3;
 }
 
-/* Security & Help Footer Box - Pure 2D Flat */
+/* ==========================================================================
+   4. TRUST & SUPPORT STRIP (Clean Typography, Borderless)
+   ========================================================================== */
+
 .bms-trust-box {
-  background-color: #ffffff;
+  background: #FFFFFF;
   border: none !important;
-  border-radius: 20px;
-  padding: 20px 28px;
+  border-radius: 14px;
+  padding: 12px 18px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 8px 24px;
   box-shadow: none !important;
+  font-size: 11.5px;
+  color: #64748B;
 }
 
 .bms-trust-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: #64748B;
 }
 
-.bms-trust-item svg {
-  color: #1E60E6;
-  font-size: 15px;
-  flex-shrink: 0;
-}
-
-/* Result View Layout */
-.bms-result-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
+/* ==========================================================================
+   5. SEARCH RESULTS VIEW (When tracking data is active - 100% Borderless)
+   ========================================================================== */
 
 .bms-result-meta-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: #FFFFFF;
+  border: none !important;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: none !important;
 }
 
 .bms-specimen-id-badge {
   font-family: Consolas, "Roboto Mono", monospace;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
-  color: #1e40af;
+  color: #1E60E6;
   margin: 0;
 }
 
@@ -409,9 +300,9 @@
 .bms-specimen-detail-item {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 13.5px;
+  padding: 8px 0;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 12.5px;
 }
 
 .bms-specimen-detail-item:last-child {
@@ -419,28 +310,28 @@
 }
 
 .bms-specimen-detail-label {
-  color: #64748b;
+  color: #64748B;
 }
 
 .bms-specimen-detail-val {
   font-weight: 600;
-  color: #0f172a;
+  color: #0F172A;
   text-align: right;
 }
 
 /* Timeline Stepper */
 .bms-stepper-container {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: #FFFFFF;
+  border: none !important;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: none !important;
 }
 
 .bms-stepper-timeline {
   position: relative;
   padding-left: 36px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .bms-stepper-timeline::before {
@@ -450,12 +341,12 @@
   top: 12px;
   bottom: 24px;
   width: 2px;
-  background-color: #e2e8f0;
+  background-color: #E2E8F0;
 }
 
 .bms-stepper-item {
   position: relative;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .bms-stepper-item:last-child {
@@ -466,134 +357,92 @@
   position: absolute;
   left: -36px;
   top: 2px;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   z-index: 1;
-  transition: all 0.2s ease;
 }
 
 .bms-stepper-node.completed {
   background-color: #10B981;
-  color: #20242B;
-  box-shadow: 0 0 0 4px rgba(145, 222, 131, 0.25);
+  color: #FFFFFF;
 }
 
 .bms-stepper-node.inprogress {
   background-color: #1E60E6;
-  color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(30, 96, 230, 0.25);
-  animation: pulse-node 2s infinite;
-}
-
-@keyframes pulse-node {
-  0% { box-shadow: 0 0 0 0 rgba(30, 96, 230, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(30, 96, 230, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(30, 96, 230, 0); }
+  color: #FFFFFF;
 }
 
 .bms-stepper-node.warning {
-  background-color: #B45309;
-  color: #20242B;
-  box-shadow: 0 0 0 4px rgba(231, 188, 76, 0.25);
+  background-color: #D97706;
+  color: #FFFFFF;
 }
 
 .bms-stepper-node.rejected {
-  background-color: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 0 0 4px #fee2e2;
+  background-color: #EF4444;
+  color: #FFFFFF;
 }
 
 .bms-stepper-node.pending {
-  background-color: #EEF2F6;
-  color: #606873;
-  border: 1px solid #cbd5e1;
+  background-color: #F1F5F9;
+  color: #94A3B8;
+  border: none !important;
 }
 
 .bms-step-card {
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.05);
-  background-color: #ffffff;
-  transition: all 0.15s ease;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none !important;
+  background-color: #F8FAFC;
+  box-shadow: none !important;
 }
 
 .bms-step-card.active-step {
-  border-color: rgba(30, 96, 230, 0.4);
-  background-color: rgba(30, 96, 230, 0.05);
+  background-color: #EEF4FD;
+  border: none !important;
 }
 
 .bms-step-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 10px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
 .bms-step-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: #0F172A;
   margin: 0;
 }
 
 .bms-step-desc {
-  font-size: 13.5px;
-  color: #64748b;
-  margin-bottom: 8px;
+  font-size: 12px;
+  color: #64748B;
+  margin-bottom: 6px;
   line-height: 1.45;
 }
 
 .bms-step-meta {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 12.5px;
-  color: #64748b;
+  gap: 14px;
+  font-size: 11.5px;
+  color: #64748B;
   flex-wrap: wrap;
-  padding-top: 8px;
-  border-top: 1px dashed #e2e8f0;
+  padding-top: 6px;
+  border-top: 1px dashed #E2E8F0;
 }
 
 .bms-step-meta-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
-
-
-/* Flat overrides: clean, modern medical card system with subtle border */
-.bms-tracking-page { background-color: #F8FAFC; min-height: 100vh; }
-.bms-tracking-search-card,
-.bms-result-meta-card,
-.bms-stages-overview,
-.bms-step-card-box {
-  background: #FFFFFF;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: none !important;
-  border-radius: 20px !important;
-}
-.bms-tracking-search-card { padding: 20px 24px; margin-bottom: 28px; }
-.bms-stages-overview { margin-top: 40px; padding: 32px 36px; background: #FFFFFF; }
-.bms-stage-pill { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 16px 18px; }
-.bms-stage-pill-num { color: #1E60E6; font-weight: 700; }
-.bms-trust-box {
-  margin-top: 24px;
-  background: #FFFFFF;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  border-radius: 16px;
-  padding: 18px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 36px;
-  color: #64748B;
-  font-size: 12.5px;
-}
-.bms-trust-item svg { display: inline-block !important; color: #1E60E6; }

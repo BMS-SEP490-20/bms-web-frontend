@@ -319,16 +319,13 @@ export default function PatientHomePage({ user: propUser }) {
                       </div>
                       <h3
                         className="mb-0"
-                        title={pkg.packageName}
                         style={{
-                          fontSize: '15px',
-                          fontWeight: 650,
+                          fontSize: '13.5px',
+                          fontWeight: 600,
                           color: '#0F172A',
-                          letterSpacing: '-0.015em',
-                          lineHeight: '1.35',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
+                          letterSpacing: '-0.01em',
+                          lineHeight: '1.4',
+                          wordBreak: 'break-word'
                         }}
                       >
                         {pkg.packageName}

@@ -24,7 +24,9 @@ import {
     FaArrowUp,
     FaArrowDown,
     FaBuilding,
-    FaUserMd
+    FaUserMd,
+    FaShieldAlt,
+    FaTimes
 } from "react-icons/fa";
 import {
     fetchRevenueReport,
@@ -214,34 +216,45 @@ export default function RevenueReportPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#EEF2F6" }}>
-            {/* Header Ribbon */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm</h2>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>BÁO CÁO TÀI CHÍNH · DOANH THU &amp; VIỆN PHÍ (ISO 15189)</span>
                     </div>
-                    <p className="text-muted small mt-1 mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaChartLine size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Theo dõi tổng doanh thu gộp, doanh thu thuần thực thu, bảo hiểm y tế chi trả, phân bổ theo chuyên khoa, kênh dịch vụ và xuất file kế toán.
                     </p>
                 </div>
 
-                <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+                <div className="bms-page-actions">
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#10B981', borderColor: '#10B981', color: '#14532d', fontWeight: '600' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
                         onClick={handleExportCSV}
                         id="btn-export-revenue-csv"
                     >
-                        <FaDownload /> Xuất Báo Cáo Kế Toán (.CSV)
+                        <FaDownload size={13} />
+                        <span>Xuất CSV Kế Toán</span>
                     </button>
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         onClick={loadReport}
                         disabled={isLoading}
                     >
-                        <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
+                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <span>Làm Mới</span>
                     </button>
                 </div>
             </div>
@@ -636,40 +649,58 @@ export default function RevenueReportPage() {
                 </div>
             )}
 
-            {/* TAB 3: DETAILED TRANSACTIONS AUDIT TABLE */}
+            {/* TAB 3: DETAILED TRANSACTIONS AUDIT TABLE (STANDALONE SECTION) */}
             {activeTab === "transactions" && (
-                <div className="card border-0 shadow-sm rounded-3 bg-white">
-                    <div className="card-header bg-white border-bottom p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <FaFileInvoiceDollar className="text-primary" /> Nhật Ký Giao Dịch Kế Toán Thu Ngân
-                        </h5>
+                <div className="bms-table-standalone-section">
+                    <div className="bms-table-standalone-header">
+                        <div>
+                            <h5 className="bms-table-standalone-title">
+                                <FaFileInvoiceDollar style={{ color: '#1E60E6' }} />
+                                <span>Nhật Ký Giao Dịch Kế Toán Thu Ngân</span>
+                            </h5>
+                            <div className="bms-table-standalone-subtitle">
+                                Hiển thị {Math.min(50, filteredTransactions.length)} / {filteredTransactions.length} giao dịch thanh toán viện phí
+                            </div>
+                        </div>
 
                         <div className="d-flex align-items-center gap-2">
-                            <div className="input-group input-group-sm" style={{ width: "260px" }}>
-                                <span className="input-group-text bg-light border-end-0"><FaSearch className="text-muted" /></span>
-                                <input
-                                    type="text"
-                                    className="form-control border-start-0"
-                                    placeholder="Tìm mã đơn, tên bệnh nhân..."
-                                    value={searchTerm}
-                                    onChange={e => setSearchTerm(e.target.value)}
-                                />
+                            <div style={{ minWidth: 260, maxWidth: 320 }}>
+                                <div className="bms-search-input-pill">
+                                    <FaSearch className="bms-search-icon" />
+                                    <input
+                                        type="text"
+                                        placeholder="Tìm mã đơn, tên bệnh nhân..."
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)}
+                                    />
+                                    {searchTerm && (
+                                        <button
+                                            type="button"
+                                            className="bms-search-clear"
+                                            onClick={() => setSearchTerm('')}
+                                            title="Xóa tìm kiếm"
+                                        >
+                                            <FaTimes size={12} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                             <button
-                                className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 shadow-sm"
+                                className="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5 rounded-pill px-3 py-2 fw-semibold shadow-sm"
                                 onClick={handleExportCSV}
                             >
-                                <FaDownload /> Xuất CSV
+                                <FaDownload size={12} />
+                                <span>Xuất CSV</span>
                             </button>
                         </div>
                     </div>
 
-                    <div className="card-body p-0">
+                    <div className="bms-table-standalone-body">
                         <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
-                                <thead className="table-light small text-muted text-uppercase">
+                            <table className="bms-dash-table">
+                                <thead>
                                     <tr>
-                                        <th>Mã Giao Dịch / Giờ</th>
+                                        <th className="ps-4">Mã Giao Dịch / Giờ</th>
                                         <th>Mã Đơn / Bệnh Nhân</th>
                                         <th>Chuyên Khoa</th>
                                         <th>Kênh</th>
@@ -677,14 +708,14 @@ export default function RevenueReportPage() {
                                         <th className="text-end">BHYT Chi Trả</th>
                                         <th className="text-end">Thực Thu (Net)</th>
                                         <th>Phương Thức</th>
-                                        <th>Thu Ngân</th>
+                                        <th className="pe-4">Thu Ngân</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredTransactions.slice(0, 50).map((row, idx) => (
                                         <tr key={idx}>
-                                            <td>
-                                                <div className="fw-bold font-monospace text-dark">{row.transactionNumber}</div>
+                                            <td className="ps-4">
+                                                <div className="fw-bold font-monospace text-primary">{row.transactionNumber}</div>
                                                 <div className="small text-muted">{new Date(row.createdAt).toLocaleString('vi-VN')}</div>
                                             </td>
                                             <td>
@@ -692,27 +723,27 @@ export default function RevenueReportPage() {
                                                 <div className="small text-muted font-monospace">{row.orderNumber}</div>
                                             </td>
                                             <td>
-                                                <span className="badge bg-light text-dark border">
+                                                <span className="bms-pill-badge bms-pill-stat">
                                                     {row.category}
                                                 </span>
                                             </td>
                                             <td className="small text-muted">{row.serviceType}</td>
-                                            <td className="text-end fw-semibold">{row.grossAmount.toLocaleString('vi-VN')} ₫</td>
+                                            <td className="text-end fw-semibold text-dark">{row.grossAmount.toLocaleString('vi-VN')} ₫</td>
                                             <td className="text-end text-info">{row.bhytCoverageAmount > 0 ? `-${row.bhytCoverageAmount.toLocaleString('vi-VN')} ₫` : "0 ₫"}</td>
                                             <td className="text-end fw-bold text-success">{row.netAmount.toLocaleString('vi-VN')} ₫</td>
                                             <td>
-                                                <span className="badge bg-light text-muted border">
+                                                <span className="bms-pill-badge bms-pill-stat">
                                                     {row.paymentMethod}
                                                 </span>
                                             </td>
-                                            <td className="small text-muted">{row.cashierName}</td>
+                                            <td className="pe-4 small text-muted">{row.cashierName}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                         {filteredTransactions.length > 50 && (
-                            <div className="p-3 text-center small text-muted border-top">
+                            <div className="p-3 text-center small text-muted border-top" style={{ background: '#F8FAFC' }}>
                                 Đang hiển thị 50 / {filteredTransactions.length} giao dịch. Nhấn "Xuất Báo Cáo Kế Toán" để tải toàn bộ.
                             </div>
                         )}

@@ -133,35 +133,46 @@ export default function TatStatisticsDashboardPage() {
     const summary = report.summary || {};
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#EEF2F6" }}>
-            {/* Page Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)</h2>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>BÁO CÁO CHẤT LƯỢNG · THỜI GIAN QUAY VÒNG XÉT NGHIỆM (ISO 15189)</span>
                     </div>
-                    <p className="text-muted small mt-1 mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaClock size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Giám sát chỉ số chất lượng xét nghiệm theo chuẩn ISO 15189: Đánh giá trung bình, trung vị (Median), phân vị 90 (P90), phân rã 3 giai đoạn và phát hiện vi phạm SLA.
                     </p>
                 </div>
 
-                <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+                <div className="bms-page-actions">
                     <button
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
-                        style={{ borderRadius: '9999px', padding: '6px 18px', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                        onClick={loadData}
-                        disabled={isLoading}
-                    >
-                        <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
-                    </button>
-                    <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 20px', backgroundColor: '#10B981', borderColor: '#10B981', color: '#14532d', fontWeight: '600' }}
+                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
                         onClick={handleExportCsv}
                         disabled={isExporting}
                         id="btn-export-tat-csv"
                     >
-                        <FaDownload /> {isExporting ? "Đang xuất..." : "Xuất File CSV"}
+                        <FaDownload size={13} />
+                        <span>{isExporting ? "Đang xuất..." : "Xuất File CSV"}</span>
+                    </button>
+                    <button
+                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        onClick={loadData}
+                        disabled={isLoading}
+                    >
+                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <span>Làm Mới</span>
                     </button>
                 </div>
             </div>

@@ -22,7 +22,8 @@ import {
     FaCalendarAlt,
     FaHistory,
     FaTrashAlt,
-    FaCheck
+    FaCheck,
+    FaTimes
 } from "react-icons/fa";
 import {
     fetchBackups,
@@ -236,28 +237,31 @@ export default function BackupManagementPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-lg-4 bg-light" style={{ minHeight: "100vh" }}>
-            {/* Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                <div>
-                    <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold mb-0" style={{ color: '#0f2743' }}>Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
-                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.25)' }}>
-                            ISO 15189 • Nghị Định 123/2020/NĐ-CP
-                        </span>
-                        <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
-                            Niêm Phong Số SHA-256 (Lưu Trữ 10 Năm)
-                        </span>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>ISO 15189 · NGHỊ ĐỊNH 123/2020/NĐ-CP · NIÊM PHONG SHA-256 (LƯU TRỮ 10 NĂM)</span>
                     </div>
-                    <p className="text-secondary small mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaDatabase size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Quản Lý Sao Lưu &amp; Phục Hồi Dữ Liệu Xét Nghiệm
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn.
                     </p>
                 </div>
 
-                <div className="d-flex gap-2">
+                <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3 py-2 fw-semibold"
                         onClick={loadData}
                         style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                     >
@@ -267,12 +271,12 @@ export default function BackupManagementPage() {
                     {isAdmin && (
                         <button
                             type="button"
-                            className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                            className="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm px-4 py-2 fw-semibold"
                             onClick={() => setShowCreateModal(true)}
                             style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         >
                             <FaPlus />
-                            <span>Sao Lưu Dữ Liệu Xét Nghiệm Mới</span>
+                            <span>Sao Lưu Dữ Liệu Mới</span>
                         </button>
                     )}
                 </div>
@@ -384,295 +388,297 @@ export default function BackupManagementPage() {
                 </div>
             </div>
 
-            {/* Filter Tabs & Search Bar */}
-            <div className="card shadow-sm border-0 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-                <div className="card-body p-3">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <ul className="nav nav-pills gap-1">
-                            {TABS.map((tab) => {
-                                const Icon = tab.icon;
-                                const isActive = activeTab === tab.key;
-                                return (
-                                    <li className="nav-item" key={tab.key}>
-                                        <button
-                                            type="button"
-                                            className={`nav-link btn-sm d-flex align-items-center gap-2 ${
-                                                isActive ? "active" : "text-secondary"
-                                            }`}
-                                            onClick={() => {
-                                                setActiveTab(tab.key);
-                                                setCurrentPage(1);
-                                            }}
-                                            style={{
-                                                borderRadius: 9999,
-                                                background: isActive ? '#1E60E6' : 'transparent',
-                                                color: isActive ? '#fff' : '#64748b',
-                                                fontWeight: 600,
-                                                padding: '6px 14px'
-                                            }}
-                                        >
-                                            {Icon && <Icon />}
-                                            <span>{tab.label}</span>
-                                        </button>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+            <div className="bms-table-standalone-section">
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h5 className="bms-table-standalone-title">
+                            {activeTab === "HISTORY" ? (
+                                <>
+                                    <FaHistory style={{ color: '#1E60E6' }} />
+                                    <span>Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FaDatabase style={{ color: '#1E60E6' }} />
+                                    <span>Danh Sách Bản Sao Lưu Cơ Sở Dữ Liệu Xét Nghiệm</span>
+                                </>
+                            )}
+                        </h5>
+                        <div className="bms-table-standalone-subtitle">
+                            {activeTab === "HISTORY"
+                                ? `Tổng cộng ${restoreHistory.length} phiên khôi phục được niêm phong ghi nhận`
+                                : `Hiển thị ${filteredBackups.length} / ${safeBackups.length} bản sao lưu sẵn sàng phục hồi`}
+                        </div>
+                    </div>
 
-                        {activeTab !== "HISTORY" && (
-                            <div className="input-group input-group-sm" style={{ maxWidth: "320px" }}>
-                                <span className="input-group-text border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                                    <FaSearch className="text-muted" />
-                                </span>
+                    {activeTab !== "HISTORY" && (
+                        <div style={{ minWidth: 280, maxWidth: 360 }}>
+                            <div className="bms-search-input-pill">
+                                <FaSearch className="bms-search-icon" />
                                 <input
                                     type="text"
-                                    className="form-control border-start-0"
                                     placeholder="Tìm theo tên, mã sao lưu..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                                 />
+                                {searchTerm && (
+                                    <button
+                                        type="button"
+                                        className="bms-search-clear"
+                                        onClick={() => setSearchTerm('')}
+                                        title="Xóa tìm kiếm"
+                                    >
+                                        <FaTimes size={12} />
+                                    </button>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Integrated Tab Pill Navigation Strip */}
+                <div className="px-3 py-2.5 border-bottom d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+                    <ul className="nav nav-pills gap-1 mb-0">
+                        {TABS.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.key;
+                            return (
+                                <li className="nav-item" key={tab.key}>
+                                    <button
+                                        type="button"
+                                        className={`nav-link btn-sm d-flex align-items-center gap-2 ${
+                                            isActive ? "active" : "text-secondary"
+                                        }`}
+                                        onClick={() => {
+                                            setActiveTab(tab.key);
+                                            setCurrentPage(1);
+                                        }}
+                                        style={{
+                                            borderRadius: 9999,
+                                            background: isActive ? '#1E60E6' : 'transparent',
+                                            color: isActive ? '#fff' : '#64748b',
+                                            fontWeight: 600,
+                                            padding: '6px 14px',
+                                            fontSize: '13px'
+                                        }}
+                                    >
+                                        {Icon && <Icon size={13} />}
+                                        <span>{tab.label}</span>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+
+                {/* Standalone Table Body */}
+                <div className="bms-table-standalone-body">
+                    {activeTab === "HISTORY" ? (
+                        <div className="table-responsive">
+                            <table className="bms-dash-table">
+                                <thead>
+                                    <tr>
+                                        <th className="ps-4">Mã Phiên Khôi Phục</th>
+                                        <th>Mã Bản Sao Lưu</th>
+                                        <th>Người Khôi Phục</th>
+                                        <th>Vai Trò</th>
+                                        <th>Số Bản Ghi Phục Hồi</th>
+                                        <th>Xác Thực SHA-256</th>
+                                        <th>Thời Gian Thực Thi</th>
+                                        <th className="text-end pe-4">Trạng Thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                                <div className="spinner-border spinner-border-sm text-primary me-2"></div>
+                                                Đang tải nhật ký khôi phục...
+                                            </td>
+                                        </tr>
+                                    ) : (!Array.isArray(restoreHistory) || restoreHistory.length === 0) ? (
+                                        <tr>
+                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                                Chưa ghi nhận phiên khôi phục nào trên hệ thống.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        restoreHistory.map((log) => (
+                                            <tr key={log.id || log.restoreId}>
+                                                <td className="ps-4">
+                                                    <span className="font-monospace fw-bold text-primary">
+                                                        {log.restoreId}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="font-monospace text-dark fw-semibold">
+                                                        {log.backupId}
+                                                    </span>
+                                                </td>
+                                                <td className="fw-semibold text-dark">{log.restoredBy}</td>
+                                                <td><span className="bms-pill-badge bms-pill-stat">{log.restoredByRole || "Quản trị viên"}</span></td>
+                                                <td className="fw-bold text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
+                                                <td>
+                                                    <span className="bms-pill-badge bms-pill-success">
+                                                        <FaCheck className="me-1" /> Khớp 100%
+                                                    </span>
+                                                </td>
+                                                <td className="small text-secondary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                                    {log.executedAt ? new Date(log.executedAt).toLocaleString("vi-VN") : "—"}
+                                                </td>
+                                                <td className="text-end pe-4">
+                                                    <span className="bms-pill-badge bms-pill-success">Hoàn Thành</span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <table className="bms-dash-table">
+                                <thead>
+                                    <tr>
+                                        <th className="ps-4">Mã Sao Lưu</th>
+                                        <th>Tên Bản Sao Lưu</th>
+                                        <th>Phạm Vi</th>
+                                        <th>Dung Lượng</th>
+                                        <th>Mã SHA-256</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thời Gian Tạo</th>
+                                        <th className="text-end pe-4">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                                <div className="spinner-border spinner-border-sm text-primary me-2"></div>
+                                                Đang tải dữ liệu bản sao lưu...
+                                            </td>
+                                        </tr>
+                                    ) : filteredBackups.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                                Không tìm thấy bản sao lưu nào phù hợp với bộ lọc.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filteredBackups.map((item) => (
+                                            <tr key={item.id || item.backupId}>
+                                                <td className="ps-4">
+                                                    <span className="font-monospace fw-bold text-primary">
+                                                        {item.backupId}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="fw-bold text-dark">{item.backupName}</div>
+                                                    <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                                        {item.totalRecords || 0} bản ghi y khoa • Người tạo: {item.createdBy || 'Quản trị viên'}
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <span className="bms-pill-badge bms-pill-stat">
+                                                        {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
+                                                    </span>
+                                                </td>
+                                                <td className="font-monospace text-secondary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                                    {item.fileSizeFormatted || "1.8 MB"}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className="font-monospace small text-muted text-truncate d-inline-block"
+                                                        style={{ maxWidth: "130px" }}
+                                                        title={item.checksumSha256}
+                                                    >
+                                                        {item.checksumSha256 ? `${item.checksumSha256.substring(0, 12)}...` : "--"}
+                                                    </span>
+                                                </td>
+                                                <td>{renderStatusBadge(item.status)}</td>
+                                                <td className="small text-secondary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                                    {item.createdAt ? new Date(item.createdAt).toLocaleString("vi-VN", {
+                                                        day: "2-digit",
+                                                        month: "2-digit",
+                                                        year: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit"
+                                                    }) : "--"}
+                                                </td>
+                                                <td className="text-end pe-4">
+                                                    <div className="d-flex justify-content-end gap-1">
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-success btn-sm rounded-pill px-2.5 py-1"
+                                                            title="Kiểm tra toàn vẹn SHA-256"
+                                                            onClick={() => handleVerify(item)}
+                                                            disabled={verifyingId === item.backupId}
+                                                        >
+                                                            {verifyingId === item.backupId ? (
+                                                                <div className="spinner-border spinner-border-sm" role="status"></div>
+                                                            ) : (
+                                                                <FaShieldAlt size={12} />
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary btn-sm rounded-pill px-2.5 py-1"
+                                                            title="Tải tệp nén sao lưu"
+                                                            onClick={() => handleDownload(item)}
+                                                            disabled={downloadingId === (item.backupId || item.id)}
+                                                        >
+                                                            {downloadingId === (item.backupId || item.id) ? (
+                                                                <div className="spinner-border spinner-border-sm" role="status"></div>
+                                                            ) : (
+                                                                <FaDownload size={12} />
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-primary btn-sm rounded-pill px-2.5 py-1"
+                                                            title="Xem chi tiết bản sao lưu"
+                                                            onClick={() => {
+                                                                setSelectedBackup(item);
+                                                                setShowDetailModal(true);
+                                                            }}
+                                                        >
+                                                            <FaEye size={12} />
+                                                        </button>
+                                                        {isAdmin && (
+                                                            <>
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1"
+                                                                    title="Khôi phục dữ liệu từ bản này"
+                                                                    onClick={() => {
+                                                                        setSelectedBackup(item);
+                                                                        setShowRestoreModal(true);
+                                                                    }}
+                                                                >
+                                                                    <FaUndo size={12} />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-outline-secondary btn-sm rounded-pill px-2.5 py-1"
+                                                                    title="Xóa bản sao lưu"
+                                                                    onClick={() => handleDeleteBackup(item)}
+                                                                >
+                                                                    <FaTrashAlt size={12} />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Main Content: Backups Table or Restore Audits */}
-            {activeTab === "HISTORY" ? (
-                /* Restore Audits Directory Table */
-                <div className="card shadow-sm border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
-                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                            <FaHistory style={{ color: '#1E60E6' }} />
-                            Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu
-                        </h6>
-                        <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {restoreHistory.length} phiên khôi phục ghi nhận</small>
-                    </div>
-
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle mb-0">
-                            <thead style={{ background: '#EEF2F6' }}>
-                                <tr>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Phiên Khôi Phục</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Bản Sao Lưu</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Người Khôi Phục</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Vai Trò</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Số Bản Ghi Phục Hồi</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Xác Thực SHA-256</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời Gian Thực Thi</th>
-                                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Trạng Thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan="8" className="text-center py-5 text-muted">
-                                            <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                                            Đang tải nhật ký khôi phục...
-                                        </td>
-                                    </tr>
-                                ) : (!Array.isArray(restoreHistory) || restoreHistory.length === 0) ? (
-                                    <tr>
-                                        <td colSpan="8" className="text-center py-5 text-muted">
-                                            Chưa ghi nhận phiên khôi phục nào trên hệ thống.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    restoreHistory.map((log) => (
-                                        <tr key={log.id || log.restoreId} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="font-monospace fw-bold" style={{ color: '#1E60E6' }}>
-                                                    {log.restoreId}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="font-monospace text-dark fw-semibold">
-                                                    {log.backupId}
-                                                </span>
-                                            </td>
-                                            <td className="fw-semibold text-dark" style={{ padding: '12px 16px' }}>{log.restoredBy}</td>
-                                            <td style={{ padding: '12px 16px' }}><span className="badge rounded-pill" style={{ background: '#EEF2F6', color: '#475569' }}>{log.restoredByRole || "Quản trị viên"}</span></td>
-                                            <td className="fw-bold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums', padding: '12px 16px' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
-                                                    <FaCheck className="me-1" /> Khớp 100%
-                                                </span>
-                                            </td>
-                                            <td className="small text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
-                                                {log.executedAt ? new Date(log.executedAt).toLocaleString("vi-VN") : "—"}
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>Hoàn Thành</span>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            ) : (
-                /* Backups Directory Table */
-                <div className="card shadow-sm border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
-                    <div className="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style={{ background: '#ffffff', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                            <FaDatabase style={{ color: '#1E60E6' }} />
-                            Danh Sách Bản Sao Lưu Cơ Sở Dữ Liệu Xét Nghiệm
-                        </h6>
-                        <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>Tổng cộng {filteredBackups.length} bản sao lưu sẵn sàng</small>
-                    </div>
-
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle mb-0">
-                            <thead style={{ background: '#EEF2F6' }}>
-                                <tr>
-                                    <th style={{ minWidth: "150px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã Sao Lưu</th>
-                                    <th style={{ minWidth: "220px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Tên Bản Sao Lưu</th>
-                                    <th style={{ minWidth: "140px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Phạm Vi</th>
-                                    <th style={{ minWidth: "110px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Dung Lượng</th>
-                                    <th style={{ minWidth: "150px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mã SHA-256</th>
-                                    <th style={{ minWidth: "120px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Trạng Thái</th>
-                                    <th style={{ minWidth: "140px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời Gian Tạo</th>
-                                    <th style={{ minWidth: "200px", color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }} className="text-end">Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan="8" className="text-center py-5 text-muted">
-                                            <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                                            Đang tải dữ liệu bản sao lưu...
-                                        </td>
-                                    </tr>
-                                ) : filteredBackups.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="8" className="text-center py-5 text-muted">
-                                            Không tìm thấy bản sao lưu nào phù hợp với bộ lọc.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredBackups.map((item) => (
-                                        <tr key={item.id || item.backupId} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="font-monospace fw-bold" style={{ color: '#1E60E6' }}>
-                                                    {item.backupId}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <div className="fw-bold" style={{ color: '#0f2743' }}>{item.backupName}</div>
-                                                <small className="text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                                    {item.totalRecords || 0} bản ghi y khoa • Người tạo: {item.createdBy || 'Quản trị viên'}
-                                                </small>
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span className="badge rounded-pill" style={{
-                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(30, 96, 230, 0.1)' : '#EEF2F6',
-                                                    color: item.scope === "PatientTestResults" || item.scope === 1 ? '#1E60E6' : '#64748b',
-                                                    border: '1px solid rgba(30, 96, 230, 0.2)'
-                                                }}>
-                                                    {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
-                                                </span>
-                                            </td>
-                                            <td className="font-monospace text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
-                                                {item.fileSizeFormatted || "1.8 MB"}
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span
-                                                    className="font-monospace small text-muted text-truncate d-inline-block"
-                                                    style={{ maxWidth: "130px" }}
-                                                    title={item.checksumSha256}
-                                                >
-                                                    {item.checksumSha256 ? `${item.checksumSha256.substring(0, 12)}...` : "--"}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px' }}>{renderStatusBadge(item.status)}</td>
-                                            <td className="small text-secondary" style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>
-                                                {item.createdAt ? new Date(item.createdAt).toLocaleString("vi-VN", {
-                                                    day: "2-digit",
-                                                    month: "2-digit",
-                                                    year: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                }) : "--"}
-                                            </td>
-                                            <td className="text-end" style={{ padding: '12px 16px' }}>
-                                                <div className="d-flex justify-content-end gap-1">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-success btn-sm"
-                                                        title="Kiểm tra toàn vẹn SHA-256"
-                                                        onClick={() => handleVerify(item)}
-                                                        disabled={verifyingId === item.backupId}
-                                                        style={{ borderRadius: 9999 }}
-                                                    >
-                                                        {verifyingId === item.backupId ? (
-                                                            <div className="spinner-border spinner-border-sm" role="status"></div>
-                                                        ) : (
-                                                            <FaShieldAlt />
-                                                        )}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-secondary btn-sm"
-                                                        title="Tải tệp nén sao lưu"
-                                                        onClick={() => handleDownload(item)}
-                                                        disabled={downloadingId === (item.backupId || item.id)}
-                                                        style={{ borderRadius: 9999 }}
-                                                    >
-                                                        {downloadingId === (item.backupId || item.id) ? (
-                                                            <div className="spinner-border spinner-border-sm" role="status"></div>
-                                                        ) : (
-                                                            <FaDownload />
-                                                        )}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-primary btn-sm"
-                                                        title="Xem chi tiết bản sao lưu"
-                                                        onClick={() => {
-                                                            setSelectedBackup(item);
-                                                            setShowDetailModal(true);
-                                                        }}
-                                                        style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
-                                                    >
-                                                        <FaEye />
-                                                    </button>
-                                                    {isAdmin && (
-                                                        <>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-outline-danger btn-sm"
-                                                                title="Khôi phục dữ liệu từ bản này"
-                                                                onClick={() => {
-                                                                    setSelectedBackup(item);
-                                                                    setShowRestoreModal(true);
-                                                                }}
-                                                                style={{ borderRadius: 9999 }}
-                                                            >
-                                                                <FaUndo />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-outline-secondary btn-sm"
-                                                                title="Xóa bản sao lưu"
-                                                                onClick={() => handleDeleteBackup(item)}
-                                                                style={{ borderRadius: 9999 }}
-                                                            >
-                                                                <FaTrashAlt />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
 
             {/* Modals */}
             {isAdmin && (

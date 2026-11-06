@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
+import { GoogleLogin } from "@react-oauth/google";
 import { 
   FaUser, 
   FaLock, 
@@ -315,6 +316,65 @@ export default function LoginPage({
     }
   };
 
+  // Google OAuth 2.0 Single Sign-On Handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      setError("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await api.post("/auth/google", {
+        idToken: credentialResponse.credential,
+      });
+
+      const data = response.data?.data || response.data;
+      const token = data?.accessToken || data?.token;
+      if (!token) {
+        throw new Error("Không nhận được mã xác thực hợp lệ từ máy chủ BMS.");
+      }
+      const rawUser = data?.user;
+      if (!rawUser) {
+        throw new Error("Không tìm thấy thông tin tài khoản người dùng.");
+      }
+      const user = normalizeAuthenticatedUser(rawUser);
+
+      localStorage.removeItem("bms_failed_login_attempts");
+      localStorage.removeItem("bms_login_lockout_until");
+      setFailedAttempts(0);
+      setLockoutTime(0);
+
+      const refreshToken = data?.refreshToken;
+      localStorage.setItem("bms_token", token);
+      localStorage.setItem("bms_access_token", token);
+      localStorage.setItem("bms_user", JSON.stringify(user));
+      sessionStorage.setItem("bms_token", token);
+      sessionStorage.setItem("bms_access_token", token);
+      sessionStorage.setItem("bms_user", JSON.stringify(user));
+      if (refreshToken) {
+        localStorage.setItem("bms_refresh_token", refreshToken);
+        sessionStorage.setItem("bms_refresh_token", refreshToken);
+      }
+
+      routeUserByRole(user);
+    } catch (apiErr) {
+      setError(
+        apiErr.response?.data?.message ||
+        apiErr.response?.data?.title ||
+        apiErr.message ||
+        "Đăng nhập bằng tài khoản Google thất bại. Vui lòng thử lại."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Đăng nhập bằng tài khoản Google đã bị hủy hoặc gặp sự cố.");
+  };
+
   return (
     <div 
       className="min-vh-100 d-flex flex-column align-items-center justify-content-center p-3 p-sm-4"
@@ -534,6 +594,27 @@ export default function LoginPage({
             )}
           </button>
         </form>
+
+        {/* OR Divider */}
+        <div className="d-flex align-items-center my-3.5 pt-1">
+          <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
+          <span className="px-3 text-muted fw-semibold" style={{ fontSize: '12px' }}>hoặc tiếp tục với</span>
+          <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
+        </div>
+
+        {/* Google OAuth 2.0 Single Sign-On Button */}
+        <div className="d-flex justify-content-center w-100 mb-2">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            theme="outline"
+            size="large"
+            shape="pill"
+            text="continue_with"
+            locale="vi"
+            width="380"
+          />
+        </div>
 
         {/* Quick Fill Demo Roles (For Testing & Validation) */}
         <div className="mt-4 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>

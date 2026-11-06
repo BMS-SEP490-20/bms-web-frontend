@@ -239,7 +239,7 @@ export default function GuestHomePage() {
   };
 
   return (
-    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)', overflowX: 'hidden' }}>
+    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar user={null} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>

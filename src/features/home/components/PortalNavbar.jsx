@@ -108,8 +108,9 @@ export default function PortalNavbar({ user: propUser = null }) {
   const initial = patientName ? patientName.trim().charAt(0).toUpperCase() : 'B';
 
   return (
-    <header className={`bms-telehealth-header ${isSticky ? 'is-sticky' : ''}`}>
-      <div className="bms-telehealth-header-inner">
+    <>
+      <header className={`bms-telehealth-header ${isSticky ? 'is-sticky' : ''}`}>
+        <div className="bms-telehealth-header-inner">
         {/* 1. Left: Brand Logo & Title */}
         <Link className="bms-brand-cluster" to={isPatient ? "/home" : "/"}>
           <img
@@ -317,5 +318,7 @@ export default function PortalNavbar({ user: propUser = null }) {
         </div>
       </div>
     </header>
-  );
+    <div className="bms-navbar-spacer" style={{ height: '54px' }} aria-hidden="true" />
+  </>
+);
 }

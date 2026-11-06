@@ -1449,12 +1449,22 @@
 }
 
 /* ==============================================================================
-   PAGE ENTRANCE ANIMATION (SMOOTH FADE-IN ON MOUNT)
+   PAGE ENTRANCE TRANSITIONS (DIRECTIONAL SLIDE + FADE)
    ============================================================================== */
 
-@keyframes bmsPageFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+@keyframes bmsSlideRight {
+    from { opacity: 0; transform: translateX(36px); }
+    to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes bmsSlideLeft {
+    from { opacity: 0; transform: translateX(-36px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes bmsFadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
 
 .bms-page-directional-content {
@@ -1462,7 +1472,15 @@
     min-height: calc(100vh - 54px);
 }
 
-/* Single, jank-free entrance fade applied once per page mount */
+.bms-slide-right,
 .bms-page-enter {
-    animation: bmsPageFadeIn 0.25s ease-out both;
+    animation: bmsSlideRight 0.28s ease-out both;
+}
+
+.bms-slide-left {
+    animation: bmsSlideLeft 0.28s ease-out both;
+}
+
+.bms-fade-up {
+    animation: bmsFadeUp 0.22s ease-out both;
 }

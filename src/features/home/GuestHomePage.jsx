@@ -23,164 +23,162 @@ import './landing-sections.css';
 const LANDING_SECTIONS = [
   {
     num: '01 / TỰ ĐỘNG HÓA LAB',
-    title: 'Hệ Thống Phân Tích Máu Tự Động Hóa 100%',
-    desc: 'Chuỗi máy phân tích thế hệ mới kết nối trực tiếp với phần mềm LIS, loại trừ hoàn toàn nguy cơ nhầm lẫn mẫu và sai sót con người.',
+    title: 'Phòng Lab Tự Động Hóa 100%',
+    desc: 'Chuỗi máy phân tích kết nối trực tiếp với LIS, loại trừ nguy cơ sai sót con người.',
     svg: '/assets/bms/svg/sections/landing/sec-01-lab-automation.svg',
     bullets: [
-      'Mã hóa ống nghiệm bằng barcode chuẩn y tế',
-      'Đồng bộ hóa 2 chiều tự động với LIS/HIS',
-      'Thời gian phân tích tối ưu chỉ từ 30 – 45 phút'
+      'Mã hóa barcode tự động hai chiều',
+      'Đồng bộ kết quả tức thì với LIS/HIS',
+      'Thời gian phân tích chỉ từ 30 – 45 phút'
     ]
   },
   {
     num: '02 / CHUỖI LẠNH IOT',
-    title: 'Giám Sát Chuỗi Lạnh 2°C – 6°C Thời Gian Thực 24/7',
-    desc: 'Thùng vận chuyển chuyên dụng tích hợp cảm biến IoT liên tục ghi nhận nhiệt độ và độ ẩm, cảnh báo ngay lập tức nếu có dao động bất thường.',
+    title: 'Chuỗi Lạnh IoT 2°C – 6°C Giám Sát 24/7',
+    desc: 'Cảm biến IoT liên tục ghi nhận nhiệt độ và độ ẩm, bảo toàn tế bào máu.',
     svg: '/assets/bms/svg/sections/landing/sec-02-coldchain-monitor.svg',
     bullets: [
-      'Cảm biến nhiệt độ IoT độ chính xác cao ±0.1°C',
-      'Bảo toàn tuyệt đối tính toàn vẹn của tế bào máu',
-      'Biên bản hành trình lạnh số hóa tự động'
+      'Độ chính xác cảm biến nhiệt độ ±0.1°C',
+      'Ngăn ngừa tán huyết và biến tính mẫu',
+      'Nhật ký hành trình lạnh số hóa'
     ]
   },
   {
     num: '03 / PHÁP LÝ & KÝ SỐ',
-    title: 'Chữ Ký Số Y Tế Hợp Pháp Bởi Bác Sĩ Chuyên Khoa',
-    desc: 'Mỗi phiếu kết quả điện tử được cấp dấu thời gian Timestamp và Chữ ký số PKI của Bác sĩ Trưởng khoa, có giá trị pháp lý tương đương bản giấy.',
+    title: 'Chữ Ký Số Y Tế Hợp Pháp',
+    desc: 'Phiếu kết quả cấp dấu thời gian Timestamp và Chữ ký số PKI của Bác sĩ Chuyên khoa.',
     svg: '/assets/bms/svg/sections/landing/sec-03-digital-signature.svg',
     bullets: [
-      'Chữ ký số PKI chuẩn Thông tư Bộ Y Tế',
-      'Mã QR xác thực tính toàn vẹn tức thì',
-      'Được công nhận tại các bệnh viện tuyến đầu'
+      'Chữ ký số PKI chuẩn Bộ Y Tế',
+      'Mã QR xác thực tính toàn vẹn',
+      'Có giá trị pháp lý tương đương bản giấy'
     ]
   },
   {
-    num: '04 / TRUY VẾT MẪU BỆNH PHẨM',
-    title: 'Một Mã Định Danh Barcode, Một Hành Trình Khép Kín',
-    desc: 'Mã vạch Code 128 được in và dán ngay tại thời điểm lấy mẫu, định danh duy nhất xuyên suốt quy trình tiếp nhận, ly tâm, phân tích và lưu biobank.',
+    num: '04 / TRUY VẾT MẪU',
+    title: 'Truy Vết Barcode Khép Kín',
+    desc: 'Mã vạch Code 128 định danh duy nhất mẫu máu từ khâu lấy mẫu đến biobank.',
     svg: '/assets/bms/svg/sections/landing/sec-04-barcode-traceability.svg',
     bullets: [
-      'Mã vạch y tế Code 128 không thể tẩy xóa',
-      'Loại bỏ hoàn toàn rủi ro nhầm lẫn danh tính',
-      'Bệnh nhân tự tra cứu hành trình theo thời gian thực'
+      'Định danh duy nhất một chiều',
+      'Loại bỏ tuyệt đối nguy cơ nhầm lẫn mẫu',
+      'Theo dõi tiến trình thời gian thực'
     ]
   },
   {
     num: '05 / KIỂM SOÁT NỘI KIỂM',
-    title: 'Kiểm Chuẩn Chất Lượng Đa Quy Tắc Westgard & Levey-Jennings',
-    desc: 'Hệ thống bắt buộc phải vượt qua quy chuẩn nội kiểm 3 mức nồng độ (Low, Normal, High) trước mỗi ca chạy mẫu, đảm bảo độ chuẩn xác y khoa cao nhất.',
+    title: 'Kiểm Soát Chất Lượng Westgard',
+    desc: 'Quy chuẩn nội kiểm 3 mức nồng độ IQC và đồ thị Levey-Jennings hàng ngày.',
     svg: '/assets/bms/svg/sections/landing/sec-05-qc-westgard.svg',
     bullets: [
-      'Đồ thị Levey-Jennings tự động phân tích độ lệch chuẩn',
-      'Áp dụng nghiêm ngặt 6 quy tắc cảnh báo Westgard',
-      'Tham gia chương trình ngoại kiểm quốc tế EQAS / RIQAS'
+      'Kiểm chuẩn 6 quy tắc Westgard nghiêm ngặt',
+      'Tự động cảnh báo sai số ngẫu nhiên',
+      'Tham gia ngoại kiểm quốc tế EQAS / RIQAS'
     ]
   },
   {
     num: '06 / TIỆN ÍCH TẬN NƠI',
-    title: 'Dịch Vụ Lấy Mẫu Xét Nghiệm Tại Nhà Vô Trùng & Tiện Lợi',
-    desc: 'Đội ngũ điều dưỡng chuyên nghiệp đến tận nơi đúng giờ hẹn, thao tác êm ái, mang lại trải nghiệm y tế cao cấp cho gia đình, người già và trẻ nhỏ.',
+    title: 'Lấy Mẫu Xét Nghiệm Tại Nhà',
+    desc: 'Điều dưỡng chính quy thao tác êm ái, mang lại trải nghiệm y tế nhẹ nhàng tận nơi.',
     svg: '/assets/bms/svg/sections/landing/sec-06-home-sampling.svg',
     bullets: [
       'Điều dưỡng có chứng chỉ hành nghề chính quy',
-      'Dụng cụ lấy máu chân không vô khuẩn dùng 1 lần',
-      'Tiết kiệm thời gian di chuyển và chờ đợi tại bệnh viện'
+      'Bộ dụng cụ chân không vô khuẩn dùng 1 lần',
+      'Tiết kiệm thời gian chờ đợi tại viện'
     ]
   },
   {
-    num: '07 / CAM KẾT THỜI GIAN (SLA)',
-    title: 'Cam Kết Thời Gian Trả Kết Quả Nhanh Chóng Từ 60 – 90 Phút',
-    desc: 'Quy trình tối ưu hóa giúp bệnh nhân nhận thông báo kết quả qua tin nhắn SMS và xem trực tuyến ngay khi bác sĩ hoàn tất thẩm định.',
+    num: '07 / CAM KẾT THỜI GIAN',
+    title: 'Cam Kết Thời Gian SLA 60 – 90 Phút',
+    desc: 'Tối ưu hóa quy trình phân tích, gửi SMS thông báo ngay khi bác sĩ ký duyệt.',
     svg: '/assets/bms/svg/sections/landing/sec-07-tat-sla.svg',
     bullets: [
-      'Theo dõi đồng hồ đếm ngược SLA theo thời gian thực',
-      'SMS thông báo ngay khi có kết quả thẩm định',
-      'Hỗ trợ hội chẩn trực tuyến cùng bác sĩ ngay khi cần'
+      'Đồng hồ đếm ngược SLA thời gian thực',
+      'SMS thông báo kết quả tức thì',
+      'Hỗ trợ tư vấn kết quả cùng bác sĩ'
     ]
   },
   {
-    num: '08 / ĐỘI NGŨ CHUYÊN GIA',
-    title: 'Bác Sĩ Chuyên Khoa Thẩm Định & Tư Vấn Lâm Sàng 1-1',
-    desc: 'Không chỉ trả về con số, đội ngũ bác sĩ chuyên khoa xét nghiệm luôn sẵn sàng giải thích chi tiết ý nghĩa từng chỉ số và định hướng điều trị phù hợp.',
+    num: '08 / BÁC SĨ THẨM ĐỊNH',
+    title: 'Bác Sĩ Chuyên Khoa Thẩm Duyệt',
+    desc: 'Bác sĩ chuyên khoa xét nghiệm đối chiếu Delta Check và tư vấn kết quả chi tiết.',
     svg: '/assets/bms/svg/sections/landing/sec-08-doctor-review.svg',
     bullets: [
-      'Bác sĩ chuyên khoa y học xét nghiệm trực tiếp thẩm duyệt',
-      'Đối chiếu lịch sử xét nghiệm và cảnh báo Delta Check',
-      'Tư vấn phác đồ dinh dưỡng và chăm sóc sức khỏe cá nhân hóa'
+      'Thẩm định đa tầng từng chỉ số lâm sàng',
+      'Cảnh báo biến thiên Delta Check lịch sử',
+      'Tư vấn định hướng điều trị cá nhân hóa'
     ]
   },
   {
     num: '09 / HÀNH TRÌNH CHĂM SÓC',
-    title: 'Hành Trình Chăm Sóc Sức Khỏe Liền Mạch & Toàn Diện',
-    desc: 'Từ lúc đăng ký hẹn, theo dõi lấy mẫu, nhận kết quả đến lưu trữ hồ sơ bệnh án điện tử trọn đời trên một nền tảng duy nhất.',
+    title: 'Hồ Sơ Sức Khỏe Liền Mạch',
+    desc: 'Lưu trữ hồ sơ xét nghiệm trọn đời, theo dõi biểu đồ biến thiên chỉ số qua các năm.',
     svg: '/assets/bms/svg/sections/landing/sec-09-patient-journey.svg',
     bullets: [
-      'Biểu đồ theo dõi biến thiên chỉ số sức khỏe qua các năm',
-      'Nhắc lịch tái khám và xét nghiệm định kỳ tự động',
-      'Chia sẻ hồ sơ an toàn cho bác sĩ điều trị chỉ với 1 chạm'
+      'Biểu đồ theo dõi chỉ số sức khỏe dài hạn',
+      'Nhắc lịch tái khám định kỳ tự động',
+      'Chia sẻ an toàn cho bác sĩ điều trị'
     ]
   },
   {
     num: '10 / CHỨNG NHẬN QUỐC TẾ',
-    title: 'Hệ Thống Tiêu Chuẩn Chất Lượng Quốc Tế ISO 15189:2022 & CAP',
-    desc: 'Phòng Lab BMS tự hào đáp ứng toàn diện các tiêu chí đánh giá nghiêm ngặt theo tiêu chuẩn ISO 15189:2022 và Quyết định 2429/QĐ-BYT.',
+    title: 'Chuẩn Chất Lượng ISO 15189:2022',
+    desc: 'Phòng Lab đáp ứng tiêu chí đánh giá nghiêm ngặt theo ISO 15189 và QĐ 2429/QĐ-BYT.',
     svg: '/assets/bms/svg/sections/landing/sec-10-accreditation-wall.svg',
     bullets: [
-      'Được đánh giá và công nhận định kỳ bởi các tổ chức uy tín',
-      'Quy trình SOP vận hành chuẩn mực cho hơn 100 xét nghiệm',
-      'Cam kết độ tin cậy kết quả xét nghiệm đạt trên 99.98%'
+      'Văn phòng Công nhận Chất lượng (BoA) đánh giá',
+      'Quy trình SOP vận hành hơn 100 xét nghiệm',
+      'Độ tin cậy kết quả đạt trên 99.98%'
     ]
   },
   {
     num: '11 / CHUẨN HÓA ỐNG MẪU',
-    title: 'Hệ Thống Màu Nắp Ống Nghiệm Chuẩn Y Tế Quốc Tế',
-    desc: 'Mỗi loại xét nghiệm sử dụng ống lấy máu chân không chuyên biệt với chất chống đông phù hợp, bảo đảm độ chính xác của phản ứng sinh học.',
+    title: 'Màu Nắp Ống Nghiệm Chuẩn Y Tế',
+    desc: 'Ống lấy máu chân không chuyên biệt với chất chống đông phù hợp cho từng xét nghiệm.',
     svg: '/assets/bms/svg/sections/landing/sec-11-tube-legend.svg',
     bullets: [
-      'EDTA nắp tím cho tổng phân tích tế bào máu ngoại vi',
-      'Serum nắp đỏ/vàng cho xét nghiệm sinh hóa và miễn dịch',
-      'Citrate nắp xanh dương cho khảo sát chức năng đông máu'
+      'EDTA nắp tím cho tổng phân tích tế bào máu',
+      'Serum nắp đỏ/vàng cho sinh hóa, miễn dịch',
+      'Citrate nắp xanh dương cho đông máu'
     ]
   },
   {
     num: '12 / BẢO MẬT DỮ LIỆU',
-    title: 'Bảo Vệ Dữ Liệu Sức Khỏe Theo Nghị Định 13/2023/NĐ-CP',
-    desc: 'Mã hóa dữ liệu định danh bệnh nhân (PII), hệ thống phân quyền đa tầng và kiểm toán truy cập nghiêm ngặt đảm bảo an toàn thông tin y tế tuyệt đối.',
+    title: 'Bảo Vệ Dữ Liệu Nghị Định 13/2023',
+    desc: 'Mã hóa kết quả AES-256 và ẩn danh hóa thông tin PII khi tra cứu công khai.',
     svg: '/assets/bms/svg/sections/landing/sec-12-security-privacy.svg',
     bullets: [
-      'Mã hóa đầu cuối kết quả xét nghiệm bằng thuật toán AES-256',
-      'Ẩn danh hóa thông tin cá nhân khi tra cứu công khai',
-      'Lịch sử truy cập được ghi nhật ký bất biến Audit Log'
+      'Mã hóa đầu cuối kết quả xét nghiệm',
+      'Ẩn danh định danh PII khi tra cứu',
+      'Nhật ký kiểm toán truy cập bất biến'
     ]
   },
   {
     num: '13 / MINH BẠCH CHI PHÍ',
-    title: 'Bảng Giá Niêm Yết Công Khai, Minh Bạch & Đúng Tuyến BHYT',
-    desc: 'Đơn giá dịch vụ được công khai minh bạch theo quy chuẩn của Bộ Y Tế, không phụ thu bất kỳ khoản chi phí ẩn nào, hỗ trợ thanh toán thông tuyến.',
+    title: 'Bảng Giá Niêm Yết Minh Bạch 100%',
+    desc: 'Đơn giá dịch vụ công khai theo quy chuẩn Bộ Y Tế, xuất hóa đơn điện tử VAT 0%.',
     svg: '/assets/bms/svg/sections/landing/sec-13-transparent-pricing.svg',
     bullets: [
-      'Bao gồm trọn gói vật tư lấy mẫu tiêu hao vô trùng',
-      'Áp dụng chiết khấu thanh toán BHYT tự động theo quy định',
-      'Xuất hóa đơn điện tử VAT 0% nhanh chóng qua email'
+      'Trọn gói vật tư lấy mẫu chân không',
+      'Áp dụng thanh toán BHYT đúng quy định',
+      'Xuất hóa đơn VAT 0% nhanh chóng'
     ]
   },
   {
     num: '14 / CỔNG KẾT QUẢ SỐ',
-    title: 'Tra Cứu & Tải Phiếu Kết Quả Điện Tử Mọi Lúc, Mọi Nơi',
-    desc: 'Truy cập cổng dịch vụ trực tuyến để tra cứu tiến trình mẫu máu và tải bản PDF kết quả xét nghiệm có chữ ký số điện tử trên mọi thiết bị.',
+    title: 'Tra Cứu Kết Quả Điện Tử Mọi Nơi',
+    desc: 'Theo dõi tiến trình xét nghiệm và tải bản PDF có chữ ký số trên mọi thiết bị.',
     svg: '/assets/bms/svg/sections/landing/sec-14-results-portal.svg',
     bullets: [
-      'Giao diện tương thích hoàn hảo trên điện thoại và máy tính',
-      'Tải bản PDF có giá trị pháp lý nộp cho cơ quan bảo hiểm',
-      'Lưu trữ đám mây an toàn, không lo thất lạc bản giấy'
+      'Tương thích hoàn hảo trên điện thoại và máy tính',
+      'Tải bản PDF pháp lý lưu trữ bảo hiểm',
+      'Truy cập dữ liệu nhanh chóng và an toàn'
     ]
   }
 ];
 
 export default function GuestHomePage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [lookupCode, setLookupCode] = useState('');
-  const [lookupPhone, setLookupPhone] = useState('');
   const [packages, setPackages] = useState([]);
   const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -226,13 +224,6 @@ export default function GuestHomePage() {
       });
   }, []);
 
-  const handleTrackSubmit = (e) => {
-    e.preventDefault();
-    const code = lookupCode.trim();
-    if (!code) return;
-    window.location.href = `/tracking?code=${encodeURIComponent(code)}${lookupPhone ? `&phone=${encodeURIComponent(lookupPhone.trim())}` : ''}`;
-  };
-
   const handleBookClick = (pkg) => {
     setSelectedPackage(pkg);
     setShowRequireLoginModal(true);
@@ -242,8 +233,8 @@ export default function GuestHomePage() {
     <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar user={null} />
 
-      {/* 1. Hero Section (V3.1 Layout: Narrative + 2x2 Metric Grid Left, Big Animated Composition Right) */}
-      <section className="bms-hero-container-wrap pt-4 pb-3">
+      {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
+      <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
             {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
@@ -258,13 +249,13 @@ export default function GuestHomePage() {
                 <span style={{ color: '#1E60E6' }}>Chính Xác &amp; Tin Cậy</span>
               </h1>
 
-              <p className="bms-hero-lead mb-4" style={{ fontSize: '14.5px', color: '#475569', lineHeight: '1.7', maxWidth: '580px' }}>
-                Hệ thống phòng xét nghiệm tự động hóa hoàn toàn với 80+ chỉ số huyết học và sinh hóa. Kết quả được thẩm định bởi Bác sĩ Chuyên khoa, trả trực tuyến có chữ ký số điện tử sau 60–90 phút.
+              <p className="bms-hero-lead mb-4" style={{ fontSize: '14.5px', color: '#475569', lineHeight: '1.6', maxWidth: '540px' }}>
+                Hệ thống phòng xét nghiệm tự động hóa chuẩn ISO 15189:2022. Kết quả được thẩm định bởi Bác sĩ Chuyên khoa, trả trực tuyến sau 60–90 phút.
               </p>
 
               {/* Search Pill Capsule */}
               <form
-                className="bms-search-pill-capsule mb-3"
+                className="bms-search-pill-capsule mb-4"
                 onSubmit={(e) => {
                   e.preventDefault();
                   window.location.href = `/services?search=${encodeURIComponent(searchTerm)}`;
@@ -282,7 +273,7 @@ export default function GuestHomePage() {
                 </button>
               </form>
 
-              {/* 2x2 Metric Grid (Spacious, 56px Animated SVGs, No Text Crowding) */}
+              {/* 2x2 Metric Grid (Spacious, 54px Animated SVGs, No Text Crowding) */}
               <div className="bms-hero-page-metrics">
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
@@ -322,56 +313,6 @@ export default function GuestHomePage() {
                 alt="BMS Automated Laboratory Workflow Scene"
                 aria-hidden="true"
               />
-            </div>
-          </div>
-
-          {/* Centered Fast Tracker Card Row (Spacious & Distinct) */}
-          <div className="bms-tracker-row-v3">
-            <div className="bms-tracker-card-v3 text-center" id="tra-cuu">
-              <img
-                src="/assets/bms/svg/hero/home/tracker-card-ornament.svg"
-                alt=""
-                className="tracker-ornament"
-                aria-hidden="true"
-              />
-              <h2 className="fw-bold mb-1" style={{ fontSize: '20px', color: '#0F172A' }}>Tra Cứu Kết Quả Điện Tử</h2>
-              <p className="text-muted mb-3" style={{ fontSize: '13px' }}>
-                Dành cho bệnh nhân đã lấy mẫu tại trung tâm hoặc tại nhà
-              </p>
-
-              <form onSubmit={handleTrackSubmit} className="text-start">
-                <div className="bms-form-field mb-2.5">
-                  <label className="bms-field-label">Mã phiếu hẹn / Barcode mẫu *</label>
-                  <input
-                    type="text"
-                    className="bms-input-soft"
-                    required
-                    placeholder="Ví dụ: ORD-2026-0881 hoặc BC-20261009-001"
-                    value={lookupCode}
-                    onChange={e => setLookupCode(e.target.value)}
-                  />
-                </div>
-
-                <div className="bms-form-field mb-3">
-                  <label className="bms-field-label">Số điện thoại đăng ký *</label>
-                  <input
-                    type="tel"
-                    className="bms-input-soft"
-                    required
-                    placeholder="Ví dụ: 0912 345 678"
-                    value={lookupPhone}
-                    onChange={e => setLookupPhone(e.target.value)}
-                  />
-                </div>
-
-                <button type="submit" className="bms-btn-blue-cta w-100 py-2.5">
-                  Tra Cứu Ngay
-                </button>
-              </form>
-
-              <div className="bms-tracker-footer-note mt-3">
-                <span>Phiếu kết quả có chữ ký số SHA-256 của Bác sĩ Chuyên khoa</span>
-              </div>
             </div>
           </div>
         </div>

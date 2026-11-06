@@ -2223,8 +2223,7 @@
    ============================================================================== */
 .card:has(table),
 .card:has(.table-responsive),
-div[class*="card"]:has(table),
-div[class*="card"]:has(.table-responsive) {
+.bms-table-card {
     background: #FFFFFF !important;
     border-radius: 20px !important;
     border: 1px solid rgba(226, 232, 240, 0.85) !important;
@@ -2235,8 +2234,7 @@ div[class*="card"]:has(.table-responsive) {
 
 .card:has(table) > .card-header,
 .card:has(.table-responsive) > .card-header,
-div[class*="card"]:has(table) > .card-header,
-div[class*="card"]:has(.table-responsive) > .card-header {
+.bms-table-card > .card-header {
     background: #FFFFFF !important;
     padding: 18px 24px 16px !important;
     border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
@@ -2246,16 +2244,14 @@ div[class*="card"]:has(.table-responsive) > .card-header {
 
 .card:has(table) > .card-body,
 .card:has(.table-responsive) > .card-body,
-div[class*="card"]:has(table) > .card-body,
-div[class*="card"]:has(.table-responsive) > .card-body {
+.bms-table-card > .card-body {
     padding: 0 !important;
     background: transparent !important;
 }
 
 .card:has(table) .table-responsive,
 .card:has(.table-responsive) .table-responsive,
-div[class*="card"]:has(table) .table-responsive,
-div[class*="card"]:has(.table-responsive) .table-responsive {
+.bms-table-card .table-responsive {
     margin-bottom: 0 !important;
     border: none !important;
 }

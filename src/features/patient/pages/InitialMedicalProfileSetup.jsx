@@ -33,6 +33,7 @@ import {
   isEntireListNkda,
   isAllergyMatch,
   splitAllergyTokens,
+  splitFreeTextNotes,
   CANONICAL_NO_COAGULATION,
   CANONICAL_NKDA
 } from '../utils/clinicalProfileUtils';
@@ -384,7 +385,7 @@ export default function InitialMedicalProfileSetup() {
           ? [CANONICAL_NKDA]
           : [
               ...selectedAllergies,
-              ...(allergiesNotes.trim() ? splitAllergyTokens(allergiesNotes) : [])
+              ...(allergiesNotes.trim() ? splitFreeTextNotes(allergiesNotes) : [])
             ],
         emergencyContactName: emergencyContactName.trim(),
         emergencyContactPhone: emergencyContactPhone.trim(),

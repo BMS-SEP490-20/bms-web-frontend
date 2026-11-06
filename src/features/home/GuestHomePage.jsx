@@ -334,6 +334,8 @@ export default function GuestHomePage() {
                 src="/assets/bms/svg/hero/home/hero-lab-narrative-A.svg?v=clean-20261106-1408"
                 alt="BMS Clinical Laboratory Narrative Workflow Scene"
                 aria-hidden="true"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>

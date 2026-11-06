@@ -140,6 +140,21 @@ const ALLERGY_CANONICAL_ALIASES = Object.freeze({
 });
 
 /**
+ * Splits free-text clinical notes by semicolon or newline only.
+ * Deliberately preserves commas intact (e.g. "Dị ứng phấn hoa, xuất hiện mùa xuân" is NOT split).
+ */
+export function splitFreeTextNotes(text) {
+  if (!text) return [];
+  if (Array.isArray(text)) {
+    return text.flatMap(item => splitFreeTextNotes(item)).map(s => s.trim()).filter(Boolean);
+  }
+  return String(text)
+    .split(/[;\n]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+/**
  * Splits text into individual trimmed tokens.
  * Handles delimiters (;, \n, and comma) while respecting nested parentheses
  * (e.g. "Hải sản (Tôm, Cua)" is preserved intact as a single token).

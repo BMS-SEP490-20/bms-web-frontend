@@ -207,7 +207,8 @@ export default function BackupManagementPage() {
     };
 
     // Safe filtered backups
-    const safeBackupsList = useMemo(() => (Array.isArray(backups) ? backups : []), [backups]);
+    const safeBackups = useMemo(() => (Array.isArray(backups) ? backups : []), [backups]);
+    const safeBackupsList = safeBackups;
 
     const filteredBackups = useMemo(() => {
         if (!searchTerm.trim()) return safeBackupsList;

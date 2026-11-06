@@ -18,12 +18,6 @@ let lastKnownPillPos = { left: 0, width: 0, initialized: false };
 export default function PortalNavbar({ user: propUser = null }) {
   const location = useLocation();
   const trackRef = useRef(null);
-  const [sliderStyle, setSliderStyle] = useState(() => ({
-    left: lastKnownPillPos.left,
-    width: lastKnownPillPos.width,
-    opacity: lastKnownPillPos.initialized ? 1 : 0,
-    animate: lastKnownPillPos.initialized
-  }));
 
   const user = useMemo(() => {
     if (propUser) return propUser;
@@ -39,6 +33,29 @@ export default function PortalNavbar({ user: propUser = null }) {
   const staffRoleName = roleId ? ROLE_LABELS[roleId] : '';
   const currentPath = location.pathname;
   const [isSticky, setIsSticky] = useState(false);
+
+  // Check if current page corresponds to any of the navbar capsule navigation links
+  const hasActiveItem = useMemo(() => {
+    if (currentPath === '/' || currentPath === '/home') return true;
+    if (currentPath === '/services' || (currentPath.startsWith('/services/') && !currentPath.startsWith('/services/pricing'))) return true;
+    if (currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/track-progress')) return true;
+    if (isPatient) {
+      if (currentPath.startsWith('/appointments')) return true;
+      if (currentPath.startsWith('/patient/test-history')) return true;
+      if (currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices')) return true;
+    } else {
+      if (currentPath.startsWith('/pricing') || currentPath.startsWith('/catalog')) return true;
+      if (currentPath.startsWith('/iso-process')) return true;
+    }
+    return false;
+  }, [currentPath, isPatient]);
+
+  const [sliderStyle, setSliderStyle] = useState(() => ({
+    left: hasActiveItem && lastKnownPillPos.initialized ? lastKnownPillPos.left : 0,
+    width: hasActiveItem && lastKnownPillPos.initialized ? lastKnownPillPos.width : 0,
+    opacity: hasActiveItem && lastKnownPillPos.initialized ? 1 : 0,
+    animate: hasActiveItem && lastKnownPillPos.initialized
+  }));
 
   // Dynamic sticky scroll detection to reveal bottom border only when scrolled
   useEffect(() => {
@@ -56,6 +73,12 @@ export default function PortalNavbar({ user: propUser = null }) {
   useLayoutEffect(() => {
     const updateSlider = () => {
       if (!trackRef.current) return;
+      if (!hasActiveItem) {
+        lastKnownPillPos = { left: 0, width: 0, initialized: false };
+        setSliderStyle({ left: 0, width: 0, opacity: 0, animate: false });
+        return;
+      }
+
       const activeEl = trackRef.current.querySelector('.bms-capsule-item.active');
       if (activeEl) {
         const trackRect = trackRef.current.getBoundingClientRect();
@@ -68,6 +91,9 @@ export default function PortalNavbar({ user: propUser = null }) {
         };
         lastKnownPillPos = { left: newPos.left, width: newPos.width, initialized: true };
         setSliderStyle(newPos);
+      } else {
+        lastKnownPillPos = { left: 0, width: 0, initialized: false };
+        setSliderStyle({ left: 0, width: 0, opacity: 0, animate: false });
       }
     };
 
@@ -79,7 +105,7 @@ export default function PortalNavbar({ user: propUser = null }) {
       clearTimeout(t);
       window.removeEventListener('resize', updateSlider);
     };
-  }, [currentPath, isPatient]);
+  }, [currentPath, isPatient, hasActiveItem]);
 
   const staffWorkspacePath = useMemo(() => {
     switch (roleId) {
@@ -150,7 +176,8 @@ export default function PortalNavbar({ user: propUser = null }) {
                 : 'opacity 0.2s ease',
               pointerEvents: 'none',
               zIndex: 1,
-              opacity: sliderStyle.opacity
+              opacity: hasActiveItem ? sliderStyle.opacity : 0,
+              display: hasActiveItem ? 'block' : 'none'
             }}
           />
 

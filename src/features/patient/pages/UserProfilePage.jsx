@@ -68,6 +68,51 @@ const COAGULATION_OPTIONS = [
   'Dùng thuốc chống đông'
 ];
 
+// Known negative coagulation strings for exact clinical matching
+const NO_COAGULATION_STRINGS = [
+  'không có',
+  'không có tiền sử đông máu',
+  'không có tiền sử rối loạn đông máu',
+  'không có ghi nhận'
+];
+
+const isNoCoagulation = (val) => {
+  if (!val) return true;
+  const normalized = val.trim().toLowerCase();
+  return NO_COAGULATION_STRINGS.includes(normalized);
+};
+
+// Backward-compatible allergy matcher (maps legacy 'Trứng / Sữa / Đậu' to 'Trứng / Sữa / Đậu phộng')
+const isAllergyMatch = (targetAllergy, recordedText) => {
+  if (!targetAllergy || !recordedText) return false;
+  const t = targetAllergy.toLowerCase().trim();
+  const r = recordedText.toLowerCase().trim();
+  if (t === r || r.includes(t)) return true;
+
+  if (t === 'trứng / sữa / đậu phộng' && (r.includes('trứng / sữa / đậu') || r.includes('trứng, sữa, đậu') || r.includes('dị ứng trứng'))) {
+    return true;
+  }
+  if (t === 'hải sản (tôm, cua)' && (r.includes('hải sản') || r.includes('tôm') || r.includes('cua'))) {
+    return true;
+  }
+  if (t === 'penicillin / amox' && (r.includes('penicillin') || r.includes('amox') || r.includes('amoxicillin'))) {
+    return true;
+  }
+  if (t === 'aspirin / paracetamol' && (r.includes('aspirin') || r.includes('paracetamol'))) {
+    return true;
+  }
+  if (t === 'kháng viêm nsaids' && (r.includes('nsaids') || r.includes('kháng viêm'))) {
+    return true;
+  }
+  if (t === 'phấn hoa / bụi nhà' && (r.includes('phấn hoa') || r.includes('bụi nhà'))) {
+    return true;
+  }
+  if (t === 'cồn / povidine' && (r.includes('cồn') || r.includes('povidine'))) {
+    return true;
+  }
+  return false;
+};
+
 // Structured blood types for clinical clarity
 const BLOOD_TYPES_RH_POS = [
   { code: 'O+', label: 'O+', sub: 'Rh+ Phổ biến (~45%)' },
@@ -107,7 +152,7 @@ export const UserProfilePage = () => {
     phoneNumber: '',
     email: '',
     address: '',
-    bloodType: 'O+',
+    bloodType: 'Unknown',
     heightCm: '',
     weightKg: '',
     bloodPressure: '',
@@ -154,7 +199,7 @@ export const UserProfilePage = () => {
             gender: loadedPatient.gender || 'Male',
             phoneNumber: loadedPatient.phoneNumber || '',
             email: loadedPatient.email || '',
-            bloodType: loadedPatient.bloodType || 'O+',
+            bloodType: loadedPatient.bloodType || 'Unknown',
             address: loadedPatient.address || ''
           };
         }
@@ -176,7 +221,7 @@ export const UserProfilePage = () => {
         phoneNumber: loadedPatient?.phoneNumber || loadedProfile?.phoneNumber || '',
         email: loadedPatient?.email || loadedProfile?.email || '',
         address: loadedPatient?.address || loadedProfile?.address || '',
-        bloodType: loadedPatient?.bloodType || loadedProfile?.bloodType || 'O+',
+        bloodType: loadedPatient?.bloodType || loadedProfile?.bloodType || 'Unknown',
         heightCm: vitals.heightCm || '',
         weightKg: vitals.weightKg || '',
         bloodPressure: vitals.bloodPressure || '',
@@ -279,9 +324,7 @@ export const UserProfilePage = () => {
         .split(/[,;\n]+/)
         .map((s) => s.trim())
         .filter(Boolean);
-      const existingIdx = parts.findIndex(
-        (p) => p.toLowerCase() === allergy.toLowerCase() || p.toLowerCase().includes(allergy.toLowerCase())
-      );
+      const existingIdx = parts.findIndex((p) => isAllergyMatch(allergy, p));
       let nextParts;
       if (existingIdx >= 0) {
         nextParts = parts.filter((_, idx) => idx !== existingIdx);
@@ -324,6 +367,11 @@ export const UserProfilePage = () => {
 
     setIsSaving(true);
     try {
+      const rawCoag = formData.coagulationDisorders?.trim();
+      const normalizedCoag = (!rawCoag || isNoCoagulation(rawCoag))
+        ? 'Không có tiền sử rối loạn đông máu'
+        : rawCoag;
+
       const payload = {
         fullName: formData.fullName.trim(),
         identityNumber: formData.identityNumber.trim(),
@@ -338,7 +386,7 @@ export const UserProfilePage = () => {
           weightKg: parseFloat(formData.weightKg) || null,
           bloodPressure: formData.bloodPressure?.trim() || null
         },
-        coagulationDisorders: formData.coagulationDisorders?.trim() || 'Không có',
+        coagulationDisorders: normalizedCoag,
         medicalHistory: formData.medicalHistory?.trim() || 'Chưa ghi nhận bệnh lý',
         allergies: formData.allergiesText
           ? formData.allergiesText.split(',').map((s) => s.trim()).filter(Boolean)
@@ -1198,7 +1246,7 @@ export const UserProfilePage = () => {
                                 {COMMON_ALLERGIES.map((alg) => {
                                   const isSelected =
                                     formData.allergiesText &&
-                                    formData.allergiesText.toLowerCase().includes(alg.toLowerCase());
+                                    isAllergyMatch(alg, formData.allergiesText);
                                   return (
                                     <div
                                       key={alg}

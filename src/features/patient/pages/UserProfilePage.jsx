@@ -557,12 +557,12 @@ export const UserProfilePage = () => {
         <Row className="g-4">
           {/* Left Column: Identity & Medical Profile Status Card */}
           <Col xs={12} lg={4}>
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-4 mb-4">
+            <Card className="border rounded-3 overflow-hidden text-center p-4 mb-4 bg-white" style={{ boxShadow: 'none' }}>
               <div className="bms-avatar-wrapper mx-auto mb-3">
                 <img
                   src={profile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop'}
                   alt={formData.fullName}
-                  className="bms-avatar-img rounded-circle border border-3 border-primary shadow-sm"
+                  className="bms-avatar-img rounded-circle border border-2 border-secondary-subtle"
                   style={{ width: '110px', height: '110px', objectFit: 'cover' }}
                 />
                 <span className="bms-active-dot" title="Tài khoản hoạt động"></span>
@@ -602,14 +602,14 @@ export const UserProfilePage = () => {
                 </p>
               </div>
 
-              {/* Action buttons - "Làm mới hồ sơ" and "Xem nhanh bệnh án" have been removed */}
+              {/* Action buttons */}
               <div className="d-grid gap-2">
                 {!isEditing ? (
-                  <Button variant="primary" className="fw-semibold py-2 shadow-sm rounded-3" onClick={() => setIsEditing(true)}>
+                  <Button variant="primary" className="fw-semibold py-2 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(true)}>
                     <FaEdit className="me-2" /> Chỉnh Sửa Hồ Sơ Y Tế
                   </Button>
                 ) : (
-                  <Button variant="outline-secondary" className="fw-semibold py-2 rounded-3" onClick={() => setIsEditing(false)}>
+                  <Button variant="outline-secondary" className="fw-semibold py-2 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(false)}>
                     <FaTimes className="me-2" /> Huỷ Bỏ Chỉnh Sửa
                   </Button>
                 )}
@@ -617,7 +617,7 @@ export const UserProfilePage = () => {
             </Card>
 
             {/* Quick Summary Card: Vitals & Blood Type */}
-            <Card className="border-0 shadow-sm rounded-4 p-4 text-start">
+            <Card className="border rounded-3 p-4 text-start bg-white" style={{ boxShadow: 'none' }}>
               <h6 className="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
                 <FaHeartbeat className="text-danger" /> Tóm Tắt Chỉ Số Y Tế Nhanh
               </h6>
@@ -655,33 +655,34 @@ export const UserProfilePage = () => {
 
           {/* Right Column: Full Clinical Profile Form / Display */}
           <Col xs={12} lg={8}>
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-              <div className="bg-primary text-white p-4 d-flex align-items-center justify-content-between">
+            <Card className="border rounded-3 overflow-hidden bg-white" style={{ boxShadow: 'none' }}>
+              <div className="p-4 d-flex align-items-center justify-content-between border-bottom bg-white">
                 <div>
-                  <h5 className="fw-bold mb-1 d-flex align-items-center gap-2">
-                    <FaNotesMedical /> Hồ Sơ Bệnh Án Chuẩn Y Tế Xét Nghiệm Máu
+                  <h5 className="fw-bold mb-1 d-flex align-items-center gap-2 text-dark" style={{ color: '#0F172A' }}>
+                    <FaNotesMedical className="text-primary" /> Hồ Sơ Bệnh Án Chuẩn Y Tế Xét Nghiệm Máu
                   </h5>
-                  <small className="text-white-50">
+                  <small className="text-muted">
                     Tuân thủ tiêu chuẩn an toàn phòng xét nghiệm ISO 15189:2022 &amp; Quy định Bộ Y Tế
                   </small>
                 </div>
                 <div className="d-flex align-items-center gap-2">
                   <Button
-                    variant="outline-light"
+                    variant="outline-primary"
                     size="sm"
                     as={Link}
                     to="/patient/medical-profile-setup"
-                    className="fw-semibold shadow-sm rounded-pill text-nowrap d-none d-sm-inline-flex align-items-center"
+                    className="fw-semibold rounded-2 text-nowrap d-none d-sm-inline-flex align-items-center"
+                    style={{ boxShadow: 'none' }}
                     title="Mở biểu mẫu khai báo lâm sàng toàn diện theo chuẩn Bộ Y Tế"
                   >
                     <FaClipboardList className="me-1" /> Biểu Mẫu Toàn Diện Bộ Y Tế
                   </Button>
                   {!isEditing ? (
-                    <Button variant="light" size="sm" className="fw-semibold text-primary px-3 shadow-sm rounded-pill" onClick={() => setIsEditing(true)}>
+                    <Button variant="primary" size="sm" className="fw-semibold px-3 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(true)}>
                       <FaEdit className="me-1" /> Chỉnh sửa
                     </Button>
                   ) : (
-                    <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill">
+                    <Badge bg="light" text="dark" className="border px-3 py-2 rounded-2">
                       Chế độ chỉnh sửa
                     </Badge>
                   )}
@@ -1190,10 +1191,10 @@ export const UserProfilePage = () => {
                   {/* Submit buttons when editing */}
                   {isEditing && (
                     <div className="d-flex justify-content-end gap-2 pt-3 border-top">
-                      <Button variant="outline-secondary" onClick={() => setIsEditing(false)} disabled={isSaving}>
+                      <Button variant="outline-secondary" onClick={() => setIsEditing(false)} disabled={isSaving} className="rounded-2" style={{ boxShadow: 'none' }}>
                         Huỷ bỏ
                       </Button>
-                      <Button variant="primary" type="submit" disabled={isSaving} className="px-4 fw-semibold shadow-sm">
+                      <Button variant="primary" type="submit" disabled={isSaving} className="px-4 fw-semibold rounded-2" style={{ boxShadow: 'none' }}>
                         {isSaving ? (
                           <>
                             <Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...

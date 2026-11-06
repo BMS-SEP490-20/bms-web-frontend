@@ -1,241 +1,523 @@
 /**
  * @file InitialMedicalProfileSetup.css
- * @description Styling for First-Time Patient Clinical Intake Screen.
+ * @description Minimalist, professional clinical intake form styling.
  * Conforms to: Ministry of Health (Thông tư 46/2018/TT-BYT & QĐ 2429/QĐ-BYT),
- * ISO 15189 & AGENTS-DESIGN.md.
+ * ISO 15189:2022 Pre-analytical Quality Requirements.
+ * 
+ * DESIGN PRINCIPLES:
+ * - Minimalist, paper-like clinical document layout (no 3D clutter, no heavy borders).
+ * - Flat design: box-shadow: none !important, no neon glow, no jumpy hover animations.
+ * - Clean structured grid layout with generous whitespace and clear hierarchy.
+ * - 100% high-contrast clinical typography (zero black/dark text on blue backgrounds).
  */
 
-.initial-setup-page {
+/* 1. Page Canvas */
+.clinical-intake-canvas {
   width: 100%;
-  max-width: 1080px;
+  min-height: calc(100vh - 120px);
+  background-color: #F8FAFC;
+  padding: 32px 16px 64px;
+}
+
+/* 2. Main Clinical Document Container */
+.clinical-intake-sheet {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 8px 0 40px;
-}
-
-/* Hero Directive Banner */
-.setup-hero-banner {
-  background: linear-gradient(135deg, #1E60E6 0%, #5078E0 100%);
-  color: #ffffff;
-  border-radius: var(--radius-card, 28px);
-  padding: 28px 32px;
-  margin-bottom: 24px;
-  box-shadow: 0 12px 30px rgba(30, 96, 230, 0.2);
-  position: relative;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: none !important;
   overflow: hidden;
 }
 
-.setup-hero-banner::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
+/* 3. Official Masthead (Header) */
+.clinical-intake-masthead {
+  padding: 36px 40px 28px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
 }
 
-/* Clinical Section Card */
-.setup-section-card {
-  background: #ffffff;
-  border-radius: var(--radius-card, 28px);
-  border: 1px solid rgba(15, 23, 42, 0.05);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-  margin-bottom: 24px;
-  overflow: hidden;
-  transition: box-shadow 0.2s ease;
-}
-
-.setup-section-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-}
-
-.setup-section-header {
-  padding: 16px 22px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-  background: var(--bms-surface-card, var(--bg-muted, #EEF2F6));
+.clinical-intake-meta-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
-.setup-section-title {
+.clinical-intake-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.clinical-badge-official {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #EFF6FF;
+  color: #1E60E6;
+  border: 1px solid #DBEAFE;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.clinical-badge-mandatory {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FEE2E2;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.clinical-intake-code {
+  font-family: var(--font-monospace, monospace);
+  font-size: 12.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.clinical-intake-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.clinical-intake-subtitle {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 0;
+  max-width: 860px;
+}
+
+/* 4. Form Body & Sections */
+.clinical-intake-body {
+  padding: 36px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.clinical-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clinical-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 4px;
+}
+
+.clinical-section-heading {
   font-size: 15px;
   font-weight: 700;
-  color: #0f172a;
+  color: #0F172A;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.setup-section-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+.clinical-section-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: #F1F5F9;
+  color: #1E60E6;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-monospace, monospace);
 }
 
-.setup-section-body {
-  padding: 22px 24px;
+.clinical-section-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 2px 8px;
 }
 
-/* Blood Type Button Grid */
-.blood-type-grid {
+.clinical-section-tag.required {
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border-color: #FEE2E2;
+}
+
+/* 5. Demographics Identity Grid (Read-only verified values) */
+.clinical-demographics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
 @media (max-width: 768px) {
-  .blood-type-grid {
+  .clinical-demographics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.clinical-field-readonly-box {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.clinical-readonly-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.clinical-readonly-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  word-break: break-word;
+}
+
+/* 6. Blood Type ABO/Rh Selector Grid */
+.blood-type-grid-clinical {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .blood-type-grid-clinical {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.blood-type-btn {
-  border: 2px solid #e2e8f0;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 12px 14px;
-  text-align: center;
+@media (max-width: 480px) {
+  .blood-type-grid-clinical {
+    grid-template-columns: 1fr;
+  }
+}
+
+.blood-type-cell {
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 14px 16px;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+  box-shadow: none !important;
+}
+
+.blood-type-cell:hover {
+  background-color: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+/* Active State: Clean solid medical blue with PURE WHITE text */
+.blood-type-cell.active {
+  background-color: #1E60E6 !important;
+  border-color: #1E60E6 !important;
+  box-shadow: none !important;
+}
+
+.blood-type-cell-code {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.2;
+}
+
+.blood-type-cell.active .blood-type-cell-code {
+  color: #FFFFFF !important;
+}
+
+.blood-type-cell-desc {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.blood-type-cell.active .blood-type-cell-desc {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* 7. Clinical Form Controls */
+.clinical-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.clinical-input,
+.form-control.clinical-input,
+.form-select.clinical-input {
+  background-color: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 6px !important;
+  font-size: 13.5px !important;
+  color: #0F172A !important;
+  padding: 9px 12px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.clinical-input:focus,
+.form-control.clinical-input:focus,
+.form-select.clinical-input:focus {
+  border-color: #1E60E6 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.clinical-input::placeholder {
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+/* 8. Vitals & Live BMI Result Grid */
+.vitals-grid-clinical {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+@media (max-width: 992px) {
+  .vitals-grid-clinical {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .vitals-grid-clinical {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bmi-indicator-card {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  box-shadow: none !important;
 }
 
-.blood-type-btn:hover {
-  border-color: #93c5fd;
-  background: #f0f7ff;
+.bmi-indicator-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.blood-type-btn.active {
-  border-color: #1E60E6;
-  background: rgba(30, 96, 230, 0.1);
-  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.2);
-}
-
-.blood-type-name {
-  font-size: 18px;
+.bmi-indicator-value {
+  font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: #0F172A;
+  margin: 2px 0 6px;
+  font-variant-numeric: tabular-nums;
 }
 
-.blood-type-btn.active .blood-type-name {
-  color: #1E60E6;
+.bmi-badge-clinical {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
 }
 
-.blood-type-desc {
-  font-size: 11px;
-  color: #64748b;
-  margin-top: 2px;
+/* 9. Minimalist Checkboxes & Expansion Boxes */
+.clinical-check-wrapper {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
 }
 
-/* Fast Tag Selection */
-.fast-tag-group {
+.clinical-check-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.clinical-sub-field-box {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 10px;
+}
+
+/* 10. Minimalist Quick-Select Chips (Tags) */
+.clinical-chips-group {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
-.fast-tag-item {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
+.clinical-chip {
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
   color: #334155;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
+  padding: 6px 12px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-shadow: none !important;
 }
 
-.fast-tag-item:hover {
-  border-color: #1E60E6;
-  color: #1E60E6;
-  background: rgba(30, 96, 230, 0.08);
+.clinical-chip:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
 }
 
-.fast-tag-item.selected {
-  background: #1E60E6;
-  border-color: #1E60E6;
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(30, 96, 230, 0.25);
+/* Active State: Medical Blue background with crisp WHITE text */
+.clinical-chip.active {
+  background-color: #1E60E6 !important;
+  border-color: #1E60E6 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
 }
 
-.fast-tag-item.disabled {
-  opacity: 0.45;
+.clinical-chip.disabled {
+  opacity: 0.5;
   pointer-events: none;
-  background: #f8fafc;
+  background-color: #F8FAFC;
+  border-color: #E2E8F0;
+  color: #94A3B8;
 }
 
-/* BMI Metric Box */
-.bmi-metric-box {
-  background: var(--bms-surface-card, var(--bg-muted, #EEF2F6));
-  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
-  border-radius: 14px;
-  padding: 16px;
-  text-align: center;
+/* 11. Legal Consent Box */
+.clinical-legal-box {
+  background-color: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 18px 20px;
 }
 
-.bmi-value-display {
-  font-size: 28px;
-  font-weight: 800;
-  color: #0f172a;
+.clinical-legal-text {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.6;
 }
 
-/* Readonly Identity Card */
-.identity-meta-card {
-  background: var(--bms-surface-card, var(--bg-muted, #EEF2F6));
-  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
-  border-radius: 14px;
-  padding: 14px 18px;
-}
-
-.identity-meta-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 2px;
-}
-
-.identity-meta-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-/* In-Flow Action Bar at Bottom */
-.setup-actions-bar {
-  background: #ffffff;
-  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
-  border-radius: var(--radius-card, 28px);
-  padding: 20px 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+/* 12. Footer Actions Bar */
+.clinical-actions-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid #E2E8F0;
+  margin-top: 8px;
 }
 
-@media (max-width: 768px) {
-  .setup-actions-bar {
+@media (max-width: 640px) {
+  .clinical-actions-bar {
     flex-direction: column;
-    gap: 16px;
     align-items: stretch;
+  }
+}
+
+.clinical-btn-submit {
+  background-color: #1E60E6 !important;
+  border: 1px solid #1E60E6 !important;
+  color: #FFFFFF !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease !important;
+}
+
+.clinical-btn-submit:hover:not(:disabled) {
+  background-color: #154EC2 !important;
+  border-color: #154EC2 !important;
+}
+
+.clinical-btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.clinical-security-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .clinical-intake-canvas {
+    padding: 16px 8px 48px;
+  }
+
+  .clinical-intake-masthead {
+    padding: 24px 20px 20px;
+  }
+
+  .clinical-intake-body {
+    padding: 24px 20px 28px;
+    gap: 28px;
+  }
+
+  .clinical-intake-title {
+    font-size: 19px;
   }
 }

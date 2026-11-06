@@ -26,34 +26,65 @@
 }
 
 /* ==========================================================================
-   Centered Pill Navigation Header (Fixed Sticky on Scroll with Subtle Divider)
+   Centered Pill Navigation Header (Dynamic Floating Island Morph on Scroll)
    ========================================================================== */
 .bms-telehealth-header,
 .bms-navbar {
     background: #FFFFFF;
     position: fixed !important;
     top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
     width: 100% !important;
     z-index: 1000 !important;
     height: 54px;
-    border: none;
-    border-bottom: 1px solid transparent;
-    box-shadow: none;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     display: flex;
     align-items: center;
-    transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+    box-sizing: border-box;
+    padding: 0 16px !important;
+    transition: top 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                border-radius 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                padding 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Bottom border and frosted glass appearance ONLY when sticky / scrolled */
+/* Floating Dynamic Island Morph on Scroll (Apple Dynamic Island / macOS Dock Style) */
 .bms-telehealth-header.is-sticky,
 .bms-navbar.is-sticky {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
-    box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.05) !important;
+    top: 12px !important;
+    width: min(1280px, calc(100% - 40px)) !important;
+    height: 52px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: none !important;
+    border-bottom: none !important;
+    /* Pure optical floating elevation: zero dark shadow, zero dirty gray border! */
+    /* Liquid glass rim: inner specular highlight + soft diffuse aura */
+    box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+                0 0 0 1px rgba(226, 232, 240, 0.45) !important;
+    padding: 0 24px !important;
+}
+
+@media (max-width: 768px) {
+    .bms-telehealth-header.is-sticky,
+    .bms-navbar.is-sticky {
+        top: 8px !important;
+        width: calc(100% - 20px) !important;
+        height: 50px !important;
+        border-radius: 9999px !important;
+        padding: 0 14px !important;
+    }
 }
 
 .bms-navbar-spacer {
@@ -71,6 +102,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    transition: width 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                padding 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bms-telehealth-header.is-sticky .bms-telehealth-header-inner,
+.bms-navbar.is-sticky .bms-navbar-container {
+    width: 100% !important;
+    padding: 0 4px !important;
 }
 
 /* 1. Left Brand Cluster */

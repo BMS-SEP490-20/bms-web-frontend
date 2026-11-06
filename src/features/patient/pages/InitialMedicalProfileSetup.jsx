@@ -32,6 +32,7 @@ import {
   isCanonicalNkda,
   isEntireListNkda,
   isAllergyMatch,
+  splitAllergyTokens,
   CANONICAL_NO_COAGULATION,
   CANONICAL_NKDA
 } from '../utils/clinicalProfileUtils';
@@ -228,7 +229,7 @@ export default function InitialMedicalProfileSetup() {
             });
             setSelectedAllergies(loaded);
             if (other.length > 0) {
-              setAllergiesNotes(other.join(', '));
+              setAllergiesNotes(other.join('; '));
             }
           }
         }
@@ -383,7 +384,7 @@ export default function InitialMedicalProfileSetup() {
           ? [CANONICAL_NKDA]
           : [
               ...selectedAllergies,
-              ...(allergiesNotes.trim() ? [allergiesNotes.trim()] : [])
+              ...(allergiesNotes.trim() ? splitAllergyTokens(allergiesNotes) : [])
             ],
         emergencyContactName: emergencyContactName.trim(),
         emergencyContactPhone: emergencyContactPhone.trim(),

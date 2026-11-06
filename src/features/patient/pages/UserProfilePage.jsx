@@ -174,7 +174,7 @@ export const UserProfilePage = () => {
       // Populate form data
       const baseObj = loadedPatient || loadedProfile || {};
       const vitals = loadedPatient?.vitals || {};
-      const allergies = Array.isArray(loadedPatient?.allergies) ? loadedPatient.allergies.join(', ') : '';
+      const allergies = Array.isArray(loadedPatient?.allergies) ? loadedPatient.allergies.join('; ') : '';
 
       setFormData({
         fullName: loadedPatient?.fullName || loadedProfile?.fullName || '',
@@ -190,7 +190,7 @@ export const UserProfilePage = () => {
         bloodPressure: vitals.bloodPressure || '',
         coagulationDisorders: loadedPatient?.coagulationDisorders || CANONICAL_NO_COAGULATION,
         medicalHistory: loadedPatient?.medicalHistory || 'Chưa ghi nhận bệnh lý mãn tính',
-        allergiesText: allergies || 'Không có ghi nhận dị ứng',
+        allergiesText: allergies || CANONICAL_NKDA,
         currentMedications: loadedPatient?.currentMedications || 'Không sử dụng thuốc định kỳ',
         emergencyContactName: loadedPatient?.emergencyContactName || '',
         emergencyContactPhone: loadedPatient?.emergencyContactPhone || '',
@@ -279,7 +279,7 @@ export const UserProfilePage = () => {
       if (isCanonicalNkda(current)) {
         current = '';
       }
-      const parts = splitAllergyTokens(current);
+      const parts = splitAllergyTokens(current).filter((p) => !isCanonicalNkda(p));
       const existingIdx = parts.findIndex((p) => isAllergyMatch(allergy, p));
       let nextParts;
       if (existingIdx >= 0) {
@@ -289,7 +289,7 @@ export const UserProfilePage = () => {
       }
       return {
         ...prev,
-        allergiesText: nextParts.length > 0 ? nextParts.join(', ') : CANONICAL_NKDA
+        allergiesText: nextParts.length > 0 ? nextParts.join('; ') : CANONICAL_NKDA
       };
     });
   };
@@ -345,7 +345,7 @@ export const UserProfilePage = () => {
         coagulationDisorders: normalizedCoag,
         medicalHistory: formData.medicalHistory?.trim() || 'Chưa ghi nhận bệnh lý',
         allergies: formData.allergiesText
-          ? splitAllergyTokens(formData.allergiesText)
+          ? (isCanonicalNkda(formData.allergiesText) ? [CANONICAL_NKDA] : splitAllergyTokens(formData.allergiesText))
           : [],
         currentMedications: formData.currentMedications?.trim() || 'Không có',
         emergencyContactName: formData.emergencyContactName.trim(),
@@ -1219,7 +1219,7 @@ export const UserProfilePage = () => {
                           </>
                         ) : (
                           <div className="bms-profile-readonly-box">
-                            {formData.allergiesText || 'Không ghi nhận dị ứng'}
+                            {formData.allergiesText || CANONICAL_NKDA}
                           </div>
                         )}
                       </Form.Group>

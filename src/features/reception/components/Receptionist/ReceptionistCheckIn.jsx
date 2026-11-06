@@ -7,6 +7,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+  FaQrcode, FaCalendarCheck, FaUserCheck, FaSearch, FaTimes,
+  FaFileCsv, FaPrint, FaShieldAlt, FaClock, FaUsers,
+  FaTicketAlt, FaEye, FaCheckCircle, FaUserFriends, FaCalendarTimes, FaUserTimes
+} from 'react-icons/fa';
 import { appointmentService } from '../../../../services/appointmentService';
 import { patientService } from '../../../../services/patientService';
 import { medicalService } from '../../../../services/medicalService';
@@ -1901,396 +1906,436 @@ const ReceptionistCheckIn = () => {
           }
         `}
       </style>
-      <div className="container-fluid" style={{ 
-        padding: isMobile ? '0.5rem' : '1.5rem', 
-        overflowX: 'hidden', 
-        maxWidth: '100%',
-        width: '100%',
-        margin: 0,
-        boxSizing: 'border-box'
-      }}>
-      {/* Quick Check-in QR Button */}
-      <Card className="mb-4 shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', backgroundColor: '#FFFFFF' }}>
-        <Card.Body className="py-5 text-center">
-          <h3 className="mb-2 fw-bold" style={{ color: '#0F172A' }}>
-            <i className="fas fa-qrcode me-2" style={{ color: '#1E60E6' }}></i>
-            Check-in bệnh nhân
-          </h3>
-          <p className="text-muted mb-4" style={{ fontSize: '1.05rem' }}>
-            Quét mã QR hoặc nhập mã thủ công để lấy số thứ tự tự động theo quy trình ISO 15189.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => handleOpenQuickQRModal('camera')}
-            className="px-5 py-3 fw-semibold shadow-sm rounded-pill"
-            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff', fontSize: '1.1rem', transition: 'all 0.2s ease' }}
-          >
-            <i className="fas fa-camera me-2"></i>
-            Mở máy quét QR / Nhập mã
-          </Button>
-        </Card.Body>
-      </Card>
+      <div className="w-100 py-1">
+        {/* 1. Master Luxury Page Header Card */}
+        <div className="bms-page-header-card mb-4">
+          <div className="bms-page-header-content">
+            <div className="bms-page-chip">
+              <FaShieldAlt size={12} />
+              <span>QUẦY TIẾP ĐÓN · CHECK-IN &amp; CẤP SỐ THỨ TỰ (ISO 15189)</span>
+            </div>
+            <div className="bms-page-title-row">
+              <span className="bms-page-title-icon">
+                <FaCalendarCheck size={22} />
+              </span>
+              <h1 className="bms-page-title">
+                Quầy Tiếp Đón Lễ Tân &amp; Điều Phối Lấy Mẫu
+              </h1>
+            </div>
+            <p className="bms-page-subtitle">
+              Tiếp đón bệnh nhân, quét mã QR check-in hẹn khám, cấp số thứ tự lấy mẫu xét nghiệm tự động và quản lý phân luồng phục vụ theo quy chuẩn y tế.
+            </p>
+          </div>
+          <div className="bms-page-actions">
+            <Button
+              size="lg"
+              onClick={() => handleOpenQuickQRModal('camera')}
+              className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2"
+              style={{
+                borderRadius: 9999,
+                background: '#1E60E6',
+                borderColor: '#1E60E6',
+                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+                fontSize: '14px'
+              }}
+            >
+              <FaQrcode size={15} />
+              <span>Mở Máy Quét QR / Nhập Mã</span>
+            </Button>
+          </div>
+        </div>
 
-      {/* Search filter for check-in queue */}
-      <Card className="mb-4 shadow-sm rounded-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="py-4" style={{ padding: isMobile ? '1rem' : '1.5rem', width: '100%', boxSizing: 'border-box' }}>
-          <Row className="justify-content-center">
-            <Col xs={12} md={10}>
-              <Row>
-                <Col xs={12}>
-                  <Form.Label className="fw-semibold small" style={{ fontSize: isMobile ? '0.95rem' : '1rem', color: '#0F172A' }}>
-                    <i className="fas fa-search me-2" style={{ color: '#1E60E6' }}></i>
-                    {isMobile ? 'Tìm kiếm' : 'Tìm kiếm lịch hẹn cần check-in'}
-                  </Form.Label>
-                  <InputGroup size={isMobile ? 'md' : 'lg'}>
-                    <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <i className="fas fa-search"></i>
-                    </InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      className="border-start-0 rounded-end-pill"
-                      style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', fontSize: isMobile ? '0.9rem' : '1.05rem' }}
-                      placeholder={isMobile ? 'Tìm kiếm...' : 'Tìm theo tên bệnh nhân, mã lịch hẹn...'}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-
-      {/* Check-in Appointments Queue Table with Slot Filtering */}
-      <Card className="mb-4 shadow-sm rounded-4 overflow-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Header className="bg-white py-3 d-flex flex-wrap justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#0F172A' }}>
-            <i className="fas fa-calendar-check me-2" style={{ color: '#1E60E6' }}></i>
-            {isMobile ? 'Sổ Lịch Hẹn Chờ Check-in' : 'Sổ Lịch Hẹn Đã Xác Nhận & Chờ Check-in'}
-          </h4>
-          <span className="badge rounded-pill fw-semibold px-3 py-2" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', fontSize: '0.85rem' }}>
-            Tổng hẹn cần tiếp đón: {filteredAppointments.length}
-          </span>
-        </Card.Header>
-        <Card.Body className="p-4" style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
-          {/* Morning Slot Capacity & Filter Tabs */}
-          <div className="mb-3 p-3 rounded-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
-              <div className="d-flex flex-wrap align-items-center gap-2">
-                <span className="fw-semibold text-dark small">
-                  <i className="fas fa-clock me-1" style={{ color: '#1E60E6' }}></i> Phân bổ khung ca sáng:
-                </span>
-                <div className="btn-group btn-group-sm" role="group">
-                  <button
-                    type="button"
-                    className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'ALL' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
-                    onClick={() => setSelectedSlot('ALL')}
-                  >
-                    Tất cả ({slotCounts.ALL})
-                  </button>
-                  <button
-                    type="button"
-                    className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'SLOT_1' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
-                    onClick={() => setSelectedSlot('SLOT_1')}
-                  >
-                    Khung 1 (07:00 - 08:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_1}/12</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn rounded-pill px-3 me-1"
-                    style={selectedSlot === 'SLOT_2' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
-                    onClick={() => setSelectedSlot('SLOT_2')}
-                  >
-                    Khung 2 (08:00 - 09:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_2}/12</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn rounded-pill px-3"
-                    style={selectedSlot === 'SLOT_3' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.05)', color: '#64748b' }}
-                    onClick={() => setSelectedSlot('SLOT_3')}
-                  >
-                    Khung 3 (09:00 - 10:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_3}/14</span>
-                  </button>
-                </div>
+        {/* 2. KPI Metrics Quad Cards */}
+        <Row className="g-3 mb-4">
+          <Col xs={12} sm={6} md={3}>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Tổng Lịch Hẹn Đã Xác Nhận</h6>
+                <div className="bms-kpi-value">{confirmedList.length}</div>
+                <div className="bms-kpi-sub text-muted">Hôm nay theo phân ca</div>
               </div>
-              <div className="small text-muted">
-                <i className="fas fa-user-friends me-1" style={{ color: '#1E60E6' }}></i> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaCalendarCheck /></div>
+            </div>
+          </Col>
+          <Col xs={12} sm={6} md={3}>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Chờ Check-In &amp; Cấp STT</h6>
+                <div className="bms-kpi-value text-primary">{filteredAppointments.length}</div>
+                <div className="bms-kpi-sub text-primary">Cần tiếp đón ngay</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
+            </div>
+          </Col>
+          <Col xs={12} sm={6} md={3}>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Đã Tiếp Đón Hoàn Tất</h6>
+                <div className="bms-kpi-value text-success">{checkedInAppointments.length}</div>
+                <div className="bms-kpi-sub text-success">Đã cấp STT lấy mẫu</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCheck /></div>
+            </div>
+          </Col>
+          <Col xs={12} sm={6} md={3}>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Định Mức Lấy Mẫu</h6>
+                <div className="bms-kpi-value">10 - 14</div>
+                <div className="bms-kpi-sub text-muted">Hẹn / khung giờ (2 bàn)</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaUsers /></div>
+            </div>
+          </Col>
+        </Row>
+
+        {/* 3. Standalone Independent Table: Sổ Lịch Hẹn Chờ Check-in */}
+        <div className="bms-table-standalone-section mb-4">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h5 className="bms-table-standalone-title">
+                <FaCalendarCheck style={{ color: '#1E60E6' }} />
+                Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
+              </h5>
+              <div className="bms-table-standalone-subtitle">
+                Hiển thị {filteredAppointments.length} / {confirmedList.length} lượt hẹn đã xác nhận sẵn sàng tiếp đón
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center gap-2">
+              <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
+                <FaSearch className="bms-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="bms-search-clear"
+                    onClick={() => setSearchTerm('')}
+                    title="Xóa tìm kiếm"
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          {filteredAppointments.length > 0 ? (
-            <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <Table hover className="align-middle" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
-                <thead className="table-light">
-                  <tr>
-                    <th className="text-start" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold' }}>
-                      Bệnh nhân & Mã hồ sơ
-                    </th>
-                    <th className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold' }}>
-                      Gói xét nghiệm
-                    </th>
-                    <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Ngày hẹn
-                    </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Giờ hẹn & Khung ca
-                    </th>
-                    <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Viện phí & Trạng thái
-                    </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Thao tác
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAppointments.map((apt) => {
-                    const appointmentCode = getAppointmentCode(apt);
-                    const patientName = getPatientDisplayName(apt);
-                    const packageName = getPackageDisplayName(apt);
-                    const timeFormatted = formatSlotTime(apt.appointmentTime || apt.time);
-                    const timeStatus = getTimeStatus(apt);
-                    const isPaid = ['confirmed', 'scheduled'].includes((apt.status || apt.Status || '').toLowerCase());
+          {/* Slot Filtering Toolbar Strip */}
+          <div className="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              <span className="fw-semibold text-dark small">
+                <FaClock className="me-1" style={{ color: '#1E60E6' }} /> Phân bổ khung ca sáng:
+              </span>
+              <div className="btn-group btn-group-sm" role="group">
+                <button
+                  type="button"
+                  className="btn rounded-pill px-3 me-1"
+                  style={selectedSlot === 'ALL' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
+                  onClick={() => setSelectedSlot('ALL')}
+                >
+                  Tất cả ({slotCounts.ALL})
+                </button>
+                <button
+                  type="button"
+                  className="btn rounded-pill px-3 me-1"
+                  style={selectedSlot === 'SLOT_1' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
+                  onClick={() => setSelectedSlot('SLOT_1')}
+                >
+                  Khung 1 (07:00 - 08:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_1}/12</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn rounded-pill px-3 me-1"
+                  style={selectedSlot === 'SLOT_2' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
+                  onClick={() => setSelectedSlot('SLOT_2')}
+                >
+                  Khung 2 (08:00 - 09:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_2}/12</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn rounded-pill px-3"
+                  style={selectedSlot === 'SLOT_3' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
+                  onClick={() => setSelectedSlot('SLOT_3')}
+                >
+                  Khung 3 (09:00 - 10:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_3}/14</span>
+                </button>
+              </div>
+            </div>
+            <div className="small text-muted">
+              <FaUserFriends className="me-1" style={{ color: '#1E60E6' }} /> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+            </div>
+          </div>
 
-                    return (
-                      <tr key={apt.id}>
-                        <td className="text-start" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem' }}>
-                          <div className="fw-bold text-dark">{patientName}</div>
-                          <div className="small text-muted">Mã: <code>{appointmentCode}</code></div>
-                        </td>
-                        <td className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
-                          <div className="text-dark fw-500">{packageName}</div>
-                        </td>
-                        <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
-                          {(() => {
-                            const dateStr = apt.appointmentDate || apt.appointment_date || apt.AppointmentDate || apt.date || apt.Date;
-                            if (dateStr) {
-                              try {
-                                const date = new Date(dateStr);
-                                if (!isNaN(date.getTime())) {
-                                  const day = String(date.getDate()).padStart(2, '0');
-                                  const month = String(date.getMonth() + 1).padStart(2, '0');
-                                  const year = date.getFullYear();
-                                  return day + '/' + month + '/' + year;
-                                }
-                              } catch (err) {}
-                            }
-                            return 'Hôm nay';
-                          })()}
-                        </td>
-                        <td className="text-center" style={{ whiteSpace: 'nowrap' }}>
-                          <div className="fw-bold" style={{ fontSize: isMobile ? '0.85rem' : '1rem', color: '#1e293b' }}>
-                            {timeFormatted}
-                          </div>
-                          <Badge bg={timeStatus.color} className="mt-1" style={{ fontSize: '0.78rem', fontWeight: '500' }}>
-                            <i className="fas fa-clock me-1"></i>
-                            {timeStatus.message}
-                          </Badge>
-                        </td>
-                        <td className="text-center d-none d-sm-table-cell">
-                          {isPaid ? (
-                            <Badge bg="success" style={{ fontSize: '0.8rem', padding: '6px 10px', fontWeight: '500' }}>
-                              <i className="fas fa-check-circle me-1"></i> Đã TT (VNPAY)
+          <div className="bms-table-standalone-body">
+            {filteredAppointments.length > 0 ? (
+              <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <Table hover className="align-middle mb-0" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
+                  <thead style={{ background: '#F8FAFC' }}>
+                    <tr>
+                      <th className="text-start ps-4" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold' }}>
+                        Bệnh nhân &amp; Mã hồ sơ
+                      </th>
+                      <th className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold' }}>
+                        Gói xét nghiệm
+                      </th>
+                      <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Ngày hẹn
+                      </th>
+                      <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Giờ hẹn &amp; Khung ca
+                      </th>
+                      <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Viện phí &amp; Trạng thái
+                      </th>
+                      <th className="text-center pe-4" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAppointments.map((apt) => {
+                      const appointmentCode = getAppointmentCode(apt);
+                      const patientName = getPatientDisplayName(apt);
+                      const packageName = getPackageDisplayName(apt);
+                      const timeFormatted = formatSlotTime(apt.appointmentTime || apt.time);
+                      const timeStatus = getTimeStatus(apt);
+                      const isPaid = ['confirmed', 'scheduled'].includes((apt.status || apt.Status || '').toLowerCase());
+
+                      return (
+                        <tr key={apt.id}>
+                          <td className="text-start ps-4" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem' }}>
+                            <div className="fw-bold text-dark">{patientName}</div>
+                            <div className="small text-muted">Mã: <code>{appointmentCode}</code></div>
+                          </td>
+                          <td className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
+                            <div className="text-dark fw-500">{packageName}</div>
+                          </td>
+                          <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
+                            {(() => {
+                              const dateStr = apt.appointmentDate || apt.appointment_date || apt.AppointmentDate || apt.date || apt.Date;
+                              if (dateStr) {
+                                try {
+                                  const date = new Date(dateStr);
+                                  if (!isNaN(date.getTime())) {
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return day + '/' + month + '/' + year;
+                                  }
+                                } catch (err) {}
+                              }
+                              return 'Hôm nay';
+                            })()}
+                          </td>
+                          <td className="text-center" style={{ whiteSpace: 'nowrap' }}>
+                            <div className="fw-bold" style={{ fontSize: isMobile ? '0.85rem' : '1rem', color: '#1e293b' }}>
+                              {timeFormatted}
+                            </div>
+                            <Badge bg={timeStatus.color} className="mt-1" style={{ fontSize: '0.78rem', fontWeight: '500' }}>
+                              <FaClock className="me-1" />
+                              {timeStatus.message}
                             </Badge>
-                          ) : (
-                            getStatusBadge(apt.status)
-                          )}
-                        </td>
-                        <td className="text-center">
-                          <div className={'d-flex ' + (isMobile ? 'flex-column gap-1' : 'justify-content-center gap-2')}>
-                            <Button
-                              size="sm"
-                              onClick={() => handleDirectCheckIn(apt)}
-                              className="rounded-pill px-3 shadow-sm fw-semibold"
-                              style={{ 
-                                fontSize: isMobile ? '0.8rem' : '0.88rem', 
-                                padding: '6px 14px',
-                                whiteSpace: 'nowrap',
-                                backgroundColor: '#1E60E6',
-                                borderColor: '#1E60E6',
-                                color: '#ffffff'
-                              }}
-                              disabled={!['scheduled', 'confirmed'].includes((apt.status || '').toLowerCase()) || (apt.status || '').toLowerCase() === 'checked_in'}
-                            >
-                              <i className="fas fa-ticket-alt me-1"></i>
-                              Check-in & Cấp STT
-                            </Button>
+                          </td>
+                          <td className="text-center d-none d-sm-table-cell">
+                            {isPaid ? (
+                              <Badge bg="success" style={{ fontSize: '0.8rem', padding: '6px 10px', fontWeight: '500' }}>
+                                <FaCheckCircle className="me-1" /> Đã TT (VNPAY)
+                              </Badge>
+                            ) : (
+                              getStatusBadge(apt.status)
+                            )}
+                          </td>
+                          <td className="text-center pe-4">
+                            <div className={'d-flex ' + (isMobile ? 'flex-column gap-1' : 'justify-content-center gap-2')}>
+                              <Button
+                                size="sm"
+                                onClick={() => handleDirectCheckIn(apt)}
+                                className="rounded-pill px-3 shadow-sm fw-semibold d-flex align-items-center gap-1"
+                                style={{ 
+                                  fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                  padding: '6px 14px',
+                                  whiteSpace: 'nowrap',
+                                  backgroundColor: '#1E60E6',
+                                  borderColor: '#1E60E6',
+                                  color: '#ffffff'
+                                }}
+                                disabled={!['scheduled', 'confirmed'].includes((apt.status || '').toLowerCase()) || (apt.status || '').toLowerCase() === 'checked_in'}
+                              >
+                                <FaTicketAlt size={12} />
+                                <span>Check-in &amp; Cấp STT</span>
+                              </Button>
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={() => handleViewDetail(apt)}
+                                className="rounded-pill px-3 d-flex align-items-center gap-1"
+                                style={{ 
+                                  fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                  padding: '6px 12px',
+                                  whiteSpace: 'nowrap',
+                                  color: '#1E60E6',
+                                  borderColor: '#1E60E6'
+                                }}
+                              >
+                                <FaEye size={12} /> <span>Chi tiết</span>
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-5">
+                <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }} />
+                <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h5>
+                <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 4. Standalone Independent Table: Danh Sách Bệnh Nhân Đã Check-in */}
+        <div className="bms-table-standalone-section mb-4">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h5 className="bms-table-standalone-title">
+                <FaUserCheck style={{ color: '#16a34a' }} />
+                Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
+              </h5>
+              <div className="bms-table-standalone-subtitle">
+                Hồ sơ bệnh nhân đã hoàn tất cấp số thứ tự và phân luồng tiếp nhận
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                onClick={handleExportCheckedIn}
+                disabled={checkedInAppointments.length === 0}
+                style={{ fontSize: '13px' }}
+              >
+                <FaFileCsv />
+                <span>Xuất CSV</span>
+              </Button>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                onClick={handlePrintCheckedIn}
+                disabled={checkedInAppointments.length === 0}
+                style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
+              >
+                <FaPrint />
+                <span>In danh sách</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="bms-table-standalone-body">
+            {checkedInAppointments.length > 0 ? (
+              <div className="table-responsive" style={{ 
+                overflowX: 'auto', 
+                WebkitOverflowScrolling: 'touch',
+                maxWidth: '100%',
+                width: '100%'
+              }}>
+                <Table hover striped className="align-middle mb-0" style={{ 
+                  fontSize: isMobile ? '0.85rem' : '0.95rem', 
+                  minWidth: isMobile ? '600px' : 'auto',
+                  width: '100%',
+                  tableLayout: 'auto'
+                }}>
+                  <thead style={{ background: '#F8FAFC' }}>
+                    <tr>
+                      <th className="text-start ps-4" style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Bệnh nhân
+                      </th>
+                      <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Ngày hẹn
+                      </th>
+                      <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Giờ hẹn
+                      </th>
+                      <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Trạng thái
+                      </th>
+                      <th className="text-center pe-4" style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {checkedInAppointments.map((apt) => {
+                      const appointmentCode = getAppointmentCode(apt);
+                      return (
+                        <tr key={apt.id}>
+                          <td className="text-start ps-4" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                            {getPatientName(apt.patientId)}
+                          </td>
+                          <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
+                            {(() => {
+                              const dateStr = apt.appointmentDate || apt.appointment_date || apt.AppointmentDate || apt.date || apt.Date;
+                              if (dateStr) {
+                                try {
+                                  const date = new Date(dateStr);
+                                  if (!isNaN(date.getTime())) {
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return `${day}/${month}/${year}`;
+                                  }
+                                } catch (err) {}
+                              }
+                              return 'N/A';
+                            })()}
+                          </td>
+                          <td className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
+                            {apt.appointmentTime || apt.appointment_time || apt.AppointmentTime || apt.time || apt.Time || 'N/A'}
+                          </td>
+                          <td className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem' }}>
+                            {getStatusBadge(apt.status || apt.Status)}
+                          </td>
+                          <td className="text-center pe-4">
                             <Button
                               variant="outline-primary"
                               size="sm"
                               onClick={() => handleViewDetail(apt)}
-                              className="rounded-pill px-3"
+                              className="rounded-pill px-3 d-flex align-items-center gap-1 mx-auto"
                               style={{ 
                                 fontSize: isMobile ? '0.8rem' : '0.88rem', 
-                                padding: '6px 12px',
-                                whiteSpace: 'nowrap',
-                                color: '#1E60E6',
-                                borderColor: '#1E60E6'
+                                whiteSpace: 'nowrap'
                               }}
                             >
-                              <i className="fas fa-eye me-1"></i> Chi tiết
+                              <FaEye size={12} />
+                              <span>Chi tiết</span>
                             </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-5">
-              <i className="fas fa-calendar-times text-muted" style={{ fontSize: isMobile ? '3rem' : '4rem', color: '#1E60E6' }}></i>
-              <h4 className="text-muted mt-3 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h4>
-              <p className="text-muted" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
-            </div>
-          )}
-        </Card.Body>
-      </Card>
-
-      {/* Checked-in Patients List */}
-      <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Header className={`bg-white border-bottom ${isMobile ? 'flex-column' : 'd-flex justify-content-between'} align-items-center py-3`} style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#0F172A', marginBottom: isMobile ? '0.5rem' : '0' }}>
-            <i className="fas fa-user-check me-2" style={{ color: '#16a34a' }}></i>
-            {isMobile ? `Đã check-in (${checkedInAppointments.length})` : `Danh sách bệnh nhân đã check-in (${checkedInAppointments.length})`}
-          </h4>
-          <div className={isMobile ? 'd-flex gap-2 w-100 mt-2' : ''}>
-            <Button
-              variant="outline-secondary"
-              size={isMobile ? 'sm' : 'md'}
-              className={`rounded-pill ${isMobile ? 'flex-fill' : 'me-2'}`}
-              onClick={handleExportCheckedIn}
-              disabled={checkedInAppointments.length === 0}
-              style={{ 
-                fontSize: isMobile ? '0.8rem' : '0.9rem', 
-                padding: '6px 14px',
-                whiteSpace: 'nowrap',
-                borderColor: 'rgba(15, 23, 42, 0.05)'
-              }}
-            >
-              <i className={`fas fa-file-csv ${isMobile ? '' : 'me-2'}`}></i>
-              {isMobile ? 'CSV' : 'Xuất CSV'}
-            </Button>
-            <Button
-              variant="outline-primary"
-              size={isMobile ? 'sm' : 'md'}
-              className={`rounded-pill ${isMobile ? 'flex-fill' : ''}`}
-              onClick={handlePrintCheckedIn}
-              disabled={checkedInAppointments.length === 0}
-              style={{ 
-                fontSize: isMobile ? '0.8rem' : '0.9rem', 
-                padding: '6px 14px',
-                whiteSpace: 'nowrap',
-                color: '#1E60E6',
-                borderColor: '#1E60E6'
-              }}
-            >
-              <i className={`fas fa-print ${isMobile ? '' : 'me-2'}`}></i>
-              {isMobile ? 'In' : 'In danh sách'}
-            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-5">
+                <FaUserTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }} />
+                <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Chưa có bệnh nhân nào check-in</h5>
+                <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
+              </div>
+            )}
           </div>
-        </Card.Header>
-        <Card.Body className="p-4" style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
-          {checkedInAppointments.length > 0 ? (
-            <div className="table-responsive" style={{ 
-              overflowX: 'auto', 
-              WebkitOverflowScrolling: 'touch',
-              maxWidth: '100%',
-              width: '100%'
-            }}>
-              <Table hover striped className="align-middle" style={{ 
-                fontSize: isMobile ? '0.85rem' : '1.05rem', 
-                minWidth: isMobile ? '600px' : 'auto',
-                width: '100%',
-                tableLayout: 'auto'
-              }}>
-                <thead className="table-light">
-                  <tr>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Bệnh nhân
-                    </th>
-                    <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Ngày hẹn
-                    </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Giờ hẹn
-                    </th>
-                    <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Trạng thái
-                    </th>
-                    <th className="text-center" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                      Thao tác
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {checkedInAppointments.map((apt) => {
-                    const appointmentCode = getAppointmentCode(apt);
-                    return (
-                      <tr key={apt.id}>
-                        <td className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                          {getPatientName(apt.patientId)}
-                        </td>
-                        <td className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', whiteSpace: 'nowrap' }}>
-                          {(() => {
-                            // Extract date across entity property variations
-                            const dateStr = apt.appointmentDate || apt.appointment_date || apt.AppointmentDate || apt.date || apt.Date;
-                            if (dateStr) {
-                              try {
-                                const date = new Date(dateStr);
-                                if (!isNaN(date.getTime())) {
-                                  // Standard date format: dd/MM/yyyy
-                                  const day = String(date.getDate()).padStart(2, '0');
-                                  const month = String(date.getMonth() + 1).padStart(2, '0');
-                                  const year = date.getFullYear();
-                                  return `${day}/${month}/${year}`;
-                                }
-                              } catch (err) {
-                              }
-                            }
-                            return 'N/A';
-                          })()}
-                        </td>
-                        <td className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem', whiteSpace: 'nowrap' }}>
-                          {apt.appointmentTime || apt.appointment_time || apt.AppointmentTime || apt.time || apt.Time || 'N/A'}
-                        </td>
-                        <td className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '1.05rem' }}>
-                          {getStatusBadge(apt.status || apt.Status)}
-                        </td>
-                        <td className="text-center">
-                          <Button
-                            variant="info"
-                            size={isMobile ? 'sm' : 'lg'}
-                            onClick={() => handleViewDetail(apt)}
-                            style={{ 
-                              fontSize: isMobile ? '0.8rem' : '1rem', 
-                              padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            <i className={`fas fa-eye ${isMobile ? '' : 'me-2'}`}></i>
-                            {isMobile ? 'Chi tiết' : 'Chi tiết'}
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-5">
-              <i className="fas fa-user-times text-muted" style={{ fontSize: isMobile ? '3rem' : '4rem' }}></i>
-              <h4 className="text-muted mt-3 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>Chưa có bệnh nhân nào check-in</h4>
-            </div>
-          )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* Quick QR Code Check-in Modal */}
       <Modal 
@@ -2797,7 +2842,6 @@ const ReceptionistCheckIn = () => {
           </div>
         </Modal.Footer>
       </Modal>
-    </div>
     </>
   );
 };

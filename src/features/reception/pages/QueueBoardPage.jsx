@@ -9,6 +9,8 @@ import {
   FaExclamationCircle,
   FaPlusCircle,
   FaClinicMedical,
+  FaShieldAlt,
+  FaListOl,
 } from "react-icons/fa";
 import { queueApi } from "../api/queueApi";
 
@@ -156,27 +158,35 @@ export default function QueueBoardPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-3 px-md-4">
-      {/* Top Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
-        <div>
-          <div className="text-muted small">
-            Tiếp Đón <span className="mx-1">›</span> <strong style={{ color: '#1E60E6' }}>Bảng Điều Phối Số & Hàng Đợi</strong>
+    <div className="w-100 py-1">
+      {/* 1. Master Luxury Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <div className="bms-page-chip">
+            <FaShieldAlt size={12} />
+            <span>QUẦY TIẾP ĐÓN · ĐIỀU PHỐI HÀNG ĐỢI &amp; GỌI SỐ (ISO 15189)</span>
           </div>
-          <h1 className="h4 fw-bold mb-1" style={{ color: '#0F172A' }}>Bảng Gọi Số & Điều Phối Tiếp Đón</h1>
-          <div className="text-muted small">
-            Hàng đợi trực tuyến · <span className="fw-bold" style={{ color: '#1E60E6' }}>{data.stats.inQueueNow} đang chờ</span> · Chờ trung bình {data.stats.avgWaitMinutes} phút
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaClinicMedical size={22} />
+            </span>
+            <h1 className="bms-page-title">
+              Bảng Gọi Số &amp; Điều Phối Tiếp Đón
+            </h1>
           </div>
+          <p className="bms-page-subtitle">
+            Hàng đợi trực tuyến · <strong style={{ color: '#1E60E6' }}>{data.stats.inQueueNow} đang chờ</strong> · Chờ trung bình {data.stats.avgWaitMinutes} phút
+          </p>
         </div>
-        <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
+        <div className="bms-page-actions d-flex align-items-center gap-2">
           {data.counters?.length > 0 && (
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center me-2">
               <span className="small text-muted me-2 fw-semibold">Quầy:</span>
               <select
                 className="form-select form-select-sm rounded-pill"
                 value={selectedCounter}
                 onChange={(e) => setSelectedCounter(e.target.value)}
-                style={{ width: "160px", backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
+                style={{ width: "170px", backgroundColor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 1)' }}
               >
                 {data.counters.map((c, i) => (
                   <option key={i} value={c.counterName}>
@@ -188,8 +198,7 @@ export default function QueueBoardPage() {
           )}
           <button
             onClick={loadQueue}
-            className="btn btn-outline-secondary btn-sm rounded-pill px-3"
-            style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold"
           >
             <FaSyncAlt className={`me-1 ${loading ? "fa-spin" : ""}`} /> Làm mới
           </button>
@@ -197,7 +206,7 @@ export default function QueueBoardPage() {
       </div>
 
       {actionMessage && (
-        <div className={`alert alert-${actionMessage.type || 'success'} alert-dismissible fade show d-flex align-items-center justify-content-between rounded-4 shadow-sm`} role="alert">
+        <div className={`alert alert-${actionMessage.type || 'success'} alert-dismissible fade show d-flex align-items-center justify-content-between rounded-4 shadow-sm mb-4`} role="alert">
           <div>
             {actionMessage.text || actionMessage}
           </div>
@@ -209,23 +218,32 @@ export default function QueueBoardPage() {
         </div>
       )}
 
-      {/* Main Grid: Left Queue Table (flex-grow), Right Issue Box (320px) */}
+      {/* Main Grid: Left Queue Standalone Table, Right Issue Box */}
       <div className="row g-4">
-        {/* Left Column: Current Queue Table */}
+        {/* Left Column: Standalone Table Section (ZERO TABLE IN CARDS) */}
         <div className="col-12 col-xl-8">
-          <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>
-                Hàng đợi bệnh nhân — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
-              </h3>
-              <span className="badge rounded-pill bg-light text-muted border px-3">
-                Tổng số: {data.currentQueue.length}
+          <div className="bms-table-standalone-section mb-4">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h5 className="bms-table-standalone-title">
+                  <FaListOl style={{ color: '#1E60E6' }} />
+                  Hàng Đợi Bệnh Nhân Tiếp Đón — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                </h5>
+                <div className="bms-table-standalone-subtitle">
+                  Theo dõi trạng thái lượt gọi số và phân bổ vào các phòng lấy mẫu y tế
+                </div>
+              </div>
+
+              <span className="badge rounded-pill px-3 py-2 fw-semibold" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontSize: '12px' }}>
+                Tổng số: {data.currentQueue.length} bệnh nhân
               </span>
             </div>
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light small text-uppercase text-muted">
-                  <tr>
+
+            <div className="bms-table-standalone-body">
+              <div className="table-responsive">
+                <table className="table table-hover align-middle mb-0">
+                  <thead style={{ background: '#F8FAFC' }}>
+                    <tr>
                     <th scope="col" style={{ width: "95px" }}>Số Thứ Tự</th>
                     <th scope="col">Bệnh Nhân</th>
                     <th scope="col">Gói Xét Nghiệm</th>
@@ -322,6 +340,7 @@ export default function QueueBoardPage() {
             </div>
           </div>
         </div>
+      </div>
 
         {/* Right Column: Issue Ticket & Stats */}
         <div className="col-12 col-xl-4">

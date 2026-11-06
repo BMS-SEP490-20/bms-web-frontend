@@ -334,111 +334,125 @@ export default function PricingPage() {
               <div className="small text-muted">Vui lòng nhập từ khóa khác hoặc chọn Tất Cả Danh Mục.</div>
             </div>
           ) : (
-            <div className="d-flex flex-column gap-2">
-              {filteredItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bms-pricing-list-item d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
-                >
-                  {/* Left: Code + Name + Details Meta */}
-                  <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono, monospace)',
-                        fontWeight: 700,
-                        fontSize: '12px',
-                        backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
-                        color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
-                        padding: '6px 14px',
-                        borderRadius: '9999px',
-                        letterSpacing: '0.02em',
-                        flexShrink: 0
-                      }}
-                    >
-                      {item.code}
-                    </span>
-
-                    <div className="min-w-0">
-                      <div className="d-flex flex-wrap align-items-center gap-2">
-                        <span className="fw-bold text-dark" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
-                          {item.name}
-                        </span>
-                        {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
-                          <Badge
-                            style={{
-                              backgroundColor: '#EEF4FD',
-                              color: '#1E60E6',
-                              fontWeight: 600,
-                              fontSize: '11px',
-                              padding: '4px 10px',
-                              borderRadius: '9999px',
-                              border: 'none'
-                            }}
-                          >
-                            Gói {item.criteriaCount} chỉ số
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="d-flex flex-wrap align-items-center gap-3 mt-1 small text-muted" style={{ fontSize: '12.5px' }}>
-                        {item.category && (
-                          <span className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontWeight: 550 }}>
-                            <span className="p-1 rounded-circle bg-primary" style={{ width: 5, height: 5 }}></span>
-                            {item.category}
-                          </span>
-                        )}
-                        {item.sampleTube && (
-                          <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
-                            <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
-                            <span>{item.sampleTube}</span>
-                          </span>
-                        )}
-                        {item.tat && (
-                          <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
-                            <FaClock style={{ color: '#94A3B8', fontSize: '11px' }} />
-                            <span>{item.tat}</span>
-                          </span>
-                        )}
-                        {item.unit && (
-                          <span style={{ color: '#94A3B8' }}>
-                            Đơn vị: {item.unit}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Price + Book CTA */}
-                  <div className="d-flex align-items-center justify-content-between justify-content-md-end gap-3 flex-shrink-0 pt-2 pt-md-0 border-top border-md-0" style={{ minWidth: '240px' }}>
-                    <div className="text-md-end">
-                      <div className="fw-bold font-monospace" style={{ fontSize: '16.5px', color: '#0F172A', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-                        {Number(item.price).toLocaleString('vi-VN')} ₫
-                      </div>
-                      <div className="text-muted" style={{ fontSize: '11px' }}>
-                        Đã gồm VAT &amp; vật tư
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
-                      className="btn text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                      style={{
-                        backgroundColor: '#1E60E6',
-                        borderColor: '#1E60E6',
-                        borderRadius: '9999px',
-                        padding: '8px 22px',
-                        fontSize: '13px',
-                        boxShadow: '0 4px 12px rgba(30, 96, 230, 0.22)',
-                        transition: 'all 0.15s ease',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      <span>Đặt Lịch</span>
-                      <FaArrowRight size={11} />
-                    </button>
-                  </div>
+            <div className="bms-pricing-sheet">
+              <div className="bms-pricing-sheet-header">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="bms-pricing-sheet-dot"></span>
+                  <span className="fw-bold text-dark" style={{ fontSize: '14.5px', letterSpacing: '-0.01em' }}>
+                    Danh Mục Dịch Vụ &amp; Xét Nghiệm Niêm Yết
+                  </span>
                 </div>
-              ))}
+                <span className="text-muted small">
+                  Hiển thị <strong>{filteredItems.length}</strong> dịch vụ y tế khả dụng
+                </span>
+              </div>
+
+              <div className="bms-pricing-sheet-body">
+                {filteredItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bms-pricing-row"
+                  >
+                    {/* Left: Code + Name + Details Meta */}
+                    <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-mono, monospace)',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
+                          color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
+                          padding: '5px 12px',
+                          borderRadius: '9999px',
+                          letterSpacing: '0.02em',
+                          flexShrink: 0
+                        }}
+                      >
+                        {item.code}
+                      </span>
+
+                      <div className="min-w-0">
+                        <div className="d-flex flex-wrap align-items-center gap-2">
+                          <span className="fw-bold text-dark" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
+                            {item.name}
+                          </span>
+                          {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
+                            <Badge
+                              style={{
+                                backgroundColor: '#EEF4FD',
+                                color: '#1E60E6',
+                                fontWeight: 600,
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '9999px',
+                                border: 'none'
+                              }}
+                            >
+                              Gói {item.criteriaCount} chỉ số
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="d-flex flex-wrap align-items-center gap-3 mt-1 small text-muted" style={{ fontSize: '12.5px' }}>
+                          {item.category && (
+                            <span className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontWeight: 550 }}>
+                              <span className="p-1 rounded-circle bg-primary" style={{ width: 5, height: 5 }}></span>
+                              {item.category}
+                            </span>
+                          )}
+                          {item.sampleTube && (
+                            <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
+                              <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+                              <span>{item.sampleTube}</span>
+                            </span>
+                          )}
+                          {item.tat && (
+                            <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
+                              <FaClock style={{ color: '#94A3B8', fontSize: '11px' }} />
+                              <span>{item.tat}</span>
+                            </span>
+                          )}
+                          {item.unit && (
+                            <span style={{ color: '#94A3B8' }}>
+                              Đơn vị: {item.unit}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Price + Book CTA */}
+                    <div className="d-flex align-items-center justify-content-between justify-content-md-end gap-3 flex-shrink-0 pt-2 pt-md-0 border-top border-md-0" style={{ minWidth: '240px' }}>
+                      <div className="text-md-end">
+                        <div className="fw-bold font-monospace" style={{ fontSize: '16.5px', color: '#0F172A', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                          {Number(item.price).toLocaleString('vi-VN')} ₫
+                        </div>
+                        <div className="text-muted" style={{ fontSize: '11px' }}>
+                          Đã gồm VAT &amp; vật tư
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
+                        className="btn text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
+                        style={{
+                          backgroundColor: '#1E60E6',
+                          borderColor: '#1E60E6',
+                          borderRadius: '9999px',
+                          padding: '7px 20px',
+                          fontSize: '13px',
+                          boxShadow: '0 4px 12px rgba(30, 96, 230, 0.2)',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <span>Đặt Lịch</span>
+                        <FaArrowRight size={11} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </Container>

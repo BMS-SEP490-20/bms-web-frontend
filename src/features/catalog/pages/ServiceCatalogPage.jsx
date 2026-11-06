@@ -326,7 +326,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 600
                     }}
                   >
-                    Trả KQ trong 60 – 90 phút
+                    Theo dõi tiến trình trực tuyến
                   </div>
                   <div
                     style={{

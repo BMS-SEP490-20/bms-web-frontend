@@ -292,10 +292,10 @@ export default function PricingPage() {
                 aria-hidden="true"
               />
               <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
-                Cam Kết Trả KQ 60 – 90 Phút
+                Kiểm Soát Tiến Độ Xử Lý
               </h3>
               <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
-                Hệ thống phân tích tự động hóa tối ưu thời gian chờ đợi, gửi SMS tức thì khi có kết quả.
+                Theo dõi quy trình phân tích mẫu theo thời gian thực, thông báo ngay khi bác sĩ hoàn tất thẩm duyệt.
               </p>
             </div>
 

@@ -355,7 +355,7 @@ export default function GuestHomePage() {
             <div className="bms-step-soft-card d-flex flex-column align-items-start">
               <div className="w-100 text-center mb-3">
                 <img
-                  src="/assets/bms/svg/sections/landing/step-01-register.svg"
+                  src="/assets/bms/svg/sections/landing/step-01-register.svg?v=3d-20261106"
                   alt="Đăng Ký Trực Tuyến"
                   className="bms-step-art-v3"
                   aria-hidden="true"
@@ -371,7 +371,7 @@ export default function GuestHomePage() {
             <div className="bms-step-soft-card d-flex flex-column align-items-start">
               <div className="w-100 text-center mb-3">
                 <img
-                  src="/assets/bms/svg/sections/landing/step-02-sampling.svg"
+                  src="/assets/bms/svg/sections/landing/step-02-sampling.svg?v=3d-20261106"
                   alt="Lấy Mẫu Vô Trùng"
                   className="bms-step-art-v3"
                   aria-hidden="true"
@@ -387,7 +387,7 @@ export default function GuestHomePage() {
             <div className="bms-step-soft-card d-flex flex-column align-items-start">
               <div className="w-100 text-center mb-3">
                 <img
-                  src="/assets/bms/svg/sections/landing/step-03-analysis.svg"
+                  src="/assets/bms/svg/sections/landing/step-03-analysis.svg?v=3d-20261106"
                   alt="Phân Tích Tự Động"
                   className="bms-step-art-v3"
                   aria-hidden="true"
@@ -403,7 +403,7 @@ export default function GuestHomePage() {
             <div className="bms-step-soft-card d-flex flex-column align-items-start">
               <div className="w-100 text-center mb-3">
                 <img
-                  src="/assets/bms/svg/sections/landing/step-04-esign.svg"
+                  src="/assets/bms/svg/sections/landing/step-04-esign.svg?v=3d-20261106"
                   alt="Nhận Kết Quả Ký Số"
                   className="bms-step-art-v3"
                   aria-hidden="true"

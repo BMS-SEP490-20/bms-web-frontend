@@ -12,7 +12,7 @@ import {
 import {
   FaCalendarAlt, FaUserMd, FaSearch, FaClock, FaClinicMedical,
   FaCheckCircle, FaPlus, FaEdit, FaTrash, FaEye, FaSyncAlt,
-  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock
+  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock, FaTimes
 } from 'react-icons/fa';
 import {
   fetchShifts,
@@ -379,25 +379,53 @@ export default function DoctorSchedulePage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-          <h2 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaCalendarAlt style={{ color: '#1E60E6' }} />
-            <span>Quản Lý Ca Trực & Điều Phối Lịch Làm Việc</span>
-          </h2>
-          <p className="text-muted small mb-0">
+      {/* 1. Master Luxury Page Header Card */}
+      <div className="bms-page-header-card">
+        <div className="bms-page-header-content">
+          <div className="bms-page-chip">
+            <FaCalendarAlt size={12} />
+            <span>ĐIỀU PHỐI NHÂN LỰC Y TẾ (ISO 15189)</span>
+          </div>
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaCalendarAlt size={22} />
+            </span>
+            <h1 className="bms-page-title">
+              Quản Lý Ca Trực &amp; Điều Phối Lịch Làm Việc
+            </h1>
+          </div>
+          <p className="bms-page-subtitle">
             Xem danh sách ca trực, phân công bác sĩ/nhân viên xét nghiệm, kiểm soát trùng lịch và quản lý công suất tiếp nhận.
           </p>
         </div>
 
-        <div className="d-flex flex-wrap align-items-center gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={loadShifts} disabled={loading} className="d-flex align-items-center gap-1 px-3 py-2" style={{ borderRadius: '9999px' }}>
+        <div className="bms-page-actions">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={loadShifts}
+            disabled={loading}
+            className="d-flex align-items-center gap-1 px-3 py-2"
+            style={{ borderRadius: '9999px', height: '40px' }}
+          >
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
           {canManageShifts && (
-            <Button variant="primary" size="sm" onClick={handleOpenCreate} className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
-              <FaPlus /> Tạo Ca Làm Việc Mới
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenCreate}
+              className="d-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm text-white"
+              style={{
+                backgroundColor: '#1E60E6',
+                borderColor: '#1E60E6',
+                borderRadius: '9999px',
+                height: '40px',
+                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+                fontSize: '14px'
+              }}
+            >
+              <FaPlus size={13} /> Tạo Ca Làm Việc Mới
             </Button>
           )}
         </div>
@@ -417,154 +445,167 @@ export default function DoctorSchedulePage() {
         </Alert>
       )}
 
-      {/* KPI Summary Row */}
+      {/* 2. KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex align-items-center justify-content-between p-3">
-              <div>
-                <div className="text-muted small fw-medium">Tổng Ca Làm Việc</div>
-                <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>Hiển thị {shifts.length} ca trên trang</div>
-              </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}>
-                <FaCalendarAlt />
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Tổng Ca Làm Việc</h6>
+              <div className="bms-kpi-value">{totalItems}</div>
+              <div className="bms-kpi-sub text-muted">Hiển thị {shifts.length} ca trên trang</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+              <FaCalendarAlt />
+            </div>
+          </div>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex align-items-center justify-content-between p-3">
-              <div>
-                <div className="text-muted small fw-medium">Ca Đã Duyệt / Đang Trực</div>
-                <div className="fs-4 fw-bold text-success font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{activeCount}</div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>Sẵn sàng tiếp nhận bệnh nhân</div>
-              </div>
-              <div className="rounded-3 bg-success-subtle text-success p-3 fs-4">
-                <FaCheckCircle />
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Ca Đang Hoạt Động</h6>
+              <div className="bms-kpi-value text-success">{activeCount}</div>
+              <div className="bms-kpi-sub text-success">Sẵn sàng tiếp nhận bệnh nhân</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+              <FaCheckCircle />
+            </div>
+          </div>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex align-items-center justify-content-between p-3">
-              <div>
-                <div className="text-muted small fw-medium">Công Suất Tiếp Nhận</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{totalBooked} / {totalCapacity}</div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>Lượt đăng ký / Tổng chỉ tiêu</div>
-              </div>
-              <div className="rounded-3 bg-info-subtle text-info-emphasis p-3 fs-4">
-                <FaUsers />
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Công Suất Tiếp Nhận</h6>
+              <div className="bms-kpi-value text-primary">{totalBooked} / {totalCapacity}</div>
+              <div className="bms-kpi-sub text-muted">Lượt đăng ký / Tổng chỉ tiêu</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+              <FaUsers />
+            </div>
+          </div>
         </Col>
         <Col xs={12} sm={6} xl={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex align-items-center justify-content-between p-3">
-              <div>
-                <div className="text-muted small fw-medium">Phòng Đang Phân Ca</div>
-                <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{uniqueRooms}</div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>Phòng khám & phòng xét nghiệm</div>
-              </div>
-              <div className="rounded-3 bg-warning-subtle text-warning-emphasis p-3 fs-4">
-                <FaDoorOpen />
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Phòng Đang Phân Ca</h6>
+              <div className="bms-kpi-value">{uniqueRooms}</div>
+              <div className="bms-kpi-sub text-muted">Phòng khám &amp; xét nghiệm</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
+              <FaDoorOpen />
+            </div>
+          </div>
         </Col>
       </Row>
 
-      {/* Filter & Search Toolbar */}
-      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="p-3">
-          <Row className="g-2 align-items-end">
-            <Col xs={12} lg={3}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Tìm kiếm nhân sự / phòng / khoa</Form.Label>
-              <InputGroup size="sm">
-                <InputGroup.Text className="bg-white text-muted">
-                  <FaSearch />
-                </InputGroup.Text>
+      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section">
+        {/* Header Toolbar */}
+        <div className="bms-table-standalone-header">
+          <div className="mb-2 mb-lg-0">
+            <h5 className="bms-table-standalone-title">
+              <FaCalendarAlt style={{ color: '#1E60E6' }} />
+              Danh Sách Ca Làm Việc &amp; Điều Phối Nhân Lực
+            </h5>
+            <p className="bms-table-standalone-subtitle">
+              Hiển thị {shifts.length} trên tổng số {totalItems} ca trực toàn viện
+            </p>
+          </div>
+
+          <div className="w-100 pt-2 border-top">
+            <Row className="g-2 align-items-center">
+              <Col xs={12} md={4} lg={3}>
+                <div className="bms-search-input-pill">
+                  <FaSearch className="bms-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Tên BS, mã NV, phòng..."
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                  />
+                  {keyword && (
+                    <button
+                      type="button"
+                      className="bms-search-clear"
+                      onClick={() => setKeyword('')}
+                      title="Xóa tìm kiếm"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
+                </div>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
+                <Form.Select
+                  size="sm"
+                  value={shiftTypeFilter}
+                  onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
+                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                >
+                  <option value="">Tất cả ca trực</option>
+                  <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
+                  <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
+                  <option value="Evening">Ca Tối (17:00 - 21:00)</option>
+                  <option value="Night">Ca Đêm (21:00 - 23:59)</option>
+                  <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
+                </Form.Select>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
+                <Form.Select
+                  size="sm"
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                >
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="Approved">Đã Duyệt (Approved)</option>
+                  <option value="Scheduled">Đã Lên Lịch (Scheduled)</option>
+                  <option value="Active">Đang Trực (Active)</option>
+                  <option value="Pending">Chờ Duyệt (Pending)</option>
+                  <option value="Completed">Hoàn Thành (Completed)</option>
+                  <option value="Cancelled">Đã Huỷ (Cancelled)</option>
+                </Form.Select>
+              </Col>
+
+              <Col xs={6} md={3} lg={2}>
                 <Form.Control
-                  type="text"
-                  placeholder="Tên BS, mã NV, phòng, khoa..."
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
+                  type="date"
+                  size="sm"
+                  value={fromDate}
+                  onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  title="Từ ngày"
                 />
-              </InputGroup>
-            </Col>
+              </Col>
 
-            <Col xs={6} md={3} lg={2}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Loại ca trực</Form.Label>
-              <Form.Select
-                size="sm"
-                value={shiftTypeFilter}
-                onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
-              >
-                <option value="">Tất cả ca trực</option>
-                <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
-                <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
-                <option value="Evening">Ca Tối (17:00 - 21:00)</option>
-                <option value="Night">Ca Đêm (21:00 - 23:59)</option>
-                <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
-              </Form.Select>
-            </Col>
+              <Col xs={6} md={3} lg={2}>
+                <Form.Control
+                  type="date"
+                  size="sm"
+                  value={toDate}
+                  onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  title="Đến ngày"
+                />
+              </Col>
 
-            <Col xs={6} md={3} lg={2}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Trạng thái</Form.Label>
-              <Form.Select
-                size="sm"
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="Approved">Đã Duyệt (Approved)</option>
-                <option value="Scheduled">Đã Lên Lịch (Scheduled)</option>
-                <option value="Active">Đang Trực (Active)</option>
-                <option value="Pending">Chờ Duyệt (Pending)</option>
-                <option value="Completed">Hoàn Thành (Completed)</option>
-                <option value="Cancelled">Đã Huỷ (Cancelled)</option>
-              </Form.Select>
-            </Col>
+              <Col xs={12} lg={1} className="d-flex gap-1 justify-content-end">
+                <Button variant="outline-primary" size="sm" className="w-100" onClick={filterToday} title="Lọc ca hôm nay" style={{ borderRadius: '9999px', height: '40px' }}>
+                  Hôm nay
+                </Button>
+                <Button variant="outline-secondary" size="sm" onClick={resetFilters} title="Xoá bộ lọc" style={{ borderRadius: '9999px', height: '40px' }}>
+                  Xoá
+                </Button>
+              </Col>
+            </Row>
+          </div>
+        </div>
 
-            <Col xs={6} md={3} lg={2}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Từ ngày</Form.Label>
-              <Form.Control
-                type="date"
-                size="sm"
-                value={fromDate}
-                onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
-              />
-            </Col>
-
-            <Col xs={6} md={3} lg={2}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Đến ngày</Form.Label>
-              <Form.Control
-                type="date"
-                size="sm"
-                value={toDate}
-                onChange={(e) => { setToDate(e.target.value); setPage(1); }}
-              />
-            </Col>
-
-            <Col xs={12} lg={1} className="d-flex gap-1">
-              <Button variant="outline-primary" size="sm" className="w-100" onClick={filterToday} title="Lọc ca hôm nay">
-                Hôm nay
-              </Button>
-              <Button variant="outline-secondary" size="sm" onClick={resetFilters} title="Xoá bộ lọc">
-                Xoá
-              </Button>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-
-      {/* Shifts Data Table */}
-      <Card className="shadow-sm border-0 rounded-4 overflow-hidden">
-        <div className="table-responsive">
-          <Table hover className="align-middle mb-0">
+        {/* Data Table */}
+        <div className="bms-table-standalone-body">
+          <div className="table-responsive">
+            <Table hover className="align-middle mb-0">
             <thead className="table-light">
               <tr>
                 <th className="ps-4">Nhân Sự Phụ Trách</th>
@@ -727,9 +768,10 @@ export default function DoctorSchedulePage() {
             </tbody>
           </Table>
         </div>
+        </div>
 
         {/* Pagination Footer */}
-        <Card.Footer className="bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <div className="bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
           <div className="text-muted small">
             Tổng cộng <strong>{totalItems}</strong> ca làm việc • Trang <strong>{page}</strong> / <strong>{totalPages}</strong>
           </div>
@@ -739,6 +781,7 @@ export default function DoctorSchedulePage() {
               size="sm"
               disabled={page <= 1 || loading}
               onClick={() => setPage(p => Math.max(1, p - 1))}
+              style={{ borderRadius: 9999 }}
             >
               Trang trước
             </Button>
@@ -747,12 +790,13 @@ export default function DoctorSchedulePage() {
               size="sm"
               disabled={page >= totalPages || loading}
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              style={{ borderRadius: 9999 }}
             >
               Trang sau
             </Button>
           </div>
-        </Card.Footer>
-      </Card>
+        </div>
+      </div>
 
       {/* =====================================================================
           MODAL 1: CREATE / UPDATE SHIFT POPUP

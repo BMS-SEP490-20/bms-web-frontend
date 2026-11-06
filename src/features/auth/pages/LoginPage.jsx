@@ -1,18 +1,32 @@
 /**
  * @file LoginPage.jsx
- * @description Authentication screen for patients and clinical staff (UC05 - Log In to System).
- * @issue I1-018 | BR-018 | Assignee: Hứa Khánh Duy | Reviewer: Võ Gia Huy
- * Implements Username / Email login, account lockout on 5 failed attempts (BR-IAM-03),
- * and dynamic role-based redirection to target clinical/admin portals (1=Admin, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient).
- * Conforms to: BR-IAM-01, BR-IAM-02, BR-IAM-03 & AGENTS-DESIGN.md.
+ * @description Master Authentication screen for patients and clinical staff (UC05 - Log In to System).
+ * Conforms to:
+ * - BR-IAM-01 (Authentication), BR-IAM-02 (Role Mapping), BR-IAM-03 (Lockout after 5 failed attempts).
+ * - 100% Unified with Home Landing Portal Design Language (Plus Jakarta Sans, Pure 2D Flat, PortalNavbar, MegaFooter).
+ * - Zero Sến Súa Glow / Zero AI Template Artifacts.
  */
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner } from "react-bootstrap";
-import { FaEye, FaEyeSlash, FaLock, FaUser, FaShieldAlt, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
+import { 
+  FaUser, 
+  FaLock, 
+  FaEye, 
+  FaEyeSlash, 
+  FaShieldAlt, 
+  FaCheckCircle, 
+  FaFileContract, 
+  FaMicroscope, 
+  FaUserMd,
+  FaArrowLeft
+} from "react-icons/fa";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
+import PortalNavbar from "../../home/components/PortalNavbar";
+import MegaFooter from "../../home/components/MegaFooter";
+import usePageTransition from "../../../shared/hooks/usePageTransition";
 import "./LoginPage.css";
 
 /**
@@ -56,6 +70,7 @@ export default function LoginPage({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const pageTransitionClass = usePageTransition();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -307,255 +322,306 @@ export default function LoginPage({
     }
   };
 
+  const isModalMode = Boolean(onBack);
+
   return (
-    <main className="login-page">
-      <section className="login-shell">
-        {/* Left Side: Clinical Brand Info */}
-        <aside className="login-brand-panel">
-          <button
-            type="button"
-            className="login-back"
-            onClick={onBack || (() => navigate("/"))}
-            aria-label="Quay lại trang chủ"
-          >
-            <FaArrowLeft className="me-2" /> Về Trang Chủ
-          </button>
+    <div className="bms-auth-page">
+      {!isModalMode && <PortalNavbar />}
 
-          <div className="login-brand">
-            <span className="login-logo">
-              <img src="/assets/bms-logo.png" alt="BMS Logo" />
-            </span>
-            <div>
-              <strong>BMS LABORATORY</strong>
-              <span>Hệ Thống Y Tế ISO 15189</span>
-            </div>
-          </div>
-
-          <div className="login-intro">
-            <span className="login-eyebrow">CỔNG DỊCH VỤ Y TẾ & CHĂM SÓC BỆNH NHÂN</span>
-            <h1>
-              Đồng Hành Cùng
-              <br />
-              Sức Khỏe Gia Đình Bạn.
-            </h1>
-            <p>
-              Hệ thống phòng xét nghiệm tự động hóa chuẩn quốc tế ISO 15189:2022. Đăng nhập để tra cứu kết quả xét nghiệm trực tuyến có chữ ký số bác sĩ và quản lý hồ sơ sức khỏe trọn đời.
-            </p>
-
-            <div className="login-hero-illustration text-center my-3">
-              <img
-                src="/assets/bms/svg/hero/login/login-hero.svg"
-                alt="BMS Telehealth Login Art"
-                style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain' }}
-              />
-            </div>
-
-            <div className="login-features">
-              <div className="login-feature">
-                <span className="login-feature-icon">📊</span>
-                <span>
-                  <strong>Lưu trữ hồ sơ xét nghiệm trọn đời</strong>
-                  <small>Theo dõi biểu đồ biến thiên đường huyết, men gan, mỡ máu qua từng năm</small>
-                </span>
-              </div>
-
-              <div className="login-feature">
-                <span className="login-feature-icon">👨‍⚕️</span>
-                <span>
-                  <strong>Bác sĩ Chuyên khoa tư vấn 1-1</strong>
-                  <small>Giải thích cặn kẽ ý nghĩa từng chỉ số và hướng dẫn phác đồ điều trị</small>
-                </span>
-              </div>
-
-              <div className="login-feature">
-                <span className="login-feature-icon">⚡</span>
-                <span>
-                  <strong>Trả kết quả online từ 90 phút</strong>
-                  <small>Tải file PDF kết quả có chữ ký số điện tử pháp lý, liên thông tuyến đầu</small>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="login-brand-footer">
-            <span>TIÊU CHUẨN ISO 15189:2022 • BẢO MẬT BỆNH ÁN HIPAA</span>
-            <span>Hotline 24/7: 1900 6868</span>
-          </div>
-        </aside>
-
-        {/* Right Side: Login Form */}
-        <section className="login-form-panel">
-          <div className="login-form-content">
-            <div className="login-mobile-brand">
-              <span className="login-logo"><img src="/assets/bms-logo.png" alt="BMS Logo" /></span>
-              <strong>BMS CLINICAL LABORATORY</strong>
-            </div>
-
-            <div className="login-heading">
-              <span className="login-form-tag">CỔNG Y TẾ ĐIỆN TỬ</span>
-              <h2>Đăng Nhập Cổng Y Tế BMS</h2>
-              <p>Theo dõi kết quả xét nghiệm, lịch hẹn khám hoặc bắt đầu ca làm việc y tế.</p>
-            </div>
-
-            {successNotice && (
-              <Alert variant="success" className="d-flex align-items-center gap-2 small">
-                <FaCheckCircle className="flex-shrink-0" />
-                <span>{successNotice}</span>
-              </Alert>
-            )}
-
-            {error && (
-              <Alert variant="danger" className="d-flex align-items-center gap-2 small">
-                <FaShieldAlt className="flex-shrink-0" />
-                <span>{error}</span>
-              </Alert>
-            )}
-
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="login-field">
-                <label htmlFor="login-email">
-                  Tên đăng nhập hoặc Email <span className="text-danger">*</span>
-                </label>
-                <div className="login-input-wrap">
-                  <FaUser className="text-muted ms-2" />
-                  <input
-                    id="login-email"
-                    type="text"
-                    autoComplete="username"
-                    placeholder="name@bms.health.vn hoặc username"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    required
-                    disabled={loading || isLocked}
-                  />
-                </div>
-              </div>
-
-              <div className="login-field">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label htmlFor="login-password" className="mb-0">
-                    Mật khẩu bảo mật <span className="text-danger">*</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="btn btn-link p-0 text-decoration-none small text-primary"
-                    onClick={onForgotPassword || (() => navigate("/forgot-password"))}
-                  >
-                    Quên mật khẩu?
-                  </button>
-                </div>
-                <div className="login-input-wrap">
-                  <FaLock className="text-muted ms-2" />
-                  <input
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    placeholder="Nhập mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading || isLocked}
-                  />
-                  <button
-                    type="button"
-                    className="login-password-toggle border-0 bg-transparent text-muted me-2"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Ẩn hiện mật khẩu"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between align-items-center my-3">
-                <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <span>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary w-100 py-2 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2"
-                disabled={loading || isLocked}
-              >
-                {loading ? (
-                  <>
-                    <Spinner animation="border" size="sm" />
-                    <span>Đang Xác Thực...</span>
-                  </>
-                ) : (
-                  <span>Đăng Nhập Cổng BMS</span>
-                )}
-              </button>
-            </form>
-
-            {/* Quick Fill Demo Accounts */}
-            <div className="mt-4 pt-3 border-top">
-              <div className="text-muted small fw-semibold mb-2">Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):</div>
-              <div className="d-flex flex-wrap gap-1">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
-                >
-                  Admin (Role 1)
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-dark"
-                  onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
-                >
-                  Quản Lý
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-info"
-                  onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
-                >
-                  Bác Sĩ (Role 2)
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-success"
-                  onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
-                >
-                  KTV Lab (Role 3)
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-warning"
-                  onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
-                >
-                  Lễ Tân (Role 4)
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
-                >
-                  Bệnh Nhân (Role 5)
-                </button>
-              </div>
-            </div>
-
-            <div className="login-footer-links text-center mt-4">
-              <span className="text-muted small">Chưa có tài khoản bệnh nhân? </span>
+      <main className={`bms-auth-main bms-page-directional-content ${pageTransitionClass}`}>
+        <div className="container" style={{ maxWidth: 1180 }}>
+          
+          {/* Back button when inside modal or standalone */}
+          {isModalMode && (
+            <div className="mb-4">
               <button
                 type="button"
-                className="btn btn-link p-0 text-decoration-none small text-primary fw-bold"
-                onClick={onRegister || (() => navigate("/register"))}
+                className="btn btn-sm d-inline-flex align-items-center gap-2"
+                onClick={onBack}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '10px',
+                  color: '#475569',
+                  fontWeight: 600,
+                  fontSize: '12.5px',
+                  padding: '6px 14px'
+                }}
               >
-                Đăng ký ngay
+                <FaArrowLeft style={{ fontSize: '11px' }} />
+                <span>Quay Lại</span>
               </button>
             </div>
+          )}
+
+          <div className="row align-items-center g-4 g-lg-5">
+            
+            {/* ----------------------------------------------------------------
+               LEFT COLUMN: Brand Trust & Medical Excellence Narrative
+               ---------------------------------------------------------------- */}
+            <div className="col-lg-6 col-xl-6">
+              <div className="bms-auth-eyebrow mb-2">
+                <img src="/assets/lab-icon.png" alt="" style={{ width: 14, height: 14, objectFit: 'contain' }} />
+                <span>TIÊU CHUẨN ISO 15189:2022 · CỔNG ĐIỆN TỬ BMS</span>
+              </div>
+
+              <h1 className="bms-auth-headline">
+                Đăng Nhập Cổng Dịch Vụ<br />
+                Y Tế &amp; Quản Trị BMS
+              </h1>
+
+              <p className="bms-auth-subtitle">
+                Hệ thống xét nghiệm tự động hóa đạt chuẩn quốc tế. Đăng nhập để tra cứu kết quả trực tuyến có chữ ký số PKI, đặt lịch khám hoặc vận hành phân hệ quản trị y khoa.
+              </p>
+
+              {/* 2D Flat Medical Illustration Artwork */}
+              <div className="bms-auth-illustration">
+                <img
+                  src="/assets/bms/svg/hero/login/login-hero.svg"
+                  alt="BMS Clinical Laboratory Telehealth"
+                />
+              </div>
+
+              {/* 3 Cohesive Trust Cards (Landing Style) */}
+              <div className="bms-auth-trust-list">
+                <div className="bms-auth-trust-card">
+                  <div className="bms-auth-trust-icon">
+                    <FaFileContract />
+                  </div>
+                  <div>
+                    <h4 className="bms-auth-trust-title">Chữ Ký Số Y Tế PKI Hợp Pháp</h4>
+                    <p className="bms-auth-trust-desc">
+                      Phiếu kết quả cấp dấu thời gian Timestamp &amp; chữ ký số Bác sĩ Chuyên khoa, có giá trị pháp lý liên thông toàn quốc.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bms-auth-trust-card">
+                  <div className="bms-auth-trust-icon">
+                    <FaMicroscope />
+                  </div>
+                  <div>
+                    <h4 className="bms-auth-trust-title">Tra Cứu Real-Time &amp; Mã Vạch Một Chiều</h4>
+                    <p className="bms-auth-trust-desc">
+                      Theo dõi tiến trình phân tích 6 chặng từ khi lấy mẫu đến biobank, mã hóa Barcode Code 128 loại trừ 100% nhầm lẫn.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bms-auth-trust-card">
+                  <div className="bms-auth-trust-icon">
+                    <FaUserMd />
+                  </div>
+                  <div>
+                    <h4 className="bms-auth-trust-title">Không Gian Làm Việc Phân Hệ Chuyên Sâu</h4>
+                    <p className="bms-auth-trust-desc">
+                      Giao diện tối ưu riêng cho Bác sĩ lâm sàng, Kỹ thuật viên Lab, Lễ tân tiếp đón và Người bệnh.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ----------------------------------------------------------------
+               RIGHT COLUMN: Modern Luxury Authentication Form Card
+               ---------------------------------------------------------------- */}
+            <div className="col-lg-6 col-xl-5 offset-xl-1">
+              <div className="bms-auth-card">
+                
+                <span className="bms-auth-card-tag">XÁC THỰC DANH TÍNH</span>
+                <h2 className="bms-auth-card-title">Chào Mừng Quay Trở Lại</h2>
+                <p className="bms-auth-card-subtitle">
+                  Nhập thông tin xác thực tài khoản y tế để tiếp tục
+                </p>
+
+                {/* Notifications & Feedback */}
+                {successNotice && (
+                  <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
+                    <FaCheckCircle className="flex-shrink-0" style={{ color: '#16A34A' }} />
+                    <span style={{ fontSize: '13px' }}>{successNotice}</span>
+                  </Alert>
+                )}
+
+                {error && (
+                  <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
+                    <FaShieldAlt className="flex-shrink-0" style={{ color: '#DC2626' }} />
+                    <span style={{ fontSize: '13px' }}>{error}</span>
+                  </Alert>
+                )}
+
+                {/* Main Form */}
+                <form onSubmit={handleSubmit} noValidate>
+                  
+                  {/* Identifier Field */}
+                  <div className="bms-auth-field">
+                    <label htmlFor="login-email" className="bms-auth-field-label">
+                      Tên đăng nhập hoặc Email <span className="text-danger">*</span>
+                    </label>
+                    <div className="bms-auth-input-group">
+                      <FaUser className="bms-auth-input-icon" />
+                      <input
+                        id="login-email"
+                        type="text"
+                        className="bms-auth-input"
+                        autoComplete="username"
+                        placeholder="name@bms.health.vn hoặc username"
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        required
+                        disabled={loading || isLocked}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="bms-auth-field">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label htmlFor="login-password" className="bms-auth-field-label mb-0">
+                        Mật khẩu bảo mật <span className="text-danger">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        className="btn btn-link p-0 text-decoration-none"
+                        style={{ fontSize: '12px', color: '#1E60E6', fontWeight: 600 }}
+                        onClick={onForgotPassword || (() => navigate("/forgot-password"))}
+                      >
+                        Quên mật khẩu?
+                      </button>
+                    </div>
+                    <div className="bms-auth-input-group">
+                      <FaLock className="bms-auth-input-icon" />
+                      <input
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        className="bms-auth-input"
+                        autoComplete="current-password"
+                        placeholder="Nhập mật khẩu của bạn"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading || isLocked}
+                      />
+                      <button
+                        type="button"
+                        className="bms-auth-toggle-pwd"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Ẩn hiện mật khẩu"
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me Option */}
+                  <div className="d-flex align-items-center justify-content-between my-3 pt-1">
+                    <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        style={{ width: '15px', height: '15px', accentColor: '#1E60E6', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '12.5px', color: '#475569' }}>Ghi nhớ phiên đăng nhập</span>
+                    </label>
+                  </div>
+
+                  {/* Primary Submit Button */}
+                  <button
+                    type="submit"
+                    className="bms-auth-btn-primary"
+                    disabled={loading || isLocked}
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner animation="border" size="sm" />
+                        <span>Đang Xác Thực...</span>
+                      </>
+                    ) : (
+                      <span>Đăng Nhập Cổng BMS</span>
+                    )}
+                  </button>
+                </form>
+
+                {/* Quick Fill Demo Accounts (For Testing & Validation) */}
+                <div className="bms-auth-quick-roles">
+                  <div className="bms-auth-quick-title">
+                    Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):
+                  </div>
+                  <div className="bms-auth-role-pills-wrap">
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      Admin
+                    </button>
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      Quản Lý
+                    </button>
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      Bác Sĩ
+                    </button>
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      KTV Lab
+                    </button>
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      Lễ Tân
+                    </button>
+                    <button
+                      type="button"
+                      className="bms-auth-role-pill"
+                      onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
+                      disabled={loading || isLocked}
+                    >
+                      Bệnh Nhân
+                    </button>
+                  </div>
+                </div>
+
+                {/* Footer Switch to Register */}
+                <div className="bms-auth-footer-link">
+                  <span>Chưa có tài khoản bệnh nhân? </span>
+                  {onRegister ? (
+                    <button type="button" onClick={onRegister}>
+                      Đăng ký ngay
+                    </button>
+                  ) : (
+                    <Link to="/register">
+                      Đăng ký ngay
+                    </Link>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
           </div>
-        </section>
-      </section>
-    </main>
+        </div>
+      </main>
+
+      {!isModalMode && <MegaFooter />}
+    </div>
   );
 }

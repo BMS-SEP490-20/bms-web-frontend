@@ -1,13 +1,14 @@
 /**
  * @file ServiceCard.jsx
- * @description Modern Pure Flat Clinical Laboratory Service Card Component (Big Tech Clean Grade).
+ * @description Modern Pure 2D Flat Clinical Laboratory Service Card Component (Big Tech Clean Grade).
  * Implements: 20px flat cards, zero blurry glow, crisp emerald CTA,
- * high-contrast Geist typography and tabular-nums.
+ * high-contrast Plus Jakarta Sans & Be Vietnam Pro typography, precision lab manifest.
  * Conforms to: Flat Healthcare SaaS Design Standards.
  */
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FaVial, FaClock, FaExclamationCircle } from 'react-icons/fa';
 
 /**
  * Formats numeric price into standard Vietnamese currency string.
@@ -27,24 +28,24 @@ function formatVnd(price) {
 function getCategoryBadge(category) {
   const cat = (category || '').toLowerCase();
   if (cat.includes('ung thư') || cat.includes('cancer')) {
-    return { accent: '#EF4444', label: 'Tầm Soát Ung Thư', bg: '#FEE2E2' };
+    return { accent: '#EF4444', label: 'Tầm Soát Ung Thư', bg: '#FEE2E2', tubeColor: '#EF4444' };
   }
   if (cat.includes('tổng quát') || cat.includes('wellness')) {
-    return { accent: '#1E60E6', label: 'Khám Tổng Quát', bg: '#EEF4FD' };
+    return { accent: '#1E60E6', label: 'Khám Tổng Quát', bg: '#EEF4FD', tubeColor: '#1E60E6' };
   }
   if (cat.includes('gan') || cat.includes('thận') || cat.includes('sinh hóa')) {
-    return { accent: '#0284C7', label: 'Gan - Mật - Thận', bg: '#E0F2FE' };
+    return { accent: '#0284C7', label: 'Gan - Mật - Thận', bg: '#E0F2FE', tubeColor: '#0284C7' };
   }
   if (cat.includes('tiểu đường') || cat.includes('tim mạch') || cat.includes('mỡ máu')) {
-    return { accent: '#7C3AED', label: 'Tiểu Đường & Tim Mạch', bg: '#F5F3FF' };
+    return { accent: '#7C3AED', label: 'Tiểu Đường & Tim Mạch', bg: '#F5F3FF', tubeColor: '#7C3AED' };
   }
   if (cat.includes('tiền hôn nhân') || cat.includes('sản khoa') || cat.includes('mẹ')) {
-    return { accent: '#DB2777', label: 'Tiền Hôn Nhân & Mẹ Bầu', bg: '#FDF2F8' };
+    return { accent: '#DB2777', label: 'Tiền Hôn Nhân & Mẹ Bầu', bg: '#FDF2F8', tubeColor: '#DB2777' };
   }
   if (cat.includes('huyết học') || cat.includes('đông máu')) {
-    return { accent: '#059669', label: 'Huyết Học & Đông Máu', bg: '#ECFDF5' };
+    return { accent: '#059669', label: 'Huyết Học & Đông Máu', bg: '#ECFDF5', tubeColor: '#059669' };
   }
-  return { accent: '#1E60E6', label: category || 'Gói Xét Nghiệm Tiêu Chuẩn', bg: '#EEF4FD' };
+  return { accent: '#1E60E6', label: category || 'Gói Xét Nghiệm Tiêu Chuẩn', bg: '#EEF4FD', tubeColor: '#1E60E6' };
 }
 
 export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelectDetail, onBook }) {
@@ -53,7 +54,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
   const sampleTube = pkg.sampleTube || '';
   const tat = pkg.tat || '';
   const fastRule = pkg.fastingRule || '';
-  const isPopular = pkg.isPopular || false;
   const criteriaList = Array.isArray(pkg.criteria) ? pkg.criteria : [];
 
   return (
@@ -61,46 +61,54 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
       className="bms-soft-card h-100 d-flex flex-column position-relative"
       style={{
         background: '#FFFFFF',
-        borderRadius: '20px',
+        borderRadius: '24px',
         boxShadow: 'none',
         border: 'none',
-        padding: '24px 26px'
+        padding: '28px 30px',
+        fontFamily: 'var(--font-sans)'
       }}
     >
-      {/* Category & Service Code */}
-      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '18px' }}>
+      {/* Category & Service Code Header */}
+      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '16px' }}>
         <span
-          className="badge"
           style={{
             backgroundColor: badge.bg,
             color: badge.accent,
             fontSize: '11.5px',
-            fontWeight: 650,
-            borderRadius: '8px',
+            fontWeight: 700,
+            borderRadius: '9999px',
             border: 'none',
-            padding: '6px 11px'
+            padding: '5px 12px',
+            letterSpacing: '0.02em'
           }}
         >
           {badge.label}
         </span>
         <span
-          className="font-monospace tabular-nums"
-          style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 600 }}
+          style={{
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: '11.5px',
+            color: '#64748B',
+            fontWeight: 700,
+            backgroundColor: '#F1F5F9',
+            padding: '3px 8px',
+            borderRadius: '6px'
+          }}
         >
           {pkg.packageCode || pkg.id || 'BMS-LAB'}
         </span>
       </div>
 
-      {/* Package Title */}
+      {/* Stylized Package Title */}
       <h3
         className="fw-bold"
         style={{
-          fontSize: '17px',
-          lineHeight: '1.4',
+          fontSize: '18px',
+          lineHeight: '1.38',
           color: '#0F172A',
-          letterSpacing: '-0.015em',
-          marginBottom: '12px',
-          minHeight: '48px'
+          letterSpacing: '-0.02em',
+          marginBottom: '10px',
+          minHeight: '50px'
         }}
       >
         {pkg.packageName}
@@ -110,7 +118,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
       <p
         className="small flex-grow-1"
         style={{
-          lineHeight: '1.6',
+          lineHeight: '1.65',
           fontSize: '13px',
           color: '#475569',
           marginBottom: '18px',
@@ -120,18 +128,18 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         {pkg.description}
       </p>
 
-      {/* Biomarker Pill Tags Preview if present */}
+      {/* Biomarker Pill Tags Preview */}
       {criteriaList.length > 0 && (
-        <div className="d-flex flex-wrap" style={{ gap: '6px', marginBottom: '18px' }}>
+        <div className="d-flex flex-wrap align-items-center" style={{ gap: '6px', marginBottom: '18px' }}>
           {criteriaList.slice(0, 4).map((c, i) => (
             <span
               key={i}
               style={{
                 backgroundColor: '#F1F5F9',
-                color: '#475569',
+                color: '#334155',
                 fontSize: '11px',
-                fontWeight: 600,
-                padding: '2px 8px',
+                fontWeight: 650,
+                padding: '3px 9px',
                 borderRadius: '6px'
               }}
             >
@@ -139,62 +147,72 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
             </span>
           ))}
           {criteriaList.length > 4 && (
-            <span style={{ fontSize: '11px', color: '#64748B', alignSelf: 'center', marginLeft: '4px' }}>
+            <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, marginLeft: '4px' }}>
               +{criteriaList.length - 4} chỉ số
             </span>
           )}
         </div>
       )}
 
-      {/* Clinical Specs - flat rows on one soft surface, explicit spacing (no fractional utility classes) */}
+      {/* Clinical Laboratory Manifest (Precision Details Box) */}
       <div
         style={{
           backgroundColor: '#F8FAFC',
-          borderRadius: '16px',
-          padding: '18px 20px',
+          borderRadius: '18px',
+          padding: '16px 18px',
           marginBottom: '22px',
           border: 'none',
           boxShadow: 'none',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
+          gap: '11px',
           fontSize: '12px',
           lineHeight: '1.5'
         }}
       >
-        {sampleTube && (
-          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-            <span style={{ color: '#64748B' }}>Mẫu bệnh phẩm</span>
-            <strong style={{ color: '#0F172A', textAlign: 'right' }}>{sampleTube}</strong>
-          </div>
-        )}
-        {tat && (
-          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-            <span style={{ color: '#64748B' }}>Trả kết quả</span>
-            <strong style={{ color: '#0F172A', textAlign: 'right' }}>{tat}</strong>
-          </div>
-        )}
+        <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
+          <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+            Mẫu bệnh phẩm
+          </span>
+          <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
+            {sampleTube || 'EDTA / Serum'}
+          </strong>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
+          <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FaClock style={{ color: '#0284C7', fontSize: '11px' }} />
+            Trả kết quả (TAT)
+          </span>
+          <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
+            {tat || '60 – 90 Phút'}
+          </strong>
+        </div>
+
         {fastRule && (
-          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-            <span style={{ color: '#64748B' }}>Lưu ý</span>
-            <strong style={{ color: '#B45309', textAlign: 'right' }}>{fastRule}</strong>
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
+            <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <FaExclamationCircle style={{ color: '#D97706', fontSize: '11px' }} />
+              Chuẩn bị
+            </span>
+            <strong style={{ color: '#B45309', textAlign: 'right', fontWeight: 650 }}>
+              {fastRule}
+            </strong>
           </div>
-        )}
-        {!sampleTube && !tat && !fastRule && (
-          <span style={{ color: '#94A3B8' }}>Thông số lấy mẫu sẽ được cập nhật.</span>
         )}
       </div>
 
-      {/* Price & Action Buttons - Zero border, separated purely by whitespace */}
+      {/* Price & Action Buttons - 100% 2D Flat */}
       <div
         className="d-flex justify-content-between align-items-center mt-auto"
-        style={{ border: 'none', borderTop: 'none', paddingTop: '2px' }}
+        style={{ border: 'none', paddingTop: '2px' }}
       >
         <div>
-          <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>Đơn giá niêm yết:</div>
+          <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 550 }}>Đơn giá niêm yết:</div>
           <div
-            className="fw-bold fs-5 tabular-nums"
-            style={{ color: '#0F172A', letterSpacing: '-0.02em' }}
+            className="fw-bold tabular-nums"
+            style={{ color: '#0F172A', fontSize: '20px', letterSpacing: '-0.025em', lineHeight: '1.2' }}
           >
             {formatVnd(pkg.price)}
           </div>
@@ -204,14 +222,15 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           {onSelectDetail && (
             <button
               type="button"
-              className="btn btn-sm rounded-pill px-3"
+              className="btn btn-sm rounded-pill"
               style={{
-                fontSize: '12px',
-                fontWeight: 600,
+                fontSize: '12.5px',
+                fontWeight: 650,
                 backgroundColor: '#F1F5F9',
                 color: '#0F172A',
                 border: 'none',
-                boxShadow: 'none'
+                boxShadow: 'none',
+                padding: '7px 16px'
               }}
               onClick={() => onSelectDetail(pkg)}
               title="Xem chi tiết"
@@ -221,13 +240,15 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           )}
           <button
             type="button"
-            className="btn btn-sm rounded-pill px-3 fw-bold"
+            className="btn btn-sm rounded-pill fw-bold"
             style={{
               backgroundColor: '#10B981',
               color: '#FFFFFF',
               border: 'none',
-              fontSize: '12px',
-              boxShadow: 'none'
+              fontSize: '12.5px',
+              fontWeight: 700,
+              boxShadow: 'none',
+              padding: '7px 20px'
             }}
             onClick={() => onBook(pkg)}
           >

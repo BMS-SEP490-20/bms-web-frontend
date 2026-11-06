@@ -31,3 +31,4 @@ Section.propTypes = {
   aside: PropTypes.node,
   children: PropTypes.node
 };
+

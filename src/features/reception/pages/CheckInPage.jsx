@@ -22,6 +22,8 @@ import {
   getPatientById,
   createGuestProfile
 } from '../../../services/patientService';
+import PageHeader from '../../../components/ui/PageHeader';
+import StatRow from '../../../components/ui/StatRow';
 
 const INITIAL_GUEST_FORM = {
   fullName: '',
@@ -337,114 +339,73 @@ export default function CheckInPage() {
   const registeredCount = patients.filter(p => !p.isGuest).length;
 
   return (
-    <div className="container-fluid py-3">
+    <div className="container-fluid py-3" style={{ maxWidth: 1400 }}>
       {/* Page Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <h3 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaUserInjured style={{ color: '#1E60E6' }} />
-            <span>Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai</span>
-          </h3>
-          <p className="text-muted small mb-0">
-            Tra cứu thông tin định danh, sinh hiệu, lịch sử khám và khởi tạo hồ sơ khách vãng lai Walk-in.
-          </p>
-        </div>
-
-        <div className="d-flex flex-wrap gap-2">
-          <Button variant="outline-secondary" onClick={loadPatients} disabled={loading} style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <FaSyncAlt className="me-1" /> Làm mới
-          </Button>
-          {canCreateGuest && (
-            <Button
-              className="fw-semibold shadow-sm d-flex align-items-center gap-2 text-white"
-              onClick={handleOpenCreateGuestModal}
-              id="btn-create-guest-profile"
-              title="Khởi tạo hồ sơ khách vãng lai mới"
-              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-            >
-              <FaUserPlus />
-              <span>+ Tạo Hồ Sơ Khách (Guest Profile)</span>
+      <PageHeader
+        title="Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai"
+        lead="Tra cứu thông tin định danh, sinh hiệu, lịch sử khám và khởi tạo hồ sơ khách vãng lai Walk-in."
+        meta={['Bảo mật thông tin bệnh án theo Nghị định 13/2023/NĐ-CP', 'Đồng bộ LIS thời gian thực']}
+        actions={
+          <div className="d-flex gap-2">
+            <Button variant="outline-secondary" size="sm" onClick={loadPatients} disabled={loading} className="rounded-pill px-3">
+              Làm mới
+            </Button>
+            {canCreateGuest && (
+              <Button
+                size="sm"
+                className="fw-semibold text-white rounded-pill px-3"
+                onClick={handleOpenCreateGuestModal}
+                id="btn-create-guest-profile"
+                style={{ backgroundColor: '#1E60E6', border: 'none' }}
+              >
+                + Tạo Hồ Sơ Khách
               </Button>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+        }
+      />
 
       {successMsg && (
-        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="mb-3" style={{ borderRadius: '14px', border: '1px solid #10B981' }}>
-          <FaCheckCircle className="me-2" style={{ color: '#2b8a3e' }} />
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="mb-3 rounded-3">
           {successMsg}
         </Alert>
       )}
       {errorMsg && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="mb-3" style={{ borderRadius: '14px' }}>
-          <FaExclamationTriangle className="me-2" />
+        <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="mb-3 rounded-3">
           {errorMsg}
         </Alert>
       )}
 
-      {/* KPI Summary & Quick ID/CCCD Lookup Row */}
-      <Row className="g-3 mb-4">
-        <Col xs={12} md={3}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="p-3 d-flex align-items-center justify-content-between">
-              <div>
-                <div className="text-muted small">Tổng Hồ Sơ Tìm Thấy</div>
-                <div className="fs-3 fw-bold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{totalItems}</div>
-                <div className="text-muted" style={{ fontSize: '11px' }}>Đang hiển thị {patients.length} hồ sơ</div>
-              </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                <FaIdCard />
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
+      {/* KPI Metrics StatRow */}
+      <StatRow
+        items={[
+          { label: 'Tổng hồ sơ tìm thấy', value: totalItems, primary: true },
+          { label: 'Khách vãng lai (Guest)', value: guestCount },
+          { label: 'Đã có tài khoản', value: registeredCount }
+        ]}
+      />
 
-        <Col xs={6} md={2}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="p-3">
-              <div className="text-muted small">Khách Vãng Lai (Guest)</div>
-              <div className="fs-3 fw-bold" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{guestCount}</div>
-              <div className="text-muted" style={{ fontSize: '11px' }}>Trên trang hiện tại</div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col xs={6} md={2}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="p-3">
-              <div className="text-muted small">Đã Có Tài Khoản</div>
-              <div className="fs-3 fw-bold" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{registeredCount}</div>
-              <div className="text-muted" style={{ fontSize: '11px' }}>Trên trang hiện tại</div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col xs={12} md={5}>
-          <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(30, 96, 230, 0.25)', backgroundColor: 'rgba(30, 96, 230, 0.04)' }}>
-            <Card.Body className="p-3">
-              <div className="fw-bold small text-dark mb-2">
-                <FaUserShield className="me-1" style={{ color: '#1E60E6' }} />
-                Tra Cứu Nhanh Hồ Sơ Theo Mã BN / ID / CCCD:
-              </div>
-              <Form onSubmit={handleQuickLookupSubmit}>
-                <InputGroup size="sm">
-                  <Form.Control
-                    type="text"
-                    placeholder="Nhập Mã BN (BN-...), ID (PAT-...) hoặc số CCCD 12 số..."
-                    value={quickLookupId}
-                    onChange={(e) => setQuickLookupId(e.target.value)}
-                    className="bg-white"
-                    style={{ borderRadius: '9999px 0 0 9999px', border: '1px solid rgba(15, 23, 42, 0.05)', paddingLeft: '14px' }}
-                  />
-                  <Button type="submit" disabled={lookupLoading || !quickLookupId.trim()} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }}>
-                    {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye className="me-1" /> Xem Hồ Sơ</>}
-                  </Button>
-                </InputGroup>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      {/* Quick ID/CCCD Lookup Bar */}
+      <div className="mb-4 p-3 rounded-3" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="fw-semibold small text-dark mb-2">
+          Tra Cứu Nhanh Hồ Sơ Theo Mã BN / ID / CCCD:
+        </div>
+        <Form onSubmit={handleQuickLookupSubmit}>
+          <InputGroup size="sm" style={{ maxWidth: 560 }}>
+            <Form.Control
+              type="text"
+              placeholder="Nhập Mã BN (BN-...), ID (PAT-...) hoặc số CCCD 12 số..."
+              value={quickLookupId}
+              onChange={(e) => setQuickLookupId(e.target.value)}
+              className="bg-white"
+              style={{ borderRadius: '9999px 0 0 9999px', border: '1px solid rgba(15, 23, 42, 0.05)', paddingLeft: '14px' }}
+            />
+            <Button type="submit" disabled={lookupLoading || !quickLookupId.trim()} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }}>
+              {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye className="me-1" /> Xem Hồ Sơ</>}
+            </Button>
+          </InputGroup>
+        </Form>
+      </div>
 
       {/* Search & Filter Toolbar Card */}
       <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>

@@ -22,6 +22,8 @@ import {
   FaHistory, FaUserInjured, FaFlask
 } from 'react-icons/fa';
 import api from '../../../config/api';
+import PageHeader from '../../../components/ui/PageHeader';
+import StatRow from '../../../components/ui/StatRow';
 import { searchPatients } from '../../../services/patientService';
 import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 
@@ -517,100 +519,51 @@ const SampleQueuePage = () => {
   return (
     <div className="w-100 py-1">
       {/* Page Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-              <FaVial style={{ color: '#1E60E6' }} />
-              <span>Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm</span>
-            </h4>
-            <Badge bg="light" className="border rounded-pill px-3 py-1 font-monospace" style={{ color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              Tiêu chuẩn ISO 15189
-            </Badge>
-          </div>
-          <p className="text-muted small mb-0">
-            Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm.
-          </p>
-        </div>
-
-        <div className="d-flex flex-wrap gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="d-flex align-items-center gap-1 px-3 py-2" style={{ borderRadius: '9999px' }}>
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
-          </Button>
-          {canRecordSampleTime && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => openRecordCollectionModal(null)}
-              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white"
-              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-            >
-              <FaClock /> Ghi Nhận Thời Gian Lấy Mẫu Mới
+      {/* Page Header */}
+      <PageHeader
+        title="Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm"
+        lead="Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm."
+        meta={['Tiêu chuẩn ISO 15189:2022', 'Mã hóa Barcode 1D/2D tự động']}
+        actions={
+          <div className="d-flex gap-2">
+            <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3">
+              Làm mới
             </Button>
-          )}
-        </div>
-      </div>
+            {canRecordSampleTime && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => openRecordCollectionModal(null)}
+                className="rounded-pill px-3 fw-semibold text-white"
+                style={{ backgroundColor: '#1E60E6', border: 'none' }}
+              >
+                Ghi Nhận Lấy Mẫu Mới
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {successMsg && (
-        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3 shadow-sm">
-          <FaCheckCircle className="me-2" />
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3">
           {successMsg}
         </Alert>
       )}
       {errorMsg && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="rounded-3 shadow-sm">
-          <FaExclamationTriangle className="me-2" />
+        <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="rounded-3">
           {errorMsg}
         </Alert>
       )}
 
-      {/* KPI Cards */}
-      <Row className="g-3 mb-4">
-        <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex justify-content-between align-items-center p-3">
-              <div>
-                <div className="text-muted small">Tổng Mẫu Trong Hàng Đợi</div>
-                <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalCount}</div>
-              </div>
-              <div className="rounded-3 p-3 fs-4" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}><FaVial /></div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex justify-content-between align-items-center p-3">
-              <div>
-                <div className="text-muted small">Đã Lấy Mẫu / Tiếp Nhận</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{collectedCount}</div>
-              </div>
-              <div className="rounded-3 bg-info-subtle text-info-emphasis p-3 fs-4"><FaClock /></div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex justify-content-between align-items-center p-3">
-              <div>
-                <div className="text-muted small">Đang Xử Lý / Chạy Máy</div>
-                <div className="fs-4 fw-bold font-monospace" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{processingCount}</div>
-              </div>
-              <div className="rounded-3 bg-warning-subtle text-warning-emphasis p-3 fs-4"><FaFlask /></div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={6} xl={3}>
-          <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Body className="d-flex justify-content-between align-items-center p-3">
-              <div>
-                <div className="text-muted small">Đã Hoàn Thành Kết Quả</div>
-                <div className="fs-4 fw-bold text-success font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{completedCount}</div>
-              </div>
-              <div className="rounded-3 bg-success-subtle text-success p-3 fs-4"><FaCheckCircle /></div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      {/* KPI Metrics StatRow */}
+      <StatRow
+        items={[
+          { label: 'Tổng mẫu trong hàng đợi', value: totalCount, primary: true },
+          { label: 'Đã lấy mẫu / Tiếp nhận', value: collectedCount },
+          { label: 'Đang xử lý / Chạy máy', value: processingCount },
+          { label: 'Đã hoàn thành kết quả', value: completedCount }
+        ]}
+      />
 
       {/* Filter and Search Bar */}
       <Card className="border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>

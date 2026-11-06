@@ -409,7 +409,7 @@ export default function TestBatchManagementPage() {
                                   variant="warning"
                                   size="sm"
                                   className="px-2 py-1 text-dark rounded-pill"
-                                  style={{ fontSize: '0.75rem', backgroundColor: '#E7BC4C', borderColor: '#E7BC4C' }}
+                                  style={{ fontSize: '0.75rem', backgroundColor: '#B45309', borderColor: '#B45309' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Running')}
                                 >
                                   <FaPlay className="me-1" /> Chạy máy

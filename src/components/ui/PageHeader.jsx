@@ -39,3 +39,4 @@ PageHeader.propTypes = {
   meta: PropTypes.arrayOf(PropTypes.string),
   actions: PropTypes.node
 };
+

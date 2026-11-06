@@ -379,7 +379,7 @@ export default function QueueBoardPage() {
               </div>
               <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
                 <span className="text-muted small">Chờ lâu nhất</span>
-                <span className="fw-bold fs-5 font-monospace" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>
+                <span className="fw-bold fs-5 font-monospace" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>
                   {data.stats.longestWaitMinutes} min
                 </span>
               </div>

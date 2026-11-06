@@ -162,7 +162,7 @@ textarea.form-control { height: auto !important; }
 /* ---- Icons: removed from decorative contexts (buttons keep theirs) ---- */
 h1 svg, h2 svg, h3 svg, h4 svg, h5 svg, h6 svg,
 .card-header svg, thead svg, label svg, .form-label svg,
-.badge svg, .alert svg, .bms-sidebar svg, .bms-sidebar .bi,
+.badge svg, .alert svg,
 h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
 .card-header .bi, thead .bi, .badge .bi, .alert .bi {
   display: none !important;
@@ -199,4 +199,10 @@ h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
 @media (max-width: 767px) {
   .bms-page { padding: 24px 20px 40px; }
   .bms-statrow { gap: 20px 36px; }
+}
+
+/* ---- KPI icon tiles: remove decorative icon boxes next to numbers ---- */
+div[class*="rounded"][class*="p-"]:has(> svg:only-child),
+div[class*="rounded"][class*="p-"]:has(> i.bi:only-child) {
+  display: none !important;
 }

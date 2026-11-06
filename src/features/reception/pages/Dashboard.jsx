@@ -455,7 +455,7 @@ const ReceptionistDashboard = () => {
         <Col xs={6} md={3}>
           <Card className="shadow-sm rounded-4 text-center p-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <small className="text-muted fw-semibold">Chờ tiếp đón</small>
-            <h3 className="fw-bold my-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{stats.pending}</h3>
+            <h3 className="fw-bold my-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{stats.pending}</h3>
             <small className="text-muted">đang chờ đến</small>
           </Card>
         </Col>

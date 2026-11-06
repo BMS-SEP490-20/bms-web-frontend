@@ -77,11 +77,7 @@ export default function IsoProcessPage() {
       <section style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.06)', padding: '48px 0 36px' }}>
         <Container style={{ maxWidth: '1200px' }}>
           <div className="text-center mx-auto" style={{ maxWidth: '820px' }}>
-            <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3"
-                 style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontSize: '12.5px', fontWeight: 650 }}>
-              <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-              <span>HỆ THỐNG QUẢN LÝ CHẤT LƯỢNG TIÊU CHUẨN QUỐC TẾ ISO 15189:2022</span>
-            </div>
+            <div className="bms-page-meta" style={{ marginBottom: 12 }}><span>Hệ thống quản lý chất lượng tiêu chuẩn quốc tế ISO 15189:2022</span></div>
             <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em' }}>
               Quy Trình Kiểm Chuẩn Xét Nghiệm 5 Bước
             </h1>

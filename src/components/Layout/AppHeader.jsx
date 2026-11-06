@@ -137,7 +137,7 @@ export default function AppHeader({ onToggleSidebar }) {
         {/* Right: Operational Status + Notifications + Profile Dropdown */}
         <div className="d-flex align-items-center gap-3">
           {/* Clinical Status Indicator */}
-          <div className="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF8EB' }}>
+          <div className="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style={{ backgroundColor: 'transparent', paddingLeft: 0 }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', flexShrink: 0 }} />
             <span style={{ color: '#0F3D1A', fontSize: '12px', fontWeight: 650 }}>Lab Hoạt Động (ISO 15189)</span>
           </div>

@@ -235,24 +235,32 @@ export default function ServicePackagesPage({ onBack }) {
 
     return (
         <div className="bms-roles-page">
-            {/* Header */}
-            <div className="d-flex justify-content-between align-items-center bms-roles-header">
-                <div>
-                    <h4 className="fw-bold m-0" style={{ color: '#0f2743' }}>
-                        <i className="bi bi-box-seam-fill me-2" style={{ color: '#1E60E6' }}></i>
-                        Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí
-                    </h4>
-                    <small className="text-muted">
-                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí
-                    </small>
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <i className="bi bi-shield-check"></i>
+                        <span>DANH MỤC VIỆN PHÍ &amp; GÓI XÉT NGHIỆM LÂM SÀNG</span>
+                    </div>
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <i className="bi bi-box-seam-fill"></i>
+                        </span>
+                        <h1 className="bms-page-title">
+                            Quản Lý Danh Mục Gói Dịch Vụ &amp; Bảng Giá Viện Phí
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
+                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí theo quy định BYT.
+                    </p>
                 </div>
-                <div className="d-flex align-items-center gap-2">
+                <div className="bms-page-actions">
                     <Button
                         variant="outline-secondary"
                         href="/services"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="fw-semibold shadow-sm"
+                        className="fw-semibold shadow-sm d-flex align-items-center gap-1"
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                         style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
                     >
@@ -293,19 +301,25 @@ export default function ServicePackagesPage({ onBack }) {
                 <div className="bms-table-toolbar">
                     <div className="row g-3 align-items-center">
                         <div className="col-12 col-md-5">
-                            <InputGroup>
-                                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                                    <i className="bi bi-search text-muted"></i>
-                                </InputGroup.Text>
-                                <Form.Control
+                            <div className="bms-search-input-pill">
+                                <i className="bi bi-search bms-search-icon"></i>
+                                <input
                                     type="text"
                                     placeholder="Tìm theo mã, tên gói, chỉ số xét nghiệm..."
-                                    className="border-start-0"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                                 />
-                            </InputGroup>
+                                {search && (
+                                    <button
+                                        type="button"
+                                        className="bms-search-clear"
+                                        onClick={() => setSearch('')}
+                                        title="Xóa tìm kiếm"
+                                    >
+                                        <i className="bi bi-x"></i>
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div className="col-6 col-md-3">

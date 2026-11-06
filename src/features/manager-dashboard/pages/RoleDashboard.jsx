@@ -180,22 +180,27 @@ export default function RoleBasedDashboard() {
 
   return (
     <div className="bms-dashboard-wrapper">
-      {/* 1. Master Page Header with Soft Telehealth Branding */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-          <div className="d-inline-flex align-items-center gap-2 mb-2 px-3 py-1 rounded-pill" style={{ background: 'rgba(30, 96, 230, 0.08)', color: '#1E60E6', fontSize: '12px', fontWeight: 700, letterSpacing: '0.03em' }}>
-            <FaCheckCircle size={13} />
+      {/* 1. Master Luxury Page Header Card */}
+      <div className="bms-page-header-card">
+        <div className="bms-page-header-content">
+          <div className="bms-page-chip">
+            <FaCheckCircle size={12} />
             <span>TIÊU CHUẨN ISO 15189:2022 · HỆ THỐNG BMS CLINICAL LAB</span>
           </div>
-          <h1 className="h3 fw-bold text-dark mb-1" style={{ letterSpacing: '-0.025em' }}>
-            Bảng Điều Khiển Vận Hành Phòng Xét Nghiệm &amp; Quản Trị Y Tế
-          </h1>
-          <p className="text-muted small mb-0" style={{ maxWidth: '850px' }}>
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaSlidersH size={20} />
+            </span>
+            <h1 className="bms-page-title">
+              Bảng Điều Khiển Vận Hành Phòng Xét Nghiệm &amp; Quản Trị Y Tế
+            </h1>
+          </div>
+          <p className="bms-page-subtitle">
             Hệ thống giám sát hiệu suất chất lượng phòng Lab, truy vết mẫu bệnh phẩm và điều phối chỉ số thời gian thực theo Quyết định 2429/QĐ-BYT.
           </p>
         </div>
 
-        <div className="d-flex align-items-center gap-2">
+        <div className="bms-page-actions">
           <Button
             variant="outline-primary"
             size="sm"

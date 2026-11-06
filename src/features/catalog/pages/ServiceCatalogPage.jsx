@@ -730,8 +730,8 @@ export default function ServiceCatalogPage() {
                   }}
                   className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4"
                 >
-                  {/* Col 1: Category Icon + Title & Badges (Wide Column, No-Wrap, Reduced Font Weight & Size) */}
-                  <div style={{ flex: '0 0 460px', maxWidth: '520px', minWidth: 0 }}>
+                  {/* Col 1: Category Icon + Title & Badges (Wide Column, Multi-Line Full Name, Refined Typography) */}
+                  <div style={{ flex: '0 0 480px', maxWidth: '540px', minWidth: 0 }}>
                     <div className="d-flex align-items-center gap-3">
                       {/* Clinical SVG Category Icon */}
                       <div
@@ -796,22 +796,19 @@ export default function ServiceCatalogPage() {
                         </div>
                         <h3
                           className="mb-0"
-                          title={pkg.packageName}
                           style={{
-                            fontSize: '15px',
-                            fontWeight: 650,
+                            fontSize: '13.5px',
+                            fontWeight: 600,
                             color: '#0F172A',
-                            letterSpacing: '-0.015em',
-                            lineHeight: '1.35',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                            letterSpacing: '-0.01em',
+                            lineHeight: '1.4',
+                            wordBreak: 'break-word'
                           }}
                         >
                           {pkg.packageName}
                         </h3>
                         {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 && (
-                          <div className="text-muted mt-0.5" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                          <div className="text-muted mt-1" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
                             Bao gồm <strong>{pkg.criteria.length}</strong> chỉ số xét nghiệm chuyên biệt
                           </div>
                         )}

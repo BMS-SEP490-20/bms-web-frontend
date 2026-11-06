@@ -13,7 +13,9 @@ import {
   FaCheckCircle, 
   FaCalendarAlt, 
   FaSearch, 
-  FaAward
+  FaAward,
+  FaShieldAlt,
+  FaVial
 } from 'react-icons/fa';
 import PortalNavbar from '../components/PortalNavbar';
 import MegaFooter from '../components/MegaFooter';
@@ -72,25 +74,33 @@ const ISO_METRICS = [
     badge: 'CHỨNG NHẬN',
     value: 'ISO 15189:2022',
     label: 'Văn phòng Công nhận Chất lượng (BoA) đánh giá và cấp chứng chỉ định kỳ.',
-    accent: '#1E60E6'
+    accent: '#1E60E6',
+    bgAccent: 'rgba(30, 96, 230, 0.08)',
+    icon: FaShieldAlt
   },
   {
     badge: 'ĐỘ TIN CẬY',
     value: '99.85%',
     label: 'Tỷ lệ kiểm chuẩn IQC đạt quy chuẩn Westgard ngay từ lần chạy đầu tiên.',
-    accent: '#10B981'
+    accent: '#10B981',
+    bgAccent: 'rgba(16, 185, 129, 0.08)',
+    icon: FaCheckCircle
   },
   {
     badge: 'AN TOÀN MẪU',
     value: '< 0.05%',
     label: 'Hạn chế tối đa nguy cơ vỡ hồng cầu bằng kỹ thuật hút chân không khép kín.',
-    accent: '#0284C7'
+    accent: '#0284C7',
+    bgAccent: 'rgba(2, 132, 199, 0.08)',
+    icon: FaVial
   },
   {
     badge: 'KIỂM SOÁT SLA',
     value: 'Giám Sát TAT',
     label: 'Theo dõi tiến độ phân tích mẫu theo từng danh mục chỉ định và chữ ký số bác sĩ.',
-    accent: '#7C3AED'
+    accent: '#7C3AED',
+    bgAccent: 'rgba(124, 58, 237, 0.08)',
+    icon: FaClock
   }
 ];
 
@@ -177,75 +187,86 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad) */}
+      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad with Integrated Icons) */}
       <section className="py-3 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <Row className="g-3">
-            {ISO_METRICS.map((item, idx) => (
-              <Col key={idx} xs={12} sm={6} lg={3}>
-                <div
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '20px',
-                    border: 'none',
-                    boxShadow: 'none',
-                    padding: '24px 26px',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
+            {ISO_METRICS.map((item, idx) => {
+              const IconComp = item.icon;
+              return (
+                <Col key={idx} xs={12} sm={6} lg={3}>
                   <div
                     style={{
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                      color: item.accent,
-                      marginBottom: '10px'
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '20px',
+                      border: 'none',
+                      boxShadow: 'none',
+                      padding: '26px 28px',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column'
                     }}
                   >
-                    {item.badge}
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 750,
+                          letterSpacing: '0.06em',
+                          color: item.accent,
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                      <span
+                        style={{
+                          width: '42px',
+                          height: '42px',
+                          borderRadius: '12px',
+                          backgroundColor: item.bgAccent,
+                          color: item.accent,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px'
+                        }}
+                      >
+                        <IconComp />
+                      </span>
+                    </div>
+                    <div
+                      className="fw-bold tabular-nums"
+                      style={{
+                        fontSize: '28px',
+                        color: '#0F172A',
+                        letterSpacing: '-0.03em',
+                        lineHeight: '1.2',
+                        marginBottom: '10px'
+                      }}
+                    >
+                      {item.value}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.6', marginTop: 'auto' }}>
+                      {item.label}
+                    </div>
                   </div>
-                  <div
-                    className="fw-bold tabular-nums"
-                    style={{
-                      fontSize: '28px',
-                      color: '#0F172A',
-                      letterSpacing: '-0.03em',
-                      lineHeight: '1.2',
-                      marginBottom: '8px'
-                    }}
-                  >
-                    {item.value}
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: '#64748B', lineHeight: '1.6', marginTop: 'auto' }}>
-                    {item.label}
-                  </div>
-                </div>
-              </Col>
-            ))}
+                </Col>
+              );
+            })}
           </Row>
-
-          {/* ISO KPI Strip SVG */}
-          <div className="text-center mt-3 d-none d-md-block">
-            <img
-              src="/assets/bms/svg/sections/iso/iso-kpi-strip.svg"
-              alt="ISO 15189 KPI Quality Strip"
-              style={{ maxWidth: '100%', height: 'auto', maxHeight: '54px', objectFit: 'contain' }}
-            />
-          </div>
         </Container>
       </section>
 
-      {/* 3. 5-Phase Closed-Loop Architecture (Authentic Laboratory Manifest) */}
+      {/* 3. 5-Phase Closed-Loop Architecture (Spacious & Breathable SOP Manifest) */}
       <section className="py-4 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="d-flex align-items-center justify-content-between mb-4">
             <div>
-              <h2 className="fw-bold mb-1" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.02em' }}>
+              <h2 className="fw-bold mb-1" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.025em' }}>
                 Chu Trình Kiểm Soát Chất Lượng 5 Chặng
               </h2>
-              <p className="mb-0 text-muted" style={{ fontSize: '13px' }}>
+              <p className="mb-0 text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
                 Quy trình thao tác chuẩn (SOP) tự động hóa từ khâu tiếp nhận đến khi trả kết quả
               </p>
             </div>
@@ -255,47 +276,49 @@ export default function IsoProcessPage() {
                 color: '#1E60E6',
                 fontSize: '12px',
                 fontWeight: 700,
-                padding: '6px 16px',
-                borderRadius: '9999px'
+                padding: '6px 18px',
+                borderRadius: '9999px',
+                letterSpacing: '0.02em'
               }}
             >
               Quy Chuẩn SOP-LAB-2026
             </span>
           </div>
 
-          <div className="d-flex flex-column gap-3">
+          <div className="d-flex flex-column gap-4">
             {ISO_PHASES.map((stg) => (
               <div
                 key={stg.step}
                 style={{
                   backgroundColor: '#FFFFFF',
-                  borderRadius: '20px',
+                  borderRadius: '24px',
                   border: 'none',
                   boxShadow: 'none',
-                  padding: '28px 32px'
+                  padding: '36px 42px'
                 }}
               >
                 <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
                   <div style={{ flex: 1 }}>
-                    <div className="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-3 mb-2">
+                    <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-3">
                       <div className="d-flex align-items-center gap-3">
                         <span
                           style={{
-                            fontSize: '26px',
+                            fontSize: '32px',
                             fontWeight: 800,
                             color: '#1E60E6',
-                            letterSpacing: '-0.02em',
+                            letterSpacing: '-0.03em',
                             fontVariantNumeric: 'tabular-nums',
-                            lineHeight: '1'
+                            lineHeight: '1',
+                            minWidth: '46px'
                           }}
                         >
                           {stg.step}
                         </span>
                         <div>
-                          <div style={{ fontSize: '11px', fontWeight: 700, color: '#1E60E6', letterSpacing: '0.06em' }}>
+                          <div style={{ fontSize: '11.5px', fontWeight: 750, color: '#1E60E6', letterSpacing: '0.06em', marginBottom: '4px' }}>
                             {stg.phase}
                           </div>
-                          <h3 className="fw-bold mb-0" style={{ fontSize: '17px', color: '#0F172A', lineHeight: '1.4' }}>
+                          <h3 className="fw-bold mb-0" style={{ fontSize: '20px', color: '#0F172A', lineHeight: '1.35', letterSpacing: '-0.015em' }}>
                             {stg.title}
                           </h3>
                         </div>
@@ -303,42 +326,42 @@ export default function IsoProcessPage() {
 
                       <div
                         style={{
-                          fontSize: '12px',
-                          color: '#475569',
+                          fontSize: '12.5px',
+                          color: '#334155',
                           backgroundColor: '#F1F5F9',
-                          padding: '5px 14px',
+                          padding: '6px 16px',
                           borderRadius: '9999px',
                           whiteSpace: 'nowrap',
                           alignSelf: 'flex-start',
-                          fontWeight: 600
+                          fontWeight: 650
                         }}
                       >
-                        <FaClock className="me-1" style={{ color: '#0284C7', fontSize: '11px' }} />
+                        <FaClock className="me-1.5" style={{ color: '#0284C7', fontSize: '12px' }} />
                         Thời gian: {stg.tat}
                       </div>
                     </div>
 
-                    <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.6', margin: '10px 0 14px', maxWidth: '900px' }}>
+                    <p style={{ color: '#475569', fontSize: '14.5px', lineHeight: '1.75', margin: '16px 0 22px', maxWidth: '860px' }}>
                       {stg.desc}
                     </p>
 
-                    <div className="d-flex flex-wrap gap-2 pt-1">
+                    <div className="d-flex flex-wrap gap-2.5 pt-1">
                       {stg.standards.map((spec, i) => (
                         <span
                           key={i}
                           style={{
-                            backgroundColor: '#F8FAFC',
+                            backgroundColor: '#F1F5F9',
                             color: '#334155',
-                            fontSize: '12px',
+                            fontSize: '12.5px',
                             fontWeight: 600,
-                            padding: '5px 14px',
-                            borderRadius: '8px',
+                            padding: '7px 16px',
+                            borderRadius: '9999px',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px'
+                            gap: '8px'
                           }}
                         >
-                          <FaCheckCircle style={{ color: '#10B981', fontSize: '11px' }} />
+                          <FaCheckCircle style={{ color: '#10B981', fontSize: '12px' }} />
                           {spec}
                         </span>
                       ))}
@@ -346,11 +369,11 @@ export default function IsoProcessPage() {
                   </div>
 
                   {stg.svgFile && (
-                    <div className="d-none d-md-block text-center flex-shrink-0" style={{ width: '150px' }}>
+                    <div className="d-none d-lg-block text-center flex-shrink-0" style={{ width: '180px', padding: '10px' }}>
                       <img
                         src={`/assets/bms/svg/sections/iso/${stg.svgFile}`}
                         alt={stg.title}
-                        style={{ width: '100%', height: 'auto', maxHeight: '105px', objectFit: 'contain' }}
+                        style={{ width: '100%', height: 'auto', maxHeight: '130px', objectFit: 'contain' }}
                       />
                     </div>
                   )}

@@ -2,7 +2,7 @@
  * @file IsoProcessPage.jsx
  * @description Official ISO 15189:2022 Medical Laboratory Quality Assurance & Clinical Workflow Page.
  * Conforms to: ISO 15189:2022, Ministry of Health QĐ 2429/QĐ-BYT, BoA VILAS Med 124, Westgard Multi-Rules.
- * Pure 2D Flat Architecture: Zero Sến Súa Glow / Zero Blurry Hover / Plus Jakarta Sans & Be Vietnam Pro.
+ * Pure 2D Flat Architecture: Spacious Layout, Crisp Concise Copy, Zero Blurry Hover.
  */
 
 import React from 'react';
@@ -21,74 +21,74 @@ import MegaFooter from '../components/MegaFooter';
 const ISO_PHASES = [
   {
     step: '01',
-    phase: 'TIỀN PHÂN TÍCH (PRE-ANALYTICAL)',
-    title: 'Lấy Mẫu Chân Không Vô Trùng & Mã Hóa Barcode 1D/2D',
-    desc: 'Điều dưỡng sử dụng hệ thống kim lấy máu chân không khép kín (Vacuum Tube System), hạn chế tối đa nguy cơ vỡ hồng cầu (tan máu) và phơi nhiễm. Mẫu máu được in và dán nhãn Barcode Code 128 ngay tại giường/bàn lấy mẫu, gắn liền định danh bệnh nhân một chiều.',
-    standards: ['Hệ thống ống chân không có gel tách huyết thanh', 'Barcode Code 128 chuẩn y tế toàn cầu', 'Kiểm tra nhận diện 3 yếu tố (Họ tên, Năm sinh, Mã BN)'],
+    phase: 'CHẶNG 01 / TIỀN PHÂN TÍCH',
+    title: 'Lấy Mẫu Chân Không & Barcode 1D/2D',
+    desc: 'Lấy máu bằng ống chân không vô trùng, in và dán barcode định danh 3 yếu tố ngay tại chỗ.',
+    standards: ['Ống chân không có gel tách', 'Barcode Code 128 chuẩn y tế', 'Đối chiếu 3 yếu tố định danh'],
     tat: '10 – 15 phút',
     svgFile: 'stage-01-barcode-reception.svg'
   },
   {
     step: '02',
-    phase: 'VẬN CHUYỂN & NHẬP LAB (LIS CHECK-IN)',
-    title: 'Giám Sát Chuỗi Lạnh IoT (2°C – 6°C) & Nhập Hệ Thống LIS',
-    desc: 'Bệnh phẩm được vận chuyển trong thùng chuyên dụng tích hợp cảm biến IoT theo dõi nhiệt độ thời gian thực. Tại phòng giao nhận mẫu, kỹ thuật viên quét barcode để đối chiếu lệnh chỉ định từ phần mềm LIS, kiểm tra thể tích và chỉ số chất lượng huyết thanh (HIL: Hemolysis, Icterus, Lipemia).',
-    standards: ['Cảm biến nhiệt độ IoT liên tục 2°C – 6°C', 'Chỉ số chất lượng mẫu HIL Index tự động', 'Biên bản giao nhận mẫu điện tử không giấy'],
+    phase: 'CHẶNG 02 / VẬN CHUYỂN & NHẬP LAB',
+    title: 'Chuỗi Lạnh IoT 2°C – 6°C & Nhập LIS',
+    desc: 'Duy trì nhiệt độ 2°C – 6°C qua cảm biến IoT, kiểm tra chỉ số HIL và đồng bộ LIS tự động.',
+    standards: ['Cảm biến IoT 2°C – 6°C', 'Kiểm tra chất lượng mẫu HIL Index', 'Biên bản số hóa không giấy'],
     tat: '15 – 20 phút',
     svgFile: 'stage-02-centrifuge-cold.svg'
   },
   {
     step: '03',
-    phase: 'PHÂN TÍCH & NỘI KIỂM (ANALYTICAL & QC)',
-    title: 'Phân Tích Tự Động Đa Kênh & Kiểm Soát Chất Lượng Westgard',
-    desc: 'Mẫu được đưa vào hệ thống máy phân tích tự động thế hệ mới (Laser đa góc cho Huyết học, Quang phổ phân tích Sinh hóa - Miễn dịch). Trước mỗi ca chạy, hệ thống bắt buộc phải vượt qua quy chuẩn nội kiểm hàng ngày (Daily IQC) dựa trên biểu đồ Levey-Jennings và 6 quy tắc Westgard.',
-    standards: ['Máy phân tích tự động kết nối LIS 2 chiều', 'Kiểm chuẩn IQC hàng ngày với huyết thanh mẫu chuẩn', 'Tham gia chương trình ngoại kiểm quốc tế EQAS / RIQAS'],
+    phase: 'CHẶNG 03 / PHÂN TÍCH & NỘI KIỂM',
+    title: 'Phân Tích Tự Động & Nội Kiểm Westgard',
+    desc: 'Vận hành trên dàn máy đa kênh tự động, kiểm chuẩn IQC và biểu đồ Levey-Jennings mỗi ca.',
+    standards: ['Kết nối LIS 2 chiều tự động', 'Nội kiểm IQC 6 quy tắc Westgard', 'Ngoại kiểm quốc tế EQAS / RIQAS'],
     tat: '30 – 45 phút',
     svgFile: 'stage-03-auto-analysis.svg'
   },
   {
     step: '04',
-    phase: 'HỘI CHẨN & THẨM ĐỊNH (POST-ANALYTICAL)',
-    title: 'Cảnh Báo Delta Check & Bác Sĩ Chuyên Khoa Thẩm Định',
-    desc: 'Hệ thống LIS tự động so sánh kết quả hiện tại với lịch sử xét nghiệm gần nhất của bệnh nhân (Delta Check) và đối chiếu với khoảng tham chiếu sinh học theo độ tuổi, giới tính. Khi có bất thường, Bác sĩ Chuyên khoa Xét nghiệm tiến hành chạy lặp lại (Rerun) hoặc hội chẩn lâm sàng.',
-    standards: ['Thuật toán cảnh báo Delta Check thông minh', 'Quy trình kiểm tra lại mẫu tự động (Auto-Rerun)', 'Bác sĩ chuyên khoa y học lâm sàng ký duyệt từng chỉ số'],
+    phase: 'CHẶNG 04 / HỘI CHẨN & THẨM ĐỊNH',
+    title: 'Cảnh Báo Delta Check & Bác Sĩ Ký Duyệt',
+    desc: 'LIS đối chiếu lịch sử xét nghiệm gần nhất, Bác sĩ Chuyên khoa thẩm định và hội chẩn.',
+    standards: ['Cảnh báo Delta Check tự động', 'Quy trình chạy lại mẫu (Auto-Rerun)', 'Bác sĩ chuyên khoa ký duyệt'],
     tat: '15 – 20 phút',
     svgFile: 'stage-04-qc-westgard.svg'
   },
   {
     step: '05',
-    phase: 'TRẢ KẾT QUẢ & LƯU MẪU (RELEASE & BIOBANK)',
-    title: 'Chữ Ký Số Y Tế Pháp Lý & Lưu Trữ Mẫu Bệnh Phẩm 7 Ngày',
-    desc: 'Phiếu kết quả được cấp con dấu thời gian (Timestamp) và Chữ ký số điện tử chuẩn Bộ Y Tế, gửi qua tin nhắn SMS và cổng tra cứu trực tuyến. Đồng thời, toàn bộ mẫu bệnh phẩm được lưu trữ tự động trong tủ lạnh âm sâu -20°C trong vòng 7 ngày để phục vụ đối chiếu hoặc chỉ định bổ sung.',
-    standards: ['Chữ ký số PKI xác thực pháp lý toàn quốc', 'Mã hóa kết quả PII theo Nghị định 13/2023/NĐ-CP', 'Lưu trữ mẫu âm sâu -20°C trong 7 ngày'],
-    tat: 'Thời gian thực (SMS / Web)',
+    phase: 'CHẶNG 05 / TRẢ KẾT QUẢ & LƯU MẪU',
+    title: 'Chữ Ký Số Pháp Lý & Lưu Mẫu 7 Ngày',
+    desc: 'Cấp chứng thư số PKI kèm con dấu thời gian, lưu trữ mẫu âm sâu -20°C trong 7 ngày.',
+    standards: ['Chữ ký số PKI pháp lý toàn quốc', 'Mã hóa PII theo Nghị định 13/2023', 'Lưu mẫu Biobank -20°C'],
+    tat: 'Tức thì (SMS / Web)',
     svgFile: 'stage-05-doctor-esign.svg'
   }
 ];
 
 const ISO_METRICS = [
   {
-    badge: 'CHỨNG NHẬN QUỐC TẾ',
+    badge: 'CHỨNG NHẬN',
     value: 'ISO 15189:2022',
-    label: 'Được Văn phòng Công nhận Chất lượng (BoA) đánh giá định kỳ và cấp chứng chỉ đạt chuẩn ISO 15189:2022 cho hệ thống BMS Lab.',
+    label: 'Văn phòng Công nhận Chất lượng (BoA) đánh giá và cấp chứng chỉ định kỳ.',
     accent: '#1E60E6'
   },
   {
-    badge: 'ĐỘ TIN CẬY NỘI KIỂM',
+    badge: 'ĐỘ TIN CẬY',
     value: '99.85%',
-    label: 'Tỷ lệ mẫu kiểm chuẩn IQC đạt quy chuẩn Westgard ngay từ lần chạy đầu tiên trong ngày.',
+    label: 'Tỷ lệ kiểm chuẩn IQC đạt quy chuẩn Westgard ngay từ lần chạy đầu tiên.',
     accent: '#10B981'
   },
   {
-    badge: 'AN TOÀN MẪU BỆNH PHẨM',
+    badge: 'AN TOÀN MẪU',
     value: '< 0.05%',
-    label: 'Tỷ lệ vỡ hồng cầu (Hemolysis Index) đạt mức an toàn tối đa nhờ kỹ thuật hút chân không.',
+    label: 'Hạn chế tối đa nguy cơ vỡ hồng cầu bằng kỹ thuật hút chân không khép kín.',
     accent: '#0284C7'
   },
   {
-    badge: 'THỜI GIAN TRẢ KẾT QUẢ',
+    badge: 'THỜI GIAN TAT',
     value: '60 – 90 Phút',
-    label: 'Cam kết thời gian TAT cho toàn bộ các xét nghiệm thường quy có chữ ký số bác sĩ.',
+    label: 'Cam kết thời gian trả kết quả thường quy có chữ ký số bác sĩ chuyên khoa.',
     accent: '#7C3AED'
   }
 ];
@@ -99,7 +99,7 @@ export default function IsoProcessPage() {
       <PortalNavbar />
 
       {/* 1. Executive Spotlight Header (Pure 2D Flat Card Container) */}
-      <section className="pt-4 pb-2">
+      <section className="pt-5 pb-3" style={{ marginTop: '20px' }}>
         <Container style={{ maxWidth: '1400px' }}>
           <div
             style={{
@@ -117,19 +117,19 @@ export default function IsoProcessPage() {
                   <span>TIÊU CHUẨN ISO 15189:2022 · HỆ THỐNG BMS LAB CHẤT LƯỢNG QUỐC TẾ</span>
                 </div>
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
-                  Quy Trình Kiểm Chuẩn Y Khoa Chuẩn ISO 15189:2022
+                  Quy Trình Kiểm Chuẩn ISO 15189:2022
                 </h1>
-                <p className="mb-0 text-muted" style={{ fontSize: '14px', maxWidth: '840px', lineHeight: '1.7', color: '#475569' }}>
-                  Toàn bộ quy trình xét nghiệm tại BMS Lab tuân thủ nghiêm ngặt tiêu chuẩn quốc tế ISO 15189:2022 và Quyết định 2429/QĐ-BYT. Đảm bảo 100% mẫu bệnh phẩm được mã hóa barcode một chiều, kiểm soát nhiệt độ chuỗi lạnh IoT 2-6°C và thẩm định đa tầng bởi Bác sĩ Chuyên khoa.
+                <p className="mb-0 text-muted" style={{ fontSize: '14px', maxWidth: '780px', lineHeight: '1.7', color: '#475569' }}>
+                  Quy trình xét nghiệm tự động hóa khép kín 5 chặng, tuân thủ nghiêm ngặt chuẩn quốc tế ISO 15189 và Bộ Y Tế.
                 </p>
               </div>
 
               {/* ISO Hero SVG Illustration */}
-              <div className="d-none d-lg-block text-center flex-shrink-0" style={{ maxWidth: '240px' }}>
+              <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
                 <img
                   src="/assets/bms/svg/hero/iso/iso-hero.svg"
                   alt="ISO 15189 Accreditation Art"
-                  style={{ width: '100%', height: 'auto', maxHeight: '160px', objectFit: 'contain' }}
+                  style={{ width: '100%', height: 'auto', maxHeight: '150px', objectFit: 'contain' }}
                 />
               </div>
 
@@ -233,140 +233,132 @@ export default function IsoProcessPage() {
       </section>
 
       {/* 3. 5-Phase Closed-Loop Architecture (Authentic Laboratory Manifest) */}
-      <section className="py-3">
+      <section className="py-4">
         <Container style={{ maxWidth: '1400px' }}>
-          
-          <div
-            className="mb-4"
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '24px',
-              border: 'none',
-              boxShadow: 'none',
-              padding: '36px 40px'
-            }}
-          >
-            <div className="d-flex align-items-center justify-content-between mb-4 pb-2">
-              <div>
-                <h2 className="fw-bold mb-1" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.02em' }}>
-                  Chu Trình Kiểm Soát Chất Lượng Khép Kín 5 Chặng
-                </h2>
-                <p className="mb-0 text-muted" style={{ fontSize: '13px' }}>
-                  Tiêu chuẩn thao tác chuẩn (SOP) được tự động hóa từ khâu tiếp nhận đến khi kết quả đến tay bệnh nhân
-                </p>
-              </div>
-              <span
+          <div className="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <h2 className="fw-bold mb-1" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.02em' }}>
+                Chu Trình Kiểm Soát Chất Lượng 5 Chặng
+              </h2>
+              <p className="mb-0 text-muted" style={{ fontSize: '13px' }}>
+                Quy trình thao tác chuẩn (SOP) tự động hóa từ khâu tiếp nhận đến khi trả kết quả
+              </p>
+            </div>
+            <span
+              style={{
+                backgroundColor: '#EEF4FD',
+                color: '#1E60E6',
+                fontSize: '12px',
+                fontWeight: 700,
+                padding: '6px 16px',
+                borderRadius: '9999px'
+              }}
+            >
+              Quy Chuẩn SOP-LAB-2026
+            </span>
+          </div>
+
+          <div className="d-flex flex-column gap-3">
+            {ISO_PHASES.map((stg) => (
+              <div
+                key={stg.step}
                 style={{
-                  backgroundColor: '#EEF4FD',
-                  color: '#1E60E6',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '6px 16px',
-                  borderRadius: '9999px'
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '20px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  padding: '28px 32px'
                 }}
               >
-                Quy Chuẩn SOP-LAB-2026
-              </span>
-            </div>
-
-            <div className="d-flex flex-column gap-3">
-              {ISO_PHASES.map((stg) => (
-                <div
-                  key={stg.step}
-                  style={{
-                    backgroundColor: '#F8FAFC',
-                    borderRadius: '20px',
-                    border: 'none',
-                    boxShadow: 'none',
-                    padding: '28px 32px'
-                  }}
-                >
-                  <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
-                    <div style={{ flex: 1 }}>
-                      <div className="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-3 mb-2">
-                        <div className="d-flex align-items-center gap-3">
-                          <span
-                            style={{
-                              fontSize: '26px',
-                              fontWeight: 800,
-                              color: '#1E60E6',
-                              letterSpacing: '-0.02em',
-                              fontVariantNumeric: 'tabular-nums',
-                              lineHeight: '1'
-                            }}
-                          >
-                            {stg.step}
-                          </span>
-                          <div>
-                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#1E60E6', letterSpacing: '0.06em' }}>
-                              {stg.phase}
-                            </div>
-                            <h3 className="fw-bold mb-0" style={{ fontSize: '17px', color: '#0F172A', lineHeight: '1.4' }}>
-                              {stg.title}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <div
+                <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+                  <div style={{ flex: 1 }}>
+                    <div className="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-3 mb-2">
+                      <div className="d-flex align-items-center gap-3">
+                        <span
                           style={{
-                            fontSize: '12px',
-                            color: '#64748B',
-                            backgroundColor: '#FFFFFF',
-                            padding: '4px 12px',
-                            borderRadius: '9999px',
-                            whiteSpace: 'nowrap',
-                            alignSelf: 'flex-start',
-                            fontWeight: 600
+                            fontSize: '26px',
+                            fontWeight: 800,
+                            color: '#1E60E6',
+                            letterSpacing: '-0.02em',
+                            fontVariantNumeric: 'tabular-nums',
+                            lineHeight: '1'
                           }}
                         >
-                          <FaClock className="me-1" style={{ color: '#0284C7', fontSize: '11px' }} />
-                          Thời gian: {stg.tat}
+                          {stg.step}
+                        </span>
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: 700, color: '#1E60E6', letterSpacing: '0.06em' }}>
+                            {stg.phase}
+                          </div>
+                          <h3 className="fw-bold mb-0" style={{ fontSize: '17px', color: '#0F172A', lineHeight: '1.4' }}>
+                            {stg.title}
+                          </h3>
                         </div>
                       </div>
 
-                      <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.7', margin: '12px 0 16px', maxWidth: '1000px' }}>
-                        {stg.desc}
-                      </p>
-
-                      <div className="d-flex flex-wrap gap-2 pt-1">
-                        {stg.standards.map((spec, i) => (
-                          <span
-                            key={i}
-                            style={{
-                              backgroundColor: '#FFFFFF',
-                              color: '#334155',
-                              fontSize: '12px',
-                              fontWeight: 600,
-                              padding: '5px 14px',
-                              borderRadius: '8px',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}
-                          >
-                            <FaCheckCircle style={{ color: '#10B981', fontSize: '11px' }} />
-                            {spec}
-                          </span>
-                        ))}
+                      <div
+                        style={{
+                          fontSize: '12px',
+                          color: '#475569',
+                          backgroundColor: '#F1F5F9',
+                          padding: '5px 14px',
+                          borderRadius: '9999px',
+                          whiteSpace: 'nowrap',
+                          alignSelf: 'flex-start',
+                          fontWeight: 600
+                        }}
+                      >
+                        <FaClock className="me-1" style={{ color: '#0284C7', fontSize: '11px' }} />
+                        Thời gian: {stg.tat}
                       </div>
                     </div>
 
-                    {stg.svgFile && (
-                      <div className="d-none d-md-block text-center flex-shrink-0" style={{ width: '150px' }}>
-                        <img
-                          src={`/assets/bms/svg/sections/iso/${stg.svgFile}`}
-                          alt={stg.title}
-                          style={{ width: '100%', height: 'auto', maxHeight: '105px', objectFit: 'contain' }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                    <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.6', margin: '10px 0 14px', maxWidth: '900px' }}>
+                      {stg.desc}
+                    </p>
 
-          {/* 4. Quality Governance & Regulatory Framework */}
+                    <div className="d-flex flex-wrap gap-2 pt-1">
+                      {stg.standards.map((spec, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            backgroundColor: '#F8FAFC',
+                            color: '#334155',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            padding: '5px 14px',
+                            borderRadius: '8px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <FaCheckCircle style={{ color: '#10B981', fontSize: '11px' }} />
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {stg.svgFile && (
+                    <div className="d-none d-md-block text-center flex-shrink-0" style={{ width: '150px' }}>
+                      <img
+                        src={`/assets/bms/svg/sections/iso/${stg.svgFile}`}
+                        alt={stg.title}
+                        style={{ width: '100%', height: 'auto', maxHeight: '105px', objectFit: 'contain' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* 4. Quality Governance & Regulatory Framework */}
+      <section className="py-3 pb-5">
+        <Container style={{ maxWidth: '1400px' }}>
           <div
             className="p-4"
             style={{
@@ -378,15 +370,15 @@ export default function IsoProcessPage() {
           >
             <div className="d-flex align-items-center gap-2 mb-2">
               <FaAward style={{ color: '#1E60E6', fontSize: '16px' }} />
-              <h6 className="fw-bold mb-0" style={{ color: '#0F172A', fontSize: '14px' }}>
-                Hành Lang Pháp Lý &amp; Kiểm Định Định Kỳ Phòng Xét Nghiệm
+              <h6 className="fw-bold mb-0" style={{ color: '#0F172A', fontSize: '13.5px' }}>
+                Hành Lang Pháp Lý &amp; Kiểm Định Định Kỳ
               </h6>
             </div>
-            <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.75', fontSize: '12.5px' }}>
-              <li><strong>ISO 15189:2022</strong>: Đánh giá định kỳ hàng năm bởi Văn phòng Công nhận Chất lượng (BoA) - Bộ Khoa học và Công nghệ.</li>
-              <li><strong>Quyết định 2429/QĐ-BYT</strong>: Ban hành tiêu chí đánh giá mức chất lượng phòng xét nghiệm y học đạt chuẩn cấp cao của Bộ Y Tế.</li>
-              <li><strong>Nghị định 13/2023/NĐ-CP</strong>: Bảo vệ dữ liệu cá nhân y tế, mã hóa đầu cuối kết quả điện tử và chữ ký số xác thực.</li>
-              <li><strong>Chương trình Ngoại Kiểm (EQAS / RIQAS)</strong>: Kiểm định chéo định kỳ hàng tháng với mạng lưới phòng xét nghiệm lâm sàng quốc tế.</li>
+            <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
+              <li><strong>ISO 15189:2022</strong>: Đánh giá định kỳ hàng năm bởi Văn phòng Công nhận Chất lượng (BoA).</li>
+              <li><strong>Quyết định 2429/QĐ-BYT</strong>: Tiêu chí đánh giá chất lượng phòng xét nghiệm y học của Bộ Y Tế.</li>
+              <li><strong>Nghị định 13/2023/NĐ-CP</strong>: Bảo vệ dữ liệu cá nhân y tế, mã hóa kết quả và chữ ký số.</li>
+              <li><strong>Chương trình EQAS / RIQAS</strong>: Kiểm định chéo hàng tháng với mạng lưới phòng Lab quốc tế.</li>
             </ul>
           </div>
         </Container>
@@ -396,4 +388,3 @@ export default function IsoProcessPage() {
     </div>
   );
 }
-

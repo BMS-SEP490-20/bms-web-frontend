@@ -567,8 +567,8 @@ const SampleQueuePage = () => {
       />
 
       {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="p-3">
+      <div className="card border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+        <div className="card-body p-3">
           <Form onSubmit={handleSearch}>
             <Row className="g-2 align-items-center">
               <Col xs={12} md={4}>
@@ -635,12 +635,12 @@ const SampleQueuePage = () => {
               </Col>
             </Row>
           </Form>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
-      {/* Samples Queue Table */}
-      <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-        <Card.Body className="p-0">
+      {/* Samples Queue Table - Standalone Section */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-body">
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" size="sm" className="me-2" />
@@ -793,8 +793,8 @@ const SampleQueuePage = () => {
               </Table>
             </div>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* =====================================================================
           MODAL 1: RECORD SAMPLE TIME POPUP (Ghi nhận thời gian lấy mẫu)

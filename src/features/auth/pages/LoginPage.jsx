@@ -7,9 +7,9 @@
  * - Enforces BR-IAM-01 (Authentication), BR-IAM-02 (Role Mapping), BR-IAM-03 (Account lockout on 5 failed attempts).
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Alert, Spinner } from "react-bootstrap";
+import { Alert, Spinner, Modal } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
 import { 
   FaUser, 
@@ -56,6 +56,18 @@ function normalizeAuthenticatedUser(rawUser) {
   };
 }
 
+/**
+ * Demo accounts for rapid QA & developer sandbox testing (seeded in BMS database).
+ */
+const DEMO_ROLES = [
+  { id: 'admin', name: 'Admin', title: 'Quản Trị Viên Hệ Thống', username: 'admin_bms', password: 'Admin@123', icon: '⚡', desc: 'Quản trị danh mục, người dùng, audit log', badgeColor: '#DC2626' },
+  { id: 'manager', name: 'Manager', title: 'Trưởng Phòng Lab / Quản Lý', username: 'labhead_tranhoa', password: 'Admin@123', icon: '📊', desc: 'Duyệt KQ, kiểm soát QC, TAT & thống kê', badgeColor: '#4F46E5' },
+  { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ Lâm Sàng', username: 'dr_nguyenminh', password: 'Admin@123', icon: '🩺', desc: 'Chỉ định xét nghiệm, kết luận bệnh án', badgeColor: '#059669' },
+  { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên Xét Nghiệm', username: 'tech_quochung', password: 'Admin@123', icon: '🔬', desc: 'Nhập kết quả, chạy máy, kiểm tra tiêu bản', badgeColor: '#0284C7' },
+  { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân Tiếp Đón', username: 'recep_lananh', password: 'Admin@123', icon: '📋', desc: 'Check-in, cấp số thứ tự, thu phí dịch vụ', badgeColor: '#D97706' },
+  { id: 'patient', name: 'Patient', title: 'Bệnh Nhân Khám Bệnh', username: 'patient_tranvanan', password: 'Admin@123', icon: '👤', desc: 'Tra cứu kết quả, theo dõi tiến trình xét nghiệm', badgeColor: '#475569' },
+];
+
 export default function LoginPage({
   onBack,
   onLogin,
@@ -73,6 +85,26 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const [successNotice, setSuccessNotice] = useState("");
   const [focusedInput, setFocusedInput] = useState(null);
+
+  // Easter Egg State: 3 clicks in top-right corner reveals QA/Testing Role Modal
+  const [secretClicks, setSecretClicks] = useState(0);
+  const [showTestModal, setShowTestModal] = useState(false);
+  const secretClickTimer = useRef(null);
+
+  const handleSecretClick = () => {
+    if (secretClickTimer.current) clearTimeout(secretClickTimer.current);
+    setSecretClicks((prev) => {
+      const next = prev + 1;
+      if (next >= 3) {
+        setShowTestModal(true);
+        return 0;
+      }
+      return next;
+    });
+    secretClickTimer.current = setTimeout(() => {
+      setSecretClicks(0);
+    }, 1500);
+  };
 
   // Account lockout counter (BR-IAM-03)
   const [failedAttempts, setFailedAttempts] = useState(() => {
@@ -378,12 +410,40 @@ export default function LoginPage({
 
   return (
     <div 
-      className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 px-3 px-sm-4"
+      className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 px-3 px-sm-4 position-relative"
       style={{ 
         backgroundColor: '#FFFFFF', 
         fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
       }}
     >
+      {/* Hidden Easter Egg Trigger: Click 3 times in top-right corner to open Test Roles Modal */}
+      <div
+        onClick={handleSecretClick}
+        className="user-select-none d-flex align-items-center justify-content-center"
+        style={{
+          position: 'fixed',
+          top: '16px',
+          right: '20px',
+          minWidth: '50px',
+          height: '36px',
+          padding: '4px 12px',
+          borderRadius: '18px',
+          cursor: 'pointer',
+          opacity: 0.35,
+          transition: 'all 0.2s ease',
+          zIndex: 1050,
+          backgroundColor: '#F8FAFC',
+          border: '1px solid #E2E8F0'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.35'}
+        title="BMS Portal v1.0 · Nhấp 3 lần để mở menu vai trò kiểm thử"
+      >
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B' }}>
+          v1.0 {secretClicks > 0 && `(${secretClicks}/3)`}
+        </span>
+      </div>
+
       {/* ======================================================================
           CENTER TOP: Centered BMS Brand Logo Only (No Text, 3x Prominent Scale)
           ====================================================================== */}
@@ -430,12 +490,12 @@ export default function LoginPage({
           </Alert>
         )}
 
-        {/* Authentication Form */}
+        {/* Authentication Form with Generous Airy Spacing */}
         <form onSubmit={handleSubmit} noValidate>
           
           {/* Identifier Field */}
-          <div className="mb-3.5">
-            <label htmlFor="login-email" className="form-label fw-semibold text-dark mb-1.5" style={{ fontSize: '13px' }}>
+          <div style={{ marginBottom: '22px' }}>
+            <label htmlFor="login-email" className="form-label fw-semibold text-dark d-block" style={{ fontSize: '13.5px', marginBottom: '8px' }}>
               Tên đăng nhập hoặc Email <span className="text-danger">*</span>
             </label>
             <div className="position-relative d-flex align-items-center">
@@ -444,7 +504,7 @@ export default function LoginPage({
                   position: 'absolute',
                   left: '16px',
                   color: focusedInput === 'email' ? '#1E60E6' : '#94A3B8',
-                  fontSize: '14px',
+                  fontSize: '15px',
                   pointerEvents: 'none',
                   transition: 'color 0.15s ease'
                 }} 
@@ -463,13 +523,13 @@ export default function LoginPage({
                 autoFocus
                 style={{
                   width: '100%',
-                  height: '48px',
-                  paddingLeft: '44px',
+                  height: '50px',
+                  paddingLeft: '46px',
                   paddingRight: '16px',
                   backgroundColor: focusedInput === 'email' ? '#FFFFFF' : '#F1F5F9',
                   border: focusedInput === 'email' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
                   borderRadius: '12px',
-                  fontSize: '13.5px',
+                  fontSize: '14px',
                   fontWeight: 500,
                   color: '#0F172A',
                   outline: 'none',
@@ -482,9 +542,9 @@ export default function LoginPage({
           </div>
 
           {/* Password Field */}
-          <div className="mb-3.5">
-            <div className="d-flex justify-content-between align-items-center mb-1.5">
-              <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '13px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '8px' }}>
+              <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '13.5px' }}>
                 Mật khẩu bảo mật <span className="text-danger">*</span>
               </label>
               <button
@@ -502,7 +562,7 @@ export default function LoginPage({
                   position: 'absolute',
                   left: '16px',
                   color: focusedInput === 'password' ? '#1E60E6' : '#94A3B8',
-                  fontSize: '14px',
+                  fontSize: '15px',
                   pointerEvents: 'none',
                   transition: 'color 0.15s ease'
                 }} 
@@ -520,13 +580,13 @@ export default function LoginPage({
                 disabled={loading || isLocked}
                 style={{
                   width: '100%',
-                  height: '48px',
-                  paddingLeft: '44px',
-                  paddingRight: '44px',
+                  height: '50px',
+                  paddingLeft: '46px',
+                  paddingRight: '46px',
                   backgroundColor: focusedInput === 'password' ? '#FFFFFF' : '#F1F5F9',
                   border: focusedInput === 'password' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
                   borderRadius: '12px',
-                  fontSize: '13.5px',
+                  fontSize: '14px',
                   fontWeight: 500,
                   color: '#0F172A',
                   outline: 'none',
@@ -547,7 +607,7 @@ export default function LoginPage({
                   color: '#94A3B8',
                   cursor: 'pointer',
                   padding: '6px',
-                  fontSize: '14px'
+                  fontSize: '15px'
                 }}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -555,16 +615,16 @@ export default function LoginPage({
             </div>
           </div>
 
-          {/* Remember Me Option */}
-          <div className="d-flex align-items-center justify-content-between my-3.5 pt-1">
-            <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
+          {/* Remember Me Option with Generous Breathing Space */}
+          <div className="d-flex align-items-center justify-content-between" style={{ marginTop: '14px', marginBottom: '26px' }}>
+            <label className="d-flex align-items-center gap-2.5 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ width: '15px', height: '15px', accentColor: '#1E60E6', cursor: 'pointer' }}
+                style={{ width: '16px', height: '16px', accentColor: '#1E60E6', cursor: 'pointer' }}
               />
-              <span style={{ fontSize: '13px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
+              <span style={{ fontSize: '13.5px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
             </label>
           </div>
 
@@ -573,15 +633,16 @@ export default function LoginPage({
             type="submit"
             className="btn fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
             style={{
-              height: '48px',
+              height: '50px',
               borderRadius: '9999px',
               backgroundColor: '#1E60E6',
               color: '#FFFFFF',
               border: 'none',
-              fontSize: '14.5px',
+              fontSize: '15px',
               boxShadow: 'none',
               cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.15s ease'
+              transition: 'background-color 0.15s ease',
+              marginBottom: '4px'
             }}
             disabled={loading || isLocked}
           >
@@ -600,7 +661,7 @@ export default function LoginPage({
         {Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID) && (
           <>
             {/* OR Divider with Generous Breathing Room */}
-            <div className="d-flex align-items-center" style={{ marginTop: '28px', marginBottom: '28px' }}>
+            <div className="d-flex align-items-center" style={{ marginTop: '30px', marginBottom: '30px' }}>
               <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
               <span className="px-3.5 text-muted fw-semibold" style={{ fontSize: '12.5px', color: '#64748B' }}>hoặc tiếp tục với</span>
               <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
@@ -631,71 +692,8 @@ export default function LoginPage({
           </>
         )}
 
-        {/* Quick Fill Demo Roles (For Testing & Validation) */}
-        <div style={{ paddingTop: '28px', borderTop: '1px solid #E2E8F0' }}>
-          <div className="text-muted small fw-semibold mb-2.5" style={{ fontSize: '12px' }}>
-            Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):
-          </div>
-          <div className="d-flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              Quản Lý
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              Bác Sĩ
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              KTV Lab
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              Lễ Tân
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-              onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
-              disabled={loading || isLocked}
-            >
-              Bệnh Nhân
-            </button>
-          </div>
-        </div>
-
         {/* Footer Registration Link */}
-        <div className="text-center mt-4 pt-2 text-muted" style={{ fontSize: '13.5px' }}>
+        <div className="text-center mt-3 text-muted" style={{ fontSize: '13.5px' }}>
           <span>Chưa có tài khoản bệnh nhân? </span>
           {onRegister ? (
             <button 
@@ -723,6 +721,79 @@ export default function LoginPage({
       <div className="text-center mt-4 pt-3 text-muted" style={{ fontSize: '12px', color: '#94A3B8' }}>
         © 2026 BMS Clinical Laboratory · ISO 15189:2022
       </div>
+
+      {/* ======================================================================
+          DEV & QA TESTING MODAL: Select Demo Role to Fast-Login
+          Triggered by clicking 3 times in top-right corner
+          ====================================================================== */}
+      <Modal
+        show={showTestModal}
+        onHide={() => setShowTestModal(false)}
+        centered
+        backdrop="static"
+        size="md"
+      >
+        <Modal.Header closeButton style={{ borderBottom: '1px solid #E2E8F0', padding: '18px 24px' }}>
+          <Modal.Title style={{ fontSize: '17px', fontWeight: 700, color: '#0F172A' }}>
+            🛠️ Chọn Vai Trò Kiểm Thử (BMS Sandbox)
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ padding: '20px 24px' }}>
+          <p className="text-muted small mb-3" style={{ fontSize: '13px' }}>
+            Chọn một vai trò bên dưới để tự động điền thông tin và đăng nhập trực tiếp vào hệ thống:
+          </p>
+          <div className="d-flex flex-column gap-2.5">
+            {DEMO_ROLES.map((role) => (
+              <button
+                key={role.id}
+                type="button"
+                className="btn text-start d-flex align-items-center justify-content-between p-3"
+                style={{
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '12px',
+                  backgroundColor: '#F8FAFC',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#EFF6FF';
+                  e.currentTarget.style.borderColor = '#93C5FD';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#F8FAFC';
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                }}
+                onClick={() => {
+                  setShowTestModal(false);
+                  handleQuickDemoFill(role.name, role.username, role.password);
+                }}
+                disabled={loading || isLocked}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ fontSize: '22px' }}>{role.icon}</span>
+                  <div>
+                    <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{role.title}</div>
+                    <div className="text-muted" style={{ fontSize: '12px' }}>
+                      <code>{role.username}</code> &bull; {role.desc}
+                    </div>
+                  </div>
+                </div>
+                <span 
+                  className="badge" 
+                  style={{ 
+                    backgroundColor: role.badgeColor, 
+                    color: '#FFFFFF', 
+                    fontSize: '11px', 
+                    padding: '6px 10px',
+                    borderRadius: '6px'
+                  }}
+                >
+                  {role.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

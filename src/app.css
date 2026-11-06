@@ -1447,3 +1447,57 @@
     padding: 8px 12px;
     font-size: 13px;
 }
+
+/* ==============================================================================
+   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS QUANTUM MOTION SYSTEM)
+   ============================================================================== */
+@keyframes bmsSlideFadeRight {
+    0% {
+        opacity: 0;
+        transform: translate3d(40px, 0, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes bmsSlideFadeLeft {
+    0% {
+        opacity: 0;
+        transform: translate3d(-40px, 0, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes bmsSlideFadeUp {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 16px, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.bms-page-directional-content {
+    width: 100%;
+    min-height: calc(100vh - 54px);
+    will-change: transform, opacity;
+}
+
+.bms-slide-fade-right {
+    animation: bmsSlideFadeRight 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bms-slide-fade-left {
+    animation: bmsSlideFadeLeft 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bms-slide-fade-up {
+    animation: bmsSlideFadeUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

@@ -29,18 +29,22 @@ import {
 } from '../../../services/patientService';
 import './InitialMedicalProfileSetup.css';
 
-// Blood type options (Hệ ABO/Rh)
-const BLOOD_TYPES = [
-  { code: 'O+', label: 'Nhóm O+' },
-  { code: 'O-', label: 'Nhóm O- (Hiếm)' },
-  { code: 'A+', label: 'Nhóm A+' },
-  { code: 'A-', label: 'Nhóm A- (Hiếm)' },
-  { code: 'B+', label: 'Nhóm B+' },
-  { code: 'B-', label: 'Nhóm B- (Hiếm)' },
-  { code: 'AB+', label: 'Nhóm AB+' },
-  { code: 'AB-', label: 'Nhóm AB- (Cực hiếm)' },
-  { code: 'Unknown', label: 'Chưa Rõ Nhóm Máu' }
+// Blood type options (Hệ ABO/Rh) - Structured Matrix
+const BLOOD_TYPES_RH_POS = [
+  { code: 'O+', label: 'O+', sub: 'Rh+ Phổ biến (~45%)' },
+  { code: 'A+', label: 'A+', sub: 'Rh+ Kháng nguyên A (~20%)' },
+  { code: 'B+', label: 'B+', sub: 'Rh+ Kháng nguyên B (~30%)' },
+  { code: 'AB+', label: 'AB+', sub: 'Rh+ Kháng nguyên AB (~5%)' }
 ];
+
+const BLOOD_TYPES_RH_NEG = [
+  { code: 'O-', label: 'O-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'A-', label: 'A-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'B-', label: 'B-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'AB-', label: 'AB-', sub: 'Rh- Cực kỳ hiếm' }
+];
+
+const BLOOD_TYPES = [...BLOOD_TYPES_RH_POS, ...BLOOD_TYPES_RH_NEG, { code: 'Unknown', label: 'Chưa rõ' }];
 
 // Common allergy options
 const COMMON_ALLERGIES = [
@@ -480,30 +484,79 @@ export default function InitialMedicalProfileSetup() {
             </Row>
           </div>
 
-          {/* SECTION 2: Blood Type */}
+          {/* SECTION 2: Blood Type (Structured Clinical Matrix) */}
           <div className="bms-setup-section">
             <h2 className="bms-setup-section-title">
               <span>Nhóm máu hệ ABO / Rh</span>
               <span className="bms-setup-section-badge">Bắt buộc</span>
             </h2>
 
-            <div className="bms-blood-pill-row">
-              {BLOOD_TYPES.map((bt) => {
-                const isActive = bloodType === bt.code;
-                return (
-                  <div
-                    key={bt.code}
-                    className={`bms-blood-pill ${isActive ? 'active' : ''}`}
-                    onClick={() => setBloodType(bt.code)}
-                  >
-                    {isActive && <FaCheck size={11} />}
-                    {bt.label}
+            <div className="bms-blood-matrix-wrap">
+              <div className="bms-blood-rh-group-label">Yếu tố Rhesus dương tính (Rh+ · Phổ biến)</div>
+              <div className="bms-blood-matrix-grid">
+                {BLOOD_TYPES_RH_POS.map((bt) => {
+                  const isActive = bloodType === bt.code;
+                  return (
+                    <div
+                      key={bt.code}
+                      className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setBloodType(bt.code)}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div>
+                        <div className="bms-blood-code">{bt.label}</div>
+                        <div className="bms-blood-meta">{bt.sub}</div>
+                      </div>
+                      {isActive && <FaCheckCircle size={14} className="text-white flex-shrink-0" />}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="bms-blood-rh-group-label mt-2">Yếu tố Rhesus âm tính (Rh- · Nhóm máu hiếm)</div>
+              <div className="bms-blood-matrix-grid">
+                {BLOOD_TYPES_RH_NEG.map((bt) => {
+                  const isActive = bloodType === bt.code;
+                  return (
+                    <div
+                      key={bt.code}
+                      className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setBloodType(bt.code)}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div>
+                        <div className="bms-blood-code">{bt.label}</div>
+                        <div className="bms-blood-meta">{bt.sub}</div>
+                      </div>
+                      {isActive && <FaCheckCircle size={14} className="text-white flex-shrink-0" />}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="bms-blood-unknown-row">
+                <div
+                  className={`bms-blood-unknown-btn ${bloodType === 'Unknown' ? 'active' : ''}`}
+                  onClick={() => setBloodType('Unknown')}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {bloodType === 'Unknown' ? <FaCheckCircle size={12} className="me-1" /> : null}
+                  Chưa rõ nhóm máu (Sẽ xét nghiệm định nhóm máu tại phòng Lab)
+                </div>
+
+                {bloodType && bloodType !== 'Unknown' && (
+                  <div className="bms-blood-selected-banner">
+                    <FaCheckCircle size={12} />
+                    <span>Đã chọn: <strong>Nhóm máu {bloodType}</strong></span>
                   </div>
-                );
-              })}
+                )}
+              </div>
             </div>
             {errors.bloodType && (
-              <div className="text-danger small fw-semibold">{errors.bloodType}</div>
+              <div className="text-danger small fw-semibold mt-1">{errors.bloodType}</div>
             )}
           </div>
 

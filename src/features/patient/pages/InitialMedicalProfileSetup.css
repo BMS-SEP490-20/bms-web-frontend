@@ -1,7 +1,7 @@
 /**
  * @file InitialMedicalProfileSetup.css
- * @description Compact, airy, flat, borderless clinical intake form styling.
- * Matches Home design language (bms-status-chip, pure flat 2D, zero border, zero shadow).
+ * @description Spacious, airy, broad clinical intake form with compact inputs and structured blood matrix.
+ * Broad container (1100px), compact 38px inputs, zero borders, zero horizontal lines, macOS/Home aesthetic.
  */
 
 /* 1. Page Background */
@@ -9,30 +9,36 @@
   width: 100%;
   min-height: calc(100vh - 120px);
   background-color: #F8FAFC;
-  padding: 32px 16px 64px;
+  padding: 36px 20px 72px;
 }
 
-/* 2. Main Soft Card Container (Borderless, Zero Shadow) */
+/* 2. Main Soft Card Container (Broad & Spacious, Zero Border, Zero Shadow) */
 .bms-setup-card {
-  max-width: 860px;
+  max-width: 1100px;
   margin: 0 auto;
   background-color: #FFFFFF;
   border-radius: 24px;
   border: none !important;
   box-shadow: none !important;
-  padding: 44px 52px;
+  padding: 48px 60px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .bms-setup-card {
-    padding: 28px 20px;
+    padding: 36px 28px;
     border-radius: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .bms-setup-card {
+    padding: 24px 16px;
   }
 }
 
 /* 3. Masthead Header */
 .bms-setup-header {
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
 .bms-setup-header .bms-status-chip {
@@ -41,47 +47,47 @@
   gap: 6px;
   background: #EFF6FF;
   color: #1E60E6;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 650;
   letter-spacing: 0.04em;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 999px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   border: none !important;
 }
 
 .bms-setup-title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 750;
   color: #0F172A;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1.25;
-  margin: 0 0 8px;
+  margin: 0 0 6px;
 }
 
 .bms-setup-desc {
-  font-size: 13.5px;
+  font-size: 13px;
   color: #64748B;
-  line-height: 1.6;
+  line-height: 1.55;
   margin: 0;
-  max-width: 640px;
+  max-width: 760px;
 }
 
 /* 4. Form Section Layout (Whitespace separation, NO horizontal divider lines) */
 .bms-setup-form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
 }
 
 .bms-setup-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .bms-setup-section-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #0F172A;
   margin: 0;
@@ -92,22 +98,28 @@
 }
 
 .bms-setup-section-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #DC2626;
   background: #FEF2F2;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
 }
 
-/* 5. Demographics Compact Soft Cards */
+/* 5. Demographics Compact Soft Grid */
 .bms-demographics-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
+  .bms-demographics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
   .bms-demographics-grid {
     grid-template-columns: 1fr;
   }
@@ -115,13 +127,13 @@
 
 .bms-readonly-pill-box {
   background-color: #F8FAFC;
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 8px 12px;
   border: none !important;
 }
 
 .bms-readonly-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #94A3B8;
   text-transform: uppercase;
@@ -130,15 +142,15 @@
 }
 
 .bms-readonly-val {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #0F172A;
   word-break: break-word;
 }
 
-/* 6. Form Inputs (Compact & Soft) */
+/* 6. Form Inputs (Compact, Neat, Subtle) */
 .bms-setup-label {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #475569;
   margin-bottom: 4px;
@@ -150,13 +162,21 @@
 .form-select.bms-setup-input {
   background-color: #F8FAFC !important;
   border: 1px solid #E2E8F0 !important;
-  border-radius: 10px !important;
-  font-size: 13px !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
   color: #0F172A !important;
-  padding: 8px 12px !important;
-  min-height: 40px !important;
+  padding: 6px 12px !important;
+  min-height: 38px !important;
+  height: 38px !important;
   box-shadow: none !important;
   transition: all 0.15s ease !important;
+}
+
+textarea.bms-setup-input,
+textarea.form-control.bms-setup-input {
+  min-height: 54px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
 }
 
 .bms-setup-input:focus,
@@ -168,43 +188,128 @@
   box-shadow: none !important;
 }
 
-/* 7. Blood Type Selector (Compact, rounded pills) */
-.bms-blood-pill-row {
+/* 7. Structured Clinical Blood Type Matrix (4x2 Grid + Unknown) */
+.bms-blood-matrix-wrap {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
 }
 
-.bms-blood-pill {
-  background-color: #F1F5F9;
-  color: #334155;
-  border: none !important;
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
+.bms-blood-rh-group-label {
+  font-size: 11px;
+  font-weight: 650;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.bms-blood-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .bms-blood-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.bms-blood-matrix-item {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: none !important;
+}
+
+.bms-blood-matrix-item:hover {
+  border-color: #94A3B8;
+  background-color: #F8FAFC;
+}
+
+.bms-blood-code {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.01em;
+}
+
+.bms-blood-meta {
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* Active Matrix Item: Solid Medical Blue, Crisp White Text */
+.bms-blood-matrix-item.active {
+  background-color: #1E60E6 !important;
+  border-color: #1E60E6 !important;
+  color: #FFFFFF !important;
+}
+
+.bms-blood-matrix-item.active .bms-blood-code,
+.bms-blood-matrix-item.active .bms-blood-meta {
+  color: #FFFFFF !important;
+}
+
+.bms-blood-unknown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.bms-blood-unknown-btn {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 550;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: none !important;
 }
 
-.bms-blood-pill:hover {
-  background-color: #E2E8F0;
-  color: #0F172A;
+.bms-blood-unknown-btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
 }
 
-/* Active State: Clean solid medical blue with crisp white text */
-.bms-blood-pill.active {
-  background-color: #1E60E6 !important;
+.bms-blood-unknown-btn.active {
+  background: #1E60E6 !important;
+  border: 1px solid #1E60E6 !important;
   color: #FFFFFF !important;
-  font-weight: 650 !important;
+  font-weight: 650;
 }
 
-/* 8. Vitals & BMI Grid */
+.bms-blood-selected-banner {
+  background: #EFF6FF;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: #1E60E6;
+  font-weight: 550;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 8. Vitals & BMI Grid (4 Columns) */
 .bms-vitals-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -226,38 +331,41 @@
 
 .bms-bmi-pill-card {
   background-color: #F8FAFC;
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 6px 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 38px;
 }
 
 .bms-bmi-val {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   color: #0F172A;
-  margin: 1px 0 4px;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .bms-bmi-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 1px 7px;
   border-radius: 999px;
   width: fit-content;
+  margin-top: 2px;
 }
 
 /* 9. Soft Checkbox Cards */
 .bms-checkbox-pill-box {
   background-color: #F8FAFC;
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 8px 12px;
   border: none !important;
 }
 
 .bms-checkbox-label {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #334155;
   cursor: pointer;
@@ -265,7 +373,7 @@
   margin: 0;
 }
 
-/* 10. Minimalist Quick-Select Chips (Pills) */
+/* 10. Minimalist Quick-Select Chips (Compact, neat 6px border-radius) */
 .bms-chips-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -276,17 +384,17 @@
 .bms-chip-pill {
   background-color: #F1F5F9;
   border: none !important;
-  border-radius: 999px;
+  border-radius: 6px;
   color: #475569;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 550;
-  padding: 5px 12px;
+  padding: 4px 10px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   box-shadow: none !important;
 }
 
@@ -309,11 +417,11 @@
 /* 11. Legal Consent */
 .bms-legal-pill-box {
   background-color: #F8FAFC;
-  border-radius: 14px;
-  padding: 14px 18px;
-  font-size: 12.5px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 12px;
   color: #475569;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 /* 12. Bottom Actions Row */
@@ -322,7 +430,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 8px;
+  margin-top: 6px;
   flex-wrap: wrap;
 }
 
@@ -331,8 +439,8 @@
   color: #FFFFFF !important;
   border: none !important;
   border-radius: 999px !important;
-  padding: 12px 32px !important;
-  font-size: 14px !important;
+  padding: 10px 28px !important;
+  font-size: 13.5px !important;
   font-weight: 650 !important;
   cursor: pointer;
   display: inline-flex;
@@ -352,7 +460,7 @@
 }
 
 .bms-security-text {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #64748B;
   display: flex;
   align-items: center;

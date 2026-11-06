@@ -9,6 +9,8 @@ import { Alert, Badge, Breadcrumb, Button, Col, Form, Offcanvas, Row, Table, Spi
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaHistory, FaEye, FaShieldAlt, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import { getTestHistory, getTestHistoryDetail, testHistoryError } from '../api/testHistoryApi';
+import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
+import './PatientPaymentHistoryPage.css';
 import '../../../components/common/SkeletonProfile.css';
 
 const defaults = { search: '', patientId: '', fromDate: '', toDate: '', page: 1, pageSize: 20 };
@@ -30,13 +32,14 @@ const date = (value) => {
 };
 
 const flag = (value) => {
+  if (value === null || value === undefined || value === '') return 'Chưa ghi nhận';
   const map = {
     '0': 'Bình thường', Normal: 'Bình thường', N: 'Bình thường',
     '1': 'Thấp', Low: 'Thấp', L: 'Thấp',
     '2': 'Cao', High: 'Cao', H: 'Cao',
     '3': 'Nguy hiểm', CriticalPanic: 'Nguy hiểm', CRITICAL: 'Nguy hiểm'
   };
-  return map[value] || value || 'Bình thường';
+  return map[value] || value || 'Chưa ghi nhận';
 };
 
 const skeleton = (
@@ -147,8 +150,9 @@ function HistoryDetail({ id, onClose }) {
                       <tbody>
                         {data.items.map((item, index) => {
                           const flagText = flag(item.flag);
-                          const isWarning = flagText === 'Cao' || flagText === 'Thấp';
                           const isDanger = flagText === 'Nguy hiểm';
+                          const isWarning = flagText === 'Cao' || flagText === 'Thấp';
+                          const isNormal = flagText === 'Bình thường';
                           return (
                             <tr key={`${item.code}-${index}`}>
                               <td className="ps-3 fw-semibold text-dark">
@@ -168,8 +172,12 @@ function HistoryDetail({ id, onClose }) {
                                   <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-2 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11 }}>
                                     {flagText}
                                   </span>
-                                ) : (
+                                ) : isNormal ? (
                                   <span className="badge bg-success-subtle text-success border-0 px-2 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11 }}>
+                                    {flagText}
+                                  </span>
+                                ) : (
+                                  <span className="badge bg-light text-muted border px-2 py-1 fw-medium" style={{ borderRadius: 9999, fontSize: 11 }}>
                                     {flagText}
                                   </span>
                                 )}
@@ -222,6 +230,10 @@ export default function TestHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refresh, setRefresh] = useState(0);
+
+  const user = getStoredUser();
+  const roleId = resolveRoleId(user);
+  const isPatient = roleId === ROLES.PATIENT;
 
   const invalid = Boolean(filters.fromDate && filters.toDate && filters.fromDate > filters.toDate);
 
@@ -296,11 +308,15 @@ export default function TestHistoryPage() {
 
       {/* 2. Filter Toolbar */}
       <div className="bms-pay-toolbar">
-        <div className="bms-pay-filter-group w-100">
+        <div className="bms-pay-filter-group w-100 flex-wrap">
           <div className="position-relative flex-grow-1" style={{ minWidth: 240 }}>
+            <Form.Label htmlFor="history-search" className="visually-hidden">
+              Tìm theo mã kết quả, mã mẫu hoặc gói khám
+            </Form.Label>
             <input
               type="text"
               id="history-search"
+              aria-label="Tìm theo mã kết quả, mã mẫu hoặc gói khám"
               className="bms-pay-search-input w-100"
               placeholder="Tìm theo mã kết quả, mã mẫu hoặc gói khám..."
               value={search}
@@ -309,10 +325,32 @@ export default function TestHistoryPage() {
             />
           </div>
 
+          {!isPatient && (
+            <div className="position-relative" style={{ minWidth: 160, maxWidth: 220 }}>
+              <Form.Label htmlFor="history-patient" className="visually-hidden">
+                Mã bệnh nhân
+              </Form.Label>
+              <input
+                type="text"
+                id="history-patient"
+                aria-label="Mã bệnh nhân"
+                className="bms-pay-search-input w-100"
+                placeholder="ID bệnh nhân..."
+                value={filters.patientId}
+                maxLength={100}
+                onChange={(e) => change('patientId', e.target.value)}
+                style={{ height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
+              />
+            </div>
+          )}
+
           <div className="d-flex align-items-center gap-1.5">
-            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Từ:</span>
+            <Form.Label htmlFor="history-from" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
+              Từ:
+            </Form.Label>
             <Form.Control
               id="history-from"
+              aria-label="Ngày ghi nhận từ"
               type="date"
               size="sm"
               value={filters.fromDate}
@@ -322,9 +360,12 @@ export default function TestHistoryPage() {
           </div>
 
           <div className="d-flex align-items-center gap-1.5">
-            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Đến:</span>
+            <Form.Label htmlFor="history-to" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
+              Đến:
+            </Form.Label>
             <Form.Control
               id="history-to"
+              aria-label="Đến ngày"
               type="date"
               size="sm"
               value={filters.toDate}

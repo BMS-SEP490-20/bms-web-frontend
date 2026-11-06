@@ -1449,55 +1449,109 @@
 }
 
 /* ==============================================================================
-   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS QUANTUM MOTION SYSTEM)
+   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS QUANTUM CAROUSEL ROLL SYSTEM)
    ============================================================================== */
-@keyframes bmsSlideFadeRight {
+
+/* Incoming: Sweep in from the right edge (Forward navigation) */
+@keyframes bmsRollInRight {
     0% {
-        opacity: 0;
-        transform: translate3d(40px, 0, 0);
+        transform: translate3d(100vw, 0, 0);
+        opacity: 0.95;
     }
     100% {
-        opacity: 1;
         transform: translate3d(0, 0, 0);
+        opacity: 1;
     }
 }
 
-@keyframes bmsSlideFadeLeft {
+/* Outgoing: Sweep out to the left edge (Forward navigation) */
+@keyframes bmsRollOutLeft {
     0% {
-        opacity: 0;
-        transform: translate3d(-40px, 0, 0);
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
     }
     100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
+        transform: translate3d(-100vw, 0, 0);
+        opacity: 0.95;
     }
 }
 
-@keyframes bmsSlideFadeUp {
+/* Incoming: Sweep in from the left edge (Backward navigation) */
+@keyframes bmsRollInLeft {
     0% {
-        opacity: 0;
+        transform: translate3d(-100vw, 0, 0);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+}
+
+/* Outgoing: Sweep out to the right edge (Backward navigation) */
+@keyframes bmsRollOutRight {
+    0% {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(100vw, 0, 0);
+        opacity: 0.95;
+    }
+}
+
+/* Fallback gentle entrance */
+@keyframes bmsRollInUp {
+    0% {
         transform: translate3d(0, 16px, 0);
+        opacity: 0;
     }
     100% {
-        opacity: 1;
         transform: translate3d(0, 0, 0);
+        opacity: 1;
     }
 }
 
+/* Directional content container */
 .bms-page-directional-content {
     width: 100%;
     min-height: calc(100vh - 54px);
-    will-change: transform, opacity;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
+/* Global viewport protection: prevent horizontal scrollbars during 100vw translation */
+html, body {
+    overflow-x: hidden !important;
+}
+
+/* Ghost overlay container for seamless horizontal roll */
+#bms-page-roll-ghost {
+    pointer-events: none;
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+/* Active animation classes with iOS-grade deceleration spring */
+.bms-roll-in-right,
 .bms-slide-fade-right {
-    animation: bmsSlideFadeRight 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsRollInRight 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.bms-roll-out-left {
+    animation: bmsRollOutLeft 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bms-roll-in-left,
 .bms-slide-fade-left {
-    animation: bmsSlideFadeLeft 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsRollInLeft 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.bms-roll-out-right {
+    animation: bmsRollOutRight 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bms-roll-in-up,
 .bms-slide-fade-up {
-    animation: bmsSlideFadeUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsRollInUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

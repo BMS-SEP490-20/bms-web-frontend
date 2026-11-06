@@ -319,38 +319,33 @@ export default function LoginPage({
     <div 
       className="min-vh-100 d-flex flex-column align-items-center justify-content-center p-3 p-sm-4"
       style={{ 
-        backgroundColor: '#F8FAFC', 
+        backgroundColor: '#FFFFFF', 
         fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
       }}
     >
       {/* ======================================================================
-          CENTER TOP: Centered BMS Brand Logo
+          CENTER TOP: Centered BMS Brand Logo Only (No Text)
           ====================================================================== */}
       <div className="text-center mb-4">
-        <Link to="/" className="d-inline-flex align-items-center gap-2.5 text-decoration-none">
+        <Link to="/" className="d-inline-block text-decoration-none" title="Trang chủ BMS">
           <img 
             src="/assets/bms-logo.png" 
             alt="BMS Logo" 
-            style={{ width: '44px', height: '44px', objectFit: 'contain' }} 
+            style={{ width: '52px', height: '52px', objectFit: 'contain' }} 
           />
-          <span className="fw-bold" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.025em' }}>
-            BMS <span style={{ color: '#1E60E6' }}>LAB</span>
-          </span>
         </Link>
       </div>
 
       {/* ======================================================================
-          CENTER CARD: Luxury White Authentication Card
+          CENTER FORM: 100% Transparent Authentication Form (Zero Background)
           ====================================================================== */}
       <div 
-        className="card border-0 p-4 p-sm-5"
+        className="w-100 px-2"
         style={{
-          maxWidth: '440px',
-          width: '100%',
-          backgroundColor: '#FFFFFF',
-          borderRadius: '24px',
-          border: '1px solid rgba(226, 232, 240, 0.95)',
-          boxShadow: '0 4px 20px -2px rgba(15, 23, 42, 0.05)'
+          maxWidth: '420px',
+          backgroundColor: 'transparent',
+          border: 'none',
+          boxShadow: 'none'
         }}
       >
         <div className="text-center mb-4">

@@ -492,12 +492,12 @@ export default function UserManagementPage() {
               <table className="bms-dash-table">
                 <thead>
                   <tr>
-                    <th className="ps-4">Họ và tên</th>
-                    <th>Email / Tên đăng nhập</th>
-                    <th>Số điện thoại</th>
-                    <th>Vai trò hệ thống</th>
-                    <th>Trạng thái</th>
-                    <th className="text-end pe-4">Thao tác</th>
+                    <th className="ps-4">HỌ VÀ TÊN</th>
+                    <th>EMAIL / USERNAME</th>
+                    <th>SỐ ĐIỆN THOẠI</th>
+                    <th>VAI TRÒ (ROLE)</th>
+                    <th>TRẠNG THÁI</th>
+                    <th className="text-end pe-4">THAO TÁC</th>
                   </tr>
                 </thead>
                 <tbody>

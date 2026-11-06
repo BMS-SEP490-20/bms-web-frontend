@@ -26,7 +26,7 @@
 }
 
 /* ==========================================================================
-   Centered Pill Navigation Header (Pure Flat, Zero Shadow)
+   Centered Pill Navigation Header (Sticky on Scroll with Subtle Divider)
    ========================================================================== */
 .bms-telehealth-header,
 .bms-navbar {
@@ -35,11 +35,22 @@
     top: 0;
     z-index: 1000;
     height: 54px;
-    border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
+    border: none;
+    border-bottom: 1px solid transparent;
+    box-shadow: none;
     display: flex;
     align-items: center;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+}
+
+/* Bottom border and frosted glass appearance ONLY when sticky / scrolled */
+.bms-telehealth-header.is-sticky,
+.bms-navbar.is-sticky {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
+    box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.04) !important;
 }
 
 .bms-telehealth-header-inner,

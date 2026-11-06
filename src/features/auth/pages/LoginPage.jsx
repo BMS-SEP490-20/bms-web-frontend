@@ -57,16 +57,19 @@ function normalizeAuthenticatedUser(rawUser) {
 }
 
 /**
- * Demo accounts for rapid QA & developer sandbox testing (seeded in BMS database).
+ * Security: Gate demo test credentials to DEV mode only (or explicit VITE_ENABLE_DEMO_LOGIN flag).
+ * In production builds, this prevents shipping seed passwords/credentials in the client bundle.
  */
-const DEMO_ROLES = [
+const IS_DEV_OR_DEMO = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
+
+const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true" ? [
   { id: 'admin', name: 'Admin', title: 'Quản Trị Viên Hệ Thống', username: 'admin_bms', password: 'Admin@123', icon: '⚡', desc: 'Quản trị danh mục, người dùng, audit log', badgeColor: '#DC2626' },
   { id: 'manager', name: 'Manager', title: 'Trưởng Phòng Lab / Quản Lý', username: 'labhead_tranhoa', password: 'Admin@123', icon: '📊', desc: 'Duyệt KQ, kiểm soát QC, TAT & thống kê', badgeColor: '#4F46E5' },
   { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ Lâm Sàng', username: 'dr_nguyenminh', password: 'Admin@123', icon: '🩺', desc: 'Chỉ định xét nghiệm, kết luận bệnh án', badgeColor: '#059669' },
   { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên Xét Nghiệm', username: 'tech_quochung', password: 'Admin@123', icon: '🔬', desc: 'Nhập kết quả, chạy máy, kiểm tra tiêu bản', badgeColor: '#0284C7' },
   { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân Tiếp Đón', username: 'recep_lananh', password: 'Admin@123', icon: '📋', desc: 'Check-in, cấp số thứ tự, thu phí dịch vụ', badgeColor: '#D97706' },
   { id: 'patient', name: 'Patient', title: 'Bệnh Nhân Khám Bệnh', username: 'patient_tranvanan', password: 'Admin@123', icon: '👤', desc: 'Tra cứu kết quả, theo dõi tiến trình xét nghiệm', badgeColor: '#475569' },
-];
+] : [];
 
 export default function LoginPage({
   onBack,
@@ -416,33 +419,35 @@ export default function LoginPage({
         fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
       }}
     >
-      {/* Hidden Easter Egg Trigger: Click 3 times in top-right corner to open Test Roles Modal */}
-      <div
-        onClick={handleSecretClick}
-        className="user-select-none d-flex align-items-center justify-content-center"
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '20px',
-          minWidth: '50px',
-          height: '36px',
-          padding: '4px 12px',
-          borderRadius: '18px',
-          cursor: 'pointer',
-          opacity: 0.35,
-          transition: 'all 0.2s ease',
-          zIndex: 1050,
-          backgroundColor: '#F8FAFC',
-          border: '1px solid #E2E8F0'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
-        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.35'}
-        title="BMS Portal v1.0 · Nhấp 3 lần để mở menu vai trò kiểm thử"
-      >
-        <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B' }}>
-          v1.0 {secretClicks > 0 && `(${secretClicks}/3)`}
-        </span>
-      </div>
+      {/* Hidden Easter Egg Trigger: Click 3 times in top-right corner to open Test Roles Modal (Gated to DEV/Demo) */}
+      {IS_DEV_OR_DEMO && (
+        <div
+          onClick={handleSecretClick}
+          className="user-select-none d-flex align-items-center justify-content-center"
+          style={{
+            position: 'fixed',
+            top: '16px',
+            right: '20px',
+            minWidth: '50px',
+            height: '36px',
+            padding: '4px 12px',
+            borderRadius: '18px',
+            cursor: 'pointer',
+            opacity: 0.35,
+            transition: 'all 0.2s ease',
+            zIndex: 1050,
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.35'}
+          title="BMS Portal v1.0"
+        >
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B' }}>
+            v1.0 {secretClicks > 0 && `(${secretClicks}/3)`}
+          </span>
+        </div>
+      )}
 
       {/* ======================================================================
           CENTER TOP: Centered BMS Brand Logo Only (No Text, 3x Prominent Scale)
@@ -723,77 +728,79 @@ export default function LoginPage({
       </div>
 
       {/* ======================================================================
-          DEV & QA TESTING MODAL: Select Demo Role to Fast-Login
+          DEV & QA TESTING MODAL: Select Demo Role to Fast-Login (Gated to DEV/Demo)
           Triggered by clicking 3 times in top-right corner
           ====================================================================== */}
-      <Modal
-        show={showTestModal}
-        onHide={() => setShowTestModal(false)}
-        centered
-        backdrop="static"
-        size="md"
-      >
-        <Modal.Header closeButton style={{ borderBottom: '1px solid #E2E8F0', padding: '18px 24px' }}>
-          <Modal.Title style={{ fontSize: '17px', fontWeight: 700, color: '#0F172A' }}>
-            🛠️ Chọn Vai Trò Kiểm Thử (BMS Sandbox)
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ padding: '20px 24px' }}>
-          <p className="text-muted small mb-3" style={{ fontSize: '13px' }}>
-            Chọn một vai trò bên dưới để tự động điền thông tin và đăng nhập trực tiếp vào hệ thống:
-          </p>
-          <div className="d-flex flex-column gap-2.5">
-            {DEMO_ROLES.map((role) => (
-              <button
-                key={role.id}
-                type="button"
-                className="btn text-start d-flex align-items-center justify-content-between p-3"
-                style={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: '12px',
-                  backgroundColor: '#F8FAFC',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#EFF6FF';
-                  e.currentTarget.style.borderColor = '#93C5FD';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#F8FAFC';
-                  e.currentTarget.style.borderColor = '#E2E8F0';
-                }}
-                onClick={() => {
-                  setShowTestModal(false);
-                  handleQuickDemoFill(role.name, role.username, role.password);
-                }}
-                disabled={loading || isLocked}
-              >
-                <div className="d-flex align-items-center gap-3">
-                  <span style={{ fontSize: '22px' }}>{role.icon}</span>
-                  <div>
-                    <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{role.title}</div>
-                    <div className="text-muted" style={{ fontSize: '12px' }}>
-                      <code>{role.username}</code> &bull; {role.desc}
+      {IS_DEV_OR_DEMO && (
+        <Modal
+          show={showTestModal}
+          onHide={() => setShowTestModal(false)}
+          centered
+          backdrop="static"
+          size="md"
+        >
+          <Modal.Header closeButton style={{ borderBottom: '1px solid #E2E8F0', padding: '18px 24px' }}>
+            <Modal.Title style={{ fontSize: '17px', fontWeight: 700, color: '#0F172A' }}>
+              🛠️ Chọn Vai Trò Kiểm Thử (BMS Sandbox)
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ padding: '20px 24px' }}>
+            <p className="text-muted small mb-3" style={{ fontSize: '13px' }}>
+              Chọn một vai trò bên dưới để tự động điền thông tin và đăng nhập trực tiếp vào hệ thống:
+            </p>
+            <div className="d-flex flex-column gap-2.5">
+              {DEMO_ROLES.map((role) => (
+                <button
+                  key={role.id}
+                  type="button"
+                  className="btn text-start d-flex align-items-center justify-content-between p-3"
+                  style={{
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '12px',
+                    backgroundColor: '#F8FAFC',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#EFF6FF';
+                    e.currentTarget.style.borderColor = '#93C5FD';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    e.currentTarget.style.borderColor = '#E2E8F0';
+                  }}
+                  onClick={() => {
+                    setShowTestModal(false);
+                    handleQuickDemoFill(role.name, role.username, role.password);
+                  }}
+                  disabled={loading || isLocked}
+                >
+                  <div className="d-flex align-items-center gap-3">
+                    <span style={{ fontSize: '22px' }}>{role.icon}</span>
+                    <div>
+                      <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{role.title}</div>
+                      <div className="text-muted" style={{ fontSize: '12px' }}>
+                        <code>{role.username}</code> &bull; {role.desc}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <span 
-                  className="badge" 
-                  style={{ 
-                    backgroundColor: role.badgeColor, 
-                    color: '#FFFFFF', 
-                    fontSize: '11px', 
-                    padding: '6px 10px',
-                    borderRadius: '6px'
-                  }}
-                >
-                  {role.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </Modal.Body>
-      </Modal>
+                  <span 
+                    className="badge" 
+                    style={{ 
+                      backgroundColor: role.badgeColor, 
+                      color: '#FFFFFF', 
+                      fontSize: '11px', 
+                      padding: '6px 10px',
+                      borderRadius: '6px'
+                    }}
+                  >
+                    {role.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
     </div>
   );
 }

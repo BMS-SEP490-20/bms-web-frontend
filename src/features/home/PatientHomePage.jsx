@@ -67,7 +67,24 @@ export default function PatientHomePage({ user: propUser }) {
     window.location.href = pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book';
   };
 
-  const patientCode = user?.patientCode || user?.medicalRecordNumber || `BN-${new Date().getFullYear()}-${String(user?.id || '0812').padStart(4, '0')}`;
+  const patientCode = user?.patientCode || user?.medicalRecordNumber || (user?.id ? `PAT-${user.id}` : 'Chưa cấp mã EMR');
+
+  const mapOrderStatus = (status) => {
+    const s = String(status || '').toLowerCase();
+    if (s === 'completed' || s === 'verified' || s.includes('hoàn tất') || s.includes('có kết quả')) {
+      return { label: 'Đã có kết quả', chipClass: 'bms-status-success' };
+    }
+    if (s === 'processing' || s === 'in_progress' || s.includes('đang')) {
+      return { label: 'Đang xử lý / Phân tích', chipClass: 'bms-status-warning' };
+    }
+    if (s === 'pending' || s.includes('chờ')) {
+      return { label: 'Chờ lấy mẫu', chipClass: 'bms-status-neutral' };
+    }
+    if (s === 'cancelled' || s.includes('hủy')) {
+      return { label: 'Đã hủy', chipClass: 'bms-status-danger' };
+    }
+    return { label: status || 'Đang cập nhật', chipClass: 'bms-status-neutral' };
+  };
 
   return (
     <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
@@ -159,7 +176,10 @@ export default function PatientHomePage({ user: propUser }) {
               <div className="bms-recent-result-dock">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span className="fw-bold bms-ink-text tabular-nums">{recentTest.orderId || recentTest.orderCode || recentTest.id}</span>
-                  <span className="bms-status-chip bms-status-success">{recentTest.status || 'Đã có kết quả'}</span>
+                  {(() => {
+                    const st = mapOrderStatus(recentTest.status);
+                    return <span className={`bms-status-chip ${st.chipClass}`}>{st.label}</span>;
+                  })()}
                 </div>
                 <div className="bms-result-order-title">
                   {recentTest.packageName || recentTest.testName || 'Gói xét nghiệm lâm sàng'}

@@ -157,10 +157,13 @@ api.interceptors.response.use(
             const newRefreshToken = data?.refreshToken;
 
             if (newAccessToken) {
-                localStorage.setItem("bms_token", newAccessToken);
-                localStorage.setItem("bms_access_token", newAccessToken);
+                const storage = (typeof sessionStorage !== "undefined" && (sessionStorage.getItem("bms_token") || sessionStorage.getItem("bms_access_token")))
+                    ? sessionStorage
+                    : localStorage;
+                storage.setItem("bms_token", newAccessToken);
+                storage.setItem("bms_access_token", newAccessToken);
                 if (newRefreshToken) {
-                    localStorage.setItem("bms_refresh_token", newRefreshToken);
+                    storage.setItem("bms_refresh_token", newRefreshToken);
                 }
                 api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
                 processQueue(null, newAccessToken);

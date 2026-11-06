@@ -325,7 +325,6 @@ const AuditLogPage = () => {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              <FaShieldAlt style={{ color: '#1E60E6' }} />
               <span>Danh Sách Sự Kiện Kiểm Toán An Ninh &amp; Thao Tác</span>
             </h5>
             <div className="bms-table-standalone-subtitle">

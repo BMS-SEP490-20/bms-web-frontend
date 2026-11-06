@@ -14,6 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaVial, FaClock } from 'react-icons/fa';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
+import { getTestHistory } from '../patient/api/testHistoryApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
@@ -34,8 +35,10 @@ export default function PatientHomePage({ user: propUser }) {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
+  const [recentTest, setRecentTest] = useState(null);
 
   useEffect(() => {
+    // Load service packages
     fetchServiceCatalog()
       .then(res => {
         if (res?.packages?.length) {
@@ -43,36 +46,19 @@ export default function PatientHomePage({ user: propUser }) {
         }
       })
       .catch(() => {
-        setPackages([
-          {
-            id: 'PKG-CBC',
-            packageName: 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)',
-            description: 'Phát hiện sớm thiếu máu, nhiễm trùng, bệnh lý tủy xương và tiểu cầu.',
-            price: 180000,
-            category: 'Huyết học'
-          },
-          {
-            id: 'PKG-LIVER',
-            packageName: 'Tầm soát Viêm gan B & C (HBsAg, Anti-HBs, Anti-HCV)',
-            description: 'Sàng lọc nhiễm virus viêm gan B và C mạn tính, đánh giá kháng thể.',
-            price: 320000,
-            category: 'Gan mật'
-          },
-          {
-            id: 'PKG-LIPID',
-            packageName: 'Bộ mỡ máu toàn phần (Cholesterol, Triglyceride, HDL, LDL)',
-            description: 'Đánh giá nguy cơ xơ vữa động mạch và bệnh lý mạch vành.',
-            price: 200000,
-            category: 'Tim mạch'
-          },
-          {
-            id: 'PKG-DIABETES',
-            packageName: 'Gói Tầm Soát Đái Tháo Đường Chuyên Sâu',
-            description: 'Theo dõi chỉ số Glucose huyết tương và HbA1c đánh giá kiểm soát đường huyết.',
-            price: 380000,
-            category: 'Tiểu đường'
-          }
-        ]);
+        setPackages([]);
+      });
+
+    // Load recent test order from real patient database
+    getTestHistory({ pageSize: 1 })
+      .then(res => {
+        const items = res?.items || res?.data || (Array.isArray(res) ? res : []);
+        if (items.length > 0) {
+          setRecentTest(items[0]);
+        }
+      })
+      .catch(() => {
+        setRecentTest(null);
       });
   }, []);
 
@@ -169,33 +155,42 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             {/* Recent Result Pill */}
-            <div className="bms-recent-result-dock">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span className="fw-bold bms-ink-text tabular-nums">ORD-20261024-009</span>
-                <span className="bms-status-chip bms-status-success">Đã có kết quả</span>
+            {recentTest ? (
+              <div className="bms-recent-result-dock">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span className="fw-bold bms-ink-text tabular-nums">{recentTest.orderId || recentTest.orderCode || recentTest.id}</span>
+                  <span className="bms-status-chip bms-status-success">{recentTest.status || 'Đã có kết quả'}</span>
+                </div>
+                <div className="bms-result-order-title">
+                  {recentTest.packageName || recentTest.testName || 'Gói xét nghiệm lâm sàng'}
+                </div>
+                <div className="bms-result-order-meta">
+                  Ngày tiếp nhận: <strong>{recentTest.orderDate || recentTest.createdAt ? new Date(recentTest.orderDate || recentTest.createdAt).toLocaleDateString('vi-VN') : '—'}</strong>
+                </div>
+                <a
+                  href={`/results/${encodeURIComponent(recentTest.orderId || recentTest.id)}/report`}
+                  className="bms-btn-mint-cta w-100 mt-3"
+                >
+                  Xem Phiếu Kết Quả (PDF)
+                </a>
               </div>
-              <div className="bms-result-order-title">
-                Tổng Phân Tích Tế Bào Máu (CBC 24 Chỉ Số)
+            ) : (
+              <div className="bms-recent-result-dock text-center p-3">
+                <div className="text-muted small mb-2">Chưa ghi nhận kết quả xét nghiệm gần đây</div>
+                <a href="/appointments/book" className="bms-btn-mint-cta w-100">
+                  Đặt Lịch Xét Nghiệm Mới
+                </a>
               </div>
-              <div className="bms-result-order-meta">
-                Thẩm định: <strong>BS. CKII Lê Minh Đức (Đã ký số)</strong>
-              </div>
-              <a
-                href="/results/ORD-20261024-009/report"
-                className="bms-btn-mint-cta w-100 mt-3"
-              >
-                Tải Phiếu Kết Quả (PDF)
-              </a>
-            </div>
+            )}
 
             {/* Upcoming Appointment Tile */}
             <div className="bms-appointment-soft-tile mt-3">
               <div className="d-flex justify-content-between align-items-center mb-1">
-                <span className="bms-appointment-label">Lịch Hẹn Sắp Tới</span>
-                <span className="bms-appointment-time tabular-nums">08:00 Ngày 31/10/2026</span>
+                <span className="bms-appointment-label">Lịch Hẹn Của Bạn</span>
+                <Link to="/patient/appointments" className="small text-primary text-decoration-none">Xem tất cả</Link>
               </div>
-              <div className="bms-appointment-location">
-                Phòng Lấy Mẫu 102 - Cơ Sở 1 (Quận 1, TP.HCM)
+              <div className="bms-appointment-location text-muted small">
+                Tra cứu hoặc quản lý lịch hẹn khám và xét nghiệm trực tuyến.
               </div>
             </div>
 

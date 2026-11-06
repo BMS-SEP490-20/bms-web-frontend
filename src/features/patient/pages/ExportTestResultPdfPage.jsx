@@ -239,13 +239,13 @@ export default function ExportTestResultPdfPage() {
   const patientIdDisplay = result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || 'BN-2026';
   const dobAgeSexDisplay = result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')} · ${patientProfile.gender || 'Nam'}` : 'Chưa ghi nhận');
   const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : 'BC-20261031-01');
-  const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || 'BS. CKI Nguyễn Văn Hoàng (Khoa Khám Bệnh)';
-  const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV. Lê Thị Mai (Cử nhân Xét nghiệm Y học)';
-  const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'TS. BS. Trần Thị Bình (Trưởng Khoa Xét Nghiệm)';
-  const verificationHashDisplay = result?.VerificationHash || result?.digitalSignature || 'SHA256:d8a9f018e8201bfae92900bc190288f01838841a0e9821ef';
-  const collectionTimeDisplay = result?.CollectionTime || '31/10/2026 07:30';
-  const releasedDateDisplay = result?.ReleasedDate || '31/10/2026 10:15';
-  const packageNameDisplay = result?.PackageName || 'Tổng Phân Tích Tế Bào Máu Ngoại Vi & Sinh Hóa Máu Toàn Phần';
+  const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || 'Chưa chỉ định';
+  const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm';
+  const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'Trưởng Khoa Xét Nghiệm';
+  const verificationHashDisplay = result?.VerificationHash || result?.digitalSignature || '';
+  const collectionTimeDisplay = result?.CollectionTime ? new Date(result.CollectionTime).toLocaleString('vi-VN') : '—';
+  const releasedDateDisplay = result?.ReleasedDate ? new Date(result.ReleasedDate).toLocaleString('vi-VN') : (result?.approvedAt ? new Date(result.approvedAt).toLocaleString('vi-VN') : '—');
+  const packageNameDisplay = result?.PackageName || result?.packageName || 'Phiếu Kết Quả Xét Nghiệm';
   const parametersList = Array.isArray(result?.Parameters) ? result.Parameters : Array.isArray(result?.parameters) ? result.parameters : [];
 
   return (

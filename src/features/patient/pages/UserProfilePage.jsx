@@ -497,27 +497,27 @@ export const UserProfilePage = () => {
                   <Row className="g-3">
                     <Col md={6}>
                       <div className="text-muted small">Họ và tên nhân viên:</div>
-                      <div className="fw-bold text-dark">{user?.fullName || 'Lê tân Đỗ Lan Anh'}</div>
+                      <div className="fw-bold text-dark">{user?.fullName || 'Chưa cập nhật'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Mã định danh / CCCD:</div>
-                      <div className="fw-bold text-dark">079198001234</div>
+                      <div className="fw-bold text-dark">{user?.identityCardNumber || user?.identityNumber || 'Chưa cập nhật'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Giới tính:</div>
-                      <div className="fw-bold text-dark">Nữ</div>
+                      <div className="fw-bold text-dark">{user?.gender || '—'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Ngày sinh:</div>
-                      <div className="fw-bold text-dark">12/08/1996</div>
+                      <div className="fw-bold text-dark">{user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('vi-VN') : '—'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Số điện thoại liên hệ nội bộ:</div>
-                      <div className="fw-bold text-dark">090 600 0007</div>
+                      <div className="fw-bold text-dark">{user?.phoneNumber || '—'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Email công vụ BMS:</div>
-                      <div className="fw-bold text-primary">{user?.email || 'anh.lan@bms.health.vn'}</div>
+                      <div className="fw-bold text-primary">{user?.email || '—'}</div>
                     </Col>
                     <Col md={12}>
                       <div className="text-muted small">Địa chỉ công tác thường trú:</div>

@@ -164,7 +164,7 @@ const AdminDashboard = () => {
           return status === 'pending' || status === 'chờ xử lý' || status === 'processing';
         });
 
-        const totalPatients = patientsResult.success && Array.isArray(patientsResult.data) ? patientsResult.data.length : 0;
+        const totalPatients = patientsResult.totalCount ?? (patientsResult.success && Array.isArray(patientsResult.data) ? patientsResult.data.length : 0);
 
         setStats({
           totalPatients,

@@ -87,10 +87,10 @@ const UnifiedUserInfoModal = ({
         setProfileForm({
           patientCode: profileData.patientCode || 'BN-2026-08192',
           identityCardNumber: profileData.identityCardNumber || '079201008234',
-          dateOfBirth: profileData.dateOfBirth || '1995-08-15',
-          gender: profileData.gender || 'Nam',
-          address: profileData.address || 'Hồ Chí Minh',
-          bloodType: profileData.bloodType || 'O+'
+          dateOfBirth: profileData.dateOfBirth || '',
+          gender: profileData.gender || 'Chưa cập nhật',
+          address: profileData.address || 'Chưa cập nhật',
+          bloodType: profileData.bloodType || 'Unknown'
         });
       }
     } else {
@@ -305,7 +305,7 @@ const UnifiedUserInfoModal = ({
                       <Col md={4}>
                         <Form.Group>
                           <Form.Label className="fw-semibold">Nhóm máu</Form.Label>
-                          <Form.Control value={profileForm.bloodType || 'O+'} disabled />
+                          <Form.Control value={profileForm.bloodType && profileForm.bloodType !== 'Unknown' ? profileForm.bloodType : 'Chưa rõ (Định nhóm tại Lab)'} disabled />
                         </Form.Group>
                       </Col>
                     </Row>

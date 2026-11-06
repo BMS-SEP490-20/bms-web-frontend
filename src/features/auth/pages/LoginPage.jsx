@@ -143,6 +143,34 @@ export default function LoginPage({
   const isLocked = lockoutTime > Date.now();
 
   /**
+   * Persists authentication credentials according to the rememberMe choice.
+   * If rememberMe is false, stores strictly in sessionStorage and purges localStorage.
+   */
+  const persistAuthSession = (token, user, refreshToken, remember) => {
+    const primary = remember ? localStorage : sessionStorage;
+    primary.setItem("bms_token", token);
+    primary.setItem("bms_access_token", token);
+    primary.setItem("bms_user", JSON.stringify(user));
+    if (refreshToken) {
+      primary.setItem("bms_refresh_token", refreshToken);
+    }
+
+    if (!remember) {
+      localStorage.removeItem("bms_token");
+      localStorage.removeItem("bms_access_token");
+      localStorage.removeItem("bms_user");
+      localStorage.removeItem("bms_refresh_token");
+    } else {
+      sessionStorage.setItem("bms_token", token);
+      sessionStorage.setItem("bms_access_token", token);
+      sessionStorage.setItem("bms_user", JSON.stringify(user));
+      if (refreshToken) {
+        sessionStorage.setItem("bms_refresh_token", refreshToken);
+      }
+    }
+  };
+
+  /**
    * Redirects user to their role-specific workspace based on RoleId:
    * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient, 6 = Manager.
    */
@@ -236,18 +264,7 @@ export default function LoginPage({
         setFailedAttempts(0);
         setLockoutTime(0);
 
-        const storage = rememberMe ? localStorage : sessionStorage;
-        const refreshToken = data?.refreshToken;
-        storage.setItem("bms_token", token);
-        storage.setItem("bms_access_token", token);
-        storage.setItem("bms_user", JSON.stringify(user));
-        localStorage.setItem("bms_token", token);
-        localStorage.setItem("bms_access_token", token);
-        localStorage.setItem("bms_user", JSON.stringify(user));
-        if (refreshToken) {
-          storage.setItem("bms_refresh_token", refreshToken);
-          localStorage.setItem("bms_refresh_token", refreshToken);
-        }
+        persistAuthSession(token, user, data?.refreshToken, rememberMe);
 
         routeUserByRole(user);
       } catch (apiErr) {
@@ -326,17 +343,7 @@ export default function LoginPage({
       setFailedAttempts(0);
       setLockoutTime(0);
 
-      const refreshToken = data?.refreshToken;
-      localStorage.setItem("bms_token", token);
-      localStorage.setItem("bms_access_token", token);
-      localStorage.setItem("bms_user", JSON.stringify(user));
-      sessionStorage.setItem("bms_token", token);
-      sessionStorage.setItem("bms_access_token", token);
-      sessionStorage.setItem("bms_user", JSON.stringify(user));
-      if (refreshToken) {
-        localStorage.setItem("bms_refresh_token", refreshToken);
-        sessionStorage.setItem("bms_refresh_token", refreshToken);
-      }
+      persistAuthSession(token, user, data?.refreshToken, rememberMe);
 
       routeUserByRole(user);
     } catch (apiErr) {
@@ -382,17 +389,7 @@ export default function LoginPage({
       setFailedAttempts(0);
       setLockoutTime(0);
 
-      const refreshToken = data?.refreshToken;
-      localStorage.setItem("bms_token", token);
-      localStorage.setItem("bms_access_token", token);
-      localStorage.setItem("bms_user", JSON.stringify(user));
-      sessionStorage.setItem("bms_token", token);
-      sessionStorage.setItem("bms_access_token", token);
-      sessionStorage.setItem("bms_user", JSON.stringify(user));
-      if (refreshToken) {
-        localStorage.setItem("bms_refresh_token", refreshToken);
-        sessionStorage.setItem("bms_refresh_token", refreshToken);
-      }
+      persistAuthSession(token, user, data?.refreshToken, rememberMe);
 
       routeUserByRole(user);
     } catch (apiErr) {

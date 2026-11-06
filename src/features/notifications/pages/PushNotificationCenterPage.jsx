@@ -39,14 +39,7 @@ import {
     markAllNotificationsRead,
     resendNotification
 } from "../api/pushNotificationApi";
-
-// Predefined Demo Users for Quick Dispatch
-const DEMO_USERS = [
-    { id: "PAT-00892", name: "Trần Thị Ánh (Bệnh nhân Ngoại trú)", role: "Patient", defaultPlatform: "Android" },
-    { id: "PAT-00451", name: "Lê Hoàng Nam (Bệnh nhân Lấy mẫu tại nhà)", role: "Patient", defaultPlatform: "iOS" },
-    { id: "STAFF-0012", name: "BS. Nguyễn Văn Bình (Khoa Cấp cứu)", role: "Doctor", defaultPlatform: "Web" },
-    { id: "LAB-003", name: "KTV. Phạm Quốc Hưng (Phòng Lab Sinh Hóa)", role: "Staff", defaultPlatform: "Web" }
-];
+import userManagementService from "../../../services/userManagementService";
 
 // Predefined Template Categories
 const CATEGORIES = [
@@ -73,8 +66,8 @@ export default function PushNotificationCenterPage() {
     const [priorityFilter, setPriorityFilter] = useState("ALL");
 
     // Dispatch form state
-    const [formUserId, setFormUserId] = useState("PAT-00892");
-    const [formRecipientName, setFormRecipientName] = useState("Trần Thị Ánh");
+    const [formUserId, setFormUserId] = useState("");
+    const [formRecipientName, setFormRecipientName] = useState("");
     const [formChannel, setFormChannel] = useState("Push");
     const [formPriority, setFormPriority] = useState("High");
     const [formCategory, setFormCategory] = useState("RESULT_READY");
@@ -84,10 +77,11 @@ export default function PushNotificationCenterPage() {
     const [formPlatform, setFormPlatform] = useState("Android");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formAlert, setFormAlert] = useState(null); // { type: 'success' | 'danger', message: string }
+    const [availableUsers, setAvailableUsers] = useState([]);
 
     // In-App Notification Drawer Simulation
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [drawerUserId, setDrawerUserId] = useState("PAT-00892");
+    const [drawerUserId, setDrawerUserId] = useState("");
     const [userNotifications, setUserNotifications] = useState([]);
     const [drawerUnreadOnly, setDrawerUnreadOnly] = useState(false);
 
@@ -197,11 +191,26 @@ export default function PushNotificationCenterPage() {
         return userNotifications.filter(n => !n.isRead).length;
     }, [userNotifications]);
 
+    // Load real users from database
+    useEffect(() => {
+        userManagementService.getAllUsers({ params: { pageSize: 20 } })
+            .then(res => {
+                const list = res?.success && Array.isArray(res.data) ? res.data : [];
+                setAvailableUsers(list);
+                if (list.length > 0 && !formUserId) {
+                    setFormUserId(list[0].id || list[0]._id || "");
+                    setFormRecipientName(list[0].fullName || list[0].name || "");
+                    setDrawerUserId(list[0].id || list[0]._id || "");
+                }
+            })
+            .catch(() => setAvailableUsers([]));
+    }, []);
+
     // Handle Quick User Selection
     const handleSelectDemoUser = (user) => {
-        setFormUserId(user.id);
-        setFormRecipientName(user.name);
-        setFormPlatform(user.defaultPlatform);
+        setFormUserId(user.id || user._id);
+        setFormRecipientName(user.fullName || user.name || "");
+        setFormPlatform(user.defaultPlatform || "Web");
     };
 
     // Handle Category Selection
@@ -470,10 +479,10 @@ export default function PushNotificationCenterPage() {
                                 {/* Quick Demo User Selection */}
                                 <div className="mb-3">
                                     <label className="form-label small fw-bold text-muted text-uppercase mb-1">
-                                        Đối tượng nhận (Demo Quick Select):
+                                        Đối tượng nhận (Chọn nhanh từ cơ sở dữ liệu):
                                     </label>
                                     <div className="d-flex flex-wrap gap-1 mb-2">
-                                        {DEMO_USERS.map(u => (
+                                        {availableUsers.slice(0, 5).map(u => (
                                             <button
                                                 key={u.id}
                                                 type="button"
@@ -481,7 +490,7 @@ export default function PushNotificationCenterPage() {
                                                 style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem" }}
                                                 onClick={() => handleSelectDemoUser(u)}
                                             >
-                                                {u.id} ({u.role})
+                                                {u.fullName || u.id} ({u.role || 'User'})
                                             </button>
                                         ))}
                                     </div>
@@ -933,8 +942,8 @@ export default function PushNotificationCenterPage() {
                             value={drawerUserId}
                             onChange={e => setDrawerUserId(e.target.value)}
                         >
-                            {DEMO_USERS.map(u => (
-                                <option key={u.id} value={u.id}>{u.name} ({u.id})</option>
+                            {availableUsers.map(u => (
+                                <option key={u.id} value={u.id}>{u.fullName || u.name || u.id} ({u.id})</option>
                             ))}
                         </select>
                         <button

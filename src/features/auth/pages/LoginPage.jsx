@@ -342,6 +342,14 @@ export default function LoginPage({
               Hệ thống phòng xét nghiệm tự động hóa chuẩn quốc tế ISO 15189:2022. Đăng nhập để tra cứu kết quả xét nghiệm trực tuyến có chữ ký số bác sĩ và quản lý hồ sơ sức khỏe trọn đời.
             </p>
 
+            <div className="login-hero-illustration text-center my-3">
+              <img
+                src="/assets/bms/svg/hero/login/login-hero.svg"
+                alt="BMS Telehealth Login Art"
+                style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain' }}
+              />
+            </div>
+
             <div className="login-features">
               <div className="login-feature">
                 <span className="login-feature-icon">📊</span>

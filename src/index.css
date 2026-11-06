@@ -130,10 +130,14 @@ header:not(.is-sticky),
 
 header.is-sticky,
 .navbar.is-sticky,
-.bms-header.is-sticky,
-.bms-telehealth-header.is-sticky {
+.bms-header.is-sticky {
   border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
   box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.04) !important;
+}
+
+.bms-telehealth-header.is-sticky {
+  border: none !important;
+  border-bottom: none !important;
 }
 
 /* Expanded Max-Width for Spacious Layout */

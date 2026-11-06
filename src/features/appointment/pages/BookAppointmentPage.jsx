@@ -530,9 +530,7 @@ export function BookAppointmentPage({
 
         {/* Page Title */}
         <div className="mb-4">
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6', fontSize: '13px', fontWeight: 600 }}>
-            <FaShieldAlt /> TIÊU CHUẨN ISO 15189:2022 · PHÒNG KHÁM CHUYÊN KHOA BMS
-          </div>
+          <div className="bms-page-meta" style={{ marginBottom: 12 }}><span>Tiêu chuẩn ISO 15189:2022 · phòng khám chuyên khoa BMS</span></div>
           <h2 className="fw-bold mb-1" style={{ color: 'var(--bms-text-primary, #20242B)' }}>
             Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến)
           </h2>

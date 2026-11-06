@@ -4,6 +4,7 @@
  * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
+import PageHeader from '../../../components/ui/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import { 
@@ -32,12 +33,6 @@ import { fetchTrackingByCode } from "../api/trackingApi";
 import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
 import "./TrackTestProgressPage.css";
-
-const QUICK_DEMO_CODES = [
-    { code: "BC-20261009-001", label: "Mẫu Thường (Routine)", desc: "Xét nghiệm tổng quát • Đang chạy máy" },
-    { code: "BC-20261011-0004", label: "Cấp Cứu (STAT)", desc: "Đông máu toàn bộ • Chạy lại (Rerun)" },
-    { code: "BC-20261009-002", label: "Mẫu Sinh Hóa", desc: "Bộ mỡ máu toàn phần • Hoàn thành" }
-];
 
 export default function TrackTestProgressPage() {
     const [searchParams] = useSearchParams();
@@ -90,11 +85,6 @@ export default function TrackTestProgressPage() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         handleTrackLookup(searchInput);
-    };
-
-    const handleChipClick = (code) => {
-        setSearchInput(code);
-        handleTrackLookup(code);
     };
 
     const handleClearSearch = () => {
@@ -179,18 +169,14 @@ export default function TrackTestProgressPage() {
             <PortalNavbar />
             
             <main className="bms-tracking-main">
-                <div className="container" style={{ maxWidth: 1040 }}>
+                <div className="container" style={{ maxWidth: 1240 }}>
                     
                     {/* 1. CLEAN PAGE HEADER */}
-                    <header className="bms-tracking-header">
-                        <div className="bms-tracking-badge">
-                            <FaShieldAlt /> TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022
-                        </div>
-                        <h1 className="bms-tracking-title">Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm</h1>
-                        <p className="bms-tracking-subtitle">
-                            Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
-                        </p>
-                    </header>
+                    <PageHeader
+                        title="Tra Cứu Lộ Trình Mẫu Máu & Xét Nghiệm"
+                        lead="Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực."
+                        meta={["Tiêu chuẩn xét nghiệm ISO 15189:2022"]}
+                    />
 
                     {/* 2. MINIMALIST SEARCH CARD */}
                     <div className="bms-tracking-search-card">
@@ -237,24 +223,7 @@ export default function TrackTestProgressPage() {
                             </div>
                         </form>
 
-                        {/* Quick Demo Chips */}
-                        <div className="bms-demo-chips">
-                            <span className="bms-demo-chips-label">
-                                <FaInfoCircle /> Mã mẫu kiểm thử nhanh:
-                            </span>
-                            {QUICK_DEMO_CODES.map((item) => (
-                                <button
-                                    key={item.code}
-                                    type="button"
-                                    className="bms-demo-chip"
-                                    onClick={() => handleChipClick(item.code)}
-                                    title={item.desc}
-                                >
-                                    <span>{item.code}</span>
-                                    <span className="bms-demo-chip-badge">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                        
                     </div>
 
                     {/* 3. ERROR NOTIFICATION */}
@@ -272,27 +241,27 @@ export default function TrackTestProgressPage() {
                     {!trackingData && !loading && (
                         <div className="bms-guide-container">
                             {/* 3 Step Guide Cards */}
-                            <div className="bms-guide-grid">
-                                <div className="bms-guide-card">
-                                    <div className="bms-guide-step-num">01</div>
-                                    <h3 className="bms-guide-card-title">Nhận Mã Phiếu Lấy Mẫu</h3>
-                                    <p className="bms-guide-card-desc">
+                            <div className="bms-steps">
+                                <div >
+                                    <div className="bms-step-num">01</div>
+                                    <h3 className="bms-step-title">Nhận Mã Phiếu Lấy Mẫu</h3>
+                                    <p className="bms-step-desc">
                                         Mã vạch Barcode (Code 128) được in trực tiếp trên phiếu tiếp nhận lấy mẫu hoặc gửi qua tin nhắn SMS sau khi hoàn tất thủ tục đăng ký.
                                     </p>
                                 </div>
 
-                                <div className="bms-guide-card">
-                                    <div className="bms-guide-step-num">02</div>
-                                    <h3 className="bms-guide-card-title">Nhập Mã Tra Cứu</h3>
-                                    <p className="bms-guide-card-desc">
+                                <div >
+                                    <div className="bms-step-num">02</div>
+                                    <h3 className="bms-step-title">Nhập Mã Tra Cứu</h3>
+                                    <p className="bms-step-desc">
                                         Điền mã vạch vào thanh tìm kiếm phía trên. Hệ thống hỗ trợ tra cứu nhanh cả mã vạch ống máu (BC-...) và mã phiếu khám (ORD-...).
                                     </p>
                                 </div>
 
-                                <div className="bms-guide-card">
-                                    <div className="bms-guide-step-num">03</div>
-                                    <h3 className="bms-guide-card-title">Theo Dõi Thời Gian Thực</h3>
-                                    <p className="bms-guide-card-desc">
+                                <div >
+                                    <div className="bms-step-num">03</div>
+                                    <h3 className="bms-step-title">Theo Dõi Thời Gian Thực</h3>
+                                    <p className="bms-step-desc">
                                         Nắm rõ vị trí mẫu máu đang ở đâu trong chu trình 6 chặng chuẩn ISO 15189, thời gian dự kiến trả kết quả và chữ ký số bác sĩ.
                                     </p>
                                 </div>

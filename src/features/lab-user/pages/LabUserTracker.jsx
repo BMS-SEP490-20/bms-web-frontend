@@ -390,7 +390,7 @@ export default {
  * }
  * 
  * .lab-user-info strong {
- *   color: #0d6efd;
+ *   color: #1E60E6;
  * }
  * 
  * .lab-user-badge {

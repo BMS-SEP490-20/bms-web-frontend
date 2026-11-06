@@ -5,7 +5,7 @@
  * - Zero artificial shadows, zero neon glow, zero hover jump
  * - Asymmetric Executive Spotlight Hero layout
  * - Horizontal quick-filter category pills & specimen filter
- * - High-contrast Plus Jakarta Sans typography and tabular numerals
+ * - High-contrast Geist typography and tabular numerals
  * - Clean Biomarker Specification Drawer/Modal
  * - 100% Real API integration with searchTestPackages, fetchServiceCatalog, fetchServiceById
  */
@@ -54,20 +54,18 @@ function normalizePackage(p, idx = 0) {
     id: p.id || p.packageCode || `PKG-${idx}`,
     packageCode: p.packageCode || p.code || p.id || `PKG-${idx}`,
     packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
-    category: p.category || 'Biochemistry',
-    price: typeof p.price === 'number' ? p.price : (Number(p.price) || 250000),
-    description: p.description || 'Gói xét nghiệm y khoa đạt chuẩn ISO 15189 tại hệ thống phòng xét nghiệm BMS.',
-    sampleTube: p.sampleTube || 'Serum (SST)',
-    sampleVolumeMl: p.sampleVolumeMl || 3.0,
-    tat: p.tat || '60 - 90 Phút',
-    fastingRule: p.fastingRule || (String(p.category).toLowerCase().includes('hematology') ? 'Không cần nhịn ăn' : 'Nhịn ăn sáng 8 - 12 giờ'),
-    isPopular: p.isPopular ?? (idx === 0),
+    category: p.category || '',
+    price: Number(p.price) || 0,
+    description: p.description || '',
+    sampleTube: p.sampleTube || '',
+    sampleVolumeMl: p.sampleVolumeMl || null,
+    tat: p.tat || '',
+    fastingRule: p.fastingRule || '',
+    isPopular: p.isPopular ?? false,
     isActive: p.isActive ?? true,
-    targetAudience: p.targetAudience || 'Bệnh nhân và khách hàng kiểm tra sức khỏe tổng quát, tầm soát chuyên sâu.',
+    targetAudience: p.targetAudience || '',
     criteria: criteriaList,
-    testsIncluded: rawTests.length > 0
-      ? rawTests
-      : [p.packageName || 'Chỉ số xét nghiệm chuyên sâu']
+    testsIncluded: rawTests
   };
 }
 
@@ -205,7 +203,7 @@ export default function ServiceCatalogPage() {
   // Featured Spotlight item
   const featuredItem = useMemo(() => {
     if (packages.length === 0) return null;
-    return packages.find((p) => p.isPopular) || packages[0];
+    return packages.find((p) => p.isPopular);
   }, [packages]);
 
   return (
@@ -229,27 +227,8 @@ export default function ServiceCatalogPage() {
           >
             <Row className="align-items-center g-4">
               <Col lg={7}>
-                <div className="d-flex align-items-center gap-2 mb-4">
-                  <span
-                    className="d-flex align-items-center"
-                    style={{
-                      gap: '8px',
-                      background: '#EFF6FF',
-                      color: '#1E60E6',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      letterSpacing: '0.04em',
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      border: 'none'
-                    }}
-                  >
-                    <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
-                    <span>ISO 15189:2022 ACCREDITED LABORATORY</span>
-                  </span>
-                  <span style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 600 }}>
-                    • Hệ Thống BMS Lab
-                  </span>
+                <div className="mb-3" style={{ fontSize: '12px', color: '#94A3B8' }}>
+                  ISO 15189:2022 Accredited Laboratory · Hệ Thống BMS Lab
                 </div>
 
                 <h1

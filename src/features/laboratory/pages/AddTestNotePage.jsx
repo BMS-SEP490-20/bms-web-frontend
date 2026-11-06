@@ -211,11 +211,11 @@ export default function AddTestNotePage() {
             </ol>
           </nav>
           <div className="d-flex align-items-center gap-2">
-            <h2 className="h4 fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+            <h2 className="h4 fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
               <FaShieldAlt style={{ color: '#1E60E6' }} />
               <span>Ghi Chú Kỹ Thuật Xét Nghiệm (Add Test Note)</span>
             </h2>
-            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', border: '1px solid rgba(94,133,230,0.2)' }}>
+            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
               Tiêu chuẩn ISO 15189:2022
             </span>
           </div>

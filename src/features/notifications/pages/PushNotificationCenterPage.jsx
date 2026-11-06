@@ -317,7 +317,6 @@ export default function PushNotificationCenterPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge bg-primary px-3 py-2 fs-6">UC58</span>
                         <h2 className="h3 mb-0 fw-bold text-slate-800">Trung Tâm Quản Lý & Phát Thông Báo Đa Kênh (Push Notifications)</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">

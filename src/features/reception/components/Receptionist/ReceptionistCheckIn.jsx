@@ -1527,19 +1527,19 @@ const ReceptionistCheckIn = () => {
       max-width: 800px;
       margin: 0 auto;
       background: white;
-      border: 2px solid #0d6efd;
+      border: 2px solid #1E60E6;
       border-radius: 12px;
       padding: 30px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     .header {
       text-align: center;
-      border-bottom: 3px solid #0d6efd;
+      border-bottom: 3px solid #1E60E6;
       padding-bottom: 20px;
       margin-bottom: 30px;
     }
     .header h1 {
-      color: #0d6efd;
+      color: #1E60E6;
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 10px;
@@ -1556,10 +1556,10 @@ const ReceptionistCheckIn = () => {
       padding: 20px;
       background: #f8f9fa;
       border-radius: 8px;
-      border-left: 4px solid #0d6efd;
+      border-left: 4px solid #1E60E6;
     }
     .info-section h3 {
-      color: #0d6efd;
+      color: #1E60E6;
       font-size: 18px;
       font-weight: 600;
       margin-bottom: 15px;
@@ -1571,7 +1571,7 @@ const ReceptionistCheckIn = () => {
       content: '';
       width: 4px;
       height: 20px;
-      background: #0d6efd;
+      background: #1E60E6;
       border-radius: 2px;
     }
     .info-grid {
@@ -1595,11 +1595,11 @@ const ReceptionistCheckIn = () => {
       padding: 25px;
       background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(102, 16, 242, 0.1) 100%);
       border-radius: 12px;
-      border: 2px solid #0d6efd;
+      border: 2px solid #1E60E6;
       text-align: center;
     }
     .highlight-box h4 {
-      color: #0d6efd;
+      color: #1E60E6;
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 15px;
@@ -1647,7 +1647,7 @@ const ReceptionistCheckIn = () => {
       font-size: 12px;
     }
     .footer strong {
-      color: #0d6efd;
+      color: #1E60E6;
     }
     .print-date {
       text-align: right;
@@ -1912,7 +1912,7 @@ const ReceptionistCheckIn = () => {
       {/* Quick Check-in QR Button */}
       <Card className="mb-4 shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', backgroundColor: '#FFFFFF' }}>
         <Card.Body className="py-5 text-center">
-          <h3 className="mb-2 fw-bold" style={{ color: '#2B3674' }}>
+          <h3 className="mb-2 fw-bold" style={{ color: '#0F172A' }}>
             <i className="fas fa-qrcode me-2" style={{ color: '#1E60E6' }}></i>
             Check-in bệnh nhân
           </h3>
@@ -1938,7 +1938,7 @@ const ReceptionistCheckIn = () => {
             <Col xs={12} md={10}>
               <Row>
                 <Col xs={12}>
-                  <Form.Label className="fw-semibold small" style={{ fontSize: isMobile ? '0.95rem' : '1rem', color: '#2B3674' }}>
+                  <Form.Label className="fw-semibold small" style={{ fontSize: isMobile ? '0.95rem' : '1rem', color: '#0F172A' }}>
                     <i className="fas fa-search me-2" style={{ color: '#1E60E6' }}></i>
                     {isMobile ? 'Tìm kiếm' : 'Tìm kiếm lịch hẹn cần check-in'}
                   </Form.Label>
@@ -1965,11 +1965,11 @@ const ReceptionistCheckIn = () => {
       {/* Check-in Appointments Queue Table with Slot Filtering */}
       <Card className="mb-4 shadow-sm rounded-4 overflow-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Header className="bg-white py-3 d-flex flex-wrap justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#2B3674' }}>
+          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#0F172A' }}>
             <i className="fas fa-calendar-check me-2" style={{ color: '#1E60E6' }}></i>
             {isMobile ? 'Sổ Lịch Hẹn Chờ Check-in' : 'Sổ Lịch Hẹn Đã Xác Nhận & Chờ Check-in'}
           </h4>
-          <span className="badge rounded-pill fw-semibold px-3 py-2" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', fontSize: '0.85rem' }}>
+          <span className="badge rounded-pill fw-semibold px-3 py-2" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', fontSize: '0.85rem' }}>
             Tổng hẹn cần tiếp đón: {filteredAppointments.length}
           </span>
         </Card.Header>
@@ -2155,7 +2155,7 @@ const ReceptionistCheckIn = () => {
       {/* Checked-in Patients List */}
       <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Header className={`bg-white border-bottom ${isMobile ? 'flex-column' : 'd-flex justify-content-between'} align-items-center py-3`} style={{ borderColor: 'rgba(15, 23, 42, 0.05)', padding: isMobile ? '0.75rem' : '1rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#2B3674', marginBottom: isMobile ? '0.5rem' : '0' }}>
+          <h4 className="mb-0 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.25rem', color: '#0F172A', marginBottom: isMobile ? '0.5rem' : '0' }}>
             <i className="fas fa-user-check me-2" style={{ color: '#16a34a' }}></i>
             {isMobile ? `Đã check-in (${checkedInAppointments.length})` : `Danh sách bệnh nhân đã check-in (${checkedInAppointments.length})`}
           </h4>
@@ -2734,7 +2734,7 @@ const ReceptionistCheckIn = () => {
               {/* Big Ticket Number */}
               <div style={{ margin: '16px 0', padding: '16px', background: '#eff6ff', borderRadius: '10px', border: '2px solid #bfdbfe' }}>
                 <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: '600' }}>SỐ THỨ TỰ LẤY MẪU</div>
-                <div style={{ fontSize: '3.2rem', fontWeight: '800', color: '#1d4ed8', lineHeight: '1.1', margin: '6px 0' }}>
+                <div style={{ fontSize: '3.2rem', fontWeight: '800', color: '#1E60E6', lineHeight: '1.1', margin: '6px 0' }}>
                   {issuedTicketData.ticketNumber}
                 </div>
                 <div style={{ fontSize: '0.9rem', color: '#047857', fontWeight: '600' }}>
@@ -2775,7 +2775,7 @@ const ReceptionistCheckIn = () => {
                 const printContent = document.getElementById('reception-stt-ticket');
                 if (printContent) {
                   const win = window.open('', '_blank');
-                  win.document.write('<html><head><title>Phiếu STT - ' + (issuedTicketData?.ticketNumber || '') + '</title><style>body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; } .ticket { width: 320px; text-align: center; border: 1px dashed #333; padding: 20px; border-radius: 8px; } .stt { font-size: 48px; font-weight: bold; color: #1d4ed8; margin: 10px 0; } .info { text-align: left; font-size: 13px; line-height: 1.6; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }</style></head><body><div class="ticket">' + printContent.innerHTML + '</div></body></html>');
+                  win.document.write('<html><head><title>Phiếu STT - ' + (issuedTicketData?.ticketNumber || '') + '</title><style>body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; } .ticket { width: 320px; text-align: center; border: 1px dashed #333; padding: 20px; border-radius: 8px; } .stt { font-size: 48px; font-weight: bold; color: #1E60E6; margin: 10px 0; } .info { text-align: left; font-size: 13px; line-height: 1.6; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }</style></head><body><div class="ticket">' + printContent.innerHTML + '</div></body></html>');
                   win.document.close();
                   win.focus();
                   win.print();
@@ -2790,7 +2790,7 @@ const ReceptionistCheckIn = () => {
                 setShowTicketModal(false);
                 window.location.href = '/reception/queue';
               }}
-              style={{ backgroundColor: '#1d4ed8' }}
+              style={{ backgroundColor: '#1E60E6' }}
             >
               <i className="fas fa-desktop me-1"></i> Đến Bảng Gọi Số
             </Button>

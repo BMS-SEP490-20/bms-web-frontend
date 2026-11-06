@@ -1301,7 +1301,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #1E60E6 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -1331,7 +1331,7 @@
 .bms-user-badge {
     font-size: 10px;
     font-weight: 600;
-    color: #2563eb;
+    color: #1E60E6;
     text-transform: uppercase;
 }
 

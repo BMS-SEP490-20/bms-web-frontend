@@ -158,7 +158,7 @@ const NotificationsHistoryPage = () => {
       case 'sample_received':
         return {
           icon: <FaVial className="fs-4" />,
-          color: '#0d6efd',
+          color: '#1E60E6',
           bg: '#ebf5ff',
           badgeText: 'Tiếp nhận mẫu',
           badgeBg: 'primary'
@@ -166,7 +166,7 @@ const NotificationsHistoryPage = () => {
       case 'result_ready':
         return {
           icon: <FaFlask className="fs-4" />,
-          color: '#0d6efd',
+          color: '#1E60E6',
           bg: '#e0f2fe',
           badgeText: 'Kết quả xét nghiệm',
           badgeBg: 'primary'

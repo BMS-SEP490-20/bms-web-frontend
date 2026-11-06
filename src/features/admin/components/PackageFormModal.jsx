@@ -421,7 +421,7 @@ export default function PackageFormModal({
                     form="package-form"
                     disabled={saving}
                     className="d-flex align-items-center gap-2"
-                    style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                    style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                 >
                     {saving ? <Spinner size="sm" animation="border" /> : <i className="bi bi-check-lg"></i>}
                     {saving ? 'Đang lưu...' : (isEdit ? 'Lưu Thay Đổi' : 'Tạo Gói Mới')}

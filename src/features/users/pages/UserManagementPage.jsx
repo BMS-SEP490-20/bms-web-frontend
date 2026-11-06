@@ -317,7 +317,7 @@ export default function UserManagementPage() {
           </p>
         </div>
         <div className="mt-2 mt-md-0">
-          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}>
+          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}>
             <FaPlus /> Thêm Tài Khoản Mới
           </Button>
         </div>
@@ -340,7 +340,7 @@ export default function UserManagementPage() {
         <Col xs={12} sm={6} md={3}>
           <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                 <FaUser className="fs-4" />
               </div>
               <div>
@@ -379,7 +379,7 @@ export default function UserManagementPage() {
         <Col xs={12} sm={6} md={3}>
           <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
             <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                 <FaUserCog className="fs-4" />
               </div>
               <div>

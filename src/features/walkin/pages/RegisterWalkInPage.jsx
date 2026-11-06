@@ -124,7 +124,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             {issuedTicket ? (
               <div className="mt-4 p-4 text-center rounded-3 border-2" style={{ background: '#eff6ff', border: '2px solid #bfdbfe' }}>
                 <div className="text-primary fw-bold small text-uppercase">Số Thứ Tự Lấy Mẫu Đã Cấp</div>
-                <div style={{ fontSize: '3rem', fontWeight: '800', color: '#1d4ed8', lineHeight: 1.2 }}>
+                <div style={{ fontSize: '3rem', fontWeight: '800', color: '#1E60E6', lineHeight: 1.2 }}>
                   {issuedTicket.ticketNumber}
                 </div>
                 <div className="text-muted small mt-1">

@@ -501,7 +501,7 @@ export default function CreateTestOrderPage() {
                           key={itemCode}
                           style={{
                             cursor: "pointer",
-                            backgroundColor: isSelected ? "rgba(94, 133, 230, 0.08)" : "transparent"
+                            backgroundColor: isSelected ? "rgba(30, 96, 230, 0.08)" : "transparent"
                           }}
                           onClick={() => handleToggleTest(itemCode)}
                         >

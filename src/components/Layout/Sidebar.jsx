@@ -243,15 +243,15 @@ export default function Sidebar({
         position: isMobile ? 'fixed' : 'sticky',
         top: 0,
         left: 0,
-        boxShadow: '4px 0 28px rgba(28, 39, 61, 0.05)',
-        borderRight: '1px solid rgba(15, 23, 42, 0.05)'
+        boxShadow: 'none',
+        borderRight: 'none'
       }}
     >
       {/* Brand Header with Crisp BMS Logo */}
       <div
         style={{
           padding: isCollapsed ? '16px 8px' : '18px 20px',
-          borderBottom: '1px solid rgba(15, 23, 42, 0.05)',
+          borderBottom: 'none',
           display: 'flex',
           alignItems: 'center',
           justifyContent: isCollapsed ? 'center' : 'space-between',
@@ -340,7 +340,7 @@ export default function Sidebar({
             height: '8px',
             borderRadius: '50%',
             background: '#10B981',
-            boxShadow: '0 0 6px rgba(163, 230, 135, 0.6)',
+            
             flexShrink: 0,
             margin: isCollapsed ? '0 auto' : 0
           }}
@@ -412,26 +412,22 @@ export default function Sidebar({
                     textDecoration: 'none',
                     color: active ? '#FFFFFF' : '#6B7280',
                     background: active ? '#1E60E6' : 'transparent',
-                    boxShadow: active ? '0 4px 14px rgba(100, 140, 244, 0.22)' : 'none',
+                    boxShadow: 'none',
                     fontWeight: active ? 650 : 500,
                     fontSize: '0.86rem',
                     transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
                     position: 'relative'
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) e.currentTarget.style.background = '#EEF2F6';
+                    if (!active) e.currentTarget.style.background = '#F1F5F9';
                   }}
                   onMouseLeave={(e) => {
                     if (!active) e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <Icon
-                    style={{
-                      fontSize: '15px',
-                      color: active ? '#FFFFFF' : '#6B7280',
-                      flexShrink: 0
-                    }}
-                  />
+                  {isCollapsed && (
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: active ? '#1E60E6' : '#64748B' }}>{item.label.charAt(0)}</span>
+                  )}
                   {!isCollapsed && (
                     <span
                       style={{
@@ -484,7 +480,7 @@ export default function Sidebar({
         <div
           style={{
             padding: '12px',
-            borderTop: '1px solid rgba(15, 23, 42, 0.05)',
+            borderTop: 'none',
             display: 'flex',
             justifyContent: 'center'
           }}

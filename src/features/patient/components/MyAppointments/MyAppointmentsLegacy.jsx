@@ -2326,7 +2326,7 @@ const MyAppointments = ({ hideHeader = false }) => {
         >
           <Card.Header 
             style={{
-              background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+              background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
               color: 'white',
               borderRadius: '25px 25px 0 0',
               border: 'none',
@@ -2338,7 +2338,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                 <i className="fas fa-list me-3"></i>
                 Danh sách lịch hẹn ({filteredAppointments.length} / {appointments.length})
               </h5>
-              <Button variant="light" className="fw-bold" style={{ color: '#0d6efd', borderRadius: '12px' }} onClick={handleCrudCreateOpen}>
+              <Button variant="light" className="fw-bold" style={{ color: '#1E60E6', borderRadius: '12px' }} onClick={handleCrudCreateOpen}>
                   <i className="fas fa-plus me-2"></i>Tạo lịch hẹn mới
               </Button>
             </div>
@@ -2362,7 +2362,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     onChange={(e) => setFilterStatus(e.target.value)}
                     style={{
                       borderRadius: '10px',
-                      border: '2px solid #0d6efd',
+                      border: '2px solid #1E60E6',
                       padding: '10px'
                     }}
                   >
@@ -2401,7 +2401,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     <thead 
                       style={{
                         background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                        borderBottom: '3px solid #0d6efd'
+                        borderBottom: '3px solid #1E60E6'
                       }}
                     >
                       <tr>
@@ -2413,7 +2413,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           border: 'none',
                           textAlign: 'center'
                         }}>
-                          <i className="fas fa-barcode me-2" style={{ color: '#0d6efd' }}></i>
+                          <i className="fas fa-barcode me-2" style={{ color: '#1E60E6' }}></i>
                           Mã lịch hẹn
                         </th>
                         <th style={{ 
@@ -2424,7 +2424,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           border: 'none',
                           textAlign: 'center'
                         }}>
-                          <i className="fas fa-calendar me-2" style={{ color: '#0d6efd' }}></i>
+                          <i className="fas fa-calendar me-2" style={{ color: '#1E60E6' }}></i>
                           Ngày
                         </th>
                         <th style={{ 
@@ -2435,7 +2435,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           border: 'none',
                           textAlign: 'center'
                         }}>
-                          <i className="fas fa-clock me-2" style={{ color: '#0d6efd' }}></i>
+                          <i className="fas fa-clock me-2" style={{ color: '#1E60E6' }}></i>
                           Giờ
                         </th>
                         <th style={{ 
@@ -2446,7 +2446,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           border: 'none',
                           textAlign: 'center'
                         }}>
-                          <i className="fas fa-info-circle me-2" style={{ color: '#0d6efd' }}></i>
+                          <i className="fas fa-info-circle me-2" style={{ color: '#1E60E6' }}></i>
                           Trạng thái
                         </th>
                         <th style={{ 
@@ -2457,7 +2457,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           border: 'none',
                           textAlign: 'center'
                         }}>
-                          <i className="fas fa-cogs me-2" style={{ color: '#0d6efd' }}></i>
+                          <i className="fas fa-cogs me-2" style={{ color: '#1E60E6' }}></i>
                           Thao tác
                         </th>
                       </tr>
@@ -2526,7 +2526,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                             </div>
                               </div>
                               ) : (
-                                <span className="fw-bold" style={{ color: '#0d6efd', fontSize: '1.1rem' }}>
+                                <span className="fw-bold" style={{ color: '#1E60E6', fontSize: '1.1rem' }}>
                                   {appointment.appointmentCode || appointment.id}
                                 </span>
                               )
@@ -2576,7 +2576,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                   borderRadius: '15px',
                                   padding: '8px 16px',
                                   fontWeight: '600',
-                                  background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                                  background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                                   border: 'none',
                                   boxShadow: '0 4px 10px rgba(13, 110, 253, 0.3)',
                                   transition: 'all 0.3s ease'
@@ -2701,7 +2701,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                     // Display check-in QR code for confirmed appointments
                                     <div className="text-center">
                                       <div className="d-flex align-items-center justify-content-center mb-2">
-                                        <i className="fas fa-qrcode me-2" style={{ color: '#0d6efd', fontSize: '1.1rem' }}></i>
+                                        <i className="fas fa-qrcode me-2" style={{ color: '#1E60E6', fontSize: '1.1rem' }}></i>
                                         <span className="fw-bold" style={{ color: '#333', fontSize: '0.95rem' }}>
                                           QR Code Check-in{isAppointmentCheckedIn(appointment.id) ? ' (Đã check-in)' : ''}
                                         </span>
@@ -2757,7 +2757,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                 <Row>
                                   <Col xs={6}>
                                     <div className="d-flex align-items-center mb-2">
-                                      <i className="fas fa-calendar me-2" style={{ color: '#0d6efd', fontSize: '0.9rem' }}></i>
+                                      <i className="fas fa-calendar me-2" style={{ color: '#1E60E6', fontSize: '0.9rem' }}></i>
                                       <span className="fw-bold" style={{ color: '#333', fontSize: '0.85rem' }}>Ngày:</span>
                                     </div>
                                     <div style={{ color: '#666', fontSize: '0.95rem', fontWeight: '500' }}>
@@ -2766,7 +2766,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                   </Col>
                                   <Col xs={6}>
                                     <div className="d-flex align-items-center mb-2">
-                                      <i className="fas fa-clock me-2" style={{ color: '#0d6efd', fontSize: '0.9rem' }}></i>
+                                      <i className="fas fa-clock me-2" style={{ color: '#1E60E6', fontSize: '0.9rem' }}></i>
                                       <span className="fw-bold" style={{ color: '#333', fontSize: '0.85rem' }}>Giờ:</span>
                                     </div>
                                     <div style={{ color: '#666', fontSize: '0.95rem', fontWeight: '500' }}>
@@ -2780,7 +2780,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                               <Col lg={4}>
                                 <div className="mb-3">
                                   <div className="d-flex align-items-center mb-2">
-                                    <i className="fas fa-info-circle me-2" style={{ color: '#0d6efd', fontSize: '0.9rem' }}></i>
+                                    <i className="fas fa-info-circle me-2" style={{ color: '#1E60E6', fontSize: '0.9rem' }}></i>
                                     <span className="fw-bold" style={{ color: '#333', fontSize: '0.85rem' }}>Trạng thái:</span>
                                   </div>
                                   <div>
@@ -2799,7 +2799,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                       borderRadius: '10px',
                                       padding: '5px 12px',
                                       fontWeight: '600',
-                                      background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                                      background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                                       border: 'none',
                                       boxShadow: '0 4px 10px rgba(13, 110, 253, 0.3)',
                                       transition: 'all 0.3s ease',
@@ -2926,7 +2926,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                 // Display check-in QR code for confirmed appointments
                                 <div className="text-center">
                                   <div className="d-flex align-items-center justify-content-center mb-2">
-                                    <i className="fas fa-qrcode me-2" style={{ color: '#0d6efd', fontSize: '1.2rem' }}></i>
+                                    <i className="fas fa-qrcode me-2" style={{ color: '#1E60E6', fontSize: '1.2rem' }}></i>
                                     <span className="fw-bold" style={{ color: '#333', fontSize: '1rem' }}>
                                       QR Code Check-in{isAppointmentCheckedIn(appointment.id) ? ' (Đã check-in)' : ''}
                                     </span>
@@ -2980,7 +2980,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                             <Row className="mb-3">
                               <Col xs={6}>
                                 <div className="d-flex align-items-center mb-2">
-                                  <i className="fas fa-calendar me-2" style={{ color: '#0d6efd' }}></i>
+                                  <i className="fas fa-calendar me-2" style={{ color: '#1E60E6' }}></i>
                                   <span className="fw-bold" style={{ color: '#333', fontSize: '0.9rem' }}>Ngày:</span>
                                 </div>
                                 <div style={{ color: '#666', fontSize: '1rem', fontWeight: '500' }}>
@@ -2989,7 +2989,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                               </Col>
                               <Col xs={6}>
                                 <div className="d-flex align-items-center mb-2">
-                                  <i className="fas fa-clock me-2" style={{ color: '#0d6efd' }}></i>
+                                  <i className="fas fa-clock me-2" style={{ color: '#1E60E6' }}></i>
                                   <span className="fw-bold" style={{ color: '#333', fontSize: '0.9rem' }}>Giờ:</span>
                                 </div>
                                 <div style={{ color: '#666', fontSize: '1rem', fontWeight: '500' }}>
@@ -3001,7 +3001,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                             {/* Status Section */}
                             <div className="mb-3">
                               <div className="d-flex align-items-center mb-2">
-                                <i className="fas fa-info-circle me-2" style={{ color: '#0d6efd' }}></i>
+                                <i className="fas fa-info-circle me-2" style={{ color: '#1E60E6' }}></i>
                                 <span className="fw-bold" style={{ color: '#333', fontSize: '0.9rem' }}>Trạng thái:</span>
                               </div>
                               <div>
@@ -3021,7 +3021,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                                   borderRadius: '12px',
                                   padding: '8px 15px',
                                   fontWeight: '600',
-                                  background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                                  background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                                   border: 'none',
                                   boxShadow: '0 4px 10px rgba(13, 110, 253, 0.3)',
                                   transition: 'all 0.3s ease'
@@ -3149,7 +3149,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     width: '100px',
                     height: '100px',
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+                    background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -3302,7 +3302,7 @@ const MyAppointments = ({ hideHeader = false }) => {
           <Modal.Header
             closeButton
             style={{
-              background: 'linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)',
+              background: 'linear-gradient(135deg, #1E60E6 0%, #6610f2 100%)',
               border: 'none',
               color: 'white'
             }}
@@ -3337,7 +3337,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                   border: '1px dashed rgba(13, 110, 253, 0.3)'
                 }}>
                   <div className="d-flex align-items-center justify-content-center mb-2">
-                    <i className="fas fa-qrcode me-2" style={{ color: '#0d6efd', fontSize: '1.2rem' }}></i>
+                    <i className="fas fa-qrcode me-2" style={{ color: '#1E60E6', fontSize: '1.2rem' }}></i>
                     <span className="fw-bold" style={{ color: '#333', fontSize: '1rem' }}>
                       QR Code Check-in{isAppointmentCheckedIn(selectedAppointment.id) ? ' (Đã check-in)' : ''}
                     </span>
@@ -3648,7 +3648,7 @@ const MyAppointments = ({ hideHeader = false }) => {
         <Modal.Header 
           closeButton
           style={{
-            background: 'linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%)',
+            background: 'linear-gradient(135deg, #1E60E6 0%, #0dcaf0 100%)',
             color: 'white',
             padding: '1.5rem 2rem',
             border: 'none'
@@ -3663,7 +3663,7 @@ const MyAppointments = ({ hideHeader = false }) => {
           {/* Payment progress bar */}
           <div className="mb-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h6 className="mb-0" style={{ fontSize: '1.1rem', fontWeight: '600', color: '#0d6efd' }}>
+              <h6 className="mb-0" style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1E60E6' }}>
                 <i className="fas fa-tasks me-2"></i>
                 Tiến trình thanh toán
               </h6>
@@ -3684,7 +3684,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                 role="progressbar"
                 style={{ 
                   width: `${(paymentStep-1) * 50}%`,
-                  background: 'linear-gradient(90deg, #0d6efd 0%, #0dcaf0 100%)',
+                  background: 'linear-gradient(90deg, #1E60E6 0%, #0dcaf0 100%)',
                   transition: 'width 0.5s ease'
                 }}
                 aria-valuenow={(paymentStep-1)*50}
@@ -3694,7 +3694,7 @@ const MyAppointments = ({ hideHeader = false }) => {
             </div>
             <div className="d-flex justify-content-between mt-3 gap-2">
               {[
-                { icon: 'fas fa-file-invoice', label: 'Chi tiết', color: '#0d6efd' },
+                { icon: 'fas fa-file-invoice', label: 'Chi tiết', color: '#1E60E6' },
                 { icon: 'fas fa-wallet', label: 'Phương thức', color: '#198754' },
                 { icon: 'fas fa-check-circle', label: 'Xác nhận', color: '#20c997' }
               ].map((item, idx) => {
@@ -3740,7 +3740,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     }}
                   >
                     <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h5 className="mb-0" style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0d6efd' }}>
+                      <h5 className="mb-0" style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1E60E6' }}>
                         <i className="fas fa-file-invoice me-2"></i>
                         Chi tiết hóa đơn
                       </h5>
@@ -3776,7 +3776,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           padding: '0.5rem 1rem', 
                           borderRadius: '8px',
                           fontWeight: '700',
-                          color: '#0d6efd'
+                          color: '#1E60E6'
                         }}>
                           {selectedInvoice ? `XN-${String(selectedInvoice.id).padStart(5, '0')}` : (selectedAppointmentForPayment?.appointmentCode || 'Tạm thời')}
                         </code>
@@ -3791,28 +3791,28 @@ const MyAppointments = ({ hideHeader = false }) => {
                         <>
                             <div className="d-flex justify-content-between align-items-center mb-3">
                               <span style={{ fontSize: '1rem', color: '#495057' }}>
-                                <i className="fas fa-user me-2" style={{ color: '#0d6efd' }}></i>
+                                <i className="fas fa-user me-2" style={{ color: '#1E60E6' }}></i>
                                 Bệnh nhân
                               </span>
                               <strong style={{ fontSize: '1.05rem' }}>{apt?.patientName || user?.fullName || user?.username || 'N/A'}</strong>
                             </div>
                             <div className="d-flex justify-content-between align-items-center mb-3">
                               <span style={{ fontSize: '1rem', color: '#495057' }}>
-                                <i className="fas fa-envelope me-2" style={{ color: '#0d6efd' }}></i>
+                                <i className="fas fa-envelope me-2" style={{ color: '#1E60E6' }}></i>
                                 Email
                               </span>
                               <span style={{ fontSize: '0.95rem' }}>{apt?.patientEmail || user?.email || 'N/A'}</span>
                             </div>
                             <div className="d-flex justify-content-between align-items-center mb-3">
                               <span style={{ fontSize: '1rem', color: '#495057' }}>
-                                <i className="fas fa-flask me-2" style={{ color: '#0d6efd' }}></i>
+                                <i className="fas fa-flask me-2" style={{ color: '#1E60E6' }}></i>
                                 Gói dịch vụ
                               </span>
                               <strong style={{ fontSize: '1.05rem', color: '#198754' }}>{item?.serviceName || apt?.service || 'Xét nghiệm máu'}</strong>
                             </div>
                             <div className="d-flex justify-content-between align-items-center mb-3 pb-3" style={{ borderBottom: '2px dashed #dee2e6' }}>
                               <span style={{ fontSize: '1rem', color: '#495057' }}>
-                                <i className="fas fa-calendar-alt me-2" style={{ color: '#0d6efd' }}></i>
+                                <i className="fas fa-calendar-alt me-2" style={{ color: '#1E60E6' }}></i>
                                 Ngày/giờ hẹn
                               </span>
                               <span style={{ fontSize: '1rem', fontWeight: '600' }}>
@@ -3862,7 +3862,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                         className={`p-4 mb-3 rounded ${paymentMethod === 'bank_transfer' ? 'border-primary' : ''}`}
                         style={{
                           cursor: 'pointer',
-                          border: paymentMethod === 'bank_transfer' ? '3px solid #0d6efd' : '2px solid #dee2e6',
+                          border: paymentMethod === 'bank_transfer' ? '3px solid #1E60E6' : '2px solid #dee2e6',
                           background: paymentMethod === 'bank_transfer' ? 'linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 202, 240, 0.1) 100%)' : 'white',
                           transition: 'all 0.3s ease',
                           boxShadow: paymentMethod === 'bank_transfer' ? '0 4px 15px rgba(13, 110, 253, 0.2)' : 'none'
@@ -3875,12 +3875,12 @@ const MyAppointments = ({ hideHeader = false }) => {
                               width: '28px',
                               height: '28px',
                               borderRadius: '50%',
-                              border: `3px solid ${paymentMethod === 'bank_transfer' ? '#0d6efd' : '#dee2e6'}`,
+                              border: `3px solid ${paymentMethod === 'bank_transfer' ? '#1E60E6' : '#dee2e6'}`,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               marginRight: '1rem',
-                              background: paymentMethod === 'bank_transfer' ? '#0d6efd' : 'white'
+                              background: paymentMethod === 'bank_transfer' ? '#1E60E6' : 'white'
                             }}
                           >
                             {paymentMethod === 'bank_transfer' && (
@@ -3889,7 +3889,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                           </div>
                           <div className="flex-grow-1">
                             <div className="d-flex align-items-center">
-                              <i className="fas fa-qrcode me-2" style={{ fontSize: '1.5rem', color: '#0d6efd' }}></i>
+                              <i className="fas fa-qrcode me-2" style={{ fontSize: '1.5rem', color: '#1E60E6' }}></i>
                               <strong style={{ fontSize: '1.1rem' }}>Chuyển khoản (QR VNPay)</strong>
                             </div>
                             <small className="text-muted">Quét mã QR để thanh toán nhanh chóng</small>
@@ -3902,7 +3902,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                   {paymentMethod === 'bank_transfer' && (
                     <div className="text-center p-3 border rounded">
                       <div className="mb-3">
-                        <i className="fas fa-qrcode me-2" style={{ fontSize: '1.5rem', color: '#0d6efd' }}></i>
+                        <i className="fas fa-qrcode me-2" style={{ fontSize: '1.5rem', color: '#1E60E6' }}></i>
                         <strong style={{ fontSize: '1.1rem' }}>Thanh toán qua VNPay</strong>
                           </div>
                       <div className="alert alert-info mb-3" style={{ textAlign: 'left', fontSize: '0.9rem' }}>
@@ -4005,7 +4005,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     
                     return (
                       <div className="p-3 bg-light rounded">
-                        <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#0d6efd' }}>
+                        <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#1E60E6' }}>
                           <i className="fas fa-info-circle me-2"></i>
                           Thông tin lịch hẹn
                         </h6>
@@ -4051,7 +4051,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                         
                         <hr className="my-3" />
                         
-                        <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#0d6efd' }}>
+                        <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#1E60E6' }}>
                           <i className="fas fa-credit-card me-2"></i>
                           Thông tin thanh toán
                         </h6>
@@ -4063,7 +4063,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                         {paymentResult && (
                           <>
                             <hr className="my-3" />
-                            <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#0d6efd' }}>
+                            <h6 className="mb-3" style={{ fontSize: '1rem', fontWeight: '600', color: '#1E60E6' }}>
                               <i className="fas fa-receipt me-2"></i>
                               Chi tiết giao dịch VNPay
                             </h6>

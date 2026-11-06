@@ -242,9 +242,9 @@ export default function SpecimenHistoryPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Truy Vấn Lịch Sử Mẫu Bệnh Phẩm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', border: '1px solid rgba(94,133,230,0.2)' }}>
-                            UC70 • BR-212 / BR-213
+                        <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Truy Vấn Lịch Sử Mẫu Bệnh Phẩm</h4>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
+                            
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#1A3311', border: '1px solid #10B981' }}>
                             ISO 15189
@@ -366,12 +366,12 @@ export default function SpecimenHistoryPage() {
                     <div className="card-header bg-white border-bottom p-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <div className="row g-3 align-items-center justify-content-between">
                             <div className="col-12 col-md-auto d-flex align-items-center gap-3">
-                                <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
+                                <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
                                     <FaBarcode className="display-6" />
                                 </div>
                                 <div>
                                     <div className="d-flex align-items-center gap-2 mb-1">
-                                        <h4 className="fw-bold font-monospace mb-0" style={{ color: '#2B3674' }}>
+                                        <h4 className="fw-bold font-monospace mb-0" style={{ color: '#0F172A' }}>
                                             {currentSpecimen.barcode}
                                         </h4>
                                         {renderStatusBadge(currentStatus)}
@@ -502,7 +502,7 @@ export default function SpecimenHistoryPage() {
                 <div className="card-header bg-white border-bottom py-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                     <div className="row g-2 align-items-center justify-content-between">
                         <div className="col-12 col-md-auto">
-                            <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+                            <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
                                 <FaFileAlt style={{ color: '#1E60E6' }} />
                                 Danh Sách Mẫu Bệnh Phẩm Toàn Viện
                             </h6>

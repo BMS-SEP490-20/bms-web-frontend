@@ -204,7 +204,6 @@ export default function AlertThresholdViolationPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#1E60E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC68</span>
                         <h2 className="h4 mb-0 fw-bold text-dark">Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
@@ -303,7 +302,7 @@ export default function AlertThresholdViolationPage() {
                             <span className="text-muted small fw-semibold text-uppercase">Mức Nguy Cấp (Critical)</span>
                             <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>Khẩn cấp</span>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{summary.criticalEmergencyCount}</div>
+                        <div className="fs-2 fw-bold mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{summary.criticalEmergencyCount}</div>
                         <div className="small text-muted mt-1">Đã gửi tin SMS &amp; Email khẩn</div>
                     </div>
                 </div>
@@ -313,7 +312,7 @@ export default function AlertThresholdViolationPage() {
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Đang Xử Lý (In Progress)</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(94, 133, 230, 0.12)', color: '#1E60E6', borderRadius: '9999px' }}>Acknowledged</span>
+                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6', borderRadius: '9999px' }}>Acknowledged</span>
                         </div>
                         <div className="fs-2 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.acknowledgedCount}</div>
                         <div className="small text-muted mt-1">Kỹ thuật viên đã tiếp nhận</div>
@@ -517,7 +516,7 @@ export default function AlertThresholdViolationPage() {
                                                         {isAct && (
                                                             <button
                                                                 className="btn btn-sm d-flex align-items-center gap-1 shadow-sm"
-                                                                style={{ borderRadius: '9999px', backgroundColor: '#E7BC4C', borderColor: '#E7BC4C', color: '#1E293B', fontWeight: '600', padding: '4px 12px' }}
+                                                                style={{ borderRadius: '9999px', backgroundColor: '#B45309', borderColor: '#B45309', color: '#1E293B', fontWeight: '600', padding: '4px 12px' }}
                                                                 onClick={() => {
                                                                     setSelectedAlertForAction(alert);
                                                                     setActionType("ACKNOWLEDGE");

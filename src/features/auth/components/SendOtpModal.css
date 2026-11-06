@@ -12,7 +12,7 @@
 }
 
 .bms-otp-modal-header {
-  background: linear-gradient(135deg, var(--bms-primary, #1e40af) 0%, var(--bms-primary-600, #2563eb) 100%);
+  background: linear-gradient(135deg, var(--bms-primary, #1e40af) 0%, var(--bms-primary-600, #1E60E6) 100%);
   color: var(--bms-text-inverse, #ffffff);
   padding: 1.25rem 1.5rem;
   border-bottom: none;
@@ -74,7 +74,7 @@
 }
 
 .bms-resend-btn:hover:not(:disabled) {
-  color: var(--bms-primary-hover, #1d4ed8);
+  color: var(--bms-primary-hover, #1E60E6);
 }
 
 .bms-resend-btn:disabled {
@@ -102,8 +102,8 @@
 }
 
 .bms-otp-submit-btn:hover:not(:disabled) {
-  background-color: var(--bms-primary-hover, #1d4ed8);
-  border-color: var(--bms-primary-hover, #1d4ed8);
+  background-color: var(--bms-primary-hover, #1E60E6);
+  border-color: var(--bms-primary-hover, #1E60E6);
   transform: translateY(-1px);
   box-shadow: var(--bms-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
 }

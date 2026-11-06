@@ -2,7 +2,7 @@
  * @file ServiceCard.jsx
  * @description Modern Pure Flat Clinical Laboratory Service Card Component (Big Tech Clean Grade).
  * Implements: 20px flat cards, zero blurry glow, crisp emerald CTA,
- * high-contrast Plus Jakarta Sans typography and tabular-nums.
+ * high-contrast Geist typography and tabular-nums.
  * Conforms to: Flat Healthcare SaaS Design Standards.
  */
 
@@ -50,9 +50,9 @@ function getCategoryBadge(category) {
 export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelectDetail, onBook }) {
   const pkg = directPkg || pkgProp || {};
   const badge = getCategoryBadge(pkg.category);
-  const sampleTube = pkg.sampleTube || 'EDTA (Nắp Tím)';
-  const tat = pkg.tat || '60 - 90 Phút';
-  const fastRule = pkg.fastingRule || 'Nhịn ăn 8h';
+  const sampleTube = pkg.sampleTube || '';
+  const tat = pkg.tat || '';
+  const fastRule = pkg.fastingRule || '';
   const isPopular = pkg.isPopular || false;
   const criteriaList = Array.isArray(pkg.criteria) ? pkg.criteria : [];
 
@@ -117,7 +117,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           minHeight: '44px'
         }}
       >
-        {pkg.description || 'Xét nghiệm chuyên sâu hỗ trợ tầm soát sớm và phát hiện bất thường sức khỏe theo tiêu chuẩn y tế ISO 15189.'}
+        {pkg.description}
       </p>
 
       {/* Biomarker Pill Tags Preview if present */}
@@ -162,18 +162,27 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           lineHeight: '1.5'
         }}
       >
-        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-          <span style={{ color: '#64748B' }}>Mẫu bệnh phẩm</span>
-          <strong style={{ color: '#0F172A', textAlign: 'right' }}>{sampleTube}</strong>
-        </div>
-        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-          <span style={{ color: '#64748B' }}>Trả kết quả</span>
-          <strong style={{ color: '#0F172A', textAlign: 'right' }}>{tat}</strong>
-        </div>
-        <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
-          <span style={{ color: '#64748B' }}>Lưu ý</span>
-          <strong style={{ color: '#B45309', textAlign: 'right' }}>{fastRule}</strong>
-        </div>
+        {sampleTube && (
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+            <span style={{ color: '#64748B' }}>Mẫu bệnh phẩm</span>
+            <strong style={{ color: '#0F172A', textAlign: 'right' }}>{sampleTube}</strong>
+          </div>
+        )}
+        {tat && (
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+            <span style={{ color: '#64748B' }}>Trả kết quả</span>
+            <strong style={{ color: '#0F172A', textAlign: 'right' }}>{tat}</strong>
+          </div>
+        )}
+        {fastRule && (
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '16px' }}>
+            <span style={{ color: '#64748B' }}>Lưu ý</span>
+            <strong style={{ color: '#B45309', textAlign: 'right' }}>{fastRule}</strong>
+          </div>
+        )}
+        {!sampleTube && !tat && !fastRule && (
+          <span style={{ color: '#94A3B8' }}>Thông số lấy mẫu sẽ được cập nhật.</span>
+        )}
       </div>
 
       {/* Price & Action Buttons - Zero border, separated purely by whitespace */}

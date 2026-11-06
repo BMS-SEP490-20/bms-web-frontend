@@ -104,7 +104,7 @@ export const ForgotPasswordPage = () => {
   };
 
   const strength = calculatePasswordStrength(newPassword);
-  const strengthColors = ['#e2e8f0', '#dc2626', '#f59e0b', '#2563eb', '#16a34a'];
+  const strengthColors = ['#e2e8f0', '#dc2626', '#f59e0b', '#1E60E6', '#16a34a'];
   const strengthLabels = ['', 'Weak', 'Fair', 'Strong', 'Very Secure'];
 
   return (

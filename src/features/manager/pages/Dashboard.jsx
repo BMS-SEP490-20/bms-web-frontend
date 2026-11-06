@@ -568,7 +568,7 @@ const ManagerDashboard = () => {
     <Card className="stat-card h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
       <Card.Body className="p-4">
         <div className="d-flex justify-content-between align-items-start mb-3">
-          <div className="rounded-circle p-3" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+          <div className="rounded-circle p-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
             <Icon className="fs-4" />
           </div>
           {trend && (
@@ -748,7 +748,7 @@ const ManagerDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/lab-rooms')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0d6efd' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-door-open fa-lg"></i>

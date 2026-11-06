@@ -211,7 +211,7 @@ export default function TestCriteriaPage() {
             style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd', fontWeight: 600 }}
           >
             <span>&#9825;</span>
-            <span>Khoảng Tham Chiếu (UC57)</span>
+            <span>Khoảng Tham Chiếu</span>
           </button>
           <button
             type="button"
@@ -357,7 +357,7 @@ export default function TestCriteriaPage() {
                         <button
                           type="button"
                           className="bms-table-action-btn"
-                          title="Cấu hình khoảng tham chiếu sinh học (UC57)"
+                          title="Cấu hình khoảng tham chiếu sinh học"
                           onClick={() => navigate(`/laboratory/reference-intervals?criterion=${item.criterionCode}`)}
                           style={{ color: '#0284c7', backgroundColor: '#f0f9ff' }}
                         >

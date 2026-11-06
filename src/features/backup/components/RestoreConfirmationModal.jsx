@@ -97,7 +97,7 @@ export default function RestoreConfirmationModal({
                         <div className="d-flex align-items-center gap-2">
                             <FaUndo className="fs-5" style={{ color: '#EF4444' }} />
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
-                                Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm (UC80)
+                                Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm
                             </h5>
                         </div>
                         <button
@@ -259,7 +259,7 @@ export default function RestoreConfirmationModal({
                                     className="btn btn-primary"
                                     onClick={() => setStep(2)}
                                     disabled={validating || !validationResult?.canRestore}
-                                    style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                                    style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                                 >
                                     Tiếp Tục Xác Nhận Khôi Phục &rarr;
                                 </button>

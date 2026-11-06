@@ -96,9 +96,9 @@ export function ViewShiftsPage() {
             className="btn btn-primary"
             style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
             onClick={() => navigate('/manage/schedule')}
-            title="Quản lý và phân bổ ca trực (UC35)"
+            title="Quản lý và phân bổ ca trực"
           >
-            + Phân Bổ & Xếp Lịch Ca Trực (UC35)
+            + Phân Bổ & Xếp Lịch Ca Trực
           </button>
         )}
       </div>

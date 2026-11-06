@@ -712,19 +712,19 @@ export default function ServiceCatalogPage() {
                   <Col sm={6}>
                     <div style={{ color: '#64748B' }}>Chuẩn bị trước lấy mẫu:</div>
                     <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.fastingRule}
+                      {selectedPackage.fastingRule || '-'}
                     </div>
                   </Col>
                   <Col sm={6}>
                     <div style={{ color: '#64748B' }}>Thời gian trả kết quả (TAT):</div>
                     <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.tat}
+                      {selectedPackage.tat || '-'}
                     </div>
                   </Col>
                   <Col sm={6}>
                     <div style={{ color: '#64748B' }}>Đối tượng áp dụng:</div>
                     <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.targetAudience}
+                      {selectedPackage.targetAudience || '-'}
                     </div>
                   </Col>
                 </Row>

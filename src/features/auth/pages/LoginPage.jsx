@@ -324,14 +324,14 @@ export default function LoginPage({
       }}
     >
       {/* ======================================================================
-          CENTER TOP: Centered BMS Brand Logo Only (No Text)
+          CENTER TOP: Centered BMS Brand Logo Only (No Text, 3x Prominent Scale)
           ====================================================================== */}
       <div className="text-center mb-4">
         <Link to="/" className="d-inline-block text-decoration-none" title="Trang chủ BMS">
           <img 
             src="/assets/bms-logo.png" 
             alt="BMS Logo" 
-            style={{ width: '52px', height: '52px', objectFit: 'contain' }} 
+            style={{ width: '160px', height: 'auto', maxHeight: '48px', objectFit: 'contain' }} 
           />
         </Link>
       </div>
@@ -349,12 +349,9 @@ export default function LoginPage({
         }}
       >
         <div className="text-center mb-4">
-          <h2 className="fw-bold mb-1" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em' }}>
+          <h2 className="fw-bold mb-0" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em' }}>
             Đăng Nhập Cổng BMS
           </h2>
-          <p className="text-muted mb-0" style={{ fontSize: '13px' }}>
-            Nhập thông tin tài khoản y tế của bạn để tiếp tục
-          </p>
         </div>
 
         {/* Notifications & Feedback */}

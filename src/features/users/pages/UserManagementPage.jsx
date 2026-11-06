@@ -14,7 +14,7 @@ import {
   Alert, Badge, Spinner, InputGroup
 } from 'react-bootstrap';
 import {
-  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaShieldAlt
+  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaShieldAlt, FaTimes
 } from 'react-icons/fa';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService } from '../../../services/userManagementService';
@@ -306,22 +306,26 @@ export default function UserManagementPage() {
 
   return (
     <div className="w-100 py-2">
-      {/* 1. Master Luxury Page Header Banner */}
-      <div className="bms-page-header-banner">
-        <div>
+      {/* 1. Master Luxury Page Header Card */}
+      <div className="bms-page-header-card">
+        <div className="bms-page-header-content">
           <div className="bms-page-chip">
             <FaShieldAlt size={12} />
             <span>QUẢN TRỊ HỆ THỐNG · PHÂN QUYỀN RBAC (ISO 15189)</span>
           </div>
-          <h1 className="bms-page-title">
-            <FaUserCog style={{ color: '#1E60E6' }} />
-            Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
-          </h1>
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaUserCog size={22} />
+            </span>
+            <h1 className="bms-page-title">
+              Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
+            </h1>
+          </div>
           <p className="bms-page-subtitle">
             Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
           </p>
         </div>
-        <div>
+        <div className="bms-page-actions">
           <Button
             variant="primary"
             onClick={() => setShowCreateModal(true)}
@@ -425,17 +429,25 @@ export default function UserManagementPage() {
         <div className="p-3 border-bottom" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
           <Row className="g-2 align-items-center">
             <Col xs={12} md={6}>
-              <InputGroup size="sm">
-                <InputGroup.Text style={{ background: '#FFFFFF', borderColor: 'rgba(203, 213, 225, 0.8)', borderRight: 'none', borderRadius: '9999px 0 0 9999px', paddingLeft: 14 }}>
-                  <FaSearch className="text-muted" size={13} />
-                </InputGroup.Text>
-                <Form.Control
+              <div className="bms-search-input-pill">
+                <FaSearch className="bms-search-icon" />
+                <input
+                  type="text"
                   placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  style={{ background: '#FFFFFF', borderColor: 'rgba(203, 213, 225, 0.8)', borderLeft: 'none', borderRadius: '0 9999px 9999px 0', fontSize: '13px' }}
                 />
-              </InputGroup>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="bms-search-clear"
+                    onClick={() => setSearchTerm('')}
+                    title="Xóa tìm kiếm"
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                )}
+              </div>
             </Col>
             <Col xs={6} md={3}>
               <Form.Select

@@ -521,6 +521,7 @@ const SampleQueuePage = () => {
       {/* Page Header */}
       {/* Page Header */}
       <PageHeader
+        icon={<FaFlask size={20} />}
         title="Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm"
         lead="Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm."
         meta={['Tiêu chuẩn ISO 15189:2022', 'Mã hóa Barcode 1D/2D tự động']}

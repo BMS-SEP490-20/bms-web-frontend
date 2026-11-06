@@ -77,13 +77,13 @@
 .bms-setup-form {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 36px;
 }
 
 .bms-setup-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .bms-setup-section-title {
@@ -373,28 +373,29 @@ textarea.form-control.bms-setup-input {
   margin: 0;
 }
 
-/* 10. Minimalist Quick-Select Chips (Compact, neat 6px border-radius) */
+/* 10. Minimalist Quick-Select Chips (Spacious, airy, 8px border-radius) */
 .bms-chips-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px 10px;
+  margin-top: 10px;
 }
 
 .bms-chip-pill {
   background-color: #F1F5F9;
   border: none !important;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #475569;
-  font-size: 11.5px;
-  font-weight: 550;
-  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 5px 12px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   box-shadow: none !important;
 }
 

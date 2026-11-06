@@ -357,12 +357,12 @@ export default function ServicePackagesPage({ onBack }) {
                         <Table hover className="align-middle mb-0">
                         <thead>
                             <tr>
-                                <th className="bms-align-center" style={{ width: "160px" }}>Mã Gói</th>
-                                <th>Tên Gói Dịch Vụ</th>
-                                <th>Mô Tả & Chỉ Số</th>
-                                <th className="bms-align-right" style={{ width: "160px" }}>Đơn Giá Niêm Yết</th>
-                                <th className="bms-align-center" style={{ width: "140px" }}>Trạng Thái</th>
-                                <th className="bms-align-right" style={{ width: "130px" }}>Thao Tác</th>
+                                <th className="bms-align-center" style={{ width: "160px" }}>MÃ GÓI</th>
+                                <th>TÊN GÓI DỊCH VỤ</th>
+                                <th>MÔ TẢ &amp; CHỈ SỐ</th>
+                                <th className="bms-align-right" style={{ width: "160px" }}>ĐƠN GIÁ NIÊM YẾT</th>
+                                <th className="bms-align-center" style={{ width: "140px" }}>TRẠNG THÁI</th>
+                                <th className="bms-align-right" style={{ width: "130px" }}>THAO TÁC</th>
                             </tr>
                         </thead>
                         <tbody>

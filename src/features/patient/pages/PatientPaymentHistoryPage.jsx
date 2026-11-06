@@ -313,11 +313,11 @@ export default function PatientPaymentHistoryPage() {
       {/* 1. PAGE HEADER */}
       <header className="bms-payhistory-header">
         <div className="bms-payhistory-badge">
-          <FaShieldAlt className="me-1" /> CỔNG BỆNH NHÂN BMS • HÓA ĐƠN &amp; VIỆN PHÍ ĐIỆN TỬ
+          <FaShieldAlt className="me-1" /> HÓA ĐƠN &amp; VIỆN PHÍ
         </div>
-        <h1 className="bms-payhistory-title">Lịch Sử Thanh Toán &amp; Biên Lai Điện Tử</h1>
+        <h1 className="bms-payhistory-title">Lịch Sử Thanh Toán</h1>
         <p className="bms-payhistory-subtitle">
-          Tra cứu chi tiết các giao dịch viện phí, hóa đơn điện tử VAT (Nghị định 123/2020/NĐ-CP) và trạng thái thanh toán xét nghiệm qua Cổng VNPAY hoặc tại quầy tiếp đón.
+          Tra cứu chi tiết các giao dịch viện phí và xem hóa đơn điện tử VAT trực tuyến.
         </p>
       </header>
 
@@ -328,7 +328,7 @@ export default function PatientPaymentHistoryPage() {
             <FaFileInvoiceDollar />
           </div>
           <div>
-            <div className="bms-pay-kpi-label">Tổng Viện Phí Đã Thanh Toán</div>
+            <div className="bms-pay-kpi-label">Tổng viện phí đã thanh toán</div>
             <div className="bms-pay-kpi-val text-success">{formatCurrency(stats.totalPaid)}</div>
           </div>
         </div>
@@ -338,7 +338,7 @@ export default function PatientPaymentHistoryPage() {
             <FaCheckCircle />
           </div>
           <div>
-            <div className="bms-pay-kpi-label">Giao Dịch Đã Hoàn Tất</div>
+            <div className="bms-pay-kpi-label">Giao dịch hoàn tất</div>
             <div className="bms-pay-kpi-val text-primary">{stats.paidCount} hóa đơn</div>
           </div>
         </div>
@@ -348,7 +348,7 @@ export default function PatientPaymentHistoryPage() {
             <FaClock />
           </div>
           <div>
-            <div className="bms-pay-kpi-label">Phiếu Chờ Thanh Toán</div>
+            <div className="bms-pay-kpi-label">Phiếu chờ thanh toán</div>
             <div className="bms-pay-kpi-val text-warning">{stats.pendingCount} giao dịch</div>
           </div>
         </div>
@@ -356,20 +356,20 @@ export default function PatientPaymentHistoryPage() {
 
       {/* Date Range Validation Alert */}
       {isDateInvalid && (
-        <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3">
-          <FaExclamationTriangle />
-          <span>Ngày bắt đầu tra cứu phải trước hoặc bằng ngày kết thúc.</span>
+        <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-3 border-0 bg-warning-subtle text-dark">
+          <FaExclamationTriangle className="text-warning flex-shrink-0" />
+          <span className="small">Ngày bắt đầu tra cứu phải trước hoặc bằng ngày kết thúc.</span>
         </Alert>
       )}
 
       {/* Network Error Alert */}
       {error && (
-        <Alert variant="danger" className="d-flex align-items-center justify-content-between mb-3">
+        <Alert variant="danger" className="d-flex align-items-center justify-content-between mb-3 rounded-3 border-0 bg-danger-subtle text-dark">
           <div className="d-flex align-items-center gap-2">
-            <FaExclamationTriangle />
-            <span>{error}</span>
+            <FaExclamationTriangle className="text-danger flex-shrink-0" />
+            <span className="small">{error}</span>
           </div>
-          <Button variant="outline-danger" size="sm" onClick={fetchInvoices}>
+          <Button variant="outline-danger" size="sm" onClick={fetchInvoices} style={{ borderRadius: 6, fontSize: 12 }}>
             <FaSyncAlt className="me-1" /> Thử lại
           </Button>
         </Alert>
@@ -397,16 +397,16 @@ export default function PatientPaymentHistoryPage() {
               setFilterStatus(e.target.value);
               setPage(1);
             }}
-            style={{ width: 175, height: 38, borderRadius: 8 }}
+            style={{ width: 165, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
           >
             <option value="ALL">Tất cả trạng thái</option>
-            <option value="PAID">Đã thanh toán (Thành công)</option>
-            <option value="PENDING">Chờ thanh toán (Giữ chỗ 15p)</option>
+            <option value="PAID">Đã thanh toán</option>
+            <option value="PENDING">Chờ thanh toán</option>
           </Form.Select>
 
           {/* Date Filter: From Date */}
-          <div className="d-flex align-items-center gap-1">
-            <span className="small text-muted">Từ:</span>
+          <div className="d-flex align-items-center gap-1.5">
+            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Từ:</span>
             <Form.Control
               type="date"
               size="sm"
@@ -415,13 +415,13 @@ export default function PatientPaymentHistoryPage() {
                 setFromDate(e.target.value);
                 setPage(1);
               }}
-              style={{ width: 140, height: 38, borderRadius: 8 }}
+              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
             />
           </div>
 
           {/* Date Filter: To Date */}
-          <div className="d-flex align-items-center gap-1">
-            <span className="small text-muted">Đến:</span>
+          <div className="d-flex align-items-center gap-1.5">
+            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Đến:</span>
             <Form.Control
               type="date"
               size="sm"
@@ -430,7 +430,7 @@ export default function PatientPaymentHistoryPage() {
                 setToDate(e.target.value);
                 setPage(1);
               }}
-              style={{ width: 140, height: 38, borderRadius: 8 }}
+              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
             />
           </div>
 
@@ -439,9 +439,9 @@ export default function PatientPaymentHistoryPage() {
               variant="outline-secondary"
               size="sm"
               onClick={handleResetFilters}
-              style={{ height: 38, borderRadius: 8 }}
+              style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
             >
-              Đặt lại bộ lọc
+              Đặt lại
             </Button>
           )}
         </div>
@@ -452,17 +452,17 @@ export default function PatientPaymentHistoryPage() {
             size="sm"
             onClick={fetchInvoices}
             disabled={loading}
-            style={{ height: 38, display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8 }}
+            style={{ height: 38, display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
           >
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
 
           <Link
             to="/appointments/book"
-            className="btn btn-outline-primary btn-sm px-3 fw-semibold"
-            style={{ height: 38, display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8 }}
+            className="btn btn-primary btn-sm px-3 fw-semibold"
+            style={{ height: 38, display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8, fontSize: 12.5, background: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            <FaReceipt /> Đặt Lịch Xét Nghiệm Mới
+            <FaReceipt /> Đặt Lịch Mới
           </Link>
         </div>
       </div>
@@ -473,13 +473,13 @@ export default function PatientPaymentHistoryPage() {
           <table className="bms-pay-table">
             <thead>
               <tr>
-                <th>Số Hóa Đơn / Mã Tra Cứu CQT</th>
-                <th>Thời Gian Giao Dịch</th>
-                <th>Khoản Mục / Gói Dịch Vụ</th>
-                <th>Phương Thức &amp; Thuế Suất</th>
-                <th className="text-end">Số Tiền</th>
-                <th className="text-center">Trạng Thái</th>
-                <th className="text-end pe-3">Thao Tác</th>
+                <th>MÃ HÓA ĐƠN / CQT</th>
+                <th>THỜI GIAN</th>
+                <th>KHOẢN MỤC / GÓI KHÁM</th>
+                <th>PHƯƠNG THỨC</th>
+                <th className="text-end">SỐ TIỀN</th>
+                <th className="text-center">TRẠNG THÁI</th>
+                <th className="text-end pe-3">THAO TÁC</th>
               </tr>
             </thead>
             <tbody>
@@ -487,14 +487,15 @@ export default function PatientPaymentHistoryPage() {
                 <tr>
                   <td colSpan={7} className="text-center py-5 text-muted">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    Đang nạp dữ liệu hóa đơn điện tử và lịch sử viện phí từ hệ thống...
+                    Đang tải dữ liệu viện phí và hóa đơn điện tử...
                   </td>
                 </tr>
               ) : displayedTransactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-5 text-muted">
-                    <FaFileInvoiceDollar size={36} className="d-block mx-auto mb-2 opacity-50" />
-                    Chưa có giao dịch viện phí hoặc hóa đơn điện tử nào được ghi nhận cho tài khoản của bạn.
+                    <FaFileInvoiceDollar size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
+                    <div className="fw-semibold text-secondary">Chưa có giao dịch viện phí hoặc hóa đơn nào</div>
+                    <div className="small text-muted mt-1">Các giao dịch đặt lịch xét nghiệm sẽ hiển thị tại đây sau khi thanh toán.</div>
                   </td>
                 </tr>
               ) : (
@@ -505,48 +506,46 @@ export default function PatientPaymentHistoryPage() {
                       <td>
                         <div className="bms-txn-code">{item.invoiceNumber}</div>
                         {item.cqtCode && (
-                          <div className="text-muted font-monospace" style={{ fontSize: 11 }} title="Mã cơ quan thuế cấp theo NĐ 123/2020/NĐ-CP">
-                            CQT: {item.cqtCode.slice(0, 16)}...
+                          <div className="text-muted font-monospace" style={{ fontSize: 11 }} title="Mã cơ quan thuế">
+                            CQT: {item.cqtCode.slice(0, 14)}...
                           </div>
                         )}
                         {item.transactionCode && (
-                          <small className="text-secondary font-monospace" style={{ fontSize: 11 }}>
-                            Mã GD: {item.transactionCode}
-                          </small>
+                          <div className="text-muted font-monospace" style={{ fontSize: 11 }}>
+                            GD: {item.transactionCode}
+                          </div>
                         )}
                       </td>
-                      <td className="text-muted small">
+                      <td className="text-muted" style={{ fontSize: 12.5, whiteSpace: 'nowrap' }}>
                         {formatDateTime(item.paidAt)}
                       </td>
                       <td>
-                        <div className="fw-semibold text-dark">{item.packageName}</div>
-                        <small className="text-secondary">Mã lịch hẹn: {item.appointmentCode}</small>
+                        <div className="fw-semibold text-dark" style={{ fontSize: 13 }}>{item.packageName}</div>
+                        <div className="text-muted" style={{ fontSize: 11.5 }}>Mã hẹn: {item.appointmentCode}</div>
                       </td>
                       <td>
-                        <div>
-                          <span className="badge bg-light text-dark border me-1">
-                            {item.rawPaymentMethod === 'Cash' || item.paymentMethod.includes('quầy') ? (
-                              <FaMoneyBillWave className="me-1 text-success" />
-                            ) : (
-                              <FaCreditCard className="me-1 text-primary" />
-                            )}
-                            {item.paymentMethod}
-                          </span>
+                        <span className="badge bg-light text-dark border me-1 fw-normal" style={{ fontSize: 11.5 }}>
+                          {item.rawPaymentMethod === 'Cash' || item.paymentMethod.includes('quầy') ? (
+                            <FaMoneyBillWave className="me-1 text-success" />
+                          ) : (
+                            <FaCreditCard className="me-1 text-primary" />
+                          )}
+                          {item.paymentMethod}
+                        </span>
+                        <div className="text-muted mt-0.5" style={{ fontSize: 11 }}>
+                          Thuế: <span className="fw-semibold text-primary">{item.taxRate === 'KCT' ? 'KCT (Y tế)' : `${item.taxRate}%`}</span>
                         </div>
-                        <small className="text-muted mt-1 d-inline-block">
-                          Thuế suất VAT: <span className="fw-semibold text-primary">{item.taxRate === 'KCT' ? 'KCT (Y tế)' : `${item.taxRate}%`}</span>
-                        </small>
                       </td>
-                      <td className="text-end fw-bold text-dark font-monospace">
+                      <td className="text-end fw-bold text-dark font-monospace" style={{ fontSize: 13.5 }}>
                         {formatCurrency(item.amount)}
                       </td>
                       <td className="text-center">
                         {isPaid ? (
-                          <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-semibold">
+                          <span className="badge bg-success-subtle text-success border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
                             <FaCheckCircle className="me-1" /> Đã Thanh Toán
                           </span>
                         ) : (
-                          <span className="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 fw-semibold">
+                          <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
                             <FaClock className="me-1" /> Chờ Thanh Toán
                           </span>
                         )}
@@ -557,19 +556,19 @@ export default function PatientPaymentHistoryPage() {
                             type="button"
                             className="btn btn-outline-primary btn-sm py-1 px-2.5 fw-semibold d-inline-flex align-items-center gap-1.5"
                             onClick={() => handleOpenReceipt(item)}
-                            style={{ borderRadius: 6, fontSize: 13 }}
-                            title="Xem và in Hóa đơn điện tử VAT theo Nghị định 123/2020/NĐ-CP"
+                            style={{ borderRadius: 6, fontSize: 12.5 }}
+                            title="Xem và in Hóa đơn điện tử VAT"
                           >
-                            <FaFileInvoiceDollar className="text-primary" /> Hóa Đơn VAT
+                            <FaFileInvoiceDollar /> Hóa Đơn VAT
                           </button>
                         ) : (
                           <button
                             type="button"
-                            className="btn btn-success btn-sm py-1 px-3 fw-bold shadow-sm"
+                            className="btn btn-success btn-sm py-1 px-3 fw-bold"
                             onClick={() => navigate(`/payments/checkout?invoiceId=${item.id}&appointmentId=${item.appointmentCode}&amount=${item.amount}`)}
-                            style={{ borderRadius: 6, fontSize: 13 }}
+                            style={{ borderRadius: 6, fontSize: 12.5 }}
                           >
-                            Thanh Toán Ngay <FaArrowRight className="ms-1" />
+                            Thanh Toán <FaArrowRight className="ms-1" />
                           </button>
                         )}
                       </td>
@@ -582,9 +581,9 @@ export default function PatientPaymentHistoryPage() {
         </div>
 
         {/* 5. PAGINATION CONTROLS */}
-        <div className="p-3 bg-light border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div className="bms-pay-pagination">
           <div className="d-flex align-items-center gap-2">
-            <span className="small text-muted">Hiển thị:</span>
+            <span className="small text-muted" style={{ fontSize: 12 }}>Hiển thị:</span>
             <Form.Select
               size="sm"
               value={pageSize}
@@ -592,14 +591,14 @@ export default function PatientPaymentHistoryPage() {
                 setPageSize(Number(e.target.value));
                 setPage(1);
               }}
-              style={{ width: 100, height: 32, borderRadius: 6 }}
+              style={{ width: 95, height: 32, borderRadius: 6, fontSize: 12, borderColor: '#E2E8F0' }}
             >
               <option value={10}>10 dòng</option>
               <option value={20}>20 dòng</option>
               <option value={50}>50 dòng</option>
             </Form.Select>
-            <span className="small text-muted ms-2">
-              Tổng số: <strong>{totalCount}</strong> giao dịch (Trang {page} / {totalPages})
+            <span className="small text-muted ms-2" style={{ fontSize: 12 }}>
+              Tổng <strong>{totalCount}</strong> giao dịch (Trang {page} / {totalPages})
             </span>
           </div>
 
@@ -609,11 +608,11 @@ export default function PatientPaymentHistoryPage() {
               size="sm"
               disabled={page <= 1 || loading}
               onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              style={{ borderRadius: 6 }}
+              style={{ borderRadius: 6, fontSize: 12, padding: '4px 10px' }}
             >
               Trang trước
             </Button>
-            <span className="small fw-semibold px-2">
+            <span className="small fw-semibold px-2" style={{ fontSize: 12 }}>
               {page} / {totalPages}
             </span>
             <Button
@@ -621,7 +620,7 @@ export default function PatientPaymentHistoryPage() {
               size="sm"
               disabled={page >= totalPages || loading}
               onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-              style={{ borderRadius: 6 }}
+              style={{ borderRadius: 6, fontSize: 12, padding: '4px 10px' }}
             >
               Trang sau
             </Button>
@@ -630,15 +629,15 @@ export default function PatientPaymentHistoryPage() {
       </div>
 
       {/* 6. HELPFUL FOOTER NOTICE */}
-      <div className="p-3 bg-white border rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2 text-muted small">
+      <div className="bms-pay-footer-note">
         <div className="d-flex align-items-center gap-2">
           <FaInfoCircle className="text-primary flex-shrink-0" />
           <span>
-            Hóa đơn điện tử VAT được phát hành theo Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC của Bộ Tài chính. Quý khách có thể xuất trình mã tra cứu CQT hoặc quét mã QR khi làm thủ tục tại cơ sở y tế.
+            Hóa đơn điện tử VAT được phát hành theo quy định của Bộ Tài chính. Quý khách có thể xuất trình mã tra cứu CQT khi làm thủ tục tại cơ sở y tế.
           </span>
         </div>
         <div>
-          <span>Hotline Hỗ Trợ Viện Phí &amp; Hóa Đơn: <strong>1900 6868</strong> (nhánh 2)</span>
+          <span>Hotline hỗ trợ: <strong className="text-dark">1900 6868</strong></span>
         </div>
       </div>
 

@@ -377,7 +377,7 @@ export default function LoginPage({
 
   return (
     <div 
-      className="min-vh-100 d-flex flex-column align-items-center justify-content-center p-3 p-sm-4"
+      className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 px-3 px-sm-4"
       style={{ 
         backgroundColor: '#FFFFFF', 
         fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
@@ -386,7 +386,7 @@ export default function LoginPage({
       {/* ======================================================================
           CENTER TOP: Centered BMS Brand Logo Only (No Text, 3x Prominent Scale)
           ====================================================================== */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-4 pb-2">
         <Link to="/" className="d-inline-block text-decoration-none" title="Trang chủ BMS">
           <img 
             src="/assets/bms-logo.png" 
@@ -408,7 +408,7 @@ export default function LoginPage({
           boxShadow: 'none'
         }}
       >
-        <div className="text-center mb-4">
+        <div className="text-center mb-4 pb-1">
           <h2 className="fw-bold mb-0" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em' }}>
             Đăng Nhập Cổng BMS
           </h2>
@@ -416,14 +416,14 @@ export default function LoginPage({
 
         {/* Notifications & Feedback */}
         {successNotice && (
-          <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
+          <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
             <FaCheckCircle className="flex-shrink-0" style={{ color: '#16A34A' }} />
             <span style={{ fontSize: '13px' }}>{successNotice}</span>
           </Alert>
         )}
 
         {error && (
-          <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
+          <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
             <FaShieldAlt className="flex-shrink-0" style={{ color: '#DC2626' }} />
             <span style={{ fontSize: '13px' }}>{error}</span>
           </Alert>
@@ -433,8 +433,8 @@ export default function LoginPage({
         <form onSubmit={handleSubmit} noValidate>
           
           {/* Identifier Field */}
-          <div className="mb-3">
-            <label htmlFor="login-email" className="form-label fw-semibold text-dark mb-1" style={{ fontSize: '12.5px' }}>
+          <div className="mb-3.5">
+            <label htmlFor="login-email" className="form-label fw-semibold text-dark mb-1.5" style={{ fontSize: '13px' }}>
               Tên đăng nhập hoặc Email <span className="text-danger">*</span>
             </label>
             <div className="position-relative d-flex align-items-center">
@@ -462,7 +462,7 @@ export default function LoginPage({
                 autoFocus
                 style={{
                   width: '100%',
-                  height: '46px',
+                  height: '48px',
                   paddingLeft: '44px',
                   paddingRight: '16px',
                   backgroundColor: focusedInput === 'email' ? '#FFFFFF' : '#F1F5F9',
@@ -481,15 +481,15 @@ export default function LoginPage({
           </div>
 
           {/* Password Field */}
-          <div className="mb-3">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '12.5px' }}>
+          <div className="mb-3.5">
+            <div className="d-flex justify-content-between align-items-center mb-1.5">
+              <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '13px' }}>
                 Mật khẩu bảo mật <span className="text-danger">*</span>
               </label>
               <button
                 type="button"
                 className="btn btn-link p-0 text-decoration-none"
-                style={{ fontSize: '12px', color: '#1E60E6', fontWeight: 600 }}
+                style={{ fontSize: '12.5px', color: '#1E60E6', fontWeight: 600 }}
                 onClick={onForgotPassword || (() => navigate("/forgot-password"))}
               >
                 Quên mật khẩu?
@@ -519,7 +519,7 @@ export default function LoginPage({
                 disabled={loading || isLocked}
                 style={{
                   width: '100%',
-                  height: '46px',
+                  height: '48px',
                   paddingLeft: '44px',
                   paddingRight: '44px',
                   backgroundColor: focusedInput === 'password' ? '#FFFFFF' : '#F1F5F9',
@@ -555,7 +555,7 @@ export default function LoginPage({
           </div>
 
           {/* Remember Me Option */}
-          <div className="d-flex align-items-center justify-content-between my-3 pt-1">
+          <div className="d-flex align-items-center justify-content-between my-3.5 pt-1">
             <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
               <input
                 type="checkbox"
@@ -563,7 +563,7 @@ export default function LoginPage({
                 onChange={(e) => setRememberMe(e.target.checked)}
                 style={{ width: '15px', height: '15px', accentColor: '#1E60E6', cursor: 'pointer' }}
               />
-              <span style={{ fontSize: '12.5px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
+              <span style={{ fontSize: '13px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
             </label>
           </div>
 
@@ -577,7 +577,7 @@ export default function LoginPage({
               backgroundColor: '#1E60E6',
               color: '#FFFFFF',
               border: 'none',
-              fontSize: '14px',
+              fontSize: '14.5px',
               boxShadow: 'none',
               cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
               transition: 'background-color 0.15s ease'
@@ -595,15 +595,15 @@ export default function LoginPage({
           </button>
         </form>
 
-        {/* OR Divider */}
-        <div className="d-flex align-items-center my-3.5 pt-1">
+        {/* OR Divider with Generous Breathing Room */}
+        <div className="d-flex align-items-center" style={{ marginTop: '28px', marginBottom: '28px' }}>
           <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
-          <span className="px-3 text-muted fw-semibold" style={{ fontSize: '12px' }}>hoặc tiếp tục với</span>
+          <span className="px-3.5 text-muted fw-semibold" style={{ fontSize: '12.5px', color: '#64748B' }}>hoặc tiếp tục với</span>
           <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
         </div>
 
         {/* Google OAuth 2.0 Single Sign-On Button */}
-        <div className="d-flex justify-content-center w-100 mb-2">
+        <div className="d-flex justify-content-center w-100" style={{ marginBottom: '32px' }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={handleGoogleError}
@@ -617,8 +617,8 @@ export default function LoginPage({
         </div>
 
         {/* Quick Fill Demo Roles (For Testing & Validation) */}
-        <div className="mt-4 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
-          <div className="text-muted small fw-semibold mb-2" style={{ fontSize: '12px' }}>
+        <div style={{ paddingTop: '28px', borderTop: '1px solid #E2E8F0' }}>
+          <div className="text-muted small fw-semibold mb-2.5" style={{ fontSize: '12px' }}>
             Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):
           </div>
           <div className="d-flex flex-wrap gap-2">
@@ -680,14 +680,14 @@ export default function LoginPage({
         </div>
 
         {/* Footer Registration Link */}
-        <div className="text-center mt-4 text-muted" style={{ fontSize: '13px' }}>
+        <div className="text-center mt-4 pt-2 text-muted" style={{ fontSize: '13.5px' }}>
           <span>Chưa có tài khoản bệnh nhân? </span>
           {onRegister ? (
             <button 
               type="button" 
               onClick={onRegister}
               className="btn btn-link p-0 text-decoration-none fw-bold"
-              style={{ color: '#1E60E6', fontSize: '13px' }}
+              style={{ color: '#1E60E6', fontSize: '13.5px' }}
             >
               Đăng ký ngay
             </button>
@@ -705,7 +705,7 @@ export default function LoginPage({
       </div>
 
       {/* Footer Minimal Copyright */}
-      <div className="text-center mt-4 text-muted" style={{ fontSize: '12px' }}>
+      <div className="text-center mt-4 pt-3 text-muted" style={{ fontSize: '12px', color: '#94A3B8' }}>
         © 2026 BMS Clinical Laboratory · ISO 15189:2022
       </div>
     </div>

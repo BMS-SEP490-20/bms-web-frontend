@@ -34,6 +34,37 @@
   width: 100%;
 }
 
+/* Dedicated Pill Search Input - Guaranteed Space & Zero Barcode Icon Collision */
+.bms-track-search-input {
+  width: 100%;
+  height: 46px !important;
+  padding-left: 52px !important;
+  padding-right: 42px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background-color: #F1F5F9 !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 9999px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #0F172A !important;
+  outline: none !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.bms-track-search-input:focus {
+  background-color: #FFFFFF !important;
+  border-color: #1E60E6 !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.12) !important;
+}
+
+.bms-track-search-input::placeholder {
+  color: #94A3B8 !important;
+  font-weight: 450 !important;
+}
+
 .bms-hero-search-box {
   display: flex;
   align-items: center;

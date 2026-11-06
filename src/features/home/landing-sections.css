@@ -7,18 +7,43 @@
 }
 
 .bms-hero-art--big {
+  position: relative;
   width: 100%;
   min-width: 420px;
   align-self: center;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soft luminous glow behind transparent narrative artwork to prevent monochromatic blending */
+.bms-hero-art--big::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 88%;
+  height: 88%;
+  max-width: 520px;
+  max-height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 96, 230, 0.12) 0%, rgba(56, 189, 248, 0.08) 36%, rgba(16, 185, 129, 0.04) 62%, rgba(248, 250, 252, 0) 78%);
+  filter: blur(32px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .bms-hero-art--big img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 560px;
   height: auto;
   display: block;
   margin: 0 auto;
+  filter: drop-shadow(0 14px 36px rgba(30, 96, 230, 0.08));
 }
 
 .bms-hero-page-metrics {

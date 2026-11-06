@@ -53,7 +53,7 @@ export async function getUserNotifications(userId, params = {}) {
  * @returns {Promise<Object>}
  */
 export async function markNotificationRead(notificationId) {
-    return unwrap(await api.put(`/v1/notifications/${encodeURIComponent(notificationId)}/read`));
+    return unwrap(await api.patch(`/v1/notifications/${encodeURIComponent(notificationId)}/read`));
 }
 
 /**
@@ -62,7 +62,7 @@ export async function markNotificationRead(notificationId) {
  * @returns {Promise<Object>}
  */
 export async function markAllNotificationsRead(userId) {
-    return unwrap(await api.put(`/v1/notifications/user/${encodeURIComponent(userId)}/read-all`));
+    return unwrap(await api.patch(`/v1/notifications/user/${encodeURIComponent(userId)}/read-all`));
 }
 
 /**

@@ -426,19 +426,26 @@ export default function Sidebar({
                   }}
                 >
                   {isCollapsed && (
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: active ? '#1E60E6' : '#64748B' }}>{item.label.charAt(0)}</span>
+                    Icon ? (
+                      <Icon size={18} style={{ color: active ? '#FFFFFF' : '#64748B', flexShrink: 0 }} title={item.label} />
+                    ) : (
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: active ? '#FFFFFF' : '#64748B' }}>{item.label.charAt(0)}</span>
+                    )
                   )}
                   {!isCollapsed && (
-                    <span
-                      style={{
-                        flex: 1,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {item.label}
-                    </span>
+                    <>
+                      {Icon && <Icon size={16} style={{ color: active ? '#FFFFFF' : '#64748B', flexShrink: 0 }} />}
+                      <span
+                        style={{
+                          flex: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {item.label}
+                      </span>
+                    </>
                   )}
                   {!isCollapsed && item.badge && (
                     <span

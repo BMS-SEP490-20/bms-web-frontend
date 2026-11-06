@@ -108,7 +108,7 @@ export default function PricingPage() {
                   Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Áp dụng thanh toán BHYT đúng tuyến &amp; thông tuyến, xuất hóa đơn điện tử VAT 0% theo Nghị định 123/2020/NĐ-CP.
                 </p>
               </div>
-              <div className="d-flex gap-2.5 align-items-center flex-shrink-0">
+              <div className="d-flex gap-2 align-items-center flex-shrink-0">
                 <button
                   type="button"
                   className="btn"
@@ -148,32 +148,32 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 2. Filter & Search Toolbar + Table */}
-      <section className="py-3">
+      {/* 2. Filter & Search Toolbar Section */}
+      <section className="pt-2 pb-1">
         <Container style={{ maxWidth: '1400px' }}>
           
-          {/* Unified Toolbar Card - Pure 2D Flat */}
+          {/* Unified Toolbar Card - Distinct Visible Boundary */}
           <div
-            className="mb-4"
+            className="mb-2"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '20px',
-              border: 'none',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
               boxShadow: 'none',
               padding: '20px 24px'
             }}
           >
             <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
               
-              {/* Search Input - Distinct soft surface, 48px padding */}
+              {/* Search Input - Clean High-Contrast Input with Visible Border & No Collision */}
               <div className="position-relative" style={{ maxWidth: '460px', width: '100%' }}>
                 <FaSearch
                   style={{
                     position: 'absolute',
-                    left: '18px',
+                    left: '16px',
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    color: '#64748B',
+                    color: '#1E60E6',
                     fontSize: '14px',
                     pointerEvents: 'none',
                     zIndex: 2
@@ -187,11 +187,11 @@ export default function PricingPage() {
                   style={{
                     width: '100%',
                     height: '44px',
-                    paddingLeft: '48px',
+                    paddingLeft: '46px',
                     paddingRight: searchQuery ? '38px' : '18px',
                     borderRadius: '12px',
-                    border: 'none',
-                    backgroundColor: '#F1F5F9',
+                    border: '1px solid #CBD5E1',
+                    backgroundColor: '#FFFFFF',
                     fontSize: '13px',
                     fontWeight: 500,
                     color: '#0F172A',
@@ -255,29 +255,32 @@ export default function PricingPage() {
               </div>
             </div>
           </div>
+        </Container>
+      </section>
 
-          {/* 3. Table Card - Pure 2D Flat, High Contrast Thead */}
+      {/* 3. Independent Table Section (Standalone Canvas Section - NOT in Card) */}
+      <section className="bms-pricing-table-section py-2">
+        <Container style={{ maxWidth: '1400px' }}>
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: 'none',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
               borderRadius: '20px',
               overflow: 'hidden',
-              boxShadow: 'none',
-              padding: '8px 0'
+              boxShadow: 'none'
             }}
           >
             <div className="table-responsive">
               <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
-                <thead style={{ backgroundColor: '#EDF2F7', borderBottom: '2px solid #CBD5E1' }}>
+                <thead style={{ backgroundColor: '#F1F5F9', borderBottom: '2px solid #CBD5E1' }}>
                   <tr>
-                    <th className="ps-4 py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Mã Dịch Vụ</th>
-                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#EDF2F7' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
-                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Chuyên Khoa</th>
-                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Ống Bệnh Phẩm</th>
-                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Thời Gian (TAT)</th>
-                    <th className="text-end py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Đơn Giá Niêm Yết</th>
-                    <th className="text-end pe-4 py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Thao Tác</th>
+                    <th className="ps-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Mã Dịch Vụ</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#F1F5F9' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Chuyên Khoa</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Ống Bệnh Phẩm</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Thời Gian (TAT)</th>
+                    <th className="text-end py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Đơn Giá Niêm Yết</th>
+                    <th className="text-end pe-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -340,20 +343,28 @@ export default function PricingPage() {
                             padding: '3px 9px',
                             borderRadius: '9999px'
                           }}>
-                            {item.category || 'Lâm Sàng'}
+                            {item.category || '-'}
                           </span>
                         </td>
                         <td className="py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <div className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontSize: '12px' }}>
-                            <FaVial style={{ color: '#1E60E6', fontSize: '11px', marginRight: '4px' }} />
-                            <span>{item.sampleTube || 'EDTA/Serum'}</span>
-                          </div>
+                          {item.sampleTube ? (
+                            <div className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontSize: '12px' }}>
+                              <FaVial style={{ color: '#1E60E6', fontSize: '11px', marginRight: '4px' }} />
+                              <span>{item.sampleTube}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#94A3B8' }}>-</span>
+                          )}
                         </td>
                         <td className="py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <div className="d-flex align-items-center gap-1.5 text-muted" style={{ fontSize: '12px' }}>
-                            <FaClock style={{ fontSize: '11px', marginRight: '4px' }} />
-                            <span>{item.tat || '60 - 90 Phút'}</span>
-                          </div>
+                          {item.tat ? (
+                            <div className="d-flex align-items-center gap-1.5 text-muted" style={{ fontSize: '12px' }}>
+                              <FaClock style={{ fontSize: '11px', marginRight: '4px' }} />
+                              <span>{item.tat}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#94A3B8' }}>-</span>
+                          )}
                         </td>
                         <td className="text-end py-3" style={{ whiteSpace: 'nowrap' }}>
                           <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
@@ -386,13 +397,17 @@ export default function PricingPage() {
               </Table>
             </div>
           </div>
+        </Container>
+      </section>
 
-          {/* 4. Compliance & Policy Footer Card (Pure 2D Flat Card Container) */}
+      {/* 4. Compliance & Policy Footer Card */}
+      <section className="py-3 pb-5">
+        <Container style={{ maxWidth: '1400px' }}>
           <div
-            className="mt-4 p-4"
+            className="p-4"
             style={{
               backgroundColor: '#FFFFFF',
-              border: 'none',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
               borderRadius: '20px',
               boxShadow: 'none'
             }}

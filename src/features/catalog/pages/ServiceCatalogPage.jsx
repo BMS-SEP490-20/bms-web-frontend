@@ -706,7 +706,7 @@ export default function ServiceCatalogPage() {
                   <Col sm={6}>
                     <div style={{ color: '#64748B' }}>Loại mẫu yêu cầu:</div>
                     <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.sampleTube} ({selectedPackage.sampleVolumeMl || 3} ml)
+                      {selectedPackage.sampleTube || '-'} {selectedPackage.sampleVolumeMl ? `(${selectedPackage.sampleVolumeMl} ml)` : ''}
                     </div>
                   </Col>
                   <Col sm={6}>

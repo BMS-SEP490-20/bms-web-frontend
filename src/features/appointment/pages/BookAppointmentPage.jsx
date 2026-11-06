@@ -212,7 +212,7 @@ export function BookAppointmentPage({
             packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
             price: p.price ?? 250000,
             description: p.description || 'Gói xét nghiệm chuẩn ISO 15189 tại phòng xét nghiệm BMS.',
-            fastingRule: p.fastingRule || (String(p.category || '').toLowerCase().includes('hematology') || String(p.category || '').toLowerCase().includes('huyết học') ? 'Không cần nhịn ăn' : 'Nhịn ăn sáng 8 - 12 giờ')
+            fastingRule: p.fastingRule || ''
           }));
           setPackages(mapped);
         }

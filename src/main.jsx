@@ -16,13 +16,17 @@ import "./styles/bms-tokens.css";
 import "./styles/bms-foundation.css";
 import App from "./App.jsx";
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "622747466562-hfet3u28cr86125gtpaei8sj69meer4t.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 // Mount root component inside React StrictMode to catch side effects and deprecated lifecycles in development
 createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        {GOOGLE_CLIENT_ID ? (
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                <App />
+            </GoogleOAuthProvider>
+        ) : (
             <App />
-        </GoogleOAuthProvider>
+        )}
     </React.StrictMode>
 );

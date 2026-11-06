@@ -318,6 +318,7 @@ export default function LoginPage({
 
   // Google OAuth 2.0 Single Sign-On Handler
   const handleGoogleSuccess = async (credentialResponse) => {
+    if (loading || isLocked) return;
     if (!credentialResponse?.credential) {
       setError("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
       return;
@@ -595,26 +596,40 @@ export default function LoginPage({
           </button>
         </form>
 
-        {/* OR Divider with Generous Breathing Room */}
-        <div className="d-flex align-items-center" style={{ marginTop: '28px', marginBottom: '28px' }}>
-          <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
-          <span className="px-3.5 text-muted fw-semibold" style={{ fontSize: '12.5px', color: '#64748B' }}>hoặc tiếp tục với</span>
-          <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
-        </div>
+        {/* Google OAuth 2.0 Single Sign-On Button (Lockout & Loading Protected) */}
+        {Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID) && (
+          <>
+            {/* OR Divider with Generous Breathing Room */}
+            <div className="d-flex align-items-center" style={{ marginTop: '28px', marginBottom: '28px' }}>
+              <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
+              <span className="px-3.5 text-muted fw-semibold" style={{ fontSize: '12.5px', color: '#64748B' }}>hoặc tiếp tục với</span>
+              <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
+            </div>
 
-        {/* Google OAuth 2.0 Single Sign-On Button */}
-        <div className="d-flex justify-content-center w-100" style={{ marginBottom: '32px' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            theme="outline"
-            size="large"
-            shape="pill"
-            text="continue_with"
-            locale="vi"
-            width="380"
-          />
-        </div>
+            <div 
+              className="d-flex justify-content-center w-100" 
+              style={{ 
+                marginBottom: '32px',
+                pointerEvents: (loading || isLocked) ? 'none' : 'auto',
+                opacity: (loading || isLocked) ? 0.45 : 1,
+                cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
+                transition: 'opacity 0.2s ease'
+              }}
+              title={(loading || isLocked) ? 'Tài khoản đang tạm khóa hoặc đang xử lý xác thực' : 'Đăng nhập nhanh bằng tài khoản Google'}
+            >
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                shape="pill"
+                text="continue_with"
+                locale="vi"
+                width="380"
+              />
+            </div>
+          </>
+        )}
 
         {/* Quick Fill Demo Roles (For Testing & Validation) */}
         <div style={{ paddingTop: '28px', borderTop: '1px solid #E2E8F0' }}>

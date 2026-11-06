@@ -433,27 +433,30 @@ export default function GuestHomePage() {
                   boxShadow: 'none',
                   transition: 'background-color 0.15s ease'
                 }}
-                className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3.5"
+                className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
               >
-                {/* Left: Category Icon + Badges + Title (Spacious, Single Line, No Clumsy Line Break) */}
-                <div style={{ flex: '0 0 460px', maxWidth: '500px', minWidth: 0 }}>
-                  <div className="d-flex align-items-center gap-3">
+                {/* Left: Specialty Icon + Full-Width Content Stack (Zero Awkward Breaks) */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="d-flex align-items-start gap-3">
                     <div
                       style={{
-                        width: '44px',
-                        height: '44px',
+                        width: '46px',
+                        height: '46px',
                         flexShrink: 0,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         backgroundColor: '#F8FAFC',
-                        borderRadius: '12px'
+                        borderRadius: '12px',
+                        marginTop: '2px'
                       }}
                     >
                       <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
                     </div>
+
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div className="d-flex align-items-center gap-2 mb-1">
+                      {/* Row 1: Badges */}
+                      <div className="d-flex flex-wrap align-items-center gap-2 mb-1.5">
                         <span
                           style={{
                             fontSize: '10.5px',
@@ -482,11 +485,13 @@ export default function GuestHomePage() {
                           {pkg.packageCode || pkg.id || 'BMS'}
                         </span>
                       </div>
+
+                      {/* Row 2: Full Package Title (No Ellipsis, Full Available Width) */}
                       <h3
-                        className="mb-0"
+                        className="mb-1.5"
                         style={{
-                          fontSize: '13.5px',
-                          fontWeight: 600,
+                          fontSize: '15px',
+                          fontWeight: 650,
                           color: '#0F172A',
                           letterSpacing: '-0.01em',
                           lineHeight: '1.4',
@@ -495,30 +500,34 @@ export default function GuestHomePage() {
                       >
                         {pkg.packageName}
                       </h3>
+
+                      {/* Row 3: Clinical Scope & Description */}
+                      <p
+                        className="mb-0 text-muted"
+                        style={{
+                          fontSize: '13px',
+                          lineHeight: '1.6',
+                          color: '#475569',
+                          maxWidth: '850px'
+                        }}
+                      >
+                        {pkg.description || 'Chỉ định lâm sàng theo dõi các chỉ số sinh hóa và huyết học chuyên sâu.'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Middle: Clinical Scope & Description (Airy, Readable) */}
-                <div style={{ flex: 1, minWidth: '260px' }}>
-                  <p
-                    className="mb-0 text-muted"
-                    style={{
-                      fontSize: '13px',
-                      lineHeight: '1.6',
-                      color: '#475569',
-                      maxWidth: '560px'
-                    }}
-                  >
-                    {pkg.description || 'Chỉ định lâm sàng theo dõi các chỉ số sinh hóa và huyết học chuyên sâu.'}
-                  </p>
-                </div>
-
-                {/* Right: Price & CTA Action Button Side by Side */}
-                <div className="d-flex align-items-center justify-content-lg-end gap-3 flex-shrink-0">
-                  <div className="text-lg-end pe-2">
+                {/* Right: Price & CTA Action Button (Clean Vertical Border Divider) */}
+                <div
+                  className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
+                  style={{
+                    borderLeft: '1px solid #F1F5F9',
+                    minWidth: '220px'
+                  }}
+                >
+                  <div className="text-xl-end">
                     <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 550 }}>Đơn giá niêm yết:</div>
-                    <div className="fw-bold tabular-nums" style={{ fontSize: '18px', color: '#0F172A', lineHeight: '1.2' }}>
+                    <div className="fw-bold tabular-nums" style={{ fontSize: '19px', color: '#0F172A', lineHeight: '1.2' }}>
                       {new Intl.NumberFormat('vi-VN').format(pkg.price || 0)} <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>VNĐ</span>
                     </div>
                   </div>
@@ -530,8 +539,8 @@ export default function GuestHomePage() {
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '9999px',
-                      padding: '9px 24px',
-                      fontSize: '12.5px',
+                      padding: '8px 22px',
+                      fontSize: '12px',
                       fontWeight: 700,
                       whiteSpace: 'nowrap',
                       cursor: 'pointer',
@@ -583,7 +592,7 @@ export default function GuestHomePage() {
                   </ul>
                 </div>
                 <img
-                  src={`${sec.svg}?v=3.1.2`}
+                  src={`${sec.svg}?v=3.1.4`}
                   alt={sec.title}
                   aria-hidden="true"
                 />

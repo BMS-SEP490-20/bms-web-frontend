@@ -1,137 +1,169 @@
 /**
  * @file UserProfilePage.css
- * @description Styling tokens and components for User Profile screen (UC08).
- * Conforms to: AGENTS-DESIGN.md & Minimalist Clinical UI.
- * Zero shadow, zero heavy borders, zero hover jumps, high contrast typography.
+ * @description Flat, airy, borderless styling for User Profile & Clinical Records (UC08).
+ * Pure 2D Flat - Zero border, zero shadow, zero horizontal lines, macOS/Home aesthetic.
  */
 
 .bms-profile-page {
-  padding: 16px 0 48px;
-  width: 100%;
-  max-width: 100%;
+  background-color: #F8FAFC;
+  min-height: calc(100vh - 120px);
+  padding: 32px 16px 64px;
+}
+
+/* Main Profile Cards (Pure Flat 2D, No Border, No Shadow) */
+.bms-profile-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 32px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .bms-profile-card {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+}
+
+/* Header Masthead inside Profile */
+.bms-profile-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 4px;
+}
+
+.bms-profile-masthead .bms-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EFF6FF;
+  color: #1E60E6;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none !important;
+  margin-bottom: 8px;
+}
+
+.bms-profile-main-title {
+  font-size: 20px;
+  font-weight: 750;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
   margin: 0;
 }
 
-.bms-profile-card {
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
-  box-shadow: none !important;
-  overflow: hidden;
+.bms-profile-main-subtitle {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 4px 0 0;
 }
 
-.bms-profile-card-header {
-  background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
-  color: #0F172A;
-  padding: 20px 24px;
-}
-
+/* Avatar & Identity Sidebar */
 .bms-avatar-wrapper {
   position: relative;
   display: inline-block;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .bms-avatar-img {
-  width: 104px;
-  height: 104px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #E2E8F0;
+  border: 3px solid #F1F5F9;
   box-shadow: none !important;
 }
 
 .bms-active-dot {
   width: 12px;
   height: 12px;
-  background-color: #16a34a;
-  border: 2px solid #ffffff;
+  background-color: #16A34A;
+  border: 2px solid #FFFFFF;
   border-radius: 50%;
   position: absolute;
-  bottom: 6px;
-  right: 6px;
+  bottom: 4px;
+  right: 4px;
 }
 
-.bms-patient-code-badge {
-  display: inline-flex;
-  align-items: center;
-  background: #f8fafc;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-family: monospace;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 4px 10px;
-  margin-top: 6px;
-}
-
-.bms-role-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: rgba(30, 96, 230, 0.08);
-  color: #1E60E6;
-  border: 1px solid rgba(30, 96, 230, 0.2);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 6px;
-  margin-top: 8px;
-}
-
-.bms-field-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 4px;
-}
-
-.bms-field-value {
+/* Section titles (NO horizontal line rules) */
+.bms-profile-section-title {
   font-size: 14.5px;
-  font-weight: 500;
-  color: #0f172a;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 10px 14px;
-  min-height: 42px;
-  box-shadow: none !important;
-}
-
-.bms-blood-badge {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  display: inline-block;
+  color: #0F172A;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+  border: none !important;
+  padding-bottom: 0 !important;
 }
 
-/* Fast Tag Selection in Profile Edit */
+/* Inputs & Form Controls (Compact, Soft, Borderless-feel) */
+.bms-profile-input {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  color: #0F172A !important;
+  padding: 8px 14px !important;
+  min-height: 40px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease;
+}
+
+.bms-profile-input:focus {
+  border-color: #1E60E6 !important;
+  background-color: #FFFFFF !important;
+  outline: none !important;
+}
+
+/* Readonly data display boxes */
+.bms-profile-readonly-box {
+  background-color: #F8FAFC;
+  border-radius: 12px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  color: #0F172A;
+  font-weight: 550;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  border: none !important;
+}
+
+/* Fast Tags / Selection Chips (Compact pills) */
 .fast-tag-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
   margin-top: 8px;
 }
 
 .fast-tag-item {
   border: 1px solid #E2E8F0;
   background: #F8FAFC;
-  color: #334155;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12.5px;
+  color: #475569;
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   box-shadow: none !important;
 }
 
@@ -147,4 +179,107 @@
   color: #FFFFFF !important;
   font-weight: 600 !important;
   box-shadow: none !important;
+}
+
+/* Quick Summary Tiles (No divider lines, clean flat grid) */
+.bms-summary-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bms-summary-tile {
+  background: #F8FAFC;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none !important;
+}
+
+.bms-summary-label {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.bms-summary-val {
+  font-size: 13px;
+  color: #0F172A;
+  font-weight: 650;
+  text-align: right;
+}
+
+/* Blood Type Badge / Pill */
+.bms-blood-pill {
+  background: #FEF2F2;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Action Pill Buttons */
+.bms-btn-pill-primary {
+  background: #1E60E6 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: opacity 0.15s ease !important;
+}
+
+.bms-btn-pill-primary:hover {
+  opacity: 0.92;
+}
+
+.bms-btn-pill-secondary {
+  background: #F1F5F9 !important;
+  color: #475569 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.bms-btn-pill-secondary:hover {
+  background: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+.bms-btn-pill-outline {
+  background: transparent !important;
+  color: #1E60E6 !important;
+  border: 1px solid #BFDBFE !important;
+  border-radius: 999px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  padding: 6px 16px !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.bms-btn-pill-outline:hover {
+  background: #EFF6FF !important;
 }

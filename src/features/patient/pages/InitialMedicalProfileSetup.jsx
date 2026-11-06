@@ -27,6 +27,14 @@ import {
   getMyPatientInformation,
   updateMyPatientInformation
 } from '../../../services/patientService';
+import {
+  isNoCoagulation,
+  isCanonicalNkda,
+  isEntireListNkda,
+  isAllergyMatch,
+  CANONICAL_NO_COAGULATION,
+  CANONICAL_NKDA
+} from '../utils/clinicalProfileUtils';
 import './InitialMedicalProfileSetup.css';
 
 // Blood type options (Hệ ABO/Rh) - Structured Matrix
@@ -78,51 +86,6 @@ const COAGULATION_PRESETS = [
   'Dễ chảy máu / bầm tím',
   'Dùng thuốc chống đông'
 ];
-
-// Known negative coagulation strings for exact clinical matching (avoiding false positives like 'Hemophilia. Không dùng Warfarin')
-export const NO_COAGULATION_STRINGS = [
-  'không có',
-  'không có tiền sử đông máu',
-  'không có tiền sử rối loạn đông máu',
-  'không có ghi nhận'
-];
-
-export const isNoCoagulation = (val) => {
-  if (!val) return true;
-  const normalized = val.trim().toLowerCase();
-  return NO_COAGULATION_STRINGS.includes(normalized);
-};
-
-// Backward-compatible allergy matcher (maps legacy 'Trứng / Sữa / Đậu' to 'Trứng / Sữa / Đậu phộng')
-export const isAllergyMatch = (targetAllergy, recordedText) => {
-  if (!targetAllergy || !recordedText) return false;
-  const t = targetAllergy.toLowerCase().trim();
-  const r = recordedText.toLowerCase().trim();
-  if (t === r || r.includes(t)) return true;
-
-  if (t === 'trứng / sữa / đậu phộng' && (r.includes('trứng / sữa / đậu') || r.includes('trứng, sữa, đậu') || r.includes('dị ứng trứng'))) {
-    return true;
-  }
-  if (t === 'hải sản (tôm, cua)' && (r.includes('hải sản') || r.includes('tôm') || r.includes('cua'))) {
-    return true;
-  }
-  if (t === 'penicillin / amox' && (r.includes('penicillin') || r.includes('amox') || r.includes('amoxicillin'))) {
-    return true;
-  }
-  if (t === 'aspirin / paracetamol' && (r.includes('aspirin') || r.includes('paracetamol'))) {
-    return true;
-  }
-  if (t === 'kháng viêm nsaids' && (r.includes('nsaids') || r.includes('kháng viêm'))) {
-    return true;
-  }
-  if (t === 'phấn hoa / bụi nhà' && (r.includes('phấn hoa') || r.includes('bụi nhà'))) {
-    return true;
-  }
-  if (t === 'cồn / povidine' && (r.includes('cồn') || r.includes('povidine'))) {
-    return true;
-  }
-  return false;
-};
 
 // Relationships
 const RELATIONSHIPS = [
@@ -245,15 +208,17 @@ export default function InitialMedicalProfileSetup() {
           setCoagulationNotes(isNo ? '' : pat.coagulationDisorders);
         }
         if (pat?.allergies && Array.isArray(pat.allergies) && pat.allergies.length > 0) {
-          const isNkda = pat.allergies.some((a) => a.includes('NKDA') || a.includes('Không có'));
+          const isNkda = isEntireListNkda(pat.allergies);
           if (isNkda) {
             setHasNoAllergies(true);
             setSelectedAllergies([]);
+            setAllergiesNotes('');
           } else {
             setHasNoAllergies(false);
             const loaded = [];
             const other = [];
             pat.allergies.forEach((a) => {
+              if (isCanonicalNkda(a)) return; // skip redundant NKDA string if mixed with real allergies
               const matched = COMMON_ALLERGIES.find((ca) => isAllergyMatch(ca, a));
               if (matched) {
                 if (!loaded.includes(matched)) loaded.push(matched);
@@ -409,13 +374,13 @@ export default function InitialMedicalProfileSetup() {
               ...(medicalHistoryNotes.trim() ? [medicalHistoryNotes.trim()] : [])
             ].join('; ') || 'Không có',
         coagulationDisorders: hasNoCoagulation
-          ? 'Không có tiền sử rối loạn đông máu'
+          ? CANONICAL_NO_COAGULATION
           : coagulationNotes.trim() || 'Có tiền sử rối loạn đông máu',
         currentMedications: hasNoMedications
           ? 'Không có'
           : medicationsNotes.trim() || 'Không có',
         allergies: hasNoAllergies
-          ? ['Không có tiền sử dị ứng đã biết (NKDA)']
+          ? [CANONICAL_NKDA]
           : [
               ...selectedAllergies,
               ...(allergiesNotes.trim() ? [allergiesNotes.trim()] : [])

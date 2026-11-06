@@ -61,57 +61,12 @@ const COMMON_ALLERGIES = [
 
 // Coagulation disorder options (clinically standardized)
 const COAGULATION_OPTIONS = [
-  'Không có tiền sử rối loạn đông máu',
+  CANONICAL_NO_COAGULATION,
   'Hemophilia (máu khó đông)',
   'Xuất huyết giảm tiểu cầu',
   'Dễ chảy máu / bầm tím',
   'Dùng thuốc chống đông'
 ];
-
-// Known negative coagulation strings for exact clinical matching
-const NO_COAGULATION_STRINGS = [
-  'không có',
-  'không có tiền sử đông máu',
-  'không có tiền sử rối loạn đông máu',
-  'không có ghi nhận'
-];
-
-const isNoCoagulation = (val) => {
-  if (!val) return true;
-  const normalized = val.trim().toLowerCase();
-  return NO_COAGULATION_STRINGS.includes(normalized);
-};
-
-// Backward-compatible allergy matcher (maps legacy 'Trứng / Sữa / Đậu' to 'Trứng / Sữa / Đậu phộng')
-const isAllergyMatch = (targetAllergy, recordedText) => {
-  if (!targetAllergy || !recordedText) return false;
-  const t = targetAllergy.toLowerCase().trim();
-  const r = recordedText.toLowerCase().trim();
-  if (t === r || r.includes(t)) return true;
-
-  if (t === 'trứng / sữa / đậu phộng' && (r.includes('trứng / sữa / đậu') || r.includes('trứng, sữa, đậu') || r.includes('dị ứng trứng'))) {
-    return true;
-  }
-  if (t === 'hải sản (tôm, cua)' && (r.includes('hải sản') || r.includes('tôm') || r.includes('cua'))) {
-    return true;
-  }
-  if (t === 'penicillin / amox' && (r.includes('penicillin') || r.includes('amox') || r.includes('amoxicillin'))) {
-    return true;
-  }
-  if (t === 'aspirin / paracetamol' && (r.includes('aspirin') || r.includes('paracetamol'))) {
-    return true;
-  }
-  if (t === 'kháng viêm nsaids' && (r.includes('nsaids') || r.includes('kháng viêm'))) {
-    return true;
-  }
-  if (t === 'phấn hoa / bụi nhà' && (r.includes('phấn hoa') || r.includes('bụi nhà'))) {
-    return true;
-  }
-  if (t === 'cồn / povidine' && (r.includes('cồn') || r.includes('povidine'))) {
-    return true;
-  }
-  return false;
-};
 
 // Structured blood types for clinical clarity
 const BLOOD_TYPES_RH_POS = [
@@ -131,6 +86,14 @@ import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getUserProfile } from '../../../services/userService';
 import { getMyPatientInformation, updateMyPatientInformation } from '../../../services/patientService';
 import { SkeletonProfile } from '../../../components/common/SkeletonProfile';
+import {
+  isNoCoagulation,
+  isCanonicalNkda,
+  isAllergyMatch,
+  splitAllergyTokens,
+  CANONICAL_NO_COAGULATION,
+  CANONICAL_NKDA
+} from '../utils/clinicalProfileUtils';
 import './UserProfilePage.css';
 
 export const UserProfilePage = () => {
@@ -156,7 +119,7 @@ export const UserProfilePage = () => {
     heightCm: '',
     weightKg: '',
     bloodPressure: '',
-    coagulationDisorders: 'Không có tiền sử rối loạn đông máu',
+    coagulationDisorders: CANONICAL_NO_COAGULATION,
     medicalHistory: '',
     allergiesText: '',
     currentMedications: '',
@@ -225,7 +188,7 @@ export const UserProfilePage = () => {
         heightCm: vitals.heightCm || '',
         weightKg: vitals.weightKg || '',
         bloodPressure: vitals.bloodPressure || '',
-        coagulationDisorders: loadedPatient?.coagulationDisorders || 'Không có tiền sử rối loạn đông máu',
+        coagulationDisorders: loadedPatient?.coagulationDisorders || CANONICAL_NO_COAGULATION,
         medicalHistory: loadedPatient?.medicalHistory || 'Chưa ghi nhận bệnh lý mãn tính',
         allergiesText: allergies || 'Không có ghi nhận dị ứng',
         currentMedications: loadedPatient?.currentMedications || 'Không sử dụng thuốc định kỳ',
@@ -313,17 +276,10 @@ export const UserProfilePage = () => {
   const toggleAllergyInProfile = (allergy) => {
     setFormData((prev) => {
       let current = prev.allergiesText || '';
-      if (
-        current === 'Không ghi nhận dị ứng' ||
-        current === 'Không có ghi nhận dị ứng' ||
-        current === 'Không có tiền sử dị ứng đã biết (NKDA)'
-      ) {
+      if (isCanonicalNkda(current)) {
         current = '';
       }
-      const parts = current
-        .split(/[,;\n]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const parts = splitAllergyTokens(current);
       const existingIdx = parts.findIndex((p) => isAllergyMatch(allergy, p));
       let nextParts;
       if (existingIdx >= 0) {
@@ -333,7 +289,7 @@ export const UserProfilePage = () => {
       }
       return {
         ...prev,
-        allergiesText: nextParts.length > 0 ? nextParts.join(', ') : 'Không có tiền sử dị ứng đã biết (NKDA)'
+        allergiesText: nextParts.length > 0 ? nextParts.join(', ') : CANONICAL_NKDA
       };
     });
   };
@@ -369,7 +325,7 @@ export const UserProfilePage = () => {
     try {
       const rawCoag = formData.coagulationDisorders?.trim();
       const normalizedCoag = (!rawCoag || isNoCoagulation(rawCoag))
-        ? 'Không có tiền sử rối loạn đông máu'
+        ? CANONICAL_NO_COAGULATION
         : rawCoag;
 
       const payload = {
@@ -389,7 +345,7 @@ export const UserProfilePage = () => {
         coagulationDisorders: normalizedCoag,
         medicalHistory: formData.medicalHistory?.trim() || 'Chưa ghi nhận bệnh lý',
         allergies: formData.allergiesText
-          ? formData.allergiesText.split(',').map((s) => s.trim()).filter(Boolean)
+          ? splitAllergyTokens(formData.allergiesText)
           : [],
         currentMedications: formData.currentMedications?.trim() || 'Không có',
         emergencyContactName: formData.emergencyContactName.trim(),
@@ -1114,8 +1070,8 @@ export const UserProfilePage = () => {
                             <div className="fast-tag-group">
                               {COAGULATION_OPTIONS.map((opt) => {
                                 const curr = (formData.coagulationDisorders || '').trim();
-                                const isSelected = opt === 'Không có tiền sử rối loạn đông máu'
-                                  ? (curr === 'Không có' || curr === 'Không có tiền sử đông máu' || curr === 'Không có tiền sử rối loạn đông máu' || curr === '')
+                                const isSelected = opt === CANONICAL_NO_COAGULATION
+                                  ? isNoCoagulation(curr)
                                   : (curr.toLowerCase() === opt.toLowerCase() || curr.toLowerCase().includes(opt.toLowerCase()));
                                 return (
                                   <div
@@ -1132,7 +1088,7 @@ export const UserProfilePage = () => {
                           </>
                         ) : (
                           <div className="bms-profile-readonly-box">
-                            {formData.coagulationDisorders || 'Không có tiền sử rối loạn đông máu'}
+                            {formData.coagulationDisorders || CANONICAL_NO_COAGULATION}
                           </div>
                         )}
                         <Form.Text className="text-muted small mt-1 d-block" style={{ fontSize: '11.5px' }}>
@@ -1219,7 +1175,7 @@ export const UserProfilePage = () => {
                               onClick={() =>
                                 setFormData((prev) => ({
                                   ...prev,
-                                  allergiesText: 'Không có tiền sử dị ứng đã biết (NKDA)'
+                                  allergiesText: CANONICAL_NKDA
                                 }))
                               }
                             >

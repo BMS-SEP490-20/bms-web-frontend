@@ -14,15 +14,26 @@ import PropTypes from 'prop-types';
  * @param {string[]} [props.meta] - Muted facts rendered on one line separated by dots (full text is kept).
  * @param {React.ReactNode} [props.actions] - Buttons aligned to the right.
  */
-export default function PageHeader({ title, lead, meta, actions }) {
+export default function PageHeader({ title, lead, meta, actions, icon }) {
+  const chipText = Array.isArray(meta) && meta.length > 0 ? meta[0] : null;
+  const remainingMeta = Array.isArray(meta) && meta.length > 1 ? meta.slice(1) : [];
+
   return (
     <header className="bms-page-header">
-      <div>
-        <h1 className="bms-page-title">{title}</h1>
+      <div className="bms-page-header-content">
+        {chipText && (
+          <div className="bms-page-chip">
+            <span>{chipText}</span>
+          </div>
+        )}
+        <div className="bms-page-title-row">
+          {icon && <span className="bms-page-title-icon">{icon}</span>}
+          <h1 className="bms-page-title">{title}</h1>
+        </div>
         {lead && <p className="bms-page-lead">{lead}</p>}
-        {Array.isArray(meta) && meta.length > 0 && (
+        {remainingMeta.length > 0 && (
           <p className="bms-page-meta">
-            {meta.map((item) => (
+            {remainingMeta.map((item) => (
               <span key={item}>{item}</span>
             ))}
           </p>
@@ -37,6 +48,7 @@ PageHeader.propTypes = {
   title: PropTypes.string.isRequired,
   lead: PropTypes.node,
   meta: PropTypes.arrayOf(PropTypes.string),
-  actions: PropTypes.node
+  actions: PropTypes.node,
+  icon: PropTypes.node
 };
 

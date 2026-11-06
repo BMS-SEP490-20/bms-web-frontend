@@ -177,10 +177,14 @@ textarea.form-control { height: auto !important; }
   transition: background-color 0.15s ease, opacity 0.15s ease !important;
 }
 .btn:hover, button:hover, .bms-search-submit-btn:hover, .bms-btn-mint-cta:hover, .btn-primary:hover, .btn-secondary:hover, .btn-success:hover,
-.btn:focus, button:focus, .btn:active, button:active {
+.btn:active, button:active {
   box-shadow: none !important;
   transform: none !important;
   filter: brightness(0.96) !important;
+}
+.btn:focus-visible, button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.22) !important;
 }
 
 .btn-secondary, .btn-outline-secondary, .btn-light, .btn-outline-light { border: none !important; background: #F1F5F9 !important; color: #0F172A !important; }

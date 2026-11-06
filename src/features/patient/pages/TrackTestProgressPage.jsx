@@ -4,7 +4,6 @@
  * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
-import PageHeader from '../../../components/ui/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import { 
@@ -177,7 +176,7 @@ export default function TrackTestProgressPage() {
                         style={{
                             background: '#FFFFFF',
                             borderRadius: '24px',
-                            border: 'none',
+                            border: '1px solid rgba(15, 23, 42, 0.08)',
                             boxShadow: 'none',
                             padding: '36px 40px'
                         }}

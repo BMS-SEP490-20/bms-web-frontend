@@ -242,7 +242,7 @@ export default function TrackTestProgressPage() {
                         <div className="bms-guide-container">
                             {/* 3 Step Guide Cards */}
                             <div className="bms-steps">
-                                <div >
+                                <div className="bms-step-card-box">
                                     <div className="bms-step-num">01</div>
                                     <h3 className="bms-step-title">Nhận Mã Phiếu Lấy Mẫu</h3>
                                     <p className="bms-step-desc">
@@ -250,7 +250,7 @@ export default function TrackTestProgressPage() {
                                     </p>
                                 </div>
 
-                                <div >
+                                <div className="bms-step-card-box">
                                     <div className="bms-step-num">02</div>
                                     <h3 className="bms-step-title">Nhập Mã Tra Cứu</h3>
                                     <p className="bms-step-desc">
@@ -258,7 +258,7 @@ export default function TrackTestProgressPage() {
                                     </p>
                                 </div>
 
-                                <div >
+                                <div className="bms-step-card-box">
                                     <div className="bms-step-num">03</div>
                                     <h3 className="bms-step-title">Theo Dõi Thời Gian Thực</h3>
                                     <p className="bms-step-desc">

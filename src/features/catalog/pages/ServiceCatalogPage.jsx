@@ -227,8 +227,9 @@ export default function ServiceCatalogPage() {
           >
             <Row className="align-items-center g-4">
               <Col lg={7}>
-                <div className="mb-3" style={{ fontSize: '12px', color: '#94A3B8' }}>
-                  ISO 15189:2022 Accredited Laboratory · Hệ Thống BMS Lab
+                <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 650, letterSpacing: '0.04em' }}>
+                  <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
+                  <span>ISO 15189:2022 ACCREDITED LABORATORY · HỆ THỐNG BMS LAB</span>
                 </div>
 
                 <h1

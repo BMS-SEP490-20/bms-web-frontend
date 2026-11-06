@@ -94,7 +94,7 @@ export default function PatientHomePage({ user: propUser }) {
               TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB
             </div>
 
-            <h1 className="bms-hero-heading" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
+            <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
               Quản Lý Xét Nghiệm Máu
               <img
                 src="/assets/bms/svg/hero/home/hrroooo.svg"
@@ -105,7 +105,8 @@ export default function PatientHomePage({ user: propUser }) {
                   width: 'auto',
                   maxWidth: '100%',
                   objectFit: 'contain',
-                  marginTop: '2px'
+                  marginTop: '16px',
+                  marginBottom: '16px'
                 }}
               />
             </h1>

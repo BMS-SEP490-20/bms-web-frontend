@@ -169,9 +169,9 @@ export default function App() {
               <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
               <Route path="/patient" element={<Navigate to="/" replace />} />
 
-              {/* --- 2. Authentication Workflows (AuthLayout) --- */}
+              {/* --- 2. Authentication Workflows --- */}
+              <Route path="/login" element={<LoginPage />} />
               <Route element={<AuthLayout />}>
-                <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Route>

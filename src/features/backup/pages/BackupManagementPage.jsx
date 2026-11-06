@@ -480,14 +480,14 @@ export default function BackupManagementPage() {
                             <table className="bms-dash-table">
                                 <thead>
                                     <tr>
-                                        <th className="ps-4">Mã Phiên Khôi Phục</th>
-                                        <th>Mã Bản Sao Lưu</th>
-                                        <th>Người Khôi Phục</th>
-                                        <th>Vai Trò</th>
-                                        <th>Số Bản Ghi Phục Hồi</th>
-                                        <th>Xác Thực SHA-256</th>
-                                        <th>Thời Gian Thực Thi</th>
-                                        <th className="text-end pe-4">Trạng Thái</th>
+                                        <th className="ps-4">MÃ PHIÊN KHÔI PHỤC</th>
+                                        <th>MÃ BẢN SAO LƯU</th>
+                                        <th>NGƯỜI KHÔI PHỤC</th>
+                                        <th>VAI TRÒ</th>
+                                        <th>SỐ BẢN GHI</th>
+                                        <th>XÁC THỰC SHA-256</th>
+                                        <th>THỜI GIAN THỰC THI</th>
+                                        <th className="text-end pe-4">TRẠNG THÁI</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -542,14 +542,14 @@ export default function BackupManagementPage() {
                             <table className="bms-dash-table">
                                 <thead>
                                     <tr>
-                                        <th className="ps-4">Mã Sao Lưu</th>
-                                        <th>Tên Bản Sao Lưu</th>
-                                        <th>Phạm Vi</th>
-                                        <th>Dung Lượng</th>
-                                        <th>Mã SHA-256</th>
-                                        <th>Trạng Thái</th>
-                                        <th>Thời Gian Tạo</th>
-                                        <th className="text-end pe-4">Thao Tác</th>
+                                        <th className="ps-4">MÃ SAO LƯU</th>
+                                        <th>TÊN BẢN SAO LƯU</th>
+                                        <th>PHẠM VI</th>
+                                        <th>DUNG LƯỢNG</th>
+                                        <th>MÃ SHA-256</th>
+                                        <th>TRẠNG THÁI</th>
+                                        <th>THỜI GIAN TẠO</th>
+                                        <th className="text-end pe-4">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>

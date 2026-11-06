@@ -687,15 +687,15 @@ export default function RevenueReportPage() {
                             <table className="bms-dash-table">
                                 <thead>
                                     <tr>
-                                        <th className="ps-4">Mã Giao Dịch / Giờ</th>
-                                        <th>Mã Đơn / Bệnh Nhân</th>
-                                        <th>Chuyên Khoa</th>
-                                        <th>Kênh</th>
-                                        <th className="text-end">Doanh Thu Gộp</th>
-                                        <th className="text-end">BHYT Chi Trả</th>
-                                        <th className="text-end">Thực Thu (Net)</th>
-                                        <th>Phương Thức</th>
-                                        <th className="pe-4">Thu Ngân</th>
+                                        <th className="ps-4">MÃ GIAO DỊCH / GIỜ</th>
+                                        <th>MÃ ĐƠN / BỆNH NHÂN</th>
+                                        <th>CHUYÊN KHOA</th>
+                                        <th>KÊNH</th>
+                                        <th className="text-end">DOANH THU GỘP</th>
+                                        <th className="text-end">BHYT CHI TRẢ</th>
+                                        <th className="text-end">THỰC THU (NET)</th>
+                                        <th>PHƯƠNG THỨC</th>
+                                        <th className="pe-4">THU NGÂN</th>
                                     </tr>
                                 </thead>
                                 <tbody>

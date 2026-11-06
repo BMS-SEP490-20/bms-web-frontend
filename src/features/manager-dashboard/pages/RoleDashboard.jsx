@@ -433,7 +433,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Tổng Tài Khoản Hệ Thống</h6>
+                  <h6 className="bms-kpi-label">Tổng tài khoản hệ thống</h6>
                   <div className="bms-kpi-value">{Object.values(adminOps.usersPerRole || {}).reduce((a, b) => a + b, 0)}</div>
                   <div className="bms-kpi-sub text-muted">5 vai trò nhân sự lâm sàng</div>
                 </div>
@@ -443,7 +443,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Đăng Nhập 24 Giờ Qua</h6>
+                  <h6 className="bms-kpi-label">Đăng nhập 24 giờ qua</h6>
                   <div className="bms-kpi-value">{adminOps.logins?.distinctAccountsLast24h || 38}</div>
                   <div className="bms-kpi-sub text-success">{adminOps.logins?.distinctAccountsLast7d || 112} tài khoản trong tuần</div>
                 </div>
@@ -453,7 +453,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Thiết Bị IoT &amp; Cảm Biến</h6>
+                  <h6 className="bms-kpi-label">Thiết bị IoT &amp; Cảm biến</h6>
                   <div className="bms-kpi-value text-success">{adminOps.iotDevices?.online || 12} <span className="fs-6 text-muted">Online</span></div>
                   <div className="bms-kpi-sub text-success">100% cảm biến hoạt động</div>
                 </div>
@@ -463,7 +463,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Sao Lưu Dữ Liệu Tự Động</h6>
+                  <h6 className="bms-kpi-label">Sao lưu dữ liệu tự động</h6>
                   <div className="bms-kpi-value fs-4 text-success">{adminOps.backup?.lastStatus || 'Success'}</div>
                   <div className="bms-kpi-sub text-muted">7/7 bản backup tuần đạt chuẩn</div>
                 </div>
@@ -1393,10 +1393,10 @@ export default function RoleBasedDashboard() {
               <div>
                 <h5 className="bms-table-standalone-title">
                   <FaUsers className="text-primary" />
-                  Phân Bổ Nhân Sự &amp; Trạng Thái Tài Khoản Hệ Thống (IAM)
+                  Phân Bổ Nhân Sự &amp; Tài Khoản (IAM)
                 </h5>
                 <div className="bms-table-standalone-subtitle">
-                  Thống kê số lượng nhân sự được cấp quyền theo vai trò trong hệ thống (BR-IAM-01 / BR-IAM-02)
+                  Thống kê số lượng nhân sự theo vai trò phân quyền lâm sàng trong hệ thống.
                 </div>
               </div>
               <Link to="/admin/user-management" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
@@ -1408,10 +1408,10 @@ export default function RoleBasedDashboard() {
                 <table className="bms-dash-table">
                   <thead>
                     <tr>
-                      <th className="ps-4">Vai Trò Hệ Thống (Role)</th>
-                      <th className="text-end">Số Tài Khoản</th>
-                      <th className="text-end">Tình Trạng</th>
-                      <th className="text-end pe-4">Thao Tác</th>
+                      <th className="ps-4">VAI TRÒ HỆ THỐNG (ROLE)</th>
+                      <th className="text-end">SỐ TÀI KHOẢN</th>
+                      <th className="text-end">TÌNH TRẠNG</th>
+                      <th className="text-end pe-4">THAO TÁC</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1448,10 +1448,10 @@ export default function RoleBasedDashboard() {
                   <div>
                     <h5 className="bms-dash-card-title text-success">
                       <FaServer />
-                      Hạ Tầng Sao Lưu Tự Động (MongoDB Replica Backup)
+                      Hạ Tầng Sao Lưu Tự Động (MongoDB Backup)
                     </h5>
                     <div className="bms-dash-card-subtitle">
-                      Giám sát định kỳ backup cơ sở dữ liệu bệnh viện
+                      Giám sát chu kỳ backup cơ sở dữ liệu y tế định kỳ.
                     </div>
                   </div>
                   <Badge bg="success" className="rounded-pill">Đã xác thực</Badge>
@@ -1482,18 +1482,18 @@ export default function RoleBasedDashboard() {
                   <div>
                     <h5 className="bms-dash-card-title text-primary">
                       <FaShieldAlt className="text-primary" />
-                      Nhật Ký Kiểm Toán (Audit Logs) &amp; An Toàn Dữ Liệu
+                      Nhật Ký Kiểm Toán (Audit Logs) &amp; Bảo Mật
                     </h5>
                     <div className="bms-dash-card-subtitle">
-                      Lịch sử truy cập và chỉnh sửa bệnh án số bất biến
+                      Ghi nhận truy cập và chỉnh sửa hồ sơ bệnh án số bất biến.
                     </div>
                   </div>
                   <span className="bms-pill-badge bms-pill-info">{NUM.format(adminOps.auditLogRows || 1420)} sự kiện</span>
                 </div>
                 <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
                   <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
-                    <div className="small text-dark fw-semibold mb-1">Tuân thủ an toàn thông tin y tế theo Nghị định 13/2023:</div>
-                    <div className="small text-muted">Toàn bộ thao tác thêm, sửa, xóa, duyệt kết quả được ghi nhận kèm mã nhân viên, địa chỉ IP và timestamp chuẩn ISO 8601.</div>
+                    <div className="small text-dark fw-semibold mb-1">Bảo đảm an toàn thông tin y tế:</div>
+                    <div className="small text-muted">Toàn bộ thao tác nghiệp vụ lâm sàng đều được ghi nhận kèm mã nhân viên, địa chỉ IP và timestamp chuẩn ISO 8601.</div>
                   </div>
                   <Button variant="outline-secondary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/admin/audit-logs')}>
                     Xem Chi Tiết Nhật Ký Audit Logs
@@ -1518,7 +1518,7 @@ export default function RoleBasedDashboard() {
                       <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserCog /></div>
                       <div>
                         <h6 className="fw-bold mb-0">Quản Lý Tài Khoản (IAM)</h6>
-                        <small className="text-muted">Cấp phát &amp; khóa tài khoản</small>
+                        <small className="text-muted">Cấp phát &amp; phân quyền</small>
                       </div>
                     </div>
                     <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">

@@ -345,14 +345,14 @@ const AuditLogPage = () => {
               <table className="bms-dash-table">
                 <thead>
                   <tr>
-                    <th className="ps-4" style={{ width: '170px' }}>Thời gian</th>
-                    <th style={{ width: '200px' }}>Người thực hiện</th>
-                    <th style={{ width: '160px' }}>Hành động</th>
-                    <th style={{ width: '130px' }}>Phân loại</th>
-                    <th style={{ width: '120px' }}>Mức độ</th>
-                    <th>Nội dung chi tiết</th>
-                    <th style={{ width: '130px' }}>IP / Thiết bị</th>
-                    <th className="text-end pe-4" style={{ width: '90px' }}>Chi tiết</th>
+                    <th className="ps-4" style={{ width: '170px' }}>THỜI GIAN</th>
+                    <th style={{ width: '200px' }}>NGƯỜI THỰC HIỆN</th>
+                    <th style={{ width: '160px' }}>HÀNH ĐỘNG</th>
+                    <th style={{ width: '130px' }}>PHÂN LOẠI</th>
+                    <th style={{ width: '120px' }}>MỨC ĐỘ</th>
+                    <th>NỘI DUNG CHI TIẾT</th>
+                    <th style={{ width: '130px' }}>IP / THIẾT BỊ</th>
+                    <th className="text-end pe-4" style={{ width: '90px' }}>THAO TÁC</th>
                   </tr>
                 </thead>
                 <tbody>

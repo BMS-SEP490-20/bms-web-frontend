@@ -63,12 +63,12 @@ function normalizeAuthenticatedUser(rawUser) {
 const IS_DEV_OR_DEMO = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
 
 const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true" ? [
-  { id: 'admin', name: 'Admin', title: 'Quản Trị Viên Hệ Thống', username: 'admin_bms', password: 'Admin@123', icon: '⚡', desc: 'Quản trị danh mục, người dùng, audit log', badgeColor: '#DC2626' },
-  { id: 'manager', name: 'Manager', title: 'Trưởng Phòng Lab / Quản Lý', username: 'labhead_tranhoa', password: 'Admin@123', icon: '📊', desc: 'Duyệt KQ, kiểm soát QC, TAT & thống kê', badgeColor: '#4F46E5' },
-  { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ Lâm Sàng', username: 'dr_nguyenminh', password: 'Admin@123', icon: '🩺', desc: 'Chỉ định xét nghiệm, kết luận bệnh án', badgeColor: '#059669' },
-  { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên Xét Nghiệm', username: 'tech_quochung', password: 'Admin@123', icon: '🔬', desc: 'Nhập kết quả, chạy máy, kiểm tra tiêu bản', badgeColor: '#0284C7' },
-  { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân Tiếp Đón', username: 'recep_lananh', password: 'Admin@123', icon: '📋', desc: 'Check-in, cấp số thứ tự, thu phí dịch vụ', badgeColor: '#D97706' },
-  { id: 'patient', name: 'Patient', title: 'Bệnh Nhân Khám Bệnh', username: 'patient_tranvanan', password: 'Admin@123', icon: '👤', desc: 'Tra cứu kết quả, theo dõi tiến trình xét nghiệm', badgeColor: '#475569' },
+  { id: 'admin', name: 'Admin', title: 'Quản Trị Viên', username: 'admin_bms', password: 'Admin@123', desc: 'Quản trị hệ thống, danh mục, audit log' },
+  { id: 'manager', name: 'Manager', title: 'Quản Lý Lab', username: 'labhead_tranhoa', password: 'Admin@123', desc: 'Duyệt KQ, kiểm soát QC, thống kê TAT' },
+  { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ', username: 'dr_nguyenminh', password: 'Admin@123', desc: 'Chỉ định xét nghiệm, kết luận bệnh án' },
+  { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên', username: 'tech_quochung', password: 'Admin@123', desc: 'Nhập kết quả, chạy mẫu xét nghiệm' },
+  { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân', username: 'recep_lananh', password: 'Admin@123', desc: 'Tiếp đón, check-in, thu phí dịch vụ' },
+  { id: 'patient', name: 'Patient', title: 'Bệnh Nhân', username: 'patient_tranvanan', password: 'Admin@123', desc: 'Tra cứu kết quả, theo dõi tiến trình' },
 ] : [];
 
 export default function LoginPage({
@@ -739,33 +739,33 @@ export default function LoginPage({
           backdrop="static"
           size="md"
         >
-          <Modal.Header closeButton style={{ borderBottom: '1px solid #E2E8F0', padding: '18px 24px' }}>
-            <Modal.Title style={{ fontSize: '17px', fontWeight: 700, color: '#0F172A' }}>
-              🛠️ Chọn Vai Trò Kiểm Thử (BMS Sandbox)
+          <Modal.Header closeButton style={{ borderBottom: '1px solid #F1F5F9', padding: '16px 20px' }}>
+            <Modal.Title style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>
+              Chọn vai trò kiểm thử
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body style={{ padding: '20px 24px' }}>
-            <p className="text-muted small mb-3" style={{ fontSize: '13px' }}>
-              Chọn một vai trò bên dưới để tự động điền thông tin và đăng nhập trực tiếp vào hệ thống:
+          <Modal.Body style={{ padding: '16px 20px' }}>
+            <p className="text-muted small mb-3" style={{ fontSize: '12.5px' }}>
+              Chọn một tài khoản bên dưới để đăng nhập nhanh:
             </p>
-            <div className="d-flex flex-column gap-2.5">
+            <div className="d-flex flex-column gap-2">
               {DEMO_ROLES.map((role) => (
                 <button
                   key={role.id}
                   type="button"
-                  className="btn text-start d-flex align-items-center justify-content-between p-3"
+                  className="btn text-start d-flex align-items-center justify-content-between px-3 py-2.5"
                   style={{
                     border: '1px solid #E2E8F0',
-                    borderRadius: '12px',
-                    backgroundColor: '#F8FAFC',
+                    borderRadius: '10px',
+                    backgroundColor: '#FFFFFF',
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#EFF6FF';
-                    e.currentTarget.style.borderColor = '#93C5FD';
+                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    e.currentTarget.style.borderColor = '#CBD5E1';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    e.currentTarget.style.backgroundColor = '#FFFFFF';
                     e.currentTarget.style.borderColor = '#E2E8F0';
                   }}
                   onClick={() => {
@@ -774,23 +774,25 @@ export default function LoginPage({
                   }}
                   disabled={loading || isLocked}
                 >
-                  <div className="d-flex align-items-center gap-3">
-                    <span style={{ fontSize: '22px' }}>{role.icon}</span>
-                    <div>
-                      <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{role.title}</div>
-                      <div className="text-muted" style={{ fontSize: '12px' }}>
-                        <code>{role.username}</code> &bull; {role.desc}
-                      </div>
+                  <div>
+                    <div className="fw-semibold text-dark" style={{ fontSize: '13.5px', marginBottom: '2px' }}>
+                      {role.title}
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '12px' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#475569' }}>{role.username}</span>
+                      <span className="mx-1.5" style={{ color: '#CBD5E1' }}>•</span>
+                      <span>{role.desc}</span>
                     </div>
                   </div>
                   <span 
-                    className="badge" 
                     style={{ 
-                      backgroundColor: role.badgeColor, 
-                      color: '#FFFFFF', 
+                      backgroundColor: '#F1F5F9', 
+                      color: '#475569', 
                       fontSize: '11px', 
-                      padding: '6px 10px',
-                      borderRadius: '6px'
+                      fontWeight: 600,
+                      padding: '4px 8px', 
+                      borderRadius: '6px',
+                      border: '1px solid #E2E8F0'
                     }}
                   >
                     {role.name}

@@ -1449,65 +1449,20 @@
 }
 
 /* ==============================================================================
-   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS SOFT DIRECTIONAL GLIDE & CROSSFADE)
+   PAGE ENTRANCE ANIMATION (SMOOTH FADE-IN ON MOUNT)
    ============================================================================== */
 
-/* Forward Navigation: Content glides smoothly in from the right with a feathered fade */
-@keyframes bmsGlideFadeRight {
-    0% {
-        opacity: 0;
-        transform: translate3d(56px, 0, 0);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-
-/* Backward Navigation: Content glides smoothly in from the left with a feathered fade */
-@keyframes bmsGlideFadeLeft {
-    0% {
-        opacity: 0;
-        transform: translate3d(-56px, 0, 0);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-
-/* Initial Load / Outside Entry: Gentle upward floating fade */
-@keyframes bmsGlideFadeUp {
-    0% {
-        opacity: 0;
-        transform: translate3d(0, 14px, 0);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
+@keyframes bmsPageFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 .bms-page-directional-content {
     width: 100%;
     min-height: calc(100vh - 54px);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    transform: translateZ(0);
 }
 
-/* Smooth directional glide classes with Apple iOS deceleration spring */
-.bms-glide-fade-right,
-.bms-slide-fade-right {
-    animation: bmsGlideFadeRight 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.bms-glide-fade-left,
-.bms-slide-fade-left {
-    animation: bmsGlideFadeLeft 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.bms-glide-fade-up,
-.bms-slide-fade-up {
-    animation: bmsGlideFadeUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Single, jank-free entrance fade applied once per page mount */
+.bms-page-enter {
+    animation: bmsPageFadeIn 0.25s ease-out both;
 }

@@ -251,8 +251,19 @@ export default function GuestHomePage() {
               </div>
 
               <h1 className="bms-hero-heading mb-2.5" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
-                Quản Lý Xét Nghiệm Máu<br />
-                <span style={{ color: '#1E60E6' }}>Chính Xác, Khép Kín &amp; Tin Cậy</span>
+                Quản Lý Xét Nghiệm Máu
+                <img
+                  src="/assets/bms/svg/hero/home/hrroooo.svg"
+                  alt="Chính Xác, Khép Kín &amp; Tin Cậy"
+                  style={{
+                    display: 'block',
+                    height: '44px',
+                    width: 'auto',
+                    maxWidth: '100%',
+                    objectFit: 'contain',
+                    marginTop: '4px'
+                  }}
+                />
               </h1>
 
               <p className="bms-hero-lead mb-4" style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.65', maxWidth: '520px' }}>

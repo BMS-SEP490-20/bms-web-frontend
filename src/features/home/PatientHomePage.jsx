@@ -94,8 +94,19 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             <h1 className="bms-hero-heading" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
-              Quản Lý Xét Nghiệm Máu<br />
-              <span className="bms-highlight-blue">Chính Xác, Khép Kín &amp; Tin Cậy</span>
+              Quản Lý Xét Nghiệm Máu
+              <img
+                src="/assets/bms/svg/hero/home/hrroooo.svg"
+                alt="Chính Xác, Khép Kín &amp; Tin Cậy"
+                style={{
+                  display: 'block',
+                  height: '44px',
+                  width: 'auto',
+                  maxWidth: '100%',
+                  objectFit: 'contain',
+                  marginTop: '4px'
+                }}
+              />
             </h1>
 
             <p className="bms-hero-lead" style={{ fontSize: '13.5px', lineHeight: '1.65', maxWidth: '520px' }}>

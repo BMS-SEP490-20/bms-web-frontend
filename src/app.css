@@ -1449,12 +1449,14 @@
 }
 
 /* ==============================================================================
-   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS QUANTUM MOTION SYSTEM)
+   PHYSICAL DIRECTIONAL PAGE TRANSITIONS (BMS SOFT DIRECTIONAL GLIDE & CROSSFADE)
    ============================================================================== */
-@keyframes bmsSlideFadeRight {
+
+/* Forward Navigation: Content glides smoothly in from the right with a feathered fade */
+@keyframes bmsGlideFadeRight {
     0% {
         opacity: 0;
-        transform: translate3d(40px, 0, 0);
+        transform: translate3d(56px, 0, 0);
     }
     100% {
         opacity: 1;
@@ -1462,10 +1464,11 @@
     }
 }
 
-@keyframes bmsSlideFadeLeft {
+/* Backward Navigation: Content glides smoothly in from the left with a feathered fade */
+@keyframes bmsGlideFadeLeft {
     0% {
         opacity: 0;
-        transform: translate3d(-40px, 0, 0);
+        transform: translate3d(-56px, 0, 0);
     }
     100% {
         opacity: 1;
@@ -1473,10 +1476,11 @@
     }
 }
 
-@keyframes bmsSlideFadeUp {
+/* Initial Load / Outside Entry: Gentle upward floating fade */
+@keyframes bmsGlideFadeUp {
     0% {
         opacity: 0;
-        transform: translate3d(0, 16px, 0);
+        transform: translate3d(0, 14px, 0);
     }
     100% {
         opacity: 1;
@@ -1488,16 +1492,22 @@
     width: 100%;
     min-height: calc(100vh - 54px);
     will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
+/* Smooth directional glide classes with Apple iOS deceleration spring */
+.bms-glide-fade-right,
 .bms-slide-fade-right {
-    animation: bmsSlideFadeRight 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsGlideFadeRight 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.bms-glide-fade-left,
 .bms-slide-fade-left {
-    animation: bmsSlideFadeLeft 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsGlideFadeLeft 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.bms-glide-fade-up,
 .bms-slide-fade-up {
-    animation: bmsSlideFadeUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: bmsGlideFadeUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

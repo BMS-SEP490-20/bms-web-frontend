@@ -27,9 +27,11 @@ import {
 import { fetchTrackingByCode } from "../api/trackingApi";
 import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
+import usePageTransition from "../../../shared/hooks/usePageTransition";
 import "./TrackTestProgressPage.css";
 
 export default function TrackTestProgressPage() {
+    const pageTransitionClass = usePageTransition();
     const [searchParams] = useSearchParams();
     const { identifier: routeIdentifier } = useParams();
     const navigate = useNavigate();
@@ -160,10 +162,10 @@ export default function TrackTestProgressPage() {
     };
 
     return (
-        <div className="bms-tracking-page">
+        <div className="bms-tracking-page" style={{ overflowX: 'hidden' }}>
             <PortalNavbar />
             
-            <main className="bms-tracking-main">
+            <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
                 <div className="container" style={{ maxWidth: 1180 }}>
                     
                     {/* 1. TOP SPOTLIGHT EXECUTIVE HERO (Header + Separated Input & Button Aligned Right - Pure 2D Flat, Zero Border) */}

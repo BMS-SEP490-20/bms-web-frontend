@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import PortalNavbar from '../components/PortalNavbar';
 import MegaFooter from '../components/MegaFooter';
+import usePageTransition from '../../../shared/hooks/usePageTransition';
 
 const ISO_PHASES = [
   {
@@ -94,9 +95,13 @@ const ISO_METRICS = [
 ];
 
 export default function IsoProcessPage() {
+  const pageTransitionClass = usePageTransition();
+
   return (
-    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)', overflowX: 'hidden' }}>
       <PortalNavbar />
+
+      <div className={`bms-page-directional-content ${pageTransitionClass}`}>
 
       {/* 1. Executive Spotlight Header (Pure 2D Flat Card Container) */}
       <section className="pt-5 pb-3 mb-5" style={{ marginTop: '20px' }}>
@@ -384,7 +389,8 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      <MegaFooter />
+        <MegaFooter />
+      </div>
     </div>
   );
 }

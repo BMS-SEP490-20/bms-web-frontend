@@ -482,17 +482,20 @@ export default function PushNotificationCenterPage() {
                                         Đối tượng nhận (Chọn nhanh từ cơ sở dữ liệu):
                                     </label>
                                     <div className="d-flex flex-wrap gap-1 mb-2">
-                                        {availableUsers.slice(0, 5).map(u => (
-                                            <button
-                                                key={u.id}
-                                                type="button"
-                                                className={`btn btn-xs ${formUserId === u.id ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                                style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem" }}
-                                                onClick={() => handleSelectDemoUser(u)}
-                                            >
-                                                {u.fullName || u.id} ({u.role || 'User'})
-                                            </button>
-                                        ))}
+                                        {availableUsers.slice(0, 5).map(u => {
+                                            const uid = u.id || u._id;
+                                            return (
+                                                <button
+                                                    key={uid}
+                                                    type="button"
+                                                    className={`btn btn-xs ${formUserId === uid ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                                    style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem" }}
+                                                    onClick={() => handleSelectDemoUser(u)}
+                                                >
+                                                    {u.fullName || uid} ({u.role || 'User'})
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                     <div className="input-group">
                                         <span className="input-group-text bg-light"><FaUser className="text-muted" /></span>
@@ -942,9 +945,12 @@ export default function PushNotificationCenterPage() {
                             value={drawerUserId}
                             onChange={e => setDrawerUserId(e.target.value)}
                         >
-                            {availableUsers.map(u => (
-                                <option key={u.id} value={u.id}>{u.fullName || u.name || u.id} ({u.id})</option>
-                            ))}
+                            {availableUsers.map(u => {
+                                const uid = u.id || u._id;
+                                return (
+                                    <option key={uid} value={uid}>{u.fullName || u.name || uid} ({uid})</option>
+                                );
+                            })}
                         </select>
                         <button
                             className="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1 text-primary small"

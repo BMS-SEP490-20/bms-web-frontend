@@ -276,6 +276,11 @@ export default function LoginPage({
         const status = apiErr.response.status;
         const respData = apiErr.response.data;
 
+        if (status === 409 || respData?.code === "PATIENT_IDENTITY_CONFLICT" || respData?.errorCode === "PATIENT_IDENTITY_CONFLICT") {
+          setError(respData?.message || "Số định danh CCCD đã được sử dụng hoặc có xung đột dữ liệu hồ sơ. Vui lòng liên hệ Quầy tiếp đón BMS để được hỗ trợ xác thực danh tính.");
+          return;
+        }
+
         // If backend returned account lockout (423) or custom lockout time (BR-IAM-03)
         if (status === 423 || respData?.code === "ACCOUNT_LOCKED") {
           const retryMinutes = respData?.retryAfterMinutes || 15;
@@ -347,6 +352,10 @@ export default function LoginPage({
 
       routeUserByRole(user);
     } catch (apiErr) {
+      if (apiErr.response?.status === 409 || apiErr.response?.data?.code === "PATIENT_IDENTITY_CONFLICT") {
+        setError(apiErr.response?.data?.message || "Số định danh CCCD đã được sử dụng hoặc có xung đột dữ liệu hồ sơ. Vui lòng liên hệ Quầy tiếp đón BMS để được hỗ trợ xác thực danh tính.");
+        return;
+      }
       setError(
         apiErr.response?.data?.message ||
         apiErr.response?.data?.title ||
@@ -393,6 +402,10 @@ export default function LoginPage({
 
       routeUserByRole(user);
     } catch (apiErr) {
+      if (apiErr.response?.status === 409 || apiErr.response?.data?.code === "PATIENT_IDENTITY_CONFLICT") {
+        setError(apiErr.response?.data?.message || "Số định danh CCCD đã được sử dụng hoặc có xung đột dữ liệu hồ sơ. Vui lòng liên hệ Quầy tiếp đón BMS để được hỗ trợ xác thực danh tính.");
+        return;
+      }
       setError(
         apiErr.response?.data?.message ||
         apiErr.response?.data?.title ||

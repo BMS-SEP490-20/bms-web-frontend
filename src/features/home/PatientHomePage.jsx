@@ -84,7 +84,7 @@ export default function PatientHomePage({ user: propUser }) {
   const patientCode = user?.patientCode || user?.medicalRecordNumber || `BN-${new Date().getFullYear()}-${String(user?.id || '0812').padStart(4, '0')}`;
 
   return (
-    <div className="bms-telehealth-page" style={{ overflowX: 'hidden' }}>
+    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar user={user} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>

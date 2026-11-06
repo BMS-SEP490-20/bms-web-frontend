@@ -269,7 +269,7 @@ export default function ServiceCatalogPage() {
   const pageTransitionClass = usePageTransition();
 
   return (
-    <div className="bms-catalog-page min-vh-100 d-flex flex-column" style={{ background: '#F8FAFC', overflowX: 'hidden' }}>
+    <div className="bms-catalog-page min-vh-100 d-flex flex-column" style={{ background: '#F8FAFC' }}>
       {/* 1. Global Navigation Bar */}
       <PortalNavbar user={user} />
 

@@ -85,8 +85,8 @@ const UnifiedUserInfoModal = ({
         });
       } else if (user?.role === 'patient') {
         setProfileForm({
-          patientCode: profileData.patientCode || 'BN-2026-08192',
-          identityCardNumber: profileData.identityCardNumber || '079201008234',
+          patientCode: profileData.patientCode || profileData.id || '',
+          identityCardNumber: profileData.identityCardNumber || '',
           dateOfBirth: profileData.dateOfBirth || '',
           gender: profileData.gender || 'Chưa cập nhật',
           address: profileData.address || 'Chưa cập nhật',

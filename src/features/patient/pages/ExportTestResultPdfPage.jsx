@@ -236,9 +236,9 @@ export default function ExportTestResultPdfPage() {
 
   // Normalized display fields conforming to requirements
   const patientNameDisplay = result?.PatientName || patientProfile?.fullName || storedUser?.fullName || 'Bệnh nhân BMS';
-  const patientIdDisplay = result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || 'BN-2026';
-  const dobAgeSexDisplay = result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')} · ${patientProfile.gender || 'Nam'}` : 'Chưa ghi nhận');
-  const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : 'BC-20261031-01');
+  const patientIdDisplay = result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || '—';
+  const dobAgeSexDisplay = result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')}${patientProfile.gender ? ` · ${patientProfile.gender}` : ''}` : (patientProfile?.gender || 'Chưa ghi nhận'));
+  const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : '—');
   const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || 'Chưa chỉ định';
   const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm';
   const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'Trưởng Khoa Xét Nghiệm';

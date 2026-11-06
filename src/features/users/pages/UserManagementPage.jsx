@@ -405,7 +405,6 @@ export default function UserManagementPage() {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              <FaUserCog style={{ color: '#1E60E6' }} />
               Danh Sách Nhân Sự &amp; Phân Quyền Hệ Thống
             </h5>
             <div className="bms-table-standalone-subtitle">

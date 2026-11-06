@@ -172,9 +172,10 @@
 /* 4 Step Workflow */
 .bms-step-art-v3 {
   width: 100%;
-  height: 120px;
+  height: 130px;
   object-fit: contain;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  display: block;
 }
 
 /* Pricing 3-Card Trust Row */

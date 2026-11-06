@@ -14,7 +14,7 @@ import {
   Alert, Badge, Spinner, InputGroup
 } from 'react-bootstrap';
 import {
-  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter
+  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaShieldAlt
 } from 'react-icons/fa';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService } from '../../../services/userManagementService';
@@ -306,140 +306,169 @@ export default function UserManagementPage() {
 
   return (
     <div className="w-100 py-2">
-      {/* Page Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      {/* 1. Master Luxury Page Header Banner */}
+      <div className="bms-page-header-banner">
         <div>
-          <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-            <FaUserCog style={{ color: '#1E60E6' }} /> Quản Lý Nhân Sự & Phân Quyền Tài Khoản (IAM)
-          </h2>
-          <p className="text-muted mb-0 small">
+          <div className="bms-page-chip">
+            <FaShieldAlt size={12} />
+            <span>QUẢN TRỊ HỆ THỐNG · PHÂN QUYỀN RBAC (ISO 15189)</span>
+          </div>
+          <h1 className="bms-page-title">
+            <FaUserCog style={{ color: '#1E60E6' }} />
+            Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
+          </h1>
+          <p className="bms-page-subtitle">
             Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
           </p>
         </div>
-        <div className="mt-2 mt-md-0">
-          <Button variant="primary" onClick={() => setShowCreateModal(true)} className="d-flex align-items-center gap-2 shadow-sm fw-semibold" style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}>
-            <FaPlus /> Thêm Tài Khoản Mới
+        <div>
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2"
+            style={{
+              borderRadius: 9999,
+              background: '#1E60E6',
+              borderColor: '#1E60E6',
+              boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+              fontSize: '14px'
+            }}
+          >
+            <FaPlus size={13} />
+            <span>Thêm Tài Khoản Mới</span>
           </Button>
         </div>
       </div>
 
       {/* Alerts */}
       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError('')} className="shadow-sm" style={{ borderRadius: 14 }}>
+        <Alert variant="danger" dismissible onClose={() => setError('')} className="shadow-sm mb-4" style={{ borderRadius: 14 }}>
           {error}
         </Alert>
       )}
       {success && (
-        <Alert variant="success" dismissible onClose={() => setSuccess('')} className="shadow-sm" style={{ borderRadius: 14 }}>
+        <Alert variant="success" dismissible onClose={() => setSuccess('')} className="shadow-sm mb-4" style={{ borderRadius: 14 }}>
           {success}
         </Alert>
       )}
 
-      {/* KPI Stats Row */}
+      {/* 2. KPI Stats Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
-            <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                <FaUser className="fs-4" />
-              </div>
-              <div>
-                <div className="text-muted small fw-semibold">Tổng tài khoản</div>
-                <div className="fs-4 fw-bold" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{stats.total || safeUsers.length}</div>
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Tổng Tài Khoản Nhân Sự</h6>
+              <div className="bms-kpi-value">{stats.total || safeUsers.length}</div>
+              <div className="bms-kpi-sub text-muted">Toàn viện đang quản lý</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUser /></div>
+          </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
-            <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
-                <FaUnlock className="fs-4" />
-              </div>
-              <div>
-                <div className="text-muted small fw-semibold">Đang hoạt động</div>
-                <div className="fs-4 fw-bold" style={{ color: '#2E7D32', fontVariantNumeric: 'tabular-nums' }}>{stats.active || safeUsers.filter(u => u.isActive).length}</div>
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Đang Hoạt Động</h6>
+              <div className="bms-kpi-value text-success">{stats.active || safeUsers.filter(u => u.isActive).length}</div>
+              <div className="bms-kpi-sub text-success">100% xác thực hợp lệ</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUnlock /></div>
+          </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
-            <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
-                <FaLock className="fs-4" />
-              </div>
-              <div>
-                <div className="text-muted small fw-semibold">Đang bị khóa</div>
-                <div className="fs-4 fw-bold" style={{ color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{stats.inactive || safeUsers.filter(u => !u.isActive).length}</div>
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Đang Tạm Khóa</h6>
+              <div className="bms-kpi-value text-danger">{stats.inactive || safeUsers.filter(u => !u.isActive).length}</div>
+              <div className="bms-kpi-sub text-danger">Chặn truy cập trái phép</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaLock /></div>
+          </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
-            <Card.Body className="d-flex align-items-center">
-              <div className="rounded-circle p-3 me-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                <FaUserCog className="fs-4" />
-              </div>
-              <div>
-                <div className="text-muted small fw-semibold">Bác sĩ & Lab</div>
-                <div className="fs-4 fw-bold" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>
-                  {(stats.byRole?.doctor || 0) + (stats.byRole?.lab || stats.byRole?.lab_user || 0)}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Bác Sĩ &amp; Kỹ Thuật Viên Lab</h6>
+              <div className="bms-kpi-value">{(stats.byRole?.doctor || 0) + (stats.byRole?.lab || stats.byRole?.lab_user || 0)}</div>
+              <div className="bms-kpi-sub text-primary">Nhân lực chuyên môn y tế</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserCog /></div>
+          </div>
         </Col>
       </Row>
 
-      {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-        <Card.Body className="p-3">
-          <Row className="g-3 align-items-center">
-            <Col xs={12} md={5}>
-              <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <FaSearch className="text-muted" />
+      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              <FaUserCog style={{ color: '#1E60E6' }} />
+              Danh Sách Nhân Sự &amp; Phân Quyền Hệ Thống
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              Hiển thị {filteredUsers.length} / {safeUsers.length} tài khoản người dùng và cán bộ y tế đang vận hành
+            </div>
+          </div>
+
+          <div className="d-flex align-items-center gap-2">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
+              className="rounded-pill px-3 fw-semibold"
+            >
+              Xóa bộ lọc
+            </Button>
+          </div>
+        </div>
+
+        {/* Integrated Filter Control Strip */}
+        <div className="p-3 border-bottom" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+          <Row className="g-2 align-items-center">
+            <Col xs={12} md={6}>
+              <InputGroup size="sm">
+                <InputGroup.Text style={{ background: '#FFFFFF', borderColor: 'rgba(203, 213, 225, 0.8)', borderRight: 'none', borderRadius: '9999px 0 0 9999px', paddingLeft: 14 }}>
+                  <FaSearch className="text-muted" size={13} />
                 </InputGroup.Text>
                 <Form.Control
                   placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="border-start-0"
-                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
+                  style={{ background: '#FFFFFF', borderColor: 'rgba(203, 213, 225, 0.8)', borderLeft: 'none', borderRadius: '0 9999px 9999px 0', fontSize: '13px' }}
                 />
               </InputGroup>
             </Col>
             <Col xs={6} md={3}>
-              <Form.Select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}>
+              <Form.Select
+                size="sm"
+                value={selectedRole}
+                onChange={e => setSelectedRole(e.target.value)}
+                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
+              >
                 <option value="all">-- Tất cả vai trò --</option>
                 {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
               </Form.Select>
             </Col>
-            <Col xs={6} md={2}>
-              <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}>
+            <Col xs={6} md={3}>
+              <Form.Select
+                size="sm"
+                value={selectedStatus}
+                onChange={e => setSelectedStatus(e.target.value)}
+                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
+              >
                 <option value="all">-- Tất cả trạng thái --</option>
                 <option value="active">Đang hoạt động</option>
                 <option value="inactive">Đang bị khóa</option>
               </Form.Select>
             </Col>
-            <Col xs={12} md={2} className="text-md-end">
-              <Button variant="outline-secondary" onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }} className="w-100" style={{ borderRadius: 9999 }}>
-                Xóa bộ lọc
-              </Button>
-            </Col>
           </Row>
-        </Card.Body>
-      </Card>
+        </div>
 
-      {/* Table Data */}
-      <Card className="border-0 shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
-        <Card.Body className="p-0">
+        {/* Standalone Table Body */}
+        <div className="bms-table-standalone-body">
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <div className="mt-2 text-muted">Đang tải danh sách tài khoản nhân sự...</div>
+              <div className="mt-2 text-muted small">Đang tải danh sách tài khoản nhân sự...</div>
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-5 text-muted">
@@ -448,48 +477,49 @@ export default function UserManagementPage() {
             </div>
           ) : (
             <div className="table-responsive">
-              <Table hover className="align-middle mb-0">
-                <thead style={{ background: '#EEF2F6' }}>
+              <table className="bms-dash-table">
+                <thead>
                   <tr>
-                    <th className="ps-4" style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Họ và tên</th>
-                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Email / Tên đăng nhập</th>
-                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Số điện thoại</th>
-                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Vai trò hệ thống</th>
-                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Trạng thái</th>
-                    <th className="text-end pe-4" style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thao tác</th>
+                    <th className="ps-4">Họ và tên</th>
+                    <th>Email / Tên đăng nhập</th>
+                    <th>Số điện thoại</th>
+                    <th>Vai trò hệ thống</th>
+                    <th>Trạng thái</th>
+                    <th className="text-end pe-4">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.map(user => (
-                    <tr key={user.id} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                      <td className="ps-4" style={{ padding: '12px 16px' }}>
-                        <div className="fw-semibold" style={{ color: '#0f2743' }}>{user.fullName || '—'}</div>
-                        <small className="font-monospace" style={{ color: '#1E60E6' }}>{user.username}</small>
+                    <tr key={user.id}>
+                      <td className="ps-4">
+                        <div className="fw-semibold text-dark">{user.fullName || '—'}</div>
+                        <small className="font-monospace text-primary">{user.username}</small>
                       </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div>{user.email || '—'}</div>
+                      <td>
+                        <div className="text-dark small">{user.email || '—'}</div>
                       </td>
-                      <td style={{ padding: '12px 16px', fontVariantNumeric: 'tabular-nums' }}>{user.phone || '—'}</td>
-                      <td style={{ padding: '12px 16px' }}>{renderRoleBadge(user.role, user.roleId)}</td>
-                      <td style={{ padding: '12px 16px' }}>
+                      <td style={{ fontVariantNumeric: 'tabular-nums' }}>{user.phone || '—'}</td>
+                      <td>{renderRoleBadge(user.role, user.roleId)}</td>
+                      <td>
                         {user.isActive ? (
-                          <span className="badge rounded-pill d-inline-flex align-items-center gap-1" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)', padding: '4px 10px' }}>
-                            <span className="p-1 rounded-circle" style={{ background: '#2E7D32', width: 6, height: 6 }}></span> Đang hoạt động
+                          <span className="bms-pill-badge bms-pill-success">
+                            Đang hoạt động
                           </span>
                         ) : (
-                          <span className="badge rounded-pill d-inline-flex align-items-center gap-1" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '4px 10px' }}>
-                            <span className="p-1 rounded-circle" style={{ background: '#EF4444', width: 6, height: 6 }}></span> Đang bị khóa
+                          <span className="bms-pill-badge bms-pill-stat">
+                            Đang bị khóa
                           </span>
                         )}
                       </td>
-                      <td className="text-end pe-4" style={{ padding: '12px 16px' }}>
+                      <td className="text-end pe-4">
                         <div className="d-flex justify-content-end gap-1">
                           <Button
                             variant="outline-primary"
                             size="sm"
                             title="Xem chi tiết & Phân quyền chuyên môn"
                             onClick={() => handleOpenUserDetail(user)}
-                            style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
+                            className="rounded-pill px-3 py-1 fw-semibold"
+                            style={{ fontSize: '12px' }}
                           >
                             Chi tiết
                           </Button>
@@ -498,29 +528,31 @@ export default function UserManagementPage() {
                             size="sm"
                             title={user.isActive ? "Tạm khóa tài khoản" : "Mở khóa tài khoản"}
                             onClick={() => setUserToToggle(user)}
-                            style={{ borderRadius: 9999 }}
+                            className="rounded-pill px-2.5 py-1"
+                            style={{ fontSize: '12px' }}
                           >
-                            {user.isActive ? <FaLock /> : <FaUnlock />}
+                            {user.isActive ? <FaLock size={12} /> : <FaUnlock size={12} />}
                           </Button>
                           <Button
                             variant="outline-danger"
                             size="sm"
                             title="Xóa tài khoản khỏi hệ thống"
                             onClick={() => setUserToDelete(user)}
-                            style={{ borderRadius: 9999 }}
+                            className="rounded-pill px-2.5 py-1"
+                            style={{ fontSize: '12px' }}
                           >
-                            <FaTrash />
+                            <FaTrash size={12} />
                           </Button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </table>
             </div>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* Unified User Info Modal */}
       {selectedUser && (

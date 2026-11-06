@@ -6,12 +6,13 @@
 
 import React, { useMemo } from 'react';
 import { OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaTachometerAlt, FaVial, FaUserMd, FaStethoscope, FaUsersCog,
   FaShieldAlt, FaBoxOpen, FaNotesMedical, FaChevronLeft, FaChevronRight,
   FaHeartbeat, FaDatabase, FaBell, FaHistory, FaQrcode, FaUserPlus, FaCheckCircle,
-  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaCalendarAlt, FaSearch
+  FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaCalendarAlt, FaSearch,
+  FaSignOutAlt
 } from 'react-icons/fa';
 
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
@@ -195,6 +196,7 @@ export default function Sidebar({
   onClose,
   auth
 }) {
+  const navigate = useNavigate();
   const location = useLocation();
   const toggleSidebar = onToggle || onToggleCollapse;
   const closeSidebar = onCloseMobile || onClose;
@@ -210,6 +212,29 @@ export default function Sidebar({
 
   const roleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(auth?.userRoleId ?? auth?.userRole), [auth, user]);
   const currentRole = roleId ? ROLE_LABELS[roleId] : 'Nhân viên y tế';
+
+  const displayName = useMemo(() => {
+    return user?.fullName || user?.name || user?.userName || currentRole;
+  }, [user, currentRole]);
+
+  const initials = useMemo(() => {
+    if (!displayName) return 'U';
+    const parts = displayName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }, [displayName]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('bms_token');
+    localStorage.removeItem('bms_access_token');
+    localStorage.removeItem('bms_refresh_token');
+    localStorage.removeItem('bms_user');
+    sessionStorage.removeItem('bms_token');
+    sessionStorage.removeItem('bms_access_token');
+    sessionStorage.removeItem('bms_refresh_token');
+    sessionStorage.removeItem('bms_user');
+    navigate('/login');
+  };
 
   // Filter sections strictly by current roleId
   const filteredSections = useMemo(() => {
@@ -319,50 +344,6 @@ export default function Sidebar({
               <FaChevronLeft size={12} />
             </button>
           )
-        )}
-      </div>
-
-      {/* Role / Session Pill */}
-      <div
-        style={{
-          padding: isCollapsed ? '10px 6px' : '10px 16px',
-          margin: isCollapsed ? '8px 6px' : '12px 14px',
-          background: '#EEF2F6',
-          borderRadius: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px'
-        }}
-      >
-        <div
-          style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#10B981',
-            
-            flexShrink: 0,
-            margin: isCollapsed ? '0 auto' : 0
-          }}
-        />
-        {!isCollapsed && (
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.68rem', color: '#6B7280', fontWeight: 600 }}>
-              Đang hoạt động
-            </div>
-            <div
-              style={{
-                fontSize: '0.82rem',
-                color: '#1A1D21',
-                fontWeight: 650,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
-              {currentRole}
-            </div>
-          </div>
         )}
       </div>
 
@@ -482,34 +463,157 @@ export default function Sidebar({
         ))}
       </div>
 
-      {/* Collapse Footer Toggle (Desktop) */}
-      {!isMobile && isCollapsed && (
-        <div
-          style={{
-            padding: '12px',
-            borderTop: 'none',
-            display: 'flex',
-            justifyContent: 'center'
-          }}
-        >
-          <button
-            onClick={toggleSidebar}
-            style={{
-              background: '#EEF2F6',
-              border: 'none',
-              color: '#6B7280',
-              borderRadius: '9999px',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-            title="Mở rộng menu"
+      {/* User Profile & Session Footer */}
+      {!isCollapsed ? (
+        <div className="bms-sidebar-footer">
+          <div className="d-flex align-items-center justify-content-between gap-2">
+            {/* User Avatar + Name + Role */}
+            <div className="d-flex align-items-center gap-2 overflow-hidden flex-grow-1">
+              <div className="bms-sidebar-avatar-circle" title={displayName}>
+                {initials}
+                <span className="bms-sidebar-avatar-dot" />
+              </div>
+              <div className="overflow-hidden" style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#0F172A',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                  title={displayName}
+                >
+                  {displayName}
+                </div>
+                <div className="d-flex align-items-center gap-1.5 mt-0.5">
+                  <span
+                    style={{
+                      fontSize: '10.5px',
+                      fontWeight: 650,
+                      padding: '1px 6px',
+                      borderRadius: '9999px',
+                      backgroundColor: '#EEF2F6',
+                      color: '#1E60E6',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {currentRole}
+                  </span>
+                  <span style={{ fontSize: '10px', color: '#10B981', fontWeight: 600 }}>● ISO 15189</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions: Logout & Collapse */}
+            <div className="d-flex align-items-center gap-1 flex-shrink-0">
+              <button
+                onClick={handleLogout}
+                style={{
+                  background: '#FEE2E2',
+                  border: 'none',
+                  color: '#DC2626',
+                  borderRadius: '9999px',
+                  width: '30px',
+                  height: '30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Đăng xuất khỏi hệ thống"
+                aria-label="Đăng xuất"
+              >
+                <FaSignOutAlt size={12} />
+              </button>
+              {!isMobile && (
+                <button
+                  onClick={toggleSidebar}
+                  style={{
+                    background: '#EEF2F6',
+                    border: 'none',
+                    color: '#6B7280',
+                    borderRadius: '9999px',
+                    width: '30px',
+                    height: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Thu gọn menu"
+                  aria-label="Thu gọn sidebar"
+                >
+                  <FaChevronLeft size={11} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bms-sidebar-footer" style={{ padding: '12px 6px', alignItems: 'center', gap: '8px' }}>
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id="tt-user-collapsed">
+                <strong>{displayName}</strong>
+                <div>{currentRole}</div>
+                <div className="text-success small">● ISO 15189 Lab Hoạt Động</div>
+              </Tooltip>
+            }
           >
-            <FaChevronRight size={12} />
-          </button>
+            <div className="bms-sidebar-avatar-circle" style={{ cursor: 'pointer' }}>
+              {initials}
+              <span className="bms-sidebar-avatar-dot" />
+            </div>
+          </OverlayTrigger>
+
+          <OverlayTrigger placement="right" overlay={<Tooltip id="tt-logout-collapsed">Đăng xuất</Tooltip>}>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: '#FEE2E2',
+                border: 'none',
+                color: '#DC2626',
+                borderRadius: '9999px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+              aria-label="Đăng xuất"
+            >
+              <FaSignOutAlt size={12} />
+            </button>
+          </OverlayTrigger>
+
+          {!isMobile && (
+            <OverlayTrigger placement="right" overlay={<Tooltip id="tt-expand-sidebar">Mở rộng menu</Tooltip>}>
+              <button
+                onClick={toggleSidebar}
+                style={{
+                  background: '#EEF2F6',
+                  border: 'none',
+                  color: '#6B7280',
+                  borderRadius: '9999px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+                aria-label="Mở rộng menu"
+              >
+                <FaChevronRight size={12} />
+              </button>
+            </OverlayTrigger>
+          )}
         </div>
       )}
     </aside>

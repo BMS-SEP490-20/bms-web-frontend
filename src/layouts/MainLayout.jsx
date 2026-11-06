@@ -9,8 +9,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import PatientPortalLayout from './PatientPortalLayout';
 import { ROLES, resolveRoleId, getStoredUser } from '../constants/roles';
 import { Outlet } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa';
 import Sidebar from '../components/Layout/Sidebar.jsx';
-import AppHeader from '../components/Layout/AppHeader';
 
 /**
  * Main application layout enclosing authenticated screens with responsive navigation.
@@ -118,11 +118,26 @@ export default function MainLayout() {
           minHeight: '100vh'
         }}
       >
-        {/* Unified Application Header */}
-        <AppHeader onToggleSidebar={toggleSidebar} />
+        {/* Minimal Mobile Drawer Header */}
+        {isMobile && (
+          <div className="d-flex align-items-center justify-content-between px-3 py-2 bg-white border-bottom" style={{ zIndex: 1020 }}>
+            <button
+              onClick={toggleSidebar}
+              className="btn btn-sm btn-light rounded-pill p-2 d-flex align-items-center justify-content-center"
+              style={{ width: 36, height: 36, background: '#EEF2F6', border: 'none' }}
+              aria-label="Mở menu"
+            >
+              <FaBars size={16} style={{ color: '#475569' }} />
+            </button>
+            <div className="d-flex align-items-center gap-2">
+              <span className="fw-bold fs-6" style={{ color: '#1E60E6' }}>BMS Clinical Lab</span>
+            </div>
+            <div style={{ width: 36 }} />
+          </div>
+        )}
 
         {/* Dynamic Page Content Outlet - 100% full width layout */}
-        <main className="bms-page-content flex-grow-1 px-3 py-3 px-xl-4 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
+        <main className="bms-page-content flex-grow-1 px-3 py-4 px-xl-4 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
           <Outlet />
         </main>
 

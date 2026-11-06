@@ -53,7 +53,7 @@ const COMMON_ALLERGIES = [
   'Aspirin / Paracetamol',
   'Kháng viêm NSAIDs',
   'Hải sản (Tôm, Cua)',
-  'Trứng / Sữa / Đậu',
+  'Trứng / Sữa / Đậu phộng',
   'Phấn hoa / Bụi nhà',
   'Cồn / Povidine'
 ];
@@ -71,11 +71,11 @@ const COMMON_CONDITIONS = [
   'Dạ dày / Trào ngược'
 ];
 
-// Quick coagulation flags (concise typography)
+// Quick coagulation flags (concise clinical typography)
 const COAGULATION_PRESETS = [
   'Hemophilia (máu khó đông)',
-  'Giảm tiểu cầu',
-  'Dễ bầm tím / Chảy máu',
+  'Xuất huyết giảm tiểu cầu',
+  'Dễ chảy máu / bầm tím',
   'Dùng thuốc chống đông'
 ];
 
@@ -189,8 +189,13 @@ export default function InitialMedicalProfileSetup() {
           patientCode
         });
 
-        if (pat?.bloodType && pat.bloodType !== 'Unknown') {
+        if (pat?.bloodType) {
           setBloodType(pat.bloodType);
+        }
+        if (pat?.coagulationDisorders) {
+          const isNo = pat.coagulationDisorders.includes('Không') || pat.coagulationDisorders === 'Không có';
+          setHasNoCoagulation(isNo);
+          setCoagulationNotes(isNo ? '' : pat.coagulationDisorders);
         }
         if (pat?.emergencyContactName) {
           setEmergencyContactName(pat.emergencyContactName);
@@ -221,7 +226,7 @@ export default function InitialMedicalProfileSetup() {
     loadData();
   }, [user]);
 
-  // 2. BMI Calculation
+  // 2. BMI Calculation (Unified WHO Asian Standard)
   const bmiCalculation = useMemo(() => {
     const h = parseFloat(heightCm);
     const w = parseFloat(weightKg);
@@ -235,11 +240,11 @@ export default function InitialMedicalProfileSetup() {
     if (num < 18.5) {
       return { value: val, label: 'Thiếu cân (< 18.5)', bg: '#FEF3C7', color: '#92400E' };
     } else if (num < 23.0) {
-      return { value: val, label: 'Bình thường (WHO Châu Á)', bg: '#DCFCE7', color: '#166534' };
+      return { value: val, label: 'Bình thường (WHO Châu Á 18.5 - 22.9)', bg: '#DCFCE7', color: '#166534' };
     } else if (num < 25.0) {
-      return { value: val, label: 'Thừa cân nhẹ (23 - 24.9)', bg: '#FEF3C7', color: '#92400E' };
+      return { value: val, label: 'Thừa cân (Tiền béo phì 23 - 24.9)', bg: '#FEF3C7', color: '#92400E' };
     } else {
-      return { value: val, label: 'Béo phì (≥ 25)', bg: '#FEE2E2', color: '#991B1B' };
+      return { value: val, label: 'Béo phì (≥ 25.0)', bg: '#FEE2E2', color: '#991B1B' };
     }
   }, [heightCm, weightKg]);
 
@@ -333,7 +338,7 @@ export default function InitialMedicalProfileSetup() {
               ...(medicalHistoryNotes.trim() ? [medicalHistoryNotes.trim()] : [])
             ].join('; ') || 'Không có',
         coagulationDisorders: hasNoCoagulation
-          ? 'Không có'
+          ? 'Không có tiền sử rối loạn đông máu'
           : coagulationNotes.trim() || 'Có tiền sử rối loạn đông máu',
         currentMedications: hasNoMedications
           ? 'Không có'
@@ -547,12 +552,17 @@ export default function InitialMedicalProfileSetup() {
                   Chưa rõ nhóm máu (Sẽ xét nghiệm định nhóm máu tại phòng Lab)
                 </div>
 
-                {bloodType && bloodType !== 'Unknown' && (
+                {bloodType && bloodType !== 'Unknown' ? (
                   <div className="bms-blood-selected-banner">
                     <FaCheckCircle size={12} />
                     <span>Đã chọn: <strong>Nhóm máu {bloodType}</strong></span>
                   </div>
-                )}
+                ) : bloodType === 'Unknown' ? (
+                  <div className="bms-blood-selected-banner bg-light border text-secondary">
+                    <FaCheckCircle size={12} className="text-secondary" />
+                    <span>Đã chọn: <strong>Chưa rõ (Sẽ định nhóm tại phòng Lab)</strong></span>
+                  </div>
+                ) : null}
               </div>
             </div>
             {errors.bloodType && (

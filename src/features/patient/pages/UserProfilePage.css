@@ -167,7 +167,7 @@ textarea.form-control.bms-profile-input {
   padding: 8px 12px;
   font-size: 12.5px;
   color: #0F172A;
-  font-weight: 550;
+  font-weight: 600;
   letter-spacing: 0.01em;
   min-height: 38px;
   display: flex;
@@ -217,101 +217,7 @@ textarea.form-control.bms-profile-input {
   box-shadow: none !important;
 }
 
-/* Structured Blood Matrix (Shared with Setup) */
-.bms-blood-matrix-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-@media (max-width: 768px) {
-  .bms-blood-matrix-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.bms-blood-matrix-item {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: none !important;
-}
-
-.bms-blood-matrix-item:hover {
-  border-color: #94A3B8;
-  background-color: #F8FAFC;
-}
-
-.bms-blood-code {
-  font-size: 14px;
-  font-weight: 800;
-  color: #0F172A;
-  letter-spacing: -0.01em;
-}
-
-.bms-blood-meta {
-  font-size: 10.5px;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.bms-blood-matrix-item.active {
-  background-color: #1E60E6 !important;
-  border-color: #1E60E6 !important;
-  color: #FFFFFF !important;
-}
-
-.bms-blood-matrix-item.active .bms-blood-code,
-.bms-blood-matrix-item.active .bms-blood-meta {
-  color: #FFFFFF !important;
-}
-
-.bms-blood-unknown-btn {
-  background: #F8FAFC;
-  border: 1px dashed #CBD5E1;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 11.5px;
-  color: #475569;
-  font-weight: 550;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.bms-blood-unknown-btn:hover {
-  background: #F1F5F9;
-  border-color: #94A3B8;
-}
-
-.bms-blood-unknown-btn.active {
-  background: #1E60E6 !important;
-  border: 1px solid #1E60E6 !important;
-  color: #FFFFFF !important;
-  font-weight: 650;
-}
-
-.bms-blood-selected-banner {
-  background: #EFF6FF;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 11.5px;
-  color: #1E60E6;
-  font-weight: 550;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
+/* Structured Blood Matrix styles are centralized in src/app.css */
 
 /* Quick Summary Tiles (No divider lines, clean flat grid) */
 .bms-summary-grid {

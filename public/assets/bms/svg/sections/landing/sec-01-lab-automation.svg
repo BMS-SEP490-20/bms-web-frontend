@@ -1,34 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <defs>
-    <style>
-      @keyframes ecgHeartbeat {
-        0% { stroke-dashoffset: 60; }
-        60% { stroke-dashoffset: 0; }
-        90% { stroke-dashoffset: 0; }
-        100% { stroke-dashoffset: 60; }
-      }
-      @keyframes pulseLed {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.25; transform: scale(1.2); }
-      }
-      .ecg-line {
-        animation: ecgHeartbeat 2.8s ease-in-out infinite;
-      }
-      .led-dot {
-        animation: pulseLed 1.4s ease-in-out infinite;
-      }
-    </style>
-  </defs>
-
   <g transform="translate(40 24) scale(1.6)">
     <path d="M11 25 24 12h53l9 13v55H11Z" fill="#FFFFFF" stroke="#475569" stroke-width="2"/>
     <path d="M11 25h75L77 12H24Z" fill="#EEF4FD" stroke="#475569" stroke-width="2"/>
     <rect x="19" y="32" width="34" height="24" rx="4" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <path d="M23 48h6l4-8 6 11 4-6h6" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60" class="ecg-line">
+    <path d="M23 48h6l4-8 6 11 4-6h6" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60">
       <animate attributeName="stroke-dashoffset" values="60;0;0;60" dur="2.8s" repeatCount="indefinite"/>
     </path>
     <rect x="61" y="32" width="15" height="17" rx="3" fill="#EEF4FD" stroke="#1E60E6" stroke-width="2"/>
-    <circle cx="69" cy="40" r="3" fill="#10B981" stroke="none" class="led-dot">
+    <circle cx="69" cy="40" r="3" fill="#10B981" stroke="none">
       <animate attributeName="opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite"/>
     </circle>
     <rect x="19" y="63" width="58" height="11" rx="3" fill="#F1F5F9" stroke="#475569" stroke-width="2"/>

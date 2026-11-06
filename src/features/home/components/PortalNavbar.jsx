@@ -103,6 +103,13 @@ export default function PortalNavbar({ user: propUser = null }) {
             src="/assets/bms-logo.png"
             alt="BMS Clinical Laboratory"
             className="bms-brand-img"
+            style={{
+              height: '24px',
+              maxHeight: '24px',
+              width: 'auto',
+              objectFit: 'contain',
+              display: 'block'
+            }}
           />
         </Link>
 
@@ -221,7 +228,22 @@ export default function PortalNavbar({ user: propUser = null }) {
             </div>
           ) : isStaff ? (
             <div className="bms-user-dock">
-              <Link to={staffWorkspacePath} className="bms-btn-mint-cta">
+              <Link
+                to={staffWorkspacePath}
+                className="bms-btn-mint-cta"
+                style={{
+                  height: '32px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 650,
+                  borderRadius: '9999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1'
+                }}
+              >
                 Bàn Làm Việc
               </Link>
               <div className="bms-user-profile-tile">
@@ -241,10 +263,40 @@ export default function PortalNavbar({ user: propUser = null }) {
             </div>
           ) : (
             <div className="bms-guest-actions">
-              <Link className="bms-btn-mint-cta" to="/appointments/book">
+              <Link
+                className="bms-btn-mint-cta"
+                to="/appointments/book"
+                style={{
+                  height: '32px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 650,
+                  borderRadius: '9999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1'
+                }}
+              >
                 Đặt Lịch Lấy Mẫu
               </Link>
-              <Link className="bms-btn-blue-cta" to="/login">
+              <Link
+                className="bms-btn-blue-cta"
+                to="/login"
+                style={{
+                  height: '32px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  borderRadius: '9999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1'
+                }}
+              >
                 Đăng Nhập
               </Link>
             </div>

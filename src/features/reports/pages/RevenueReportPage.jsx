@@ -260,8 +260,8 @@ export default function RevenueReportPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="card shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                <div className="card-body p-3">
+            <div className="card shadow-sm mb-4 bg-white" style={{ border: '1px solid rgba(226, 232, 240, 0.85)', borderRadius: '20px', boxShadow: '0 4px 20px -4px rgba(15, 23, 42, 0.04)' }}>
+                <div className="card-body p-4">
                     <div className="row g-3 align-items-center">
                         {/* Time Presets */}
                         <div className="col-12 col-lg-5">
@@ -281,12 +281,13 @@ export default function RevenueReportPage() {
                                         className="btn btn-sm"
                                         style={{
                                             borderRadius: '9999px',
-                                            padding: '4px 14px',
-                                            backgroundColor: datePreset === p.key ? '#1E60E6' : '#EEF2F6',
+                                            padding: '6px 16px',
+                                            backgroundColor: datePreset === p.key ? '#1E60E6' : '#F1F5F9',
                                             color: datePreset === p.key ? '#ffffff' : '#475569',
                                             border: '1px solid',
-                                            borderColor: datePreset === p.key ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                                            fontWeight: '600'
+                                            borderColor: datePreset === p.key ? '#1E60E6' : '#CBD5E1',
+                                            fontWeight: '600',
+                                            fontSize: '13px'
                                         }}
                                         onClick={() => handlePresetChange(p.key)}
                                     >
@@ -302,7 +303,7 @@ export default function RevenueReportPage() {
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
                                 value={fromDate}
                                 onChange={e => {
                                     setFromDate(e.target.value);
@@ -316,7 +317,7 @@ export default function RevenueReportPage() {
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
                                 value={toDate}
                                 onChange={e => {
                                     setToDate(e.target.value);
@@ -332,7 +333,7 @@ export default function RevenueReportPage() {
                             </label>
                             <select
                                 className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
                                 value={categoryFilter}
                                 onChange={e => setCategoryFilter(e.target.value)}
                             >
@@ -352,73 +353,59 @@ export default function RevenueReportPage() {
             <div className="row g-3 mb-4">
                 {/* Gross Revenue */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Doanh Thu Gộp</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                                <FaFileInvoiceDollar />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Doanh Thu Gộp</h6>
+                            <div className="bms-kpi-value text-primary">{summary.formattedGrossRevenue}</div>
+                            <div className="bms-kpi-sub text-muted">Trước khấu trừ bảo hiểm</div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
-                            {summary.formattedGrossRevenue}
-                        </div>
-                        <div className="small text-muted mt-1">
-                            Tổng giá trị dịch vụ trước khấu trừ
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <FaFileInvoiceDollar />
                         </div>
                     </div>
                 </div>
 
                 {/* Net Revenue */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Doanh Thu Thuần (Net)</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e' }}>
-                                <FaMoneyBillWave />
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Doanh Thu Thuần (Net)</h6>
+                            <div className="bms-kpi-value text-success">{summary.formattedNetRevenue}</div>
+                            <div className="bms-kpi-sub text-success d-flex align-items-center gap-1">
+                                {summary.growthRateVsPreviousPeriod >= 0 ? <FaArrowUp /> : <FaArrowDown />}
+                                {summary.growthRateVsPreviousPeriod > 0 ? `+${summary.growthRateVsPreviousPeriod}%` : `${summary.growthRateVsPreviousPeriod}%`} so với kỳ trước
                             </div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>
-                            {summary.formattedNetRevenue}
-                        </div>
-                        <div className="small mt-1 d-flex align-items-center gap-1" style={{ color: summary.growthRateVsPreviousPeriod >= 0 ? '#2b8a3e' : '#dc2626' }}>
-                            {summary.growthRateVsPreviousPeriod >= 0 ? <FaArrowUp /> : <FaArrowDown />}
-                            {summary.growthRateVsPreviousPeriod > 0 ? `+${summary.growthRateVsPreviousPeriod}%` : `${summary.growthRateVsPreviousPeriod}%`} so với kỳ trước
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <FaMoneyBillWave />
                         </div>
                     </div>
                 </div>
 
                 {/* BHYT Insurance Coverage */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">BHYT Chi Trả</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                                <FaHospitalUser />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">BHYT Chi Trả</h6>
+                            <div className="bms-kpi-value text-dark">{summary.bhytCoverageTotal.toLocaleString("vi-VN")} ₫</div>
+                            <div className="bms-kpi-sub text-muted">Khấu trừ bảo hiểm y tế</div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2 text-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {summary.bhytCoverageTotal.toLocaleString("vi-VN")} ₫
-                        </div>
-                        <div className="small text-muted mt-1">
-                            Khấu trừ bảo hiểm theo quy định
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                            <FaHospitalUser />
                         </div>
                     </div>
                 </div>
 
                 {/* Average Order Value (AOV) */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Giá Trị Đơn Trung Bình</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316' }}>
-                                <FaCreditCard />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Giá Trị Đơn Trung Bình</h6>
+                            <div className="bms-kpi-value text-dark">{summary.averageOrderValue.toLocaleString("vi-VN")} ₫</div>
+                            <div className="bms-kpi-sub text-muted">Tổng {summary.totalOrdersCount.toLocaleString("vi-VN")} đơn xét nghiệm</div>
                         </div>
-                        <div className="fs-3 fw-bold mt-2 text-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {summary.averageOrderValue.toLocaleString("vi-VN")} ₫
-                        </div>
-                        <div className="small text-muted mt-1">
-                            Tổng cộng {summary.totalOrdersCount.toLocaleString("vi-VN")} đơn xét nghiệm
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
+                            <FaCreditCard />
                         </div>
                     </div>
                 </div>

@@ -295,54 +295,66 @@ export default function ServicePackagesPage({ onBack }) {
                 </Alert>
             )}
 
-            {/* Main Card */}
-            <div className="bms-roles-card">
-                {/* Toolbar */}
-                <div className="bms-table-toolbar">
-                    <div className="row g-3 align-items-center">
-                        <div className="col-12 col-md-5">
-                            <div className="bms-search-input-pill">
-                                <i className="bi bi-search bms-search-icon"></i>
-                                <input
-                                    type="text"
-                                    placeholder="Tìm theo mã, tên gói, chỉ số xét nghiệm..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
-                                {search && (
-                                    <button
-                                        type="button"
-                                        className="bms-search-clear"
-                                        onClick={() => setSearch('')}
-                                        title="Xóa tìm kiếm"
-                                    >
-                                        <i className="bi bi-x"></i>
-                                    </button>
-                                )}
-                            </div>
+            {/* Standalone Table Section (Zero table in card) */}
+            <div className="bms-table-standalone-section">
+                {/* Header Toolbar */}
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h5 className="bms-table-standalone-title">
+                            <i className="bi bi-box-seam me-2" style={{ color: '#1E60E6' }}></i>
+                            Danh Sách Gói Dịch Vụ Xét Nghiệm
+                        </h5>
+                        <p className="bms-table-standalone-subtitle">
+                            Hiển thị {paginatedPackages.length} trên tổng số {visible.length} gói dịch vụ toàn viện
+                        </p>
+                    </div>
+
+                    <div className="d-flex flex-wrap align-items-center gap-3" style={{ minWidth: '320px', maxWidth: '600px', flex: 1, justifyContent: 'flex-end' }}>
+                        <div className="bms-search-input-pill" style={{ maxWidth: '340px' }}>
+                            <i className="bi bi-search bms-search-icon"></i>
+                            <input
+                                type="text"
+                                placeholder="Tìm theo mã, tên gói, chỉ số..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            {search && (
+                                <button
+                                    type="button"
+                                    className="bms-search-clear"
+                                    onClick={() => setSearch('')}
+                                    title="Xóa tìm kiếm"
+                                >
+                                    <i className="bi bi-x"></i>
+                                </button>
+                            )}
                         </div>
 
-                        <div className="col-6 col-md-3">
-                            <Form.Select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}
-                            >
-                                <option value="ALL">-- Tất Cả Trạng Thái --</option>
-                                <option value="ACTIVE">Đang Hoạt Động</option>
-                                <option value="DRAFT">Tạm Khóa / Bản Nháp</option>
-                            </Form.Select>
-                        </div>
-
-                        <div className="col-6 col-md-4 text-end text-muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            Hiển thị <strong>{paginatedPackages.length}</strong> trên tổng số <strong>{visible.length}</strong> gói dịch vụ
-                        </div>
+                        <Form.Select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            style={{
+                                width: 'auto',
+                                minWidth: '170px',
+                                height: '40px',
+                                borderRadius: '9999px',
+                                border: '1px solid #CBD5E1',
+                                padding: '0 16px',
+                                fontSize: '13px',
+                                background: '#FFFFFF'
+                            }}
+                        >
+                            <option value="ALL">-- Tất Cả Trạng Thái --</option>
+                            <option value="ACTIVE">Đang Hoạt Động</option>
+                            <option value="DRAFT">Tạm Khóa / Bản Nháp</option>
+                        </Form.Select>
                     </div>
                 </div>
 
                 {/* Data Table */}
-                <div className="table-responsive">
-                    <Table hover className="bms-roles-table m-0 align-middle">
+                <div className="bms-table-standalone-body">
+                    <div className="table-responsive">
+                        <Table hover className="align-middle mb-0">
                         <thead>
                             <tr>
                                 <th className="bms-align-center" style={{ width: "160px" }}>Mã Gói</th>
@@ -450,6 +462,7 @@ export default function ServicePackagesPage({ onBack }) {
                             )}
                         </tbody>
                     </Table>
+                </div>
                 </div>
 
                 {/* Pagination Footer */}

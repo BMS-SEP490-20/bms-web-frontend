@@ -1,75 +1,19 @@
 /**
  * @file RolesManagementPage.css
- * @description Design tokens and table styling for RBAC Roles management screen (UC13).
- * Conforms to: Soft Medical Telehealth UI Specification (MEDLINE-class).
+ * @description Design tokens and styling for RBAC Roles management screen (UC13).
+ * Enforces edge-to-edge standalone table section, seamless badges, and luxury UI.
  */
-
-.bms-roles-page {
-  padding: 12px 0;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  font-family: var(--font-sans);
-}
-
-.bms-roles-header {
-  margin-bottom: 24px;
-}
-
-.bms-roles-card {
-  background: var(--bg-card, #ffffff);
-  border-radius: var(--radius-card, 28px);
-  border: 1px solid rgba(15, 23, 42, 0.04);
-  box-shadow: var(--shadow-card, 0 8px 28px rgba(28, 39, 61, 0.07));
-  overflow: hidden;
-}
-
-.bms-table-toolbar {
-  padding: 16px 22px;
-  background-color: var(--bg-muted, #EEF2F6);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
-}
-
-.bms-roles-table th {
-  background-color: var(--bg-page, #F4F7F9);
-  color: var(--ink-secondary, #6B7280);
-  font-size: 12.5px;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: -0.01em;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  padding: 14px 20px;
-}
-
-.bms-roles-table td {
-  padding: 16px 20px;
-  vertical-align: middle;
-  font-size: 13.5px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
-  color: var(--ink, #1A1D21);
-}
-
-.bms-roles-table tbody tr:hover td {
-  background-color: rgba(100, 140, 244, 0.03);
-}
 
 .bms-role-code-cell {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-weight: 700;
   color: var(--primary, #1E60E6);
   background-color: var(--primary-soft, #EDF3FE);
-  border: 1px solid rgba(100, 140, 244, 0.15);
+  border: 1px solid rgba(30, 96, 230, 0.15);
   padding: 4px 12px;
   border-radius: 9999px;
   display: inline-block;
-}
-
-.bms-align-right {
-  text-align: right;
-}
-
-.bms-align-center {
-  text-align: center;
+  font-size: 12.5px;
 }
 
 .bms-status-pill {
@@ -89,13 +33,7 @@
 }
 
 .bms-status-pill.inactive {
-  background-color: var(--bg-muted, #EEF2F6);
-  color: var(--ink-secondary, #6B7280);
+  background-color: #EEF2F6;
+  color: #6B7280;
   border: 1px solid rgba(15, 23, 42, 0.04);
-}
-
-.bms-action-btn-group {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
 }

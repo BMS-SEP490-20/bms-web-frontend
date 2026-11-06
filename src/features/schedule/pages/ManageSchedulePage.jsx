@@ -1,8 +1,24 @@
+/**
+ * @file ManageSchedulePage.jsx
+ * @description UC31 – Quản lý lịch ca làm việc cá nhân bác sĩ & kỹ thuật viên (ISO 15189 / BMS MedLab).
+ * Features: Luxury Header Card, KPI quad metrics, standalone table section (Zero table-in-card).
+ */
+
 import '../schedule.css';
 import React, { useCallback, useEffect, useState } from 'react';
+import { Row, Col, Button, Badge } from 'react-bootstrap';
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaCheckCircle,
+  FaPlus,
+  FaTrash,
+  FaClinicMedical,
+  FaUsers,
+  FaTimes
+} from 'react-icons/fa';
 import { scheduleApi } from '../api/scheduleApi';
 
-/** UC31 – Personal schedule. English UI, KPI cards + table. */
 export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
   const [rooms, setRooms] = useState(initialRooms || []);
   const [shifts, setShifts] = useState([]);
@@ -28,7 +44,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
           }
         })
         .catch(() => {
-          // Handled silently; error banner shown on schedule load if API unreachable
+          // Handled silently
         });
     }
   }, [initialRooms]);
@@ -40,7 +56,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
       const list = await scheduleApi.list(doctorId, undefined, undefined);
       setShifts(list || []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Load failed');
+      setError(e instanceof Error ? e.message : 'Tải danh sách ca thất bại.');
     } finally {
       setLoading(false);
     }
@@ -66,106 +82,152 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
       setShowForm(false);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Create failed');
+      setError(err instanceof Error ? err.message : 'Tạo ca làm việc thất bại.');
     }
   };
 
   const statusBadge = (st) => {
     const map = {
-      Approved: 'text-bg-primary',
-      Active: 'text-bg-primary',
-      Completed: 'text-bg-secondary',
-      Cancelled: 'text-bg-light border',
-      Pending: 'text-bg-warning',
+      Approved: 'bg-primary',
+      Active: 'bg-success',
+      Completed: 'bg-secondary',
+      Cancelled: 'bg-light text-dark border',
+      Pending: 'bg-warning text-dark',
     };
-    return <span className={`badge ${map[st] ?? 'text-bg-light border'}`}>{st || 'Approved'}</span>;
+    return (
+      <span className={`badge ${map[st] ?? 'bg-light text-dark border'}`} style={{ borderRadius: 9999, padding: '5px 12px' }}>
+        {st || 'Approved'}
+      </span>
+    );
   };
 
   return (
-    <div className="container-fluid py-3" style={{ background: '#f5f7fb', minHeight: '100vh' }}>
-      <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-        <div>
-          <div className="text-muted small">BMS / Personal schedule</div>
-          <h3 className="fw-bold mb-0">Personal schedule</h3>
-          <p className="text-muted small mb-0">Manage catalog and status · BMS District 1</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
-          onClick={() => setShowForm((v) => !v)}
-        >
-          + Create schedule
-        </button>
-      </div>
-
-      <div className="row g-3 mb-4">
-        <div className="col-md-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <div className="text-muted small">Catalog overview</div>
-              <div className="fs-3 fw-bold">{shifts.length} schedules</div>
-            </div>
+    <div className="w-100 py-1">
+      {/* 1. Master Luxury Page Header Card */}
+      <div className="bms-page-header-card">
+        <div className="bms-page-header-content">
+          <div className="bms-page-chip">
+            <FaCalendarAlt size={12} />
+            <span>QUẢN LÝ LỊCH CÁ NHÂN · BÁC SĨ (ISO 15189)</span>
           </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <div className="text-muted small">Usage status</div>
-              <div className="fs-3 fw-bold">{upcoming} upcoming</div>
-            </div>
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaCalendarAlt size={22} />
+            </span>
+            <h1 className="bms-page-title">
+              Lịch Làm Việc Cá Nhân
+            </h1>
           </div>
+          <p className="bms-page-subtitle">
+            Theo dõi, tạo mới ca làm việc cá nhân và kiểm soát công suất tiếp nhận bệnh nhân tại BMS Cơ sở 1.
+          </p>
         </div>
-        <div className="col-md-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <div className="text-muted small">Extra info</div>
-              <div className="fs-5 fw-bold">No time conflicts</div>
-            </div>
-          </div>
+        <div className="bms-page-actions">
+          <Button
+            variant="primary"
+            onClick={() => setShowForm((v) => !v)}
+            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2 text-white"
+            style={{
+              borderRadius: 9999,
+              background: '#1E60E6',
+              borderColor: '#1E60E6',
+              boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+              fontSize: '14px'
+            }}
+          >
+            <FaPlus size={13} />
+            <span>{showForm ? 'Đóng Biểu Mẫu' : 'Tạo Ca Trực Mới'}</span>
+          </Button>
         </div>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && (
+        <div className="alert alert-danger shadow-sm mb-4" role="alert" style={{ borderRadius: 14 }}>
+          {error}
+        </div>
+      )}
 
+      {/* 2. KPI Summary Row */}
+      <Row className="g-3 mb-4">
+        <Col xs={12} sm={6} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Tổng Ca Đã Đăng Ký</h6>
+              <div className="bms-kpi-value">{shifts.length}</div>
+              <div className="bms-kpi-sub text-muted">Toàn bộ lịch làm việc</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+              <FaCalendarAlt />
+            </div>
+          </div>
+        </Col>
+        <Col xs={12} sm={6} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Ca Sắp Tới</h6>
+              <div className="bms-kpi-value text-success">{upcoming}</div>
+              <div className="bms-kpi-sub text-success">Đang hiệu lực phân công</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+              <FaCheckCircle />
+            </div>
+          </div>
+        </Col>
+        <Col xs={12} sm={6} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Trạng Thái Trùng Lịch</h6>
+              <div className="bms-kpi-value text-primary fs-5 mt-2">Hợp lệ 100%</div>
+              <div className="bms-kpi-sub text-muted">Không có xung đột thời gian</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
+              <FaClock />
+            </div>
+          </div>
+        </Col>
+      </Row>
+
+      {/* Create Shift Form */}
       {showForm && (
-        <form className="card border-0 shadow-sm mb-4" onSubmit={onCreate}>
-          <div className="card-body row g-3 align-items-end">
-            <div className="col-md-3">
-              <label className="form-label small text-muted">Date</label>
+        <form className="bg-white p-4 rounded-4 shadow-sm border mb-4" onSubmit={onCreate} style={{ borderColor: 'rgba(226, 232, 240, 0.85)' }}>
+          <h5 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+            <FaPlus className="text-primary" />
+            <span>Tạo Ca Làm Việc Mới</span>
+          </h5>
+          <div className="row g-3 align-items-end">
+            <div className="col-12 col-md-3">
+              <label className="form-label small fw-semibold text-secondary">Ngày trực</label>
               <input
                 type="date"
                 className="form-control"
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
                 required
                 value={form.shiftDate}
                 onChange={(e) => setForm({ ...form, shiftDate: e.target.value })}
               />
             </div>
-            <div className="col-md-2">
-              <label className="form-label small text-muted">Shift</label>
+            <div className="col-12 col-md-2">
+              <label className="form-label small fw-semibold text-secondary">Khung giờ ca</label>
               <select
                 className="form-select"
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
                 value={form.shiftType}
-                onChange={(e) =>
-                  setForm({ ...form, shiftType: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
               >
-                <option value="Morning">Morning</option>
-                <option value="Afternoon">Afternoon</option>
-                <option value="FullDay">Full day</option>
+                <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
+                <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
+                <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
               </select>
             </div>
-            <div className="col-md-3">
-              <label className="form-label small text-muted">Room</label>
+            <div className="col-12 col-md-3">
+              <label className="form-label small fw-semibold text-secondary">Phòng làm việc</label>
               <select
                 className="form-select"
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
                 value={form.roomId}
                 onChange={(e) => setForm({ ...form, roomId: e.target.value })}
               >
-                <option value="">-- Select Room --</option>
+                <option value="">-- Chọn phòng trực --</option>
                 {rooms.map((r) => (
                   <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
                     {r.name ? `${r.id || r.roomNumber} - ${r.name}` : (r.id || r.roomNumber)}
@@ -173,138 +235,156 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
                 ))}
               </select>
             </div>
-            <div className="col-md-2">
-              <label className="form-label small text-muted">Max patients</label>
+            <div className="col-12 col-md-2">
+              <label className="form-label small fw-semibold text-secondary">Công suất tối đa (BN)</label>
               <input
                 type="number"
                 className="form-control"
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
                 min={1}
                 max={100}
                 value={form.maxPatients}
-                onChange={(e) =>
-                  setForm({ ...form, maxPatients: parseInt(e.target.value, 10) || 0 })
-                }
+                onChange={(e) => setForm({ ...form, maxPatients: parseInt(e.target.value, 10) || 0 })}
               />
             </div>
-            <div className="col-md-2 d-flex gap-2">
+            <div className="col-12 col-md-2 d-flex gap-2">
               <button
                 type="submit"
-                className="btn btn-primary flex-grow-1"
-                style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
+                className="btn btn-primary flex-grow-1 text-white fw-semibold"
+                style={{ minHeight: 40, borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
-                Save
+                Lưu Ca
               </button>
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 40, borderRadius: '9999px' }}
                 onClick={() => setShowForm(false)}
               >
-                Cancel
+                Hủy
               </button>
             </div>
           </div>
         </form>
       )}
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <ul className="nav nav-pills card-header-pills">
-            <li className="nav-item">
+      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              <FaCalendarAlt style={{ color: '#1E60E6' }} />
+              Danh Sách Lịch Làm Việc Đã Lên Kế Hoạch
+            </h5>
+            <p className="bms-table-standalone-subtitle">
+              Hiển thị {filtered.length} trên tổng số {shifts.length} ca làm việc
+            </p>
+          </div>
+
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <button
                 type="button"
-                className={`nav-link ${filter === 'all' ? 'active' : ''}`}
-                style={filter === 'all' ? { backgroundColor: '#1e40af' } : {}}
+                className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
                 onClick={() => setFilter('all')}
+                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                All schedules ({shifts.length})
+                Tất cả ({shifts.length})
               </button>
-            </li>
-            <li className="nav-item">
               <button
                 type="button"
-                className={`nav-link ${filter === 'active' ? 'active' : ''}`}
-                style={filter === 'active' ? { backgroundColor: '#1e40af' } : {}}
+                className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
                 onClick={() => setFilter('active')}
+                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                Active
+                Đang hiệu lực
               </button>
-            </li>
-            <li className="nav-item">
               <button
                 type="button"
-                className={`nav-link ${filter === 'unused' ? 'active' : ''}`}
-                style={filter === 'unused' ? { backgroundColor: '#1e40af' } : {}}
+                className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
                 onClick={() => setFilter('unused')}
+                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                Unused / Cancelled
+                Chưa tiếp nhận / Đã hủy
               </button>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
 
-        <div className="table-responsive">
-          <table className="table table-hover mb-0 align-middle">
-            <thead className="table-light">
-              <tr>
-                <th>Date</th>
-                <th>Shift</th>
-                <th>Room</th>
-                <th>Patients</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
+        <div className="bms-table-standalone-body">
+          <div className="table-responsive">
+            <table className="table table-hover mb-0 align-middle">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="text-center py-4 text-muted">
-                    Loading schedules...
-                  </td>
+                  <th style={{ width: '150px' }}>NGÀY TRỰC</th>
+                  <th style={{ width: '180px' }}>LOẠI CA</th>
+                  <th>PHÒNG LÀM VIỆC</th>
+                  <th className="text-center" style={{ width: '160px' }}>CÔNG SUẤT (BN)</th>
+                  <th className="text-center" style={{ width: '140px' }}>TRẠNG THÁI</th>
+                  <th className="text-end pe-4" style={{ width: '120px' }}>THAO TÁC</th>
                 </tr>
-              )}
-              {!loading && filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center py-4 text-muted">
-                    No schedules found.
-                  </td>
-                </tr>
-              )}
-              {!loading &&
-                filtered.map((s) => (
-                  <tr key={s.id}>
-                    <td>{new Date(s.shiftDate).toLocaleDateString()}</td>
-                    <td>{s.shiftType}</td>
-                    <td>
-                      <code>{s.roomId}</code>
-                      {s.roomName ? ` (${s.roomName})` : ''}
-                    </td>
-                    <td>
-                      {s.currentPatientsCount ?? 0} / {s.maxPatients}
-                    </td>
-                    <td>{statusBadge(s.status)}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={async () => {
-                          if (!window.confirm('Delete this schedule?')) return;
-                          try {
-                            await scheduleApi.remove(s.id);
-                            await load();
-                          } catch (err) {
-                            setError(err instanceof Error ? err.message : 'Delete failed');
-                          }
-                        }}
-                      >
-                        Delete
-                      </button>
+              </thead>
+              <tbody>
+                {loading && (
+                  <tr>
+                    <td colSpan={6} className="text-center py-5 text-muted">
+                      Đang tải danh sách lịch ca...
                     </td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
+                )}
+                {!loading && filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center py-5 text-muted">
+                      <FaCalendarAlt className="fs-2 text-muted opacity-50 mb-2 d-block mx-auto" />
+                      Không tìm thấy ca làm việc nào.
+                    </td>
+                  </tr>
+                )}
+                {!loading &&
+                  filtered.map((s) => (
+                    <tr key={s.id}>
+                      <td className="fw-semibold text-dark font-monospace">
+                        {new Date(s.shiftDate).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td>
+                        <span className="badge bg-light text-primary border" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+                          {s.shiftType}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="d-flex align-items-center gap-1 fw-semibold text-dark">
+                          <FaClinicMedical className="text-primary small" />
+                          <span>{s.roomName || s.roomId}</span>
+                        </div>
+                        <div className="text-muted small">Mã: <code>{s.roomId}</code></div>
+                      </td>
+                      <td className="text-center font-monospace fw-bold">
+                        {s.currentPatientsCount ?? 0} / {s.maxPatients}
+                      </td>
+                      <td className="text-center">{statusBadge(s.status)}</td>
+                      <td className="text-end pe-4">
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={async () => {
+                            if (!window.confirm('Bạn có chắc chắn muốn xóa ca làm việc này?')) return;
+                            try {
+                              await scheduleApi.remove(s.id);
+                              await load();
+                            } catch (err) {
+                              setError(err instanceof Error ? err.message : 'Xóa ca thất bại');
+                            }
+                          }}
+                          style={{ borderRadius: 9999 }}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

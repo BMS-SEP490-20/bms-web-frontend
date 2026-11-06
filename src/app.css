@@ -111,7 +111,7 @@
     display: flex;
     align-items: center;
     background: var(--bg-muted);
-    padding: 3px 5px;
+    padding: 4px 6px;
     border-radius: var(--radius-control);
     gap: 2px;
     list-style: none;

@@ -125,8 +125,8 @@ export default function PortalNavbar({ user: propUser = null }) {
             className="bms-quantum-slider"
             style={{
               position: 'absolute',
-              top: '3px',
-              bottom: '3px',
+              top: '5.5px',
+              bottom: '5.5px',
               left: `${sliderStyle.left}px`,
               width: `${sliderStyle.width}px`,
               backgroundColor: '#1E60E6',

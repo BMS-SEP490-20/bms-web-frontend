@@ -67,6 +67,21 @@ const COAGULATION_OPTIONS = [
   'Dễ chảy máu bầm tím / Chảy máu kéo dài',
   'Đang dùng thuốc chống đông (Warfarin / Sintrom / Aspirin)'
 ];
+
+// Structured blood types for clinical clarity
+const BLOOD_TYPES_RH_POS = [
+  { code: 'O+', label: 'O+', sub: 'Rh+ Phổ biến (~45%)' },
+  { code: 'A+', label: 'A+', sub: 'Rh+ Kháng nguyên A (~20%)' },
+  { code: 'B+', label: 'B+', sub: 'Rh+ Kháng nguyên B (~30%)' },
+  { code: 'AB+', label: 'AB+', sub: 'Rh+ Kháng nguyên AB (~5%)' }
+];
+
+const BLOOD_TYPES_RH_NEG = [
+  { code: 'O-', label: 'O-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'A-', label: 'A-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'B-', label: 'B-', sub: 'Rh- Nhóm máu hiếm' },
+  { code: 'AB-', label: 'AB-', sub: 'Rh- Cực kỳ hiếm' }
+];
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getUserProfile } from '../../../services/userService';
 import { getMyPatientInformation, updateMyPatientInformation } from '../../../services/patientService';
@@ -556,7 +571,7 @@ export const UserProfilePage = () => {
 
         <Row className="g-4">
           {/* Left Column: Identity & Medical Profile Status Card */}
-          <Col xs={12} lg={4}>
+          <Col xs={12} lg={4} xl={3}>
             <div className="bms-profile-card text-center mb-4">
               <div className="bms-avatar-wrapper mx-auto mb-3">
                 <img
@@ -654,7 +669,7 @@ export const UserProfilePage = () => {
           </Col>
 
           {/* Right Column: Full Clinical Profile Form / Display */}
-          <Col xs={12} lg={8}>
+          <Col xs={12} lg={8} xl={9}>
             <div className="bms-profile-card">
               <div className="bms-profile-masthead">
                 <div>
@@ -840,37 +855,94 @@ export const UserProfilePage = () => {
                   <h6 className="bms-profile-section-title">
                     <FaHeartbeat className="text-primary" /> Chỉ Số Huyết Học &amp; Thể Trạng
                   </h6>
+
+                  {isEditing && (
+                    <div className="mb-3 p-3 rounded-3" style={{ background: '#F8FAFC' }}>
+                      <div className="d-flex align-items-center justify-content-between mb-2">
+                        <label className="bms-setup-label mb-0">
+                          Nhóm máu hệ ABO / Rh <span className="text-danger">*</span>
+                        </label>
+                        {formData.bloodType && formData.bloodType !== 'Unknown' && (
+                          <div className="bms-blood-selected-banner py-1 px-2">
+                            <FaCheckCircle size={11} />
+                            <span>Đã chọn: <strong>Nhóm máu {formData.bloodType}</strong></span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>YẾU TỐ RHESUS DƯƠNG (Rh+ · PHỔ BIẾN)</div>
+                      <div className="bms-blood-matrix-grid mb-2">
+                        {BLOOD_TYPES_RH_POS.map((bt) => {
+                          const isActive = formData.bloodType === bt.code;
+                          return (
+                            <div
+                              key={bt.code}
+                              className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
+                              onClick={() => setFormData(prev => ({ ...prev, bloodType: bt.code }))}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div>
+                                <div className="bms-blood-code">{bt.label}</div>
+                                <div className="bms-blood-meta">{bt.sub}</div>
+                              </div>
+                              {isActive && <FaCheckCircle size={13} className="text-white flex-shrink-0" />}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>YẾU TỐ RHESUS ÂM (Rh- · NHÓM MÁU HIẾM)</div>
+                      <div className="bms-blood-matrix-grid mb-2">
+                        {BLOOD_TYPES_RH_NEG.map((bt) => {
+                          const isActive = formData.bloodType === bt.code;
+                          return (
+                            <div
+                              key={bt.code}
+                              className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
+                              onClick={() => setFormData(prev => ({ ...prev, bloodType: bt.code }))}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div>
+                                <div className="bms-blood-code">{bt.label}</div>
+                                <div className="bms-blood-meta">{bt.sub}</div>
+                              </div>
+                              {isActive && <FaCheckCircle size={13} className="text-white flex-shrink-0" />}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-1">
+                        <div
+                          className={`bms-blood-unknown-btn ${formData.bloodType === 'Unknown' ? 'active' : ''}`}
+                          onClick={() => setFormData(prev => ({ ...prev, bloodType: 'Unknown' }))}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          {formData.bloodType === 'Unknown' ? <FaCheckCircle size={11} className="me-1" /> : null}
+                          Chưa rõ nhóm máu (Định nhóm tại Lab)
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <Row className="g-3">
-                    <Col md={4}>
-                      <Form.Group>
-                        <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
-                        {isEditing ? (
-                          <Form.Select
-                            name="bloodType"
-                            className="bms-profile-input"
-                            value={formData.bloodType}
-                            onChange={handleInputChange}
-                          >
-                            <option value="O+">Nhóm O+ (Phổ biến)</option>
-                            <option value="O-">Nhóm O- (Hiếm)</option>
-                            <option value="A+">Nhóm A+</option>
-                            <option value="A-">Nhóm A-</option>
-                            <option value="B+">Nhóm B+</option>
-                            <option value="B-">Nhóm B-</option>
-                            <option value="AB+">Nhóm AB+</option>
-                            <option value="AB-">Nhóm AB-</option>
-                          </Form.Select>
-                        ) : (
+                    {!isEditing && (
+                      <Col md={3}>
+                        <Form.Group>
+                          <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
                           <div className="pt-1">
                             <span className="bms-blood-pill">
                               <FaTint size={11} /> Nhóm máu {formData.bloodType}
                             </span>
                           </div>
-                        )}
-                      </Form.Group>
-                    </Col>
+                        </Form.Group>
+                      </Col>
+                    )}
 
-                    <Col md={4}>
+                    <Col md={isEditing ? 4 : 3}>
                       <Form.Group>
                         <Form.Label className="small fw-semibold text-muted">Chiều cao (cm) <span className="text-danger">*</span></Form.Label>
                         {isEditing ? (
@@ -891,7 +963,7 @@ export const UserProfilePage = () => {
                       </Form.Group>
                     </Col>
 
-                    <Col md={4}>
+                    <Col md={isEditing ? 4 : 3}>
                       <Form.Group>
                         <Form.Label className="small fw-semibold text-muted">Cân nặng (kg) <span className="text-danger">*</span></Form.Label>
                         {isEditing ? (
@@ -913,18 +985,29 @@ export const UserProfilePage = () => {
                       </Form.Group>
                     </Col>
 
-                    <Col xs={12}>
-                      <div className="p-3 rounded-4 d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC' }}>
-                        <div>
-                          <span className="small text-muted fw-semibold me-2">Chỉ số thể trọng BMI tự động:</span>
-                          <span className={`h6 fw-bold mb-0 text-${bmiInfo.color}`}>
-                            {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}
-                          </span>
+                    <Col md={isEditing ? 4 : 3}>
+                      {isEditing ? (
+                        <div className="h-100 d-flex flex-column justify-content-end">
+                          <div className="p-2 px-3 rounded-2 d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC', minHeight: '38px', border: '1px solid #E2E8F0' }}>
+                            <span className="small text-muted fw-semibold">BMI: {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}</span>
+                            <Badge bg={bmiInfo.color} className="px-2 py-1 rounded-pill small">
+                              {bmiInfo.label}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge bg={bmiInfo.color} className="px-3 py-2 rounded-pill">
-                          {bmiInfo.label}
-                        </Badge>
-                      </div>
+                      ) : (
+                        <div>
+                          <Form.Label className="small fw-semibold text-muted">Chỉ số BMI</Form.Label>
+                          <div className="bms-profile-readonly-box d-flex justify-content-between">
+                            <span className={`fw-bold text-${bmiInfo.color}`}>
+                              {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}
+                            </span>
+                            <Badge bg={bmiInfo.color} className="px-2 py-1 rounded-pill small">
+                              {bmiInfo.label}
+                            </Badge>
+                          </div>
+                        </div>
+                      )}
                     </Col>
                   </Row>
                 </div>

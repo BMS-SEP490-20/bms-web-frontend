@@ -7,7 +7,7 @@
 .bms-profile-page {
   background-color: #F8FAFC;
   min-height: calc(100vh - 120px);
-  padding: 32px 16px 64px;
+  padding: 36px 20px 72px;
 }
 
 /* Main Profile Cards (Pure Flat 2D, No Border, No Shadow) */
@@ -16,14 +16,20 @@
   border-radius: 24px;
   border: none !important;
   box-shadow: none !important;
-  padding: 32px;
+  padding: 36px 44px;
   position: relative;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .bms-profile-card {
-    padding: 24px 18px;
+    padding: 28px 24px;
     border-radius: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .bms-profile-card {
+    padding: 20px 16px;
   }
 }
 
@@ -44,13 +50,13 @@
   gap: 6px;
   background: #EFF6FF;
   color: #1E60E6;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 650;
   letter-spacing: 0.04em;
   padding: 5px 12px;
   border-radius: 999px;
   border: none !important;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .bms-profile-main-title {
@@ -63,7 +69,7 @@
 }
 
 .bms-profile-main-subtitle {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #64748B;
   margin: 4px 0 0;
 }
@@ -72,12 +78,12 @@
 .bms-avatar-wrapper {
   position: relative;
   display: inline-block;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .bms-avatar-img {
-  width: 100px;
-  height: 100px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #F1F5F9;
@@ -97,7 +103,7 @@
 
 /* Section titles (NO horizontal line rules) */
 .bms-profile-section-title {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
   color: #0F172A;
   margin: 0 0 14px;
@@ -110,19 +116,31 @@
 }
 
 /* Inputs & Form Controls (Compact, Soft, Borderless-feel) */
-.bms-profile-input {
+.bms-profile-input,
+.form-control.bms-profile-input,
+.form-select.bms-profile-input {
   background-color: #F8FAFC !important;
   border: 1px solid #E2E8F0 !important;
-  border-radius: 12px !important;
-  font-size: 13.5px !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
   color: #0F172A !important;
-  padding: 8px 14px !important;
-  min-height: 40px !important;
+  padding: 6px 12px !important;
+  min-height: 38px !important;
+  height: 38px !important;
   box-shadow: none !important;
   transition: border-color 0.15s ease;
 }
 
-.bms-profile-input:focus {
+textarea.bms-profile-input,
+textarea.form-control.bms-profile-input {
+  min-height: 54px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+}
+
+.bms-profile-input:focus,
+.form-control.bms-profile-input:focus,
+.form-select.bms-profile-input:focus {
   border-color: #1E60E6 !important;
   background-color: #FFFFFF !important;
   outline: none !important;
@@ -131,12 +149,12 @@
 /* Readonly data display boxes */
 .bms-profile-readonly-box {
   background-color: #F8FAFC;
-  border-radius: 12px;
-  padding: 9px 14px;
-  font-size: 13.5px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
   color: #0F172A;
   font-weight: 550;
-  min-height: 40px;
+  min-height: 38px;
   display: flex;
   align-items: center;
   border: none !important;
@@ -146,24 +164,24 @@
 .fast-tag-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .fast-tag-item {
   border: 1px solid #E2E8F0;
   background: #F8FAFC;
   color: #475569;
-  border-radius: 999px;
-  padding: 5px 13px;
-  font-size: 12px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   box-shadow: none !important;
 }
 
@@ -181,17 +199,113 @@
   box-shadow: none !important;
 }
 
+/* Structured Blood Matrix (Shared with Setup) */
+.bms-blood-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .bms-blood-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.bms-blood-matrix-item {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: none !important;
+}
+
+.bms-blood-matrix-item:hover {
+  border-color: #94A3B8;
+  background-color: #F8FAFC;
+}
+
+.bms-blood-code {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.01em;
+}
+
+.bms-blood-meta {
+  font-size: 10.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.bms-blood-matrix-item.active {
+  background-color: #1E60E6 !important;
+  border-color: #1E60E6 !important;
+  color: #FFFFFF !important;
+}
+
+.bms-blood-matrix-item.active .bms-blood-code,
+.bms-blood-matrix-item.active .bms-blood-meta {
+  color: #FFFFFF !important;
+}
+
+.bms-blood-unknown-btn {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 550;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bms-blood-unknown-btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+.bms-blood-unknown-btn.active {
+  background: #1E60E6 !important;
+  border: 1px solid #1E60E6 !important;
+  color: #FFFFFF !important;
+  font-weight: 650;
+}
+
+.bms-blood-selected-banner {
+  background: #EFF6FF;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  color: #1E60E6;
+  font-weight: 550;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 /* Quick Summary Tiles (No divider lines, clean flat grid) */
 .bms-summary-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .bms-summary-tile {
   background: #F8FAFC;
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -199,13 +313,13 @@
 }
 
 .bms-summary-label {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #64748B;
   font-weight: 500;
 }
 
 .bms-summary-val {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #0F172A;
   font-weight: 650;
   text-align: right;
@@ -215,9 +329,9 @@
 .bms-blood-pill {
   background: #FEF2F2;
   color: #DC2626;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -230,9 +344,9 @@
   color: #FFFFFF !important;
   border: none !important;
   border-radius: 999px !important;
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
-  padding: 10px 24px !important;
+  padding: 8px 22px !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -250,9 +364,9 @@
   color: #475569 !important;
   border: none !important;
   border-radius: 999px !important;
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
-  padding: 10px 20px !important;
+  padding: 8px 18px !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -271,13 +385,13 @@
   color: #1E60E6 !important;
   border: 1px solid #BFDBFE !important;
   border-radius: 999px !important;
-  font-size: 12.5px !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
-  padding: 6px 16px !important;
+  padding: 5px 14px !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 5px !important;
 }
 
 .bms-btn-pill-outline:hover {

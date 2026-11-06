@@ -1,15 +1,7 @@
 /**
  * @file InitialMedicalProfileSetup.jsx
  * @description Mandatory First-Time Clinical Intake Screen for Patients.
- * Conforms to:
- * - Ministry of Health: Thông tư 46/2018/TT-BYT & QĐ 2429/QĐ-BYT.
- * - ISO 15189:2022 Pre-analytical Quality Criteria.
- * - Minimalist, high-contrast, zero-shadow clinical document design.
- * 
- * Once saved:
- * - Updates patient record via PUT /api/patients/me
- * - Sets medicalProfileCompleted = true in database & session
- * - Redirects patient to Home Page (/home).
+ * Styled in the clean, flat, borderless Home design language (bms-status-chip, pure flat 2D).
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -18,7 +10,6 @@ import {
   Row,
   Col,
   Form,
-  Button,
   Alert,
   Spinner
 } from 'react-bootstrap';
@@ -28,13 +19,6 @@ import {
   FaShieldAlt,
   FaSave,
   FaArrowRight,
-  FaHeartbeat,
-  FaTint,
-  FaAllergies,
-  FaNotesMedical,
-  FaPills,
-  FaPhoneAlt,
-  FaIdCard,
   FaCheck
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
@@ -47,49 +31,48 @@ import './InitialMedicalProfileSetup.css';
 
 // Blood type options (Hệ ABO/Rh)
 const BLOOD_TYPES = [
-  { code: 'O+', label: 'Nhóm Máu O+', desc: 'Phổ biến nhất (Rh+)' },
-  { code: 'O-', label: 'Nhóm Máu O-', desc: 'Nhóm máu hiếm (Rh-)' },
-  { code: 'A+', label: 'Nhóm Máu A+', desc: 'Kháng nguyên A (Rh+)' },
-  { code: 'A-', label: 'Nhóm Máu A-', desc: 'Nhóm máu hiếm (Rh-)' },
-  { code: 'B+', label: 'Nhóm Máu B+', desc: 'Kháng nguyên B (Rh+)' },
-  { code: 'B-', label: 'Nhóm Máu B-', desc: 'Nhóm máu hiếm (Rh-)' },
-  { code: 'AB+', label: 'Nhóm Máu AB+', desc: 'Kháng nguyên AB (Rh+)' },
-  { code: 'AB-', label: 'Nhóm Máu AB-', desc: 'Cực hiếm (Rh-)' },
-  { code: 'Unknown', label: 'Chưa Rõ Nhóm Máu', desc: 'Sẽ xét nghiệm tại phòng Lab' }
+  { code: 'O+', label: 'Nhóm O+' },
+  { code: 'O-', label: 'Nhóm O- (Hiếm)' },
+  { code: 'A+', label: 'Nhóm A+' },
+  { code: 'A-', label: 'Nhóm A- (Hiếm)' },
+  { code: 'B+', label: 'Nhóm B+' },
+  { code: 'B-', label: 'Nhóm B- (Hiếm)' },
+  { code: 'AB+', label: 'Nhóm AB+' },
+  { code: 'AB-', label: 'Nhóm AB- (Cực hiếm)' },
+  { code: 'Unknown', label: 'Chưa Rõ Nhóm Máu' }
 ];
 
 // Common allergy options
 const COMMON_ALLERGIES = [
-  'Kháng sinh Penicillin / Amoxicillin',
-  'Kháng sinh Cephalosporin',
-  'Thuốc giảm đau Aspirin / Paracetamol',
-  'Thuốc chống viêm NSAIDs (Ibuprofen...)',
-  'Dị ứng Hải sản (Tôm, Cua, Mực)',
-  'Dị ứng Trứng / Sữa / Đậu phộng',
-  'Phấn hoa / Bụi nhà / Thời tiết',
-  'Cồn sát trùng / Povidine / Băng keo y tế'
+  'Penicillin / Amoxicillin',
+  'Cephalosporin',
+  'Aspirin / Paracetamol',
+  'Thuốc NSAIDs (Ibuprofen...)',
+  'Hải sản (Tôm, Cua, Mực)',
+  'Trứng / Sữa / Đậu phộng',
+  'Phấn hoa / Bụi nhà',
+  'Cồn / Povidine / Băng keo'
 ];
 
 // Common chronic medical conditions
 const COMMON_CONDITIONS = [
-  'Tăng huyết áp (Cao huyết áp)',
-  'Đái tháo đường (Tiểu đường)',
-  'Bệnh lý Tim mạch / Thiếu máu cục bộ',
-  'Viêm gan siêu vi B / C',
-  'Bệnh thận mạn tính / Suy thận',
-  'Hen phế quản (Suyễn) / COPD',
-  'Rối loạn lipid máu (Mỡ máu cao)',
-  'Bệnh lý Tuyến giáp (Bướu cổ, Basedow)',
-  'Viêm loét dạ dày - tá tràng / Trào ngược (GERD)',
-  'Bệnh lý Động kinh / Thần kinh'
+  'Tăng huyết áp',
+  'Đái tháo đường',
+  'Bệnh lý Tim mạch',
+  'Viêm gan B / C',
+  'Bệnh thận mạn tính',
+  'Hen phế quản (Suyễn)',
+  'Mỡ máu cao',
+  'Bệnh lý Tuyến giáp',
+  'Viêm loét dạ dày / GERD'
 ];
 
 // Quick coagulation flags
 const COAGULATION_PRESETS = [
-  'Bệnh Hemophilia (máu khó đông)',
+  'Hemophilia (máu khó đông)',
   'Xuất huyết giảm tiểu cầu',
   'Dễ bầm tím / Chảy máu kéo dài',
-  'Đang dùng thuốc chống đông (Warfarin / Sintrom / Aspirin)'
+  'Thuốc chống đông (Warfarin/Aspirin)'
 ];
 
 // Relationships
@@ -98,7 +81,7 @@ const RELATIONSHIPS = [
   'Bố / Mẹ',
   'Con cái',
   'Anh / Chị / Em',
-  'Người giám hộ hợp pháp',
+  'Người giám hộ',
   'Người thân khác'
 ];
 
@@ -202,7 +185,6 @@ export default function InitialMedicalProfileSetup() {
           patientCode
         });
 
-        // Prefill existing values if present
         if (pat?.bloodType && pat.bloodType !== 'Unknown') {
           setBloodType(pat.bloodType);
         }
@@ -235,7 +217,7 @@ export default function InitialMedicalProfileSetup() {
     loadData();
   }, [user]);
 
-  // 2. BMI Calculation & Interpretation
+  // 2. BMI Calculation
   const bmiCalculation = useMemo(() => {
     const h = parseFloat(heightCm);
     const w = parseFloat(weightKg);
@@ -247,19 +229,16 @@ export default function InitialMedicalProfileSetup() {
     const num = parseFloat(val);
 
     if (num < 18.5) {
-      return { value: val, label: 'Thiếu cân (BMI < 18.5)', bg: '#FEF3C7', color: '#92400E' };
+      return { value: val, label: 'Thiếu cân (< 18.5)', bg: '#FEF3C7', color: '#92400E' };
     } else if (num < 23.0) {
       return { value: val, label: 'Bình thường (WHO Châu Á)', bg: '#DCFCE7', color: '#166534' };
     } else if (num < 25.0) {
-      return { value: val, label: 'Tiền béo phì (Thừa cân nhẹ)', bg: '#FEF3C7', color: '#92400E' };
-    } else if (num < 30.0) {
-      return { value: val, label: 'Béo phì độ 1', bg: '#FEE2E2', color: '#991B1B' };
+      return { value: val, label: 'Thừa cân nhẹ (23 - 24.9)', bg: '#FEF3C7', color: '#92400E' };
     } else {
-      return { value: val, label: 'Béo phì độ 2 (Nguy cơ cao)', bg: '#FEE2E2', color: '#991B1B' };
+      return { value: val, label: 'Béo phì (≥ 25)', bg: '#FEE2E2', color: '#991B1B' };
     }
   }, [heightCm, weightKg]);
 
-  // Tag togglers
   const toggleAllergy = (item) => {
     setHasNoAllergies(false);
     setSelectedAllergies(prev =>
@@ -289,22 +268,22 @@ export default function InitialMedicalProfileSetup() {
     const newErrors = {};
 
     if (!bloodType) {
-      newErrors.bloodType = 'Vui lòng chọn nhóm máu hệ ABO / Rh.';
+      newErrors.bloodType = 'Vui lòng chọn nhóm máu.';
     }
 
     if (!emergencyContactName.trim() || emergencyContactName.trim().length < 2) {
-      newErrors.emergencyContactName = 'Vui lòng nhập họ và tên người liên hệ khẩn cấp (tối thiểu 2 ký tự).';
+      newErrors.emergencyContactName = 'Vui lòng nhập họ và tên người liên hệ khẩn cấp.';
     }
 
     const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
     if (!emergencyContactPhone.trim()) {
-      newErrors.emergencyContactPhone = 'Vui lòng nhập số điện thoại người liên hệ khẩn cấp.';
+      newErrors.emergencyContactPhone = 'Vui lòng nhập số điện thoại người liên hệ.';
     } else if (!phoneRegex.test(emergencyContactPhone.trim())) {
-      newErrors.emergencyContactPhone = 'Số điện thoại khẩn cấp không hợp lệ (phải gồm 10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09).';
+      newErrors.emergencyContactPhone = 'Số điện thoại gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).';
     }
 
     if (!consentConfirmed) {
-      newErrors.consent = 'Bạn cần tích xác nhận cam đoan thông tin khai báo y tế là trung thực và chính xác.';
+      newErrors.consent = 'Vui lòng tích xác nhận cam đoan thông tin khai báo là chính xác.';
     }
 
     setErrors(newErrors);
@@ -318,7 +297,7 @@ export default function InitialMedicalProfileSetup() {
     setSuccessMessage('');
 
     if (!validateForm()) {
-      setErrorMessage('Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc được đánh dấu đỏ.');
+      setErrorMessage('Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -380,14 +359,14 @@ export default function InitialMedicalProfileSetup() {
         updateUser({ medicalProfileCompleted: true, bloodType: bloodType });
       }
 
-      setSuccessMessage('Hồ sơ bệnh án và tiền sử sức khỏe ban đầu đã được lưu thành công! Đang chuyển hướng bạn đến Trang Chủ...');
+      setSuccessMessage('Hồ sơ sức khỏe ban đầu đã được lưu thành công! Đang chuyển hướng bạn đến Trang Chủ...');
 
       setTimeout(() => {
         navigate('/home', { replace: true });
       }, 700);
 
     } catch (err) {
-      setErrorMessage(err.message || 'Không thể lưu hồ sơ bệnh án. Vui lòng kiểm tra lại kết nối và thử lại.');
+      setErrorMessage(err.message || 'Không thể lưu hồ sơ bệnh án. Vui lòng thử lại sau.');
     } finally {
       setSubmitting(false);
     }
@@ -397,129 +376,102 @@ export default function InitialMedicalProfileSetup() {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5" style={{ minHeight: '60vh' }}>
         <Spinner animation="border" variant="primary" style={{ width: '2.5rem', height: '2.5rem' }} />
-        <div className="mt-3 text-secondary small fw-medium">Đang tải hồ sơ y tế từ máy chủ BMS...</div>
+        <div className="mt-3 text-secondary small fw-medium">Đang tải thông tin hồ sơ...</div>
       </div>
     );
   }
 
   return (
-    <div className="clinical-intake-canvas">
-      <div className="clinical-intake-sheet">
-        {/* Official Masthead (Header) */}
-        <div className="clinical-intake-masthead">
-          <div className="clinical-intake-meta-bar">
-            <div className="clinical-intake-badge-group">
-              <span className="clinical-badge-official">
-                <FaShieldAlt /> TIÊU CHUẨN ISO 15189:2022 &amp; TT 46/2018/TT-BYT
-              </span>
-              <span className="clinical-badge-mandatory">
-                BẮT BUỘC KHAI BÁO
-              </span>
-            </div>
-            <div className="clinical-intake-code">
-              MÃ BỆNH NHÂN: <strong className="text-dark">{demographics.patientCode || 'PAT-VN'}</strong>
-            </div>
+    <div className="bms-setup-page-wrap">
+      <div className="bms-setup-card">
+        {/* Masthead Header (Matching Home Style) */}
+        <div className="bms-setup-header">
+          <div className="bms-status-chip">
+            THÔNG TƯ 46/2018/TT-BYT · CHUẨN XÉT NGHIỆM BMS
           </div>
-
-          <h1 className="clinical-intake-title">
-            Phiếu Khai Báo Hồ Sơ Bệnh Án &amp; Tiền Sử Lâm Sàng
+          <h1 className="bms-setup-title">
+            Hồ Sơ Sức Khỏe &amp; Tiền Sử Y Tế
           </h1>
-          <p className="clinical-intake-subtitle">
-            Theo <strong>Luật Khám bệnh, chữa bệnh 2023</strong> và quy chuẩn tiền phân tích xét nghiệm máu, 
-            bệnh nhân cần hoàn tất thông tin lâm sàng nhằm bảo đảm an toàn truyền mẫu, đối chiếu dải tham chiếu sinh hóa 
-            và kích hoạt báo động khi xảy ra tình huống y khoa khẩn cấp.
+          <p className="bms-setup-desc">
+            Khai báo thông tin lâm sàng ban đầu để bác sĩ đối chiếu kết quả xét nghiệm máu và kích hoạt liên hệ kịp thời trong các tình huống khẩn cấp.
           </p>
         </div>
 
         {/* Global Notifications */}
         {errorMessage && (
-          <div className="px-4 pt-3">
-            <Alert variant="danger" className="d-flex align-items-center gap-2 mb-0" dismissible onClose={() => setErrorMessage('')}>
-              <FaExclamationTriangle className="flex-shrink-0" />
-              <div className="small fw-medium">{errorMessage}</div>
-            </Alert>
-          </div>
+          <Alert variant="danger" className="d-flex align-items-center gap-2 mb-4 border-0 rounded-3" dismissible onClose={() => setErrorMessage('')}>
+            <FaExclamationTriangle className="flex-shrink-0" />
+            <div className="small fw-medium">{errorMessage}</div>
+          </Alert>
         )}
 
         {successMessage && (
-          <div className="px-4 pt-3">
-            <Alert variant="success" className="d-flex align-items-center gap-2 mb-0">
-              <FaCheckCircle className="flex-shrink-0" />
-              <div className="small fw-medium">{successMessage}</div>
-            </Alert>
-          </div>
+          <Alert variant="success" className="d-flex align-items-center gap-2 mb-4 border-0 rounded-3">
+            <FaCheckCircle className="flex-shrink-0" />
+            <div className="small fw-medium">{successMessage}</div>
+          </Alert>
         )}
 
-        <Form onSubmit={handleSubmit} className="clinical-intake-body">
-          {/* SECTION 1: Patient Identification (Verified & Read-only) */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">01</span>
-                <span>Thông Tin Định Danh Bệnh Nhân (Đã Xác Thực CCCD)</span>
-              </h2>
-              <span className="clinical-section-tag">
-                <FaCheckCircle className="text-success me-1" /> Đã Đối Soát
+        <Form onSubmit={handleSubmit} className="bms-setup-form">
+          {/* SECTION 1: Demographics */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Thông tin định danh</span>
+              <span className="badge bg-success-subtle text-success fw-normal px-2 py-1 rounded-pill" style={{ fontSize: '11px' }}>
+                <FaCheckCircle className="me-1" size={10} /> Đã đối soát CCCD
               </span>
-            </div>
+            </h2>
 
-            <div className="clinical-demographics-grid">
-              <div className="clinical-field-readonly-box">
-                <div className="clinical-readonly-label">Họ và tên bệnh nhân</div>
-                <div className="clinical-readonly-value">{demographics.fullName || '—'}</div>
+            <div className="bms-demographics-grid">
+              <div className="bms-readonly-pill-box">
+                <div className="bms-readonly-label">Họ và tên</div>
+                <div className="bms-readonly-val">{demographics.fullName || '—'}</div>
               </div>
 
-              <div className="clinical-field-readonly-box">
-                <div className="clinical-readonly-label">Số CCCD / Định danh (12 số)</div>
-                <div className="clinical-readonly-value font-monospace">{demographics.identityNumber || 'Chưa cập nhật'}</div>
+              <div className="bms-readonly-pill-box">
+                <div className="bms-readonly-label">Số CCCD (12 số)</div>
+                <div className="bms-readonly-val font-monospace">{demographics.identityNumber || 'Chưa cập nhật'}</div>
               </div>
 
-              <div className="clinical-field-readonly-box">
-                <div className="clinical-readonly-label">Ngày sinh &amp; Giới tính</div>
-                <div className="clinical-readonly-value">
+              <div className="bms-readonly-pill-box">
+                <div className="bms-readonly-label">Ngày sinh &amp; Giới tính</div>
+                <div className="bms-readonly-val">
                   {demographics.dateOfBirth || '—'} ({demographics.gender})
                 </div>
               </div>
 
-              <div className="clinical-field-readonly-box">
-                <div className="clinical-readonly-label">Số điện thoại liên hệ</div>
-                <div className="clinical-readonly-value font-monospace">{demographics.phoneNumber || '—'}</div>
+              <div className="bms-readonly-pill-box">
+                <div className="bms-readonly-label">Số điện thoại</div>
+                <div className="bms-readonly-val font-monospace">{demographics.phoneNumber || '—'}</div>
               </div>
 
-              <div className="clinical-field-readonly-box" style={{ gridColumn: 'span 2' }}>
-                <div className="clinical-readonly-label">Địa chỉ thường trú</div>
-                <div className="clinical-readonly-value">{demographics.address || 'Chưa cập nhật'}</div>
+              <div className="bms-readonly-pill-box" style={{ gridColumn: 'span 2' }}>
+                <div className="bms-readonly-label">Địa chỉ thường trú</div>
+                <div className="bms-readonly-val">{demographics.address || 'Chưa cập nhật'}</div>
               </div>
             </div>
 
-            <Row className="g-3 mt-1">
+            <Row className="g-2 mt-1">
               <Col md={6}>
                 <Form.Group controlId="healthInsuranceNumber">
-                  <label className="clinical-label">
-                    Mã thẻ BHYT (Bảo hiểm Y Tế - Tùy chọn)
-                  </label>
+                  <label className="bms-setup-label">Mã thẻ BHYT (Tùy chọn)</label>
                   <Form.Control
                     type="text"
-                    className="clinical-input"
-                    placeholder="Ví dụ: GD4792010099881 (15 ký tự)"
+                    className="bms-setup-input"
+                    placeholder="Ví dụ: GD4792010099881"
                     value={healthInsuranceNumber}
                     onChange={(e) => setHealthInsuranceNumber(e.target.value.toUpperCase())}
                     maxLength={15}
                   />
-                  <Form.Text className="text-muted small">
-                    Nhập mã thẻ BHYT để phục vụ đồng bộ thanh toán và danh mục BHYT chi trả.
-                  </Form.Text>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="occupation">
-                  <label className="clinical-label">
-                    Nghề nghiệp / Lĩnh vực công tác (Tùy chọn)
-                  </label>
+                  <label className="bms-setup-label">Nghề nghiệp (Tùy chọn)</label>
                   <Form.Control
                     type="text"
-                    className="clinical-input"
-                    placeholder="Ví dụ: Kỹ sư, Giáo viên, Nhân viên văn phòng..."
+                    className="bms-setup-input"
+                    placeholder="Ví dụ: Kỹ sư, Giáo viên, Tự do..."
                     value={occupation}
                     onChange={(e) => setOccupation(e.target.value)}
                   />
@@ -528,57 +480,43 @@ export default function InitialMedicalProfileSetup() {
             </Row>
           </div>
 
-          {/* SECTION 2: Blood Type (Hệ ABO / Rh) */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">02</span>
-                <span>Nhóm Máu Hệ ABO / Rh <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">Bắt Buộc Khai Báo</span>
-            </div>
+          {/* SECTION 2: Blood Type */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Nhóm máu hệ ABO / Rh</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div>
-              <span className="clinical-label mb-2">Chọn nhóm máu hiện tại của bạn:</span>
-              <div className="blood-type-grid-clinical">
-                {BLOOD_TYPES.map((bt) => {
-                  const isActive = bloodType === bt.code;
-                  return (
-                    <div
-                      key={bt.code}
-                      className={`blood-type-cell ${isActive ? 'active' : ''}`}
-                      onClick={() => setBloodType(bt.code)}
-                    >
-                      <div className="blood-type-cell-code">
-                        {isActive && <FaCheck className="me-1" size={13} />}
-                        {bt.label}
-                      </div>
-                      <div className="blood-type-cell-desc">{bt.desc}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              {errors.bloodType && (
-                <div className="text-danger small fw-semibold mt-2">{errors.bloodType}</div>
-              )}
+            <div className="bms-blood-pill-row">
+              {BLOOD_TYPES.map((bt) => {
+                const isActive = bloodType === bt.code;
+                return (
+                  <div
+                    key={bt.code}
+                    className={`bms-blood-pill ${isActive ? 'active' : ''}`}
+                    onClick={() => setBloodType(bt.code)}
+                  >
+                    {isActive && <FaCheck size={11} />}
+                    {bt.label}
+                  </div>
+                );
+              })}
             </div>
+            {errors.bloodType && (
+              <div className="text-danger small fw-semibold">{errors.bloodType}</div>
+            )}
           </div>
 
-          {/* SECTION 3: Vitals & Automated BMI */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">03</span>
-                <span>Chỉ Số Thể Trạng Ban Đầu &amp; Đánh Giá BMI <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">Tham Chiếu Lâm Sàng</span>
-            </div>
+          {/* SECTION 3: Vitals & BMI */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Chỉ số thể trạng ban đầu</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div className="vitals-grid-clinical">
+            <div className="bms-vitals-row">
               <div>
-                <label className="clinical-label" htmlFor="heightCm">
-                  Chiều cao (cm) <span className="text-danger">*</span>
-                </label>
+                <label className="bms-setup-label" htmlFor="heightCm">Chiều cao (cm)</label>
                 <Form.Control
                   id="heightCm"
                   type="number"
@@ -586,15 +524,13 @@ export default function InitialMedicalProfileSetup() {
                   max={250}
                   value={heightCm}
                   onChange={(e) => setHeightCm(e.target.value)}
-                  placeholder="Ví dụ: 170"
-                  className="clinical-input"
+                  placeholder="170"
+                  className="bms-setup-input"
                 />
               </div>
 
               <div>
-                <label className="clinical-label" htmlFor="weightKg">
-                  Cân nặng (kg) <span className="text-danger">*</span>
-                </label>
+                <label className="bms-setup-label" htmlFor="weightKg">Cân nặng (kg)</label>
                 <Form.Control
                   id="weightKg"
                   type="number"
@@ -603,30 +539,28 @@ export default function InitialMedicalProfileSetup() {
                   step="0.5"
                   value={weightKg}
                   onChange={(e) => setWeightKg(e.target.value)}
-                  placeholder="Ví dụ: 65"
-                  className="clinical-input"
+                  placeholder="65"
+                  className="bms-setup-input"
                 />
               </div>
 
               <div>
-                <label className="clinical-label" htmlFor="bloodPressure">
-                  Huyết áp tham chiếu (mmHg)
-                </label>
+                <label className="bms-setup-label" htmlFor="bloodPressure">Huyết áp (mmHg)</label>
                 <Form.Control
                   id="bloodPressure"
                   type="text"
                   placeholder="120/80"
                   value={bloodPressure}
                   onChange={(e) => setBloodPressure(e.target.value)}
-                  className="clinical-input"
+                  className="bms-setup-input"
                 />
               </div>
 
-              <div className="bmi-indicator-card">
-                <div className="bmi-indicator-label">CHỈ SỐ BMI TỰ ĐỘNG</div>
-                <div className="bmi-indicator-value">{bmiCalculation.value} kg/m²</div>
+              <div className="bms-bmi-pill-card">
+                <span className="text-muted" style={{ fontSize: '11px', fontWeight: 600 }}>BMI TỰ ĐỘNG</span>
+                <div className="bms-bmi-val">{bmiCalculation.value} kg/m²</div>
                 <div
-                  className="bmi-badge-clinical"
+                  className="bms-bmi-badge"
                   style={{ backgroundColor: bmiCalculation.bg, color: bmiCalculation.color }}
                 >
                   {bmiCalculation.label}
@@ -635,23 +569,20 @@ export default function InitialMedicalProfileSetup() {
             </div>
           </div>
 
-          {/* SECTION 4: Coagulation History */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">04</span>
-                <span>Tiền Sử Rối Loạn Đông Máu &amp; Thuốc Kháng Đông <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">An Toàn Tiền Phân Tích</span>
-            </div>
+          {/* SECTION 4: Coagulation */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Tiền sử rối loạn đông máu &amp; Kháng đông</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div className="clinical-check-wrapper">
+            <div className="bms-checkbox-pill-box">
               <Form.Check
                 type="checkbox"
                 id="no-coagulation"
                 label={
-                  <span className="clinical-check-label">
-                    Tôi KHÔNG CÓ tiền sử rối loạn đông máu (máu khó đông, xuất huyết giảm tiểu cầu, v.v.)
+                  <span className="bms-checkbox-label">
+                    Tôi KHÔNG CÓ tiền sử rối loạn đông máu (máu khó đông, giảm tiểu cầu...)
                   </span>
                 }
                 checked={hasNoCoagulation}
@@ -663,62 +594,48 @@ export default function InitialMedicalProfileSetup() {
             </div>
 
             {!hasNoCoagulation && (
-              <div className="clinical-sub-field-box">
-                <div className="small text-muted fw-semibold mb-2">
-                  Chọn nhanh tiền sử đông máu hoặc thuốc chống đông đang sử dụng:
-                </div>
-                <div className="clinical-chips-group mb-3">
+              <div className="d-flex flex-column gap-2 mt-1">
+                <div className="bms-chips-wrap">
                   {COAGULATION_PRESETS.map((preset) => {
                     const isSelected = coagulationNotes.includes(preset);
                     return (
                       <div
                         key={preset}
-                        className={`clinical-chip ${isSelected ? 'active' : ''}`}
+                        className={`bms-chip-pill ${isSelected ? 'active' : ''}`}
                         onClick={() => toggleCoagulationPreset(preset)}
                       >
-                        {isSelected && <FaCheck size={11} />}
+                        {isSelected && <FaCheck size={10} />}
                         {preset}
                       </div>
                     );
                   })}
                 </div>
-
-                <label className="clinical-label text-danger" htmlFor="coagulationNotes">
-                  Mô tả chi tiết tình trạng rối loạn đông máu hoặc thuốc đang dùng:
-                </label>
                 <Form.Control
-                  id="coagulationNotes"
                   as="textarea"
                   rows={2}
-                  className="clinical-input"
-                  placeholder="Ví dụ: Bệnh Hemophilia A, Giảm tiểu cầu vô căn, hoặc đang uống thuốc Warfarin/Sintrom/Aspirin..."
+                  className="bms-setup-input"
+                  placeholder="Mô tả cụ thể rối loạn đông máu hoặc thuốc đang uống (Warfarin, Sintrom, Aspirin...)"
                   value={coagulationNotes}
                   onChange={(e) => setCoagulationNotes(e.target.value)}
                 />
-                <small className="text-muted mt-1 d-block">
-                  * Kỹ thuật viên cần thông tin này để chuẩn bị băng ép chuyên dụng và theo dõi sau lấy máu tĩnh mạch.
-                </small>
               </div>
             )}
           </div>
 
-          {/* SECTION 5: Chronic Medical History */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">05</span>
-                <span>Tiền Sử Bệnh Lý Nội Khoa Mạn Tính <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">Bệnh Sử</span>
-            </div>
+          {/* SECTION 5: Chronic Conditions */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Tiền sử bệnh mạn tính</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div className="clinical-check-wrapper">
+            <div className="bms-checkbox-pill-box">
               <Form.Check
                 type="checkbox"
                 id="no-medical-history"
                 label={
-                  <span className="clinical-check-label text-success">
-                    Tôi KHÔNG CÓ tiền sử mắc các bệnh lý mạn tính
+                  <span className="bms-checkbox-label text-success">
+                    Tôi KHÔNG CÓ tiền sử bệnh lý mạn tính
                   </span>
                 }
                 checked={hasNoMedicalHistory}
@@ -733,19 +650,16 @@ export default function InitialMedicalProfileSetup() {
               />
             </div>
 
-            <div className="small text-muted fw-semibold">
-              Hoặc chọn các bệnh lý đã từng hoặc đang được điều trị:
-            </div>
-            <div className="clinical-chips-group">
+            <div className="bms-chips-wrap">
               {COMMON_CONDITIONS.map((cond) => {
                 const isSelected = selectedConditions.includes(cond);
                 return (
                   <div
                     key={cond}
-                    className={`clinical-chip ${isSelected ? 'active' : ''} ${hasNoMedicalHistory ? 'disabled' : ''}`}
+                    className={`bms-chip-pill ${isSelected ? 'active' : ''} ${hasNoMedicalHistory ? 'disabled' : ''}`}
                     onClick={() => !hasNoMedicalHistory && toggleCondition(cond)}
                   >
-                    {isSelected && <FaCheck size={11} />}
+                    {isSelected && <FaCheck size={10} />}
                     {cond}
                   </div>
                 );
@@ -753,40 +667,31 @@ export default function InitialMedicalProfileSetup() {
             </div>
 
             {!hasNoMedicalHistory && (
-              <div className="mt-3">
-                <label className="clinical-label" htmlFor="medicalHistoryNotes">
-                  Bệnh lý khác hoặc tiền sử phẫu thuật / can thiệp (nếu có):
-                </label>
-                <Form.Control
-                  id="medicalHistoryNotes"
-                  as="textarea"
-                  rows={2}
-                  className="clinical-input"
-                  placeholder="Ví dụ: Phẫu thuật ruột thừa năm 2021, đang điều trị viêm gan B theo phác đồ..."
-                  value={medicalHistoryNotes}
-                  onChange={(e) => setMedicalHistoryNotes(e.target.value)}
-                />
-              </div>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                className="bms-setup-input mt-2"
+                placeholder="Ghi chú thêm bệnh lý khác hoặc tiền sử can thiệp/phẫu thuật..."
+                value={medicalHistoryNotes}
+                onChange={(e) => setMedicalHistoryNotes(e.target.value)}
+              />
             )}
           </div>
 
           {/* SECTION 6: Allergies */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">06</span>
-                <span>Tiền Sử Dị Ứng Thuốc, Hóa Chất &amp; Thực Phẩm <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">An Toàn Dược Lâm Sàng</span>
-            </div>
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Tiền sử dị ứng (Thuốc, Hóa chất, Thức ăn)</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div className="clinical-check-wrapper">
+            <div className="bms-checkbox-pill-box">
               <Form.Check
                 type="checkbox"
                 id="no-allergies"
                 label={
-                  <span className="clinical-check-label text-success">
-                    Tôi KHÔNG CÓ tiền sử dị ứng đã biết (NKDA - No Known Drug Allergies)
+                  <span className="bms-checkbox-label text-success">
+                    Tôi KHÔNG CÓ tiền sử dị ứng đã biết (NKDA)
                   </span>
                 }
                 checked={hasNoAllergies}
@@ -801,19 +706,16 @@ export default function InitialMedicalProfileSetup() {
               />
             </div>
 
-            <div className="small text-muted fw-semibold">
-              Hoặc chọn nhanh các tác nhân dị ứng (nếu có):
-            </div>
-            <div className="clinical-chips-group">
+            <div className="bms-chips-wrap">
               {COMMON_ALLERGIES.map((alg) => {
                 const isSelected = selectedAllergies.includes(alg);
                 return (
                   <div
                     key={alg}
-                    className={`clinical-chip ${isSelected ? 'active' : ''} ${hasNoAllergies ? 'disabled' : ''}`}
+                    className={`bms-chip-pill ${isSelected ? 'active' : ''} ${hasNoAllergies ? 'disabled' : ''}`}
                     onClick={() => !hasNoAllergies && toggleAllergy(alg)}
                   >
-                    {isSelected && <FaCheck size={11} />}
+                    {isSelected && <FaCheck size={10} />}
                     {alg}
                   </div>
                 );
@@ -821,38 +723,28 @@ export default function InitialMedicalProfileSetup() {
             </div>
 
             {!hasNoAllergies && (
-              <div className="mt-3">
-                <label className="clinical-label" htmlFor="allergiesNotes">
-                  Ghi chú chi tiết biểu hiện dị ứng khác (nếu có):
-                </label>
-                <Form.Control
-                  id="allergiesNotes"
-                  type="text"
-                  className="clinical-input"
-                  placeholder="Ví dụ: Nổi mề đay khi uống Amoxicillin, khó thở khi ăn hải sản..."
-                  value={allergiesNotes}
-                  onChange={(e) => setAllergiesNotes(e.target.value)}
-                />
-              </div>
+              <Form.Control
+                type="text"
+                className="bms-setup-input mt-2"
+                placeholder="Ghi chú biểu hiện dị ứng khác (ví dụ: nổi mề đay, khó thở...)"
+                value={allergiesNotes}
+                onChange={(e) => setAllergiesNotes(e.target.value)}
+              />
             )}
           </div>
 
           {/* SECTION 7: Current Medications */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">07</span>
-                <span>Thuốc Đang Sử Dụng Định Kỳ</span>
-              </h2>
-              <span className="clinical-section-tag">Hiệu Chỉnh Kết Quả</span>
-            </div>
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Thuốc đang dùng định kỳ</span>
+            </h2>
 
-            <div className="clinical-check-wrapper">
+            <div className="bms-checkbox-pill-box">
               <Form.Check
                 type="checkbox"
                 id="no-medications"
                 label={
-                  <span className="clinical-check-label">
+                  <span className="bms-checkbox-label">
                     Hiện tại tôi KHÔNG sử dụng thuốc điều trị định kỳ
                   </span>
                 }
@@ -866,56 +758,37 @@ export default function InitialMedicalProfileSetup() {
             </div>
 
             {!hasNoMedications && (
-              <div className="clinical-sub-field-box">
-                <label className="clinical-label" htmlFor="medicationsNotes">
-                  Danh sách các loại thuốc, liều lượng đang dùng hàng ngày:
-                </label>
-                <Form.Control
-                  id="medicationsNotes"
-                  as="textarea"
-                  rows={2}
-                  className="clinical-input"
-                  placeholder="Ví dụ: Amlodipine 5mg (1 viên sáng), Metformin 500mg (2 viên sau ăn)..."
-                  value={medicationsNotes}
-                  onChange={(e) => setMedicationsNotes(e.target.value)}
-                />
-                <small className="text-muted mt-1 d-block">
-                  * Thuốc điều trị có thể làm thay đổi kết quả đường huyết, men gan, chức năng đông máu hoặc điện giải.
-                </small>
-              </div>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                className="bms-setup-input mt-1"
+                placeholder="Tên thuốc và liều dùng hàng ngày (ví dụ: Amlodipine 5mg 1 viên sáng...)"
+                value={medicationsNotes}
+                onChange={(e) => setMedicationsNotes(e.target.value)}
+              />
             )}
           </div>
 
-          {/* SECTION 8: Emergency Contact (Mandatory by MOH) */}
-          <div className="clinical-section-block">
-            <div className="clinical-section-header">
-              <h2 className="clinical-section-heading">
-                <span className="clinical-section-number">08</span>
-                <span>Thông Tin Người Liên Hệ Khẩn Cấp <span className="text-danger">*</span></span>
-              </h2>
-              <span className="clinical-section-tag required">Bắt Buộc (QĐ Bộ Y Tế)</span>
-            </div>
+          {/* SECTION 8: Emergency Contact */}
+          <div className="bms-setup-section">
+            <h2 className="bms-setup-section-title">
+              <span>Người liên hệ khẩn cấp</span>
+              <span className="bms-setup-section-badge">Bắt buộc</span>
+            </h2>
 
-            <div className="p-3 bg-light rounded-2 border mb-3 small text-secondary">
-              Phòng xét nghiệm BMS bắt buộc lưu thông tin liên hệ khẩn cấp nhằm xử trí kịp thời khi phát hiện 
-              <strong className="text-danger"> Giá trị báo động y khoa (Panic/Critical Value)</strong> cần can thiệp cấp cứu.
-            </div>
-
-            <Row className="g-3">
+            <Row className="g-2">
               <Col md={4} sm={12}>
                 <Form.Group controlId="emergencyContactName">
-                  <label className="clinical-label">
-                    Họ và tên người thân / liên hệ <span className="text-danger">*</span>
-                  </label>
+                  <label className="bms-setup-label">Họ tên người thân</label>
                   <Form.Control
                     type="text"
-                    className="clinical-input"
+                    className="bms-setup-input"
                     placeholder="Ví dụ: Nguyễn Văn Bình"
                     value={emergencyContactName}
                     onChange={(e) => setEmergencyContactName(e.target.value)}
                     isInvalid={!!errors.emergencyContactName}
                   />
-                  <Form.Control.Feedback type="invalid">
+                  <Form.Control.Feedback type="invalid" className="small">
                     {errors.emergencyContactName}
                   </Form.Control.Feedback>
                 </Form.Group>
@@ -923,11 +796,9 @@ export default function InitialMedicalProfileSetup() {
 
               <Col md={4} sm={6}>
                 <Form.Group controlId="emergencyContactRelationship">
-                  <label className="clinical-label">
-                    Mối quan hệ với bệnh nhân
-                  </label>
+                  <label className="bms-setup-label">Mối quan hệ</label>
                   <Form.Select
-                    className="clinical-input"
+                    className="bms-setup-input"
                     value={emergencyContactRelationship}
                     onChange={(e) => setEmergencyContactRelationship(e.target.value)}
                   >
@@ -940,18 +811,16 @@ export default function InitialMedicalProfileSetup() {
 
               <Col md={4} sm={6}>
                 <Form.Group controlId="emergencyContactPhone">
-                  <label className="clinical-label">
-                    Số điện thoại khẩn cấp (10 số) <span className="text-danger">*</span>
-                  </label>
+                  <label className="bms-setup-label">Số điện thoại khẩn cấp</label>
                   <Form.Control
                     type="tel"
-                    className="clinical-input"
-                    placeholder="Ví dụ: 0912345678"
+                    className="bms-setup-input"
+                    placeholder="0912345678"
                     value={emergencyContactPhone}
                     onChange={(e) => setEmergencyContactPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     isInvalid={!!errors.emergencyContactPhone}
                   />
-                  <Form.Control.Feedback type="invalid">
+                  <Form.Control.Feedback type="invalid" className="small">
                     {errors.emergencyContactPhone}
                   </Form.Control.Feedback>
                 </Form.Group>
@@ -959,16 +828,15 @@ export default function InitialMedicalProfileSetup() {
             </Row>
           </div>
 
-          {/* SECTION 9: Legal Declaration & Submit */}
-          <div className="clinical-legal-box">
+          {/* SECTION 9: Legal Consent */}
+          <div className="bms-legal-pill-box">
             <Form.Check
               type="checkbox"
               id="consentConfirmed"
               label={
-                <span className="clinical-legal-text">
-                  Tôi xin cam đoan các thông tin tiền sử bệnh án, dị ứng và thể trạng trên được khai báo trung thực, 
-                  chính xác theo quy định của <strong>Luật Khám bệnh, chữa bệnh 2023</strong> để làm căn cứ lập Hồ sơ bệnh án điện tử và 
-                  phục vụ quá trình phân tích, biện luận kết quả xét nghiệm y khoa tại BMS.
+                <span>
+                  Tôi cam đoan các thông tin tiền sử bệnh án, thể trạng và dị ứng trên được khai báo trung thực, 
+                  chính xác theo <strong>Luật Khám bệnh, chữa bệnh 2023</strong> để làm căn cứ phục vụ quá trình phân tích và đối chiếu kết quả xét nghiệm y khoa.
                 </span>
               }
               checked={consentConfirmed}
@@ -976,31 +844,31 @@ export default function InitialMedicalProfileSetup() {
               isInvalid={!!errors.consent}
             />
             {errors.consent && (
-              <div className="text-danger small fw-semibold ps-4 mt-2">{errors.consent}</div>
+              <div className="text-danger small fw-semibold ps-4 mt-1">{errors.consent}</div>
             )}
           </div>
 
-          {/* Clean Flat Action Bar */}
-          <div className="clinical-actions-bar">
-            <div className="clinical-security-note">
+          {/* Bottom Actions Row */}
+          <div className="bms-setup-actions">
+            <div className="bms-security-text">
               <FaShieldAlt className="text-success fs-5 flex-shrink-0" />
-              <span>Dữ liệu y tế được bảo mật nghiêm ngặt theo tiêu chuẩn HIPAA &amp; Thông tư 46/2018/TT-BYT.</span>
+              <span>Bảo mật theo tiêu chuẩn HIPAA &amp; Thông tư 46/2018/TT-BYT.</span>
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="clinical-btn-submit"
+              className="bms-btn-submit-pill"
             >
               {submitting ? (
                 <>
                   <Spinner animation="border" size="sm" />
-                  <span>Đang Lưu Hồ Sơ...</span>
+                  <span>Đang lưu...</span>
                 </>
               ) : (
                 <>
                   <FaSave />
-                  <span>Lưu Hồ Sơ Sức Khỏe &amp; Tiếp Tục</span>
+                  <span>Lưu Hồ Sơ Sức Khỏe</span>
                   <FaArrowRight size={13} />
                 </>
               )}

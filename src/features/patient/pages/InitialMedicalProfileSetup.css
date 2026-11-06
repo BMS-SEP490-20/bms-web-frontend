@@ -1,523 +1,360 @@
 /**
  * @file InitialMedicalProfileSetup.css
- * @description Minimalist, professional clinical intake form styling.
- * Conforms to: Ministry of Health (Thông tư 46/2018/TT-BYT & QĐ 2429/QĐ-BYT),
- * ISO 15189:2022 Pre-analytical Quality Requirements.
- * 
- * DESIGN PRINCIPLES:
- * - Minimalist, paper-like clinical document layout (no 3D clutter, no heavy borders).
- * - Flat design: box-shadow: none !important, no neon glow, no jumpy hover animations.
- * - Clean structured grid layout with generous whitespace and clear hierarchy.
- * - 100% high-contrast clinical typography (zero black/dark text on blue backgrounds).
+ * @description Compact, airy, flat, borderless clinical intake form styling.
+ * Matches Home design language (bms-status-chip, pure flat 2D, zero border, zero shadow).
  */
 
-/* 1. Page Canvas */
-.clinical-intake-canvas {
+/* 1. Page Background */
+.bms-setup-page-wrap {
   width: 100%;
   min-height: calc(100vh - 120px);
   background-color: #F8FAFC;
   padding: 32px 16px 64px;
 }
 
-/* 2. Main Clinical Document Container */
-.clinical-intake-sheet {
-  max-width: 960px;
+/* 2. Main Soft Card Container (Borderless, Zero Shadow) */
+.bms-setup-card {
+  max-width: 860px;
   margin: 0 auto;
   background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
+  border-radius: 24px;
+  border: none !important;
   box-shadow: none !important;
-  overflow: hidden;
+  padding: 44px 52px;
 }
 
-/* 3. Official Masthead (Header) */
-.clinical-intake-masthead {
-  padding: 36px 40px 28px;
-  background-color: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
+@media (max-width: 768px) {
+  .bms-setup-card {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
 }
 
-.clinical-intake-meta-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
+/* 3. Masthead Header */
+.bms-setup-header {
+  margin-bottom: 36px;
 }
 
-.clinical-intake-badge-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.clinical-badge-official {
+.bms-setup-header .bms-status-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: #EFF6FF;
+  background: #EFF6FF;
   color: #1E60E6;
-  border: 1px solid #DBEAFE;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  border: none !important;
 }
 
-.clinical-badge-mandatory {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #FEF2F2;
-  color: #DC2626;
-  border: 1px solid #FEE2E2;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.clinical-intake-code {
-  font-family: var(--font-monospace, monospace);
-  font-size: 12.5px;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.clinical-intake-title {
-  font-size: 22px;
-  font-weight: 700;
+.bms-setup-title {
+  font-size: 26px;
+  font-weight: 750;
   color: #0F172A;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-  line-height: 1.35;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  margin: 0 0 8px;
 }
 
-.clinical-intake-subtitle {
-  font-size: 14px;
-  color: #475569;
+.bms-setup-desc {
+  font-size: 13.5px;
+  color: #64748B;
   line-height: 1.6;
-  margin-bottom: 0;
-  max-width: 860px;
+  margin: 0;
+  max-width: 640px;
 }
 
-/* 4. Form Body & Sections */
-.clinical-intake-body {
-  padding: 36px 40px 40px;
+/* 4. Form Section Layout (Whitespace separation, NO horizontal divider lines) */
+.bms-setup-form {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 32px;
 }
 
-.clinical-section-block {
+.bms-setup-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.clinical-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #E2E8F0;
-  margin-bottom: 4px;
-}
-
-.clinical-section-heading {
+.bms-setup-section-title {
   font-size: 15px;
   font-weight: 700;
   color: #0F172A;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   letter-spacing: -0.01em;
 }
 
-.clinical-section-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background-color: #F1F5F9;
-  color: #1E60E6;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: var(--font-monospace, monospace);
-}
-
-.clinical-section-tag {
-  font-size: 12px;
+.bms-setup-section-badge {
+  font-size: 11px;
   font-weight: 600;
-  color: #64748B;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  padding: 2px 8px;
-}
-
-.clinical-section-tag.required {
   color: #DC2626;
-  background-color: #FEF2F2;
-  border-color: #FEE2E2;
+  background: #FEF2F2;
+  padding: 2px 8px;
+  border-radius: 999px;
 }
 
-/* 5. Demographics Identity Grid (Read-only verified values) */
-.clinical-demographics-grid {
+/* 5. Demographics Compact Soft Cards */
+.bms-demographics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 10px;
 }
 
 @media (max-width: 768px) {
-  .clinical-demographics-grid {
+  .bms-demographics-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.clinical-field-readonly-box {
+.bms-readonly-pill-box {
   background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: none !important;
 }
 
-.clinical-readonly-label {
-  font-size: 11.5px;
+.bms-readonly-label {
+  font-size: 11px;
   font-weight: 600;
-  color: #64748B;
+  color: #94A3B8;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
-.clinical-readonly-value {
-  font-size: 14px;
+.bms-readonly-val {
+  font-size: 13.5px;
   font-weight: 600;
   color: #0F172A;
   word-break: break-word;
 }
 
-/* 6. Blood Type ABO/Rh Selector Grid */
-.blood-type-grid-clinical {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-@media (max-width: 768px) {
-  .blood-type-grid-clinical {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .blood-type-grid-clinical {
-    grid-template-columns: 1fr;
-  }
-}
-
-.blood-type-cell {
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  padding: 14px 16px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-  user-select: none;
-  box-shadow: none !important;
-}
-
-.blood-type-cell:hover {
-  background-color: #F8FAFC;
-  border-color: #94A3B8;
-}
-
-/* Active State: Clean solid medical blue with PURE WHITE text */
-.blood-type-cell.active {
-  background-color: #1E60E6 !important;
-  border-color: #1E60E6 !important;
-  box-shadow: none !important;
-}
-
-.blood-type-cell-code {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-  line-height: 1.2;
-}
-
-.blood-type-cell.active .blood-type-cell-code {
-  color: #FFFFFF !important;
-}
-
-.blood-type-cell-desc {
-  font-size: 12px;
-  color: #64748B;
-  margin-top: 4px;
-  line-height: 1.35;
-}
-
-.blood-type-cell.active .blood-type-cell-desc {
-  color: rgba(255, 255, 255, 0.92) !important;
-}
-
-/* 7. Clinical Form Controls */
-.clinical-label {
-  font-size: 13px;
+/* 6. Form Inputs (Compact & Soft) */
+.bms-setup-label {
+  font-size: 12.5px;
   font-weight: 600;
-  color: #334155;
-  margin-bottom: 6px;
+  color: #475569;
+  margin-bottom: 4px;
   display: block;
 }
 
-.clinical-input,
-.form-control.clinical-input,
-.form-select.clinical-input {
-  background-color: #FFFFFF !important;
-  border: 1px solid #CBD5E1 !important;
-  border-radius: 6px !important;
-  font-size: 13.5px !important;
+.bms-setup-input,
+.form-control.bms-setup-input,
+.form-select.bms-setup-input {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
   color: #0F172A !important;
-  padding: 9px 12px !important;
-  min-height: 42px !important;
+  padding: 8px 12px !important;
+  min-height: 40px !important;
   box-shadow: none !important;
-  transition: border-color 0.15s ease !important;
+  transition: all 0.15s ease !important;
 }
 
-.clinical-input:focus,
-.form-control.clinical-input:focus,
-.form-select.clinical-input:focus {
+.bms-setup-input:focus,
+.form-control.bms-setup-input:focus,
+.form-select.bms-setup-input:focus {
+  background-color: #FFFFFF !important;
   border-color: #1E60E6 !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-.clinical-input::placeholder {
-  color: #94A3B8;
-  font-size: 13px;
-}
-
-/* 8. Vitals & Live BMI Result Grid */
-.vitals-grid-clinical {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  align-items: stretch;
-}
-
-@media (max-width: 992px) {
-  .vitals-grid-clinical {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 576px) {
-  .vitals-grid-clinical {
-    grid-template-columns: 1fr;
-  }
-}
-
-.bmi-indicator-card {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow: none !important;
-}
-
-.bmi-indicator-label {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #64748B;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.bmi-indicator-value {
-  font-size: 22px;
-  font-weight: 800;
-  color: #0F172A;
-  margin: 2px 0 6px;
-  font-variant-numeric: tabular-nums;
-}
-
-.bmi-badge-clinical {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  width: fit-content;
-}
-
-/* 9. Minimalist Checkboxes & Expansion Boxes */
-.clinical-check-wrapper {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-}
-
-.clinical-check-label {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 0;
-  cursor: pointer;
-  user-select: none;
-}
-
-.clinical-sub-field-box {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 10px;
-}
-
-/* 10. Minimalist Quick-Select Chips (Tags) */
-.clinical-chips-group {
+/* 7. Blood Type Selector (Compact, rounded pills) */
+.bms-blood-pill-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
 }
 
-.clinical-chip {
+.bms-blood-pill {
   background-color: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
   color: #334155;
-  font-size: 12.5px;
-  font-weight: 500;
-  padding: 6px 12px;
+  border: none !important;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   box-shadow: none !important;
 }
 
-.clinical-chip:hover {
+.bms-blood-pill:hover {
   background-color: #E2E8F0;
   color: #0F172A;
 }
 
-/* Active State: Medical Blue background with crisp WHITE text */
-.clinical-chip.active {
+/* Active State: Clean solid medical blue with crisp white text */
+.bms-blood-pill.active {
   background-color: #1E60E6 !important;
-  border-color: #1E60E6 !important;
+  color: #FFFFFF !important;
+  font-weight: 650 !important;
+}
+
+/* 8. Vitals & BMI Grid */
+.bms-vitals-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+@media (max-width: 840px) {
+  .bms-vitals-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .bms-vitals-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bms-bmi-pill-card {
+  background-color: #F8FAFC;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bms-bmi-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 1px 0 4px;
+}
+
+.bms-bmi-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+/* 9. Soft Checkbox Cards */
+.bms-checkbox-pill-box {
+  background-color: #F8FAFC;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: none !important;
+}
+
+.bms-checkbox-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+/* 10. Minimalist Quick-Select Chips (Pills) */
+.bms-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bms-chip-pill {
+  background-color: #F1F5F9;
+  border: none !important;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 550;
+  padding: 5px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: none !important;
+}
+
+.bms-chip-pill:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.bms-chip-pill.active {
+  background-color: #1E60E6 !important;
   color: #FFFFFF !important;
   font-weight: 600 !important;
 }
 
-.clinical-chip.disabled {
-  opacity: 0.5;
+.bms-chip-pill.disabled {
+  opacity: 0.45;
   pointer-events: none;
-  background-color: #F8FAFC;
-  border-color: #E2E8F0;
-  color: #94A3B8;
 }
 
-/* 11. Legal Consent Box */
-.clinical-legal-box {
+/* 11. Legal Consent */
+.bms-legal-pill-box {
   background-color: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  padding: 18px 20px;
-}
-
-.clinical-legal-text {
-  font-size: 13px;
-  color: #334155;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 12.5px;
+  color: #475569;
   line-height: 1.6;
 }
 
-/* 12. Footer Actions Bar */
-.clinical-actions-bar {
+/* 12. Bottom Actions Row */
+.bms-setup-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-top: 24px;
-  border-top: 1px solid #E2E8F0;
   margin-top: 8px;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
-  .clinical-actions-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.clinical-btn-submit {
+.bms-btn-submit-pill {
   background-color: #1E60E6 !important;
-  border: 1px solid #1E60E6 !important;
   color: #FFFFFF !important;
-  font-size: 14.5px !important;
-  font-weight: 600 !important;
-  padding: 10px 24px !important;
-  border-radius: 6px !important;
-  box-shadow: none !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 12px 32px !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   transition: background-color 0.15s ease !important;
+  box-shadow: none !important;
 }
 
-.clinical-btn-submit:hover:not(:disabled) {
+.bms-btn-submit-pill:hover:not(:disabled) {
   background-color: #154EC2 !important;
-  border-color: #154EC2 !important;
 }
 
-.clinical-btn-submit:disabled {
+.bms-btn-submit-pill:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-.clinical-security-note {
+.bms-security-text {
+  font-size: 12px;
+  color: #64748B;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  color: #64748B;
-}
-
-/* Responsive Overrides */
-@media (max-width: 768px) {
-  .clinical-intake-canvas {
-    padding: 16px 8px 48px;
-  }
-
-  .clinical-intake-masthead {
-    padding: 24px 20px 20px;
-  }
-
-  .clinical-intake-body {
-    padding: 24px 20px 28px;
-    gap: 28px;
-  }
-
-  .clinical-intake-title {
-    font-size: 19px;
-  }
+  gap: 6px;
 }

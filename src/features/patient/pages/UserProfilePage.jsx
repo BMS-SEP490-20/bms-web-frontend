@@ -538,17 +538,17 @@ export const UserProfilePage = () => {
   }
 
   return (
-    <div className="bms-profile-page py-4">
+    <div className="bms-profile-page">
       <div className="container-xl">
         {/* Alerts */}
         {errorMessage && (
-          <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 shadow-sm">
+          <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 border-0 rounded-4">
             <FaExclamationTriangle className="me-2" />
             {errorMessage}
           </Alert>
         )}
         {successMessage && (
-          <Alert variant="success" dismissible onClose={() => setSuccessMessage('')} className="mb-4 shadow-sm">
+          <Alert variant="success" dismissible onClose={() => setSuccessMessage('')} className="mb-4 border-0 rounded-4">
             <FaCheckCircle className="me-2" />
             {successMessage}
           </Alert>
@@ -557,45 +557,44 @@ export const UserProfilePage = () => {
         <Row className="g-4">
           {/* Left Column: Identity & Medical Profile Status Card */}
           <Col xs={12} lg={4}>
-            <Card className="border rounded-3 overflow-hidden text-center p-4 mb-4 bg-white" style={{ boxShadow: 'none' }}>
+            <div className="bms-profile-card text-center mb-4">
               <div className="bms-avatar-wrapper mx-auto mb-3">
                 <img
                   src={profile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop'}
                   alt={formData.fullName}
-                  className="bms-avatar-img rounded-circle border border-2 border-secondary-subtle"
-                  style={{ width: '110px', height: '110px', objectFit: 'cover' }}
+                  className="bms-avatar-img"
                 />
                 <span className="bms-active-dot" title="Tài khoản hoạt động"></span>
               </div>
 
-              <h4 className="fw-bold mb-1 text-dark">{formData.fullName || 'Bệnh Nhân'}</h4>
+              <h4 className="fw-bold mb-1 text-dark" style={{ fontSize: '18px' }}>{formData.fullName || 'Bệnh Nhân'}</h4>
               <p className="text-muted small mb-2">Mã BN: <strong className="text-primary font-monospace">{patientRecord?.patientCode || profile?.patientCode || 'PAT-VN'}</strong></p>
 
               <div className="mb-3">
-                <Badge bg="primary-subtle" text="primary" className="px-3 py-2 border border-primary-subtle rounded-pill">
+                <span className="bms-status-chip">
                   <FaUserInjured className="me-1" /> Bệnh Nhân Đăng Ký
-                </Badge>
+                </span>
               </div>
 
               {/* Profile Completeness Box */}
-              <div className={`p-3 rounded-3 text-start mb-3 border ${isProfileComplete ? 'bg-success-subtle border-success' : 'bg-warning-subtle border-warning'}`}>
+              <div className="p-3 rounded-4 text-start mb-3" style={{ background: isProfileComplete ? '#F0FDF4' : '#FEFCE8' }}>
                 <div className="d-flex align-items-center justify-content-between mb-1">
                   <span className="small fw-bold">
                     {isProfileComplete ? (
                       <span className="text-success"><FaCheckCircle className="me-1" /> Hồ Sơ Đạt Chuẩn Y Tế</span>
                     ) : (
-                      <span className="text-danger"><FaExclamationTriangle className="me-1" /> Hồ Sơ Chưa Hoàn Tất</span>
+                      <span className="text-warning text-dark"><FaExclamationTriangle className="me-1 text-warning" /> Hồ Sơ Chưa Hoàn Tất</span>
                     )}
                   </span>
-                  <span className="badge bg-white text-dark small">{isProfileComplete ? '100%' : '65%'}</span>
+                  <span className="badge bg-white text-dark small" style={{ borderRadius: '999px' }}>{isProfileComplete ? '100%' : '65%'}</span>
                 </div>
                 <ProgressBar
                   variant={isProfileComplete ? 'success' : 'warning'}
                   now={isProfileComplete ? 100 : 65}
-                  style={{ height: '6px' }}
+                  style={{ height: '5px', borderRadius: '999px' }}
                   className="mb-2"
                 />
-                <p className="small text-muted mb-0" style={{ fontSize: '0.8rem' }}>
+                <p className="small text-muted mb-0" style={{ fontSize: '0.78rem', lineHeight: '1.4' }}>
                   {isProfileComplete
                     ? 'Hồ sơ đã đầy đủ nhóm máu, thể trạng và liên hệ khẩn cấp để đặt lịch và xét nghiệm.'
                     : 'Bắt buộc cập nhật Nhóm máu, Chiều cao, Cân nặng và Liên hệ khẩn cấp trước khi đặt lịch xét nghiệm.'}
@@ -605,611 +604,647 @@ export const UserProfilePage = () => {
               {/* Action buttons */}
               <div className="d-grid gap-2">
                 {!isEditing ? (
-                  <Button variant="primary" className="fw-semibold py-2 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(true)}>
+                  <button type="button" className="bms-btn-pill-primary w-100" onClick={() => setIsEditing(true)}>
                     <FaEdit className="me-2" /> Chỉnh Sửa Hồ Sơ Y Tế
-                  </Button>
+                  </button>
                 ) : (
-                  <Button variant="outline-secondary" className="fw-semibold py-2 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(false)}>
-                    <FaTimes className="me-2" /> Huỷ Bỏ Chỉnh Sửa
-                  </Button>
+                  <button type="button" className="bms-btn-pill-secondary w-100" onClick={() => setIsEditing(false)}>
+                    <FaTimes className="me-2" /> Hủy Bỏ Chỉnh Sửa
+                  </button>
                 )}
               </div>
-            </Card>
+            </div>
 
             {/* Quick Summary Card: Vitals & Blood Type */}
-            <Card className="border rounded-3 p-4 text-start bg-white" style={{ boxShadow: 'none' }}>
-              <h6 className="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
-                <FaHeartbeat className="text-danger" /> Tóm Tắt Chỉ Số Y Tế Nhanh
+            <div className="bms-profile-card">
+              <h6 className="bms-profile-section-title mb-3">
+                <FaHeartbeat className="text-danger" /> Tóm Tắt Chỉ Số Y Tế
               </h6>
 
-              <div className="d-flex align-items-center justify-content-between py-2 border-bottom">
-                <span className="text-muted small">Nhóm máu hệ ABO/Rh:</span>
-                <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fs-6 fw-bold">
-                  <FaTint className="me-1" /> {formData.bloodType}
-                </span>
-              </div>
+              <div className="bms-summary-grid">
+                <div className="bms-summary-tile">
+                  <span className="bms-summary-label">Nhóm máu ABO/Rh:</span>
+                  <span className="bms-blood-pill">
+                    <FaTint size={10} /> {formData.bloodType}
+                  </span>
+                </div>
 
-              <div className="d-flex align-items-center justify-content-between py-2 border-bottom">
-                <span className="text-muted small">Chiều cao / Cân nặng:</span>
-                <span className="fw-semibold text-dark">
-                  {formData.heightCm ? `${formData.heightCm} cm` : '—'} / {formData.weightKg ? `${formData.weightKg} kg` : '—'}
-                </span>
-              </div>
+                <div className="bms-summary-tile">
+                  <span className="bms-summary-label">Chiều cao / Cân nặng:</span>
+                  <span className="bms-summary-val">
+                    {formData.heightCm ? `${formData.heightCm} cm` : '—'} / {formData.weightKg ? `${formData.weightKg} kg` : '—'}
+                  </span>
+                </div>
 
-              <div className="d-flex align-items-center justify-content-between py-2 border-bottom">
-                <span className="text-muted small">Chỉ số BMI:</span>
-                <span className={`fw-bold text-${bmiInfo.color}`}>
-                  {bmiInfo.bmi ? `${bmiInfo.bmi} (${bmiInfo.label})` : 'Chưa đo'}
-                </span>
-              </div>
+                <div className="bms-summary-tile">
+                  <span className="bms-summary-label">Chỉ số BMI:</span>
+                  <span className={`bms-summary-val text-${bmiInfo.color}`}>
+                    {bmiInfo.bmi ? `${bmiInfo.bmi} (${bmiInfo.label})` : 'Chưa đo'}
+                  </span>
+                </div>
 
-              <div className="d-flex align-items-center justify-content-between py-2">
-                <span className="text-muted small">Liên hệ khẩn cấp:</span>
-                <span className="fw-semibold text-dark text-end">
-                  {formData.emergencyContactName ? `${formData.emergencyContactName} (${formData.emergencyContactRelationship})` : 'Chưa cập nhật'}
-                  {formData.emergencyContactPhone && <div className="small text-muted font-monospace">{formData.emergencyContactPhone}</div>}
-                </span>
+                <div className="bms-summary-tile">
+                  <span className="bms-summary-label">Liên hệ khẩn cấp:</span>
+                  <span className="bms-summary-val">
+                    {formData.emergencyContactName ? formData.emergencyContactName : 'Chưa cập nhật'}
+                  </span>
+                </div>
               </div>
-            </Card>
+            </div>
           </Col>
 
           {/* Right Column: Full Clinical Profile Form / Display */}
           <Col xs={12} lg={8}>
-            <Card className="border rounded-3 overflow-hidden bg-white" style={{ boxShadow: 'none' }}>
-              <div className="p-4 d-flex align-items-center justify-content-between border-bottom bg-white">
+            <div className="bms-profile-card">
+              <div className="bms-profile-masthead">
                 <div>
-                  <h5 className="fw-bold mb-1 d-flex align-items-center gap-2 text-dark" style={{ color: '#0F172A' }}>
-                    <FaNotesMedical className="text-primary" /> Hồ Sơ Bệnh Án Chuẩn Y Tế Xét Nghiệm Máu
-                  </h5>
-                  <small className="text-muted">
+                  <div className="bms-status-chip">
+                    TIÊU CHUẨN ISO 15189 · HỒ SƠ Y TẾ ĐIỆN TỬ
+                  </div>
+                  <h3 className="bms-profile-main-title">
+                    Hồ Sơ Bệnh Án Chuẩn Y Tế Xét Nghiệm Máu
+                  </h3>
+                  <p className="bms-profile-main-subtitle">
                     Tuân thủ tiêu chuẩn an toàn phòng xét nghiệm ISO 15189:2022 &amp; Quy định Bộ Y Tế
-                  </small>
+                  </p>
                 </div>
                 <div className="d-flex align-items-center gap-2">
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    as={Link}
+                  <Link
                     to="/patient/medical-profile-setup"
-                    className="fw-semibold rounded-2 text-nowrap d-none d-sm-inline-flex align-items-center"
-                    style={{ boxShadow: 'none' }}
+                    className="bms-btn-pill-outline text-decoration-none"
                     title="Mở biểu mẫu khai báo lâm sàng toàn diện theo chuẩn Bộ Y Tế"
                   >
-                    <FaClipboardList className="me-1" /> Biểu Mẫu Toàn Diện Bộ Y Tế
-                  </Button>
+                    <FaClipboardList className="me-1" /> Biểu Mẫu Toàn Diện
+                  </Link>
                   {!isEditing ? (
-                    <Button variant="primary" size="sm" className="fw-semibold px-3 rounded-2" style={{ boxShadow: 'none' }} onClick={() => setIsEditing(true)}>
+                    <button
+                      type="button"
+                      className="bms-btn-pill-primary"
+                      onClick={() => setIsEditing(true)}
+                    >
                       <FaEdit className="me-1" /> Chỉnh sửa
-                    </Button>
+                    </button>
                   ) : (
-                    <Badge bg="light" text="dark" className="border px-3 py-2 rounded-2">
+                    <span className="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">
                       Chế độ chỉnh sửa
-                    </Badge>
+                    </span>
                   )}
                 </div>
               </div>
 
-              <Card.Body className="p-4">
-                <Form onSubmit={handleSaveProfile}>
-                  {/* Section 1: Demographics & Identity */}
-                  <div className="mb-4">
-                    <h6 className="fw-bold text-primary border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
-                      <FaIdCard /> 1. Thông Tin Định Danh Bệnh Nhân (Đề án 06)
-                    </h6>
-                    <Row className="g-3">
-                      <Col md={6}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Họ và tên bệnh nhân <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="fullName"
-                              value={formData.fullName}
-                              onChange={handleInputChange}
-                              required
-                              placeholder="Nhập họ và tên có dấu"
-                            />
-                          ) : (
-                            <div className="fw-bold text-dark fs-6 py-1">{formData.fullName || '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
+              <Form onSubmit={handleSaveProfile}>
+                {/* Section 1: Demographics & Identity */}
+                <div className="mb-4">
+                  <h6 className="bms-profile-section-title">
+                    <FaIdCard className="text-primary" /> Thông Tin Định Danh Bệnh Nhân
+                  </h6>
+                  <Row className="g-3">
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Họ và tên bệnh nhân <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="fullName"
+                            className="bms-profile-input"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="Nhập họ và tên có dấu"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.fullName || '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={6}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Số CCCD (12 chữ số) <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="identityNumber"
-                              value={formData.identityNumber}
-                              onChange={handleInputChange}
-                              maxLength={12}
-                              required
-                              placeholder="Số căn cước công dân 12 số"
-                            />
-                          ) : (
-                            <div className="fw-bold text-primary font-monospace fs-6 py-1">{formData.identityNumber || 'Chưa cập nhật'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Số CCCD (12 chữ số) <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="identityNumber"
+                            className="bms-profile-input font-monospace"
+                            value={formData.identityNumber}
+                            onChange={handleInputChange}
+                            maxLength={12}
+                            required
+                            placeholder="Số căn cước công dân 12 số"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box font-monospace text-primary">{formData.identityNumber || 'Chưa cập nhật'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Ngày sinh <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="date"
-                              name="dateOfBirth"
-                              value={formData.dateOfBirth}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          ) : (
-                            <div className="fw-medium text-dark py-1">
-                              {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('vi-VN') : '—'}
-                            </div>
-                          )}
-                        </Form.Group>
-                      </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Ngày sinh <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="date"
+                            name="dateOfBirth"
+                            className="bms-profile-input"
+                            value={formData.dateOfBirth}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">
+                            {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('vi-VN') : '—'}
+                          </div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Giới tính sinh học <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Select name="gender" value={formData.gender} onChange={handleInputChange}>
-                              <option value="Male">Nam</option>
-                              <option value="Female">Nữ</option>
-                              <option value="Other">Khác</option>
-                            </Form.Select>
-                          ) : (
-                            <div className="fw-medium text-dark py-1">{formData.gender === 'Female' ? 'Nữ' : 'Nam'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Giới tính sinh học <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Select
+                            name="gender"
+                            className="bms-profile-input"
+                            value={formData.gender}
+                            onChange={handleInputChange}
+                          >
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                          </Form.Select>
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.gender === 'Female' ? 'Nữ' : 'Nam'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Số điện thoại liên hệ <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="phoneNumber"
-                              value={formData.phoneNumber}
-                              onChange={handleInputChange}
-                              required
-                              placeholder="0901234567"
-                            />
-                          ) : (
-                            <div className="fw-medium text-dark py-1 font-monospace">{formData.phoneNumber || '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Số điện thoại liên hệ <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="phoneNumber"
+                            className="bms-profile-input font-monospace"
+                            value={formData.phoneNumber}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="0901234567"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box font-monospace">{formData.phoneNumber || '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={6}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Email nhận kết quả xét nghiệm</Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="email"
-                              name="email"
-                              value={formData.email}
-                              onChange={handleInputChange}
-                              placeholder="email@example.com"
-                            />
-                          ) : (
-                            <div className="fw-medium text-dark py-1">{formData.email || '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Email nhận kết quả xét nghiệm</Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="email"
+                            name="email"
+                            className="bms-profile-input"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="email@example.com"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.email || '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                      <Col md={6}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Địa chỉ thường trú</Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="address"
-                              value={formData.address}
-                              onChange={handleInputChange}
-                              placeholder="Số nhà, đường, phường/xã, quận/huyện"
-                            />
-                          ) : (
-                            <div className="fw-medium text-dark py-1">{formData.address || '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </div>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Địa chỉ thường trú</Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="address"
+                            className="bms-profile-input"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            placeholder="Số nhà, đường, phường/xã, quận/huyện"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.address || '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
 
-                  {/* Section 2: Clinical Vitals & Blood Compatibility */}
-                  <div className="mb-4">
-                    <h6 className="fw-bold text-primary border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
-                      <FaHeartbeat /> 2. Chỉ Số Huyết Học &amp; Thể Trạng (Bắt buộc cho Xét nghiệm máu)
-                    </h6>
-                    <Row className="g-3">
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Select name="bloodType" value={formData.bloodType} onChange={handleInputChange}>
-                              <option value="O+">Nhóm O+ (Phổ biến)</option>
-                              <option value="O-">Nhóm O- (Hiếm)</option>
-                              <option value="A+">Nhóm A+</option>
-                              <option value="A-">Nhóm A-</option>
-                              <option value="B+">Nhóm B+</option>
-                              <option value="B-">Nhóm B-</option>
-                              <option value="AB+">Nhóm AB+</option>
-                              <option value="AB-">Nhóm AB-</option>
-                            </Form.Select>
-                          ) : (
-                            <div className="py-1">
-                              <Badge bg="danger" className="px-3 py-2 fs-6">
-                                <FaTint className="me-1" /> Nhóm máu {formData.bloodType}
-                              </Badge>
-                            </div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Chiều cao (cm) <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="number"
-                              name="heightCm"
-                              value={formData.heightCm}
-                              onChange={handleInputChange}
-                              min={30}
-                              max={250}
-                              required
-                              placeholder="Ví dụ: 170"
-                            />
-                          ) : (
-                            <div className="fw-bold text-dark py-1">{formData.heightCm ? `${formData.heightCm} cm` : '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Cân nặng (kg) <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="number"
-                              step="0.5"
-                              name="weightKg"
-                              value={formData.weightKg}
-                              onChange={handleInputChange}
-                              min={2}
-                              max={300}
-                              required
-                              placeholder="Ví dụ: 65"
-                            />
-                          ) : (
-                            <div className="fw-bold text-dark py-1">{formData.weightKg ? `${formData.weightKg} kg` : '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col xs={12}>
-                        <div className="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
-                          <div>
-                            <span className="small text-muted fw-semibold me-2">Chỉ số thể trọng BMI tự động:</span>
-                            <span className={`h6 fw-bold mb-0 text-${bmiInfo.color}`}>
-                              {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}
+                {/* Section 2: Clinical Vitals & Blood Compatibility */}
+                <div className="mb-4">
+                  <h6 className="bms-profile-section-title">
+                    <FaHeartbeat className="text-primary" /> Chỉ Số Huyết Học &amp; Thể Trạng
+                  </h6>
+                  <Row className="g-3">
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Select
+                            name="bloodType"
+                            className="bms-profile-input"
+                            value={formData.bloodType}
+                            onChange={handleInputChange}
+                          >
+                            <option value="O+">Nhóm O+ (Phổ biến)</option>
+                            <option value="O-">Nhóm O- (Hiếm)</option>
+                            <option value="A+">Nhóm A+</option>
+                            <option value="A-">Nhóm A-</option>
+                            <option value="B+">Nhóm B+</option>
+                            <option value="B-">Nhóm B-</option>
+                            <option value="AB+">Nhóm AB+</option>
+                            <option value="AB-">Nhóm AB-</option>
+                          </Form.Select>
+                        ) : (
+                          <div className="pt-1">
+                            <span className="bms-blood-pill">
+                              <FaTint size={11} /> Nhóm máu {formData.bloodType}
                             </span>
                           </div>
-                          <Badge bg={bmiInfo.color} className="px-3 py-2">
-                            {bmiInfo.label}
-                          </Badge>
-                        </div>
-                      </Col>
-                    </Row>
-                  </div>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-                  {/* Section 3: Specialized Blood Test Medical History */}
-                  <div className="mb-4">
-                    <h6 className="fw-bold text-primary border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
-                      <FaPills /> 3. Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu (Quan trọng cho xét nghiệm)
-                    </h6>
-                    <Row className="g-3">
-                      <Col md={12}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">
-                            Tiền sử rối loạn đông máu / Chảy máu kéo dài <span className="text-danger">*</span>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Chiều cao (cm) <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            name="heightCm"
+                            className="bms-profile-input"
+                            value={formData.heightCm}
+                            onChange={handleInputChange}
+                            min={30}
+                            max={250}
+                            required
+                            placeholder="Ví dụ: 170"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.heightCm ? `${formData.heightCm} cm` : '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Cân nặng (kg) <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            step="0.5"
+                            name="weightKg"
+                            className="bms-profile-input"
+                            value={formData.weightKg}
+                            onChange={handleInputChange}
+                            min={2}
+                            max={300}
+                            required
+                            placeholder="Ví dụ: 65"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.weightKg ? `${formData.weightKg} kg` : '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+
+                    <Col xs={12}>
+                      <div className="p-3 rounded-4 d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC' }}>
+                        <div>
+                          <span className="small text-muted fw-semibold me-2">Chỉ số thể trọng BMI tự động:</span>
+                          <span className={`h6 fw-bold mb-0 text-${bmiInfo.color}`}>
+                            {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}
+                          </span>
+                        </div>
+                        <Badge bg={bmiInfo.color} className="px-3 py-2 rounded-pill">
+                          {bmiInfo.label}
+                        </Badge>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* Section 3: Specialized Blood Test Medical History */}
+                <div className="mb-4">
+                  <h6 className="bms-profile-section-title">
+                    <FaPills className="text-primary" /> Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu
+                  </h6>
+                  <Row className="g-3">
+                    <Col md={12}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">
+                          Tiền sử rối loạn đông máu / Chảy máu kéo dài <span className="text-danger">*</span>
+                        </Form.Label>
+                        {isEditing ? (
+                          <>
+                            <Form.Control
+                              type="text"
+                              name="coagulationDisorders"
+                              className="bms-profile-input"
+                              value={formData.coagulationDisorders}
+                              onChange={handleInputChange}
+                              placeholder="Ví dụ: Không có / Xuất huyết dưới da / Hemophilia / Đang dùng thuốc chống đông máu"
+                            />
+                            <div className="fast-tag-group mt-2">
+                              {COAGULATION_OPTIONS.map((opt) => {
+                                const isSelected = formData.coagulationDisorders === opt;
+                                return (
+                                  <div
+                                    key={opt}
+                                    className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => setFormData((prev) => ({ ...prev, coagulationDisorders: opt }))}
+                                  >
+                                    {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                    {opt}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bms-profile-readonly-box">
+                            {formData.coagulationDisorders || 'Không có tiền sử rối loạn đông máu'}
+                          </div>
+                        )}
+                        <Form.Text className="text-muted small">
+                          Lưu ý: Bệnh nhân có tiền sử máu khó đông hoặc đang dùng kháng đông cần báo trước khi lấy mẫu máu.
+                        </Form.Text>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={12}>
+                      <Form.Group>
+                        <div className="d-flex align-items-center justify-content-between mb-1">
+                          <Form.Label className="small fw-semibold text-muted mb-0">
+                            Tiền sử bệnh lý nội khoa (Bệnh nền đã từng hoặc đang mắc)
                           </Form.Label>
-                          {isEditing ? (
-                            <>
-                              <Form.Control
-                                type="text"
-                                name="coagulationDisorders"
-                                value={formData.coagulationDisorders}
-                                onChange={handleInputChange}
-                                placeholder="Ví dụ: Không có / Xuất huyết dưới da / Hemophilia / Đang dùng thuốc chống đông máu"
-                              />
-                              <div className="fast-tag-group mt-2">
-                                {COAGULATION_OPTIONS.map((opt) => {
-                                  const isSelected = formData.coagulationDisorders === opt;
+                          {isEditing && (
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="text-decoration-none p-0 text-success small fw-semibold"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  medicalHistory: 'Không có tiền sử bệnh lý mãn tính'
+                                }))
+                              }
+                            >
+                              ✓ Đặt là "Không có bệnh mãn tính"
+                            </Button>
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <>
+                            <Form.Control
+                              as="textarea"
+                              rows={2}
+                              name="medicalHistory"
+                              className="bms-profile-input"
+                              value={formData.medicalHistory}
+                              onChange={handleInputChange}
+                              placeholder="Tăng huyết áp, Đái tháo đường, Tim mạch, Bệnh gan/thận..."
+                            />
+                            <div className="mt-2">
+                              <small className="text-muted fw-bold d-block mb-1">
+                                Bấm chọn nhanh các bệnh nền để thêm vào hồ sơ (hoặc bấm lại để bỏ chọn):
+                              </small>
+                              <div className="fast-tag-group">
+                                {CHRONIC_CONDITIONS.map((cond) => {
+                                  const isSelected =
+                                    formData.medicalHistory &&
+                                    formData.medicalHistory.toLowerCase().includes(cond.toLowerCase());
                                   return (
                                     <div
-                                      key={opt}
+                                      key={cond}
                                       className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
-                                      onClick={() => setFormData((prev) => ({ ...prev, coagulationDisorders: opt }))}
+                                      onClick={() => toggleConditionInProfile(cond)}
                                     >
-                                      {isSelected && <FaCheckCircle size={11} className="me-1 text-white" />}
-                                      {opt}
+                                      {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                      {cond}
                                     </div>
                                   );
                                 })}
                               </div>
-                            </>
-                          ) : (
-                            <div className="p-2 border rounded-3 bg-light text-dark fw-medium">
-                              {formData.coagulationDisorders || 'Không có tiền sử rối loạn đông máu'}
                             </div>
-                          )}
-                          <Form.Text className="text-muted small">
-                            Lưu ý: Bệnh nhân có tiền sử máu khó đông hoặc đang dùng kháng đông cần báo trước khi lấy mẫu máu.
-                          </Form.Text>
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={12}>
-                        <Form.Group>
-                          <div className="d-flex align-items-center justify-content-between mb-1">
-                            <Form.Label className="small fw-semibold text-muted mb-0">
-                              Tiền sử bệnh lý nội khoa (Bệnh nền đã từng hoặc đang mắc)
-                            </Form.Label>
-                            {isEditing && (
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="text-decoration-none p-0 text-success small fw-semibold"
-                                onClick={() =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    medicalHistory: 'Không có tiền sử bệnh lý mạn tính'
-                                  }))
-                                }
-                              >
-                                ✓ Đặt là "Không có bệnh mạn tính"
-                              </Button>
-                            )}
-                          </div>
-                          {isEditing ? (
-                            <>
-                              <Form.Control
-                                as="textarea"
-                                rows={2}
-                                name="medicalHistory"
-                                value={formData.medicalHistory}
-                                onChange={handleInputChange}
-                                placeholder="Tăng huyết áp, Đái tháo đường, Tim mạch, Bệnh gan/thận..."
-                              />
-                              <div className="mt-2">
-                                <small className="text-muted fw-bold d-block mb-1">
-                                  Bấm chọn nhanh các bệnh nền để thêm vào hồ sơ (hoặc bấm lại để bỏ chọn):
-                                </small>
-                                <div className="fast-tag-group">
-                                  {CHRONIC_CONDITIONS.map((cond) => {
-                                    const isSelected =
-                                      formData.medicalHistory &&
-                                      formData.medicalHistory.toLowerCase().includes(cond.toLowerCase());
-                                    return (
-                                      <div
-                                        key={cond}
-                                        className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
-                                        onClick={() => toggleConditionInProfile(cond)}
-                                      >
-                                        {isSelected && <FaCheckCircle size={11} className="me-1 text-white" />}
-                                        {cond}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="p-2 border rounded-3 bg-light text-dark">
-                              {formData.medicalHistory || 'Chưa ghi nhận bệnh lý'}
-                            </div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={12}>
-                        <Form.Group>
-                          <div className="d-flex align-items-center justify-content-between mb-1">
-                            <Form.Label className="small fw-semibold text-muted mb-0">
-                              Tiền sử dị ứng (Thuốc, Hóa chất, Thực phẩm)
-                            </Form.Label>
-                            {isEditing && (
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="text-decoration-none p-0 text-success small fw-semibold"
-                                onClick={() =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    allergiesText: 'Không có tiền sử dị ứng đã biết (NKDA)'
-                                  }))
-                                }
-                              >
-                                ✓ Đặt là "Không có dị ứng (NKDA)"
-                              </Button>
-                            )}
-                          </div>
-                          {isEditing ? (
-                            <>
-                              <Form.Control
-                                as="textarea"
-                                rows={2}
-                                name="allergiesText"
-                                value={formData.allergiesText}
-                                onChange={handleInputChange}
-                                placeholder="Dị ứng kháng sinh, cồn sát khuẩn, thức ăn..."
-                              />
-                              <div className="mt-2">
-                                <small className="text-muted fw-bold d-block mb-1">
-                                  Bấm chọn nhanh tác nhân dị ứng để thêm vào hồ sơ:
-                                </small>
-                                <div className="fast-tag-group">
-                                  {COMMON_ALLERGIES.map((alg) => {
-                                    const isSelected =
-                                      formData.allergiesText &&
-                                      formData.allergiesText.toLowerCase().includes(alg.toLowerCase());
-                                    return (
-                                      <div
-                                        key={alg}
-                                        className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
-                                        onClick={() => toggleAllergyInProfile(alg)}
-                                      >
-                                        {isSelected && <FaCheckCircle size={11} className="me-1 text-white" />}
-                                        {alg}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="p-2 border rounded-3 bg-light text-dark">
-                              {formData.allergiesText || 'Không ghi nhận dị ứng'}
-                            </div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={12}>
-                        <Form.Group>
-                          <div className="d-flex align-items-center justify-content-between mb-1">
-                            <Form.Label className="small fw-semibold text-muted mb-0">
-                              Thuốc đang sử dụng định kỳ
-                            </Form.Label>
-                            {isEditing && (
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="text-decoration-none p-0 text-success small fw-semibold"
-                                onClick={() =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    currentMedications: 'Không sử dụng thuốc định kỳ'
-                                  }))
-                                }
-                              >
-                                ✓ Đặt là "Không dùng thuốc"
-                              </Button>
-                            )}
-                          </div>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="currentMedications"
-                              value={formData.currentMedications}
-                              onChange={handleInputChange}
-                              placeholder="Ví dụ: Aspirin 81mg, Amlodipine 5mg, Metformin..."
-                            />
-                          ) : (
-                            <div className="p-2 border rounded-3 bg-light text-dark">
-                              {formData.currentMedications || 'Không sử dụng thuốc định kỳ'}
-                            </div>
-                          )}
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </div>
-
-                  {/* Section 4: Emergency Contacts */}
-                  <div className="mb-4">
-                    <h6 className="fw-bold text-primary border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
-                      <FaPhoneAlt /> 4. Thông Tin Người Liên Hệ Khẩn Cấp (Bắt buộc)
-                    </h6>
-                    <Row className="g-3">
-                      <Col md={5}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Họ và tên người thân <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="emergencyContactName"
-                              value={formData.emergencyContactName}
-                              onChange={handleInputChange}
-                              required
-                              placeholder="Họ tên người liên hệ"
-                            />
-                          ) : (
-                            <div className="fw-bold text-dark py-1">{formData.emergencyContactName || 'Chưa cập nhật'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={4}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Số điện thoại người thân <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Control
-                              type="text"
-                              name="emergencyContactPhone"
-                              value={formData.emergencyContactPhone}
-                              onChange={handleInputChange}
-                              required
-                              placeholder="Số điện thoại khẩn cấp"
-                            />
-                          ) : (
-                            <div className="fw-bold text-primary font-monospace py-1">{formData.emergencyContactPhone || 'Chưa cập nhật'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-
-                      <Col md={3}>
-                        <Form.Group>
-                          <Form.Label className="small fw-semibold text-muted">Mối quan hệ <span className="text-danger">*</span></Form.Label>
-                          {isEditing ? (
-                            <Form.Select
-                              name="emergencyContactRelationship"
-                              value={formData.emergencyContactRelationship}
-                              onChange={handleInputChange}
-                            >
-                              <option value="Vợ/Chồng">Vợ/Chồng</option>
-                              <option value="Bố/Mẹ">Bố/Mẹ</option>
-                              <option value="Con cái">Con cái</option>
-                              <option value="Anh/Chị/Em">Anh/Chị/Em</option>
-                              <option value="Người giám hộ">Người giám hộ</option>
-                              <option value="Khác">Khác</option>
-                            </Form.Select>
-                          ) : (
-                            <div className="fw-medium text-dark py-1">{formData.emergencyContactRelationship || '—'}</div>
-                          )}
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </div>
-
-                  {/* Submit buttons when editing */}
-                  {isEditing && (
-                    <div className="d-flex justify-content-end gap-2 pt-3 border-top">
-                      <Button variant="outline-secondary" onClick={() => setIsEditing(false)} disabled={isSaving} className="rounded-2" style={{ boxShadow: 'none' }}>
-                        Huỷ bỏ
-                      </Button>
-                      <Button variant="primary" type="submit" disabled={isSaving} className="px-4 fw-semibold rounded-2" style={{ boxShadow: 'none' }}>
-                        {isSaving ? (
-                          <>
-                            <Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...
                           </>
                         ) : (
-                          <>
-                            <FaSave className="me-2" /> Lưu Hồ Sơ Bệnh Án Y Tế
-                          </>
+                          <div className="bms-profile-readonly-box">
+                            {formData.medicalHistory || 'Chưa ghi nhận bệnh lý'}
+                          </div>
                         )}
-                      </Button>
-                    </div>
-                  )}
-                </Form>
-              </Card.Body>
-            </Card>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={12}>
+                      <Form.Group>
+                        <div className="d-flex align-items-center justify-content-between mb-1">
+                          <Form.Label className="small fw-semibold text-muted mb-0">
+                            Tiền sử dị ứng (Thuốc, Hóa chất, Thực phẩm)
+                          </Form.Label>
+                          {isEditing && (
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="text-decoration-none p-0 text-success small fw-semibold"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  allergiesText: 'Không có tiền sử dị ứng đã biết (NKDA)'
+                                }))
+                              }
+                            >
+                              ✓ Đặt là "Không có dị ứng (NKDA)"
+                            </Button>
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <>
+                            <Form.Control
+                              as="textarea"
+                              rows={2}
+                              name="allergiesText"
+                              className="bms-profile-input"
+                              value={formData.allergiesText}
+                              onChange={handleInputChange}
+                              placeholder="Dị ứng kháng sinh, cồn sát khuẩn, thức ăn..."
+                            />
+                            <div className="mt-2">
+                              <small className="text-muted fw-bold d-block mb-1">
+                                Bấm chọn nhanh tác nhân dị ứng để thêm vào hồ sơ:
+                              </small>
+                              <div className="fast-tag-group">
+                                {COMMON_ALLERGIES.map((alg) => {
+                                  const isSelected =
+                                    formData.allergiesText &&
+                                    formData.allergiesText.toLowerCase().includes(alg.toLowerCase());
+                                  return (
+                                    <div
+                                      key={alg}
+                                      className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
+                                      onClick={() => toggleAllergyInProfile(alg)}
+                                    >
+                                      {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                      {alg}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bms-profile-readonly-box">
+                            {formData.allergiesText || 'Không ghi nhận dị ứng'}
+                          </div>
+                        )}
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={12}>
+                      <Form.Group>
+                        <div className="d-flex align-items-center justify-content-between mb-1">
+                          <Form.Label className="small fw-semibold text-muted mb-0">
+                            Thuốc đang sử dụng định kỳ
+                          </Form.Label>
+                          {isEditing && (
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="text-decoration-none p-0 text-success small fw-semibold"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  currentMedications: 'Không sử dụng thuốc định kỳ'
+                                }))
+                              }
+                            >
+                              ✓ Đặt là "Không dùng thuốc"
+                            </Button>
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="currentMedications"
+                            className="bms-profile-input"
+                            value={formData.currentMedications}
+                            onChange={handleInputChange}
+                            placeholder="Ví dụ: Aspirin 81mg, Amlodipine 5mg, Metformin..."
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">
+                            {formData.currentMedications || 'Không sử dụng thuốc định kỳ'}
+                          </div>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* Section 4: Emergency Contacts */}
+                <div className="mb-4">
+                  <h6 className="bms-profile-section-title">
+                    <FaPhoneAlt className="text-primary" /> Thông Tin Người Liên Hệ Khẩn Cấp
+                  </h6>
+                  <Row className="g-3">
+                    <Col md={5}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Họ và tên người thân <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="emergencyContactName"
+                            className="bms-profile-input"
+                            value={formData.emergencyContactName}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="Họ tên người liên hệ"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.emergencyContactName || 'Chưa cập nhật'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Số điện thoại người thân <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            name="emergencyContactPhone"
+                            className="bms-profile-input font-monospace"
+                            value={formData.emergencyContactPhone}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="Số điện thoại khẩn cấp"
+                          />
+                        ) : (
+                          <div className="bms-profile-readonly-box font-monospace text-primary">{formData.emergencyContactPhone || 'Chưa cập nhật'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={3}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold text-muted">Mối quan hệ <span className="text-danger">*</span></Form.Label>
+                        {isEditing ? (
+                          <Form.Select
+                            name="emergencyContactRelationship"
+                            className="bms-profile-input"
+                            value={formData.emergencyContactRelationship}
+                            onChange={handleInputChange}
+                          >
+                            <option value="Vợ/Chồng">Vợ/Chồng</option>
+                            <option value="Bố/Mẹ">Bố/Mẹ</option>
+                            <option value="Con cái">Con cái</option>
+                            <option value="Anh/Chị/Em">Anh/Chị/Em</option>
+                            <option value="Người giám hộ">Người giám hộ</option>
+                            <option value="Khác">Khác</option>
+                          </Form.Select>
+                        ) : (
+                          <div className="bms-profile-readonly-box">{formData.emergencyContactRelationship || '—'}</div>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* Submit buttons when editing */}
+                {isEditing && (
+                  <div className="d-flex justify-content-end gap-2 pt-3">
+                    <button
+                      type="button"
+                      className="bms-btn-pill-secondary"
+                      onClick={() => setIsEditing(false)}
+                      disabled={isSaving}
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button
+                      type="submit"
+                      className="bms-btn-pill-primary"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave className="me-2" /> Lưu Hồ Sơ Bệnh Án Y Tế
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </Form>
+            </div>
           </Col>
         </Row>
       </div>
@@ -1218,3 +1253,4 @@ export const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
+

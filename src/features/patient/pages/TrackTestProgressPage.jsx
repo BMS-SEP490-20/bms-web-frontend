@@ -13,7 +13,6 @@ import {
     FaClock, 
     FaMicroscope, 
     FaFileMedicalAlt, 
-    FaShieldAlt, 
     FaHospital, 
     FaUserMd, 
     FaExclamationTriangle, 
@@ -22,10 +21,7 @@ import {
     FaBarcode, 
     FaArrowRight, 
     FaPrint, 
-    FaPhoneAlt,
-    FaTimes,
-    FaInfoCircle,
-    FaIdCard,
+    FaTimes, 
     FaCheck
 } from "react-icons/fa";
 import { fetchTrackingByCode } from "../api/trackingApi";
@@ -168,91 +164,85 @@ export default function TrackTestProgressPage() {
             <PortalNavbar />
             
             <main className="bms-tracking-main">
-                <div className="container" style={{ maxWidth: 1240 }}>
+                <div className="container" style={{ maxWidth: 1180 }}>
                     
-                    {/* 1. TOP SPOTLIGHT EXECUTIVE HEADER (Pure 2D Flat Card Container) */}
-                    <div
-                        className="mb-4"
-                        style={{
-                            background: '#FFFFFF',
-                            borderRadius: '24px',
-                            border: '1px solid rgba(15, 23, 42, 0.08)',
-                            boxShadow: 'none',
-                            padding: '36px 40px'
-                        }}
-                    >
-                        <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
-                            <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                            <span>TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022 · TRA CỨU BẢO MẬT PII</span>
-                        </div>
-                        <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
-                            Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm
-                        </h1>
-                        <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
-                            Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
-                        </p>
-                    </div>
-
-                    {/* 2. MINIMALIST SEARCH CARD */}
-                    <div className="bms-tracking-search-card">
-                        <form onSubmit={handleFormSubmit}>
-                            <div className="bms-search-input-group">
-                                <div className="bms-search-input-wrapper">
-                                    <FaBarcode className="bms-search-icon" />
-                                    <input
-                                        type="text"
-                                        className="bms-search-input"
-                                        placeholder="Nhập mã đơn xét nghiệm (VD: BC-20261009-001 hoặc ORD-...)"
-                                        value={searchInput}
-                                        onChange={(e) => setSearchInput(e.target.value)}
-                                        autoFocus
-                                    />
-                                    {searchInput && (
-                                        <button 
-                                            type="button" 
-                                            className="bms-search-clear-btn" 
-                                            onClick={() => setSearchInput("")}
-                                            title="Xóa nội dung"
-                                        >
-                                            <FaTimes />
-                                        </button>
-                                    )}
+                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO (Header + Integrated Search Aligned Right - Pure 2D Flat, Zero Border) */}
+                    <div className="bms-tracking-hero mb-3">
+                        <div className="row align-items-center g-3">
+                            {/* Left Column: Heading & Subtitle */}
+                            <div className="col-lg-6 col-xl-6">
+                                <div className="d-flex align-items-center gap-2 mb-1.5" style={{ fontSize: '11px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
+                                    <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
+                                    <span>TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022 · BẢO MẬT PII</span>
                                 </div>
-                                <button 
-                                    type="submit" 
-                                    className="bms-search-submit-btn" 
-                                    disabled={loading}
-                                >
-                                    {loading ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            <span>Đang tìm...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FaSearch />
-                                            <span>Tra Cứu</span>
-                                        </>
-                                    )}
-                                </button>
+                                <h1 className="fw-bold mb-1.5" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
+                                    Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm
+                                </h1>
+                                <p className="mb-0" style={{ fontSize: '12.5px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
+                                    Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
+                                </p>
                             </div>
-                        </form>
 
-                        
+                            {/* Right Column: Search Box Aligned to Right */}
+                            <div className="col-lg-6 col-xl-6 d-flex justify-content-lg-end">
+                                <div className="bms-hero-search-wrapper" style={{ width: '100%', maxWidth: '460px' }}>
+                                    <form onSubmit={handleFormSubmit}>
+                                        <div className="bms-hero-search-box">
+                                            <FaBarcode className="bms-hero-search-icon" />
+                                            <input
+                                                type="text"
+                                                className="bms-hero-search-input"
+                                                placeholder="Nhập mã đơn (VD: BC-20261009-001 hoặc ORD-...)"
+                                                value={searchInput}
+                                                onChange={(e) => setSearchInput(e.target.value)}
+                                                autoFocus
+                                            />
+                                            {searchInput && (
+                                                <button 
+                                                    type="button" 
+                                                    className="bms-hero-search-clear" 
+                                                    onClick={() => setSearchInput("")}
+                                                    title="Xóa nội dung"
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            )}
+                                            <button 
+                                                type="submit" 
+                                                className="bms-hero-search-btn" 
+                                                disabled={loading}
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                        <span>Đang tìm...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FaSearch style={{ fontSize: '12px' }} />
+                                                        <span>Tra Cứu</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* 3. ERROR NOTIFICATION */}
+                    {/* 2. ERROR NOTIFICATION */}
                     {errorMessage && (
-                        <div className="alert alert-warning border border-warning-subtle rounded-3 p-3 mb-4 d-flex align-items-center gap-3">
-                            <FaExclamationTriangle className="text-warning fs-4 flex-shrink-0" />
+                        <div className="alert alert-warning border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-3" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
+                            <FaExclamationTriangle className="fs-5 flex-shrink-0" style={{ color: '#D97706' }} />
                             <div>
-                                <div className="fw-bold text-dark mb-0">Không tìm thấy dữ liệu</div>
-                                <div className="small text-secondary">{errorMessage}</div>
+                                <div className="fw-bold mb-0" style={{ fontSize: '13px' }}>Không tìm thấy dữ liệu</div>
+                                <div style={{ fontSize: '12px' }}>{errorMessage}</div>
                             </div>
                         </div>
                     )}
 
-                    {/* 4. DEFAULT GUIDE STATE (When no search has been performed) */}
+                    {/* 3. DEFAULT GUIDE STATE (When no search has been performed) */}
                     {!trackingData && !loading && (
                         <div className="bms-guide-container">
                             {/* 3 Step Guide Cards */}
@@ -317,14 +307,12 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* Trust & Support Strip */}
+                            {/* Trust & Support Strip - Clean typography without decorative icons */}
                             <div className="bms-trust-box">
                                 <div className="bms-trust-item">
-                                    <FaShieldAlt />
                                     <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Tên bệnh nhân được mã hóa PII khi tra cứu công khai).</span>
                                 </div>
                                 <div className="bms-trust-item">
-                                    <FaPhoneAlt />
                                     <span>Tổng đài hỗ trợ: <strong>1900 6868</strong> (06:00 - 20:30 hàng ngày)</span>
                                 </div>
                             </div>

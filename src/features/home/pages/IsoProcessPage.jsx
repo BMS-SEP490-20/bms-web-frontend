@@ -99,7 +99,7 @@ export default function IsoProcessPage() {
       <PortalNavbar />
 
       {/* 1. Executive Spotlight Header (Pure 2D Flat Card Container) */}
-      <section className="pt-5 pb-3" style={{ marginTop: '20px' }}>
+      <section className="pt-5 pb-3 mb-5" style={{ marginTop: '20px' }}>
         <Container style={{ maxWidth: '1400px' }}>
           <div
             style={{
@@ -173,7 +173,7 @@ export default function IsoProcessPage() {
       </section>
 
       {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad) */}
-      <section className="py-3">
+      <section className="py-3 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <Row className="g-3">
             {ISO_METRICS.map((item, idx) => (
@@ -233,7 +233,7 @@ export default function IsoProcessPage() {
       </section>
 
       {/* 3. 5-Phase Closed-Loop Architecture (Authentic Laboratory Manifest) */}
-      <section className="py-4">
+      <section className="py-4 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="d-flex align-items-center justify-content-between mb-4">
             <div>
@@ -357,7 +357,7 @@ export default function IsoProcessPage() {
       </section>
 
       {/* 4. Quality Governance & Regulatory Framework */}
-      <section className="py-3 pb-5">
+      <section className="py-3 pb-5 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div
             className="p-4"

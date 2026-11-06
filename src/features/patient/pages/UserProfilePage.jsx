@@ -54,17 +54,17 @@ const COMMON_ALLERGIES = [
   'Aspirin / Paracetamol',
   'Kháng viêm NSAIDs',
   'Hải sản (Tôm, Cua)',
-  'Trứng / Sữa / Đậu',
+  'Trứng / Sữa / Đậu phộng',
   'Phấn hoa / Bụi nhà',
   'Cồn / Povidine'
 ];
 
-// Coagulation disorder options (concise typography)
+// Coagulation disorder options (clinically standardized)
 const COAGULATION_OPTIONS = [
-  'Không có tiền sử đông máu',
+  'Không có tiền sử rối loạn đông máu',
   'Hemophilia (máu khó đông)',
-  'Giảm tiểu cầu',
-  'Dễ bầm tím / Chảy máu',
+  'Xuất huyết giảm tiểu cầu',
+  'Dễ chảy máu / bầm tím',
   'Dùng thuốc chống đông'
 ];
 
@@ -176,7 +176,7 @@ export const UserProfilePage = () => {
         phoneNumber: loadedPatient?.phoneNumber || loadedProfile?.phoneNumber || '',
         email: loadedPatient?.email || loadedProfile?.email || '',
         address: loadedPatient?.address || loadedProfile?.address || '',
-        bloodType: loadedPatient?.bloodType && loadedPatient.bloodType !== 'Unknown' ? loadedPatient.bloodType : 'O+',
+        bloodType: loadedPatient?.bloodType || loadedProfile?.bloodType || 'O+',
         heightCm: vitals.heightCm || '',
         weightKg: vitals.weightKg || '',
         bloodPressure: vitals.bloodPressure || '',
@@ -195,7 +195,7 @@ export const UserProfilePage = () => {
     }
   };
 
-  // Real-time BMI calculation
+  // Real-time BMI calculation (Unified WHO Asian Standard)
   const bmiInfo = useMemo(() => {
     const h = parseFloat(formData.heightCm);
     const w = parseFloat(formData.weightKg);
@@ -206,10 +206,10 @@ export const UserProfilePage = () => {
     const bmiVal = (w / (hMeter * hMeter)).toFixed(1);
     const num = parseFloat(bmiVal);
 
-    if (num < 18.5) return { bmi: bmiVal, label: 'Thể trạng gầy (Underweight)', color: 'warning' };
-    if (num <= 24.9) return { bmi: bmiVal, label: 'Thể trạng lý tưởng (Bình thường)', color: 'success' };
-    if (num <= 29.9) return { bmi: bmiVal, label: 'Tiền béo phì (Overweight)', color: 'warning' };
-    return { bmi: bmiVal, label: 'Béo phì (Obese)', color: 'danger' };
+    if (num < 18.5) return { bmi: bmiVal, label: 'Thiếu cân (< 18.5)', color: 'warning' };
+    if (num < 23.0) return { bmi: bmiVal, label: 'Bình thường (WHO Châu Á 18.5 - 22.9)', color: 'success' };
+    if (num < 25.0) return { bmi: bmiVal, label: 'Thừa cân (Tiền béo phì 23 - 24.9)', color: 'warning' };
+    return { bmi: bmiVal, label: 'Béo phì (≥ 25.0)', color: 'danger' };
   }, [formData.heightCm, formData.weightKg]);
 
   // Profile completion status check
@@ -363,7 +363,8 @@ export const UserProfilePage = () => {
           userObj.phoneNumber = updated.phoneNumber;
           userObj.identityNumber = updated.identityNumber;
           userObj.bloodType = updated.bloodType;
-          userObj.isProfileComplete = true;
+          userObj.isProfileComplete = isProfileComplete;
+          userObj.medicalProfileCompleted = true;
           localStorage.setItem('user', JSON.stringify(userObj));
           localStorage.setItem('bms_user', JSON.stringify(userObj));
         }
@@ -640,7 +641,10 @@ export const UserProfilePage = () => {
                 <div className="bms-summary-tile">
                   <span className="bms-summary-label">Nhóm máu ABO/Rh:</span>
                   <span className="bms-blood-pill">
-                    <FaTint size={10} /> {formData.bloodType}
+                    <FaTint size={10} />{' '}
+                    {formData.bloodType === 'Unknown'
+                      ? 'Chưa rõ (Định nhóm tại Lab)'
+                      : formData.bloodType}
                   </span>
                 </div>
 
@@ -661,7 +665,25 @@ export const UserProfilePage = () => {
                 <div className="bms-summary-tile">
                   <span className="bms-summary-label">Liên hệ khẩn cấp:</span>
                   <span className="bms-summary-val">
-                    {formData.emergencyContactName ? formData.emergencyContactName : 'Chưa cập nhật'}
+                    {formData.emergencyContactName ? (
+                      <div>
+                        <div className="fw-semibold text-dark">
+                          {formData.emergencyContactName}
+                          {formData.emergencyContactRelationship && (
+                            <span className="text-secondary fw-normal ms-1">
+                              ({formData.emergencyContactRelationship})
+                            </span>
+                          )}
+                        </div>
+                        {formData.emergencyContactPhone && (
+                          <div className="small text-muted font-monospace mt-0.5">
+                            {formData.emergencyContactPhone}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      'Chưa cập nhật'
+                    )}
                   </span>
                 </div>
               </div>
@@ -862,12 +884,17 @@ export const UserProfilePage = () => {
                         <label className="bms-setup-label mb-0">
                           Nhóm máu hệ ABO / Rh <span className="text-danger">*</span>
                         </label>
-                        {formData.bloodType && formData.bloodType !== 'Unknown' && (
+                        {formData.bloodType && formData.bloodType !== 'Unknown' ? (
                           <div className="bms-blood-selected-banner py-1 px-2">
                             <FaCheckCircle size={11} />
                             <span>Đã chọn: <strong>Nhóm máu {formData.bloodType}</strong></span>
                           </div>
-                        )}
+                        ) : formData.bloodType === 'Unknown' ? (
+                          <div className="bms-blood-selected-banner py-1 px-2 bg-light border text-secondary">
+                            <FaCheckCircle size={11} className="text-secondary" />
+                            <span>Đã chọn: <strong>Chưa rõ (Định nhóm tại Lab)</strong></span>
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>YẾU TỐ RHESUS DƯƠNG (Rh+ · PHỔ BIẾN)</div>
@@ -935,7 +962,10 @@ export const UserProfilePage = () => {
                           <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
                           <div className="pt-1">
                             <span className="bms-blood-pill">
-                              <FaTint size={11} /> Nhóm máu {formData.bloodType}
+                              <FaTint size={11} />{' '}
+                              {formData.bloodType === 'Unknown'
+                                ? 'Chưa rõ (Định nhóm tại Lab)'
+                                : `Nhóm máu ${formData.bloodType}`}
                             </span>
                           </div>
                         </Form.Group>
@@ -1035,7 +1065,10 @@ export const UserProfilePage = () => {
                             />
                             <div className="fast-tag-group">
                               {COAGULATION_OPTIONS.map((opt) => {
-                                const isSelected = formData.coagulationDisorders === opt;
+                                const curr = (formData.coagulationDisorders || '').trim();
+                                const isSelected = opt === 'Không có tiền sử rối loạn đông máu'
+                                  ? (curr === 'Không có' || curr === 'Không có tiền sử đông máu' || curr === 'Không có tiền sử rối loạn đông máu' || curr === '')
+                                  : (curr.toLowerCase() === opt.toLowerCase() || curr.toLowerCase().includes(opt.toLowerCase()));
                                 return (
                                   <div
                                     key={opt}

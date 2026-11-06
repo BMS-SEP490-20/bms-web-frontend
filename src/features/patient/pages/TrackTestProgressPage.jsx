@@ -284,7 +284,7 @@ export default function TrackTestProgressPage() {
                             <div className="bms-steps">
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-01-register.svg" alt="Nhận mã phiếu" style={{ height: '88px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-01-register.svg?v=transparent-20261106-1442" alt="Nhận mã phiếu" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">01</div>
                                     <h3 className="bms-step-title">Nhận Mã Phiếu Lấy Mẫu</h3>
@@ -295,7 +295,7 @@ export default function TrackTestProgressPage() {
 
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-02-sampling.svg" alt="Nhập mã tra cứu" style={{ height: '88px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-02-sampling.svg?v=transparent-20261106-1442" alt="Nhập mã tra cứu" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">02</div>
                                     <h3 className="bms-step-title">Nhập Mã Tra Cứu</h3>
@@ -306,7 +306,7 @@ export default function TrackTestProgressPage() {
 
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-03-analysis.svg" alt="Theo dõi kết quả" style={{ height: '88px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-03-analysis.svg?v=transparent-20261106-1442" alt="Theo dõi kết quả" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">03</div>
                                     <h3 className="bms-step-title">Theo Dõi Thời Gian Thực</h3>

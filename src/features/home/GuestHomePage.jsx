@@ -251,7 +251,7 @@ export default function GuestHomePage() {
                 <span>TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB</span>
               </div>
 
-              <h1 className="bms-hero-heading mb-2.5" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
+              <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
                 Quản Lý Xét Nghiệm Máu
                 <img
                   src="/assets/bms/svg/hero/home/hrroooo.svg"
@@ -262,7 +262,8 @@ export default function GuestHomePage() {
                     width: 'auto',
                     maxWidth: '100%',
                     objectFit: 'contain',
-                    marginTop: '2px'
+                    marginTop: '16px',
+                    marginBottom: '16px'
                   }}
                 />
               </h1>

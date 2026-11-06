@@ -84,7 +84,7 @@ export default function PricingPage() {
   const pageTransitionClass = usePageTransition();
 
   return (
-    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)', overflowX: 'hidden' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>

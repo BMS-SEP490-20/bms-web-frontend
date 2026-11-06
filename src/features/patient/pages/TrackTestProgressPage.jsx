@@ -189,23 +189,21 @@ export default function TrackTestProgressPage() {
                             <div className="col-lg-6 d-flex justify-content-lg-end">
                                 <form onSubmit={handleFormSubmit} className="d-flex align-items-center gap-2.5 w-100" style={{ maxWidth: '480px' }}>
                                     <div className="position-relative flex-grow-1">
-                                        <FaBarcode style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#1E60E6', fontSize: '15px', pointerEvents: 'none' }} />
+                                        <FaBarcode
+                                            style={{
+                                                position: 'absolute',
+                                                left: '18px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                color: '#1E60E6',
+                                                fontSize: '16px',
+                                                pointerEvents: 'none',
+                                                zIndex: 2
+                                            }}
+                                        />
                                         <input
                                             type="text"
-                                            className="form-control"
-                                            style={{
-                                                height: '46px',
-                                                paddingLeft: '44px',
-                                                paddingRight: searchInput ? '36px' : '16px',
-                                                backgroundColor: '#F1F5F9',
-                                                border: 'none',
-                                                borderRadius: '9999px',
-                                                fontSize: '13px',
-                                                fontWeight: 500,
-                                                color: '#0F172A',
-                                                outline: 'none',
-                                                boxShadow: 'none'
-                                            }}
+                                            className="bms-track-search-input"
                                             placeholder="Nhập mã đơn (VD: BC-... hoặc ORD-...)"
                                             value={searchInput}
                                             onChange={(e) => setSearchInput(e.target.value)}
@@ -217,7 +215,7 @@ export default function TrackTestProgressPage() {
                                                 onClick={() => setSearchInput("")}
                                                 style={{
                                                     position: 'absolute',
-                                                    right: '12px',
+                                                    right: '14px',
                                                     top: '50%',
                                                     transform: 'translateY(-50%)',
                                                     background: 'none',
@@ -225,7 +223,11 @@ export default function TrackTestProgressPage() {
                                                     color: '#94A3B8',
                                                     cursor: 'pointer',
                                                     fontSize: '13px',
-                                                    padding: '4px'
+                                                    padding: '4px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    zIndex: 2
                                                 }}
                                                 title="Xóa nội dung"
                                             >

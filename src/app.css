@@ -2029,3 +2029,71 @@
     border: 2px solid #FFFFFF !important;
 }
 
+/* ==============================================================================
+   UNIVERSAL DASHBOARD LAYOUT & CANVAS NORMALIZATION
+   Enforces unified canvas, eliminates nested double-backgrounds, prevents
+   split search bars, and enforces standalone flat table architecture.
+   ============================================================================== */
+.bms-page-content > div,
+.bms-page-content > .container-fluid,
+.bms-page-content > .container {
+    background: transparent !important;
+    background-color: transparent !important;
+    min-height: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Ensure any nested container inside bms-page-content also inherits clean transparent canvas */
+.bms-page-content .container-fluid {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Prevent broken/split input-group magnifying glass borders */
+.input-group:has(.input-group-text) .form-control {
+    border-left: none !important;
+}
+.input-group:has(.input-group-text) .input-group-text {
+    border-right: none !important;
+}
+.input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+    margin-left: 0 !important;
+}
+
+/* Standalone Table edge-to-edge perfection */
+.bms-table-standalone-section .table-responsive {
+    margin-bottom: 0 !important;
+    border-radius: 0 0 20px 20px !important;
+}
+
+.bms-table-standalone-section table {
+    margin-bottom: 0 !important;
+    border: none !important;
+}
+
+.bms-table-standalone-section table thead th {
+    background: #F8FAFC !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+    padding: 14px 16px !important;
+}
+
+.bms-table-standalone-section table tbody td {
+    padding: 14px 16px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
+    font-size: 13.5px !important;
+}
+
+.bms-table-standalone-section table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+

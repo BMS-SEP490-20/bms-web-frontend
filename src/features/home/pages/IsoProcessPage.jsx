@@ -187,68 +187,74 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad with Integrated Icons) */}
+      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad with Icons Positioned Above Cards) */}
       <section className="py-3 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
-          <Row className="g-3">
+          <Row className="g-4">
             {ISO_METRICS.map((item, idx) => {
               const IconComp = item.icon;
               return (
                 <Col key={idx} xs={12} sm={6} lg={3}>
-                  <div
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: '20px',
-                      border: 'none',
-                      boxShadow: 'none',
-                      padding: '26px 28px',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column'
-                    }}
-                  >
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <span
+                  <div className="d-flex flex-column h-100">
+                    {/* Icon Above Card with Generous Breathing Space */}
+                    <div className="d-flex align-items-center mb-3 ps-2">
+                      <div
                         style={{
-                          fontSize: '11px',
-                          fontWeight: 750,
-                          letterSpacing: '0.06em',
-                          color: item.accent,
-                          textTransform: 'uppercase'
-                        }}
-                      >
-                        {item.badge}
-                      </span>
-                      <span
-                        style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '12px',
+                          width: '54px',
+                          height: '54px',
+                          borderRadius: '18px',
                           backgroundColor: item.bgAccent,
                           color: item.accent,
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '18px'
+                          fontSize: '24px'
                         }}
                       >
                         <IconComp />
-                      </span>
+                      </div>
                     </div>
+
+                    {/* Elevated Metric Card */}
                     <div
-                      className="fw-bold tabular-nums"
                       style={{
-                        fontSize: '28px',
-                        color: '#0F172A',
-                        letterSpacing: '-0.03em',
-                        lineHeight: '1.2',
-                        marginBottom: '10px'
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: '22px',
+                        border: '1px solid rgba(226, 232, 240, 0.8)',
+                        boxShadow: '0 4px 18px -4px rgba(15, 23, 42, 0.04)',
+                        padding: '30px 30px',
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column'
                       }}
                     >
-                      {item.value}
-                    </div>
-                    <div style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.6', marginTop: 'auto' }}>
-                      {item.label}
+                      <div
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 750,
+                          letterSpacing: '0.06em',
+                          color: item.accent,
+                          textTransform: 'uppercase',
+                          marginBottom: '10px'
+                        }}
+                      >
+                        {item.badge}
+                      </div>
+                      <div
+                        className="fw-bold tabular-nums"
+                        style={{
+                          fontSize: '28px',
+                          color: '#0F172A',
+                          letterSpacing: '-0.03em',
+                          lineHeight: '1.2',
+                          marginBottom: '10px'
+                        }}
+                      >
+                        {item.value}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.6', marginTop: 'auto' }}>
+                        {item.label}
+                      </div>
                     </div>
                   </div>
                 </Col>

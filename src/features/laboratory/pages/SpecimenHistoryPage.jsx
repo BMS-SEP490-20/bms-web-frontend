@@ -18,7 +18,8 @@ import {
     FaCheckCircle,
     FaFileAlt,
     FaArrowRight,
-    FaWarehouse
+    FaWarehouse,
+    FaShieldAlt
 } from "react-icons/fa";
 import {
     fetchSpecimenHistories,
@@ -237,35 +238,38 @@ export default function SpecimenHistoryPage() {
     const collector = currentSpecimen?.collectorName || currentSpecimen?.collectedBy || "Điều dưỡng khoa khám";
 
     return (
-        <div className="container-fluid py-4 px-lg-4 bg-light" style={{ minHeight: "100vh" }}>
-            {/* Page Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                <div>
-                    <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Truy Vấn Lịch Sử Mẫu Bệnh Phẩm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
-                            
-                        </span>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#1A3311', border: '1px solid #10B981' }}>
-                            ISO 15189
-                        </span>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>TRUY XUẤT NGUỒN GỐC · LỊCH SỬ MẪU BỆNH PHẨM (ISO 15189)</span>
                     </div>
-                    <p className="text-secondary small mb-0">
-                        Theo dõi định danh, chuỗi hành trình lấy mẫu - vận chuyển - phân tích và giám sát bảo quản lạnh.
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaHistory size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Truy Vấn Lịch Sử &amp; Vòng Đời Mẫu Bệnh Phẩm
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
+                        Theo dõi định danh barcode, chuỗi hành trình lấy mẫu - vận chuyển - phân tích và giám sát điều kiện bảo quản lạnh theo thời gian thực.
                     </p>
                 </div>
 
-                <div className="d-flex gap-2">
+                <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3.5 py-2 fw-semibold"
                         style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={() => {
                             loadSpecimenDetail(activeBarcode);
                             loadSpecimenDirectory();
                         }}
                     >
-                        <FaSync className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
+                        <FaSync size={13} className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                 </div>

@@ -129,15 +129,15 @@ export default function RoleBasedDashboard() {
           userName: currentUser?.fullName || currentUser?.name || 'BSCKII. Lê Lan Anh',
           role: role,
           summaryCards: [
-            { key: 'total_orders', title: 'Tổng lượt khám & xét nghiệm', value: '186', icon: 'FaClipboardCheck', colorVariant: 'blue', subtitle: 'Dữ liệu thời gian thực hôm nay' },
-            { key: 'samples', title: 'Mẫu xét nghiệm tiếp nhận', value: '142', icon: 'FaVial', colorVariant: 'green', subtitle: 'Đang lưu hành toàn viện' },
-            { key: 'tat', title: 'Thời gian trả kết quả (TAT)', value: '42 phút', icon: 'FaStopwatch', colorVariant: 'amber', subtitle: 'Đạt chuẩn ISO 15189 (< 60m STAT)' },
-            { key: 'iot_alert', title: 'Nhiệt độ tủ lạnh IoT', value: '3.8°C', icon: 'FaTemperatureHigh', colorVariant: 'cyan', subtitle: 'Dải an toàn bảo quản (2°C - 8°C)' }
+            { key: 'total_orders', title: 'Tổng lượt khám & xét nghiệm', value: '0', icon: 'FaClipboardCheck', colorVariant: 'blue', subtitle: 'Dữ liệu thời gian thực hôm nay' },
+            { key: 'samples', title: 'Mẫu xét nghiệm tiếp nhận', value: '0', icon: 'FaVial', colorVariant: 'green', subtitle: 'Đang lưu hành toàn viện' },
+            { key: 'tat', title: 'Thời gian trả kết quả (TAT)', value: '—', icon: 'FaStopwatch', colorVariant: 'amber', subtitle: 'Đạt chuẩn ISO 15189' },
+            { key: 'iot_alert', title: 'Nhiệt độ tủ lạnh IoT', value: '—', icon: 'FaTemperatureHigh', colorVariant: 'cyan', subtitle: 'Dải an toàn bảo quản (2°C - 8°C)' }
           ],
-          managerData: { totalOrdersToday: 186, revenueToday: 184500000, averageTatMinutes: 42, activeAlertsCount: 0, coldStorageTemperature: 3.8 },
-          doctorData: { todayAppointmentsCount: 18, pendingApprovalsCount: 6, reviewedTodayCount: 24, todaySchedule: [] },
-          labUserData: { queueWaitingCount: 36, inProgressCount: 14, completedTodayCount: 142, rerunRequestedCount: 3, prioritySamples: [] },
-          receptionistData: { checkInsToday: 68, waitingQueueCount: 7, totalWalkIns: 14, paymentsCollectedToday: 38250000 }
+          managerData: { totalOrdersToday: 0, revenueToday: 0, averageTatMinutes: 0, activeAlertsCount: 0, coldStorageTemperature: null },
+          doctorData: { todayAppointmentsCount: 0, pendingApprovalsCount: 0, reviewedTodayCount: 0, todaySchedule: [] },
+          labUserData: { queueWaitingCount: 0, inProgressCount: 0, completedTodayCount: 0, rerunRequestedCount: 0, prioritySamples: [] },
+          receptionistData: { checkInsToday: 0, waitingQueueCount: 0, totalWalkIns: 0, paymentsCollectedToday: 0 }
         });
       }
     } finally {
@@ -170,12 +170,7 @@ export default function RoleBasedDashboard() {
   }, []);
 
   const managerQueue = useMemo(() => {
-    if (liveQueue.length > 0) return liveQueue.slice(0, 5);
-    return [
-      { id: 'SPC-261006-A1-0089', orderId: 'ORD-261006-0187', patientName: 'Nguyễn Văn An', packageName: 'Bộ mỡ máu Lipid Profile', priority: 'Urgent', flagCount: 2, submittedAt: '10:15 Sáng' },
-      { id: 'SPC-261006-B2-0104', orderId: 'ORD-261006-0192', patientName: 'Trần Thị Mai', packageName: 'Tổng phân tích tế bào máu CBC', priority: 'Stat', flagCount: 1, submittedAt: '10:45 Sáng' },
-      { id: 'SPC-261006-C3-0215', orderId: 'ORD-261006-0205', patientName: 'Lê Hoàng Phúc', packageName: 'Sinh hóa chức năng Gan - Thận', priority: 'Normal', flagCount: 0, submittedAt: '11:05 Sáng' }
-    ];
+    return liveQueue.slice(0, 5);
   }, [liveQueue]);
 
   return (
@@ -213,7 +208,7 @@ export default function RoleBasedDashboard() {
           </Button>
           <div className="d-none d-lg-block text-muted small text-end px-2" style={{ fontSize: '11.5px' }}>
             <div>Cập nhật: <strong className="text-dark">{lastRefreshed.toLocaleTimeString('vi-VN')}</strong></div>
-            <span className="text-success fw-semibold">● LIS Kết Nối 100%</span>
+            <span className="text-success fw-semibold">● Hệ thống sẵn sàng</span>
           </div>
         </div>
       </div>
@@ -254,8 +249,8 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Tổng Lượt Khám &amp; Xét Nghiệm</h6>
-                  <div className="bms-kpi-value">{stats?.managerData?.totalOrdersToday || 186}</div>
-                  <div className="bms-kpi-sub text-success">↑ 12% so với hôm qua</div>
+                  <div className="bms-kpi-value">{stats?.managerData?.totalOrdersToday ?? 0}</div>
+                  <div className="bms-kpi-sub text-muted">Dữ liệu thời gian thực hôm nay</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaClipboardCheck /></div>
               </div>
@@ -607,11 +602,11 @@ export default function RoleBasedDashboard() {
                   <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Nhiệt độ hiện tại:</span>
-                      <strong className="text-success fs-4">{stats?.managerData?.coldStorageTemperature || 3.8}°C</strong>
+                      <strong className="text-success fs-4">{stats?.managerData?.coldStorageTemperature ? `${stats.managerData.coldStorageTemperature}°C` : '—'}</strong>
                     </div>
                     <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
                       <span>Trạng thái kết nối sensor:</span>
-                      <span className="text-dark fw-semibold">12/12 Sensors Online</span>
+                      <span className="text-dark fw-semibold">{stats?.managerData?.activeAlertsCount === 0 ? 'Hoạt động bình thường' : `${stats?.managerData?.activeAlertsCount} cảnh báo`}</span>
                     </div>
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
@@ -1188,42 +1183,28 @@ export default function RoleBasedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="ps-4 fw-bold fs-5 text-primary">#01</td>
-                      <td className="fw-semibold text-dark">Nguyễn Văn An</td>
-                      <td className="font-monospace small">BN-2026-0812</td>
-                      <td>08:10</td>
-                      <td><span className="bms-pill-badge bms-pill-success">QR Code</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/receptionist/check-in')}>
-                          In Barcode
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold fs-5 text-primary">#02</td>
-                      <td className="fw-semibold text-dark">Phạm Thu Trang</td>
-                      <td className="font-monospace small">BN-2026-0819</td>
-                      <td>08:15</td>
-                      <td><span className="bms-pill-badge bms-pill-urgent">Vãng lai</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/receptionist/create-patient')}>
-                          Lập Hồ Sơ
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold fs-5 text-primary">#03</td>
-                      <td className="fw-semibold text-dark">Lê Minh Khang</td>
-                      <td className="font-monospace small">BN-2026-0824</td>
-                      <td>08:22</td>
-                      <td><span className="bms-pill-badge bms-pill-info">Đặt trước</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-secondary" className="rounded-pill px-3 py-1 fw-semibold">
-                          Gọi Số
-                        </Button>
-                      </td>
-                    </tr>
+                    {liveQueue.length > 0 ? (
+                      liveQueue.slice(0, 5).map((item, idx) => (
+                        <tr key={item.id || idx}>
+                          <td className="ps-4 fw-bold fs-5 text-primary">#{String(idx + 1).padStart(2, '0')}</td>
+                          <td className="fw-semibold text-dark">{item.patientName || 'Bệnh nhân'}</td>
+                          <td className="font-monospace small">{item.patientId || item.id}</td>
+                          <td>{item.submittedAt || '—'}</td>
+                          <td><span className="bms-pill-badge bms-pill-success">{item.priority || 'Tiếp nhận'}</span></td>
+                          <td className="text-end pe-4">
+                            <Button size="sm" variant="primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/receptionist/check-in')}>
+                              Chi tiết
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="text-center py-4 text-muted">
+                          Chưa có bệnh nhân nào trong hàng đợi tiếp đón hôm nay.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

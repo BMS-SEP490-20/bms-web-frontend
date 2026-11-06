@@ -5,6 +5,7 @@ import {
   isCanonicalNkda,
   isEntireListNkda,
   splitAllergyTokens,
+  splitFreeTextNotes,
   isAllergyMatch,
   CANONICAL_NO_COAGULATION,
   CANONICAL_NKDA,
@@ -73,6 +74,24 @@ describe('ClinicalProfileUtils Unit Tests', () => {
       const serialized = original.join('; ');
       const parsed = splitAllergyTokens(serialized);
       assert.deepStrictEqual(parsed, original);
+    });
+  });
+
+  describe('splitFreeTextNotes() - Free-Text Note Preservation (Comma Safe)', () => {
+    it('preserves sentence with commas as a single note without splitting by comma', () => {
+      const input = 'Dị ứng phấn hoa, xuất hiện mùa xuân';
+      const result = splitFreeTextNotes(input);
+      assert.deepStrictEqual(result, ['Dị ứng phấn hoa, xuất hiện mùa xuân']);
+    });
+
+    it('splits multiple free-text notes separated by semicolon or newline', () => {
+      const input = 'Dị ứng phấn hoa, xuất hiện mùa xuân; Dị ứng lông mèo\nDị ứng bột giặt Omo, ngứa da';
+      const result = splitFreeTextNotes(input);
+      assert.deepStrictEqual(result, [
+        'Dị ứng phấn hoa, xuất hiện mùa xuân',
+        'Dị ứng lông mèo',
+        'Dị ứng bột giặt Omo, ngứa da'
+      ]);
     });
   });
 

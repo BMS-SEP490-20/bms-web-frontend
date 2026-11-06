@@ -131,5 +131,21 @@ export async function updateMyPatientInformation(payload) {
   }
 }
 
-export const patientService = { getAllPatients: async (params = {}) => { const res = await searchPatients(params); return { success: true, data: res.items || res }; }, searchPatients, getPatientById, getMyPatientInformation, updateMyPatientInformation, createGuestProfile, getPatientByEmail: async (email) => { const res = await searchPatients({ search: email }); return res.items?.[0] || null; } };
+export const patientService = {
+  getAllPatients: async (params = {}) => {
+    const res = await searchPatients(params);
+    const items = res?.items || (Array.isArray(res) ? res : (res?.data || []));
+    const totalCount = res?.totalCount ?? res?.total ?? items.length;
+    return { success: true, data: items, totalCount };
+  },
+  searchPatients,
+  getPatientById,
+  getMyPatientInformation,
+  updateMyPatientInformation,
+  createGuestProfile,
+  getPatientByEmail: async (email) => {
+    const res = await searchPatients({ search: email });
+    return res.items?.[0] || null;
+  }
+};
 export default patientService;

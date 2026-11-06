@@ -318,7 +318,7 @@ const ManagerDashboard = () => {
       if (patientsResult.success) {
         setStats(prev => ({
           ...prev,
-          totalPatients: (patientsResult.data || []).length
+          totalPatients: patientsResult.totalCount ?? patientsResult.total ?? (patientsResult.data || []).length
         }));
       }
 

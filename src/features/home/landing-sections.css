@@ -86,8 +86,8 @@
 .bms-landing-sections-wrap {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-top: 40px;
+  gap: 32px;
+  margin-top: 56px;
 }
 
 .bms-section-row-v3 {
@@ -95,7 +95,7 @@
   grid-template-columns: 1.1fr 0.9fr;
   gap: 48px;
   align-items: center;
-  padding: 44px 52px;
+  padding: 40px 48px;
   border-radius: 24px;
   background: #FFFFFF;
   border: none !important;
@@ -215,3 +215,4 @@
     grid-template-columns: 1fr;
   }
 }
+

@@ -38,6 +38,19 @@ export default function PortalNavbar({ user: propUser = null }) {
   const isStaff = Boolean(user && roleId && roleId !== ROLES.PATIENT);
   const staffRoleName = roleId ? ROLE_LABELS[roleId] : '';
   const currentPath = location.pathname;
+  const [isSticky, setIsSticky] = useState(false);
+
+  // Dynamic sticky scroll detection to reveal bottom border only when scrolled
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 8;
+      setIsSticky(prev => (prev !== scrolled ? scrolled : prev));
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Quantum slider position calculation with persistent start position
   useLayoutEffect(() => {
@@ -95,7 +108,7 @@ export default function PortalNavbar({ user: propUser = null }) {
   const initial = patientName ? patientName.trim().charAt(0).toUpperCase() : 'B';
 
   return (
-    <header className="bms-telehealth-header">
+    <header className={`bms-telehealth-header ${isSticky ? 'is-sticky' : ''}`}>
       <div className="bms-telehealth-header-inner">
         {/* 1. Left: Brand Logo & Title */}
         <Link className="bms-brand-cluster" to={isPatient ? "/home" : "/"}>

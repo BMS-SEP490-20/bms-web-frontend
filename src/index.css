@@ -118,14 +118,22 @@ body {
   font-size: 13.5px !important;
 }
 
-/* Global Navbar Zero Shadow & Zero Border */
-header,
-.navbar,
-.bms-header,
-.bms-telehealth-header {
+/* Global Navbar: Zero Shadow & Zero Border at top; bottom border only when sticky */
+header:not(.is-sticky),
+.navbar:not(.is-sticky),
+.bms-header:not(.is-sticky),
+.bms-telehealth-header:not(.is-sticky) {
   box-shadow: none !important;
   border: none !important;
   border-bottom: none !important;
+}
+
+header.is-sticky,
+.navbar.is-sticky,
+.bms-header.is-sticky,
+.bms-telehealth-header.is-sticky {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* Expanded Max-Width for Spacious Layout */

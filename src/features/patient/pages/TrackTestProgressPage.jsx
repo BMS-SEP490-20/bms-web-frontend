@@ -166,70 +166,100 @@ export default function TrackTestProgressPage() {
             <main className="bms-tracking-main">
                 <div className="container" style={{ maxWidth: 1180 }}>
                     
-                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO (Header + Integrated Search Aligned Right - Pure 2D Flat, Zero Border) */}
-                    <div className="bms-tracking-hero mb-3">
-                        <div className="row align-items-center g-3">
-                            {/* Left Column: Heading & Subtitle */}
-                            <div className="col-lg-6 col-xl-6">
-                                <div className="d-flex align-items-center gap-2 mb-1.5" style={{ fontSize: '11px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO (Header + Separated Input & Button Aligned Right - Pure 2D Flat, Zero Border) */}
+                    <div className="bms-tracking-hero mb-4">
+                        <div className="row align-items-center g-4">
+                            {/* Left Column: Heading & Concise Subtitle */}
+                            <div className="col-lg-6">
+                                <div className="d-flex align-items-center gap-2 mb-2" style={{ fontSize: '11px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                                     <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                                    <span>TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022 · BẢO MẬT PII</span>
+                                    <span>TIÊU CHUẨN ISO 15189:2022 · BẢO MẬT PII</span>
                                 </div>
-                                <h1 className="fw-bold mb-1.5" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
-                                    Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm
+                                <h1 className="fw-bold mb-2" style={{ fontSize: '26px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
+                                    Tra Cứu Lộ Trình Mẫu Máu
                                 </h1>
-                                <p className="mb-0" style={{ fontSize: '12.5px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
-                                    Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
+                                <p className="mb-0 text-muted" style={{ fontSize: '13px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
+                                    Theo dõi tiến trình phân tích mẫu và thời gian trả kết quả theo thời gian thực.
                                 </p>
                             </div>
 
-                            {/* Right Column: Search Box Aligned to Right */}
-                            <div className="col-lg-6 col-xl-6 d-flex align-items-center justify-content-lg-end gap-3">
-                                <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '140px', width: '100%' }}>
-                                    <img src="/assets/bms/svg/hero/tracking/tracking-hero.svg" alt="" style={{ width: '100%', height: 'auto', maxHeight: '100px', objectFit: 'contain' }} />
-                                </div>
-                                <div className="bms-hero-search-wrapper" style={{ width: '100%', maxWidth: '440px' }}>
-                                    <form onSubmit={handleFormSubmit}>
-                                        <div className="bms-hero-search-box">
-                                            <FaBarcode className="bms-hero-search-icon" />
-                                            <input
-                                                type="text"
-                                                className="bms-hero-search-input"
-                                                placeholder="Nhập mã đơn (VD: BC-20261009-001 hoặc ORD-...)"
-                                                value={searchInput}
-                                                onChange={(e) => setSearchInput(e.target.value)}
-                                                autoFocus
-                                            />
-                                            {searchInput && (
-                                                <button 
-                                                    type="button" 
-                                                    className="bms-hero-search-clear" 
-                                                    onClick={() => setSearchInput("")}
-                                                    title="Xóa nội dung"
-                                                >
-                                                    <FaTimes />
-                                                </button>
-                                            )}
+                            {/* Right Column: Distinct Search Input & Action Button Side by Side */}
+                            <div className="col-lg-6 d-flex justify-content-lg-end">
+                                <form onSubmit={handleFormSubmit} className="d-flex align-items-center gap-2.5 w-100" style={{ maxWidth: '480px' }}>
+                                    <div className="position-relative flex-grow-1">
+                                        <FaBarcode style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#1E60E6', fontSize: '15px', pointerEvents: 'none' }} />
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            style={{
+                                                height: '46px',
+                                                paddingLeft: '44px',
+                                                paddingRight: searchInput ? '36px' : '16px',
+                                                backgroundColor: '#F1F5F9',
+                                                border: 'none',
+                                                borderRadius: '9999px',
+                                                fontSize: '13px',
+                                                fontWeight: 500,
+                                                color: '#0F172A',
+                                                outline: 'none',
+                                                boxShadow: 'none'
+                                            }}
+                                            placeholder="Nhập mã đơn (VD: BC-... hoặc ORD-...)"
+                                            value={searchInput}
+                                            onChange={(e) => setSearchInput(e.target.value)}
+                                            autoFocus
+                                        />
+                                        {searchInput && (
                                             <button 
-                                                type="submit" 
-                                                className="bms-hero-search-btn" 
-                                                disabled={loading}
+                                                type="button" 
+                                                onClick={() => setSearchInput("")}
+                                                style={{
+                                                    position: 'absolute',
+                                                    right: '12px',
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#94A3B8',
+                                                    cursor: 'pointer',
+                                                    fontSize: '13px',
+                                                    padding: '4px'
+                                                }}
+                                                title="Xóa nội dung"
                                             >
-                                                {loading ? (
-                                                    <>
-                                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                        <span>Đang tìm...</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <FaSearch style={{ fontSize: '12px' }} />
-                                                        <span>Tra Cứu</span>
-                                                    </>
-                                                )}
+                                                <FaTimes />
                                             </button>
-                                        </div>
-                                    </form>
-                                </div>
+                                        )}
+                                    </div>
+                                    <button 
+                                        type="submit" 
+                                        className="btn fw-bold flex-shrink-0 d-flex align-items-center justify-content-center gap-2"
+                                        style={{
+                                            height: '46px',
+                                            padding: '0 24px',
+                                            backgroundColor: '#1E60E6',
+                                            color: '#FFFFFF',
+                                            border: 'none',
+                                            borderRadius: '9999px',
+                                            fontSize: '13px',
+                                            boxShadow: 'none',
+                                            cursor: loading ? 'not-allowed' : 'pointer'
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                <span>Đang tìm...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSearch style={{ fontSize: '12px' }} />
+                                                <span>Tra Cứu</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -284,37 +314,74 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* 6-Stage Workflow Strip */}
-                            <div className="bms-stages-overview">
-                                <h4 className="bms-stages-overview-title">Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế ISO 15189</h4>
-                                <p className="bms-stages-overview-subtitle">
-                                    Toàn bộ mẫu bệnh phẩm được theo dõi bằng mã định danh duy nhất xuyên suốt phòng Lab tự động
-                                </p>
+                            {/* 6-Stage Workflow Strip with Custom Designed Flow Connectors */}
+                            <div className="bms-stages-overview my-4" style={{ padding: '28px 32px' }}>
+                                <div className="text-center mb-3">
+                                    <h4 className="bms-stages-overview-title mb-1" style={{ fontSize: '16px' }}>Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế ISO 15189</h4>
+                                    <p className="bms-stages-overview-subtitle mb-0" style={{ fontSize: '12.5px' }}>
+                                        Toàn bộ mẫu bệnh phẩm được theo dõi bằng mã định danh duy nhất xuyên suốt phòng Lab tự động
+                                    </p>
+                                </div>
                                 
-                                <div className="bms-stages-pills-row">
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 1</span>
-                                        <div className="bms-stage-pill-name">Tiếp Nhận Chỉ Định</div>
+                                <div className="bms-stages-flow-row">
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 1</span>
+                                        <div className="bms-stage-flow-title">Tiếp Nhận Chỉ Định</div>
                                     </div>
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 2</span>
-                                        <div className="bms-stage-pill-name">Lấy Mẫu &amp; Barcode</div>
+                                    <div className="bms-stage-flow-connector" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
                                     </div>
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 3</span>
-                                        <div className="bms-stage-pill-name">Nhập Lab (LIS)</div>
+
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 2</span>
+                                        <div className="bms-stage-flow-title">Lấy Mẫu &amp; Barcode</div>
                                     </div>
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 4</span>
-                                        <div className="bms-stage-pill-name">Phân Tích Máy Tự Động</div>
+                                    <div className="bms-stage-flow-connector" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
                                     </div>
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 5</span>
-                                        <div className="bms-stage-pill-name">Bác Sĩ Thẩm Định</div>
+
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 3</span>
+                                        <div className="bms-stage-flow-title">Nhập Lab (LIS)</div>
                                     </div>
-                                    <div className="bms-stage-pill">
-                                        <span className="bms-stage-pill-num">Chặng 6</span>
-                                        <div className="bms-stage-pill-name">Ký Số &amp; Trả Kết Quả</div>
+                                    <div className="bms-stage-flow-connector" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
+                                    </div>
+
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 4</span>
+                                        <div className="bms-stage-flow-title">Phân Tích Máy Tự Động</div>
+                                    </div>
+                                    <div className="bms-stage-flow-connector" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
+                                    </div>
+
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 5</span>
+                                        <div className="bms-stage-flow-title">Bác Sĩ Thẩm Định</div>
+                                    </div>
+                                    <div className="bms-stage-flow-connector" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
+                                    </div>
+
+                                    <div className="bms-stage-flow-card">
+                                        <span className="bms-stage-flow-badge">Chặng 6</span>
+                                        <div className="bms-stage-flow-title">Ký Số &amp; Trả Kết Quả</div>
                                     </div>
                                 </div>
                             </div>

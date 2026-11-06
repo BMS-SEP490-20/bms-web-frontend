@@ -85,7 +85,7 @@ export default function PricingPage() {
       <PortalNavbar />
 
       {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
-      <section className="pt-4 pb-2">
+      <section className="pt-4 pb-3 mb-2">
         <div className="container" style={{ maxWidth: '1400px' }}>
           <div
             style={{
@@ -160,12 +160,11 @@ export default function PricingPage() {
       </section>
 
       {/* 2. Filter & Search Toolbar Section */}
-      <section className="pt-2 pb-1">
+      <section className="py-2 mb-3">
         <Container style={{ maxWidth: '1400px' }}>
           
           {/* Unified Toolbar Card - Pure 2D Flat, Zero Border */}
           <div
-            className="mb-2"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '20px',
@@ -269,7 +268,7 @@ export default function PricingPage() {
       </section>
 
       {/* 2.5 V3.1 3-Card Trust Row (Above Table) */}
-      <section className="py-2">
+      <section className="py-2 mb-3">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="bms-pricing-trust-row">
             <div className="bms-pricing-trust-card">
@@ -317,144 +316,164 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 3. Independent Table Section (Pure 2D Flat Canvas Section - Zero Border) */}
-      <section className="bms-pricing-table-section py-2">
+      {/* 3. Spacious Floating-Row Pricing Table Section (No Clunky White Outer Box, No Harsh Thead Border) */}
+      <section className="bms-pricing-table-section py-2 mb-4">
         <Container style={{ maxWidth: '1400px' }}>
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: 'none',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              boxShadow: 'none'
-            }}
-          >
-            <div className="table-responsive">
-              <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
-                <thead style={{ backgroundColor: '#EEF4FD', borderBottom: '2px solid #D1E1FA' }}>
+          <div className="table-responsive">
+            <table
+              className="table table-borderless align-middle mb-0"
+              style={{
+                borderCollapse: 'separate',
+                borderSpacing: '0 8px',
+                fontSize: '13px'
+              }}
+            >
+              <thead>
+                <tr style={{ color: '#64748B', fontSize: '11.5px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  <th className="ps-4 pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Mã Dịch Vụ</th>
+                  <th className="pb-2" style={{ background: 'transparent', minWidth: '300px' }}>Tên Xét Nghiệm / Chỉ Số</th>
+                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Chuyên Khoa</th>
+                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Ống Mẫu</th>
+                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Thời Gian (TAT)</th>
+                  <th className="text-end pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Đơn Giá Niêm Yết</th>
+                  <th className="text-end pe-4 pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
                   <tr>
-                    <th className="ps-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Mã Dịch Vụ</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#EEF4FD' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Chuyên Khoa</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Ống Bệnh Phẩm</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Thời Gian (TAT)</th>
-                    <th className="text-end py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Đơn Giá Niêm Yết</th>
-                    <th className="text-end pe-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Thao Tác</th>
+                    <td colSpan={7} className="text-center py-5 text-muted" style={{ background: '#FFFFFF', borderRadius: '16px' }}>
+                      <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
+                      <span>Đang tải bảng giá niêm yết từ hệ thống phòng xét nghiệm BMS...</span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={7} className="text-center py-5 text-muted">
-                        <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
-                        <span>Đang tải bảng giá niêm yết từ hệ thống phòng xét nghiệm BMS...</span>
+                ) : filteredItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-5 text-muted" style={{ background: '#FFFFFF', borderRadius: '16px' }}>
+                      <div className="fw-semibold text-dark mb-1">Không tìm thấy xét nghiệm phù hợp</div>
+                      <div className="small text-muted">Vui lòng nhập từ khóa khác hoặc chọn Tất Cả Danh Mục.</div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredItems.map(item => (
+                    <tr
+                      key={item.id}
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        boxShadow: 'none'
+                      }}
+                    >
+                      <td
+                        className="ps-4 py-3.5"
+                        style={{
+                          borderTopLeftRadius: '14px',
+                          borderBottomLeftRadius: '14px',
+                          background: '#FFFFFF',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <span style={{
+                          fontFamily: 'var(--font-mono, monospace)',
+                          fontWeight: 700,
+                          fontSize: '11.5px',
+                          backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
+                          color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
+                          padding: '4px 10px',
+                          borderRadius: '6px'
+                        }}>
+                          {item.code}
+                        </span>
                       </td>
-                    </tr>
-                  ) : filteredItems.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="text-center py-5 text-muted">
-                        <div className="fw-semibold text-dark mb-1">Không tìm thấy xét nghiệm phù hợp</div>
-                        <div className="small text-muted">Vui lòng nhập từ khóa khác hoặc chọn Tất Cả Danh Mục.</div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredItems.map(item => (
-                      <tr key={item.id}>
-                        <td className="ps-4 py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <span style={{
-                            fontFamily: 'var(--font-mono, monospace)',
-                            fontWeight: 700,
-                            fontSize: '11.5px',
-                            backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
-                            color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
-                            padding: '3px 8px',
-                            borderRadius: '6px'
-                          }}>
-                            {item.code}
-                          </span>
-                        </td>
-                        <td className="py-3" style={{ minWidth: '280px' }}>
-                          <div className="fw-semibold" style={{ color: '#0F172A', fontSize: '13px', lineHeight: '1.4' }}>
-                            {item.name}
-                            {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
-                              <Badge className="ms-2" style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontWeight: 600, fontSize: '10.5px', border: 'none' }}>
-                                Gói ({item.criteriaCount} chỉ số)
-                              </Badge>
-                            )}
+                      <td className="py-3.5" style={{ background: '#FFFFFF', minWidth: '300px' }}>
+                        <div className="fw-semibold" style={{ color: '#0F172A', fontSize: '13.5px', lineHeight: '1.4' }}>
+                          {item.name}
+                          {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
+                            <Badge className="ms-2" style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontWeight: 600, fontSize: '10.5px', border: 'none' }}>
+                              Gói ({item.criteriaCount} chỉ số)
+                            </Badge>
+                          )}
+                        </div>
+                        {item.parentPackage && (
+                          <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
+                            Thuộc gói: {item.parentPackage}
                           </div>
-                          {item.parentPackage && (
-                            <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
-                              Thuộc gói: {item.parentPackage}
-                            </div>
-                          )}
-                          {item.unit && (
-                            <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
-                              Đơn vị: {item.unit}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <span style={{
-                            backgroundColor: '#F1F5F9',
-                            color: '#475569',
-                            fontSize: '11.5px',
-                            fontWeight: 600,
-                            padding: '3px 9px',
-                            borderRadius: '9999px'
-                          }}>
-                            {item.category || '-'}
-                          </span>
-                        </td>
-                        <td className="py-3" style={{ whiteSpace: 'nowrap' }}>
-                          {item.sampleTube ? (
-                            <div className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontSize: '12px' }}>
-                              <FaVial style={{ color: '#1E60E6', fontSize: '11px', marginRight: '4px' }} />
-                              <span>{item.sampleTube}</span>
-                            </div>
-                          ) : (
-                            <span style={{ color: '#94A3B8' }}>-</span>
-                          )}
-                        </td>
-                        <td className="py-3" style={{ whiteSpace: 'nowrap' }}>
-                          {item.tat ? (
-                            <div className="d-flex align-items-center gap-1.5 text-muted" style={{ fontSize: '12px' }}>
-                              <FaClock style={{ fontSize: '11px', marginRight: '4px' }} />
-                              <span>{item.tat}</span>
-                            </div>
-                          ) : (
-                            <span style={{ color: '#94A3B8' }}>-</span>
-                          )}
-                        </td>
-                        <td className="text-end py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
-                            {Number(item.price).toLocaleString('vi-VN')} ₫
-                          </span>
-                        </td>
-                        <td className="text-end pe-4 py-3" style={{ whiteSpace: 'nowrap' }}>
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
-                            style={{
-                              backgroundColor: '#10B981',
-                              color: '#FFFFFF',
-                              border: 'none',
-                              borderRadius: '9999px',
-                              padding: '6px 16px',
-                              fontSize: '12px',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              boxShadow: 'none'
-                            }}
-                          >
-                            Đặt Lịch
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </Table>
-            </div>
+                        )}
+                        {item.unit && (
+                          <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
+                            Đơn vị: {item.unit}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
+                        <span style={{
+                          backgroundColor: '#F1F5F9',
+                          color: '#475569',
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          padding: '4px 11px',
+                          borderRadius: '9999px'
+                        }}>
+                          {item.category || '-'}
+                        </span>
+                      </td>
+                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
+                        {item.sampleTube ? (
+                          <div className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontSize: '12px' }}>
+                            <FaVial style={{ color: '#1E60E6', fontSize: '11px', marginRight: '4px' }} />
+                            <span>{item.sampleTube}</span>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#94A3B8' }}>-</span>
+                        )}
+                      </td>
+                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
+                        {item.tat ? (
+                          <div className="d-flex align-items-center gap-1.5 text-muted" style={{ fontSize: '12px' }}>
+                            <FaClock style={{ fontSize: '11px', marginRight: '4px' }} />
+                            <span>{item.tat}</span>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#94A3B8' }}>-</span>
+                        )}
+                      </td>
+                      <td className="text-end py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontWeight: 750, fontSize: '14.5px', color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                          {Number(item.price).toLocaleString('vi-VN')} ₫
+                        </span>
+                      </td>
+                      <td
+                        className="text-end pe-4 py-3.5"
+                        style={{
+                          borderTopRightRadius: '14px',
+                          borderBottomRightRadius: '14px',
+                          background: '#FFFFFF',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
+                          style={{
+                            backgroundColor: '#10B981',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '9999px',
+                            padding: '7px 18px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: 'none',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                        >
+                          Đặt Lịch
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </Container>
       </section>

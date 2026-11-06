@@ -86,9 +86,9 @@ const ISO_METRICS = [
     accent: '#0284C7'
   },
   {
-    badge: 'THỜI GIAN TAT',
-    value: '60 – 90 Phút',
-    label: 'Cam kết thời gian trả kết quả thường quy có chữ ký số bác sĩ chuyên khoa.',
+    badge: 'KIỂM SOÁT SLA',
+    value: 'Giám Sát TAT',
+    label: 'Theo dõi tiến độ phân tích mẫu theo từng danh mục chỉ định và chữ ký số bác sĩ.',
     accent: '#7C3AED'
   }
 ];

@@ -87,7 +87,7 @@ export default function PatientHomePage({ user: propUser }) {
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
             <div className="bms-status-chip">
-              CỔNG Y TẾ BỆNH NHÂN — TIÊU CHUẨN ISO 15189
+              CỔNG Y TẾ BỆNH NHÂN — HỆ THỐNG BMS LAB
             </div>
 
             <h1 className="bms-hero-heading">
@@ -96,7 +96,7 @@ export default function PatientHomePage({ user: propUser }) {
             </h1>
 
             <p className="bms-hero-lead">
-              Hệ thống phòng Lab tự động hóa hoàn toàn với 80+ chỉ số huyết học và sinh hóa. Kết quả được thẩm định bởi Bác sĩ Chuyên khoa, trả trực tuyến có chữ ký số điện tử sau 60–90 phút.
+              Hệ thống BMS hỗ trợ quản lý toàn diện quy trình xét nghiệm: từ tiếp nhận chỉ định, định danh Barcode một chiều, phân tích tự động tại phòng Lab, kiểm soát nội kiểm QC đến thẩm duyệt y khoa bởi Bác sĩ chuyên khoa và tra cứu kết quả điện tử.
             </p>
 
             {/* Search Pill */}
@@ -122,20 +122,20 @@ export default function PatientHomePage({ user: propUser }) {
             {/* Metric Cards Quad */}
             <div className="bms-metric-quad">
               <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">500,000+</div>
-                <div className="bms-metric-label">Lượt xét nghiệm an toàn</div>
+                <div className="bms-metric-number" style={{ fontSize: '18px' }}>Mã Vạch 1D/2D</div>
+                <div className="bms-metric-label">Định danh duy nhất mẫu máu</div>
               </div>
               <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">99.98%</div>
-                <div className="bms-metric-label">Độ chính xác chuẩn QC</div>
+                <div className="bms-metric-number" style={{ fontSize: '18px' }}>Nội Kiểm QC</div>
+                <div className="bms-metric-label">Kiểm soát quy tắc Westgard</div>
               </div>
               <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">60 – 90</div>
-                <div className="bms-metric-label">Phút trả kết quả SLA</div>
+                <div className="bms-metric-number" style={{ fontSize: '18px' }}>Bác Sĩ Xác Nhận</div>
+                <div className="bms-metric-label">Thẩm định chuyên môn y khoa</div>
               </div>
               <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">100%</div>
-                <div className="bms-metric-label">Chuỗi lạnh IoT 2-6°C</div>
+                <div className="bms-metric-number" style={{ fontSize: '18px' }}>Chuỗi Lạnh IoT</div>
+                <div className="bms-metric-label">Giám sát nhiệt độ 2-6°C</div>
               </div>
             </div>
           </div>

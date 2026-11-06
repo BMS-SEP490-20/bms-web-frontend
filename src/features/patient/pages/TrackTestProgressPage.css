@@ -54,19 +54,21 @@
   margin-bottom: 0;
 }
 
-/* Search Box Container */
+/* Search Box Container - Compact, Centered, High Contrast */
 .bms-tracking-search-card {
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.04);
-  border-radius: 28px;
-  box-shadow: 0 8px 28px rgba(28, 39, 61, 0.07);
-  padding: 24px 28px;
-  margin-bottom: 32px;
-  transition: box-shadow 0.25s ease;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  padding: 8px 10px 8px 18px;
+  max-width: 680px;
+  margin: 0 auto 36px auto;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bms-tracking-search-card:focus-within {
-  box-shadow: 0 14px 40px rgba(28, 39, 61, 0.11);
+  border-color: #1E60E6;
+  box-shadow: 0 8px 28px rgba(30, 96, 230, 0.12);
 }
 
 .bms-search-input-group {
@@ -92,22 +94,15 @@
 
 .bms-search-input {
   width: 100%;
-  height: 50px;
-  padding: 10px 40px 10px 42px;
-  font-size: 14.5px;
+  height: 46px;
+  padding: 8px 40px 8px 44px;
+  font-size: 13.5px;
   font-family: inherit;
-  color: #1A1D21;
-  background-color: #EEF2F6;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  transition: all 0.2s ease;
-}
-
-.bms-search-input:focus {
+  color: #0F172A;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   outline: none;
-  background-color: #ffffff;
-  border-color: #1E60E6;
-  box-shadow: 0 0 0 3px rgba(100, 140, 244, 0.28);
 }
 
 .bms-search-clear-btn {
@@ -132,27 +127,27 @@
 }
 
 .bms-search-submit-btn {
-  height: 50px;
-  padding: 0 28px;
+  height: 46px;
+  padding: 0 24px;
   background-color: #1E60E6;
   color: #ffffff;
   border: none;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 650;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(100, 140, 244, 0.25);
+  box-shadow: 0 2px 8px rgba(30, 96, 230, 0.25);
   transition: all 0.2s ease;
 }
 
 .bms-search-submit-btn:hover:not(:disabled) {
   background-color: #1550C4;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(100, 140, 244, 0.35);
+  box-shadow: 0 4px 14px rgba(30, 96, 230, 0.35);
 }
 
 .bms-search-submit-btn:disabled {
@@ -272,32 +267,35 @@
   margin-bottom: 0;
 }
 
-/* 6-Stage Overview Strip */
+/* 6-Stage Overview Strip - Pure Medical Enterprise Surface */
 .bms-stages-overview {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 28px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  padding: 32px 36px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
 }
 
 .bms-stages-overview-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 750;
   color: #0f172a;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
 }
 
 .bms-stages-overview-subtitle {
   font-size: 13px;
   color: #64748b;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .bms-stages-pills-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 @media (max-width: 992px) {
@@ -313,41 +311,65 @@
 }
 
 .bms-stage-pill {
-  padding: 12px;
+  padding: 16px 12px;
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 14px;
   text-align: center;
+  transition: all 0.2s ease;
+}
+
+.bms-stage-pill:hover {
+  background-color: #eef4fd;
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
 }
 
 .bms-stage-pill-num {
   display: inline-block;
   font-size: 11px;
   font-weight: 700;
-  color: #1e40af;
+  color: #1e60e6;
   background-color: #eff6ff;
-  padding: 1px 6px;
-  border-radius: 4px;
-  margin-bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
 }
 
 .bms-stage-pill-name {
   font-size: 12.5px;
-  font-weight: 600;
-  color: #1e293b;
-  line-height: 1.3;
+  font-weight: 650;
+  color: #0f172a;
+  line-height: 1.35;
 }
 
 /* Security & Help Footer Box */
 .bms-trust-box {
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 20px;
+  background-color: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+
+.bms-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.bms-trust-item svg {
+  color: #1e60e6;
+  font-size: 15px;
+  flex-shrink: 0;
+}
   gap: 12px;
   font-size: 13px;
   color: #475569;

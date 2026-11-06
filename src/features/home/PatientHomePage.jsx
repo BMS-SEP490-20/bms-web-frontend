@@ -202,7 +202,7 @@ export default function PatientHomePage({ user: propUser }) {
 
           <div className="bms-steps-quad">
             <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums">01</div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>01</div>
               <h3 className="bms-step-h3">Đăng Ký Trực Tuyến</h3>
               <p className="bms-step-desc">
                 Chọn gói khám và thời gian thuận tiện. Lựa chọn lấy mẫu tại trung tâm BMS hoặc dịch vụ lấy mẫu tại nhà.
@@ -210,7 +210,7 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums">02</div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>02</div>
               <h3 className="bms-step-h3">Lấy Mẫu Vô Trùng</h3>
               <p className="bms-step-desc">
                 Điều dưỡng thực hiện lấy mẫu nhẹ nhàng, mã hóa Barcode một chiều và đưa ngay vào chuỗi lạnh bảo quản 2-6°C.
@@ -218,7 +218,7 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums">03</div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>03</div>
               <h3 className="bms-step-h3">Phân Tích Tự Động</h3>
               <p className="bms-step-desc">
                 Mẫu được chạy trên hệ thống máy phân tích tự động thế hệ mới, kiểm soát chất lượng nội kiểm Westgard.
@@ -226,7 +226,7 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
 
             <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums">04</div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>04</div>
               <h3 className="bms-step-h3">Nhận Kết Quả Ký Số</h3>
               <p className="bms-step-desc">
                 Bác sĩ Chuyên khoa thẩm định &amp; ký số. Xem trực tuyến và tải PDF có giá trị pháp lý toàn quốc.

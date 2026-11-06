@@ -328,11 +328,11 @@ export default function GuestHomePage() {
               </div>
             </div>
 
-            {/* Right Column: Big Animated Lab Scene (Waveform Drawing in Real-Time) */}
+            {/* Right Column: Narrative Lab Scene Artwork with Soft Ambient Glow */}
             <div className="bms-hero-art--big">
               <img
-                src="/assets/bms/svg/hero/home/hero-lab-composition.svg"
-                alt="BMS Automated Laboratory Workflow Scene"
+                src="/assets/bms/svg/hero/home/hero-lab-narrative-A.svg"
+                alt="BMS Clinical Laboratory Narrative Workflow Scene"
                 aria-hidden="true"
               />
             </div>

@@ -171,12 +171,28 @@ export default function TrackTestProgressPage() {
             <main className="bms-tracking-main">
                 <div className="container" style={{ maxWidth: 1240 }}>
                     
-                    {/* 1. CLEAN PAGE HEADER */}
-                    <PageHeader
-                        title="Tra Cứu Lộ Trình Mẫu Máu & Xét Nghiệm"
-                        lead="Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực."
-                        meta={["Tiêu chuẩn xét nghiệm ISO 15189:2022"]}
-                    />
+                    {/* 1. TOP SPOTLIGHT EXECUTIVE HEADER (Pure 2D Flat Card Container) */}
+                    <div
+                        className="mb-4"
+                        style={{
+                            background: '#FFFFFF',
+                            borderRadius: '24px',
+                            border: 'none',
+                            boxShadow: 'none',
+                            padding: '36px 40px'
+                        }}
+                    >
+                        <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
+                            <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                            <span>TIÊU CHUẨN XÉT NGHIỆM ISO 15189:2022 · TRA CỨU BẢO MẬT PII</span>
+                        </div>
+                        <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
+                            Tra Cứu Lộ Trình Mẫu Máu &amp; Xét Nghiệm
+                        </h1>
+                        <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
+                            Nhập mã phiếu hẹn hoặc mã vạch Barcode in trên phiếu tiếp nhận để theo dõi tiến trình xét nghiệm và thời gian trả kết quả theo thời gian thực.
+                        </p>
+                    </div>
 
                     {/* 2. MINIMALIST SEARCH CARD */}
                     <div className="bms-tracking-search-card">

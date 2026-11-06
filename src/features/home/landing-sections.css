@@ -92,10 +92,13 @@
 
 .bms-section-row-v3 {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
   align-items: center;
-  padding: 44px 52px;
+  max-width: 1140px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 48px 56px;
   border-radius: 24px;
   background: #FFFFFF;
   border: none !important;
@@ -112,8 +115,8 @@
 
 .bms-section-row-v3 img {
   width: 100%;
-  max-width: 420px;
-  max-height: 260px;
+  max-width: 400px;
+  max-height: 250px;
   object-fit: contain;
   justify-self: center;
   margin: 0 auto;

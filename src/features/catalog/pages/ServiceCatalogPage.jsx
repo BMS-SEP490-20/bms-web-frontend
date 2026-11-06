@@ -728,30 +728,32 @@ export default function ServiceCatalogPage() {
                     boxShadow: 'none',
                     transition: 'all 0.15s ease'
                   }}
-                  className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4"
+                  className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
                 >
-                  {/* Col 1: Category Icon + Title & Badges (Wide Column, Multi-Line Full Name, Refined Typography) */}
-                  <div style={{ flex: '0 0 480px', maxWidth: '540px', minWidth: 0 }}>
-                    <div className="d-flex align-items-center gap-3">
-                      {/* Clinical SVG Category Icon */}
+                  {/* Left Main Clinical Content (Spans Full Available Width, No Crowding) */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="d-flex align-items-start gap-3">
+                      {/* Clinical SVG Specialty Icon */}
                       <div
                         style={{
-                          width: '44px',
-                          height: '44px',
+                          width: '46px',
+                          height: '46px',
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           backgroundColor: '#F8FAFC',
-                          borderRadius: '12px'
+                          borderRadius: '12px',
+                          marginTop: '2px'
                         }}
                       >
                         <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
                       </div>
 
-                      {/* Title & Metadata */}
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div className="d-flex align-items-center gap-2 mb-1">
+                      {/* Content Stack: Badges -> Full Title -> Description -> Biomarkers */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        {/* Row 1: Badges */}
+                        <div className="d-flex flex-wrap align-items-center gap-2 mb-1.5">
                           <span
                             style={{
                               fontSize: '10.5px',
@@ -793,12 +795,42 @@ export default function ServiceCatalogPage() {
                               Phổ Biến
                             </span>
                           )}
+                          {pkg.sampleTube && (
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                color: '#64748B',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <FaVial style={{ color: '#1E60E6', fontSize: '10px' }} />
+                              {pkg.sampleTube} {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}
+                            </span>
+                          )}
+                          {pkg.tat && (
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                color: '#64748B',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <FaClock style={{ color: '#10B981', fontSize: '10px' }} />
+                              {pkg.tat}
+                            </span>
+                          )}
                         </div>
+
+                        {/* Row 2: Full Package Title (Full Horizontal Width, No Ellipsis Truncation) */}
                         <h3
-                          className="mb-0"
+                          className="mb-1.5"
                           style={{
-                            fontSize: '13.5px',
-                            fontWeight: 600,
+                            fontSize: '15px',
+                            fontWeight: 650,
                             color: '#0F172A',
                             letterSpacing: '-0.01em',
                             lineHeight: '1.4',
@@ -807,104 +839,90 @@ export default function ServiceCatalogPage() {
                         >
                           {pkg.packageName}
                         </h3>
-                        {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 && (
-                          <div className="text-muted mt-1" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
-                            Bao gồm <strong>{pkg.criteria.length}</strong> chỉ số xét nghiệm chuyên biệt
+
+                        {/* Row 3: Clinical Description */}
+                        <p
+                          className="mb-2 text-muted"
+                          style={{
+                            fontSize: '12.5px',
+                            lineHeight: '1.6',
+                            color: '#475569',
+                            maxWidth: '920px'
+                          }}
+                        >
+                          {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn ISO 15189.'}
+                        </p>
+
+                        {/* Row 4: Biomarkers / Tests Pills Preview */}
+                        {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
+                          <div className="d-flex flex-wrap align-items-center gap-1.5">
+                            <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, marginRight: '4px' }}>
+                              Chỉ số ({pkg.criteria.length}):
+                            </span>
+                            {pkg.criteria.slice(0, 8).map((c, i) => (
+                              <span
+                                key={i}
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 650,
+                                  color: '#334155',
+                                  backgroundColor: '#F1F5F9',
+                                  padding: '2px 7px',
+                                  borderRadius: '5px'
+                                }}
+                              >
+                                {c.code || c.name}
+                              </span>
+                            ))}
+                            {pkg.criteria.length > 8 && (
+                              <span
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  color: '#1E60E6',
+                                  backgroundColor: '#EFF6FF',
+                                  padding: '2px 7px',
+                                  borderRadius: '5px'
+                                }}
+                              >
+                                +{pkg.criteria.length - 8} chỉ số khác
+                              </span>
+                            )}
                           </div>
-                        )}
+                        ) : Array.isArray(pkg.testsIncluded) && pkg.testsIncluded.length > 0 ? (
+                          <div className="d-flex flex-wrap align-items-center gap-1.5">
+                            {pkg.testsIncluded.slice(0, 6).map((t, i) => (
+                              <span
+                                key={i}
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  color: '#334155',
+                                  backgroundColor: '#F1F5F9',
+                                  padding: '2px 7px',
+                                  borderRadius: '5px'
+                                }}
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>
 
-                  {/* Col 2: Clinical Description & Biomarkers Chips & Sample Spec */}
-                  <div style={{ flex: 1, minWidth: '280px' }}>
-                    <p
-                      className="mb-2.5 text-muted"
-                      style={{
-                        fontSize: '12.5px',
-                        lineHeight: '1.6',
-                        color: '#475569',
-                        maxWidth: '680px'
-                      }}
-                    >
-                      {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn ISO 15189.'}
-                    </p>
-
-                    {/* Biomarkers / Tests Pills Preview */}
-                    {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
-                      <div className="d-flex flex-wrap gap-1.5 mb-2">
-                        {pkg.criteria.slice(0, 6).map((c, i) => (
-                          <span
-                            key={i}
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: 650,
-                              color: '#334155',
-                              backgroundColor: '#F1F5F9',
-                              padding: '3px 8px',
-                              borderRadius: '6px'
-                            }}
-                          >
-                            {c.code || c.name}
-                          </span>
-                        ))}
-                        {pkg.criteria.length > 6 && (
-                          <span
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              color: '#1E60E6',
-                              backgroundColor: '#EFF6FF',
-                              padding: '3px 8px',
-                              borderRadius: '6px'
-                            }}
-                          >
-                            +{pkg.criteria.length - 6} chỉ số
-                          </span>
-                        )}
-                      </div>
-                    ) : Array.isArray(pkg.testsIncluded) && pkg.testsIncluded.length > 0 ? (
-                      <div className="d-flex flex-wrap gap-1.5 mb-2">
-                        {pkg.testsIncluded.slice(0, 5).map((t, i) => (
-                          <span
-                            key={i}
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              color: '#334155',
-                              backgroundColor: '#F1F5F9',
-                              padding: '3px 8px',
-                              borderRadius: '6px'
-                            }}
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {/* Specimen & TAT specs */}
-                    <div className="d-flex flex-wrap align-items-center gap-3" style={{ fontSize: '11.5px', color: '#64748B' }}>
-                      {pkg.sampleTube && (
-                        <div className="d-flex align-items-center gap-1.5">
-                          <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
-                          <span>Mẫu: <strong>{pkg.sampleTube}</strong> {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}</span>
-                        </div>
-                      )}
-                      {pkg.tat && (
-                        <div className="d-flex align-items-center gap-1.5">
-                          <FaClock style={{ color: '#10B981', fontSize: '11px' }} />
-                          <span>Thời gian: <strong>{pkg.tat}</strong></span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Col 3: Price & Actions */}
-                  <div className="d-flex flex-column align-items-lg-end justify-content-center gap-2 flex-shrink-0">
-                    <div>
-                      <div className="text-muted text-lg-end" style={{ fontSize: '11px', fontWeight: 550 }}>Đơn giá niêm yết:</div>
-                      <div className="fw-bold fs-4 text-lg-end tabular-nums" style={{ color: '#0F172A', lineHeight: '1.2' }}>
+                  {/* Right Commercial Block: Price & CTA Actions (Separated with clean vertical border) */}
+                  <div
+                    className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
+                    style={{
+                      borderLeft: '1px solid #F1F5F9',
+                      minWidth: '220px'
+                    }}
+                  >
+                    <div className="text-xl-end">
+                      <div className="text-muted" style={{ fontSize: '11px', fontWeight: 550 }}>Đơn giá niêm yết:</div>
+                      <div className="fw-bold tabular-nums" style={{ fontSize: '19px', color: '#0F172A', lineHeight: '1.2' }}>
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}
                       </div>
                     </div>
@@ -921,7 +939,8 @@ export default function ServiceCatalogPage() {
                           fontSize: '12px',
                           fontWeight: 650,
                           color: '#334155',
-                          boxShadow: 'none'
+                          boxShadow: 'none',
+                          cursor: 'pointer'
                         }}
                         onClick={() => handleOpenDetail(pkg)}
                       >
@@ -937,7 +956,8 @@ export default function ServiceCatalogPage() {
                           borderRadius: '9999px',
                           padding: '7px 22px',
                           fontSize: '12px',
-                          boxShadow: 'none'
+                          boxShadow: 'none',
+                          cursor: 'pointer'
                         }}
                         onClick={() => handleBook(pkg)}
                       >

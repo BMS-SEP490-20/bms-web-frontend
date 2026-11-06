@@ -263,39 +263,54 @@ export default function QualityControlManagementPage() {
     }, [ljData]);
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#f8fafc" }}>
-            {/* Header Ribbon */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <h2 className="h3 mb-0 fw-bold text-dark">Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đánh Giá Đa Quy Tắc Westgard</h2>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>KIỂM CHUẨN NỘI BỘ IQC · WESTGARD MULTIRULE (ISO 15189)</span>
                     </div>
-                    <p className="text-muted small mt-1 mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaMicroscope size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đa Quy Tắc Westgard
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Quản lý hồ sơ lô kiểm chuẩn (QC Lots), biểu đồ Levey-Jennings trực quan, tự động phát hiện lỗi ngẫu nhiên và hệ thống theo luật Westgard (1_2s, 1_3s, 2_2s, R_4s, 4_1s, 10_x) và khóa máy khi vi phạm.
                     </p>
                 </div>
 
-                <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+                <div className="bms-page-actions">
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                         onClick={() => setShowCreateLotModal(true)}
                         id="btn-create-qc-lot"
                     >
-                        <FaPlus /> Khởi tạo lô QC
+                        <FaPlus size={12} />
+                        <span>Khởi Tạo Lô QC</span>
                     </button>
                     <button
-                        className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-success btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
                         onClick={() => setShowRecordModal(true)}
                         id="btn-record-qc-run"
                     >
-                        <FaVial /> Nhập kết quả chạy QC
+                        <FaVial size={13} />
+                        <span>Nhập Kết Quả QC</span>
                     </button>
                     <button
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         onClick={loadLotsAndSummary}
                         disabled={isLoading}
                     >
-                        <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
+                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <span>Làm Mới</span>
                     </button>
                 </div>
             </div>
@@ -553,21 +568,24 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* TAB 2: QC LOTS MANAGEMENT */}
+            {/* TAB 2: QC LOTS MANAGEMENT (STANDALONE SECTION) */}
             {activeTab === "lots" && (
-                <div className="card border-0 shadow-sm rounded-3">
-                    <div className="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
-                        <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <FaVial className="text-primary" /> Danh Sách Lô Kiểm Chuẩn Đang Quản Lý
-                        </h5>
-                        <span className="badge bg-light text-muted border">
-                            {lots.length} lô kiểm chuẩn
-                        </span>
+                <div className="bms-table-standalone-section">
+                    <div className="bms-table-standalone-header">
+                        <div>
+                            <h5 className="bms-table-standalone-title">
+                                <FaVial style={{ color: '#1E60E6' }} />
+                                <span>Danh Sách Lô Kiểm Chuẩn Đang Quản Lý</span>
+                            </h5>
+                            <div className="bms-table-standalone-subtitle">
+                                {lots.length} lô kiểm chuẩn nội bộ IQC theo chuẩn CLSI C24-A3
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="card-body p-0">
+                    <div className="bms-table-standalone-body">
                         <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
+                            <table className="bms-dash-table">
                                 <thead className="table-light small text-muted text-uppercase">
                                     <tr>
                                         <th>Mã Lô / Tên Kiểm Chuẩn</th>
@@ -633,19 +651,22 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* TAB 3: QC FLAGS & AUDIT HISTORY */}
+            {/* TAB 3: QC FLAGS & AUDIT HISTORY (STANDALONE SECTION) */}
             {activeTab === "flags" && (
-                <div className="card border-0 shadow-sm rounded-3">
-                    <div className="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
-                        <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <FaExclamationTriangle className="text-danger" /> Nhật Ký Cảnh Báo Vi Phạm Westgard &amp; Khóa Máy
-                        </h5>
-                        <span className="badge bg-danger-subtle text-danger border">
-                            {flags.length} sự cố ghi nhận
-                        </span>
+                <div className="bms-table-standalone-section">
+                    <div className="bms-table-standalone-header">
+                        <div>
+                            <h5 className="bms-table-standalone-title">
+                                <FaExclamationTriangle style={{ color: '#ef4444' }} />
+                                <span>Nhật Ký Cảnh Báo Vi Phạm Westgard &amp; Khóa Máy</span>
+                            </h5>
+                            <div className="bms-table-standalone-subtitle">
+                                {flags.length} sự cố vi phạm Westgard ghi nhận theo chuẩn CLSI C24-A3
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="card-body p-0">
+                    <div className="bms-table-standalone-body">
                         {flags.length === 0 ? (
                             <div className="text-center py-5 text-muted">
                                 <FaCheckCircle className="fs-1 text-success mb-2" />
@@ -653,7 +674,7 @@ export default function QualityControlManagementPage() {
                             </div>
                         ) : (
                             <div className="table-responsive">
-                                <table className="table table-hover align-middle mb-0">
+                                <table className="bms-dash-table">
                                     <thead className="table-light small text-muted text-uppercase">
                                         <tr>
                                             <th>Mã Chạy / Thời Gian</th>

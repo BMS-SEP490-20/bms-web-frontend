@@ -8,6 +8,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+    FaShieldAlt,
+    FaCogs,
+    FaSave,
+    FaUndo,
+    FaThermometerHalf,
+    FaPlus,
+    FaBell
+} from 'react-icons/fa';
+import {
     fetchIotThresholdsSummary,
     batchUpdateIotThresholds,
     resetDefaultIotThresholds,
@@ -161,43 +170,47 @@ export default function ConfigureIotThresholdsPage() {
     const safeRecipients = useMemo(() => Array.isArray(recipients) ? recipients : [], [recipients]);
 
     return (
-        <div style={{ background: '#EEF2F6', minHeight: '100vh', padding: '24px 32px' }}>
-            {/* Thanh tiêu đề quản lý & Điều hướng */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-                <div>
-                    <div style={{ fontSize: '13px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <span style={{ cursor: 'pointer', color: '#1E60E6' }} onClick={() => navigate('/dashboard')}>Bảng điều khiển</span>
-                        <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                        <span style={{ cursor: 'pointer', color: '#1E60E6' }} onClick={() => navigate('/manager/iot')}>Giám sát IoT</span>
-                        <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                        <span style={{ color: '#0f172a', fontWeight: '600' }}>Cấu hình ngưỡng bảo quản</span>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>GIÁM SÁT THIẾT BỊ · CẤU HÌNH CẢM BIẾN IOT (ISO 15189)</span>
                     </div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>
-                        Cấu Hình Ngưỡng Cảm Biến Môi Trường IoT Tủ Trữ Mẫu
-                    </h1>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>
-                        Thiết lập giới hạn an toàn nhiệt độ, độ ẩm và tần suất đo telemetry cho thiết bị lưu trữ mẫu y tế (Chuẩn ISO 15189)
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaThermometerHalf size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Cấu Hình Ngưỡng Cảm Biến Môi Trường IoT Tủ Trữ Mẫu
+                        </h1>
                     </div>
+                    <p className="bms-page-subtitle">
+                        Thiết lập giới hạn an toàn nhiệt độ (2°C - 8°C), độ ẩm (30% - 60%) và tần suất đo telemetry cho thiết bị lưu trữ mẫu y tế và sinh phẩm.
+                    </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-secondary"
-                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}
+                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}
                         onClick={handleResetDefaults}
                         disabled={resetting}
                     >
-                        {resetting ? 'Đang khôi phục...' : 'Khôi phục chuẩn mặc định (2°C - 8°C)'}
+                        <FaUndo size={12} />
+                        <span>{resetting ? 'Đang khôi phục...' : 'Khôi Phục Chuẩn (2°C - 8°C)'}</span>
                     </button>
                     <button
                         type="button"
-                        className="btn text-white"
-                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 20px', borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 2px 10px rgba(30, 96, 230, 0.3)' }}
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-4 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         onClick={handleSaveAll}
                         disabled={saving}
                     >
-                        <i className="bi bi-save me-1"></i> {saving ? 'Đang lưu...' : 'Lưu tất cả ngưỡng'}
+                        <FaSave size={13} />
+                        <span>{saving ? 'Đang lưu...' : 'Lưu Tất Cả Ngưỡng'}</span>
                     </button>
                 </div>
             </div>
@@ -216,25 +229,29 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
 
-            {/* Thẻ 1: Bảng Cấu Hình Ngưỡng Thiết Bị Cảm Biến IoT */}
-            <div className="card shadow-sm mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
-                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1E60E6' }}>
-                        Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến
-                    </h3>
-                    <span className="badge px-3 py-1.5" style={{ fontSize: '12px', backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        {safeThresholds.length} thiết bị giám sát · Chuẩn ISO 15189
-                    </span>
+            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+            <div className="bms-table-standalone-section">
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h5 className="bms-table-standalone-title">
+                            <FaCogs style={{ color: '#1E60E6' }} />
+                            <span>Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến</span>
+                        </h5>
+                        <div className="bms-table-standalone-subtitle">
+                            {safeThresholds.length} thiết bị giám sát chuỗi lạnh Cold-Chain theo chuẩn ISO 15189
+                        </div>
+                    </div>
                 </div>
 
-                {loading ? (
-                    <div className="p-5 text-center text-muted">
-                        <div className="spinner-border text-primary" role="status"></div>
-                        <div className="mt-2" style={{ fontSize: '13px' }}>Đang nạp dữ liệu ngưỡng cảm biến IoT...</div>
-                    </div>
-                ) : (
-                    <div className="table-responsive">
-                        <table className="table align-middle mb-0" style={{ fontSize: '13px' }}>
+                <div className="bms-table-standalone-body">
+                    {loading ? (
+                        <div className="p-5 text-center text-muted">
+                            <div className="spinner-border text-primary" role="status"></div>
+                            <div className="mt-2" style={{ fontSize: '13px' }}>Đang nạp dữ liệu ngưỡng cảm biến IoT...</div>
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <table className="bms-dash-table">
                             <thead style={{ background: '#f8fafc', color: '#475569', fontSize: '12px' }}>
                                 <tr>
                                     <th style={{ paddingLeft: '20px' }}>Mã Thiết Bị (Device ID)</th>
@@ -310,6 +327,7 @@ export default function ConfigureIotThresholdsPage() {
                         </table>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Thẻ 2: Danh Sách Nhân Sự Nhận Cảnh Báo Khẩn Cấp (Escalation Chain) */}

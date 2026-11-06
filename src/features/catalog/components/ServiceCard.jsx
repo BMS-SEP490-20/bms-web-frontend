@@ -154,7 +154,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         </div>
       )}
 
-      {/* Clinical Laboratory Manifest (Precision Details Box) */}
+      {/* Clinical Laboratory Manifest (Precision Details Box - Real Data Only) */}
       <div
         style={{
           backgroundColor: '#F8FAFC',
@@ -165,42 +165,52 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
           boxShadow: 'none',
           display: 'flex',
           flexDirection: 'column',
-          gap: '11px',
+          gap: '12px',
           fontSize: '12px',
           lineHeight: '1.5'
         }}
       >
-        <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
-          <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
-            Mẫu bệnh phẩm
-          </span>
-          <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
-            {sampleTube || 'EDTA / Serum'}
-          </strong>
-        </div>
-
-        <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
-          <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <FaClock style={{ color: '#0284C7', fontSize: '11px' }} />
-            Trả kết quả (TAT)
-          </span>
-          <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
-            {tat || '60 – 90 Phút'}
-          </strong>
-        </div>
-
-        {fastRule && (
+        {sampleTube ? (
           <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
             <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+              Mẫu bệnh phẩm
+            </span>
+            <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
+              {sampleTube}
+            </strong>
+          </div>
+        ) : null}
+
+        {tat ? (
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
+            <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <FaClock style={{ color: '#0284C7', fontSize: '11px' }} />
+              Trả kết quả (TAT)
+            </span>
+            <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
+              {tat}
+            </strong>
+          </div>
+        ) : null}
+
+        {!sampleTube && !tat && (
+          <div style={{ color: '#94A3B8', fontSize: '11.5px', fontStyle: 'italic' }}>
+            Thông số lấy mẫu sẽ được cập nhật.
+          </div>
+        )}
+
+        {fastRule ? (
+          <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px', paddingTop: '4px' }}>
+            <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <FaExclamationCircle style={{ color: '#D97706', fontSize: '11px' }} />
-              Chuẩn bị
+              Lưu ý
             </span>
             <strong style={{ color: '#B45309', textAlign: 'right', fontWeight: 650 }}>
               {fastRule}
             </strong>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Price & Action Buttons - 100% 2D Flat */}

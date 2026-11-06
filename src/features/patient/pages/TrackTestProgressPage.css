@@ -365,27 +365,13 @@
   align-items: center;
   gap: 10px;
   font-size: 12.5px;
-  color: #64748b;
+  color: #64748B;
 }
 
 .bms-trust-item svg {
-  color: #1e60e6;
+  color: #1E60E6;
   font-size: 15px;
   flex-shrink: 0;
-}
-  gap: 12px;
-  font-size: 13px;
-  color: #475569;
-}
-
-.bms-trust-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bms-trust-item svg {
-  color: #0284c7;
 }
 
 /* Result View Layout */
@@ -583,20 +569,31 @@
 }
 
 
-/* Flat overrides: one calm surface system, no borders, no shadows */
-.bms-tracking-page { background-color: #F8FAFC; }
+/* Flat overrides: clean, modern medical card system with subtle border */
+.bms-tracking-page { background-color: #F8FAFC; min-height: 100vh; }
 .bms-tracking-search-card,
 .bms-result-meta-card,
 .bms-stages-overview,
-.bms-trust-box,
-.bms-stage-pill {
-  border: none !important;
+.bms-step-card-box {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: none !important;
   border-radius: 20px !important;
 }
-.bms-tracking-search-card { padding: 20px 24px; margin-bottom: 40px; }
-.bms-stages-overview { margin-top: 56px; padding: 32px 36px; background: #FFFFFF; }
-.bms-stage-pill { background: #F8FAFC; padding: 16px 18px; }
+.bms-tracking-search-card { padding: 20px 24px; margin-bottom: 28px; }
+.bms-stages-overview { margin-top: 40px; padding: 32px 36px; background: #FFFFFF; }
+.bms-stage-pill { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 16px 18px; }
 .bms-stage-pill-num { color: #1E60E6; font-weight: 700; }
-.bms-trust-box { margin-top: 24px; background: transparent; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 40px; color: #64748B; font-size: 12px; }
-.bms-trust-item svg { display: none !important; }
+.bms-trust-box {
+  margin-top: 24px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 16px;
+  padding: 18px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 36px;
+  color: #64748B;
+  font-size: 12.5px;
+}
+.bms-trust-item svg { display: inline-block !important; color: #1E60E6; }

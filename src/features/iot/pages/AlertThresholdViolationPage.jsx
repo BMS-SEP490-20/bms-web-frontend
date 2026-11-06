@@ -48,6 +48,7 @@ export default function AlertThresholdViolationPage() {
         systemHealthStatus: "NORMAL"
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [loadError, setLoadError] = useState(null);
 
     // Filter states
     const [selectedStatus, setSelectedStatus] = useState("All"); // All, Active, Acknowledged, Resolved
@@ -96,6 +97,7 @@ export default function AlertThresholdViolationPage() {
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
+        setLoadError(null);
         try {
             const [alertsList, summaryData] = await Promise.all([
                 fetchAlerts({
@@ -112,6 +114,7 @@ export default function AlertThresholdViolationPage() {
             }
         } catch (error) {
             console.error("Failed to load IoT alerts data:", error);
+            setLoadError(error.message || "Không thể tải dữ liệu cảnh báo IoT từ máy chủ.");
         } finally {
             setIsLoading(false);
         }
@@ -424,7 +427,14 @@ export default function AlertThresholdViolationPage() {
                 </div>
 
                 <div className="card-body p-0">
-                    {filteredAlerts.length === 0 ? (
+                    {loadError ? (
+                        <div className="text-center py-5 text-danger">
+                            <p className="mb-2 fw-semibold">{loadError}</p>
+                            <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={loadData}>
+                                Thử lại
+                            </button>
+                        </div>
+                    ) : filteredAlerts.length === 0 ? (
                         <div className="text-center py-5 text-muted">
                             <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
                             <p className="mb-0 fw-semibold">Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</p>

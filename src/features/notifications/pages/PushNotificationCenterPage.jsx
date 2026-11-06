@@ -64,6 +64,7 @@ export default function PushNotificationCenterPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(8);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadError, setLoadError] = useState(null);
 
     // Filters
     const [activeTab, setActiveTab] = useState("ALL"); // ALL, CRITICAL, PUSH, INAPP, FAILED
@@ -130,6 +131,7 @@ export default function PushNotificationCenterPage() {
     // Load audit logs
     const fetchLogs = useCallback(async () => {
         setIsLoading(true);
+        setLoadError(null);
         try {
             let priorityParam = priorityFilter;
             let channelParam = channelFilter;
@@ -149,10 +151,12 @@ export default function PushNotificationCenterPage() {
                 pageSize
             });
 
-            setLogs(result.items || []);
-            setTotalCount(result.totalCount || 0);
+            const items = Array.isArray(result) ? result : (result?.items ?? []);
+            setLogs(items);
+            setTotalCount(result?.totalItems ?? result?.totalCount ?? items.length);
         } catch (error) {
             console.error("Failed to load notification logs:", error);
+            setLoadError(error.message || "Không thể kết nối đến hệ thống máy chủ để tải thông báo.");
         } finally {
             setIsLoading(false);
         }
@@ -161,10 +165,12 @@ export default function PushNotificationCenterPage() {
     // Load user notifications for drawer
     const fetchUserNotifs = useCallback(async () => {
         try {
-            const list = await getUserNotifications(drawerUserId, { unreadOnly: drawerUnreadOnly });
-            setUserNotifications(list || []);
+            const raw = await getUserNotifications(drawerUserId, { unreadOnly: drawerUnreadOnly });
+            const list = Array.isArray(raw) ? raw : (raw?.items ?? []);
+            setUserNotifications(list);
         } catch (err) {
             console.error("Failed to fetch user notifications:", err);
+            setUserNotifications([]);
         }
     }, [drawerUserId, drawerUnreadOnly]);
 
@@ -734,6 +740,15 @@ export default function PushNotificationCenterPage() {
                                             <td colSpan="6" className="text-center py-4 text-muted">
                                                 <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                                                 Đang tải dữ liệu nhật ký...
+                                            </td>
+                                        </tr>
+                                    ) : loadError ? (
+                                        <tr>
+                                            <td colSpan="6" className="text-center py-4 text-danger">
+                                                <div className="mb-2 fw-semibold">{loadError}</div>
+                                                <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={fetchLogs}>
+                                                    Thử lại
+                                                </button>
                                             </td>
                                         </tr>
                                     ) : logs.length === 0 ? (

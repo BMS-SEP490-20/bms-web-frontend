@@ -9,20 +9,11 @@ import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { 
-  FaShieldAlt, 
-  FaVial, 
-  FaBarcode, 
-  FaMicroscope, 
-  FaChartLine, 
-  FaUserCheck, 
   FaClock, 
   FaCheckCircle, 
-  FaSnowflake,
-  FaFileMedicalAlt,
-  FaCalendarAlt,
-  FaSearch,
-  FaAward,
-  FaDatabase
+  FaCalendarAlt, 
+  FaSearch, 
+  FaAward
 } from 'react-icons/fa';
 import PortalNavbar from '../components/PortalNavbar';
 import MegaFooter from '../components/MegaFooter';
@@ -32,8 +23,8 @@ const ISO_PHASES = [
     step: '01',
     phase: 'TIỀN PHÂN TÍCH (PRE-ANALYTICAL)',
     title: 'Lấy Mẫu Chân Không Vô Trùng & Mã Hóa Barcode 1D/2D',
-    desc: 'Điều dưỡng sử dụng hệ thống kim lấy máu chân không khép kín (Vacuum Tube System), ngăn ngừa 100% nguy cơ vỡ hồng cầu và phơi nhiễm. Mẫu máu được in và dán nhãn Barcode Code 128 ngay tại giường/bàn lấy mẫu, gắn liền định danh bệnh nhân một chiều.',
-    standards: ['Hệ thống ống chân không có gel tách huyết thanh', 'Barcode Code 128 chuẩn y tế toàn cầu', 'Kiểm tra nhận diện 2 yếu tố (Họ tên, Năm sinh, Mã BN)'],
+    desc: 'Điều dưỡng sử dụng hệ thống kim lấy máu chân không khép kín (Vacuum Tube System), hạn chế tối đa nguy cơ vỡ hồng cầu (tan máu) và phơi nhiễm. Mẫu máu được in và dán nhãn Barcode Code 128 ngay tại giường/bàn lấy mẫu, gắn liền định danh bệnh nhân một chiều.',
+    standards: ['Hệ thống ống chân không có gel tách huyết thanh', 'Barcode Code 128 chuẩn y tế toàn cầu', 'Kiểm tra nhận diện 3 yếu tố (Họ tên, Năm sinh, Mã BN)'],
     tat: '10 – 15 phút'
   },
   {
@@ -74,7 +65,7 @@ const ISO_METRICS = [
   {
     badge: 'CHỨNG NHẬN QUỐC TẾ',
     value: 'ISO 15189:2022',
-    label: 'Văn phòng Công nhận Chất lượng (BoA) cấp mã hiệu VILAS Med 124 cho hệ thống BMS Lab.',
+    label: 'Được Văn phòng Công nhận Chất lượng (BoA) đánh giá định kỳ và cấp chứng chỉ đạt chuẩn ISO 15189:2022 cho hệ thống BMS Lab.',
     accent: '#1E60E6'
   },
   {
@@ -127,7 +118,7 @@ export default function IsoProcessPage() {
                   Toàn bộ quy trình xét nghiệm tại BMS Lab tuân thủ nghiêm ngặt tiêu chuẩn quốc tế ISO 15189:2022 và Quyết định 2429/QĐ-BYT. Đảm bảo 100% mẫu bệnh phẩm được mã hóa barcode một chiều, kiểm soát nhiệt độ chuỗi lạnh IoT 2-6°C và thẩm định đa tầng bởi Bác sĩ Chuyên khoa.
                 </p>
               </div>
-              <div className="d-flex gap-2.5 align-items-center flex-shrink-0">
+              <div className="d-flex gap-2 align-items-center flex-shrink-0">
                 <Link
                   to="/appointments/book"
                   className="btn"

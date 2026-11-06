@@ -245,18 +245,18 @@ export default function GuestHomePage() {
           <div className="bms-kit-hero">
             {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
             <div className="bms-hero-narrative">
-              <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-3">
-                <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                <span>HỆ THỐNG QUẢN LÝ PHÒNG XÉT NGHIỆM BMS · THEO DÕI VÒNG ĐỜI MẪU MÁU</span>
+              <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-2.5">
+                <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
+                <span>TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB</span>
               </div>
 
-              <h1 className="bms-hero-heading mb-3" style={{ fontSize: 'clamp(30px, 3.2vw, 42px)', fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.03em', color: '#0F172A' }}>
-                Quản Lý Quy Trình Xét Nghiệm Máu,<br />
-                <span style={{ color: '#1E60E6' }}>Chính Xác, Khép Kín &amp; Minh Bạch</span>
+              <h1 className="bms-hero-heading mb-2.5" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
+                Quản Lý Xét Nghiệm Máu<br />
+                <span style={{ color: '#1E60E6' }}>Chính Xác, Khép Kín &amp; Tin Cậy</span>
               </h1>
 
-              <p className="bms-hero-lead mb-4" style={{ fontSize: '14px', color: '#475569', lineHeight: '1.65', maxWidth: '560px' }}>
-                Hệ thống BMS hỗ trợ quản lý toàn diện vòng đời mẫu xét nghiệm: từ tiếp nhận chỉ định, định danh mã vạch Barcode một chiều, vận hành phòng phân tích LIS, kiểm soát chất lượng nội kiểm (QC) đến bác sĩ chuyên khoa thẩm duyệt kết quả và tra cứu hồ sơ điện tử.
+              <p className="bms-hero-lead mb-4" style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.65', maxWidth: '520px' }}>
+                Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích LIS, bác sĩ thẩm định và trả kết quả trực tuyến.
               </p>
 
               {/* Search Pill Capsule */}
@@ -561,7 +561,7 @@ export default function GuestHomePage() {
                   </ul>
                 </div>
                 <img
-                  src={sec.svg}
+                  src={`${sec.svg}?v=3.1.2`}
                   alt={sec.title}
                   aria-hidden="true"
                 />

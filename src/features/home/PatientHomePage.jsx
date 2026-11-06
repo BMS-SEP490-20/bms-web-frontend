@@ -87,16 +87,16 @@ export default function PatientHomePage({ user: propUser }) {
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
             <div className="bms-status-chip">
-              CỔNG Y TẾ BỆNH NHÂN — HỆ THỐNG BMS LAB
+              TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB
             </div>
 
-            <h1 className="bms-hero-heading">
-              Xét Nghiệm Máu Nhanh Chóng,<br />
-              <span className="bms-highlight-blue">Chính Xác &amp; Tin Cậy</span>
+            <h1 className="bms-hero-heading" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
+              Quản Lý Xét Nghiệm Máu<br />
+              <span className="bms-highlight-blue">Chính Xác, Khép Kín &amp; Tin Cậy</span>
             </h1>
 
-            <p className="bms-hero-lead">
-              Hệ thống BMS hỗ trợ quản lý toàn diện quy trình xét nghiệm: từ tiếp nhận chỉ định, định danh Barcode một chiều, phân tích tự động tại phòng Lab, kiểm soát nội kiểm QC đến thẩm duyệt y khoa bởi Bác sĩ chuyên khoa và tra cứu kết quả điện tử.
+            <p className="bms-hero-lead" style={{ fontSize: '13.5px', lineHeight: '1.65', maxWidth: '520px' }}>
+              Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích LIS, bác sĩ thẩm định và trả kết quả trực tuyến.
             </p>
 
             {/* Search Pill */}

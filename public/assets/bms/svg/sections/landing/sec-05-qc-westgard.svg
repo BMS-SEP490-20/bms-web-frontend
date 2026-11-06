@@ -1,12 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <g transform="translate(33 21) scale(1.6)">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <style>
+      @keyframes dashWestgard {
+        0% { stroke-dashoffset: 140; }
+        60% { stroke-dashoffset: 0; }
+        90% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: 140; }
+      }
+      @keyframes dashFlowQC {
+        to { stroke-dashoffset: -24px; }
+      }
+      @keyframes pulseDotQC {
+        0%, 100% { r: 3.5px; opacity: 1; }
+        50% { r: 6px; opacity: 0.45; }
+      }
+      .westgard-trend-line {
+        animation: dashWestgard 3.2s ease-in-out infinite;
+      }
+      .data-flow-qc {
+        animation: dashFlowQC 1.2s linear infinite;
+      }
+      .pulse-dot-qc {
+        animation: pulseDotQC 1.6s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(40 24) scale(1.6)">
     <path d="M13 12v71h73" fill="none" stroke="#475569" stroke-width="2"/>
     <path d="M17 25H84" fill="none" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 5"/>
     <path d="M17 44H84" fill="none" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 5"/>
     <path d="M17 63H84" fill="none" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 5"/>
+    
     <!-- Animated Westgard Trend Line -->
-    <path d="M18 52 29 43 40 48 51 31 62 39 73 28 84 36" fill="none" stroke="#1E60E6" stroke-width="2.5" stroke-dasharray="140" stroke-dashoffset="140">
-      <animate attributeName="stroke-dashoffset" values="140;0;0;140" dur="3s" repeatCount="indefinite"/>
+    <path d="M18 52 29 43 40 48 51 31 62 39 73 28 84 36" fill="none" stroke="#1E60E6" stroke-width="2.5" stroke-dasharray="140" stroke-dashoffset="140" class="westgard-trend-line">
+      <animate attributeName="stroke-dashoffset" values="140;0;0;140" dur="3.2s" repeatCount="indefinite"/>
     </path>
     <circle cx="18" cy="52" r="3" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
     <circle cx="29" cy="43" r="3" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
@@ -16,35 +44,34 @@
     <circle cx="73" cy="28" r="3" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
     <circle cx="84" cy="36" r="3" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
   </g>
-  <g transform="translate(214 83) scale(0.86)">
+
+  <g transform="translate(240 88) scale(0.95)">
     <path d="M35 21h26v53a13 13 0 0 1-26 0Z" fill="#FFFFFF" stroke="#475569" stroke-width="2"/>
-    <path d="M39 56h18v18a9 9 0 0 1-18 0Z" fill="#EF4444" stroke="none" stroke-width="2"/>
-    <rect x="32" y="11" width="32" height="15" rx="4" fill="#1E60E6" stroke="none" stroke-width="2"/>
+    <path d="M39 56h18v18a9 9 0 0 1-18 0Z" fill="#EF4444" stroke="none"/>
+    <rect x="32" y="11" width="32" height="15" rx="4" fill="#1E60E6" stroke="none"/>
     <path d="M35 26H61" fill="none" stroke="#1E60E6" stroke-width="2"/>
     <path d="M37 14L37 21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
     <path d="M42 14L42 21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
     <path d="M47 14L47 21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
     <path d="M52 14L52 21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
     <path d="M57 14L57 21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
-    <rect x="38" y="32" width="20" height="19" rx="2" fill="#F1F5F9" stroke="none" stroke-width="2"/>
-    <rect x="41" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="41.93" y="36" width="0.93" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="43.33" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="44.27" y="36" width="1.4" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="46.13" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="47.07" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="48.0" y="36" width="0.93" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="49.4" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="50.33" y="36" width="0.93" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="51.73" y="36" width="1.4" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <rect x="53.6" y="36" width="0.47" height="10" rx="0" fill="#0F172A" stroke="none" stroke-width="2"/>
-    <path d="M40 63L40 73" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="38" y="32" width="20" height="19" rx="2" fill="#F1F5F9" stroke="none"/>
+    <rect x="41" y="36" width="0.6" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="42.5" y="36" width="1.2" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="44.5" y="36" width="0.6" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="46" y="36" width="1.6" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="48.5" y="36" width="0.6" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="50" y="36" width="1.2" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="52" y="36" width="0.6" height="10" fill="#0F172A" stroke="none"/>
+    <rect x="53.5" y="36" width="1.4" height="10" fill="#0F172A" stroke="none"/>
+    <path d="M40 63L40 73" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.7"/>
   </g>
-  <path d="M201 79h42q17 0 17 17" fill="none" stroke="#1E60E6" stroke-width="1.5" stroke-dasharray="3 6">
-    <animate attributeName="stroke-dashoffset" values="0;-18" dur="1.2s" repeatCount="indefinite"/>
+
+  <path d="M216 88h36q18 0 18 18" fill="none" stroke="#1E60E6" stroke-width="2.5" stroke-dasharray="6 6" class="data-flow-qc">
+    <animate attributeName="stroke-dashoffset" values="0;-24" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <circle cx="201" cy="79" r="4" fill="#10B981" stroke="none">
-    <animate attributeName="r" values="3;5.5;3" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/>
+  <circle cx="216" cy="88" r="4.5" fill="#10B981" class="pulse-dot-qc">
+    <animate attributeName="r" values="3.5;6;3.5" dur="1.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.4;1" dur="1.6s" repeatCount="indefinite"/>
   </circle>
 </svg>

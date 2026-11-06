@@ -6,9 +6,9 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Table, Spinner, Badge, Button, Form } from 'react-bootstrap';
+import { Container, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaVial, FaClock, FaCheckCircle, FaShieldAlt, FaPrint, FaCalendarAlt } from 'react-icons/fa';
+import { FaSearch, FaVial, FaClock, FaCheckCircle, FaShieldAlt, FaPrint, FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
@@ -320,165 +320,127 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 3. Spacious Floating-Row Pricing Table Section (No Clunky White Outer Box, No Harsh Thead Border) */}
-      <section className="bms-pricing-table-section py-2 mb-5">
+      {/* 3. Slim Elegant Service List (No Table, No Thead) */}
+      <section className="bms-pricing-list-section py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
-          <div className="table-responsive">
-            <table
-              className="table table-borderless align-middle mb-0"
-              style={{
-                borderCollapse: 'separate',
-                borderSpacing: '0 8px',
-                fontSize: '13px'
-              }}
-            >
-              <thead>
-                <tr style={{ color: '#64748B', fontSize: '11.5px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                  <th className="ps-4 pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Mã Dịch Vụ</th>
-                  <th className="pb-2" style={{ background: 'transparent', minWidth: '300px' }}>Tên Xét Nghiệm / Chỉ Số</th>
-                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Chuyên Khoa</th>
-                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Ống Mẫu</th>
-                  <th className="pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Thời Gian (TAT)</th>
-                  <th className="text-end pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Đơn Giá Niêm Yết</th>
-                  <th className="text-end pe-4 pb-2" style={{ background: 'transparent', whiteSpace: 'nowrap' }}>Thao Tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-5 text-muted" style={{ background: '#FFFFFF', borderRadius: '16px' }}>
-                      <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
-                      <span>Đang tải bảng giá niêm yết từ hệ thống phòng xét nghiệm BMS...</span>
-                    </td>
-                  </tr>
-                ) : filteredItems.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-5 text-muted" style={{ background: '#FFFFFF', borderRadius: '16px' }}>
-                      <div className="fw-semibold text-dark mb-1">Không tìm thấy xét nghiệm phù hợp</div>
-                      <div className="small text-muted">Vui lòng nhập từ khóa khác hoặc chọn Tất Cả Danh Mục.</div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredItems.map(item => (
-                    <tr
-                      key={item.id}
+          {loading ? (
+            <div className="text-center py-5 bg-white rounded-4 border" style={{ borderColor: 'rgba(226, 232, 240, 0.85)' }}>
+              <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
+              <span className="text-muted">Đang tải bảng giá niêm yết từ hệ thống phòng xét nghiệm BMS...</span>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="text-center py-5 bg-white rounded-4 border" style={{ borderColor: 'rgba(226, 232, 240, 0.85)' }}>
+              <div className="fw-semibold text-dark mb-1">Không tìm thấy xét nghiệm phù hợp</div>
+              <div className="small text-muted">Vui lòng nhập từ khóa khác hoặc chọn Tất Cả Danh Mục.</div>
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-2">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="bms-pricing-list-item d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
+                >
+                  {/* Left: Code + Name + Details Meta */}
+                  <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                    <span
                       style={{
-                        backgroundColor: '#FFFFFF',
-                        boxShadow: 'none'
+                        fontFamily: 'var(--font-mono, monospace)',
+                        fontWeight: 700,
+                        fontSize: '12px',
+                        backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
+                        color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
+                        padding: '6px 14px',
+                        borderRadius: '9999px',
+                        letterSpacing: '0.02em',
+                        flexShrink: 0
                       }}
                     >
-                      <td
-                        className="ps-4 py-3.5"
-                        style={{
-                          borderTopLeftRadius: '14px',
-                          borderBottomLeftRadius: '14px',
-                          background: '#FFFFFF',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        <span style={{
-                          fontFamily: 'var(--font-mono, monospace)',
-                          fontWeight: 700,
-                          fontSize: '11.5px',
-                          backgroundColor: item.type === 'PACKAGE' ? '#EEF4FD' : '#F1F5F9',
-                          color: item.type === 'PACKAGE' ? '#1E60E6' : '#475569',
-                          padding: '4px 10px',
-                          borderRadius: '6px'
-                        }}>
-                          {item.code}
-                        </span>
-                      </td>
-                      <td className="py-3.5" style={{ background: '#FFFFFF', minWidth: '300px' }}>
-                        <div className="fw-semibold" style={{ color: '#0F172A', fontSize: '13.5px', lineHeight: '1.4' }}>
+                      {item.code}
+                    </span>
+
+                    <div className="min-w-0">
+                      <div className="d-flex flex-wrap align-items-center gap-2">
+                        <span className="fw-bold text-dark" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
                           {item.name}
-                          {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
-                            <Badge className="ms-2" style={{ backgroundColor: '#EEF4FD', color: '#1E60E6', fontWeight: 600, fontSize: '10.5px', border: 'none' }}>
-                              Gói ({item.criteriaCount} chỉ số)
-                            </Badge>
-                          )}
-                        </div>
-                        {item.parentPackage && (
-                          <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
-                            Thuộc gói: {item.parentPackage}
-                          </div>
+                        </span>
+                        {item.type === 'PACKAGE' && item.criteriaCount > 0 && (
+                          <Badge
+                            style={{
+                              backgroundColor: '#EEF4FD',
+                              color: '#1E60E6',
+                              fontWeight: 600,
+                              fontSize: '11px',
+                              padding: '4px 10px',
+                              borderRadius: '9999px',
+                              border: 'none'
+                            }}
+                          >
+                            Gói {item.criteriaCount} chỉ số
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="d-flex flex-wrap align-items-center gap-3 mt-1 small text-muted" style={{ fontSize: '12.5px' }}>
+                        {item.category && (
+                          <span className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontWeight: 550 }}>
+                            <span className="p-1 rounded-circle bg-primary" style={{ width: 5, height: 5 }}></span>
+                            {item.category}
+                          </span>
+                        )}
+                        {item.sampleTube && (
+                          <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
+                            <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+                            <span>{item.sampleTube}</span>
+                          </span>
+                        )}
+                        {item.tat && (
+                          <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
+                            <FaClock style={{ color: '#94A3B8', fontSize: '11px' }} />
+                            <span>{item.tat}</span>
+                          </span>
                         )}
                         {item.unit && (
-                          <div className="text-muted" style={{ fontSize: '11.5px', marginTop: '2px' }}>
+                          <span style={{ color: '#94A3B8' }}>
                             Đơn vị: {item.unit}
-                          </div>
+                          </span>
                         )}
-                      </td>
-                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
-                        <span style={{
-                          backgroundColor: '#F1F5F9',
-                          color: '#475569',
-                          fontSize: '11.5px',
-                          fontWeight: 600,
-                          padding: '4px 11px',
-                          borderRadius: '9999px'
-                        }}>
-                          {item.category || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
-                        {item.sampleTube ? (
-                          <div className="d-flex align-items-center gap-1.5" style={{ color: '#475569', fontSize: '12px' }}>
-                            <FaVial style={{ color: '#1E60E6', fontSize: '11px', marginRight: '4px' }} />
-                            <span>{item.sampleTube}</span>
-                          </div>
-                        ) : (
-                          <span style={{ color: '#94A3B8' }}>-</span>
-                        )}
-                      </td>
-                      <td className="py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
-                        {item.tat ? (
-                          <div className="d-flex align-items-center gap-1.5 text-muted" style={{ fontSize: '12px' }}>
-                            <FaClock style={{ fontSize: '11px', marginRight: '4px' }} />
-                            <span>{item.tat}</span>
-                          </div>
-                        ) : (
-                          <span style={{ color: '#94A3B8' }}>-</span>
-                        )}
-                      </td>
-                      <td className="text-end py-3.5" style={{ background: '#FFFFFF', whiteSpace: 'nowrap' }}>
-                        <span style={{ fontWeight: 750, fontSize: '14.5px', color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
-                          {Number(item.price).toLocaleString('vi-VN')} ₫
-                        </span>
-                      </td>
-                      <td
-                        className="text-end pe-4 py-3.5"
-                        style={{
-                          borderTopRightRadius: '14px',
-                          borderBottomRightRadius: '14px',
-                          background: '#FFFFFF',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
-                          style={{
-                            backgroundColor: '#10B981',
-                            color: '#FFFFFF',
-                            border: 'none',
-                            borderRadius: '9999px',
-                            padding: '7px 18px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            boxShadow: 'none',
-                            transition: 'background-color 0.15s ease'
-                          }}
-                        >
-                          Đặt Lịch
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Price + Book CTA */}
+                  <div className="d-flex align-items-center justify-content-between justify-content-md-end gap-3 flex-shrink-0 pt-2 pt-md-0 border-top border-md-0" style={{ minWidth: '240px' }}>
+                    <div className="text-md-end">
+                      <div className="fw-bold font-monospace" style={{ fontSize: '16.5px', color: '#0F172A', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                        {Number(item.price).toLocaleString('vi-VN')} ₫
+                      </div>
+                      <div className="text-muted" style={{ fontSize: '11px' }}>
+                        Đã gồm VAT &amp; vật tư
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
+                      className="btn text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
+                      style={{
+                        backgroundColor: '#1E60E6',
+                        borderColor: '#1E60E6',
+                        borderRadius: '9999px',
+                        padding: '8px 22px',
+                        fontSize: '13px',
+                        boxShadow: '0 4px 12px rgba(30, 96, 230, 0.22)',
+                        transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <span>Đặt Lịch</span>
+                      <FaArrowRight size={11} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Container>
       </section>
 

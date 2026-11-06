@@ -240,7 +240,7 @@ export default function GuestHomePage() {
       <PortalNavbar user={null} />
 
       {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
-      <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px' }}>
+      <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px', marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
             {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
@@ -325,7 +325,7 @@ export default function GuestHomePage() {
       </section>
 
       {/* 2. Clinical Workflow Section (4 Soft Steps with 120px Vignettes) */}
-      <section className="bms-section-wrap py-5" id="quy-trinh">
+      <section className="bms-section-wrap py-5" id="quy-trinh" style={{ marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
@@ -410,7 +410,7 @@ export default function GuestHomePage() {
       </section>
 
       {/* 3. Service Packages Catalog (Spacious Horizontal Service Strips - No Cramped Cards) */}
-      <section className="bms-section-wrap py-5">
+      <section className="bms-section-wrap py-5" style={{ marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -435,46 +435,71 @@ export default function GuestHomePage() {
                 }}
                 className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3.5"
               >
-                {/* Left: Category Badge & Code & Title (Spacious, Single Line, No Line Break) */}
-                <div style={{ flex: '0 0 420px', maxWidth: '460px' }}>
-                  <div className="d-flex align-items-center gap-2 mb-2">
-                    <span
+                {/* Left: Category Icon + Badges + Title (Spacious, Single Line, No Clumsy Line Break) */}
+                <div style={{ flex: '0 0 460px', maxWidth: '500px', minWidth: 0 }}>
+                  <div className="d-flex align-items-center gap-3">
+                    <div
                       style={{
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#1E60E6',
-                        backgroundColor: '#EFF6FF',
-                        padding: '3px 10px',
-                        borderRadius: '9999px'
+                        width: '44px',
+                        height: '44px',
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#F8FAFC',
+                        borderRadius: '12px'
                       }}
                     >
-                      {pkg.category || 'Huyết học'}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono, monospace)',
-                        fontSize: '11.5px',
-                        fontWeight: 600,
-                        color: '#475569',
-                        backgroundColor: '#F1F5F9',
-                        padding: '2px 8px',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      {pkg.packageCode || pkg.id || 'BMS'}
-                    </span>
+                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 700,
+                            color: '#1E60E6',
+                            backgroundColor: '#EFF6FF',
+                            padding: '2px 9px',
+                            borderRadius: '9999px',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {pkg.category || 'Huyết học'}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-mono, monospace)',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            color: '#475569',
+                            backgroundColor: '#F1F5F9',
+                            padding: '1px 7px',
+                            borderRadius: '6px',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {pkg.packageCode || pkg.id || 'BMS'}
+                        </span>
+                      </div>
+                      <h3
+                        className="mb-0"
+                        title={pkg.packageName}
+                        style={{
+                          fontSize: '15px',
+                          fontWeight: 650,
+                          color: '#0F172A',
+                          letterSpacing: '-0.015em',
+                          lineHeight: '1.35',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {pkg.packageName}
+                      </h3>
+                    </div>
                   </div>
-                  <h3
-                    className="fw-bold mb-0"
-                    style={{
-                      fontSize: '16.5px',
-                      color: '#0F172A',
-                      letterSpacing: '-0.02em',
-                      lineHeight: '1.35'
-                    }}
-                  >
-                    {pkg.packageName}
-                  </h3>
                 </div>
 
                 {/* Middle: Clinical Scope & Description (Airy, Readable) */}
@@ -537,7 +562,7 @@ export default function GuestHomePage() {
       </section>
 
       {/* 4. Complete V3.1 Clinical Narrative Sections (14 Expanded Vignettes) */}
-      <section className="bms-section-wrap py-4">
+      <section className="bms-section-wrap py-5" style={{ marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">TIÊU CHUẨN LÂM SÀNG TOÀN DIỆN</div>

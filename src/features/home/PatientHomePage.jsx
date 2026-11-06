@@ -11,9 +11,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
+import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
+import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 
 export default function PatientHomePage({ user: propUser }) {
   const [user] = useState(() => {
@@ -82,7 +85,7 @@ export default function PatientHomePage({ user: propUser }) {
       <PortalNavbar user={user} />
 
       {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
-      <section className="bms-hero-container-wrap">
+      <section className="bms-hero-container-wrap" style={{ marginBottom: '56px' }}>
         <div className="bms-hero-grid">
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
@@ -190,7 +193,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 2. Clinical Workflow Section (4 Soft Steps) */}
-      <section className="bms-section-wrap" id="quy-trinh">
+      <section className="bms-section-wrap" id="quy-trinh" style={{ marginBottom: '56px' }}>
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
@@ -243,7 +246,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 3. Service Packages Catalog */}
-      <section className="bms-section-wrap">
+      <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -253,25 +256,131 @@ export default function PatientHomePage({ user: propUser }) {
             </p>
           </div>
 
-          <div className="bms-packages-quad">
+          <div className="d-flex flex-column gap-3 mb-4">
             {packages.map((pkg, idx) => (
-              <div key={pkg.id || idx} className={`bms-package-soft-card ${idx === 0 ? 'promoted' : ''}`}>
-                <div className="bms-package-category-chip">{pkg.category || 'Huyết học'}</div>
-                <h3 className="bms-pkg-title">{pkg.packageName}</h3>
-                <p className="bms-pkg-desc">{pkg.description || 'Xét nghiệm đạt chuẩn y tế ISO 15189.'}</p>
-                <div className="bms-pkg-price-row">
-                  <span className="bms-price-number tabular-nums">
-                    {new Intl.NumberFormat('vi-VN').format(pkg.price || 0)}
-                  </span>
-                  <span className="bms-price-currency">VNĐ</span>
+              <div
+                key={pkg.id || idx}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '16px',
+                  padding: '22px 28px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  transition: 'background-color 0.15s ease'
+                }}
+                className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3.5"
+              >
+                {/* Left: Category Icon + Badges + Title */}
+                <div style={{ flex: '0 0 460px', maxWidth: '500px', minWidth: 0 }}>
+                  <div className="d-flex align-items-center gap-3">
+                    <div
+                      style={{
+                        width: '44px',
+                        height: '44px',
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#F8FAFC',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 700,
+                            color: '#1E60E6',
+                            backgroundColor: '#EFF6FF',
+                            padding: '2px 9px',
+                            borderRadius: '9999px',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {pkg.category || 'Huyết học'}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-mono, monospace)',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            color: '#475569',
+                            backgroundColor: '#F1F5F9',
+                            padding: '1px 7px',
+                            borderRadius: '6px',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {pkg.packageCode || pkg.id || 'BMS'}
+                        </span>
+                      </div>
+                      <h3
+                        className="mb-0"
+                        title={pkg.packageName}
+                        style={{
+                          fontSize: '15px',
+                          fontWeight: 650,
+                          color: '#0F172A',
+                          letterSpacing: '-0.015em',
+                          lineHeight: '1.35',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {pkg.packageName}
+                      </h3>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="bms-btn-mint-cta w-100 mt-auto"
-                  onClick={() => handleBookClick(pkg)}
-                >
-                  Đặt Lịch Xét Nghiệm
-                </button>
+
+                {/* Middle: Clinical Description */}
+                <div style={{ flex: 1, minWidth: '260px' }}>
+                  <p
+                    className="mb-0 text-muted"
+                    style={{
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      color: '#475569',
+                      maxWidth: '560px'
+                    }}
+                  >
+                    {pkg.description || 'Chỉ định lâm sàng theo dõi các chỉ số sinh hóa và huyết học chuyên sâu.'}
+                  </p>
+                </div>
+
+                {/* Right: Price & CTA Action Button Side by Side */}
+                <div className="d-flex align-items-center justify-content-lg-end gap-3 flex-shrink-0">
+                  <div className="text-lg-end pe-2">
+                    <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 550 }}>Đơn giá niêm yết:</div>
+                    <div className="fw-bold tabular-nums" style={{ fontSize: '18px', color: '#0F172A', lineHeight: '1.2' }}>
+                      {new Intl.NumberFormat('vi-VN').format(pkg.price || 0)} <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>VNĐ</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: '#10B981',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '9999px',
+                      padding: '9px 24px',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      boxShadow: 'none',
+                      transition: 'background-color 0.15s ease'
+                    }}
+                    onClick={() => handleBookClick(pkg)}
+                  >
+                    Đặt Lịch Xét Nghiệm
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -288,7 +397,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 4. Quality & Trust Pillars */}
-      <section className="bms-section-wrap">
+      <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">TIÊU CHUẨN QUỐC TẾ</div>

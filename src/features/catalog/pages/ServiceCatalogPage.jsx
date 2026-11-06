@@ -732,28 +732,27 @@ export default function ServiceCatalogPage() {
                 >
                   {/* Left Main Clinical Content (Spans Full Available Width, No Crowding) */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="d-flex align-items-start gap-3">
-                      {/* Clinical SVG Specialty Icon */}
+                    <div className="d-flex align-items-center gap-3.5">
+                      {/* Clinical SVG Specialty Icon (Centered Vertically, Big, No Background) */}
                       <div
                         style={{
-                          width: '46px',
-                          height: '46px',
+                          width: '56px',
+                          height: '56px',
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          backgroundColor: '#F8FAFC',
-                          borderRadius: '12px',
-                          marginTop: '2px'
+                          alignSelf: 'center',
+                          backgroundColor: 'transparent'
                         }}
                       >
-                        <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
+                        <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={52} />
                       </div>
 
                       {/* Content Stack: Badges -> Full Title -> Description -> Biomarkers */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         {/* Row 1: Badges */}
-                        <div className="d-flex flex-wrap align-items-center gap-2 mb-1.5">
+                        <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
                           <span
                             style={{
                               fontSize: '10.5px',
@@ -793,34 +792,6 @@ export default function ServiceCatalogPage() {
                               }}
                             >
                               Phổ Biến
-                            </span>
-                          )}
-                          {pkg.sampleTube && (
-                            <span
-                              style={{
-                                fontSize: '11px',
-                                color: '#64748B',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}
-                            >
-                              <FaVial style={{ color: '#1E60E6', fontSize: '10px' }} />
-                              {pkg.sampleTube} {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}
-                            </span>
-                          )}
-                          {pkg.tat && (
-                            <span
-                              style={{
-                                fontSize: '11px',
-                                color: '#64748B',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}
-                            >
-                              <FaClock style={{ color: '#10B981', fontSize: '10px' }} />
-                              {pkg.tat}
                             </span>
                           )}
                         </div>
@@ -908,6 +879,46 @@ export default function ServiceCatalogPage() {
                             ))}
                           </div>
                         ) : null}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Middle Dedicated Column: Specimen Standards & TAT SLA */}
+                  <div
+                    className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
+                    style={{
+                      borderLeft: '1px solid #F1F5F9',
+                      minWidth: '220px',
+                      maxWidth: '260px'
+                    }}
+                  >
+                    <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                      Tiêu Chuẩn Lấy Mẫu &amp; SLA
+                    </div>
+
+                    {/* Tube Specimen */}
+                    <div className="d-flex align-items-center gap-2.5 mb-2">
+                      <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <FaVial style={{ color: '#1E60E6', fontSize: '12px' }} />
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Ống lấy mẫu</div>
+                        <div style={{ fontSize: '12px', fontWeight: 650, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {pkg.sampleTube || 'Serum-Đỏ/Vàng'} {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* TAT SLA */}
+                    <div className="d-flex align-items-center gap-2.5">
+                      <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Thời gian trả kết quả</div>
+                        <div style={{ fontSize: '12px', fontWeight: 650, color: '#0F172A', whiteSpace: 'nowrap' }}>
+                          {pkg.tat || '60 – 90 phút'}
+                        </div>
                       </div>
                     </div>
                   </div>

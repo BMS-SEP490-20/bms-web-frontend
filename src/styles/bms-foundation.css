@@ -203,15 +203,6 @@ textarea.form-control { height: auto !important; }
 .page-item.active .page-link { background: #1E60E6 !important; color: #FFF !important; }
 .progress { box-shadow: none !important; background: #F1F5F9 !important; }
 
-/* ---- Icons: removed from decorative contexts (buttons keep theirs) ---- */
-h1 svg, h2 svg, h3 svg, h4 svg, h5 svg, h6 svg,
-.card-header svg, thead svg, label svg, .form-label svg,
-.badge svg, .alert svg,
-h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
-.card-header .bi, thead .bi, .badge .bi, .alert .bi {
-  display: none !important;
-}
-
 /* ---- Shared page primitives (used by PageHeader, StatRow, Field) ---- */
 .bms-page { max-width: 1400px; margin: 0 auto; padding: 32px 32px 56px; }
 .bms-page-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 32px; }
@@ -256,8 +247,4 @@ h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
   .bms-statrow { gap: 20px 36px; }
 }
 
-/* ---- KPI icon tiles: remove decorative icon boxes next to numbers ---- */
-div[class*="rounded"][class*="p-"]:has(> svg:only-child),
-div[class*="rounded"][class*="p-"]:has(> i.bi:only-child) {
-  display: none !important;
-}
+

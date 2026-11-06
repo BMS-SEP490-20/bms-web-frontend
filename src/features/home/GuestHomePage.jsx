@@ -261,12 +261,12 @@ export default function GuestHomePage() {
                   alt="Chính Xác, Khép Kín &amp; Tin Cậy"
                   style={{
                     display: 'block',
-                    height: '68px',
+                    height: '100px',
                     width: 'auto',
                     maxWidth: '100%',
                     objectFit: 'contain',
-                    marginTop: '16px',
-                    marginBottom: '16px'
+                    marginTop: '6px',
+                    marginBottom: '8px'
                   }}
                 />
               </h1>

@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchServiceCatalog } from '../catalog/api/catalogApi';
+import { searchTestPackages } from '../catalog/api/catalogApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
@@ -88,14 +88,14 @@ const LANDING_SECTIONS = [
     ]
   },
   {
-    num: '07 / CAM KẾT THỜI GIAN',
-    title: 'Cam Kết Thời Gian SLA 60 – 90 Phút',
-    desc: 'Tối ưu hóa quy trình phân tích, gửi SMS thông báo ngay khi bác sĩ ký duyệt.',
+    num: '07 / KIỂM SOÁT TIẾN ĐỘ',
+    title: 'Kiểm Soát Thời Gian Trả KQ (SLA)',
+    desc: 'Giám sát tiến trình phân tích theo thời gian thực, thông báo ngay khi bác sĩ hoàn tất thẩm duyệt.',
     svg: '/assets/bms/svg/sections/landing/sec-07-tat-sla.svg',
     bullets: [
-      'Đồng hồ đếm ngược SLA thời gian thực',
-      'SMS thông báo kết quả tức thì',
-      'Hỗ trợ tư vấn kết quả cùng bác sĩ'
+      'Theo dõi lộ trình xử lý mẫu theo thời gian thực',
+      'Cảnh báo trễ hạn phân tích mẫu tại phòng Lab',
+      'Thông báo tức thời qua cổng thông tin bệnh nhân'
     ]
   },
   {
@@ -184,41 +184,47 @@ export default function GuestHomePage() {
   const [selectedPackage, setSelectedPackage] = useState(null);
 
   useEffect(() => {
-    fetchServiceCatalog()
+    searchTestPackages({ pageSize: 4 })
       .then(res => {
-        if (res?.packages?.length) {
-          setPackages(res.packages.slice(0, 4));
+        const list = res?.items || res?.packages || [];
+        if (list.length > 0) {
+          setPackages(list.slice(0, 4));
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn('Could not load packages from searchTestPackages:', err);
         setPackages([
           {
-            id: 'PKG-CBC',
+            id: 'PKG-CBC-01',
+            packageCode: 'CBC-01',
             packageName: 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)',
-            description: 'Phát hiện sớm thiếu máu, nhiễm trùng, bệnh lý tủy xương và tiểu cầu.',
+            description: 'Phát hiện sớm thiếu máu, nhiễm trùng, bệnh lý tủy xương và tiểu cầu',
             price: 180000,
             category: 'Huyết học'
           },
           {
-            id: 'PKG-LIVER',
+            id: 'PKG-HEPATITIS-01',
+            packageCode: 'HEPA-01',
             packageName: 'Tầm soát Viêm gan B & C (HBsAg, Anti-HBs, Anti-HCV)',
-            description: 'Sàng lọc nhiễm virus viêm gan B và C mạn tính, đánh giá kháng thể.',
+            description: 'Sàng lọc nhiễm virus viêm gan B và C mạn tính',
             price: 320000,
-            category: 'Gan mật'
+            category: 'Miễn dịch'
           },
           {
-            id: 'PKG-LIPID',
+            id: 'PKG-LIPID-01',
+            packageCode: 'LIPID-01',
             packageName: 'Bộ mỡ máu toàn phần (Cholesterol, Triglyceride, HDL, LDL)',
-            description: 'Đánh giá nguy cơ xơ vữa động mạch và bệnh lý mạch vành.',
+            description: 'Đánh giá nguy cơ xơ vữa động mạch và bệnh lý mạch vành',
             price: 200000,
-            category: 'Tim mạch'
+            category: 'Sinh hóa'
           },
           {
-            id: 'PKG-DIABETES',
+            id: 'PKG-PKG-DIAB-01',
+            packageCode: 'PKG-DIAB-01',
             packageName: 'Gói Tầm Soát Đái Tháo Đường Chuyên Sâu',
-            description: 'Theo dõi chỉ số Glucose huyết tương và HbA1c đánh giá kiểm soát đường huyết.',
+            description: 'Theo dõi chỉ số Glucose huyết tương và HbA1c đánh giá kiểm soát đường huyết 3 tháng.',
             price: 380000,
-            category: 'Tiểu đường'
+            category: 'Sinh hóa'
           }
         ]);
       });
@@ -241,16 +247,16 @@ export default function GuestHomePage() {
             <div className="bms-hero-narrative">
               <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-3">
                 <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                <span>CHĂM SÓC TỪ NHỮNG CHỈ SỐ NHỎ NHẤT · TIÊU CHUẨN ISO 15189</span>
+                <span>HỆ THỐNG QUẢN LÝ PHÒNG XÉT NGHIỆM BMS · THEO DÕI VÒNG ĐỜI MẪU MÁU</span>
               </div>
 
-              <h1 className="bms-hero-heading mb-3" style={{ fontSize: 'clamp(32px, 3.4vw, 44px)', fontWeight: 800, lineHeight: 1.18, letterSpacing: '-0.03em', color: '#0F172A' }}>
-                Xét Nghiệm Máu Nhanh Chóng,<br />
-                <span style={{ color: '#1E60E6' }}>Chính Xác &amp; Tin Cậy</span>
+              <h1 className="bms-hero-heading mb-3" style={{ fontSize: 'clamp(30px, 3.2vw, 42px)', fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.03em', color: '#0F172A' }}>
+                Quản Lý Quy Trình Xét Nghiệm Máu,<br />
+                <span style={{ color: '#1E60E6' }}>Chính Xác, Khép Kín &amp; Minh Bạch</span>
               </h1>
 
-              <p className="bms-hero-lead mb-4" style={{ fontSize: '14.5px', color: '#475569', lineHeight: '1.6', maxWidth: '540px' }}>
-                Hệ thống phòng xét nghiệm tự động hóa chuẩn ISO 15189:2022. Kết quả được thẩm định bởi Bác sĩ Chuyên khoa, trả trực tuyến sau 60–90 phút.
+              <p className="bms-hero-lead mb-4" style={{ fontSize: '14px', color: '#475569', lineHeight: '1.65', maxWidth: '560px' }}>
+                Hệ thống BMS hỗ trợ quản lý toàn diện vòng đời mẫu xét nghiệm: từ tiếp nhận chỉ định, định danh mã vạch Barcode một chiều, vận hành phòng phân tích LIS, kiểm soát chất lượng nội kiểm (QC) đến bác sĩ chuyên khoa thẩm duyệt kết quả và tra cứu hồ sơ điện tử.
               </p>
 
               {/* Search Pill Capsule */}
@@ -273,34 +279,34 @@ export default function GuestHomePage() {
                 </button>
               </form>
 
-              {/* 2x2 Metric Grid (Spacious, 54px Animated SVGs, No Text Crowding) */}
+              {/* 2x2 Metric Grid (Real BMS Workflow Capabilities - Zero Fake Marketing Numbers) */}
               <div className="bms-hero-page-metrics">
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number tabular-nums">500,000+</div>
-                    <div className="metric-label">Lượt xét nghiệm an toàn</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Mã Vạch 1D/2D</div>
+                    <div className="metric-label">Định danh duy nhất mẫu máu</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-qc-accuracy.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number tabular-nums">99.98%</div>
-                    <div className="metric-label">Độ chính xác chuẩn QC</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Nội Kiểm QC</div>
+                    <div className="metric-label">Kiểm soát quy tắc Westgard</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-sla-tat.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number tabular-nums">60 – 90</div>
-                    <div className="metric-label">Phút trả kết quả SLA</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Bác Sĩ Xác Nhận</div>
+                    <div className="metric-label">Thẩm định chuyên môn y khoa</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-coldchain.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number tabular-nums">100%</div>
-                    <div className="metric-label">Chuỗi lạnh IoT 2-6°C</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Chuỗi Lạnh IoT</div>
+                    <div className="metric-label">Giám sát nhiệt độ 2-6°C</div>
                   </div>
                 </div>
               </div>
@@ -403,8 +409,8 @@ export default function GuestHomePage() {
         </div>
       </section>
 
-      {/* 3. Service Packages Catalog (Quad with Specialty Icons) */}
-      <section className="bms-section-wrap py-4">
+      {/* 3. Service Packages Catalog (Spacious Horizontal Service Strips - No Cramped Cards) */}
+      <section className="bms-section-wrap py-5">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -414,35 +420,107 @@ export default function GuestHomePage() {
             </p>
           </div>
 
-          <div className="bms-packages-quad">
+          {/* Spacious Horizontal Floating Service Strips (Zero Cramped Cards, Generous Breathing Room) */}
+          <div className="d-flex flex-column gap-3 mb-4">
             {packages.map((pkg, idx) => (
-              <div key={pkg.id || idx} className={`bms-package-soft-card ${idx === 0 ? 'promoted' : ''}`}>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="bms-package-category-chip m-0">{pkg.category || 'Huyết học'}</span>
-                  <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', color: '#64748B', backgroundColor: '#F1F5F9', padding: '2px 7px', borderRadius: '6px' }}>
-                    {pkg.packageCode || pkg.id || 'BMS'}
-                  </span>
-                </div>
-                <div className="d-flex align-items-center gap-3 mb-2">
-                  <div style={{ width: '44px', height: '44px', flexShrink: 0 }}>
-                    <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={44} />
+              <div
+                key={pkg.id || pkg.packageCode || idx}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '16px',
+                  padding: '22px 28px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  transition: 'background-color 0.15s ease'
+                }}
+                className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3.5"
+              >
+                {/* Left: Category Badge & Code & Title (Spacious, Single Line, No Line Break) */}
+                <div style={{ flex: '0 0 420px', maxWidth: '460px' }}>
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: '#1E60E6',
+                        backgroundColor: '#EFF6FF',
+                        padding: '3px 10px',
+                        borderRadius: '9999px'
+                      }}
+                    >
+                      {pkg.category || 'Huyết học'}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono, monospace)',
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        color: '#475569',
+                        backgroundColor: '#F1F5F9',
+                        padding: '2px 8px',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      {pkg.packageCode || pkg.id || 'BMS'}
+                    </span>
                   </div>
-                  <h3 className="bms-pkg-title m-0" style={{ fontSize: '15.5px' }}>{pkg.packageName}</h3>
+                  <h3
+                    className="fw-bold mb-0"
+                    style={{
+                      fontSize: '16.5px',
+                      color: '#0F172A',
+                      letterSpacing: '-0.02em',
+                      lineHeight: '1.35'
+                    }}
+                  >
+                    {pkg.packageName}
+                  </h3>
                 </div>
-                <p className="bms-pkg-desc">{pkg.description || 'Xét nghiệm đạt chuẩn y tế ISO 15189.'}</p>
-                <div className="bms-pkg-price-row">
-                  <span className="bms-price-number tabular-nums">
-                    {new Intl.NumberFormat('vi-VN').format(pkg.price || 0)}
-                  </span>
-                  <span className="bms-price-currency">VNĐ</span>
+
+                {/* Middle: Clinical Scope & Description (Airy, Readable) */}
+                <div style={{ flex: 1, minWidth: '260px' }}>
+                  <p
+                    className="mb-0 text-muted"
+                    style={{
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      color: '#475569',
+                      maxWidth: '560px'
+                    }}
+                  >
+                    {pkg.description || 'Chỉ định lâm sàng theo dõi các chỉ số sinh hóa và huyết học chuyên sâu.'}
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  className="bms-btn-mint-cta w-100 mt-auto"
-                  onClick={() => handleBookClick(pkg)}
-                >
-                  Đặt Lịch Xét Nghiệm
-                </button>
+
+                {/* Right: Price & CTA Action Button Side by Side */}
+                <div className="d-flex align-items-center justify-content-lg-end gap-3 flex-shrink-0">
+                  <div className="text-lg-end pe-2">
+                    <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 550 }}>Đơn giá niêm yết:</div>
+                    <div className="fw-bold tabular-nums" style={{ fontSize: '18px', color: '#0F172A', lineHeight: '1.2' }}>
+                      {new Intl.NumberFormat('vi-VN').format(pkg.price || 0)} <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>VNĐ</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    style={{
+                      backgroundColor: '#10B981',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '9999px',
+                      padding: '9px 24px',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      boxShadow: 'none',
+                      transition: 'background-color 0.15s ease'
+                    }}
+                    onClick={() => handleBookClick(pkg)}
+                  >
+                    Đặt Lịch Xét Nghiệm
+                  </button>
+                </div>
               </div>
             ))}
           </div>

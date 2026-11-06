@@ -1,11 +1,12 @@
 /**
  * @file UserProfilePage.css
  * @description Styling tokens and components for User Profile screen (UC08).
- * Conforms to: AGENTS-DESIGN.md Rules 01-28 (Medical Blue #1e40af, Touch Targets, Shimmer).
+ * Conforms to: AGENTS-DESIGN.md & Minimalist Clinical UI.
+ * Zero shadow, zero heavy borders, zero hover jumps, high contrast typography.
  */
 
 .bms-profile-page {
-  padding: 12px 0;
+  padding: 16px 0 48px;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -13,15 +14,16 @@
 
 .bms-profile-card {
   background: #ffffff;
-  border-radius: var(--radius-card, 28px);
-  border: 1px solid rgba(15, 23, 42, 0.05);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  box-shadow: none !important;
   overflow: hidden;
 }
 
 .bms-profile-card-header {
-  background: linear-gradient(135deg, #1E60E6 0%, #5078E0 100%);
-  color: #ffffff;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  color: #0F172A;
   padding: 20px 24px;
 }
 
@@ -36,8 +38,8 @@
   height: 104px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 3px solid #E2E8F0;
+  box-shadow: none !important;
 }
 
 .bms-active-dot {
@@ -49,19 +51,6 @@
   position: absolute;
   bottom: 6px;
   right: 6px;
-  animation: bmsPulse 2s infinite;
-}
-
-@keyframes bmsPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
-  }
 }
 
 .bms-patient-code-badge {
@@ -82,13 +71,13 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: rgba(30, 96, 230, 0.12);
+  background-color: rgba(30, 96, 230, 0.08);
   color: #1E60E6;
-  border: 1px solid rgba(30, 96, 230, 0.3);
+  border: 1px solid rgba(30, 96, 230, 0.2);
   font-size: 12px;
   font-weight: 600;
   padding: 4px 12px;
-  border-radius: 9999px;
+  border-radius: 6px;
   margin-top: 8px;
 }
 
@@ -103,11 +92,12 @@
   font-size: 14.5px;
   font-weight: 500;
   color: #0f172a;
-  background-color: var(--bms-surface-card, #F1F4F7);
-  border: 1px solid var(--bms-border, rgba(15, 23, 42, 0.05));
-  border-radius: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 10px 14px;
   min-height: 42px;
+  box-shadow: none !important;
 }
 
 .bms-blood-badge {
@@ -129,30 +119,32 @@
 }
 
 .fast-tag-item {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
   color: #334155;
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 5px 12px;
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   user-select: none;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-shadow: none !important;
 }
 
 .fast-tag-item:hover {
-  border-color: #1E60E6;
-  color: #1E60E6;
-  background: rgba(30, 96, 230, 0.08);
+  border-color: #CBD5E1;
+  color: #0F172A;
+  background: #F1F5F9;
 }
 
 .fast-tag-item.selected {
-  background: #1E60E6;
-  border-color: #1E60E6;
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(30, 96, 230, 0.25);
+  background: #1E60E6 !important;
+  border-color: #1E60E6 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
 }

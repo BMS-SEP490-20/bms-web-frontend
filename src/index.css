@@ -5,6 +5,8 @@
    Pure Flat Architecture: Zero Sến Súa Glow / Shadows / Blurry Hover / 2D Flat Only
    ========================================================================== */
 
+@import './styles/bms-kit-tokens.css';
+
 :root {
   /* Canvas & Pure Flat Surfaces */
   --bg-page: #F8FAFC;          /* crisp light slate canvas */

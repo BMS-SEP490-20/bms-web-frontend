@@ -152,20 +152,20 @@ export default function PricingPage() {
       <section className="pt-2 pb-1">
         <Container style={{ maxWidth: '1400px' }}>
           
-          {/* Unified Toolbar Card - Distinct Visible Boundary */}
+          {/* Unified Toolbar Card - Pure 2D Flat, Zero Border */}
           <div
             className="mb-2"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '20px',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
+              border: 'none',
               boxShadow: 'none',
               padding: '20px 24px'
             }}
           >
             <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
               
-              {/* Search Input - Clean High-Contrast Input with Visible Border & No Collision */}
+              {/* Search Input - Clean High-Contrast Input with No Collision */}
               <div className="position-relative" style={{ maxWidth: '460px', width: '100%' }}>
                 <FaSearch
                   style={{
@@ -190,8 +190,8 @@ export default function PricingPage() {
                     paddingLeft: '46px',
                     paddingRight: searchQuery ? '38px' : '18px',
                     borderRadius: '12px',
-                    border: '1px solid #CBD5E1',
-                    backgroundColor: '#FFFFFF',
+                    border: 'none',
+                    backgroundColor: '#F1F5F9',
                     fontSize: '13px',
                     fontWeight: 500,
                     color: '#0F172A',
@@ -258,13 +258,13 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 3. Independent Table Section (Standalone Canvas Section - NOT in Card) */}
+      {/* 3. Independent Table Section (Pure 2D Flat Canvas Section - Zero Border) */}
       <section className="bms-pricing-table-section py-2">
         <Container style={{ maxWidth: '1400px' }}>
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
+              border: 'none',
               borderRadius: '20px',
               overflow: 'hidden',
               boxShadow: 'none'
@@ -400,14 +400,14 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 4. Compliance & Policy Footer Card */}
+      {/* 4. Compliance & Policy Footer Card (Pure 2D Flat, Zero Border) */}
       <section className="py-3 pb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div
             className="p-4"
             style={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
+              border: 'none',
               borderRadius: '20px',
               boxShadow: 'none'
             }}

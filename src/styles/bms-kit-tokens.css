@@ -1,0 +1,31 @@
+/* BMS SVG UI Kit — V3 FINAL. Scoped; do not import the source FE global resets. */
+.bms-kit {
+ --bg-page:#F8FAFC; --bg-card:#FFFFFF; --bg-muted:#F1F5F9; --primary-soft:#EEF4FD;
+ --primary:#1E60E6; --primary-hover:#1550C4; --success:#10B981; --success-hover:#059669;
+ --ink:#0F172A; --ink-secondary:#475569; --ink-tertiary:#94A3B8; --warn:#F59E0B; --danger:#EF4444;
+ --radius-card:24px; --radius-panel:20px; --radius-control:9999px; --radius-btn:9999px; --radius-chip:8px;
+ --shadow-card:none; --shadow-soft:none; --shadow-float:none;
+ --font-sans:'Plus Jakarta Sans','Be Vietnam Pro',sans-serif;
+ color:var(--ink); font-family:var(--font-sans); line-height:1.5;
+}
+.bms-kit *, .bms-kit *::before, .bms-kit *::after { box-sizing:border-box; }
+.bms-kit .kit-card { background:var(--bg-card);border:0;border-radius:var(--radius-card);padding:28px;box-shadow:none; }
+.bms-kit .kit-panel { background:var(--bg-muted);border-radius:var(--radius-panel);padding:20px;box-shadow:none; }
+.bms-kit .kit-icon { display:inline-block;flex:none;vertical-align:middle;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none; }
+.bms-kit .kit-art { display:block;width:100%;height:auto;object-fit:contain;background:transparent; }
+.bms-kit .kit-cta { display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border:0;border-radius:var(--radius-btn);background:var(--primary);color:#FFFFFF;font:inherit;font-size:13px;font-weight:650;cursor:pointer;box-shadow:none;text-decoration:none; }
+.bms-kit .kit-cta:hover { background:var(--primary-hover);box-shadow:none;transform:none; }
+.bms-kit .kit-cta--mint { background:var(--success); }
+.bms-kit .kit-cta--mint:hover { background:var(--success-hover); }
+.bms-kit .kit-cta--neutral { background:var(--bg-muted);color:var(--ink); }
+.bms-kit .kit-cta--neutral:hover { background:var(--primary-soft); }
+.bms-kit .kit-cta:focus-visible { outline:2px solid var(--primary);outline-offset:3px;box-shadow:none; }
+.bms-kit .kit-chip { display:inline-block;border-radius:var(--radius-chip);padding:5px 10px;background:var(--primary-soft);color:var(--primary);font-size:11px; }
+.bms-kit .kit-muted { color:var(--ink-secondary); }
+.bms-kit .kit-num { font-variant-numeric:tabular-nums;letter-spacing:-.025em; }
+.bms-kit .kit-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px; }
+.bms-kit .kit-hero { display:grid;grid-template-columns:1.22fr .88fr;gap:40px;align-items:center; }
+.bms-kit .kit-section { padding-block:48px; }
+@media(max-width:1024px) { .bms-kit .kit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .bms-kit .kit-hero { grid-template-columns:1fr; } }
+@media(max-width:640px) { .bms-kit .kit-grid { grid-template-columns:1fr; } }
+/* All V3 artwork is static. No animation, filter, glow or hover lift. */

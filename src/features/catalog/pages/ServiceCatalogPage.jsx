@@ -17,6 +17,8 @@ import { FaVial, FaClock, FaList, FaThLarge } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
+import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
+import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
 import { fetchServiceCatalog, searchTestPackages, fetchServiceById } from '../api/catalogApi';
 
 const DEFAULT_CATEGORIES = [
@@ -273,7 +275,7 @@ export default function ServiceCatalogPage() {
           
           {/* 2. Top Spotlight Header (Pure Flat, High Contrast SaaS Showcase) */}
           <section
-            className="mb-4"
+            className="mb-5"
             style={{
               background: '#FFFFFF',
               borderRadius: '24px',
@@ -459,7 +461,7 @@ export default function ServiceCatalogPage() {
 
           {/* 3. Search & Category Filter Bar (Compact Toolbar, Pure Flat, No Borders) */}
           <section
-            className="mb-4 p-3.5"
+            className="mb-5 p-3.5"
             style={{
               background: '#FFFFFF',
               borderRadius: '18px',
@@ -728,64 +730,93 @@ export default function ServiceCatalogPage() {
                   }}
                   className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4"
                 >
-                  {/* Col 1: Category & Title & Badges (Wide Enough to Prevent Clumsy Line Breaks) */}
-                  <div style={{ flex: '0 0 340px', maxWidth: '380px' }}>
-                    <div className="d-flex align-items-center gap-2 mb-2">
-                      <span
+                  {/* Col 1: Category Icon + Title & Badges (Wide Column, No-Wrap, Reduced Font Weight & Size) */}
+                  <div style={{ flex: '0 0 460px', maxWidth: '520px', minWidth: 0 }}>
+                    <div className="d-flex align-items-center gap-3">
+                      {/* Clinical SVG Category Icon */}
+                      <div
                         style={{
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          color: '#1E60E6',
-                          backgroundColor: '#EFF6FF',
-                          padding: '3px 10px',
-                          borderRadius: '9999px'
+                          width: '44px',
+                          height: '44px',
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#F8FAFC',
+                          borderRadius: '12px'
                         }}
                       >
-                        {pkg.category || 'Tổng Quát'}
-                      </span>
-                      <span
-                        className="font-monospace text-muted"
-                        style={{
-                          fontSize: '11.5px',
-                          fontWeight: 600,
-                          backgroundColor: '#F1F5F9',
-                          padding: '2px 8px',
-                          borderRadius: '6px'
-                        }}
-                      >
-                        {pkg.packageCode}
-                      </span>
-                      {pkg.isPopular && (
-                        <span
+                        <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={42} />
+                      </div>
+
+                      {/* Title & Metadata */}
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div className="d-flex align-items-center gap-2 mb-1">
+                          <span
+                            style={{
+                              fontSize: '10.5px',
+                              fontWeight: 700,
+                              color: '#1E60E6',
+                              backgroundColor: '#EFF6FF',
+                              padding: '2px 9px',
+                              borderRadius: '9999px',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {pkg.category || 'Tổng Quát'}
+                          </span>
+                          <span
+                            className="font-monospace text-muted"
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              backgroundColor: '#F1F5F9',
+                              padding: '1px 7px',
+                              borderRadius: '6px',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {pkg.packageCode}
+                          </span>
+                          {pkg.isPopular && (
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                color: '#166534',
+                                backgroundColor: '#DCFCE7',
+                                padding: '1px 7px',
+                                borderRadius: '6px',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              Phổ Biến
+                            </span>
+                          )}
+                        </div>
+                        <h3
+                          className="mb-0"
+                          title={pkg.packageName}
                           style={{
-                            fontSize: '10.5px',
-                            fontWeight: 700,
-                            color: '#166534',
-                            backgroundColor: '#DCFCE7',
-                            padding: '2px 8px',
-                            borderRadius: '6px'
+                            fontSize: '15px',
+                            fontWeight: 650,
+                            color: '#0F172A',
+                            letterSpacing: '-0.015em',
+                            lineHeight: '1.35',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
                           }}
                         >
-                          Phổ Biến
-                        </span>
-                      )}
-                    </div>
-                    <h3
-                      className="fw-bold mb-1"
-                      style={{
-                        fontSize: '17px',
-                        color: '#0F172A',
-                        letterSpacing: '-0.02em',
-                        lineHeight: '1.35'
-                      }}
-                    >
-                      {pkg.packageName}
-                    </h3>
-                    {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 && (
-                      <div className="text-muted" style={{ fontSize: '11.5px' }}>
-                        Bao gồm <strong>{pkg.criteria.length}</strong> chỉ số xét nghiệm chuyên biệt
+                          {pkg.packageName}
+                        </h3>
+                        {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 && (
+                          <div className="text-muted mt-0.5" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                            Bao gồm <strong>{pkg.criteria.length}</strong> chỉ số xét nghiệm chuyên biệt
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Col 2: Clinical Description & Biomarkers Chips & Sample Spec */}

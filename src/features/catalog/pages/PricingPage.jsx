@@ -85,7 +85,7 @@ export default function PricingPage() {
       <PortalNavbar />
 
       {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
-      <section className="pt-4 pb-3 mb-2">
+      <section className="pt-4 pb-3 mb-5">
         <div className="container" style={{ maxWidth: '1400px' }}>
           <div
             style={{
@@ -160,7 +160,7 @@ export default function PricingPage() {
       </section>
 
       {/* 2. Filter & Search Toolbar Section */}
-      <section className="py-2 mb-3">
+      <section className="py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           
           {/* Unified Toolbar Card - Pure 2D Flat, Zero Border */}
@@ -268,7 +268,7 @@ export default function PricingPage() {
       </section>
 
       {/* 2.5 V3.1 3-Card Trust Row (Above Table) */}
-      <section className="py-2 mb-3">
+      <section className="py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="bms-pricing-trust-row">
             <div className="bms-pricing-trust-card">
@@ -317,7 +317,7 @@ export default function PricingPage() {
       </section>
 
       {/* 3. Spacious Floating-Row Pricing Table Section (No Clunky White Outer Box, No Harsh Thead Border) */}
-      <section className="bms-pricing-table-section py-2 mb-4">
+      <section className="bms-pricing-table-section py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="table-responsive">
             <table
@@ -479,7 +479,7 @@ export default function PricingPage() {
       </section>
 
       {/* 4. Compliance & Policy Footer Card (Pure 2D Flat, Zero Border) */}
-      <section className="py-3 pb-5">
+      <section className="py-3 pb-5 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div
             className="p-4"

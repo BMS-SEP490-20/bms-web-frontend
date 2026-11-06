@@ -15,7 +15,7 @@ import {
 import {
   FaShieldAlt, FaSearch, FaSyncAlt, FaFileExport,
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
-  FaInfoCircle, FaLock, FaUserShield, FaEye
+  FaInfoCircle, FaLock, FaUserShield, FaEye, FaTimes
 } from 'react-icons/fa';
 import { auditLogService } from '../../../services/auditLogService';
 
@@ -143,58 +143,50 @@ const AuditLogPage = () => {
 
   return (
     <div className="w-100 py-2">
-      {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-        <Card.Body className="p-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                  <FaShieldAlt style={{ color: '#1E60E6' }} />
-                  Nhật Ký Kiểm Toán An Ninh Hệ Thống
-                </h4>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.25)' }}>
-                  Quản Trị Viên / Trưởng Bộ Phận
-                </Badge>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: '#EEF2F6', color: '#64748b', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                  Chỉ Xem Bất Biến (Read-Only)
-                </Badge>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
-                  ISO 15189 & NĐ 123 • Lưu Trữ 10 Năm
-                </Badge>
-              </div>
-              <p className="text-muted mb-0 small mt-1">
-                Theo dõi và kiểm tra toàn bộ vết kiểm toán an ninh, nhật ký truy cập, biến động dữ liệu và ghi đè bảo mật trên hệ thống y tế.
-              </p>
-            </div>
-
-            <div className="d-flex align-items-center gap-2 flex-wrap">
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={handleExportCSV}
-                disabled={safeLogs.length === 0}
-                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <FaFileExport />
-                <span>Xuất Báo Cáo CSV</span>
-              </Button>
-              <Button
-                variant="light"
-                size="sm"
-                onClick={fetchLogs}
-                disabled={loading}
-                className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2 shadow-sm"
-                style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <FaSyncAlt className={loading ? 'fa-spin' : ''} />
-                <span>Làm Mới</span>
-              </Button>
-            </div>
+      {/* Master Luxury Page Header Card */}
+      <div className="bms-page-header-card">
+        <div className="bms-page-header-content">
+          <div className="bms-page-chip">
+            <FaShieldAlt size={12} />
+            <span>QUẢN TRỊ AN NINH · KIỂM TOÁN HỆ THỐNG · ISO 15189 (LƯU TRỮ 10 NĂM)</span>
           </div>
-        </Card.Body>
-      </Card>
+          <div className="bms-page-title-row">
+            <span className="bms-page-title-icon">
+              <FaShieldAlt size={22} />
+            </span>
+            <h1 className="bms-page-title">
+              Nhật Ký Kiểm Toán An Ninh Hệ Thống
+            </h1>
+          </div>
+          <p className="bms-page-subtitle">
+            Theo dõi và kiểm tra toàn bộ vết kiểm toán an ninh, nhật ký truy cập, biến động dữ liệu và ghi đè bảo mật trên hệ thống y tế (Read-only, lưu trữ bất biến).
+          </p>
+        </div>
+
+        <div className="bms-page-actions">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={handleExportCSV}
+            disabled={safeLogs.length === 0}
+            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm fw-semibold"
+          >
+            <FaFileExport size={13} />
+            <span>Xuất Báo Cáo CSV</span>
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={fetchLogs}
+            disabled={loading}
+            className="d-flex align-items-center gap-2 rounded-pill px-4 py-2 shadow-sm fw-semibold"
+            style={{ background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+          >
+            <FaSyncAlt size={13} className={loading ? 'fa-spin' : ''} />
+            <span>Làm Mới</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Statistics Cards */}
       {statistics && (
@@ -267,18 +259,25 @@ const AuditLogPage = () => {
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
-              <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
+              <div className="bms-search-input-pill">
+                <FaSearch className="bms-search-icon" />
+                <input
+                  type="text"
                   placeholder="Tìm theo người dùng, hành động, đối tượng tác động..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-start-0"
-                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
                 />
-              </InputGroup>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="bms-search-clear"
+                    onClick={() => setSearchTerm('')}
+                    title="Xóa tìm kiếm"
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                )}
+              </div>
             </Col>
             <Col xs={6} sm={4} md={2}>
               <Form.Select
@@ -321,9 +320,21 @@ const AuditLogPage = () => {
         </Card.Body>
       </Card>
 
-      {/* Audit Log Table */}
-      <Card className="border-0 shadow-sm overflow-hidden bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-        <Card.Body className="p-0">
+      {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              <FaShieldAlt style={{ color: '#1E60E6' }} />
+              <span>Danh Sách Sự Kiện Kiểm Toán An Ninh &amp; Thao Tác</span>
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              Hiển thị {safeLogs.length} bản ghi kiểm toán bảo mật bất biến theo chuẩn ISO 15189
+            </div>
+          </div>
+        </div>
+
+        <div className="bms-table-standalone-body">
           {loading && safeLogs.length === 0 ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
@@ -331,23 +342,23 @@ const AuditLogPage = () => {
             </div>
           ) : safeLogs.length > 0 ? (
             <div className="table-responsive">
-              <Table hover className="align-middle mb-0">
-                <thead style={{ background: '#EEF2F6' }}>
+              <table className="bms-dash-table">
+                <thead>
                   <tr>
-                    <th style={{ width: '170px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Thời gian</th>
-                    <th style={{ width: '200px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Người thực hiện</th>
-                    <th style={{ width: '160px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Hành động</th>
-                    <th style={{ width: '130px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Phân loại</th>
-                    <th style={{ width: '120px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Mức độ</th>
-                    <th style={{ color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>Nội dung chi tiết</th>
-                    <th style={{ width: '110px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }}>IP / Thiết bị</th>
-                    <th style={{ width: '80px', color: '#475569', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '12px 16px' }} className="text-center">Chi tiết</th>
+                    <th className="ps-4" style={{ width: '170px' }}>Thời gian</th>
+                    <th style={{ width: '200px' }}>Người thực hiện</th>
+                    <th style={{ width: '160px' }}>Hành động</th>
+                    <th style={{ width: '130px' }}>Phân loại</th>
+                    <th style={{ width: '120px' }}>Mức độ</th>
+                    <th>Nội dung chi tiết</th>
+                    <th style={{ width: '130px' }}>IP / Thiết bị</th>
+                    <th className="text-end pe-4" style={{ width: '90px' }}>Chi tiết</th>
                   </tr>
                 </thead>
                 <tbody>
                   {safeLogs.map((item) => (
                     <tr key={item.auditId || item.id}>
-                      <td className="small text-secondary font-monospace">
+                      <td className="ps-4 small text-secondary font-monospace">
                         {item.timestamp ? new Date(item.timestamp).toLocaleString('vi-VN', {
                           year: 'numeric',
                           month: '2-digit',
@@ -391,7 +402,7 @@ const AuditLogPage = () => {
                           )}
                         </div>
                       </td>
-                      <td className="text-center">
+                      <td className="text-end pe-4">
                         <Button
                           variant="outline-primary"
                           size="sm"
@@ -409,7 +420,7 @@ const AuditLogPage = () => {
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </table>
             </div>
           ) : (
             <div className="text-center py-5">
@@ -418,8 +429,8 @@ const AuditLogPage = () => {
               <p className="text-muted small">Thử thay đổi bộ lọc phân loại hoặc từ khóa tìm kiếm.</p>
             </div>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* Detail Modal (Read-only) */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>

@@ -19,7 +19,8 @@ import {
     FaEye,
     FaRedo,
     FaCheck,
-    FaUser
+    FaUser,
+    FaShieldAlt
 } from "react-icons/fa";
 import {
     fetchNotifications,
@@ -231,43 +232,46 @@ export default function NotifyTestResultsPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-lg-4 bg-light" style={{ minHeight: "100vh" }}>
-            {/* Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                <div>
-                    <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
-                            
-                        </span>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
-                            Panic Value Escalation
-                        </span>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>QUẢN TRỊ THÔNG BÁO XÉT NGHIỆM · PANIC VALUE ESCALATION (ISO 15189)</span>
                     </div>
-                    <p className="text-secondary small mb-0">
-                        Cơ chế truyền thông báo đa kênh (In-App, SMS, Email, Push) và kích hoạt quy trình báo động hoảng loạn y khoa.
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaBell size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Quản Lý &amp; Phát Thông Báo Kết Quả Xét Nghiệm
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
+                        Cơ chế truyền thông báo đa kênh (In-App, SMS, Email, Push) và kích hoạt quy trình báo động nguy kịch y khoa.
                     </p>
                 </div>
 
-                <div className="d-flex gap-2">
+                <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
                         style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadData}
                     >
-                        <FaSync className={loading ? "fa-spin" : ""} />
+                        <FaSync size={13} className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                     {canDispatch && (
                         <button
                             type="button"
-                            className="btn btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-4 fw-semibold"
-                            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
+                            className="btn btn-sm d-flex align-items-center gap-2 shadow-sm rounded-pill px-4 py-2 fw-semibold text-white"
+                            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                             onClick={() => setShowDispatchModal(true)}
                         >
-                            <FaPaperPlane />
-                            <span>+ Phát Thông Báo Mới</span>
+                            <FaPaperPlane size={13} />
+                            <span>Phát Thông Báo Mới</span>
                         </button>
                     )}
                 </div>

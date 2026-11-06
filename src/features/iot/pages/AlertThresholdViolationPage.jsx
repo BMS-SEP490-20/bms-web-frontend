@@ -202,43 +202,54 @@ export default function AlertThresholdViolationPage() {
     const isWarningHealth = summary.systemHealthStatus === "WARNING";
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#EEF2F6" }}>
-            {/* Page Header */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <h2 className="h4 mb-0 fw-bold text-dark">Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT</h2>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>GIÁM SÁT MÔI TRƯỜNG IOT · BẢO QUẢN MẪU BỆNH PHẨM (ISO 15189)</span>
                     </div>
-                    <p className="text-muted small mt-1 mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaExclamationTriangle size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Cảnh báo thời gian thực về điều kiện bảo quản mẫu bệnh phẩm (Nhiệt độ tủ lưu trữ máu 2-6°C, tủ đông huyết tương -20°C, độ ẩm phòng lab 30-60%) và quản lý quy trình khắc phục sự cố.
                     </p>
                 </div>
 
-                <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+                <div className="bms-page-actions">
                     <button
-                        className={`btn btn-sm d-flex align-items-center gap-1.5 shadow-sm ${soundEnabled ? 'btn-danger' : 'btn-outline-secondary'}`}
-                        style={{ borderRadius: '9999px', padding: '6px 16px', borderColor: soundEnabled ? undefined : 'rgba(15, 23, 42, 0.05)' }}
+                        className={`btn btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3 py-2 fw-semibold ${soundEnabled ? 'btn-danger' : 'btn-outline-secondary'}`}
+                        style={{ borderRadius: '9999px', borderColor: soundEnabled ? undefined : 'rgba(15, 23, 42, 0.05)' }}
                         onClick={() => setSoundEnabled(!soundEnabled)}
                         title="Bật/Tắt chuông báo động âm thanh"
                     >
-                        {soundEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
+                        {soundEnabled ? <FaVolumeUp size={13} /> : <FaVolumeMute size={13} />}
                         <span>{soundEnabled ? "Chuông: BẬT" : "Chuông: TẮT"}</span>
                     </button>
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
-                        style={{ borderRadius: '9999px', padding: '6px 16px', borderColor: '#1E60E6', color: '#1E60E6' }}
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                         onClick={() => setActionType("SIMULATE")}
                         id="btn-simulate-iot-alert"
                     >
-                        <FaPlay /> Diễn tập vượt ngưỡng
+                        <FaPlay size={12} />
+                        <span>Diễn Tập Ngưỡng</span>
                     </button>
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white"
-                        style={{ borderRadius: '9999px', padding: '6px 18px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
+                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         onClick={loadData}
                         disabled={isLoading}
                     >
-                        <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
+                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <span>Làm Mới</span>
                     </button>
                 </div>
             </div>
@@ -415,18 +426,21 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            {/* Alert Items Table */}
-            <div className="card shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                        <FaBell style={{ color: '#1E60E6' }} /> Danh Sách Cảnh Báo Vượt Ngưỡng
-                    </h5>
-                    <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        Hiển thị {filteredAlerts.length} bản ghi
-                    </span>
+            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+            <div className="bms-table-standalone-section">
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h5 className="bms-table-standalone-title">
+                            <FaBell style={{ color: '#1E60E6' }} />
+                            <span>Danh Sách Cảnh Báo Vượt Ngưỡng Môi Trường</span>
+                        </h5>
+                        <div className="bms-table-standalone-subtitle">
+                            Hiển thị {filteredAlerts.length} bản ghi cảnh báo telemetry từ các tủ trữ mẫu và phòng lab
+                        </div>
+                    </div>
                 </div>
 
-                <div className="card-body p-0">
+                <div className="bms-table-standalone-body">
                     {loadError ? (
                         <div className="text-center py-5 text-danger">
                             <p className="mb-2 fw-semibold">{loadError}</p>
@@ -441,7 +455,7 @@ export default function AlertThresholdViolationPage() {
                         </div>
                     ) : (
                         <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
+                            <table className="bms-dash-table">
                                 <thead style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)', color: '#475569', fontSize: '12px' }} className="text-uppercase">
                                     <tr>
                                         <th className="ps-3">Thiết Bị / Vị Trí</th>

@@ -318,47 +318,54 @@ export default function PushNotificationCenterPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-xl-5" style={{ minHeight: "90vh", background: "#f8fafc" }}>
-            {/* Header Section */}
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <h2 className="h3 mb-0 fw-bold text-slate-800">Trung Tâm Quản Lý & Phát Thông Báo Đa Kênh (Push Notifications)</h2>
+        <div className="w-100 py-1">
+            {/* Master Luxury Page Header Card */}
+            <div className="bms-page-header-card">
+                <div className="bms-page-header-content">
+                    <div className="bms-page-chip">
+                        <FaShieldAlt size={12} />
+                        <span>TRUNG TÂM PHÁT THÔNG BÁO ĐA KÊNH · FCM &amp; IN-APP (ISO 15189)</span>
                     </div>
-                    <p className="text-muted small mt-1 mb-0">
+                    <div className="bms-page-title-row">
+                        <span className="bms-page-title-icon">
+                            <FaBell size={22} />
+                        </span>
+                        <h1 className="bms-page-title">
+                            Trung Tâm Quản Lý &amp; Phát Thông Báo Đa Kênh
+                        </h1>
+                    </div>
+                    <p className="bms-page-subtitle">
                         Phát thông báo đẩy đa kênh (FCM Push, InApp, SMS, Email), kiểm soát giới hạn tần suất (BR-NOTIF-01: Tối đa 5 tin/phút) và kích hoạt ngoại lệ Báo động Nguy kịch (Critical Panic).
                     </p>
                 </div>
 
-                {/* Simulation Bell & Quick Actions */}
-                <div className="d-flex align-items-center gap-3 mt-3 mt-md-0">
+                <div className="bms-page-actions">
                     <button
-                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
                         onClick={() => triggerQuickTest("CRITICAL")}
                         title="Nạp mẫu báo động nguy kịch vượt giới hạn"
                     >
-                        <FaBolt /> Test Critical Panic
+                        <FaBolt size={12} />
+                        <span>Test Panic</span>
                     </button>
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
                         onClick={() => triggerQuickTest("RESULT")}
                         title="Nạp mẫu thông báo kết quả xét nghiệm"
                     >
-                        <FaCheckCircle /> Test Kết quả XN
+                        <FaCheckCircle size={12} />
+                        <span>Test Kết Quả</span>
                     </button>
-
-                    {/* Bell Icon Simulation Button */}
                     <button
-                        className="btn btn-light position-relative border shadow-sm px-3 py-2 d-flex align-items-center gap-2"
+                        className="btn btn-light position-relative border shadow-sm rounded-pill px-3.5 py-2 d-flex align-items-center gap-2 fw-semibold"
                         onClick={() => setIsDrawerOpen(true)}
                         id="btn-open-notification-drawer"
                     >
-                        <FaBell className="text-primary fs-5" />
-                        <span className="small fw-semibold d-none d-sm-inline">Hộp thư In-App</span>
+                        <FaBell className="text-primary" size={14} />
+                        <span>Hộp Thư</span>
                         {unreadCount > 0 && (
-                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+                            <span className="badge rounded-pill bg-danger ms-1">
                                 {unreadCount}
-                                <span className="visually-hidden">thông báo chưa đọc</span>
                             </span>
                         )}
                     </button>
@@ -673,11 +680,10 @@ export default function PushNotificationCenterPage() {
                             {/* Search & Channel Filters */}
                             <div className="row g-2 mt-2 pt-2 border-top">
                                 <div className="col-12 col-sm-6">
-                                    <div className="input-group input-group-sm">
-                                        <span className="input-group-text bg-light"><FaSearch className="text-muted" /></span>
+                                    <div className="bms-search-input-pill">
+                                        <FaSearch className="bms-search-icon" />
                                         <input
                                             type="text"
-                                            className="form-control"
                                             placeholder="Tìm theo tiêu đề, người nhận, mã..."
                                             value={searchTerm}
                                             onChange={e => {
@@ -685,6 +691,19 @@ export default function PushNotificationCenterPage() {
                                                 setCurrentPage(1);
                                             }}
                                         />
+                                        {searchTerm && (
+                                            <button
+                                                type="button"
+                                                className="bms-search-clear"
+                                                onClick={() => {
+                                                    setSearchTerm('');
+                                                    setCurrentPage(1);
+                                                }}
+                                                title="Xóa tìm kiếm"
+                                            >
+                                                <FaTimes size={12} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="col-6 col-sm-3">
@@ -723,7 +742,7 @@ export default function PushNotificationCenterPage() {
 
                         {/* Audit Table */}
                         <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
+                            <table className="bms-dash-table">
                                 <thead className="table-light small text-muted text-uppercase">
                                     <tr>
                                         <th style={{ width: "120px" }}>Thời Gian</th>

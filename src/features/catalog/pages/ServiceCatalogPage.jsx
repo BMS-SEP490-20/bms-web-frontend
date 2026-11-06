@@ -19,6 +19,7 @@ import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
 import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
+import usePageTransition from '../../../shared/hooks/usePageTransition';
 import { fetchServiceCatalog, searchTestPackages, fetchServiceById } from '../api/catalogApi';
 
 const DEFAULT_CATEGORIES = [
@@ -265,12 +266,14 @@ export default function ServiceCatalogPage() {
     return packages.find((p) => p.isPopular);
   }, [packages]);
 
+  const pageTransitionClass = usePageTransition();
+
   return (
-    <div className="bms-catalog-page min-vh-100 d-flex flex-column" style={{ background: '#F8FAFC' }}>
+    <div className="bms-catalog-page min-vh-100 d-flex flex-column" style={{ background: '#F8FAFC', overflowX: 'hidden' }}>
       {/* 1. Global Navigation Bar */}
       <PortalNavbar user={user} />
 
-      <main className="flex-grow-1 py-4">
+      <main className={`flex-grow-1 py-4 bms-page-directional-content ${pageTransitionClass}`}>
         <div className="container" style={{ maxWidth: '1400px' }}>
           
           {/* 2. Top Spotlight Header (Pure Flat, High Contrast SaaS Showcase) */}
@@ -732,12 +735,12 @@ export default function ServiceCatalogPage() {
                 >
                   {/* Left Main Clinical Content (Spans Full Available Width, No Crowding) */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="d-flex align-items-center gap-3.5">
-                      {/* Clinical SVG Specialty Icon (Centered Vertically, Big, No Background) */}
+                    <div className="d-flex align-items-center" style={{ gap: '24px' }}>
+                      {/* Clinical SVG Specialty Icon (Centered Vertically, 25% Larger, No Background) */}
                       <div
                         style={{
-                          width: '56px',
-                          height: '56px',
+                          width: '68px',
+                          height: '68px',
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
@@ -746,7 +749,7 @@ export default function ServiceCatalogPage() {
                           backgroundColor: 'transparent'
                         }}
                       >
-                        <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={52} />
+                        <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={64} />
                       </div>
 
                       {/* Content Stack: Badges -> Full Title -> Description -> Biomarkers */}

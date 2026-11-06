@@ -79,6 +79,51 @@ const COAGULATION_PRESETS = [
   'Dùng thuốc chống đông'
 ];
 
+// Known negative coagulation strings for exact clinical matching (avoiding false positives like 'Hemophilia. Không dùng Warfarin')
+export const NO_COAGULATION_STRINGS = [
+  'không có',
+  'không có tiền sử đông máu',
+  'không có tiền sử rối loạn đông máu',
+  'không có ghi nhận'
+];
+
+export const isNoCoagulation = (val) => {
+  if (!val) return true;
+  const normalized = val.trim().toLowerCase();
+  return NO_COAGULATION_STRINGS.includes(normalized);
+};
+
+// Backward-compatible allergy matcher (maps legacy 'Trứng / Sữa / Đậu' to 'Trứng / Sữa / Đậu phộng')
+export const isAllergyMatch = (targetAllergy, recordedText) => {
+  if (!targetAllergy || !recordedText) return false;
+  const t = targetAllergy.toLowerCase().trim();
+  const r = recordedText.toLowerCase().trim();
+  if (t === r || r.includes(t)) return true;
+
+  if (t === 'trứng / sữa / đậu phộng' && (r.includes('trứng / sữa / đậu') || r.includes('trứng, sữa, đậu') || r.includes('dị ứng trứng'))) {
+    return true;
+  }
+  if (t === 'hải sản (tôm, cua)' && (r.includes('hải sản') || r.includes('tôm') || r.includes('cua'))) {
+    return true;
+  }
+  if (t === 'penicillin / amox' && (r.includes('penicillin') || r.includes('amox') || r.includes('amoxicillin'))) {
+    return true;
+  }
+  if (t === 'aspirin / paracetamol' && (r.includes('aspirin') || r.includes('paracetamol'))) {
+    return true;
+  }
+  if (t === 'kháng viêm nsaids' && (r.includes('nsaids') || r.includes('kháng viêm'))) {
+    return true;
+  }
+  if (t === 'phấn hoa / bụi nhà' && (r.includes('phấn hoa') || r.includes('bụi nhà'))) {
+    return true;
+  }
+  if (t === 'cồn / povidine' && (r.includes('cồn') || r.includes('povidine'))) {
+    return true;
+  }
+  return false;
+};
+
 // Relationships
 const RELATIONSHIPS = [
   'Vợ / Chồng',
@@ -111,7 +156,7 @@ export default function InitialMedicalProfileSetup() {
   });
 
   // Clinical profile state
-  const [bloodType, setBloodType] = useState('O+');
+  const [bloodType, setBloodType] = useState('Unknown');
   const [hasNoCoagulation, setHasNoCoagulation] = useState(true);
   const [coagulationNotes, setCoagulationNotes] = useState('');
 
@@ -191,11 +236,36 @@ export default function InitialMedicalProfileSetup() {
 
         if (pat?.bloodType) {
           setBloodType(pat.bloodType);
+        } else {
+          setBloodType('Unknown');
         }
         if (pat?.coagulationDisorders) {
-          const isNo = pat.coagulationDisorders.includes('Không') || pat.coagulationDisorders === 'Không có';
+          const isNo = isNoCoagulation(pat.coagulationDisorders);
           setHasNoCoagulation(isNo);
           setCoagulationNotes(isNo ? '' : pat.coagulationDisorders);
+        }
+        if (pat?.allergies && Array.isArray(pat.allergies) && pat.allergies.length > 0) {
+          const isNkda = pat.allergies.some((a) => a.includes('NKDA') || a.includes('Không có'));
+          if (isNkda) {
+            setHasNoAllergies(true);
+            setSelectedAllergies([]);
+          } else {
+            setHasNoAllergies(false);
+            const loaded = [];
+            const other = [];
+            pat.allergies.forEach((a) => {
+              const matched = COMMON_ALLERGIES.find((ca) => isAllergyMatch(ca, a));
+              if (matched) {
+                if (!loaded.includes(matched)) loaded.push(matched);
+              } else {
+                other.push(a);
+              }
+            });
+            setSelectedAllergies(loaded);
+            if (other.length > 0) {
+              setAllergiesNotes(other.join(', '));
+            }
+          }
         }
         if (pat?.emergencyContactName) {
           setEmergencyContactName(pat.emergencyContactName);
@@ -250,9 +320,10 @@ export default function InitialMedicalProfileSetup() {
 
   const toggleAllergy = (item) => {
     setHasNoAllergies(false);
-    setSelectedAllergies(prev =>
-      prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item]
-    );
+    setSelectedAllergies((prev) => {
+      const exists = prev.some((x) => isAllergyMatch(item, x));
+      return exists ? prev.filter((x) => !isAllergyMatch(item, x)) : [...prev, item];
+    });
   };
 
   const toggleCondition = (item) => {
@@ -771,7 +842,7 @@ export default function InitialMedicalProfileSetup() {
 
             <div className="bms-chips-wrap">
               {COMMON_ALLERGIES.map((alg) => {
-                const isSelected = selectedAllergies.includes(alg);
+                const isSelected = selectedAllergies.some((sa) => isAllergyMatch(alg, sa));
                 return (
                   <div
                     key={alg}

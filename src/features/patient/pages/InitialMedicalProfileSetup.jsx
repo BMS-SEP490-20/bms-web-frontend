@@ -46,37 +46,37 @@ const BLOOD_TYPES_RH_NEG = [
 
 const BLOOD_TYPES = [...BLOOD_TYPES_RH_POS, ...BLOOD_TYPES_RH_NEG, { code: 'Unknown', label: 'Chưa rõ' }];
 
-// Common allergy options
+// Common allergy options (concise typography)
 const COMMON_ALLERGIES = [
-  'Penicillin / Amoxicillin',
+  'Penicillin / Amox',
   'Cephalosporin',
   'Aspirin / Paracetamol',
-  'Thuốc NSAIDs (Ibuprofen...)',
-  'Hải sản (Tôm, Cua, Mực)',
-  'Trứng / Sữa / Đậu phộng',
+  'Kháng viêm NSAIDs',
+  'Hải sản (Tôm, Cua)',
+  'Trứng / Sữa / Đậu',
   'Phấn hoa / Bụi nhà',
-  'Cồn / Povidine / Băng keo'
+  'Cồn / Povidine'
 ];
 
-// Common chronic medical conditions
+// Common chronic medical conditions (concise typography)
 const COMMON_CONDITIONS = [
   'Tăng huyết áp',
   'Đái tháo đường',
-  'Bệnh lý Tim mạch',
+  'Bệnh tim mạch',
   'Viêm gan B / C',
-  'Bệnh thận mạn tính',
-  'Hen phế quản (Suyễn)',
+  'Bệnh thận mạn',
+  'Hen suyễn / COPD',
   'Mỡ máu cao',
-  'Bệnh lý Tuyến giáp',
-  'Viêm loét dạ dày / GERD'
+  'Bệnh tuyến giáp',
+  'Dạ dày / Trào ngược'
 ];
 
-// Quick coagulation flags
+// Quick coagulation flags (concise typography)
 const COAGULATION_PRESETS = [
   'Hemophilia (máu khó đông)',
-  'Xuất huyết giảm tiểu cầu',
-  'Dễ bầm tím / Chảy máu kéo dài',
-  'Thuốc chống đông (Warfarin/Aspirin)'
+  'Giảm tiểu cầu',
+  'Dễ bầm tím / Chảy máu',
+  'Dùng thuốc chống đông'
 ];
 
 // Relationships

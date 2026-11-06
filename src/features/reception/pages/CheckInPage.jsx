@@ -342,6 +342,7 @@ export default function CheckInPage() {
     <div className="container-fluid py-3" style={{ maxWidth: 1400 }}>
       {/* Page Header */}
       <PageHeader
+        icon={<FaUserInjured size={20} />}
         title="Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai"
         lead="Tra cứu thông tin định danh, sinh hiệu, lịch sử khám và khởi tạo hồ sơ khách vãng lai Walk-in."
         meta={['Bảo mật thông tin bệnh án theo Nghị định 13/2023/NĐ-CP', 'Đồng bộ LIS thời gian thực']}

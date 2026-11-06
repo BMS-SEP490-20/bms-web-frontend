@@ -41,6 +41,53 @@ const SAMPLE_TUBES = [
   { value: 'Citrate', label: 'Citrate (Nắp xanh dương)' },
 ];
 
+/**
+ * Resolves biomarker code to SVG icon in /assets/bms/svg/icons/biomarker/
+ */
+function getBiomarkerIconUrl(code) {
+  if (!code) return null;
+  const c = code.toLowerCase().trim();
+  const map = {
+    rbc: 'rbc',
+    hgb: 'hgb',
+    hct: 'hct',
+    wbc: 'wbc',
+    plt: 'plt',
+    glu: 'glucose',
+    glucose: 'glucose',
+    alt: 'alt',
+    ast: 'ast',
+    cre: 'creatinine',
+    creatinine: 'creatinine',
+    cho: 'cholesterol',
+    cholesterol: 'cholesterol',
+    tri: 'triglyceride',
+    triglyceride: 'triglyceride',
+    hdl: 'hdl',
+    hdl_c: 'hdl',
+    ldl: 'ldl',
+    ldl_c: 'ldl',
+    hbsag: 'hbsag',
+    hbs: 'hbsag',
+    hcv: 'anti-hcv',
+    hcv_ab: 'anti-hcv',
+    hba1c: 'hba1c',
+    ggt: 'ggt',
+    pt: 'pt-inr',
+    pt_sec: 'pt-inr',
+    inr: 'pt-inr',
+    pt_inr: 'pt-inr',
+    fibrin: 'fibrinogen',
+    fibrinogen: 'fibrinogen',
+    ure: 'urea',
+    urea: 'urea',
+    crp: 'crp',
+    ferritin: 'ferritin'
+  };
+  const key = map[c];
+  return key ? `/assets/bms/svg/icons/biomarker/${key}.svg` : null;
+}
+
 function normalizePackage(p, idx = 0) {
   const criteriaList = Array.isArray(p.criteria) ? p.criteria : [];
   const testsFromCriteria = criteriaList.map(
@@ -300,8 +347,8 @@ export default function ServiceCatalogPage() {
                 </div>
               </Col>
 
-              {/* Right: Featured Panel Spotlight Card - Pure Flat, Zero Border */}
-              {featuredItem && (
+              {/* Right: Featured Panel Spotlight Card or Catalog Hero Art - Pure Flat, Zero Border */}
+              {featuredItem ? (
                 <Col lg={5}>
                   <div
                     style={{
@@ -387,6 +434,14 @@ export default function ServiceCatalogPage() {
                       </div>
                     </div>
                   </div>
+                </Col>
+              ) : (
+                <Col lg={5} className="text-center d-none d-lg-block">
+                  <img
+                    src="/assets/bms/svg/hero/services/catalog-hero.svg"
+                    alt="BMS Clinical Catalog Art"
+                    style={{ maxWidth: '280px', height: 'auto', maxHeight: '160px', objectFit: 'contain' }}
+                  />
                 </Col>
               )}
             </Row>
@@ -578,11 +633,18 @@ export default function ServiceCatalogPage() {
               className="text-center py-5 p-4"
               style={{
                 background: '#FFFFFF',
-                borderRadius: '16px',
-                border: '1px solid rgba(15, 23, 42, 0.08)'
+                borderRadius: '20px',
+                border: 'none',
+                boxShadow: 'none'
               }}
             >
-              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔬</div>
+              <div className="mb-3">
+                <img
+                  src="/assets/bms/svg/sections/packages/empty-state.svg"
+                  alt="Không tìm thấy xét nghiệm"
+                  style={{ height: '90px', objectFit: 'contain' }}
+                />
+              </div>
               <h4 className="fw-bold mb-1" style={{ fontSize: '17px', color: '#0F172A' }}>
                 Không tìm thấy gói xét nghiệm phù hợp
               </h4>
@@ -755,14 +817,28 @@ export default function ServiceCatalogPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedPackage.criteria.map((c, i) => (
-                        <tr key={i}>
-                          <td className="fw-bold font-monospace" style={{ padding: '8px 12px' }}>{c.code || '-'}</td>
-                          <td style={{ padding: '8px 12px' }}>{c.name || c.testName || '-'}</td>
-                          <td style={{ padding: '8px 12px' }}>{c.unit || '-'}</td>
-                          <td style={{ padding: '8px 12px' }}>{c.referenceRange || c.refRange || 'Theo độ tuổi & giới tính'}</td>
-                        </tr>
-                      ))}
+                      {selectedPackage.criteria.map((c, i) => {
+                        const iconUrl = getBiomarkerIconUrl(c.code);
+                        return (
+                          <tr key={i}>
+                            <td className="fw-bold font-monospace" style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}>
+                              <div className="d-flex align-items-center gap-2">
+                                {iconUrl && (
+                                  <img
+                                    src={iconUrl}
+                                    alt=""
+                                    style={{ width: '16px', height: '16px', objectFit: 'contain', flexShrink: 0 }}
+                                  />
+                                )}
+                                <span>{c.code || '-'}</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>{c.name || c.testName || '-'}</td>
+                            <td style={{ padding: '8px 12px' }}>{c.unit || '-'}</td>
+                            <td style={{ padding: '8px 12px' }}>{c.referenceRange || c.refRange || 'Theo độ tuổi & giới tính'}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

@@ -206,20 +206,66 @@
   margin-bottom: 14px;
 }
 
-/* Pricing Slim List Item */
-.bms-pricing-list-item {
+/* Pricing Luxury Cohesive Sheet & Rows (Unified, Non-Generic, Pure Flat) */
+.bms-pricing-sheet {
   background: #FFFFFF;
-  border-radius: 18px;
+  border-radius: 22px;
   border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.03);
-  padding: 16px 24px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
 }
 
-.bms-pricing-list-item:hover {
-  border-color: #1E60E6 !important;
-  box-shadow: 0 8px 24px -4px rgba(30, 96, 230, 0.09) !important;
-  transform: translateY(-1px);
+.bms-pricing-sheet-header {
+  background: #FFFFFF;
+  padding: 18px 28px 16px;
+  border-bottom: 1px solid rgba(241, 245, 249, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bms-pricing-sheet-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #1E60E6;
+  display: inline-block;
+}
+
+.bms-pricing-sheet-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.bms-pricing-row {
+  background: #FFFFFF;
+  padding: 16px 28px;
+  border-bottom: 1px solid rgba(241, 245, 249, 1);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  transition: background-color 0.15s ease;
+}
+
+.bms-pricing-row:last-child {
+  border-bottom: none;
+}
+
+.bms-pricing-row:hover {
+  background-color: #F8FAFC;
+}
+
+@media (max-width: 768px) {
+  .bms-pricing-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 18px;
+    gap: 14px;
+  }
 }
 
 @media (max-width: 992px) {

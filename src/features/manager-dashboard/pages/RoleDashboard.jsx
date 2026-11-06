@@ -27,6 +27,8 @@ import {
   FaHeartbeat
 } from 'react-icons/fa';
 import api from '../../../config/api';
+import PageHeader from '../../../components/ui/PageHeader';
+import StatRow from '../../../components/ui/StatRow';
 import { fetchVerificationQueue } from '../../laboratory/api/testResultVerificationApi';
 import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 import AdminOpsDashboard from '../../admin/components/AdminOpsDashboard';
@@ -172,38 +174,31 @@ const ClinicalRoleDashboard = () => {
   }, [stats]);
 
   return (
-    <div className="w-100 py-3 px-md-4" style={{ maxWidth: 1440, margin: '0 auto' }}>
-      {/* Thanh tiêu đề quản lý & Thẩm quyền người dùng */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-        <div>
-          <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-            <FaShieldAlt style={{ color: '#1E60E6' }} />
-            Bảng Điều Khiển Quản Lý Vận Hành Phòng Xét Nghiệm
-          </h2>
-          <p className="text-muted small mb-0">
-            Hệ thống giám sát hiệu suất chất lượng phòng Lab theo tiêu chuẩn ISO 15189 &amp; Quyết định 2429/QĐ-BYT
-          </p>
-        </div>
-
-        <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
-          <span className="px-3 py-1.5 border rounded-pill small fw-semibold shadow-sm d-inline-flex align-items-center" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.3)' }}>
-            <i className="bi bi-person-badge me-1"></i>Trưởng Khoa / Quản Lý: {stats?.userName || currentUser?.fullName || 'BSCKII. Lê Lan Anh'}
-          </span>
+    <div className="w-100 py-3 px-md-4" style={{ maxWidth: 1400, margin: '0 auto' }}>
+      {/* Page Header */}
+      <PageHeader
+        title="Bảng Điều Khiển Quản Lý Vận Hành Phòng Xét Nghiệm"
+        lead="Hệ thống giám sát hiệu suất chất lượng phòng Lab theo tiêu chuẩn ISO 15189 & Quyết định 2429/QĐ-BYT."
+        meta={[
+          `Trưởng khoa: ${stats?.userName || currentUser?.fullName || 'BSCKII. Lê Lan Anh'}`,
+          'LIS hoạt động đồng bộ 100%',
+          `Cập nhật: ${new Date().toLocaleTimeString('vi-VN')} (${new Date().toLocaleDateString('vi-VN')})`
+        ]}
+        actions={
           <Button
             variant="outline-secondary"
             size="sm"
-            className="d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+            className="rounded-pill px-3"
             onClick={() => fetchDashboardStats(selectedRole)}
             disabled={loading}
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+            Làm mới
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {error && (
-        <Alert variant="danger" className="mb-4 shadow-sm rounded-3" dismissible onClose={() => setError('')}>
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+        <Alert variant="danger" className="mb-4 rounded-3" dismissible onClose={() => setError('')}>
           {error}
         </Alert>
       )}
@@ -215,39 +210,14 @@ const ClinicalRoleDashboard = () => {
         </div>
       ) : stats ? (
         <>
-          {/* Banner chào mừng & Thông tin phiên làm việc */}
-          <div className="d-flex flex-wrap justify-content-between align-items-center py-3 px-4 mb-4 rounded-4 shadow-sm" style={{ background: 'rgba(30, 96, 230, 0.08)', border: '1px solid rgba(30, 96, 230, 0.2)' }}>
-            <div className="d-flex align-items-center gap-2">
-              <span className="rounded-circle p-1 d-inline-block" style={{ width: 10, height: 10, backgroundColor: '#10B981' }}></span>
-              <span className="fw-bold text-dark">{stats.userName}</span>
-              <span className="text-muted">| Chức vụ:</span>
-              <Badge className="px-2.5 py-1 rounded-pill" style={{ backgroundColor: '#1E60E6' }}>Trưởng Khoa / Quản Lý Lab</Badge>
-              <span className="text-muted small ms-2">Hệ thống LIS hoạt động đồng bộ 100%</span>
-            </div>
-            <div className="text-muted small mt-2 mt-sm-0">
-              Cập nhật dữ liệu: <strong>{new Date().toLocaleTimeString('vi-VN')}</strong> ({new Date().toLocaleDateString('vi-VN')})
-            </div>
-          </div>
-
-          {/* 4 Thẻ Chỉ Số KPI Trọng Yếu */}
-          <Row className="g-3 mb-4">
-            {summaryCardsSafe.map((card, idx) => (
-              <Col key={idx} xs={12} sm={6} lg={3}>
-                <Card className="h-100 border shadow-sm rounded-4" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-                  <Card.Body className="p-3.5">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '11.5px', letterSpacing: '0.03em' }}>{card.title}</span>
-                      <div className="p-2 rounded-3 fs-5" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6' }}>
-                        <i className={`bi ${card.icon || 'bi-speedometer2'}`}></i>
-                      </div>
-                    </div>
-                    <h3 className="fw-bold mb-1 text-dark tabular-nums" style={{ letterSpacing: '-0.02em' }}>{card.value}</h3>
-                    {card.subtitle && <p className="text-muted small mb-0" style={{ fontSize: '12px' }}>{card.subtitle}</p>}
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          {/* Key Metrics Stat Row */}
+          <StatRow
+            items={summaryCardsSafe.map((card, idx) => ({
+              label: card.title,
+              value: card.value,
+              primary: idx === 0
+            }))}
+          />
 
           {/* ======================================================== */}
           {/* PHÂN VÙNG DÀNH RIÊNG CHO TRƯỞNG KHOA / QUẢN LÝ (MANAGER) */}

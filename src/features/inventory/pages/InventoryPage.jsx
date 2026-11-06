@@ -87,7 +87,7 @@ export default function InventoryPage() {
       <div><h4 className="fw-bold mb-1" style={{ color: '#0F172A' }}><FaBoxOpen className="me-2" style={{ color: '#1E60E6' }} />Quản Lý Kho Hóa Chất & Sinh Phẩm</h4><p className="text-muted mb-0">Theo dõi từng lô, mức tồn tối thiểu và hạn sử dụng.</p></div>
       <div className="d-flex gap-2">{canManage && <Button className="rounded-pill shadow-sm px-3" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô hóa chất</Button>}<Button variant="outline-primary" className="rounded-pill px-3" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
     </div>
-    <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', '#1E60E6'], ['LowStock', 'Tồn thấp', '#E7BC4C'], ['ExpiringSoon', 'Sắp hết hạn', '#E7BC4C'], ['Expired', 'Đã hết hạn', '#dc3545']].map(([key, label, color]) =>
+    <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', '#1E60E6'], ['LowStock', 'Tồn thấp', '#B45309'], ['ExpiringSoon', 'Sắp hết hạn', '#B45309'], ['Expired', 'Đã hết hạn', '#dc3545']].map(([key, label, color]) =>
       <Col sm={6} xl={3} key={key}><Card className="border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}><Card.Body><div className="text-muted small mb-1">{label}</div><div className="fs-3 fw-bold" style={{ color, fontVariantNumeric: 'tabular-nums' }}>{loading ? '…' : data?.summary?.[key[0].toLowerCase() + key.slice(1)] ?? '—'}</div></Card.Body></Card></Col>)}</Row>
     <Card className="border-0 shadow-sm mb-4 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}><Card.Body className="p-4">
       <Row className="g-3 align-items-end">

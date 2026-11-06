@@ -343,10 +343,10 @@ export default function NotifyTestResultsPage() {
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Chờ Xử Lý / Thất Bại</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
+                                <h3 className="fw-bold mb-0" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
                                 <small className="text-muted">{stats.failedCount} tin nhắn cần gửi lại</small>
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#E7BC4C' }}>
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#B45309' }}>
                                 <FaRedo className="fs-4" />
                             </div>
                         </div>

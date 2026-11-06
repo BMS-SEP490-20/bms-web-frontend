@@ -165,9 +165,9 @@ export default function PublicQueueBoardPage() {
         <div className="d-flex align-items-center gap-4">
           {/* Clock Display */}
           <div className="text-end d-flex align-items-center gap-2">
-            <FaClock className="fs-4" style={{ color: '#E7BC4C' }} />
+            <FaClock className="fs-4" style={{ color: '#B45309' }} />
             <div>
-              <div className="fs-4 fw-bold font-monospace leading-none" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>
+              <div className="fs-4 fw-bold font-monospace leading-none" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>
                 {currentTime.toLocaleTimeString('vi-VN')}
               </div>
               <div className="small text-white-50">
@@ -210,7 +210,7 @@ export default function PublicQueueBoardPage() {
                 <span className="fw-bold text-uppercase fs-5 d-flex align-items-center gap-2">
                   <FaUserCheck /> ĐANG GỌI VÀO PHÒNG KHÁM
                 </span>
-                <span className="badge fs-6 px-3 py-1.5 rounded-pill" style={{ backgroundColor: '#E7BC4C', color: '#1E293B', fontWeight: 'bold' }}>
+                <span className="badge fs-6 px-3 py-1.5 rounded-pill" style={{ backgroundColor: '#B45309', color: '#1E293B', fontWeight: 'bold' }}>
                   {current?.roomId || 'TẤT CẢ PHÒNG'}
                 </span>
               </div>

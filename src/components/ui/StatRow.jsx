@@ -32,3 +32,4 @@ StatRow.propTypes = {
     })
   ).isRequired
 };
+

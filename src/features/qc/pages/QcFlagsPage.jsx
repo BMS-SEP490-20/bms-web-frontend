@@ -319,14 +319,14 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #E7BC4C' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #B45309' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
                     <span className="text-muted small fw-medium">Đang điều tra / Xử lý</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{statistics.investigatingFlags}</h3>
+                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{statistics.investigatingFlags}</h3>
                   </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(231,188,76,0.12)', color: '#E7BC4C' }}>
+                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(231,188,76,0.12)', color: '#B45309' }}>
                     <FaTools className="fs-4" />
                   </div>
                 </div>

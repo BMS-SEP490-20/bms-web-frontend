@@ -80,8 +80,8 @@
   --bms-transition: all 0.15s ease-out;
 
   /* Distinctive Typography: Geist */
-  --font-sans: 'Geist Variable', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-sans: 'Geist', 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Variable', ui-monospace, Menlo, Consolas, monospace;
 }
 
 /* Global Typography Anti-Aliasing & Enforcement */

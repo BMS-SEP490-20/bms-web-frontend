@@ -24,3 +24,4 @@ Field.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.node
 };
+

@@ -218,7 +218,7 @@ export default function TatStatisticsDashboardPage() {
                         {/* Priority Filter */}
                         <div className="col-12 col-sm-6 col-md-3 col-xl-4">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaBolt className="me-1" style={{ color: '#E7BC4C' }} /> Độ ưu tiên (Urgency):
+                                <FaBolt className="me-1" style={{ color: '#B45309' }} /> Độ ưu tiên (Urgency):
                             </label>
                             <select
                                 className="form-select form-select-sm"
@@ -301,7 +301,7 @@ export default function TatStatisticsDashboardPage() {
                 <div className="col-12 col-sm-6 col-xl-2">
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="text-muted small fw-semibold text-uppercase">Mẫu Vượt Ngưỡng (Trễ)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{summary.violationCount || 0}</div>
+                        <div className="fs-3 fw-bold mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{summary.violationCount || 0}</div>
                         <div className="small fw-semibold mt-1" style={{ fontSize: "0.75rem", color: '#b48316' }}>
                             Cần rà soát tắc nghẽn
                         </div>
@@ -351,7 +351,7 @@ export default function TatStatisticsDashboardPage() {
                                 {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
                                     const isStat = p.priority.toLowerCase() === "stat";
                                     const isUrgent = p.priority.toLowerCase() === "urgent";
-                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#E7BC4C" : "#1E60E6";
+                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#B45309" : "#1E60E6";
 
                                     return (
                                         <div className="col-12 col-md-4" key={p.priority}>
@@ -486,7 +486,7 @@ export default function TatStatisticsDashboardPage() {
                                                             <div
                                                                 className="progress-bar"
                                                                 role="progressbar"
-                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#10B981' : '#E7BC4C', borderRadius: '9999px' }}
+                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#10B981' : '#B45309', borderRadius: '9999px' }}
                                                             ></div>
                                                         </div>
                                                         <span className="small fw-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.complianceRate}%</span>

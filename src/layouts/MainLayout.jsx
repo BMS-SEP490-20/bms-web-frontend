@@ -21,10 +21,6 @@ export default function MainLayout() {
   const user = useMemo(() => getStoredUser(), []);
   const roleId = useMemo(() => resolveRoleId(user), [user]);
 
-  // Logged-in Patient is a healthcare consumer: delegate to synchronized PatientPortalLayout
-  if (user && roleId === ROLES.PATIENT) {
-    return <PatientPortalLayout />;
-  }
   // Mobile drawer state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
@@ -74,6 +70,11 @@ export default function MainLayout() {
   };
 
   const sidebarWidth = desktopCollapsed ? '80px' : '260px';
+
+  // Logged-in Patient is a healthcare consumer: delegate to PatientPortalLayout (after all hooks)
+  if (user && roleId === ROLES.PATIENT) {
+    return <PatientPortalLayout />;
+  }
 
   return (
     <div className="bms-app-layout min-vh-100 d-flex flex-column" style={{ background: 'var(--bg-page, #F4F7F9)', overflowX: 'hidden' }}>
@@ -126,7 +127,7 @@ export default function MainLayout() {
         </main>
 
         {/* Soft Telehealth Minimal Footer */}
-        <footer className="bms-main-footer py-3 px-4 text-muted small" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.04)', background: 'transparent' }}>
+        <footer className="bms-main-footer py-3 px-4 text-muted small" style={{ border: 'none', background: 'transparent' }}>
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div style={{ color: '#6B7280', fontSize: '12px' }}>
               &copy; {new Date().getFullYear()} <strong>BMS Health</strong> — Clinical Laboratory Diagnostics Platform.

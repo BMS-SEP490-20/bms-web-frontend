@@ -302,7 +302,7 @@ export default function AlertThresholdViolationPage() {
                             <span className="text-muted small fw-semibold text-uppercase">Mức Nguy Cấp (Critical)</span>
                             <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>Khẩn cấp</span>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{summary.criticalEmergencyCount}</div>
+                        <div className="fs-2 fw-bold mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{summary.criticalEmergencyCount}</div>
                         <div className="small text-muted mt-1">Đã gửi tin SMS &amp; Email khẩn</div>
                     </div>
                 </div>
@@ -516,7 +516,7 @@ export default function AlertThresholdViolationPage() {
                                                         {isAct && (
                                                             <button
                                                                 className="btn btn-sm d-flex align-items-center gap-1 shadow-sm"
-                                                                style={{ borderRadius: '9999px', backgroundColor: '#E7BC4C', borderColor: '#E7BC4C', color: '#1E293B', fontWeight: '600', padding: '4px 12px' }}
+                                                                style={{ borderRadius: '9999px', backgroundColor: '#B45309', borderColor: '#B45309', color: '#1E293B', fontWeight: '600', padding: '4px 12px' }}
                                                                 onClick={() => {
                                                                     setSelectedAlertForAction(alert);
                                                                     setActionType("ACKNOWLEDGE");

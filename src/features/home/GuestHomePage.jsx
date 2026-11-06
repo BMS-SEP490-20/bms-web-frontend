@@ -328,10 +328,10 @@ export default function GuestHomePage() {
               </div>
             </div>
 
-            {/* Right Column: Narrative Lab Scene Artwork with Soft Ambient Glow */}
+            {/* Right Column: Narrative Lab Scene Artwork (100% Pure 2D Flat, Zero Shadow, Zero Glow) */}
             <div className="bms-hero-art--big">
               <img
-                src="/assets/bms/svg/hero/home/hero-lab-narrative-A.svg"
+                src="/assets/bms/svg/hero/home/hero-lab-narrative-A.svg?v=clean-20261106-1408"
                 alt="BMS Clinical Laboratory Narrative Workflow Scene"
                 aria-hidden="true"
               />

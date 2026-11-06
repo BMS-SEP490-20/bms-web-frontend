@@ -17,22 +17,9 @@
   justify-content: center;
 }
 
-/* Soft luminous glow behind transparent narrative artwork to prevent monochromatic blending */
+/* 100% Pure 2D Flat - Zero Glow, Zero Blur, Zero Shadow */
 .bms-hero-art--big::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 88%;
-  height: 88%;
-  max-width: 520px;
-  max-height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(30, 96, 230, 0.12) 0%, rgba(56, 189, 248, 0.08) 36%, rgba(16, 185, 129, 0.04) 62%, rgba(248, 250, 252, 0) 78%);
-  filter: blur(32px);
-  pointer-events: none;
-  z-index: 0;
+  display: none !important;
 }
 
 .bms-hero-art--big img {
@@ -43,7 +30,8 @@
   height: auto;
   display: block;
   margin: 0 auto;
-  filter: drop-shadow(0 14px 36px rgba(30, 96, 230, 0.08));
+  filter: none !important;
+  box-shadow: none !important;
 }
 
 .bms-hero-page-metrics {

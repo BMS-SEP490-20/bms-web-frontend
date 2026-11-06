@@ -161,11 +161,10 @@ export default function LookupBiochemicalResultsPage() {
       {/* Page Header */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
-          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
             <FaFlask style={{ color: '#1E60E6' }} />
             <span>Tra Cứu Kết Quả Xét Nghiệm Sinh Hóa (Look Up Biochemical Results)</span>
-            <Badge pill bg="primary-subtle" className="ms-2 px-3 py-1 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>UC75</Badge>
-          </h3>
+            </h3>
           <p className="text-muted small mb-0">
             Tra cứu kết quả xét nghiệm sinh hóa, huyết học, dải tham chiếu chuẩn WHO/ADA, cờ cảnh báo bất thường và thẩm định chữ ký số y khoa.
           </p>
@@ -187,7 +186,7 @@ export default function LookupBiochemicalResultsPage() {
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
               onClick={() => navigate('/laboratory/notifications')}
             >
-              <FaBell className="me-1" /> Phát Thông Báo (UC60)
+              <FaBell className="me-1" /> Phát Thông Báo
             </Button>
           )}
         </div>
@@ -267,7 +266,7 @@ export default function LookupBiochemicalResultsPage() {
                     className="fw-bold"
                     onClick={() => navigate('/laboratory/notifications')}
                   >
-                    <FaBell className="me-1" /> Bắn Còi Báo Động Nguy Kịch (UC60)
+                    <FaBell className="me-1" /> Bắn Còi Báo Động Nguy Kịch
                   </Button>
                 )}
                 <Button
@@ -275,7 +274,7 @@ export default function LookupBiochemicalResultsPage() {
                   size="sm"
                   onClick={() => navigate('/laboratory/specimens/history')}
                 >
-                  <FaHistory className="me-1" /> Truy Vết Chuỗi Bảo Quản Mẫu (UC70)
+                  <FaHistory className="me-1" /> Truy Vết Chuỗi Bảo Quản Mẫu
                 </Button>
               </div>
             </div>

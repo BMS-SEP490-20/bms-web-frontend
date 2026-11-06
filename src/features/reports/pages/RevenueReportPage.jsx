@@ -219,7 +219,6 @@ export default function RevenueReportPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge px-3 py-1.5 fs-6" style={{ backgroundColor: 'rgba(94, 133, 230, 0.15)', color: '#1E60E6', borderRadius: '9999px', border: '1px solid rgba(94, 133, 230, 0.3)' }}>UC78</span>
                         <h2 className="h4 mb-0 fw-bold text-dark">Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm</h2>
                     </div>
                     <p className="text-muted small mt-1 mb-0">
@@ -343,7 +342,7 @@ export default function RevenueReportPage() {
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Doanh Thu Gộp</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                                 <FaFileInvoiceDollar />
                             </div>
                         </div>
@@ -380,7 +379,7 @@ export default function RevenueReportPage() {
                     <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">BHYT Chi Trả</span>
-                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+                            <div className="p-2 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                                 <FaHospitalUser />
                             </div>
                         </div>

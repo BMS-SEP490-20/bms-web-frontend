@@ -262,11 +262,11 @@ export default function TestBatchManagementPage() {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
         <div>
           <div className="d-flex align-items-center gap-2 mb-1">
-            <h3 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+            <h3 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
               <FaFlask style={{ color: '#1E60E6' }} />
               <span>Quản Lý Mẻ Xét Nghiệm Máy Phân Tích (Test Batches)</span>
             </h3>
-            <Badge pill bg="primary-subtle" className="px-3 py-1 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(94,133,230,0.1)' }}>
+            <Badge pill bg="primary-subtle" className="px-3 py-1 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(30, 96, 230,0.1)' }}>
               Tiêu chuẩn ISO 15189:2022
             </Badge>
           </div>
@@ -314,7 +314,7 @@ export default function TestBatchManagementPage() {
       {activeTab === 'list' && (
         <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <h5 className="mb-0 fw-bold fs-6 d-flex align-items-center gap-2" style={{ color: '#2B3674' }}>
+            <h5 className="mb-0 fw-bold fs-6 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
               <FaMicroscope style={{ color: '#1E60E6' }} />
               <span>Danh Sách Các Mẻ Xét Nghiệm Trong Ca Làm Việc</span>
             </h5>
@@ -409,7 +409,7 @@ export default function TestBatchManagementPage() {
                                   variant="warning"
                                   size="sm"
                                   className="px-2 py-1 text-dark rounded-pill"
-                                  style={{ fontSize: '0.75rem', backgroundColor: '#E7BC4C', borderColor: '#E7BC4C' }}
+                                  style={{ fontSize: '0.75rem', backgroundColor: '#B45309', borderColor: '#B45309' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Running')}
                                 >
                                   <FaPlay className="me-1" /> Chạy máy
@@ -570,7 +570,7 @@ export default function TestBatchManagementPage() {
                                   style={{
                                     height: '52px',
                                     cursor: isA1 || isA2 ? 'not-allowed' : 'pointer',
-                                    border: selectedWell === coord ? '2px solid #0d6efd' : undefined
+                                    border: selectedWell === coord ? '2px solid #1E60E6' : undefined
                                   }}
                                   onClick={() => {
                                     if (!isA1 && !isA2) setSelectedWell(coord);

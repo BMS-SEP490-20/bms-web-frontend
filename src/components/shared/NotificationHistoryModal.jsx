@@ -275,7 +275,7 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
                     }`}
                     style={{
                       cursor: 'pointer',
-                      borderLeft: isUnread ? '4px solid #0d6efd' : '4px solid transparent',
+                      borderLeft: isUnread ? '4px solid #1E60E6' : '4px solid transparent',
                       transition: 'background-color 0.15s ease'
                     }}
                     onClick={() => handleMarkAsRead(item.notificationId)}

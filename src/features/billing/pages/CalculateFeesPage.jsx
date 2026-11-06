@@ -220,7 +220,7 @@ export default function CalculateFeesPage() {
                   height: 52,
                   borderRadius: 12,
                   backgroundColor: "#eff6ff",
-                  color: "#1d4ed8",
+                  color: "#1E60E6",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -231,7 +231,7 @@ export default function CalculateFeesPage() {
               </div>
               <div>
                 <div className="text-primary small fw-bold text-uppercase" style={{ letterSpacing: "0.5px" }}>
-                  UC53 • TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
+                  TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
                 </div>
                 <h2 className="h4 fw-bold text-dark mb-1">
                   Dự Toán & Tính Phí Xét Nghiệm Y Tế
@@ -308,7 +308,7 @@ export default function CalculateFeesPage() {
                           key={code}
                           onClick={() => handleTogglePackage(code)}
                           style={{
-                            border: checked ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                            border: checked ? "2px solid #1E60E6" : "1px solid #e2e8f0",
                             backgroundColor: checked ? "#eff6ff" : "#ffffff",
                             borderRadius: 10,
                             padding: "14px 16px",
@@ -372,7 +372,7 @@ export default function CalculateFeesPage() {
                     <div
                       onClick={() => setServiceType("Clinic")}
                       style={{
-                        border: serviceType === "Clinic" ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                        border: serviceType === "Clinic" ? "2px solid #1E60E6" : "1px solid #e2e8f0",
                         backgroundColor: serviceType === "Clinic" ? "#eff6ff" : "#ffffff",
                         borderRadius: 10,
                         padding: 16,
@@ -387,7 +387,7 @@ export default function CalculateFeesPage() {
                             width: 40,
                             height: 40,
                             borderRadius: 8,
-                            backgroundColor: serviceType === "Clinic" ? "#1d4ed8" : "#f1f5f9",
+                            backgroundColor: serviceType === "Clinic" ? "#1E60E6" : "#f1f5f9",
                             color: serviceType === "Clinic" ? "#ffffff" : "#64748b",
                             display: "flex",
                             alignItems: "center",
@@ -414,7 +414,7 @@ export default function CalculateFeesPage() {
                     <div
                       onClick={() => setServiceType("HomeCollection")}
                       style={{
-                        border: serviceType === "HomeCollection" ? "2px solid #2563eb" : "1px solid #e2e8f0",
+                        border: serviceType === "HomeCollection" ? "2px solid #1E60E6" : "1px solid #e2e8f0",
                         backgroundColor: serviceType === "HomeCollection" ? "#eff6ff" : "#ffffff",
                         borderRadius: 10,
                         padding: 16,
@@ -429,7 +429,7 @@ export default function CalculateFeesPage() {
                             width: 40,
                             height: 40,
                             borderRadius: 8,
-                            backgroundColor: serviceType === "HomeCollection" ? "#1d4ed8" : "#f1f5f9",
+                            backgroundColor: serviceType === "HomeCollection" ? "#1E60E6" : "#f1f5f9",
                             color: serviceType === "HomeCollection" ? "#ffffff" : "#64748b",
                             display: "flex",
                             alignItems: "center",

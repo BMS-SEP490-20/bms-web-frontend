@@ -212,7 +212,7 @@ export default function ConfigureReferenceIntervalsPage() {
             </Button>
             <h4 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
               <FaHeartbeat className="text-danger" />
-              Cấu Hình Khoảng Tham Chiếu Sinh Học (UC57)
+              Cấu Hình Khoảng Tham Chiếu Sinh Học
             </h4>
             <Badge bg="primary" className="ms-2">
               Iteration 3

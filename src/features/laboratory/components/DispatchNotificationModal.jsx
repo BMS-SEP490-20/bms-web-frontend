@@ -185,7 +185,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                     <div className={`modal-header ${isCritical ? "bg-danger text-white" : "bg-primary text-white"}`}>
                         <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
                             {isCritical ? <FaExclamationTriangle /> : <FaPaperPlane />}
-                            <span>{isCritical ? "Phát Thông Báo Cảnh Báo Hoảng Loạn (Panic Value)" : "Phát Thông Báo Kết Quả Xét Nghiệm Mới (UC60)"}</span>
+                            <span>{isCritical ? "Phát Thông Báo Cảnh Báo Hoảng Loạn (Panic Value)" : "Phát Thông Báo Kết Quả Xét Nghiệm Mới"}</span>
                         </h5>
                         <button
                             type="button"

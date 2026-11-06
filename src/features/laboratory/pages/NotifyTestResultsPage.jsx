@@ -236,9 +236,9 @@ export default function NotifyTestResultsPage() {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
-                        <h4 className="fw-bold mb-0" style={{ color: '#2B3674' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
-                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(94,133,230,0.1)', color: '#1E60E6', border: '1px solid rgba(94,133,230,0.2)' }}>
-                            UC60 • BR-182 / BR-183
+                        <h4 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Quản Lý & Phát Thông Báo Kết Quả Xét Nghiệm</h4>
+                        <span className="badge rounded-pill px-3 py-1 fw-semibold font-monospace" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
+                            
                         </span>
                         <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
                             Panic Value Escalation
@@ -298,10 +298,10 @@ export default function NotifyTestResultsPage() {
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tổng Số Thông Báo</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#2B3674', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
+                                <h3 className="fw-bold mb-0" style={{ color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
                                 <small className="text-muted">Đã phát hành toàn viện</small>
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(94,133,230,0.12)', color: '#1E60E6' }}>
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
                                 <FaBell className="fs-4" />
                             </div>
                         </div>
@@ -343,10 +343,10 @@ export default function NotifyTestResultsPage() {
                         <div className="card-body p-3 d-flex align-items-center justify-content-between">
                             <div>
                                 <span className="text-muted small fw-bold text-uppercase d-block mb-1">Chờ Xử Lý / Thất Bại</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#E7BC4C', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
+                                <h3 className="fw-bold mb-0" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
                                 <small className="text-muted">{stats.failedCount} tin nhắn cần gửi lại</small>
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#E7BC4C' }}>
+                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#B45309' }}>
                                 <FaRedo className="fs-4" />
                             </div>
                         </div>

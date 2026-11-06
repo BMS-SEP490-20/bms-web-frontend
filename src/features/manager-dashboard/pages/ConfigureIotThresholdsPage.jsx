@@ -193,7 +193,7 @@ export default function ConfigureIotThresholdsPage() {
                     <button
                         type="button"
                         className="btn text-white"
-                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 20px', borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 2px 10px rgba(94, 133, 230, 0.3)' }}
+                        style={{ fontSize: '13px', fontWeight: '600', padding: '8px 20px', borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 2px 10px rgba(30, 96, 230, 0.3)' }}
                         onClick={handleSaveAll}
                         disabled={saving}
                     >
@@ -356,7 +356,7 @@ export default function ConfigureIotThresholdsPage() {
                         ))}
                     </div>
 
-                    <div style={{ background: 'rgba(94, 133, 230, 0.08)', border: '1px solid rgba(94, 133, 230, 0.25)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
+                    <div style={{ background: 'rgba(30, 96, 230, 0.08)', border: '1px solid rgba(30, 96, 230, 0.25)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
                         <i className="bi bi-info-circle-fill me-2" style={{ color: '#1E60E6' }}></i>
                         <span>{escalationPolicy || 'Chính sách thông báo leo thang: Thông báo đẩy ứng dụng (Push) + Email nội viện tức thời. Tự động gửi SMS cảnh báo đến Trưởng Khoa nếu sau 5 phút không có xác nhận can thiệp.'}</span>
                     </div>

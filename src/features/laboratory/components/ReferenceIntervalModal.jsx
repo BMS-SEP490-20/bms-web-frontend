@@ -233,7 +233,7 @@ export default function ReferenceIntervalModal({
       <Modal.Header closeButton className="bg-light py-3">
         <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2 text-primary">
           <FaHeartbeat />
-          {mode === 'create' ? 'Cấu Hình Khoảng Tham Chiếu Mới (UC57)' : 'Cập Nhật Khoảng Tham Chiếu Sinh Học'}
+          {mode === 'create' ? 'Cấu Hình Khoảng Tham Chiếu Mới' : 'Cập Nhật Khoảng Tham Chiếu Sinh Học'}
         </Modal.Title>
       </Modal.Header>
 

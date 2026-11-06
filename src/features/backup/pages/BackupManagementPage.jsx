@@ -242,7 +242,7 @@ export default function BackupManagementPage() {
                 <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
                         <h4 className="fw-bold mb-0" style={{ color: '#0f2743' }}>Quản Lý Sao Lưu & Phục Hồi Dữ Liệu</h4>
-                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(94, 133, 230, 0.25)' }}>
+                        <span className="badge rounded-pill font-monospace" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.25)' }}>
                             ISO 15189 • Nghị Định 123/2020/NĐ-CP
                         </span>
                         <span className="badge rounded-pill" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32', border: '1px solid rgba(145, 222, 131, 0.35)' }}>
@@ -250,7 +250,7 @@ export default function BackupManagementPage() {
                         </span>
                     </div>
                     <p className="text-secondary small mb-0">
-                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn (UC80).
+                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn.
                     </p>
                 </div>
 
@@ -269,7 +269,7 @@ export default function BackupManagementPage() {
                             type="button"
                             className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
                             onClick={() => setShowCreateModal(true)}
-                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(94, 133, 230, 0.25)' }}
+                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         >
                             <FaPlus />
                             <span>Sao Lưu Dữ Liệu Xét Nghiệm Mới</span>
@@ -309,7 +309,7 @@ export default function BackupManagementPage() {
                                     </span>
                                     <h3 className="fw-bold mb-0" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{stats.totalBackups}</h3>
                                 </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                                     <FaDatabase className="fs-4" />
                                 </div>
                             </div>
@@ -330,7 +330,7 @@ export default function BackupManagementPage() {
                                     </span>
                                     <h3 className="fw-bold mb-0" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalStorageMb} MB</h3>
                                 </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(94, 133, 230, 0.1)', color: '#1E60E6' }}>
+                                <div className="p-3 rounded-circle" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
                                     <FaHdd className="fs-4" />
                                 </div>
                             </div>
@@ -567,9 +567,9 @@ export default function BackupManagementPage() {
                                             </td>
                                             <td style={{ padding: '12px 16px' }}>
                                                 <span className="badge rounded-pill" style={{
-                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(94, 133, 230, 0.1)' : '#EEF2F6',
+                                                    background: item.scope === "PatientTestResults" || item.scope === 1 ? 'rgba(30, 96, 230, 0.1)' : '#EEF2F6',
                                                     color: item.scope === "PatientTestResults" || item.scope === 1 ? '#1E60E6' : '#64748b',
-                                                    border: '1px solid rgba(94, 133, 230, 0.2)'
+                                                    border: '1px solid rgba(30, 96, 230, 0.2)'
                                                 }}>
                                                     {item.scope === "PatientTestResults" || item.scope === 1 ? "Dữ Liệu Xét Nghiệm" : "Toàn Bộ Hệ Thống"}
                                                 </span>

@@ -33,39 +33,39 @@ import {
   FaClipboardList
 } from 'react-icons/fa';
 
-// Common chronic conditions list matching MOH standards
+// Common chronic conditions list (clean, concise typography)
 const CHRONIC_CONDITIONS = [
-  'Tăng huyết áp (Cao huyết áp)',
-  'Đái tháo đường (Tiểu đường)',
-  'Bệnh lý Tim mạch / Thiếu máu cục bộ',
-  'Viêm gan siêu vi B / C',
-  'Bệnh thận mạn tính / Suy thận',
-  'Hen phế quản (Suyễn) / COPD',
-  'Rối loạn lipid máu (Mỡ máu cao)',
-  'Bệnh lý Tuyến giáp (Bướu cổ, Basedow)',
-  'Viêm loét dạ dày - tá tràng / Trào ngược (GERD)',
-  'Bệnh lý Động kinh / Thần kinh'
+  'Tăng huyết áp',
+  'Đái tháo đường',
+  'Bệnh tim mạch',
+  'Viêm gan B / C',
+  'Bệnh thận mạn',
+  'Hen suyễn / COPD',
+  'Mỡ máu cao',
+  'Bệnh tuyến giáp',
+  'Dạ dày / Trào ngược',
+  'Động kinh / Thần kinh'
 ];
 
-// Common allergy options
+// Common allergy options (concise typography)
 const COMMON_ALLERGIES = [
-  'Kháng sinh Penicillin / Amoxicillin',
-  'Kháng sinh Cephalosporin',
-  'Thuốc giảm đau Aspirin / Paracetamol',
-  'Thuốc chống viêm NSAIDs (Ibuprofen...)',
-  'Dị ứng Hải sản (Tôm, Cua, Mực)',
-  'Dị ứng Trứng / Sữa / Đậu phộng',
-  'Phấn hoa / Bụi nhà / Thời tiết',
-  'Cồn sát trùng / Povidine / Băng keo y tế'
+  'Penicillin / Amox',
+  'Cephalosporin',
+  'Aspirin / Paracetamol',
+  'Kháng viêm NSAIDs',
+  'Hải sản (Tôm, Cua)',
+  'Trứng / Sữa / Đậu',
+  'Phấn hoa / Bụi nhà',
+  'Cồn / Povidine'
 ];
 
-// Coagulation disorder options
+// Coagulation disorder options (concise typography)
 const COAGULATION_OPTIONS = [
-  'Không có tiền sử rối loạn đông máu',
-  'Bệnh Hemophilia (máu khó đông)',
-  'Xuất huyết giảm tiểu cầu',
-  'Dễ chảy máu bầm tím / Chảy máu kéo dài',
-  'Đang dùng thuốc chống đông (Warfarin / Sintrom / Aspirin)'
+  'Không có tiền sử đông máu',
+  'Hemophilia (máu khó đông)',
+  'Giảm tiểu cầu',
+  'Dễ bầm tím / Chảy máu',
+  'Dùng thuốc chống đông'
 ];
 
 // Structured blood types for clinical clarity
@@ -1013,27 +1013,27 @@ export const UserProfilePage = () => {
                 </div>
 
                 {/* Section 3: Specialized Blood Test Medical History */}
-                <div className="mb-4">
+                <div className="mb-5">
                   <h6 className="bms-profile-section-title">
                     <FaPills className="text-primary" /> Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu
                   </h6>
-                  <Row className="g-3">
+                  <Row className="g-4">
                     <Col md={12}>
                       <Form.Group>
-                        <Form.Label className="small fw-semibold text-muted">
-                          Tiền sử rối loạn đông máu / Chảy máu kéo dài <span className="text-danger">*</span>
+                        <Form.Label className="bms-field-label">
+                          Rối loạn đông máu / Dùng kháng đông <span className="text-danger">*</span>
                         </Form.Label>
                         {isEditing ? (
                           <>
                             <Form.Control
                               type="text"
                               name="coagulationDisorders"
-                              className="bms-profile-input"
+                              className="bms-profile-input mb-2"
                               value={formData.coagulationDisorders}
                               onChange={handleInputChange}
-                              placeholder="Ví dụ: Không có / Xuất huyết dưới da / Hemophilia / Đang dùng thuốc chống đông máu"
+                              placeholder="Ví dụ: Không có / Xuất huyết dưới da / Hemophilia / Đang dùng thuốc chống đông..."
                             />
-                            <div className="fast-tag-group mt-2">
+                            <div className="fast-tag-group">
                               {COAGULATION_OPTIONS.map((opt) => {
                                 const isSelected = formData.coagulationDisorders === opt;
                                 return (
@@ -1054,17 +1054,17 @@ export const UserProfilePage = () => {
                             {formData.coagulationDisorders || 'Không có tiền sử rối loạn đông máu'}
                           </div>
                         )}
-                        <Form.Text className="text-muted small">
-                          Lưu ý: Bệnh nhân có tiền sử máu khó đông hoặc đang dùng kháng đông cần báo trước khi lấy mẫu máu.
+                        <Form.Text className="text-muted small mt-1 d-block" style={{ fontSize: '11.5px' }}>
+                          Lưu ý: Báo trước cho kỹ thuật viên nếu đang dùng thuốc chống đông máu.
                         </Form.Text>
                       </Form.Group>
                     </Col>
 
                     <Col md={12}>
                       <Form.Group>
-                        <div className="d-flex align-items-center justify-content-between mb-1">
-                          <Form.Label className="small fw-semibold text-muted mb-0">
-                            Tiền sử bệnh lý nội khoa (Bệnh nền đã từng hoặc đang mắc)
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <Form.Label className="bms-field-label mb-0">
+                            Bệnh lý mạn tính (nội khoa)
                           </Form.Label>
                           {isEditing && (
                             <Button
@@ -1078,7 +1078,7 @@ export const UserProfilePage = () => {
                                 }))
                               }
                             >
-                              ✓ Đặt là "Không có bệnh mãn tính"
+                              ✓ Đặt là "Không có bệnh"
                             </Button>
                           )}
                         </div>
@@ -1088,14 +1088,14 @@ export const UserProfilePage = () => {
                               as="textarea"
                               rows={2}
                               name="medicalHistory"
-                              className="bms-profile-input"
+                              className="bms-profile-input mb-2"
                               value={formData.medicalHistory}
                               onChange={handleInputChange}
                               placeholder="Tăng huyết áp, Đái tháo đường, Tim mạch, Bệnh gan/thận..."
                             />
-                            <div className="mt-2">
-                              <small className="text-muted fw-bold d-block mb-1">
-                                Bấm chọn nhanh các bệnh nền để thêm vào hồ sơ (hoặc bấm lại để bỏ chọn):
+                            <div>
+                              <small className="text-muted fw-semibold d-block mb-1" style={{ fontSize: '11px' }}>
+                                Gợi ý chọn nhanh:
                               </small>
                               <div className="fast-tag-group">
                                 {CHRONIC_CONDITIONS.map((cond) => {
@@ -1126,9 +1126,9 @@ export const UserProfilePage = () => {
 
                     <Col md={12}>
                       <Form.Group>
-                        <div className="d-flex align-items-center justify-content-between mb-1">
-                          <Form.Label className="small fw-semibold text-muted mb-0">
-                            Tiền sử dị ứng (Thuốc, Hóa chất, Thực phẩm)
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <Form.Label className="bms-field-label mb-0">
+                            Tiền sử dị ứng (thuốc, thực phẩm)
                           </Form.Label>
                           {isEditing && (
                             <Button
@@ -1152,14 +1152,14 @@ export const UserProfilePage = () => {
                               as="textarea"
                               rows={2}
                               name="allergiesText"
-                              className="bms-profile-input"
+                              className="bms-profile-input mb-2"
                               value={formData.allergiesText}
                               onChange={handleInputChange}
                               placeholder="Dị ứng kháng sinh, cồn sát khuẩn, thức ăn..."
                             />
-                            <div className="mt-2">
-                              <small className="text-muted fw-bold d-block mb-1">
-                                Bấm chọn nhanh tác nhân dị ứng để thêm vào hồ sơ:
+                            <div>
+                              <small className="text-muted fw-semibold d-block mb-1" style={{ fontSize: '11px' }}>
+                                Gợi ý tác nhân dị ứng:
                               </small>
                               <div className="fast-tag-group">
                                 {COMMON_ALLERGIES.map((alg) => {
@@ -1190,8 +1190,8 @@ export const UserProfilePage = () => {
 
                     <Col md={12}>
                       <Form.Group>
-                        <div className="d-flex align-items-center justify-content-between mb-1">
-                          <Form.Label className="small fw-semibold text-muted mb-0">
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <Form.Label className="bms-field-label mb-0">
                             Thuốc đang sử dụng định kỳ
                           </Form.Label>
                           {isEditing && (

@@ -1,7 +1,7 @@
 /**
  * @file UserProfilePage.css
  * @description Flat, airy, borderless styling for User Profile & Clinical Records (UC08).
- * Pure 2D Flat - Zero border, zero shadow, zero horizontal lines, macOS/Home aesthetic.
+ * Pure 2D Flat - Generous whitespace, clean typography, relaxed letter-spacing, macOS/Home aesthetic.
  */
 
 .bms-profile-page {
@@ -16,7 +16,7 @@
   border-radius: 24px;
   border: none !important;
   box-shadow: none !important;
-  padding: 36px 44px;
+  padding: 40px 48px;
   position: relative;
 }
 
@@ -40,7 +40,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   padding-bottom: 4px;
 }
 
@@ -60,7 +60,7 @@
 }
 
 .bms-profile-main-title {
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 750;
   color: #0F172A;
   letter-spacing: -0.02em;
@@ -69,16 +69,17 @@
 }
 
 .bms-profile-main-subtitle {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #64748B;
-  margin: 4px 0 0;
+  margin: 5px 0 0;
+  letter-spacing: 0.01em;
 }
 
 /* Avatar & Identity Sidebar */
 .bms-avatar-wrapper {
   position: relative;
   display: inline-block;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .bms-avatar-img {
@@ -101,21 +102,32 @@
   right: 4px;
 }
 
-/* Section titles (NO horizontal line rules) */
+/* Section titles (NO horizontal line rules, generous bottom spacing) */
 .bms-profile-section-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 14.5px;
+  font-weight: 750;
   color: #0F172A;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
   display: flex;
   align-items: center;
   gap: 8px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   border: none !important;
   padding-bottom: 0 !important;
 }
 
-/* Inputs & Form Controls (Compact, Soft, Borderless-feel) */
+/* Form labels with clear typography */
+.bms-field-label,
+.form-label.bms-field-label {
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  color: #475569 !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.01em !important;
+  display: block;
+}
+
+/* Inputs & Form Controls (Compact, Soft, 38px, Borderless-feel) */
 .bms-profile-input,
 .form-control.bms-profile-input,
 .form-select.bms-profile-input {
@@ -123,6 +135,7 @@
   border: 1px solid #E2E8F0 !important;
   border-radius: 8px !important;
   font-size: 12.5px !important;
+  letter-spacing: 0.01em !important;
   color: #0F172A !important;
   padding: 6px 12px !important;
   min-height: 38px !important;
@@ -133,9 +146,10 @@
 
 textarea.bms-profile-input,
 textarea.form-control.bms-profile-input {
-  min-height: 54px !important;
+  min-height: 56px !important;
   height: auto !important;
   padding: 8px 12px !important;
+  line-height: 1.5 !important;
 }
 
 .bms-profile-input:focus,
@@ -154,39 +168,43 @@ textarea.form-control.bms-profile-input {
   font-size: 12.5px;
   color: #0F172A;
   font-weight: 550;
+  letter-spacing: 0.01em;
   min-height: 38px;
   display: flex;
   align-items: center;
   border: none !important;
 }
 
-/* Fast Tags / Selection Chips (Compact pills) */
+/* Fast Tags / Selection Chips (Airy, Spacious, Clear Typography) */
 .fast-tag-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px 10px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 
 .fast-tag-item {
   border: 1px solid #E2E8F0;
   background: #F8FAFC;
   color: #475569;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11.5px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   box-shadow: none !important;
 }
 
 .fast-tag-item:hover {
-  border-color: #CBD5E1;
+  border-color: #94A3B8;
   color: #0F172A;
   background: #F1F5F9;
 }
@@ -346,7 +364,7 @@ textarea.form-control.bms-profile-input {
   border-radius: 999px !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  padding: 8px 22px !important;
+  padding: 9px 24px !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -366,7 +384,7 @@ textarea.form-control.bms-profile-input {
   border-radius: 999px !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  padding: 8px 18px !important;
+  padding: 9px 20px !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;

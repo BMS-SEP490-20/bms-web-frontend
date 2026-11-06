@@ -27,7 +27,7 @@
   border-radius: 20px;
   box-shadow: none !important;
   padding: 28px 36px;
-  margin-bottom: 24px;
+  margin-bottom: 48px;
 }
 
 .bms-hero-search-wrapper {
@@ -177,9 +177,14 @@
   background: #FFFFFF;
   border: none !important;
   border-radius: 16px;
-  padding: 18px 22px;
-  margin-top: 12px;
+  padding: 22px 26px;
+  margin-top: 24px;
+  margin-bottom: 48px;
   box-shadow: none !important;
+}
+
+.bms-guide-container {
+  margin-bottom: 48px;
 }
 
 .bms-stages-overview-title {

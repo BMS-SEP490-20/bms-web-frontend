@@ -34,7 +34,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: 64px;
+    height: 54px;
     border: none !important;
     border-bottom: none !important;
     box-shadow: none !important;
@@ -50,7 +50,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
 }
 
 /* 1. Left Brand Cluster */
@@ -58,13 +58,13 @@
 .bms-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     text-decoration: none;
     flex-shrink: 0;
 }
 
 .bms-brand-img {
-    height: 40px;
+    height: 30px;
     width: auto;
     object-fit: contain;
     display: block;
@@ -80,7 +80,7 @@
 }
 
 .bms-brand-logo img {
-    height: 40px;
+    height: 30px;
     width: auto;
     object-fit: contain;
 }
@@ -92,7 +92,7 @@
 
 .bms-brand-text h1 {
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--ink);
     letter-spacing: -0.02em;
@@ -100,7 +100,7 @@
 
 .bms-brand-text p {
     margin: 0;
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--ink-secondary);
     font-weight: 500;
 }
@@ -111,9 +111,9 @@
     display: flex;
     align-items: center;
     background: var(--bg-muted);
-    padding: 4px 6px;
+    padding: 3px 5px;
     border-radius: var(--radius-control);
-    gap: 3px;
+    gap: 2px;
     list-style: none;
     margin: 0;
 }
@@ -128,9 +128,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 18px;
+    padding: 5px 13px;
     border-radius: var(--radius-btn);
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 550;
     color: var(--ink-secondary);
     text-decoration: none;
@@ -159,14 +159,14 @@
 .bms-header-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     flex-shrink: 0;
 }
 
 .bms-guest-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .bms-btn-mint-cta,
@@ -174,8 +174,8 @@
     background: var(--success);
     color: #FFFFFF !important;
     font-weight: 650;
-    font-size: 13.5px;
-    padding: 9px 20px;
+    font-size: 12px;
+    padding: 6px 14px;
     border-radius: var(--radius-btn);
     border: 1px solid var(--success);
     text-decoration: none;
@@ -201,8 +201,8 @@
     background: var(--primary);
     color: #FFFFFF !important;
     font-weight: 600;
-    font-size: 13.5px;
-    padding: 9px 20px;
+    font-size: 12px;
+    padding: 6px 14px;
     border-radius: var(--radius-btn);
     border: 1px solid var(--primary);
     text-decoration: none;
@@ -252,11 +252,11 @@
 .bms-btn-ghost-danger {
     background: transparent;
     color: var(--danger);
-    font-size: 13px;
+    font-size: 11.5px;
     font-weight: 600;
     border-radius: var(--radius-btn);
     border: 1px solid transparent;
-    padding: 7px 14px;
+    padding: 5px 11px;
     cursor: pointer;
     transition: all 0.18s ease;
 }
@@ -270,15 +270,15 @@
 .bms-user-dock {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .bms-user-profile-tile {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-decoration: none;
-    padding: 4px 10px 4px 4px;
+    padding: 3px 8px 3px 3px;
     border-radius: var(--radius-btn);
     transition: all 0.18s ease;
 }
@@ -288,8 +288,8 @@
 }
 
 .bms-avatar-circle {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     border-radius: var(--radius-avatar);
     background: var(--primary-soft);
     color: var(--primary);
@@ -297,7 +297,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 11.5px;
 }
 
 .bms-avatar-staff {
@@ -308,17 +308,17 @@
 .bms-user-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
 .bms-user-fullname {
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 650;
     color: var(--ink);
 }
 
 .bms-user-sub {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--ink-secondary);
 }
 

@@ -59,21 +59,22 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
 .modal-content { background: #FFFFFF; }
 .modal-backdrop.show { opacity: 0.35; }
 
-/* ---- Refined borders & surfaces: cards, modals, lists ---- */
-.card {
+/* ---- Pure Flat 2D Surfaces: No Borders, Uniform Clean Cards ---- */
+.card, .bms-soft-card, .bms-step-card-box, .bms-section {
   background: #FFFFFF !important;
   border-radius: var(--r-lg) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 .card-header, .card-footer, .modal-header, .modal-footer {
   background: transparent !important;
-  border-color: rgba(15, 23, 42, 0.06) !important;
+  border: none !important;
 }
 .card-header { padding: 20px 24px 8px !important; font-size: var(--fs-md); font-weight: 650; }
 .card-body { padding: 20px 24px !important; }
 hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 
-/* ---- Tables: clean medical SaaS table with subtle row dividers and crisp header ---- */
+/* ---- Tables: distinct medical thead, no blended background, subtle row dividers ---- */
 .table {
   --bs-table-bg: transparent;
   --bs-table-hover-bg: #F8FAFC;
@@ -81,14 +82,14 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
   margin-bottom: 0;
 }
 .table > thead > tr > th {
-  font-size: var(--fs-xs) !important;
-  font-weight: 650 !important;
-  letter-spacing: 0.02em !important;
-  color: #475569 !important;
-  background-color: #F8FAFC !important;
-  border-bottom: 1px solid #E2E8F0 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  color: #1E293B !important;
+  background-color: #EDF2F7 !important;
+  border-bottom: 2px solid #CBD5E1 !important;
   border-top: none !important;
-  padding: 12px 18px !important;
+  padding: 13px 18px !important;
   white-space: nowrap;
 }
 .table > tbody > tr > td {
@@ -169,6 +170,19 @@ textarea.form-control { height: auto !important; }
   outline: none !important;
 }
 .form-label { font-size: var(--fs-xs); font-weight: 600; color: #475569; margin-bottom: 6px; }
+/* ---- Buttons: 100% Pure 2D Flat, Zero Hover Glow, Zero Blurry Shadows ---- */
+.btn, button, .bms-search-submit-btn, .bms-btn-mint-cta, .btn-primary, .btn-secondary, .btn-success {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.15s ease, opacity 0.15s ease !important;
+}
+.btn:hover, button:hover, .bms-search-submit-btn:hover, .bms-btn-mint-cta:hover, .btn-primary:hover, .btn-secondary:hover, .btn-success:hover,
+.btn:focus, button:focus, .btn:active, button:active {
+  box-shadow: none !important;
+  transform: none !important;
+  filter: brightness(0.96) !important;
+}
+
 .btn-secondary, .btn-outline-secondary, .btn-light, .btn-outline-light { border: none !important; background: #F1F5F9 !important; color: #0F172A !important; }
 .btn-outline-primary { border: none !important; background: #EEF4FD !important; color: #1E60E6 !important; }
 .btn-outline-danger { border: none !important; background: #FEF2F2 !important; color: #B91C1C !important; }
@@ -216,17 +230,15 @@ h1 .bi, h2 .bi, h3 .bi, h4 .bi, h5 .bi, h6 .bi,
 
 .bms-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
 .bms-step-card-box {
-  background: #FFFFFF;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 18px;
-  padding: 26px 24px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #FFFFFF !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 28px 26px !important;
+  box-shadow: none !important;
 }
 .bms-step-card-box:hover {
-  border-color: rgba(30, 96, 230, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transform: none !important;
+  box-shadow: none !important;
 }
 .bms-step-num { font-size: var(--fs-2xl); font-weight: 800; color: #1E60E6; letter-spacing: -0.03em; margin-bottom: 12px; font-variant-numeric: tabular-nums; }
 .bms-step-title { font-size: var(--fs-md); font-weight: 700; color: #0F172A; margin: 0 0 8px; }

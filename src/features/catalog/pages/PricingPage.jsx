@@ -83,83 +83,98 @@ export default function PricingPage() {
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar />
 
-      {/* Header Container */}
-      <div className="container" style={{ maxWidth: '1400px', paddingTop: '32px', paddingBottom: '16px' }}>
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-          <div>
-            <div className="d-flex align-items-center gap-2 mb-2" style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 650, letterSpacing: '0.04em' }}>
-              <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-              <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
+      {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
+      <section className="pt-4 pb-2">
+        <div className="container" style={{ maxWidth: '1400px' }}>
+          <div
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '36px 40px'
+            }}
+          >
+            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
+              <div>
+                <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
+                  <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                  <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
+                </div>
+                <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
+                  Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm
+                </h1>
+                <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
+                  Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Áp dụng thanh toán BHYT đúng tuyến &amp; thông tuyến, xuất hóa đơn điện tử VAT 0% theo Nghị định 123/2020/NĐ-CP.
+                </p>
+              </div>
+              <div className="d-flex gap-2.5 align-items-center flex-shrink-0">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => window.print()}
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 650,
+                    padding: '9px 20px',
+                    backgroundColor: '#F1F5F9',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    color: '#334155',
+                    boxShadow: 'none'
+                  }}
+                >
+                  <FaPrint className="me-2" style={{ fontSize: '12px' }} /> In Bảng Giá
+                </button>
+                <Link
+                  to="/appointments/book"
+                  className="btn"
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 650,
+                    padding: '9px 22px',
+                    backgroundColor: '#1E60E6',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    color: '#FFFFFF',
+                    boxShadow: 'none'
+                  }}
+                >
+                  <FaCalendarAlt className="me-2" style={{ fontSize: '12px' }} /> Đặt Lịch Khám
+                </Link>
+              </div>
             </div>
-            <h1 className="fw-bold mb-2" style={{ fontSize: '28px', color: '#0F172A', letterSpacing: '-0.025em' }}>
-              Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm
-            </h1>
-            <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.6' }}>
-              Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Áp dụng thanh toán BHYT đúng tuyến &amp; thông tuyến, xuất hóa đơn điện tử VAT 0% theo Nghị định 123/2020/NĐ-CP.
-            </p>
-          </div>
-          <div className="d-flex gap-2 align-items-center flex-shrink-0 pt-2 pt-md-0">
-            <button
-              type="button"
-              className="btn btn-sm rounded-pill"
-              onClick={() => window.print()}
-              style={{
-                fontSize: '12.5px',
-                fontWeight: 600,
-                padding: '8px 18px',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #CBD5E1',
-                color: '#334155'
-              }}
-            >
-              <FaPrint className="me-1.5" style={{ fontSize: '11px', marginRight: '6px' }} /> In Bảng Giá
-            </button>
-            <Link
-              to="/appointments/book"
-              className="btn btn-sm rounded-pill"
-              style={{
-                fontSize: '12.5px',
-                fontWeight: 650,
-                padding: '8px 20px',
-                backgroundColor: '#1E60E6',
-                border: 'none',
-                color: '#FFFFFF',
-                boxShadow: '0 2px 8px rgba(30, 96, 230, 0.25)'
-              }}
-            >
-              <FaCalendarAlt className="me-1.5" style={{ fontSize: '11px', marginRight: '6px' }} /> Đặt Lịch Khám
-            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Filter & Search Toolbar + Table */}
+      {/* 2. Filter & Search Toolbar + Table */}
       <section className="py-3">
         <Container style={{ maxWidth: '1400px' }}>
           
-          {/* Unified Toolbar Card */}
+          {/* Unified Toolbar Card - Pure 2D Flat */}
           <div
+            className="mb-4"
             style={{
               backgroundColor: '#FFFFFF',
-              borderRadius: '16px',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
-              padding: '16px 20px',
-              marginBottom: '20px',
-              boxShadow: '0 1px 3px rgba(15, 23, 42, 0.02)'
+              borderRadius: '20px',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '20px 24px'
             }}
           >
             <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
               
-              {/* Search Input with generous padding */}
-              <div className="position-relative" style={{ maxWidth: '440px', width: '100%' }}>
+              {/* Search Input - Distinct soft surface, 48px padding */}
+              <div className="position-relative" style={{ maxWidth: '460px', width: '100%' }}>
                 <FaSearch
                   style={{
                     position: 'absolute',
-                    left: '16px',
+                    left: '18px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: '#64748B',
-                    fontSize: '13px',
+                    fontSize: '14px',
                     pointerEvents: 'none',
                     zIndex: 2
                   }}
@@ -171,13 +186,14 @@ export default function PricingPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     width: '100%',
-                    height: '42px',
-                    paddingLeft: '44px',
-                    paddingRight: searchQuery ? '36px' : '16px',
+                    height: '44px',
+                    paddingLeft: '48px',
+                    paddingRight: searchQuery ? '38px' : '18px',
                     borderRadius: '12px',
-                    border: '1px solid #CBD5E1',
-                    backgroundColor: '#FFFFFF',
+                    border: 'none',
+                    backgroundColor: '#F1F5F9',
                     fontSize: '13px',
+                    fontWeight: 500,
                     color: '#0F172A',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -197,7 +213,7 @@ export default function PricingPage() {
                       color: '#94A3B8',
                       cursor: 'pointer',
                       fontSize: '13px',
-                      padding: '2px 6px'
+                      padding: '4px 6px'
                     }}
                   >
                     ✕
@@ -215,17 +231,17 @@ export default function PricingPage() {
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
                       style={{
-                        padding: '7px 16px',
+                        padding: '8px 18px',
                         borderRadius: '9999px',
-                        fontSize: '12px',
-                        fontWeight: isActive ? 650 : 500,
-                        border: isActive ? 'none' : '1px solid #E2E8F0',
-                        backgroundColor: isActive ? '#1E60E6' : '#FFFFFF',
+                        fontSize: '12.5px',
+                        fontWeight: isActive ? 700 : 550,
+                        border: 'none',
+                        backgroundColor: isActive ? '#1E60E6' : '#F1F5F9',
                         color: isActive ? '#FFFFFF' : '#475569',
                         whiteSpace: 'nowrap',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 6px rgba(30, 96, 230, 0.2)' : 'none'
+                        transition: 'background-color 0.15s ease',
+                        boxShadow: 'none'
                       }}
                     >
                       {cat === 'ALL' ? 'Tất Cả Danh Mục' : cat}
@@ -233,34 +249,35 @@ export default function PricingPage() {
                   );
                 })}
 
-                <div className="ms-auto text-muted small ps-2" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                <div className="ms-auto text-muted small ps-2" style={{ fontSize: '12px', fontWeight: 550, color: '#94A3B8', whiteSpace: 'nowrap' }}>
                   Hiển thị <strong>{filteredItems.length}</strong> / {pricingItems.length} dịch vụ
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Table Card (Medical Enterprise Container) */}
+          {/* 3. Table Card - Pure 2D Flat, High Contrast Thead */}
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
-              borderRadius: '16px',
+              border: 'none',
+              borderRadius: '20px',
               overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(15, 23, 42, 0.02)'
+              boxShadow: 'none',
+              padding: '8px 0'
             }}
           >
             <div className="table-responsive">
-              <Table hover className="align-middle mb-0" style={{ fontSize: '12.5px' }}>
-                <thead style={{ backgroundColor: '#F8FAFC' }}>
+              <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
+                <thead style={{ backgroundColor: '#EDF2F7', borderBottom: '2px solid #CBD5E1' }}>
                   <tr>
-                    <th className="ps-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Mã Dịch Vụ</th>
-                    <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
-                    <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Chuyên Khoa</th>
-                    <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Ống Bệnh Phẩm</th>
-                    <th className="py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Thời Gian (TAT)</th>
-                    <th className="text-end py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Đơn Giá Niêm Yết</th>
-                    <th className="text-end pe-4 py-3" style={{ color: '#475569', fontWeight: 650, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Thao Tác</th>
+                    <th className="ps-4 py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Mã Dịch Vụ</th>
+                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#EDF2F7' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
+                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Chuyên Khoa</th>
+                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Ống Bệnh Phẩm</th>
+                    <th className="py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Thời Gian (TAT)</th>
+                    <th className="text-end py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Đơn Giá Niêm Yết</th>
+                    <th className="text-end pe-4 py-3" style={{ color: '#1E293B', fontWeight: 700, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EDF2F7' }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -352,12 +369,11 @@ export default function PricingPage() {
                               color: '#FFFFFF',
                               border: 'none',
                               borderRadius: '9999px',
-                              padding: '5px 14px',
-                              fontSize: '11.5px',
-                              fontWeight: 650,
+                              padding: '6px 16px',
+                              fontSize: '12px',
+                              fontWeight: 700,
                               cursor: 'pointer',
-                              transition: 'opacity 0.15s ease',
-                              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)'
+                              boxShadow: 'none'
                             }}
                           >
                             Đặt Lịch
@@ -371,13 +387,14 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* Compliance & Policy Footer Card */}
+          {/* 4. Compliance & Policy Footer Card (Pure 2D Flat Card Container) */}
           <div
             className="mt-4 p-4"
             style={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(15, 23, 42, 0.08)',
-              borderRadius: '16px'
+              border: 'none',
+              borderRadius: '20px',
+              boxShadow: 'none'
             }}
           >
             <h6 className="fw-bold mb-2" style={{ color: '#0F172A', fontSize: '13.5px' }}>

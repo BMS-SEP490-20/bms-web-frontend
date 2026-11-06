@@ -54,21 +54,21 @@
   margin-bottom: 0;
 }
 
-/* Search Box Container - Compact, Centered, High Contrast */
+/* Search Box Container - Compact, Centered, 2D Pure Flat */
 .bms-tracking-search-card {
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: none;
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  box-shadow: none;
   padding: 8px 10px 8px 18px;
   max-width: 680px;
   margin: 0 auto 36px auto;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .bms-tracking-search-card:focus-within {
-  border-color: #1E60E6;
-  box-shadow: 0 8px 28px rgba(30, 96, 230, 0.12);
+  border: none;
+  box-shadow: none;
 }
 
 .bms-search-input-group {
@@ -134,25 +134,29 @@
   border: none;
   border-radius: 14px;
   font-size: 13.5px;
-  font-weight: 650;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(30, 96, 230, 0.25);
-  transition: all 0.2s ease;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
 .bms-search-submit-btn:hover:not(:disabled) {
   background-color: #1550C4;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(30, 96, 230, 0.35);
+  box-shadow: none !important;
+  transform: none !important;
+  filter: brightness(0.96);
 }
 
 .bms-search-submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* Quick Demo Chips */
@@ -267,19 +271,19 @@
   margin-bottom: 0;
 }
 
-/* 6-Stage Overview Strip - Pure Medical Enterprise Surface */
+/* 6-Stage Overview Strip - Pure 2D Flat Surface */
 .bms-stages-overview {
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 20px;
-  padding: 32px 36px;
+  border: none !important;
+  border-radius: 24px;
+  padding: 36px 40px;
   margin-top: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+  box-shadow: none !important;
 }
 
 .bms-stages-overview-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 750;
   color: #0f172a;
   margin-bottom: 6px;
@@ -287,9 +291,9 @@
 }
 
 .bms-stages-overview-subtitle {
-  font-size: 13px;
+  font-size: 13.5px;
   color: #64748b;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .bms-stages-pills-row {
@@ -313,16 +317,15 @@
 .bms-stage-pill {
   padding: 16px 12px;
   background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border: none !important;
+  border-radius: 16px;
   text-align: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .bms-stage-pill:hover {
   background-color: #eef4fd;
-  border-color: #bfdbfe;
-  transform: translateY(-1px);
+  transform: none !important;
 }
 
 .bms-stage-pill-num {
@@ -343,18 +346,18 @@
   line-height: 1.35;
 }
 
-/* Security & Help Footer Box */
+/* Security & Help Footer Box - Pure 2D Flat */
 .bms-trust-box {
   background-color: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
-  padding: 16px 24px;
+  border: none !important;
+  border-radius: 20px;
+  padding: 20px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  box-shadow: none !important;
 }
 
 .bms-trust-item {

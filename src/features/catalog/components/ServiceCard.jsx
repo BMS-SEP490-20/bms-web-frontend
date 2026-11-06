@@ -9,6 +9,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FaVial, FaClock, FaExclamationCircle } from 'react-icons/fa';
+import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
+import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
 
 /**
  * Formats numeric price into standard Vietnamese currency string.
@@ -69,16 +71,16 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
       }}
     >
       {/* Category & Service Code Header */}
-      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '16px' }}>
+      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '14px' }}>
         <span
           style={{
             backgroundColor: badge.bg,
             color: badge.accent,
-            fontSize: '11.5px',
+            fontSize: '11px',
             fontWeight: 700,
             borderRadius: '9999px',
             border: 'none',
-            padding: '5px 12px',
+            padding: '4px 10px',
             letterSpacing: '0.02em'
           }}
         >
@@ -87,11 +89,11 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         <span
           style={{
             fontFamily: 'var(--font-mono, monospace)',
-            fontSize: '11.5px',
+            fontSize: '11px',
             color: '#64748B',
             fontWeight: 700,
             backgroundColor: '#F1F5F9',
-            padding: '3px 8px',
+            padding: '2px 7px',
             borderRadius: '6px'
           }}
         >
@@ -99,20 +101,26 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         </span>
       </div>
 
-      {/* Stylized Package Title */}
-      <h3
-        className="fw-bold"
-        style={{
-          fontSize: '18px',
-          lineHeight: '1.38',
-          color: '#0F172A',
-          letterSpacing: '-0.02em',
-          marginBottom: '10px',
-          minHeight: '50px'
-        }}
-      >
-        {pkg.packageName}
-      </h3>
+      {/* Category Medical Artwork & Stylized Title */}
+      <div className="d-flex align-items-center gap-3" style={{ marginBottom: '12px' }}>
+        <div style={{ width: '48px', height: '48px', flexShrink: 0 }}>
+          <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={48} />
+        </div>
+        <h3
+          className="fw-bold m-0"
+          style={{
+            fontSize: '17px',
+            lineHeight: '1.35',
+            color: '#0F172A',
+            letterSpacing: '-0.02em',
+            minHeight: '46px',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          {pkg.packageName}
+        </h3>
+      </div>
 
       {/* Health Value Proposition */}
       <p

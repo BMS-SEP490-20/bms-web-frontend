@@ -14,6 +14,8 @@ import { Link } from 'react-router-dom';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
+import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
+import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 
 export default function GuestHomePage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -119,23 +121,35 @@ export default function GuestHomePage() {
               </button>
             </form>
 
-            {/* Metric Cards Trio / Quad */}
+            {/* Metric Cards Trio / Quad with V3 Transparent SVGs */}
             <div className="bms-metric-quad">
-              <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">500,000+</div>
-                <div className="bms-metric-label">Lượt xét nghiệm an toàn</div>
+              <div className="bms-metric-soft-card d-flex align-items-center gap-3">
+                <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" style={{ width: '42px', height: '42px', flexShrink: 0 }} />
+                <div>
+                  <div className="bms-metric-number tabular-nums">500,000+</div>
+                  <div className="bms-metric-label">Lượt xét nghiệm an toàn</div>
+                </div>
               </div>
-              <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">99.98%</div>
-                <div className="bms-metric-label">Độ chính xác chuẩn QC</div>
+              <div className="bms-metric-soft-card d-flex align-items-center gap-3">
+                <img src="/assets/bms/svg/hero/home/metric-qc-accuracy.svg" alt="" style={{ width: '42px', height: '42px', flexShrink: 0 }} />
+                <div>
+                  <div className="bms-metric-number tabular-nums">99.98%</div>
+                  <div className="bms-metric-label">Độ chính xác chuẩn QC</div>
+                </div>
               </div>
-              <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">60 – 90</div>
-                <div className="bms-metric-label">Phút trả kết quả SLA</div>
+              <div className="bms-metric-soft-card d-flex align-items-center gap-3">
+                <img src="/assets/bms/svg/hero/home/metric-sla-tat.svg" alt="" style={{ width: '42px', height: '42px', flexShrink: 0 }} />
+                <div>
+                  <div className="bms-metric-number tabular-nums">60 – 90</div>
+                  <div className="bms-metric-label">Phút trả kết quả SLA</div>
+                </div>
               </div>
-              <div className="bms-metric-soft-card">
-                <div className="bms-metric-number tabular-nums">100%</div>
-                <div className="bms-metric-label">Chuỗi lạnh IoT 2-6°C</div>
+              <div className="bms-metric-soft-card d-flex align-items-center gap-3">
+                <img src="/assets/bms/svg/hero/home/metric-coldchain.svg" alt="" style={{ width: '42px', height: '42px', flexShrink: 0 }} />
+                <div>
+                  <div className="bms-metric-number tabular-nums">100%</div>
+                  <div className="bms-metric-label">Chuỗi lạnh IoT 2-6°C</div>
+                </div>
               </div>
             </div>
           </div>
@@ -143,6 +157,9 @@ export default function GuestHomePage() {
           {/* Right Column: Floating Utility Card (Fast Tracker) */}
           <div className="bms-hero-tracker-card" id="tra-cuu">
             <div className="bms-tracker-head">
+              <div className="bms-tracker-ornament mb-3 text-center">
+                <img src="/assets/bms/svg/hero/home/tracker-card-ornament.svg" alt="" style={{ maxWidth: '100%', height: '52px', objectFit: 'contain' }} />
+              </div>
               <h2 className="bms-tracker-title">Tra Cứu Kết Quả Điện Tử</h2>
               <p className="bms-tracker-subtitle">
                 Dành cho bệnh nhân đã lấy mẫu tại trung tâm hoặc tại nhà
@@ -198,32 +215,60 @@ export default function GuestHomePage() {
           </div>
 
           <div className="bms-steps-quad">
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>01</div>
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-01-register.svg"
+                  alt="Đăng Ký Trực Tuyến"
+                  style={{ width: '100%', height: '94px', objectFit: 'contain' }}
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>01</div>
               <h3 className="bms-step-h3">Đăng Ký Trực Tuyến</h3>
               <p className="bms-step-desc">
                 Chọn gói khám và thời gian thuận tiện. Lựa chọn lấy mẫu tại trung tâm BMS hoặc dịch vụ lấy mẫu tại nhà.
               </p>
             </div>
 
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>02</div>
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-02-sampling.svg"
+                  alt="Lấy Mẫu Vô Trùng"
+                  style={{ width: '100%', height: '94px', objectFit: 'contain' }}
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>02</div>
               <h3 className="bms-step-h3">Lấy Mẫu Vô Trùng</h3>
               <p className="bms-step-desc">
                 Điều dưỡng thực hiện lấy mẫu nhẹ nhàng, mã hóa Barcode một chiều và đưa ngay vào chuỗi lạnh bảo quản 2-6°C.
               </p>
             </div>
 
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>03</div>
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-03-analysis.svg"
+                  alt="Phân Tích Tự Động"
+                  style={{ width: '100%', height: '94px', objectFit: 'contain' }}
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>03</div>
               <h3 className="bms-step-h3">Phân Tích Tự Động</h3>
               <p className="bms-step-desc">
                 Mẫu được chạy trên hệ thống máy phân tích tự động thế hệ mới, kiểm soát chất lượng nội kiểm Westgard.
               </p>
             </div>
 
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>04</div>
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-04-esign.svg"
+                  alt="Nhận Kết Quả Ký Số"
+                  style={{ width: '100%', height: '94px', objectFit: 'contain' }}
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>04</div>
               <h3 className="bms-step-h3">Nhận Kết Quả Ký Số</h3>
               <p className="bms-step-desc">
                 Bác sĩ Chuyên khoa thẩm định &amp; ký số. Xem trực tuyến và tải PDF có giá trị pháp lý toàn quốc.
@@ -239,7 +284,7 @@ export default function GuestHomePage() {
         </div>
       </section>
 
-      {/* 3. Service Packages Catalog (Floating 28px Cards) */}
+      {/* 3. Service Packages Catalog (Floating 28px Cards with Specialty Icons) */}
       <section className="bms-section-wrap">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
@@ -253,8 +298,18 @@ export default function GuestHomePage() {
           <div className="bms-packages-quad">
             {packages.map((pkg, idx) => (
               <div key={pkg.id || idx} className={`bms-package-soft-card ${idx === 0 ? 'promoted' : ''}`}>
-                <div className="bms-package-category-chip">{pkg.category || 'Huyết học'}</div>
-                <h3 className="bms-pkg-title">{pkg.packageName}</h3>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <span className="bms-package-category-chip m-0">{pkg.category || 'Huyết học'}</span>
+                  <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', color: '#64748B', backgroundColor: '#F1F5F9', padding: '2px 7px', borderRadius: '6px' }}>
+                    {pkg.packageCode || pkg.id || 'BMS'}
+                  </span>
+                </div>
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <div style={{ width: '44px', height: '44px', flexShrink: 0 }}>
+                    <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={44} />
+                  </div>
+                  <h3 className="bms-pkg-title m-0" style={{ fontSize: '15.5px' }}>{pkg.packageName}</h3>
+                </div>
                 <p className="bms-pkg-desc">{pkg.description || 'Xét nghiệm đạt chuẩn y tế ISO 15189.'}</p>
                 <div className="bms-pkg-price-row">
                   <span className="bms-price-number tabular-nums">
@@ -284,7 +339,54 @@ export default function GuestHomePage() {
         </div>
       </section>
 
-      {/* 4. Quality & Trust Pillars */}
+      {/* 4. Automated Laboratory & Quality Assurance Editorial Section */}
+      <section className="bms-section-wrap" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="bms-inner-container">
+          <div className="row align-items-center g-5">
+            <div className="col-lg-6">
+              <div className="bms-status-chip mb-3">TỰ ĐỘNG HÓA &amp; KIỂM CHUẨN ISO 15189</div>
+              <h2 className="bms-section-h2 text-start mb-3" style={{ fontSize: '28px', lineHeight: '1.25' }}>
+                Hệ Thống Phân Tích Máu Tự Động &amp; Kiểm Soát Đa Quy Tắc Westgard
+              </h2>
+              <p className="bms-section-p text-start mb-4" style={{ fontSize: '14.5px', color: '#475569' }}>
+                Phòng xét nghiệm BMS vận hành chuỗi thiết bị phân tích tự động thế hệ mới nhất. Toàn bộ chu trình tiền phân tích, phân tích và hậu phân tích được số hóa 100%, bảo đảm loại trừ nguy cơ sai sót con người và rút ngắn thời gian trả kết quả xuống chỉ còn 60 – 90 phút.
+              </p>
+              <div className="d-flex flex-column gap-3">
+                <div className="d-flex align-items-start gap-3">
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#EEF4FD', color: '#1E60E6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', flexShrink: 0, marginTop: '2px' }}>✓</div>
+                  <div>
+                    <strong style={{ color: '#0F172A', fontSize: '13.5px' }}>Mã hóa Barcode một chiều khép kín:</strong>
+                    <div style={{ color: '#64748B', fontSize: '12.5px', marginTop: '2px' }}>Ống máu được gán mã định danh duy nhất ngay lúc thu mẫu, tự động nạp vào máy phân tích không qua thao tác thủ công.</div>
+                  </div>
+                </div>
+                <div className="d-flex align-items-start gap-3">
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#EEF4FD', color: '#1E60E6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', flexShrink: 0, marginTop: '2px' }}>✓</div>
+                  <div>
+                    <strong style={{ color: '#0F172A', fontSize: '13.5px' }}>Kiểm chuẩn nội kiểm Westgard đa quy tắc:</strong>
+                    <div style={{ color: '#64748B', fontSize: '12.5px', marginTop: '2px' }}>Mỗi lô xét nghiệm đều chạy mẫu chuẩn QC 3 mức (Low, Normal, High), phát hiện tức thì sai số hệ thống hoặc ngẫu nhiên.</div>
+                  </div>
+                </div>
+                <div className="d-flex align-items-start gap-3">
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#EEF4FD', color: '#1E60E6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', flexShrink: 0, marginTop: '2px' }}>✓</div>
+                  <div>
+                    <strong style={{ color: '#0F172A', fontSize: '13.5px' }}>Bác sĩ chuyên khoa thẩm định &amp; ký số:</strong>
+                    <div style={{ color: '#64748B', fontSize: '12.5px', marginTop: '2px' }}>Báo cáo y khoa chứa chữ ký số hợp pháp và mã QR tra cứu tính toàn vẹn kết quả theo quy định Bộ Y Tế.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-6 text-center">
+              <img
+                src="/assets/bms/svg/sections/landing/sec-01-lab-automation.svg"
+                alt="BMS Lab Automation Workflow"
+                style={{ width: '100%', maxWidth: '520px', height: 'auto', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Quality & Trust Pillars */}
       <section className="bms-section-wrap">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
@@ -293,21 +395,42 @@ export default function GuestHomePage() {
           </div>
 
           <div className="bms-trust-trio">
-            <div className="bms-trust-soft-card">
+            <div className="bms-trust-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/trust-coldchain-iot.svg"
+                  alt="Chuỗi Lạnh IoT"
+                  style={{ width: '100%', height: '100px', objectFit: 'contain' }}
+                />
+              </div>
               <h3 className="bms-trust-h3">Chuỗi Lạnh IoT Bảo Quản Mẫu 2-6°C</h3>
               <p className="bms-trust-p">
                 Cảm biến IoT giám sát nhiệt độ và độ ẩm liên tục trong suốt hành trình vận chuyển mẫu, phát hiện và cảnh báo vi phạm ngay lập tức.
               </p>
             </div>
 
-            <div className="bms-trust-soft-card">
+            <div className="bms-trust-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/trust-esign-qr.svg"
+                  alt="Chữ Ký Số Y Tế"
+                  style={{ width: '100%', height: '100px', objectFit: 'contain' }}
+                />
+              </div>
               <h3 className="bms-trust-h3">Chữ Ký Số Y Tế &amp; Mã QR Xác Thực</h3>
               <p className="bms-trust-p">
                 Phiếu kết quả điện tử được cấp dấu thời gian và chữ ký số Bác sĩ chuyên khoa, có giá trị pháp lý tương đương bản giấy.
               </p>
             </div>
 
-            <div className="bms-trust-soft-card">
+            <div className="bms-trust-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/trust-home-sampling.svg"
+                  alt="Lấy Mẫu Tận Nơi"
+                  style={{ width: '100%', height: '100px', objectFit: 'contain' }}
+                />
+              </div>
               <h3 className="bms-trust-h3">Lấy Mẫu Tận Nơi Tiện Lợi</h3>
               <p className="bms-trust-p">
                 Đội ngũ điều dưỡng đến tận nhà đúng giờ hẹn, thao tác vô trùng chuẩn mực, tiết kiệm thời gian chờ đợi cho người già và trẻ nhỏ.

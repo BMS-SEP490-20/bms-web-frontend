@@ -60,7 +60,10 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
 .modal-backdrop.show { opacity: 0.35; }
 
 /* ---- Pure Flat 2D Surfaces: No Borders, Uniform Clean Cards ---- */
-.card, .bms-soft-card, .bms-step-card-box, .bms-section {
+.card, .bms-soft-card, .bms-step-card-box, .bms-section,
+.bms-metric-soft-card, .bms-step-soft-card, .bms-package-soft-card, .bms-trust-soft-card,
+.bms-hero-tracker-card, .bms-pricing-table-section, .bms-search-pill-capsule,
+.bms-guide-container, .bms-stages-overview, .bms-trust-box {
   background: #FFFFFF !important;
   border-radius: var(--r-lg) !important;
   border: none !important;

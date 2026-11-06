@@ -13,6 +13,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Row, Col, Modal, Spinner, Alert, Badge } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FaVial, FaClock, FaList, FaThLarge } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
@@ -140,6 +141,7 @@ export default function ServiceCatalogPage() {
   const [priceFilterId, setPriceFilterId] = useState('all');
   const [sortBy, setSortBy] = useState('category');
   const [sortDir, setSortDir] = useState('asc');
+  const [viewMode, setViewMode] = useState('list');
 
   // Pagination & Data state
   const [packages, setPackages] = useState([]);
@@ -497,8 +499,46 @@ export default function ServiceCatalogPage() {
                 })}
               </div>
 
-              <div style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 500 }}>
-                Hiển thị <strong>{packages.length}</strong> / {totalItems} gói xét nghiệm
+              <div className="d-flex align-items-center gap-2">
+                <div style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 500 }}>
+                  Hiển thị <strong>{packages.length}</strong> / {totalItems} gói xét nghiệm
+                </div>
+                <div className="btn-group btn-group-sm ms-2" role="group">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setViewMode('list')}
+                    title="Dạng danh sách (thoáng chữ, không rớt dòng)"
+                    style={{
+                      backgroundColor: viewMode === 'list' ? '#1E60E6' : '#F1F5F9',
+                      color: viewMode === 'list' ? '#FFFFFF' : '#64748B',
+                      border: 'none',
+                      borderRadius: '6px 0 0 6px',
+                      padding: '4px 10px',
+                      fontSize: '11px',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    <FaList className="me-1" style={{ fontSize: '11px' }} /> Danh sách
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setViewMode('grid')}
+                    title="Dạng lưới thẻ"
+                    style={{
+                      backgroundColor: viewMode === 'grid' ? '#1E60E6' : '#F1F5F9',
+                      color: viewMode === 'grid' ? '#FFFFFF' : '#64748B',
+                      border: 'none',
+                      borderRadius: '0 6px 6px 0',
+                      padding: '4px 10px',
+                      fontSize: '11px',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    <FaThLarge className="me-1" style={{ fontSize: '11px' }} /> Lưới thẻ
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -672,6 +712,214 @@ export default function ServiceCatalogPage() {
                 Xóa tất cả bộ lọc
               </button>
             </div>
+          ) : viewMode === 'list' ? (
+            /* Spacious Full-Width Horizontal List View (Zero Awkward Line Breaking) */
+            <div className="d-flex flex-column gap-3 mb-4">
+              {packages.map((pkg) => (
+                <div
+                  key={pkg.id}
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: '18px',
+                    padding: '24px 28px',
+                    border: 'none',
+                    boxShadow: 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                  className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4"
+                >
+                  {/* Col 1: Category & Title & Badges (Wide Enough to Prevent Clumsy Line Breaks) */}
+                  <div style={{ flex: '0 0 340px', maxWidth: '380px' }}>
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: '#1E60E6',
+                          backgroundColor: '#EFF6FF',
+                          padding: '3px 10px',
+                          borderRadius: '9999px'
+                        }}
+                      >
+                        {pkg.category || 'Tổng Quát'}
+                      </span>
+                      <span
+                        className="font-monospace text-muted"
+                        style={{
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          backgroundColor: '#F1F5F9',
+                          padding: '2px 8px',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        {pkg.packageCode}
+                      </span>
+                      {pkg.isPopular && (
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 700,
+                            color: '#166534',
+                            backgroundColor: '#DCFCE7',
+                            padding: '2px 8px',
+                            borderRadius: '6px'
+                          }}
+                        >
+                          Phổ Biến
+                        </span>
+                      )}
+                    </div>
+                    <h3
+                      className="fw-bold mb-1"
+                      style={{
+                        fontSize: '17px',
+                        color: '#0F172A',
+                        letterSpacing: '-0.02em',
+                        lineHeight: '1.35'
+                      }}
+                    >
+                      {pkg.packageName}
+                    </h3>
+                    {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 && (
+                      <div className="text-muted" style={{ fontSize: '11.5px' }}>
+                        Bao gồm <strong>{pkg.criteria.length}</strong> chỉ số xét nghiệm chuyên biệt
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Col 2: Clinical Description & Biomarkers Chips & Sample Spec */}
+                  <div style={{ flex: 1, minWidth: '280px' }}>
+                    <p
+                      className="mb-2.5 text-muted"
+                      style={{
+                        fontSize: '12.5px',
+                        lineHeight: '1.6',
+                        color: '#475569',
+                        maxWidth: '680px'
+                      }}
+                    >
+                      {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn ISO 15189.'}
+                    </p>
+
+                    {/* Biomarkers / Tests Pills Preview */}
+                    {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
+                      <div className="d-flex flex-wrap gap-1.5 mb-2">
+                        {pkg.criteria.slice(0, 6).map((c, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 650,
+                              color: '#334155',
+                              backgroundColor: '#F1F5F9',
+                              padding: '3px 8px',
+                              borderRadius: '6px'
+                            }}
+                          >
+                            {c.code || c.name}
+                          </span>
+                        ))}
+                        {pkg.criteria.length > 6 && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: '#1E60E6',
+                              backgroundColor: '#EFF6FF',
+                              padding: '3px 8px',
+                              borderRadius: '6px'
+                            }}
+                          >
+                            +{pkg.criteria.length - 6} chỉ số
+                          </span>
+                        )}
+                      </div>
+                    ) : Array.isArray(pkg.testsIncluded) && pkg.testsIncluded.length > 0 ? (
+                      <div className="d-flex flex-wrap gap-1.5 mb-2">
+                        {pkg.testsIncluded.slice(0, 5).map((t, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: '#334155',
+                              backgroundColor: '#F1F5F9',
+                              padding: '3px 8px',
+                              borderRadius: '6px'
+                            }}
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {/* Specimen & TAT specs */}
+                    <div className="d-flex flex-wrap align-items-center gap-3" style={{ fontSize: '11.5px', color: '#64748B' }}>
+                      {pkg.sampleTube && (
+                        <div className="d-flex align-items-center gap-1.5">
+                          <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+                          <span>Mẫu: <strong>{pkg.sampleTube}</strong> {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}</span>
+                        </div>
+                      )}
+                      {pkg.tat && (
+                        <div className="d-flex align-items-center gap-1.5">
+                          <FaClock style={{ color: '#10B981', fontSize: '11px' }} />
+                          <span>Thời gian: <strong>{pkg.tat}</strong></span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Col 3: Price & Actions */}
+                  <div className="d-flex flex-column align-items-lg-end justify-content-center gap-2 flex-shrink-0">
+                    <div>
+                      <div className="text-muted text-lg-end" style={{ fontSize: '11px', fontWeight: 550 }}>Đơn giá niêm yết:</div>
+                      <div className="fw-bold fs-4 text-lg-end tabular-nums" style={{ color: '#0F172A', lineHeight: '1.2' }}>
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-2 mt-1">
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        style={{
+                          backgroundColor: '#F1F5F9',
+                          border: 'none',
+                          borderRadius: '9999px',
+                          padding: '7px 18px',
+                          fontSize: '12px',
+                          fontWeight: 650,
+                          color: '#334155',
+                          boxShadow: 'none'
+                        }}
+                        onClick={() => handleOpenDetail(pkg)}
+                      >
+                        Chi tiết
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm fw-bold"
+                        style={{
+                          backgroundColor: '#10B981',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          borderRadius: '9999px',
+                          padding: '7px 22px',
+                          fontSize: '12px',
+                          boxShadow: 'none'
+                        }}
+                        onClick={() => handleBook(pkg)}
+                      >
+                        Đặt lịch
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <Row className="g-4 mb-4">
               {packages.map((pkg) => (
@@ -762,43 +1010,53 @@ export default function ServiceCatalogPage() {
                 {selectedPackage.description}
               </p>
 
-              {/* Pre-analytical Requirements */}
-              <div
-                className="p-3 mb-3"
-                style={{
-                  background: '#F8FAFC',
-                  borderRadius: '12px',
-                  border: '1px solid #E2E8F0',
-                  fontSize: '12.5px'
-                }}
-              >
-                <Row className="g-2">
-                  <Col sm={6}>
-                    <div style={{ color: '#64748B' }}>Loại mẫu yêu cầu:</div>
-                    <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.sampleTube || '-'} {selectedPackage.sampleVolumeMl ? `(${selectedPackage.sampleVolumeMl} ml)` : ''}
-                    </div>
-                  </Col>
-                  <Col sm={6}>
-                    <div style={{ color: '#64748B' }}>Chuẩn bị trước lấy mẫu:</div>
-                    <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.fastingRule || '-'}
-                    </div>
-                  </Col>
-                  <Col sm={6}>
-                    <div style={{ color: '#64748B' }}>Thời gian trả kết quả (TAT):</div>
-                    <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.tat || '-'}
-                    </div>
-                  </Col>
-                  <Col sm={6}>
-                    <div style={{ color: '#64748B' }}>Đối tượng áp dụng:</div>
-                    <div className="fw-bold" style={{ color: '#0F172A' }}>
-                      {selectedPackage.targetAudience || '-'}
-                    </div>
-                  </Col>
-                </Row>
-              </div>
+              {/* Pre-analytical Requirements (Render Only Present Fields, Zero Fabricated Data) */}
+              {(selectedPackage.sampleTube || selectedPackage.fastingRule || selectedPackage.tat || selectedPackage.targetAudience) && (
+                <div
+                  className="p-3 mb-3"
+                  style={{
+                    background: '#F8FAFC',
+                    borderRadius: '12px',
+                    border: '1px solid #E2E8F0',
+                    fontSize: '12.5px'
+                  }}
+                >
+                  <Row className="g-3">
+                    {selectedPackage.sampleTube && (
+                      <Col sm={6}>
+                        <div style={{ color: '#64748B', fontSize: '11.5px' }}>Loại mẫu yêu cầu:</div>
+                        <div className="fw-bold" style={{ color: '#0F172A' }}>
+                          {selectedPackage.sampleTube} {selectedPackage.sampleVolumeMl ? `(${selectedPackage.sampleVolumeMl} ml)` : ''}
+                        </div>
+                      </Col>
+                    )}
+                    {selectedPackage.fastingRule && (
+                      <Col sm={6}>
+                        <div style={{ color: '#64748B', fontSize: '11.5px' }}>Chuẩn bị trước lấy mẫu:</div>
+                        <div className="fw-bold" style={{ color: '#0F172A' }}>
+                          {selectedPackage.fastingRule}
+                        </div>
+                      </Col>
+                    )}
+                    {selectedPackage.tat && (
+                      <Col sm={6}>
+                        <div style={{ color: '#64748B', fontSize: '11.5px' }}>Thời gian trả kết quả (TAT):</div>
+                        <div className="fw-bold" style={{ color: '#0F172A' }}>
+                          {selectedPackage.tat}
+                        </div>
+                      </Col>
+                    )}
+                    {selectedPackage.targetAudience && (
+                      <Col sm={6}>
+                        <div style={{ color: '#64748B', fontSize: '11.5px' }}>Đối tượng áp dụng:</div>
+                        <div className="fw-bold" style={{ color: '#0F172A' }}>
+                          {selectedPackage.targetAudience}
+                        </div>
+                      </Col>
+                    )}
+                  </Row>
+                </div>
+              )}
 
               {/* Included Biomarkers List */}
               <h5 className="fw-bold mb-2" style={{ fontSize: '14px', color: '#0F172A' }}>

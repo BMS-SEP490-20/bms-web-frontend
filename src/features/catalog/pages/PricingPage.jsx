@@ -13,6 +13,7 @@ import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
 import { searchTestPackages } from '../api/catalogApi';
+import usePageTransition from '../../../shared/hooks/usePageTransition';
 import '../../home/landing-sections.css';
 
 export default function PricingPage() {
@@ -80,11 +81,14 @@ export default function PricingPage() {
     });
   }, [pricingItems, selectedCategory, searchQuery]);
 
+  const pageTransitionClass = usePageTransition();
+
   return (
-    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)', overflowX: 'hidden' }}>
       <PortalNavbar />
 
-      {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
+      <div className={`bms-page-directional-content ${pageTransitionClass}`}>
+        {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
       <section className="pt-4 pb-3 mb-5">
         <div className="container" style={{ maxWidth: '1400px' }}>
           <div
@@ -513,7 +517,8 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      <MegaFooter />
+        <MegaFooter />
+      </div>
     </div>
   );
 }

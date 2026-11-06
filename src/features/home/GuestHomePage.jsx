@@ -19,6 +19,7 @@ import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
+import usePageTransition from '../../shared/hooks/usePageTransition';
 import './landing-sections.css';
 
 const LANDING_SECTIONS = [
@@ -179,6 +180,7 @@ const LANDING_SECTIONS = [
 ];
 
 export default function GuestHomePage() {
+  const pageTransitionClass = usePageTransition();
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
   const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
@@ -237,10 +239,11 @@ export default function GuestHomePage() {
   };
 
   return (
-    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)', overflowX: 'hidden' }}>
       <PortalNavbar user={null} />
 
-      {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
+      <div className={`bms-page-directional-content ${pageTransitionClass}`}>
+        {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
       <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px', marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
@@ -450,12 +453,12 @@ export default function GuestHomePage() {
               >
                 {/* Left: Specialty Icon + Full-Width Content Stack (Zero Awkward Breaks) */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="d-flex align-items-center gap-3.5">
-                    {/* Centered Large SVG Icon - No Background Box */}
+                  <div className="d-flex align-items-center" style={{ gap: '24px' }}>
+                    {/* Centered Large SVG Icon (25% Larger, No Background Box) */}
                     <div
                       style={{
-                        width: '56px',
-                        height: '56px',
+                        width: '68px',
+                        height: '68px',
                         flexShrink: 0,
                         display: 'flex',
                         alignItems: 'center',
@@ -464,7 +467,7 @@ export default function GuestHomePage() {
                         backgroundColor: 'transparent'
                       }}
                     >
-                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={52} />
+                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={64} />
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
@@ -687,8 +690,9 @@ export default function GuestHomePage() {
         </div>
       )}
 
-      {/* 5. Mega Footer */}
-      <MegaFooter />
+        {/* 5. Mega Footer */}
+        <MegaFooter />
+      </div>
     </div>
   );
 }

@@ -18,8 +18,10 @@ import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
+import usePageTransition from '../../shared/hooks/usePageTransition';
 
 export default function PatientHomePage({ user: propUser }) {
+  const pageTransitionClass = usePageTransition();
   const [user] = useState(() => {
     if (propUser) return propUser;
     try {
@@ -82,10 +84,11 @@ export default function PatientHomePage({ user: propUser }) {
   const patientCode = user?.patientCode || user?.medicalRecordNumber || `BN-${new Date().getFullYear()}-${String(user?.id || '0812').padStart(4, '0')}`;
 
   return (
-    <div className="bms-telehealth-page">
+    <div className="bms-telehealth-page" style={{ overflowX: 'hidden' }}>
       <PortalNavbar user={user} />
 
-      {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
+      <div className={`bms-page-directional-content ${pageTransitionClass}`}>
+        {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
       <section className="bms-hero-container-wrap" style={{ marginBottom: '56px' }}>
         <div className="bms-hero-grid">
           {/* Left Column: Narrative & Metrics */}
@@ -285,12 +288,12 @@ export default function PatientHomePage({ user: propUser }) {
               >
                 {/* Left: Specialty Icon + Full-Width Content Stack (Zero Awkward Breaks) */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="d-flex align-items-center gap-3.5">
-                    {/* Centered Large SVG Icon - No Background Box */}
+                  <div className="d-flex align-items-center" style={{ gap: '24px' }}>
+                    {/* Centered Large SVG Icon (25% Larger, No Background Box) */}
                     <div
                       style={{
-                        width: '56px',
-                        height: '56px',
+                        width: '68px',
+                        height: '68px',
                         flexShrink: 0,
                         display: 'flex',
                         alignItems: 'center',
@@ -299,7 +302,7 @@ export default function PatientHomePage({ user: propUser }) {
                         backgroundColor: 'transparent'
                       }}
                     >
-                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={52} />
+                      <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={64} />
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
@@ -488,8 +491,9 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 5. Mega Footer */}
-      <MegaFooter />
+        {/* 5. Mega Footer */}
+        <MegaFooter />
+      </div>
     </div>
   );
 }

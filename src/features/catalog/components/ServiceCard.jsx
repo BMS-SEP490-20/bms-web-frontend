@@ -102,9 +102,9 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
       </div>
 
       {/* Category Medical Artwork & Stylized Title */}
-      <div className="d-flex align-items-center gap-3" style={{ marginBottom: '12px' }}>
-        <div style={{ width: '48px', height: '48px', flexShrink: 0 }}>
-          <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={48} />
+      <div className="d-flex align-items-center" style={{ gap: '16px', marginBottom: '12px' }}>
+        <div style={{ width: '56px', height: '56px', flexShrink: 0 }}>
+          <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={56} />
         </div>
         <h3
           className="fw-bold m-0"

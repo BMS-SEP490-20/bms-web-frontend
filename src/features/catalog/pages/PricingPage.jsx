@@ -96,7 +96,7 @@ export default function PricingPage() {
             }}
           >
             <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
-              <div>
+              <div style={{ flex: 1 }}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
                   <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
@@ -108,7 +108,17 @@ export default function PricingPage() {
                   Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Áp dụng thanh toán BHYT đúng tuyến &amp; thông tuyến, xuất hóa đơn điện tử VAT 0% theo Nghị định 123/2020/NĐ-CP.
                 </p>
               </div>
-              <div className="d-flex gap-2 align-items-center flex-shrink-0">
+
+              {/* Pricing Hero SVG Illustration */}
+              <div className="d-none d-xl-block text-center flex-shrink-0" style={{ maxWidth: '200px' }}>
+                <img
+                  src="/assets/bms/svg/hero/pricing/pricing-hero.svg"
+                  alt="Transparent Medical Pricing"
+                  style={{ width: '100%', height: 'auto', maxHeight: '130px', objectFit: 'contain' }}
+                />
+              </div>
+
+              <div className="d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
                 <button
                   type="button"
                   className="btn"
@@ -128,7 +138,7 @@ export default function PricingPage() {
                 </button>
                 <Link
                   to="/appointments/book"
-                  className="btn"
+                  className="btn text-center"
                   style={{
                     fontSize: '13px',
                     fontWeight: 650,
@@ -412,14 +422,25 @@ export default function PricingPage() {
               boxShadow: 'none'
             }}
           >
-            <h6 className="fw-bold mb-2" style={{ color: '#0F172A', fontSize: '13.5px' }}>
-              Quy Định Về Giá Dịch Vụ &amp; Thanh Toán Viện Phí
-            </h6>
-            <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
-              <li>Bảng giá đã bao gồm toàn bộ vật tư y tế tiêu hao (kim lấy máu chân không, ống chân không có gel tách huyết thanh, bông cồn sát khuẩn). Không phụ thu bất kỳ khoản chi phí ẩn nào.</li>
-              <li>Bệnh nhân có thẻ Bảo Hiểm Y Tế (BHYT) được hưởng mức chi trả theo quy định hiện hành khi có chỉ định của bác sĩ tại phòng khám BMS.</li>
-              <li>Miễn phí tư vấn giải thích kết quả và định hướng điều trị lâm sàng từ Bác sĩ chuyên khoa xét nghiệm.</li>
-            </ul>
+            <div className="row align-items-center g-4">
+              <div className="col-lg-8">
+                <h6 className="fw-bold mb-2" style={{ color: '#0F172A', fontSize: '13.5px' }}>
+                  Quy Định Về Giá Dịch Vụ &amp; Thanh Toán Viện Phí
+                </h6>
+                <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
+                  <li>Bảng giá đã bao gồm toàn bộ vật tư y tế tiêu hao (kim lấy máu chân không, ống chân không có gel tách huyết thanh, bông cồn sát khuẩn). Không phụ thu bất kỳ khoản chi phí ẩn nào.</li>
+                  <li>Bệnh nhân có thẻ Bảo Hiểm Y Tế (BHYT) được hưởng mức chi trả theo quy định hiện hành khi có chỉ định của bác sĩ tại phòng khám BMS.</li>
+                  <li>Miễn phí tư vấn giải thích kết quả và định hướng điều trị lâm sàng từ Bác sĩ chuyên khoa xét nghiệm.</li>
+                </ul>
+              </div>
+              <div className="col-lg-4 text-center d-none d-lg-block">
+                <img
+                  src="/assets/bms/svg/sections/landing/sec-13-transparent-pricing.svg"
+                  alt="Quy định thanh toán minh bạch"
+                  style={{ maxWidth: '280px', height: 'auto', maxHeight: '110px', objectFit: 'contain' }}
+                />
+              </div>
+            </div>
           </div>
         </Container>
       </section>

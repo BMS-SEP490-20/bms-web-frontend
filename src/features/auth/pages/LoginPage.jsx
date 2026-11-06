@@ -1,9 +1,9 @@
 /**
  * @file LoginPage.jsx
- * @description Full-screen 50/50 split authentication screen (UC05 - Log In to System).
+ * @description Centered authentication screen with top logo (UC05 - Log In to System).
  * Conforms to:
- * - 50/50 Full-screen layout (Zero Navbar, Zero Footer, pure full viewport).
- * - Utilizes standard design system tokens and Bootstrap utilities without external bloat.
+ * - Simple Centered Card Layout: BMS Logo centered at top, clean white login card centered on screen.
+ * - Zero Navbar, Zero Footer, Zero extraneous narrative text blocks.
  * - Enforces BR-IAM-01 (Authentication), BR-IAM-02 (Role Mapping), BR-IAM-03 (Account lockout on 5 failed attempts).
  */
 
@@ -16,11 +16,7 @@ import {
   FaEye, 
   FaEyeSlash, 
   FaShieldAlt, 
-  FaCheckCircle, 
-  FaArrowLeft,
-  FaFileContract,
-  FaMicroscope,
-  FaUserMd
+  FaCheckCircle 
 } from "react-icons/fa";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
@@ -320,431 +316,324 @@ export default function LoginPage({
   };
 
   return (
-    <div className="container-fluid p-0 min-vh-100 d-flex overflow-hidden" style={{ backgroundColor: '#FFFFFF', fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' }}>
-      <div className="row g-0 w-100 min-vh-100 flex-grow-1">
-        
-        {/* ======================================================================
-            LEFT COLUMN 50%: Clinical Branding & Visual Presentation
-            ====================================================================== */}
-        <div 
-          className="col-lg-6 d-none d-lg-flex flex-column justify-content-between p-5"
-          style={{ 
-            backgroundColor: '#F8FAFC', 
-            borderRight: '1px solid #E2E8F0'
-          }}
-        >
-          {/* Top: Brand Identity Logo */}
-          <div>
-            <Link to="/" className="d-inline-flex align-items-center gap-2 text-decoration-none">
-              <img src="/assets/bms-logo.png" alt="BMS" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
-              <span className="fw-bold" style={{ fontSize: '20px', color: '#0F172A', letterSpacing: '-0.02em' }}>
-                BMS <span style={{ color: '#1E60E6' }}>LAB</span>
-              </span>
-            </Link>
-          </div>
+    <div 
+      className="min-vh-100 d-flex flex-column align-items-center justify-content-center p-3 p-sm-4"
+      style={{ 
+        backgroundColor: '#F8FAFC', 
+        fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
+      }}
+    >
+      {/* ======================================================================
+          CENTER TOP: Centered BMS Brand Logo
+          ====================================================================== */}
+      <div className="text-center mb-4">
+        <Link to="/" className="d-inline-flex align-items-center gap-2.5 text-decoration-none">
+          <img 
+            src="/assets/bms-logo.png" 
+            alt="BMS Logo" 
+            style={{ width: '44px', height: '44px', objectFit: 'contain' }} 
+          />
+          <span className="fw-bold" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.025em' }}>
+            BMS <span style={{ color: '#1E60E6' }}>LAB</span>
+          </span>
+        </Link>
+      </div>
 
-          {/* Center: Showcase Narrative & Medical Trust Artwork */}
-          <div className="my-auto py-4" style={{ maxWidth: '520px' }}>
-            <div 
-              className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" 
-              style={{ backgroundColor: '#EFF6FF', border: '1px solid rgba(30, 96, 230, 0.15)' }}
-            >
-              <img src="/assets/lab-icon.png" alt="" style={{ width: 14, height: 14, objectFit: 'contain' }} />
-              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.04em', color: '#1E60E6' }}>
-                TIÊU CHUẨN ISO 15189:2022 · CỔNG Y TẾ SỐ
-              </span>
-            </div>
+      {/* ======================================================================
+          CENTER CARD: Luxury White Authentication Card
+          ====================================================================== */}
+      <div 
+        className="card border-0 p-4 p-sm-5"
+        style={{
+          maxWidth: '440px',
+          width: '100%',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '24px',
+          border: '1px solid rgba(226, 232, 240, 0.95)',
+          boxShadow: '0 4px 20px -2px rgba(15, 23, 42, 0.05)'
+        }}
+      >
+        <div className="text-center mb-4">
+          <h2 className="fw-bold mb-1" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em' }}>
+            Đăng Nhập Cổng BMS
+          </h2>
+          <p className="text-muted mb-0" style={{ fontSize: '13px' }}>
+            Nhập thông tin tài khoản y tế của bạn để tiếp tục
+          </p>
+        </div>
 
-            <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
-              Nền Tảng Quản Trị Xét Nghiệm &amp; Bệnh Án Điện Tử
-            </h1>
+        {/* Notifications & Feedback */}
+        {successNotice && (
+          <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
+            <FaCheckCircle className="flex-shrink-0" style={{ color: '#16A34A' }} />
+            <span style={{ fontSize: '13px' }}>{successNotice}</span>
+          </Alert>
+        )}
 
-            <p className="mb-4" style={{ fontSize: '14px', lineHeight: '1.65', color: '#475569' }}>
-              Hệ thống xét nghiệm tự động hóa khép kín. Đăng nhập để tra cứu kết quả điện tử bảo mật chữ ký số PKI, đặt lịch khám hoặc vận hành phân hệ y khoa chuyên sâu.
-            </p>
+        {error && (
+          <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
+            <FaShieldAlt className="flex-shrink-0" style={{ color: '#DC2626' }} />
+            <span style={{ fontSize: '13px' }}>{error}</span>
+          </Alert>
+        )}
 
-            {/* Illustration */}
-            <div className="text-center my-3">
-              <img
-                src="/assets/bms/svg/hero/login/login-hero.svg"
-                alt="BMS Clinical Laboratory"
-                style={{ width: '100%', maxHeight: '180px', objectFit: 'contain' }}
+        {/* Authentication Form */}
+        <form onSubmit={handleSubmit} noValidate>
+          
+          {/* Identifier Field */}
+          <div className="mb-3">
+            <label htmlFor="login-email" className="form-label fw-semibold text-dark mb-1" style={{ fontSize: '12.5px' }}>
+              Tên đăng nhập hoặc Email <span className="text-danger">*</span>
+            </label>
+            <div className="position-relative d-flex align-items-center">
+              <FaUser 
+                style={{
+                  position: 'absolute',
+                  left: '16px',
+                  color: focusedInput === 'email' ? '#1E60E6' : '#94A3B8',
+                  fontSize: '14px',
+                  pointerEvents: 'none',
+                  transition: 'color 0.15s ease'
+                }} 
+              />
+              <input
+                id="login-email"
+                type="text"
+                autoComplete="username"
+                placeholder="name@bms.health.vn hoặc username"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                onFocus={() => setFocusedInput('email')}
+                onBlur={() => setFocusedInput(null)}
+                required
+                disabled={loading || isLocked}
+                autoFocus
+                style={{
+                  width: '100%',
+                  height: '46px',
+                  paddingLeft: '44px',
+                  paddingRight: '16px',
+                  backgroundColor: focusedInput === 'email' ? '#FFFFFF' : '#F1F5F9',
+                  border: focusedInput === 'email' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
+                  borderRadius: '12px',
+                  fontSize: '13.5px',
+                  fontWeight: 500,
+                  color: '#0F172A',
+                  outline: 'none',
+                  boxShadow: focusedInput === 'email' ? '0 0 0 3px rgba(30, 96, 230, 0.12)' : 'none',
+                  boxSizing: 'border-box',
+                  transition: 'all 0.18s ease'
+                }}
               />
             </div>
-
-            {/* 3 Medical Trust Cards (2D Flat) */}
-            <div className="d-flex flex-column gap-2.5 mt-3">
-              <div 
-                className="d-flex align-items-center gap-3 p-3 bg-white rounded-3"
-                style={{ border: '1px solid #E2E8F0' }}
-              >
-                <div 
-                  className="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
-                  style={{ width: '36px', height: '36px', backgroundColor: '#EFF6FF', color: '#1E60E6', fontSize: '15px' }}
-                >
-                  <FaFileContract />
-                </div>
-                <div>
-                  <div className="fw-bold text-dark" style={{ fontSize: '13px' }}>Chữ Ký Số Y Tế PKI Hợp Pháp</div>
-                  <div className="text-muted" style={{ fontSize: '12px' }}>Giá trị pháp lý tương đương bản giấy theo Bộ Y Tế.</div>
-                </div>
-              </div>
-
-              <div 
-                className="d-flex align-items-center gap-3 p-3 bg-white rounded-3"
-                style={{ border: '1px solid #E2E8F0' }}
-              >
-                <div 
-                  className="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
-                  style={{ width: '36px', height: '36px', backgroundColor: '#EFF6FF', color: '#1E60E6', fontSize: '15px' }}
-                >
-                  <FaMicroscope />
-                </div>
-                <div>
-                  <div className="fw-bold text-dark" style={{ fontSize: '13px' }}>Tra Cứu Real-Time &amp; Mã Vạch Một Chiều</div>
-                  <div className="text-muted" style={{ fontSize: '12px' }}>Theo dõi 6 chặng chuẩn ISO loại trừ 100% nhầm lẫn mẫu.</div>
-                </div>
-              </div>
-
-              <div 
-                className="d-flex align-items-center gap-3 p-3 bg-white rounded-3"
-                style={{ border: '1px solid #E2E8F0' }}
-              >
-                <div 
-                  className="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
-                  style={{ width: '36px', height: '36px', backgroundColor: '#EFF6FF', color: '#1E60E6', fontSize: '15px' }}
-                >
-                  <FaUserMd />
-                </div>
-                <div>
-                  <div className="fw-bold text-dark" style={{ fontSize: '13px' }}>Không Gian Đa Vai Trò Chuyên Biệt</div>
-                  <div className="text-muted" style={{ fontSize: '12px' }}>Dành cho Bác sĩ, KTV Lab, Lễ tân và Người bệnh.</div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Bottom: Legal & Hotline */}
-          <div className="d-flex justify-content-between align-items-center pt-3 text-muted" style={{ fontSize: '12px', borderTop: '1px solid #E2E8F0' }}>
-            <span>© 2026 BMS Clinical Laboratory. ISO 15189:2022</span>
-            <span>Hotline 24/7: <strong>1900 6868</strong></span>
-          </div>
-        </div>
-
-
-        {/* ======================================================================
-            RIGHT COLUMN 50%: Full Height Authentication Form
-            ====================================================================== */}
-        <div 
-          className="col-lg-6 col-12 d-flex flex-column justify-content-center p-4 p-sm-5"
-          style={{ backgroundColor: '#FFFFFF' }}
-        >
-          <div className="w-100 mx-auto" style={{ maxWidth: '440px' }}>
-            
-            {/* Top Navigation: Back to Home Link */}
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <Link 
-                to="/" 
-                className="d-inline-flex align-items-center gap-2 text-decoration-none text-muted"
-                style={{ fontSize: '12.5px', fontWeight: 600 }}
-              >
-                <FaArrowLeft style={{ fontSize: '11px' }} />
-                <span>Quay về trang chủ</span>
-              </Link>
-
-              {/* Mobile Brand Mark */}
-              <div className="d-lg-none d-flex align-items-center gap-2">
-                <img src="/assets/bms-logo.png" alt="BMS" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
-                <span className="fw-bold" style={{ fontSize: '15px', color: '#0F172A' }}>BMS LAB</span>
-              </div>
-            </div>
-
-            {/* Heading */}
-            <div className="mb-4">
-              <span 
-                className="badge mb-2 px-2.5 py-1 fw-bold rounded-2"
-                style={{ backgroundColor: '#EFF6FF', color: '#1E60E6', fontSize: '11px', letterSpacing: '0.04em' }}
-              >
-                XÁC THỰC TÀI KHOẢN
-              </span>
-              <h2 className="fw-bold mb-1" style={{ fontSize: '26px', color: '#0F172A', letterSpacing: '-0.02em' }}>
-                Đăng Nhập Cổng BMS
-              </h2>
-              <p className="text-muted mb-0" style={{ fontSize: '13px' }}>
-                Nhập thông tin xác thực tài khoản y tế để tiếp tục làm việc.
-              </p>
-            </div>
-
-            {/* Notifications & Feedback */}
-            {successNotice && (
-              <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
-                <FaCheckCircle className="flex-shrink-0" style={{ color: '#16A34A' }} />
-                <span style={{ fontSize: '13px' }}>{successNotice}</span>
-              </Alert>
-            )}
-
-            {error && (
-              <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
-                <FaShieldAlt className="flex-shrink-0" style={{ color: '#DC2626' }} />
-                <span style={{ fontSize: '13px' }}>{error}</span>
-              </Alert>
-            )}
-
-            {/* Authentication Form */}
-            <form onSubmit={handleSubmit} noValidate>
-              
-              {/* Identifier Field */}
-              <div className="mb-3">
-                <label htmlFor="login-email" className="form-label fw-semibold text-dark mb-1" style={{ fontSize: '12.5px' }}>
-                  Tên đăng nhập hoặc Email <span className="text-danger">*</span>
-                </label>
-                <div className="position-relative d-flex align-items-center">
-                  <FaUser 
-                    style={{
-                      position: 'absolute',
-                      left: '16px',
-                      color: focusedInput === 'email' ? '#1E60E6' : '#94A3B8',
-                      fontSize: '14px',
-                      pointerEvents: 'none',
-                      transition: 'color 0.15s ease'
-                    }} 
-                  />
-                  <input
-                    id="login-email"
-                    type="text"
-                    autoComplete="username"
-                    placeholder="name@bms.health.vn hoặc username"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    onFocus={() => setFocusedInput('email')}
-                    onBlur={() => setFocusedInput(null)}
-                    required
-                    disabled={loading || isLocked}
-                    autoFocus
-                    style={{
-                      width: '100%',
-                      height: '46px',
-                      paddingLeft: '44px',
-                      paddingRight: '16px',
-                      backgroundColor: focusedInput === 'email' ? '#FFFFFF' : '#F1F5F9',
-                      border: focusedInput === 'email' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
-                      borderRadius: '12px',
-                      fontSize: '13.5px',
-                      fontWeight: 500,
-                      color: '#0F172A',
-                      outline: 'none',
-                      boxShadow: focusedInput === 'email' ? '0 0 0 3px rgba(30, 96, 230, 0.12)' : 'none',
-                      boxSizing: 'border-box',
-                      transition: 'all 0.18s ease'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '12.5px' }}>
-                    Mật khẩu bảo mật <span className="text-danger">*</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="btn btn-link p-0 text-decoration-none"
-                    style={{ fontSize: '12px', color: '#1E60E6', fontWeight: 600 }}
-                    onClick={onForgotPassword || (() => navigate("/forgot-password"))}
-                  >
-                    Quên mật khẩu?
-                  </button>
-                </div>
-                <div className="position-relative d-flex align-items-center">
-                  <FaLock 
-                    style={{
-                      position: 'absolute',
-                      left: '16px',
-                      color: focusedInput === 'password' ? '#1E60E6' : '#94A3B8',
-                      fontSize: '14px',
-                      pointerEvents: 'none',
-                      transition: 'color 0.15s ease'
-                    }} 
-                  />
-                  <input
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    placeholder="Nhập mật khẩu của bạn"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocusedInput('password')}
-                    onBlur={() => setFocusedInput(null)}
-                    required
-                    disabled={loading || isLocked}
-                    style={{
-                      width: '100%',
-                      height: '46px',
-                      paddingLeft: '44px',
-                      paddingRight: '44px',
-                      backgroundColor: focusedInput === 'password' ? '#FFFFFF' : '#F1F5F9',
-                      border: focusedInput === 'password' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
-                      borderRadius: '12px',
-                      fontSize: '13.5px',
-                      fontWeight: 500,
-                      color: '#0F172A',
-                      outline: 'none',
-                      boxShadow: focusedInput === 'password' ? '0 0 0 3px rgba(30, 96, 230, 0.12)' : 'none',
-                      boxSizing: 'border-box',
-                      transition: 'all 0.18s ease'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Ẩn hiện mật khẩu"
-                    style={{
-                      position: 'absolute',
-                      right: '12px',
-                      background: 'none',
-                      border: 'none',
-                      color: '#94A3B8',
-                      cursor: 'pointer',
-                      padding: '6px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me Option */}
-              <div className="d-flex align-items-center justify-content-between my-3 pt-1">
-                <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={{ width: '15px', height: '15px', accentColor: '#1E60E6', cursor: 'pointer' }}
-                  />
-                  <span style={{ fontSize: '12.5px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
-                </label>
-              </div>
-
-              {/* Primary Action Button */}
+          {/* Password Field */}
+          <div className="mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '12.5px' }}>
+                Mật khẩu bảo mật <span className="text-danger">*</span>
+              </label>
               <button
-                type="submit"
-                className="btn fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  height: '48px',
-                  borderRadius: '9999px',
-                  backgroundColor: '#1E60E6',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '14px',
-                  boxShadow: 'none',
-                  cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.15s ease'
-                }}
-                disabled={loading || isLocked}
+                type="button"
+                className="btn btn-link p-0 text-decoration-none"
+                style={{ fontSize: '12px', color: '#1E60E6', fontWeight: 600 }}
+                onClick={onForgotPassword || (() => navigate("/forgot-password"))}
               >
-                {loading ? (
-                  <>
-                    <Spinner animation="border" size="sm" />
-                    <span>Đang Xác Thực...</span>
-                  </>
-                ) : (
-                  <span>Đăng Nhập Cổng BMS</span>
-                )}
+                Quên mật khẩu?
               </button>
-            </form>
-
-            {/* Quick Fill Demo Roles (For Testing & Validation) */}
-            <div className="mt-4 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
-              <div className="text-muted small fw-semibold mb-2" style={{ fontSize: '12px' }}>
-                Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):
-              </div>
-              <div className="d-flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  Admin
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  Quản Lý
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  Bác Sĩ
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  KTV Lab
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  Lễ Tân
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
-                  onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
-                  disabled={loading || isLocked}
-                >
-                  Bệnh Nhân
-                </button>
-              </div>
             </div>
-
-            {/* Footer Registration Link */}
-            <div className="text-center mt-4 text-muted" style={{ fontSize: '13px' }}>
-              <span>Chưa có tài khoản bệnh nhân? </span>
-              {onRegister ? (
-                <button 
-                  type="button" 
-                  onClick={onRegister}
-                  className="btn btn-link p-0 text-decoration-none fw-bold"
-                  style={{ color: '#1E60E6', fontSize: '13px' }}
-                >
-                  Đăng ký ngay
-                </button>
-              ) : (
-                <Link 
-                  to="/register"
-                  className="text-decoration-none fw-bold"
-                  style={{ color: '#1E60E6' }}
-                >
-                  Đăng ký ngay
-                </Link>
-              )}
+            <div className="position-relative d-flex align-items-center">
+              <FaLock 
+                style={{
+                  position: 'absolute',
+                  left: '16px',
+                  color: focusedInput === 'password' ? '#1E60E6' : '#94A3B8',
+                  fontSize: '14px',
+                  pointerEvents: 'none',
+                  transition: 'color 0.15s ease'
+                }} 
+              />
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Nhập mật khẩu của bạn"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocusedInput('password')}
+                onBlur={() => setFocusedInput(null)}
+                required
+                disabled={loading || isLocked}
+                style={{
+                  width: '100%',
+                  height: '46px',
+                  paddingLeft: '44px',
+                  paddingRight: '44px',
+                  backgroundColor: focusedInput === 'password' ? '#FFFFFF' : '#F1F5F9',
+                  border: focusedInput === 'password' ? '1.5px solid #1E60E6' : '1.5px solid transparent',
+                  borderRadius: '12px',
+                  fontSize: '13.5px',
+                  fontWeight: 500,
+                  color: '#0F172A',
+                  outline: 'none',
+                  boxShadow: focusedInput === 'password' ? '0 0 0 3px rgba(30, 96, 230, 0.12)' : 'none',
+                  boxSizing: 'border-box',
+                  transition: 'all 0.18s ease'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label="Ẩn hiện mật khẩu"
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  background: 'none',
+                  border: 'none',
+                  color: '#94A3B8',
+                  cursor: 'pointer',
+                  padding: '6px',
+                  fontSize: '14px'
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
+          </div>
 
+          {/* Remember Me Option */}
+          <div className="d-flex align-items-center justify-content-between my-3 pt-1">
+            <label className="d-flex align-items-center gap-2 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: '15px', height: '15px', accentColor: '#1E60E6', cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '12.5px', color: '#475569' }}>Ghi nhớ phiên đăng nhập trên thiết bị này</span>
+            </label>
+          </div>
+
+          {/* Primary Action Button */}
+          <button
+            type="submit"
+            className="btn fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
+            style={{
+              height: '48px',
+              borderRadius: '9999px',
+              backgroundColor: '#1E60E6',
+              color: '#FFFFFF',
+              border: 'none',
+              fontSize: '14px',
+              boxShadow: 'none',
+              cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.15s ease'
+            }}
+            disabled={loading || isLocked}
+          >
+            {loading ? (
+              <>
+                <Spinner animation="border" size="sm" />
+                <span>Đang Xác Thực...</span>
+              </>
+            ) : (
+              <span>Đăng Nhập Cổng BMS</span>
+            )}
+          </button>
+        </form>
+
+        {/* Quick Fill Demo Roles (For Testing & Validation) */}
+        <div className="mt-4 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+          <div className="text-muted small fw-semibold mb-2" style={{ fontSize: '12px' }}>
+            Đăng nhập nhanh theo vai trò (Dành cho kiểm thử):
+          </div>
+          <div className="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("Admin", "admin_bms", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("Manager", "labhead_tranhoa", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              Quản Lý
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("Doctor", "dr_nguyenminh", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              Bác Sĩ
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("LabTech", "tech_quochung", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              KTV Lab
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("Receptionist", "recep_lananh", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              Lễ Tân
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#334155' }}
+              onClick={() => handleQuickDemoFill("Patient", "patient_tranvanan", "Admin@123")}
+              disabled={loading || isLocked}
+            >
+              Bệnh Nhân
+            </button>
           </div>
         </div>
 
+        {/* Footer Registration Link */}
+        <div className="text-center mt-4 text-muted" style={{ fontSize: '13px' }}>
+          <span>Chưa có tài khoản bệnh nhân? </span>
+          {onRegister ? (
+            <button 
+              type="button" 
+              onClick={onRegister}
+              className="btn btn-link p-0 text-decoration-none fw-bold"
+              style={{ color: '#1E60E6', fontSize: '13px' }}
+            >
+              Đăng ký ngay
+            </button>
+          ) : (
+            <Link 
+              to="/register"
+              className="text-decoration-none fw-bold"
+              style={{ color: '#1E60E6' }}
+            >
+              Đăng ký ngay
+            </Link>
+          )}
+        </div>
+
+      </div>
+
+      {/* Footer Minimal Copyright */}
+      <div className="text-center mt-4 text-muted" style={{ fontSize: '12px' }}>
+        © 2026 BMS Clinical Laboratory · ISO 15189:2022
       </div>
     </div>
   );

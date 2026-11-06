@@ -6,6 +6,7 @@
    ========================================================================== */
 
 @import './styles/bms-kit-tokens.css';
+@import './features/home/landing-sections.css';
 
 :root {
   /* Canvas & Pure Flat Surfaces */

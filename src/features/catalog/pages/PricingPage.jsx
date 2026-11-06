@@ -13,6 +13,7 @@ import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
 import { searchTestPackages } from '../api/catalogApi';
+import '../../home/landing-sections.css';
 
 export default function PricingPage() {
   const navigate = useNavigate();
@@ -110,11 +111,11 @@ export default function PricingPage() {
               </div>
 
               {/* Pricing Hero SVG Illustration */}
-              <div className="d-none d-xl-block text-center flex-shrink-0" style={{ maxWidth: '200px' }}>
+              <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
                 <img
                   src="/assets/bms/svg/hero/pricing/pricing-hero.svg"
                   alt="Transparent Medical Pricing"
-                  style={{ width: '100%', height: 'auto', maxHeight: '130px', objectFit: 'contain' }}
+                  style={{ width: '100%', height: 'auto', maxHeight: '140px', objectFit: 'contain' }}
                 />
               </div>
 
@@ -180,7 +181,7 @@ export default function PricingPage() {
                 <FaSearch
                   style={{
                     position: 'absolute',
-                    left: '16px',
+                    left: '18px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: '#1E60E6',
@@ -197,8 +198,7 @@ export default function PricingPage() {
                   style={{
                     width: '100%',
                     height: '44px',
-                    paddingLeft: '46px',
-                    paddingRight: searchQuery ? '38px' : '18px',
+                    padding: '0 38px 0 48px',
                     borderRadius: '12px',
                     border: 'none',
                     backgroundColor: '#F1F5F9',
@@ -268,6 +268,55 @@ export default function PricingPage() {
         </Container>
       </section>
 
+      {/* 2.5 V3.1 3-Card Trust Row (Above Table) */}
+      <section className="py-2">
+        <Container style={{ maxWidth: '1400px' }}>
+          <div className="bms-pricing-trust-row">
+            <div className="bms-pricing-trust-card">
+              <img
+                src="/assets/bms/svg/sections/landing/sec-13-transparent-pricing.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
+                Niêm Yết Minh Bạch 100%
+              </h3>
+              <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
+                Toàn bộ đơn giá được công khai theo quy chuẩn Bộ Y Tế, xuất hóa đơn điện tử VAT 0%.
+              </p>
+            </div>
+
+            <div className="bms-pricing-trust-card">
+              <img
+                src="/assets/bms/svg/sections/landing/sec-07-tat-sla.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
+                Cam Kết Trả KQ 60 – 90 Phút
+              </h3>
+              <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
+                Hệ thống phân tích tự động hóa tối ưu thời gian chờ đợi, gửi SMS tức thì khi có kết quả.
+              </p>
+            </div>
+
+            <div className="bms-pricing-trust-card">
+              <img
+                src="/assets/bms/svg/sections/landing/sec-03-digital-signature.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
+                Chữ Ký Số Y Tế Hợp Pháp
+              </h3>
+              <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
+                Phiếu kết quả được Bác sĩ chuyên khoa thẩm duyệt và cấp con dấu thời gian có giá trị toàn quốc.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* 3. Independent Table Section (Pure 2D Flat Canvas Section - Zero Border) */}
       <section className="bms-pricing-table-section py-2">
         <Container style={{ maxWidth: '1400px' }}>
@@ -282,15 +331,15 @@ export default function PricingPage() {
           >
             <div className="table-responsive">
               <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
-                <thead style={{ backgroundColor: '#F1F5F9', borderBottom: '2px solid #CBD5E1' }}>
+                <thead style={{ backgroundColor: '#EEF4FD', borderBottom: '2px solid #D1E1FA' }}>
                   <tr>
-                    <th className="ps-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Mã Dịch Vụ</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#F1F5F9' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Chuyên Khoa</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Ống Bệnh Phẩm</th>
-                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Thời Gian (TAT)</th>
-                    <th className="text-end py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Đơn Giá Niêm Yết</th>
-                    <th className="text-end pe-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#F1F5F9' }}>Thao Tác</th>
+                    <th className="ps-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Mã Dịch Vụ</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', minWidth: '280px', backgroundColor: '#EEF4FD' }}>Tên Xét Nghiệm / Chỉ Số Sinh Học</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Chuyên Khoa</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Ống Bệnh Phẩm</th>
+                    <th className="py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Thời Gian (TAT)</th>
+                    <th className="text-end py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Đơn Giá Niêm Yết</th>
+                    <th className="text-end pe-4 py-3" style={{ color: '#0F172A', fontWeight: 750, fontSize: '11.5px', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', backgroundColor: '#EEF4FD' }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -433,7 +482,7 @@ export default function PricingPage() {
                   <li>Miễn phí tư vấn giải thích kết quả và định hướng điều trị lâm sàng từ Bác sĩ chuyên khoa xét nghiệm.</li>
                 </ul>
               </div>
-              <div className="col-lg-4 text-center d-none d-lg-block">
+              <div className="col-lg-4 text-center d-none d-md-block">
                 <img
                   src="/assets/bms/svg/sections/landing/sec-13-transparent-pricing.svg"
                   alt="Quy định thanh toán minh bạch"

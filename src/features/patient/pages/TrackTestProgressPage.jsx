@@ -185,8 +185,8 @@ export default function TrackTestProgressPage() {
 
                             {/* Right Column: Search Box Aligned to Right */}
                             <div className="col-lg-6 col-xl-6 d-flex align-items-center justify-content-lg-end gap-3">
-                                <div className="d-none d-xl-block" style={{ width: '64px', height: '64px', flexShrink: 0 }}>
-                                    <img src="/assets/bms/svg/hero/tracking/tracking-hero.svg" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '140px', width: '100%' }}>
+                                    <img src="/assets/bms/svg/hero/tracking/tracking-hero.svg" alt="" style={{ width: '100%', height: 'auto', maxHeight: '100px', objectFit: 'contain' }} />
                                 </div>
                                 <div className="bms-hero-search-wrapper" style={{ width: '100%', maxWidth: '440px' }}>
                                     <form onSubmit={handleFormSubmit}>
@@ -252,7 +252,7 @@ export default function TrackTestProgressPage() {
                             <div className="bms-steps">
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-01-register.svg" alt="Nhận mã phiếu" style={{ height: '62px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-01-register.svg" alt="Nhận mã phiếu" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">01</div>
                                     <h3 className="bms-step-title">Nhận Mã Phiếu Lấy Mẫu</h3>
@@ -263,7 +263,7 @@ export default function TrackTestProgressPage() {
 
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-02-sampling.svg" alt="Nhập mã tra cứu" style={{ height: '62px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-02-sampling.svg" alt="Nhập mã tra cứu" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">02</div>
                                     <h3 className="bms-step-title">Nhập Mã Tra Cứu</h3>
@@ -274,7 +274,7 @@ export default function TrackTestProgressPage() {
 
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
-                                        <img src="/assets/bms/svg/sections/landing/step-03-analysis.svg" alt="Theo dõi kết quả" style={{ height: '62px', objectFit: 'contain' }} />
+                                        <img src="/assets/bms/svg/sections/landing/step-03-analysis.svg" alt="Theo dõi kết quả" style={{ height: '88px', objectFit: 'contain' }} />
                                     </div>
                                     <div className="bms-step-num">03</div>
                                     <h3 className="bms-step-title">Theo Dõi Thời Gian Thực</h3>
@@ -317,6 +317,19 @@ export default function TrackTestProgressPage() {
                                         <div className="bms-stage-pill-name">Ký Số &amp; Trả Kết Quả</div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Explainer Patient Journey Row */}
+                            <div className="bms-stages-overview my-3 text-center" style={{ padding: '24px' }}>
+                                <h4 className="bms-stages-overview-title mb-1">Hành Trình Xét Nghiệm Khép Kín Chuẩn Y Tế BMS</h4>
+                                <p className="bms-stages-overview-subtitle mb-3">
+                                    Minh họa toàn diện từ thời điểm tiếp nhận mẫu đến khi cấp chứng thư chữ ký số
+                                </p>
+                                <img
+                                    src="/assets/bms/svg/sections/landing/sec-09-patient-journey.svg"
+                                    alt="Hành trình xét nghiệm bệnh nhân"
+                                    style={{ width: '100%', maxWidth: '440px', height: 'auto', margin: '0 auto', display: 'block' }}
+                                />
                             </div>
 
                             {/* Trust & Support Strip - Clean typography without decorative icons */}

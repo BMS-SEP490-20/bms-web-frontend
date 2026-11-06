@@ -222,15 +222,23 @@ export default function ServiceCatalogPage() {
   const handleOpenDetail = async (pkg) => {
     setSelectedPackage(pkg);
     setShowDetailModal(true);
-    if (pkg.id) {
+    const lookupId = pkg.id || pkg.packageCode;
+    if (lookupId) {
       setDetailLoading(true);
       try {
-        const fullDetail = await fetchServiceById(pkg.id);
+        let fullDetail = await fetchServiceById(lookupId);
+        if (!fullDetail && pkg.packageCode && pkg.packageCode !== lookupId) {
+          fullDetail = await fetchServiceById(pkg.packageCode);
+        }
         if (fullDetail) {
-          setSelectedPackage((prev) => ({
-            ...prev,
-            ...normalizePackage(fullDetail)
-          }));
+          setSelectedPackage((prev) => {
+            const normalized = normalizePackage(fullDetail);
+            return {
+              ...prev,
+              ...normalized,
+              criteria: (normalized.criteria && normalized.criteria.length > 0) ? normalized.criteria : (prev?.criteria || [])
+            };
+          });
         }
       } catch (e) {
         console.warn('[ServiceCatalogPage] fetchServiceById failed, using cached summary:', e);

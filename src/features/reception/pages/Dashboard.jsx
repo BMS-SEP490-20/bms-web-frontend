@@ -461,21 +461,24 @@ const ReceptionistDashboard = () => {
         </Col>
       </Row>
 
-      {/* Main Table: Patient Name & Barcode ID */}
-      <Row>
-        <Col>
-          <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Header className="py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <h5 className="mb-0 fw-bold" style={{ color: '#1E60E6' }}>
-                <FaBarcode className="me-2" style={{ color: '#1E60E6' }} />
-                Danh Sách Tiếp Nhận & Mã Barcode (Lễ Tân)
-              </h5>
-              <Badge bg="primary" className="px-3 py-2 font-monospace" style={{ fontSize: '0.85rem', backgroundColor: '#1E60E6', borderRadius: '9999px' }}>
-                {appointments.length} bệnh nhân
-              </Badge>
-            </Card.Header>
+      {/* Main Table: Standalone Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section mb-4">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              <FaBarcode style={{ color: '#1E60E6' }} />
+              Danh Sách Tiếp Nhận &amp; Mã Barcode (Lễ Tân)
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              Quản lý danh sách bệnh nhân tiếp đón và in nhãn mã vạch định danh ống mẫu y tế
+            </div>
+          </div>
+          <span className="badge rounded-pill px-3 py-2 font-monospace" style={{ fontSize: '13px', backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
+            {appointments.length} bệnh nhân
+          </span>
+        </div>
 
-            <Card.Body className="p-0">
+        <div className="bms-table-standalone-body">
               {loading ? (
                 <div className="text-center py-5">
                   <Spinner animation="border" style={{ color: '#1E60E6' }} />
@@ -617,10 +620,8 @@ const ReceptionistDashboard = () => {
                   <p className="text-muted mb-0">Hôm nay chưa có dữ liệu tiếp nhận bệnh nhân</p>
                 </div>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+        </div>
+      </div>
 
       {/* Barcode Print Modal for Receptionist */}
       <Modal show={showBarcodeModal} onHide={handleCloseBarcodeModal} centered>

@@ -383,56 +383,32 @@ export default function BackupManagementPage() {
             </div>
 
             {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
-            <div className="bms-table-standalone-section">
-                <div className="bms-table-standalone-header">
-                    <div>
-                        <h5 className="bms-table-standalone-title">
-                            {activeTab === "HISTORY" ? (
-                                <>
-                                    <FaHistory style={{ color: '#1E60E6' }} />
-                                    <span>Nhật Ký Kiểm Toán Khôi Phục Dữ Liệu</span>
-                                </>
-                            ) : (
-                                <>
-                                    <FaDatabase style={{ color: '#1E60E6' }} />
-                                    <span>Danh Sách Bản Sao Lưu Cơ Sở Dữ Liệu Xét Nghiệm</span>
-                                </>
-                            )}
-                        </h5>
-                        <div className="bms-table-standalone-subtitle">
-                            {activeTab === "HISTORY"
-                                ? `Tổng cộng ${restoreHistory.length} phiên khôi phục được niêm phong ghi nhận`
-                                : `Hiển thị ${filteredBackups.length} / ${safeBackups.length} bản sao lưu sẵn sàng phục hồi`}
-                        </div>
+            {activeTab !== "HISTORY" && (
+                <div className="bms-filter-bar">
+                    <div className="bms-search-input-pill">
+                        <FaSearch className="bms-search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Tìm theo tên, mã sao lưu..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                className="bms-search-clear"
+                                onClick={() => setSearchTerm('')}
+                                title="Xóa tìm kiếm"
+                            >
+                                <FaTimes size={12} />
+                            </button>
+                        )}
                     </div>
-
-                    {activeTab !== "HISTORY" && (
-                        <div className="bms-filter-bar">
-                            <div className="bms-search-input-pill">
-                                <FaSearch className="bms-search-icon" />
-                                <input
-                                    type="text"
-                                    placeholder="Tìm theo tên, mã sao lưu..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                                {searchTerm && (
-                                    <button
-                                        type="button"
-                                        className="bms-search-clear"
-                                        onClick={() => setSearchTerm('')}
-                                        title="Xóa tìm kiếm"
-                                    >
-                                        <FaTimes size={12} />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
                 </div>
+            )}
 
-                {/* Integrated Tab Pill Navigation Strip */}
-                <div className="px-3 py-2.5 border-bottom d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+            <div className="bms-table-standalone-section">
+                <div className="bms-table-tabs">
                     <ul className="nav nav-pills gap-1 mb-0">
                         {TABS.map((tab) => {
                             const Icon = tab.icon;

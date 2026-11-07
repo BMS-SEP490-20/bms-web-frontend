@@ -44,7 +44,7 @@
   border-radius: 0 !important;
   box-shadow: none !important;
   overflow: visible !important;
-  margin: 0 0 16px !important;
+  margin: 16px 0 !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-section .table-responsive,
@@ -55,6 +55,7 @@
   border: 1px solid #e6eef8 !important;
   border-radius: 16px !important;
   overflow: hidden !important;
+  margin-top: 12px !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-body > .d-flex,
@@ -93,19 +94,22 @@
   background: transparent !important;
 }
 
-.bms-app-layout .bms-page-content .card:has(table) > .card-header,
 .bms-app-layout .bms-page-content .bms-table-standalone-header {
   display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  flex-wrap: wrap !important;
-  gap: 12px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
   margin: 0 !important;
-  padding: 16px 18px !important;
-  background: #ffffff !important;
+  padding: 0 !important;
+  background: transparent !important;
   border: 0 !important;
-  border-bottom: 1px solid #d5e3f5 !important;
   border-radius: 0 !important;
+}
+
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar,
+.bms-app-layout .bms-page-content .card:has(table) > .card-header .bms-filter-bar {
+  width: 100% !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-title,
@@ -1043,12 +1047,21 @@
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-section .bms-filter-bar,
-.bms-app-layout .bms-page-content .card:has(table) > .bms-filter-bar {
-  margin: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-top: 0 !important;
-  border-radius: 0 !important;
-  border-bottom: 1px solid #d5e3f5 !important;
-  background: #f8fbff !important;
+.bms-app-layout .bms-page-content .card:has(table) > .bms-filter-bar,
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar {
+  width: 100% !important;
+  margin: 0 0 12px !important;
+  padding: 10px 12px !important;
+  background: #ffffff !important;
+  border: 1px solid #d5e3f5 !important;
+  border-radius: 16px !important;
+}
+
+.bms-app-layout .bms-page-content .bms-table-tabs {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
 }

@@ -630,17 +630,12 @@ export default function RevenueReportPage() {
                     <div className="bms-table-standalone-header">
                         <div>
                             <h5 className="bms-table-standalone-title">
-                                <FaFileInvoiceDollar style={{ color: '#1E60E6' }} />
-                                <span>Nhật Ký Giao Dịch Kế Toán Thu Ngân</span>
+                                Nhật Ký Giao Dịch
                             </h5>
-                            <div className="bms-table-standalone-subtitle">
-                                Hiển thị {Math.min(50, filteredTransactions.length)} / {filteredTransactions.length} giao dịch thanh toán viện phí
-                            </div>
                         </div>
 
-                        <div className="d-flex align-items-center gap-2">
-                            <div style={{ minWidth: 260, maxWidth: 320 }}>
-                                <div className="bms-search-input-pill">
+                        <div className="bms-filter-bar">
+                            <div className="bms-search-input-pill">
                                     <FaSearch className="bms-search-icon" />
                                     <input
                                         type="text"
@@ -659,7 +654,6 @@ export default function RevenueReportPage() {
                                         </button>
                                     )}
                                 </div>
-                            </div>
                             <button
                                 className="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5 rounded-pill px-3 py-2 fw-semibold shadow-sm"
                                 onClick={handleExportCSV}

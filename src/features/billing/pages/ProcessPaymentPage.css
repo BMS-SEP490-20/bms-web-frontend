@@ -1,0 +1,165 @@
+.bms-sepay-page {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 24px;
+}
+
+.bms-sepay-toast {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  z-index: 1080;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #14532d;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.bms-sepay-card {
+  width: min(460px, 100%);
+  padding: 22px 22px 18px;
+  background: #ffffff;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.bms-sepay-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bms-sepay-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bms-sepay-card h1 {
+  margin: 2px 0 0;
+  color: #1e40af;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.bms-sepay-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.bms-sepay-status i {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fdba74;
+  border-top-color: #ea580c;
+  border-radius: 50%;
+  animation: bms-sepay-spin 0.7s linear infinite;
+}
+
+.bms-sepay-status.is-paid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.bms-sepay-card img {
+  display: block;
+  width: 210px;
+  height: 210px;
+  margin: 16px auto 4px;
+  object-fit: contain;
+}
+
+.bms-sepay-card h2 {
+  margin: 16px 0 0;
+  color: #0f2744;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.bms-sepay-card dl {
+  margin: 6px 0 0;
+}
+
+.bms-sepay-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid #eef2f6;
+}
+
+.bms-sepay-card dt {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bms-sepay-card dd {
+  margin: 0;
+  color: #0f2744;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.bms-sepay-card .is-amount {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #dbe4f0;
+}
+
+.bms-sepay-card .is-amount dd {
+  color: #1e40af;
+  font-size: 18px;
+}
+
+.bms-sepay-done {
+  width: 100%;
+  height: 40px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #1e40af;
+  color: #ffffff;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.bms-sepay-back {
+  width: 100%;
+  height: 40px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #f4f7fb;
+  color: #0f2744;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes bms-sepay-spin {
+  to { transform: rotate(360deg); }
+}

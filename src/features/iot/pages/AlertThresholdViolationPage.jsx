@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import IotNavigationTabs from "../components/IotNavigationTabs";
 import {
     FaBell,
     FaExclamationTriangle,
@@ -203,6 +204,7 @@ export default function AlertThresholdViolationPage() {
 
     return (
         <div className="w-100 py-1">
+            <IotNavigationTabs />
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">

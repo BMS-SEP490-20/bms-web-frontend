@@ -136,6 +136,17 @@ export function BookAppointmentPage({
 
   const storedUser = useMemo(() => getStoredUser(), []);
   const preselectedPkgId = searchParams.get('packageId') || searchParams.get('id') || '';
+  const preselectedName = searchParams.get('packageName') || '';
+
+  const packageMatchesSelection = (pkg, selectedId, selectedName) => {
+    const id = String(selectedId || '').trim().toLowerCase();
+    const name = String(selectedName || '').trim().toLowerCase();
+    const fields = [pkg.packageId, pkg.packageCode, pkg.sourceId, pkg.id]
+      .filter(Boolean)
+      .map((value) => String(value).trim().toLowerCase());
+    if (id && fields.includes(id)) return true;
+    return Boolean(name && String(pkg.packageName || '').trim().toLowerCase() === name);
+  };
 
   // Initialize with fallback immediately so user NEVER sees stuck loading state
   const [packages, setPackages] = useState(() => {
@@ -144,18 +155,12 @@ export function BookAppointmentPage({
   });
 
   const [selectedPackageId, setSelectedPackageId] = useState(() => {
-    if (preselectedPkgId) {
-      const match = DEFAULT_FALLBACK_PACKAGES.find(
-        (p) =>
-          p.packageId === preselectedPkgId ||
-          p.packageCode === preselectedPkgId ||
-          p.packageId?.toLowerCase() === preselectedPkgId.toLowerCase() ||
-          p.packageCode?.toLowerCase() === preselectedPkgId.toLowerCase()
-      );
+    if (preselectedPkgId || preselectedName) {
+      const match = DEFAULT_FALLBACK_PACKAGES.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
       if (match) return match.packageId;
     }
     if (initialPackageIds.length > 0) return initialPackageIds[0];
-    return 'PKG-CBC-01';
+    return '';
   });
 
   const [patientInfo, setPatientInfo] = useState({
@@ -245,12 +250,13 @@ export function BookAppointmentPage({
         const pkgs = res?.packages || res?.services || [];
         if (pkgs.length > 0) {
           const mapped = pkgs.map((p, idx) => ({
-            packageId: p.packageCode || p.id || p.packageId || `PKG-${idx}`,
+            packageId: p.packageCode || p.code || p.id || p.packageId || `PKG-${idx}`,
             packageCode: p.packageCode || p.code || '',
+            sourceId: p.id || p.packageId || '',
             packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
             category: p.category || '',
-            price: p.price ?? 250000,
-            description: p.description || 'Gói xét nghiệm chuẩn ISO 15189 tại phòng xét nghiệm BMS.',
+            price: p.price ?? 0,
+            description: p.description || '',
             fastingRule: p.fastingRule || ''
           }));
           setPackages(mapped);
@@ -267,19 +273,16 @@ export function BookAppointmentPage({
 
   // Sync preselected package from URL whenever preselectedPkgId or packages changes
   useEffect(() => {
-    if (preselectedPkgId && packages.length > 0) {
-      const match = packages.find(
-        (p) =>
-          p.packageId === preselectedPkgId ||
-          p.packageCode === preselectedPkgId ||
-          (p.packageId && p.packageId.toLowerCase() === preselectedPkgId.toLowerCase()) ||
-          (p.packageCode && p.packageCode.toLowerCase() === preselectedPkgId.toLowerCase())
-      );
+    if (preselectedPkgId || preselectedName) {
+      const match = packages.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
       if (match) {
         setSelectedPackageId(match.packageId);
+        requestAnimationFrame(() => {
+          document.querySelector(`[data-package-id="${CSS.escape(match.packageId)}"]`)?.scrollIntoView({ block: 'nearest' });
+        });
       }
     }
-  }, [preselectedPkgId, packages]);
+  }, [preselectedPkgId, preselectedName, packages]);
 
   // Load Doctor Shifts & Assigned Rooms for selected date
   const loadDoctorShifts = useCallback(async () => {
@@ -394,120 +397,64 @@ export function BookAppointmentPage({
     });
   };
 
-  // SUCCESS STATE
   if (result) {
+    const pkgPrice = selectedPackage?.price || 0;
+    const pkgName = selectedPackage?.packageName || selectedPackage?.name || 'Gói xét nghiệm';
+    const roomLine = [
+      activeShiftData?.roomName || 'Chưa gán phòng',
+      activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : ''
+    ].filter(Boolean).join(' · ');
+    const visitDate = (() => {
+      const raw = result.appointmentDate;
+      const parsed = raw ? new Date(raw) : null;
+      if (parsed && !Number.isNaN(parsed.getTime())) return parsed.toLocaleDateString('vi-VN');
+      return raw || date;
+    })();
+    const pay = () => {
+      navigate(`/payments/checkout?appointmentId=${result.appointmentId}&code=${result.appointmentCode}&amount=${pkgPrice}&pkgName=${encodeURIComponent(pkgName)}`);
+    };
+
     return (
-      <div className="container py-3" style={{ maxWidth: 840 }}>
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div className="bg-success text-white p-2 text-center">
-            <FaCheckCircle className="display-4 mb-2" />
-            <h3 className="fw-bold mb-1">Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến) Thành Công!</h3>
-            <p className="mb-0 text-white-50">
-              Mã cuộc hẹn đã được lưu vào hệ thống xét nghiệm BMS Clinical Laboratory.
-            </p>
+      <div className="bms-pay-sheet">
+        <header>
+          <h1>Phiếu giữ chỗ</h1>
+          <p>Đặt lịch thành công</p>
+          <strong>{result.appointmentCode}</strong>
+        </header>
+
+        <dl>
+          <div>
+            <dt>Gói xét nghiệm</dt>
+            <dd>{pkgName}</dd>
           </div>
-
-          <div className="card-body p-2 p-md-5">
-            <div className="alert alert-primary d-flex align-items-center gap-3 border-0 py-3 mb-4 rounded-3">
-              <FaCalendarCheck className="text-primary fs-2 flex-shrink-0" />
-              <div>
-                <div className="text-muted small">Mã Cuộc Hẹn Đặt Lịch:</div>
-                <div className="fw-bold fs-4 text-primary">{result.appointmentCode}</div>
-              </div>
-            </div>
-
-            <div className="row g-3 mb-4">
-              <div className="col-sm-6">
-                <div className="p-3 bg-light rounded-3 border">
-                  <div className="small text-muted mb-1 d-flex align-items-center gap-1">
-                    <FaCalendarAlt className="text-secondary" /> Ngày hẹn khám:
-                  </div>
-                  <div className="fw-bold text-dark">{result.appointmentDate}</div>
-                </div>
-              </div>
-              <div className="col-sm-6">
-                <div className="p-3 bg-light rounded-3 border">
-                  <div className="small text-muted mb-1 d-flex align-items-center gap-1">
-                    <FaClock className="text-secondary" /> Khung giờ lấy mẫu:
-                  </div>
-                  <div className="fw-bold text-primary fs-5">{result.slotTime}</div>
-                </div>
-              </div>
-              <div className="col-sm-6">
-                <div className="p-3 bg-light rounded-3 border">
-                  <div className="small text-muted mb-1 d-flex align-items-center gap-1">
-                    <FaUserMd className="text-secondary" /> Bác sĩ phụ trách:
-                  </div>
-                  <div className="fw-bold text-dark">{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
-                  <div className="small text-muted">{activeShiftData?.specialty || ''}</div>
-                </div>
-              </div>
-              <div className="col-sm-6">
-                <div className="p-3 bg-light rounded-3 border">
-                  <div className="small text-muted mb-1 d-flex align-items-center gap-1">
-                    <FaHospital className="text-secondary" /> Phòng xét nghiệm & khám:
-                  </div>
-                  <div className="fw-bold text-dark">{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
-                  <div className="small text-muted">
-                    {[
-                      activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
-                      activeShiftData?.floor || ''
-                    ].filter(Boolean).join(' · ')}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card border-info mb-4" style={{ backgroundColor: '#f0f9ff' }}>
-              <div className="card-body">
-                <h6 className="fw-bold text-info-emphasis d-flex align-items-center gap-2 mb-2">
-                  <FaInfoCircle /> Hướng Dẫn Chuẩn Bị Trước Khi Đến Khám:
-                </h6>
-                <ul className="small text-muted mb-0 ps-3">
-                  <li>Vui lòng mang theo CCCD và thẻ BHYT (nếu có) để đối chiếu tại quầy tiếp đón.</li>
-                  <li>Nếu thực hiện xét nghiệm sinh hóa máu, đường huyết, vui lòng nhịn ăn sáng từ 8 – 12 tiếng.</li>
-                  <li>Có mặt trước giờ hẹn từ 10 – 15 phút để lấy số thứ tự ưu tiên và kiểm tra sinh hiệu.</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="p-2 bg-warning-subtle border border-warning rounded-4 mb-4 text-start">
-              <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-2">
-                <FaClock className="text-warning" /> Phiếu Lịch Hẹn Đang Ở Trạng Thái "Chờ Thanh Toán"
-              </h6>
-              <p className="small text-muted mb-0">
-                Hệ thống sẽ giữ chỗ cho khung giờ của bạn trong vòng <strong>15 phút</strong>. Vui lòng thanh toán trực tuyến qua VNPAY để xác nhận lịch xét nghiệm và nhận Mã QR Check-in.
-              </p>
-            </div>
-
-            <div className="d-flex flex-wrap gap-3 justify-content-end">
-              <button
-                type="button"
-                className="btn btn-outline-secondary px-3 py-2 rounded-3"
-                onClick={reset}
-              >
-                Đặt Lịch Khám Khác
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-primary px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                onClick={() => navigate('/appointments')}
-              >
-                Xem Lịch Khám Của Tôi <FaArrowRight />
-              </button>
-              <button
-                type="button"
-                className="btn btn-success btn-lg px-3 py-2 rounded-3 fw-bold shadow d-flex align-items-center gap-2"
-                onClick={() => {
-                  const pkgPrice = selectedPackage?.price || 180000;
-                  const pkgName = selectedPackage?.packageName || selectedPackage?.name || '';
-                  navigate(`/payments/checkout?appointmentId=${result.appointmentId}&code=${result.appointmentCode}&amount=${pkgPrice}&pkgName=${encodeURIComponent(pkgName)}`);
-                }}
-              >
-                Tiến Hành Thanh Toán Giữ Chỗ (15 Phút) Qua VNPAY <FaArrowRight />
-              </button>
-            </div>
+          <div>
+            <dt>Ngày khám</dt>
+            <dd>{visitDate}</dd>
           </div>
+          <div>
+            <dt>Giờ lấy mẫu</dt>
+            <dd>{result.slotTime}</dd>
+          </div>
+          <div>
+            <dt>Bác sĩ</dt>
+            <dd>{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</dd>
+          </div>
+          <div>
+            <dt>Phòng</dt>
+            <dd>{roomLine}</dd>
+          </div>
+          <div className="is-amount">
+            <dt>Số tiền</dt>
+            <dd>{new Intl.NumberFormat('vi-VN').format(pkgPrice)} đ</dd>
+          </div>
+        </dl>
+
+        <p className="bms-pay-note">Chỗ được giữ 15 phút. Thanh toán để xác nhận lịch và nhận mã check-in.</p>
+
+        <button type="button" className="bms-pay-submit" onClick={pay}>Thanh toán chuyển khoản</button>
+        <div className="bms-pay-links">
+          <button type="button" onClick={() => navigate('/appointments')}>Xem lịch của tôi</button>
+          <button type="button" onClick={reset}>Đặt lịch khác</button>
         </div>
       </div>
     );
@@ -557,6 +504,7 @@ export function BookAppointmentPage({
                           key={pkg.packageId}
                           type="button"
                           role="option"
+                          data-package-id={pkg.packageId}
                           aria-selected={isSelected}
                           className={`bms-pkg-item${isSelected ? ' is-selected' : ''}`}
                           onClick={() => setSelectedPackageId(pkg.packageId)}

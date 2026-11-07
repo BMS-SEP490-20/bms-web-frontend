@@ -751,7 +751,7 @@ const ReceptionistDashboard = () => {
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     >
                       <option value="Cash">Tiền mặt (Cash)</option>
-                      <option value="VNPay">Cổng thanh toán VNPay</option>
+                      <option value="SePay">Chuyển khoản SePay</option>
                       <option value="BankTransfer">Chuyển khoản ngân hàng</option>
                       <option value="CreditCard">Thẻ POS / Tín dụng</option>
                     </Form.Select>

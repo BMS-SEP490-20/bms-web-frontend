@@ -1,0 +1,97 @@
+.bms-sepay-page {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 24px;
+}
+
+.bms-sepay-card {
+  width: min(420px, 100%);
+  padding: 24px 22px;
+  background: #ffffff;
+  border-radius: 16px;
+}
+
+.bms-sepay-card h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 750;
+  color: #0f2744;
+}
+
+.bms-sepay-code {
+  margin: 6px 0 14px;
+  color: #1e40af;
+  font-weight: 750;
+}
+
+.bms-sepay-card img {
+  display: block;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 16px;
+  object-fit: contain;
+}
+
+.bms-sepay-card dl {
+  margin: 0;
+}
+
+.bms-sepay-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #eef2f6;
+}
+
+.bms-sepay-card dt {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bms-sepay-card dd {
+  margin: 0;
+  color: #0f2744;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.bms-sepay-wait {
+  margin: 14px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bms-receipt-state {
+  margin: 0 0 4px;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bms-receipt-code {
+  margin: 4px 0 14px;
+  color: #1e40af;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+}
+
+.bms-sepay-card .is-amount dd {
+  font-size: 18px;
+  color: #1e40af;
+}
+  height: 40px;
+  margin-top: 16px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #1e40af;
+  color: #ffffff;
+  font-weight: 750;
+  cursor: pointer;
+}

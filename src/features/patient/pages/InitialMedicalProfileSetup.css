@@ -1,351 +1,305 @@
-/**
- * @file InitialMedicalProfileSetup.css
- * @description Spacious, airy, broad clinical intake form with compact inputs and structured blood matrix.
- * Broad container (1100px), compact 38px inputs, zero borders, zero horizontal lines, macOS/Home aesthetic.
- */
-
-/* 1. Page Background */
-.bms-setup-page-wrap {
+.bms-chart-page {
   width: 100%;
-  min-height: calc(100vh - 120px);
-  background-color: #F8FAFC;
-  padding: 36px 20px 72px;
+  padding: 0 0 20px;
 }
 
-/* 2. Main Soft Card Container (Broad & Spacious, Zero Border, Zero Shadow) */
-.bms-setup-card {
-  max-width: 1100px;
-  margin: 0 auto;
-  background-color: #FFFFFF;
-  border-radius: 24px;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 48px 60px;
-}
-
-@media (max-width: 992px) {
-  .bms-setup-card {
-    padding: 36px 28px;
-    border-radius: 20px;
-  }
-}
-
-@media (max-width: 576px) {
-  .bms-setup-card {
-    padding: 24px 16px;
-  }
-}
-
-/* 3. Masthead Header */
-.bms-setup-header {
-  margin-bottom: 32px;
-}
-
-.bms-setup-header .bms-status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #EFF6FF;
-  color: #1E60E6;
-  font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  padding: 5px 12px;
-  border-radius: 999px;
-  margin-bottom: 10px;
-  border: none !important;
-}
-
-.bms-setup-title {
-  font-size: 24px;
-  font-weight: 750;
-  color: #0F172A;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  margin: 0 0 6px;
-}
-
-.bms-setup-desc {
+.bms-chart-toast {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  z-index: 1080;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #14532d;
+  color: #ffffff;
   font-size: 13px;
-  color: #64748B;
-  line-height: 1.55;
-  margin: 0;
-  max-width: 760px;
-}
-
-/* 4. Form Section Layout (Whitespace separation, NO horizontal divider lines) */
-.bms-setup-form {
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-}
-
-.bms-setup-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.bms-setup-section-title {
-  font-size: 14px;
   font-weight: 700;
-  color: #0F172A;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.bms-chart {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 22px 18px;
+  background: #ffffff;
+  border: 0;
+  border-radius: 16px;
+}
+
+.bms-chart-head h1 {
   margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f2744;
+}
+
+.bms-chart-head p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.bms-chart-section {
+  margin-top: 18px;
+  padding-top: 0;
+  border: 0;
+}
+
+.bms-chart-section h2,
+.bms-chart-section header h2 {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
-  letter-spacing: -0.01em;
-}
-
-.bms-setup-section-badge {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #DC2626;
-  background: #FEF2F2;
-  padding: 2px 7px;
-  border-radius: 999px;
-}
-
-/* 5. Demographics Compact Soft Grid */
-.bms-demographics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-@media (max-width: 992px) {
-  .bms-demographics-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 576px) {
-  .bms-demographics-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.bms-readonly-pill-box {
-  background-color: #F8FAFC;
-  border-radius: 10px;
-  padding: 8px 12px;
-  border: none !important;
-}
-
-.bms-readonly-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #94A3B8;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 2px;
-}
-
-.bms-readonly-val {
+  margin: 0 0 10px;
   font-size: 13px;
-  font-weight: 600;
-  color: #0F172A;
-  word-break: break-word;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #0f2744;
 }
 
-/* 6. Form Inputs (Compact, Neat, Subtle) */
-.bms-setup-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 4px;
-  display: block;
+.bms-chart-section h2 span {
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.bms-setup-input,
-.form-control.bms-setup-input,
-.form-select.bms-setup-input {
-  background-color: #F8FAFC !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 8px !important;
-  font-size: 12.5px !important;
-  color: #0F172A !important;
-  padding: 6px 12px !important;
-  min-height: 38px !important;
-  height: 38px !important;
-  box-shadow: none !important;
-  transition: all 0.15s ease !important;
-}
-
-textarea.bms-setup-input,
-textarea.form-control.bms-setup-input {
-  min-height: 54px !important;
-  height: auto !important;
-  padding: 8px 12px !important;
-}
-
-.bms-setup-input:focus,
-.form-control.bms-setup-input:focus,
-.form-select.bms-setup-input:focus {
-  background-color: #FFFFFF !important;
-  border-color: #1E60E6 !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* 7. Structured Clinical Blood Type Matrix styles are centralized in src/app.css */
-
-
-/* 8. Vitals & BMI Grid (4 Columns) */
-.bms-vitals-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  align-items: stretch;
-}
-
-@media (max-width: 840px) {
-  .bms-vitals-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .bms-vitals-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.bms-bmi-pill-card {
-  background-color: #F8FAFC;
-  border-radius: 8px;
-  padding: 6px 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 38px;
-}
-
-.bms-bmi-val {
-  font-size: 16px;
-  font-weight: 800;
-  color: #0F172A;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.bms-bmi-badge {
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 1px 7px;
-  border-radius: 999px;
-  width: fit-content;
-  margin-top: 2px;
-}
-
-/* 9. Soft Checkbox Cards */
-.bms-checkbox-pill-box {
-  background-color: #F8FAFC;
-  border-radius: 8px;
-  padding: 8px 12px;
-  border: none !important;
-}
-
-.bms-checkbox-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  user-select: none;
-  margin: 0;
-}
-
-/* 10. Minimalist Quick-Select Chips (Spacious, airy, 8px border-radius) */
-.bms-chips-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  margin-top: 10px;
-}
-
-.bms-chip-pill {
-  background-color: #F1F5F9;
-  border: none !important;
-  border-radius: 8px;
-  color: #475569;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  padding: 5px 12px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  box-shadow: none !important;
-}
-
-.bms-chip-pill:hover {
-  background-color: #E2E8F0;
-  color: #0F172A;
-}
-
-.bms-chip-pill.active {
-  background-color: #1E60E6 !important;
-  color: #FFFFFF !important;
-  font-weight: 600 !important;
-}
-
-.bms-chip-pill.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-/* 11. Legal Consent */
-.bms-legal-pill-box {
-  background-color: #F8FAFC;
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 12px;
-  color: #475569;
-  line-height: 1.55;
-}
-
-/* 12. Bottom Actions Row */
-.bms-setup-actions {
+.bms-chart-section header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 6px;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.bms-btn-submit-pill {
-  background-color: #1E60E6 !important;
-  color: #FFFFFF !important;
-  border: none !important;
-  border-radius: 999px !important;
-  padding: 10px 28px !important;
-  font-size: 13.5px !important;
-  font-weight: 650 !important;
-  cursor: pointer;
+.bms-chart-section header h2 {
+  margin: 0;
+}
+
+.bms-chart-section header label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: background-color 0.15s ease !important;
-  box-shadow: none !important;
-}
-
-.bms-btn-submit-pill:hover:not(:disabled) {
-  background-color: #154EC2 !important;
-}
-
-.bms-btn-submit-pill:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.bms-security-text {
-  font-size: 11.5px;
-  color: #64748B;
-  display: flex;
-  align-items: center;
   gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #475569;
+}
+
+.bms-chart-identity,
+.bms-chart-grid {
+  display: grid;
+  gap: 12px 14px;
+}
+
+.bms-chart-identity {
+  grid-template-columns: 1.4fr 1fr;
+  margin-bottom: 12px;
+  padding: 0;
+  background: transparent;
+}
+
+.bms-chart-grid {
+  grid-template-columns: 1.2fr 0.8fr 1fr;
+}
+
+.bms-chart-grid .is-wide {
+  grid-column: 1 / -1;
+}
+
+.bms-chart-grid.is-vitals {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+}
+
+.bms-chart-identity label,
+.bms-chart-grid label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: #64748b;
+}
+
+.bms-chart-page .bms-chart input.form-control,
+.bms-chart-page .bms-chart select.form-select,
+.bms-chart-page .bms-chart .form-select,
+.bms-chart-page .bms-chart .bms-chart-identity-input {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: #f3f6fa !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 36px !important;
+  letter-spacing: 0 !important;
+  color: #0f2744 !important;
+}
+
+.bms-chart-page .bms-chart input.form-control::placeholder {
+  line-height: 36px !important;
+}
+
+.bms-chart textarea.form-control {
+  height: auto !important;
+  min-height: 56px !important;
+  margin-top: 8px;
+  padding: 8px 10px !important;
+  line-height: 1.45 !important;
+}
+
+.bms-chart .form-control:focus,
+.bms-chart .form-select:focus {
+  background: #e7eef6 !important;
+  outline: none;
+}
+
+.bms-chart-identity-input.is-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.bms-chart small,
+.bms-chart-error {
+  display: block;
+  margin-top: 4px;
+  color: #b91c1c;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.bms-abo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+
+.bms-abo p {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.bms-abo div > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bms-abo button,
+.bms-abo-unknown,
+.bms-chart-picks button {
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: #f3f6fa;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bms-abo button.is-on,
+.bms-abo-unknown.is-on,
+.bms-chart-picks button.is-on {
+  background: #0f2744;
+  color: #ffffff;
+}
+
+.bms-abo-unknown {
+  margin-top: 8px;
+  padding: 0 12px;
+}
+
+.bms-chart-bmi span,
+.bms-chart-bmi em {
+  display: block;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.bms-chart-bmi strong {
+  display: block;
+  margin: 2px 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0f2744;
+}
+
+.bms-chart-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.bms-chart-picks button {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bms-chart-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.bms-chart-consent input {
+  margin-top: 2px;
+}
+
+.bms-chart-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.bms-chart-actions button {
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #1e40af;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bms-chart-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .bms-chart-identity,
+  .bms-chart-grid,
+  .bms-chart-grid.is-vitals,
+  .bms-abo {
+    grid-template-columns: 1fr;
+  }
 }

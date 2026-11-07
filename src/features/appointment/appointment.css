@@ -104,7 +104,9 @@
 .bms-appt-list .bms-appt-table tbody tr:has(td[colspan]) td,
 .bms-appt-list .bms-appt-table tbody tr:has(td[colspan]):hover td {
   background: #ffffff !important;
-  padding: 8px 14px !important;
+  height: 520px;
+  padding: 128px 32px !important;
+  line-height: 1.6 !important;
   cursor: default;
 }
 

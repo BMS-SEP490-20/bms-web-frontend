@@ -38,7 +38,8 @@ const MENU_SECTIONS = [
       { id: 'admin-shifts', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [ADMIN] },
       { id: 'admin-view-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Toàn Viện', icon: FaClock, roles: [ADMIN] },
       { id: 'admin-rev', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu Viện Phí', icon: FaChartBar, roles: [ADMIN] },
-      { id: 'admin-tat', path: '/reports/tat', label: 'Thống Kê Thời Gian TAT', icon: FaChartBar, roles: [ADMIN] }
+      { id: 'admin-tat', path: '/reports/tat', label: 'Thống Kê Thời Gian TAT', icon: FaChartBar, roles: [ADMIN] },
+      { id: 'admin-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ & Độ Ẩm IoT', icon: FaHeartbeat, roles: [ADMIN] }
     ]
   },
 
@@ -69,7 +70,8 @@ const MENU_SECTIONS = [
       { id: 'mgr-biochem', path: '/laboratory/biochemical-results', label: 'Tra Cứu Kết Quả Sinh Hóa', icon: FaFlask, roles: [MANAGER] },
       { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: FaDoorOpen, roles: [MANAGER] },
       { id: 'mgr-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Kỹ Thuật Máy Lab', icon: FaUsersCog, roles: [MANAGER] },
-      { id: 'mgr-iot', path: '/manager/iot-thresholds', label: 'Cảm Biến IoT & Tủ Trữ Mẫu', icon: FaHeartbeat, roles: [MANAGER] },
+      { id: 'mgr-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ & Độ Ẩm IoT', icon: FaHeartbeat, roles: [MANAGER] },
+      { id: 'mgr-iot', path: '/manager/iot-thresholds', label: 'Cấu Hình Ngưỡng Cảm Biến IoT', icon: FaHeartbeat, roles: [MANAGER] },
       { id: 'mgr-schedule', path: '/manage/schedule', label: 'Phân Bổ & Xếp Lịch Ca Trực', icon: FaClock, roles: [MANAGER] },
       { id: 'mgr-shifts', path: '/shifts/view', label: 'Xem Lịch Ca Trực', icon: FaClock, roles: [MANAGER] },
       { id: 'mgr-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất', icon: FaBoxOpen, roles: [MANAGER] },
@@ -107,6 +109,7 @@ const MENU_SECTIONS = [
       { id: 'lab-timeline', path: '/laboratory/sample-timeline', label: 'Hành Trình Mẫu Bệnh Phẩm', icon: FaHistory, roles: [LAB] },
       { id: 'lab-test-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [LAB] },
       { id: 'lab-history', path: '/laboratory/specimens/history', label: 'Lịch Sử Mẫu Bệnh Phẩm', icon: FaHistory, roles: [LAB] },
+      { id: 'lab-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ & Độ Ẩm IoT', icon: FaHeartbeat, roles: [LAB] },
       { id: 'lab-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất & Vật Tư', icon: FaBoxOpen, roles: [LAB] },
       { id: 'lab-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [LAB] },
       { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] },

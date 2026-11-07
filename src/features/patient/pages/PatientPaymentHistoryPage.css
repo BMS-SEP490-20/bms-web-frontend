@@ -214,7 +214,9 @@
 .bms-payhistory-content .bms-pay-table tbody tr:has(td[colspan]) td,
 .bms-payhistory-content .bms-pay-table tbody tr:has(td[colspan]):hover td {
   background: #ffffff;
-  padding: 8px 14px;
+  height: 520px;
+  padding: 128px 32px;
+  line-height: 1.6;
   cursor: default;
 }
 
@@ -226,7 +228,12 @@
 
 .bms-payhistory-content .bms-pay-table td[colspan] .fw-semibold,
 .bms-payhistory-content .bms-pay-table td[colspan] .small {
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.bms-payhistory-content .bms-pay-table td[colspan] .small {
+  margin-top: 6px;
 }
 
 .bms-txn-code {

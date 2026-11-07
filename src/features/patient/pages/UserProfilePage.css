@@ -78,17 +78,34 @@
 /* Avatar & Identity Sidebar */
 .bms-avatar-wrapper {
   position: relative;
-  display: inline-block;
-  margin-bottom: 14px;
-}
-
-.bms-avatar-img {
+  display: block;
   width: 96px;
   height: 96px;
+  margin: 0 auto 14px;
+  flex: 0 0 96px;
+}
+
+.bms-avatar-img,
+.bms-avatar-placeholder {
+  width: 96px !important;
+  height: 96px !important;
+  min-width: 96px;
+  min-height: 96px;
+  max-width: 96px;
+  max-height: 96px;
   border-radius: 50%;
+  display: block;
   object-fit: cover;
-  border: 3px solid #F1F5F9;
+  overflow: hidden;
+  background: #dbeafe;
+  border: 3px solid #f1f5f9;
   box-shadow: none !important;
+}
+
+.bms-avatar-placeholder svg {
+  width: 96px;
+  height: 96px;
+  display: block;
 }
 
 .bms-active-dot {

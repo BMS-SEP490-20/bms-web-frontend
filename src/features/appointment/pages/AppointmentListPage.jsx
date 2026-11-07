@@ -455,7 +455,6 @@ export default function AppointmentListPage() {
               ) : appointments.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-3">
-                    <div className="text-muted mb-2 fs-4">📋</div>
                     <div className="fw-semibold text-secondary">
                       {isPatient ? 'Bạn chưa có lịch hẹn khám nào trong khoảng thời gian này.' : 'Không tìm thấy cuộc hẹn nào'}
                     </div>

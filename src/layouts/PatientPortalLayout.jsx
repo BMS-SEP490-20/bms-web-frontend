@@ -18,7 +18,7 @@ export default function PatientPortalLayout() {
       <PortalNavbar user={user} />
 
       {/* 2. Patient Module Content Body */}
-      <main className="bms-patient-module-container flex-grow-1" style={{ padding: '10px 16px 20px' }}>
+      <main className="bms-patient-module-container flex-grow-1" style={{ padding: '24px 16px 20px' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <Outlet />
         </div>

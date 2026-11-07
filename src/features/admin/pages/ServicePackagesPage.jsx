@@ -289,20 +289,7 @@ export default function ServicePackagesPage({ onBack }) {
             )}
 
             {/* Standalone Table Section (Zero table in card) */}
-            <div className="bms-table-standalone-section">
-                {/* Header Toolbar */}
-                <div className="bms-table-standalone-header">
-                    <div>
-                        <h5 className="bms-table-standalone-title">
-                            <i className="bi bi-box-seam me-2" style={{ color: '#1E60E6' }}></i>
-                            Danh Sách Gói Dịch Vụ Xét Nghiệm
-                        </h5>
-                        <p className="bms-table-standalone-subtitle">
-                            Hiển thị {paginatedPackages.length} trên tổng số {visible.length} gói dịch vụ toàn viện
-                        </p>
-                    </div>
-
-                    <div className="bms-filter-bar">
+            <div className="bms-filter-bar">
                         <div className="bms-search-input-pill" style={{ maxWidth: '340px' }}>
                             <i className="bi bi-search bms-search-icon"></i>
                             <input
@@ -340,10 +327,9 @@ export default function ServicePackagesPage({ onBack }) {
                             <option value="ACTIVE">Đang Hoạt Động</option>
                             <option value="DRAFT">Tạm Khóa / Bản Nháp</option>
                         </Form.Select>
-                    </div>
-                </div>
+            </div>
 
-                {/* Data Table */}
+            <div className="bms-table-standalone-section">
                 <div className="bms-table-standalone-body">
                     <div className="table-responsive">
                         <Table hover className="align-middle mb-0">

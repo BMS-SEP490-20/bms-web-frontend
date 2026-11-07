@@ -266,15 +266,11 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              <FaCalendarAlt style={{ color: '#1E60E6' }} />
-              Danh Sách Lịch Làm Việc Đã Lên Kế Hoạch
+              Danh Sách Lịch Làm Việc
             </h5>
-            <p className="bms-table-standalone-subtitle">
-              Hiển thị {filtered.length} trên tổng số {shifts.length} ca làm việc
-            </p>
           </div>
 
-          <div className="d-flex flex-wrap align-items-center gap-2">
+          <div className="bms-filter-bar">
             <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <button
                 type="button"

@@ -30,7 +30,6 @@ import {
   FaFilter,
   FaRedo,
   FaEye,
-  FaCheckCircle,
   FaTimesCircle,
   FaExclamationTriangle,
   FaMapMarkerAlt,
@@ -274,14 +273,14 @@ export default function AppointmentListPage() {
       case '0':
         return (
           <Badge bg="warning" text="dark" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaClock className="me-1" /> Chờ xác nhận
+            Chờ xác nhận
           </Badge>
         );
       case 'CONFIRMED':
       case '1':
         return (
           <Badge bg="info" className="px-2.5 py-1.5 rounded-pill shadow-xs text-white">
-            <FaCheckCircle className="me-1" /> Đã xác nhận
+            Đã xác nhận
           </Badge>
         );
       case 'CHECKEDIN':
@@ -304,14 +303,14 @@ export default function AppointmentListPage() {
       case '4':
         return (
           <Badge bg="success" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaCheckCircle className="me-1" /> Hoàn thành
+            Hoàn thành
           </Badge>
         );
       case 'CANCELLED':
       case '5':
         return (
           <Badge bg="danger" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaTimesCircle className="me-1" /> Đã hủy
+            Đã hủy
           </Badge>
         );
       case 'NOSHOW':
@@ -554,8 +553,8 @@ export default function AppointmentListPage() {
                             )}
                           </div>
                         ) : isCancelled(apt.status) ? (
-                          <Badge bg="light" text="muted" className="border px-2 py-1">
-                            <FaTimesCircle className="text-danger me-1" /> Đã hủy
+                          <Badge bg="light" text="muted" className="px-2 py-1">
+                            Đã hủy
                           </Badge>
                         ) : (
                           <Badge bg="light" text="muted" className="border px-2 py-1">
@@ -618,6 +617,7 @@ export default function AppointmentListPage() {
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
+        className="bms-appt-modal"
         size="lg"
         centered
       >
@@ -626,7 +626,7 @@ export default function AppointmentListPage() {
             <FaNotesMedical /> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {detailLoading ? (
             <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
@@ -658,7 +658,7 @@ export default function AppointmentListPage() {
                       <FaUserMd className="text-primary" /> Thông Tin Bác Sĩ & Lịch Khám
                     </h6>
                     <div className="small mb-1">
-                      <strong>Bác sĩ:</strong> {selectedAppointment.doctorName || 'Bác sĩ chuyên khoa'}
+                      <strong>Bác sĩ:</strong> {selectedAppointment.doctorName || 'Chưa có tên trên ca trực'}
                     </div>
                     {selectedAppointment.specialty && (
                       <div className="small mb-1">
@@ -693,9 +693,9 @@ export default function AppointmentListPage() {
                         <strong>Địa chỉ lấy mẫu:</strong> {selectedAppointment.collectionAddress}
                       </div>
                     )}
-                    {selectedAppointment.notes && (
-                      <div className="small mb-1 text-muted">
-                        <strong>Ghi chú:</strong> {selectedAppointment.notes}
+                    {selectedAppointment.roomName && (
+                      <div className="small mb-1">
+                        <strong>Phòng:</strong> {selectedAppointment.roomName}
                       </div>
                     )}
                   </div>
@@ -713,10 +713,10 @@ export default function AppointmentListPage() {
 
               {/* Check-in Slip & QR Code Section */}
               {isPaidOrConfirmed(selectedAppointment.status) ? (
-                <div className="p-2 bg-light border border-2 border-success-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-3 bg-light rounded-4 text-center mt-3">
                   <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
                     <Badge bg="success" className="px-3 py-1.5 fs-6 shadow-xs">
-                      <FaCheckCircle className="me-1" /> Đã Thanh Toán &amp; Đủ Điều Kiện Check-in
+                      Đã Thanh Toán &amp; Đủ Điều Kiện Check-in
                     </Badge>
                   </div>
                   <h6 className="fw-bold text-success text-uppercase mb-1 d-flex align-items-center justify-content-center gap-2">
@@ -726,19 +726,19 @@ export default function AppointmentListPage() {
                     Quý khách vui lòng xuất trình mã QR này tại quầy Lễ tân hoặc máy quét tự động khi đến phòng xét nghiệm.
                   </p>
 
-                  <div className="p-3 bg-white d-inline-block rounded-3 border border-success-subtle shadow-sm mb-3">
+                  <div className="bms-checkin-qr">
                     <QRCodeSVG
                       value={selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'BMS-APT'}
-                      size={170}
+                      size={240}
                       level="H"
-                      includeMargin={true}
+                      includeMargin={false}
                     />
                   </div>
 
                   {/* Prominent Manual Check-in Code */}
                   <div className="mx-auto" style={{ maxWidth: '420px' }}>
                     <div className="small text-muted fw-semibold mb-1">Mã Nhập Tay Phụ (Manual Check-in Code):</div>
-                    <div className="h4 fw-bold font-monospace text-primary bg-white border border-primary p-2 rounded-3 shadow-sm mb-1 tracking-wider">
+                    <div className="h4 fw-bold font-monospace text-primary bg-white p-2 rounded-3 mb-1 tracking-wider">
                       {selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'N/A'}
                     </div>
                     <div className="text-muted small" style={{ fontSize: '0.8rem' }}>
@@ -747,7 +747,7 @@ export default function AppointmentListPage() {
                   </div>
                 </div>
               ) : isPending(selectedAppointment.status) ? (
-                <div className="p-2 bg-light border border-2 border-warning-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-2 bg-light rounded-4 text-center mt-3">
                   <div className="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-2" style={{ fontSize: '36px' }}>
                     <FaLock />
                   </div>
@@ -763,7 +763,7 @@ export default function AppointmentListPage() {
                     const remaining = getRemainingSeconds(selectedAppointment.createdAt, now);
                     const isExpired = remaining <= 0;
                     return (
-                      <div className="p-3 bg-white border border-warning rounded-3 d-inline-block mb-3 shadow-xs" style={{ minWidth: '280px' }}>
+                      <div className="p-3 bg-white rounded-3 d-inline-block mb-3" style={{ minWidth: '280px' }}>
                         <div className="small text-muted fw-semibold mb-1">
                           <FaClock className="me-1 text-warning" /> THỜI GIAN GIỮ CHỖ CÒN LẠI:
                         </div>
@@ -790,7 +790,7 @@ export default function AppointmentListPage() {
                           navigate(`/payments/checkout?appointmentId=${selectedAppointment.appointmentId || selectedAppointment.id}&code=${selectedAppointment.appointmentCode}`);
                         }}
                       >
-                        <FaMoneyBillWave /> Tiến Hành Thanh Toán Qua VNPAY Ngay
+                        <FaMoneyBillWave /> Thanh toán chuyển khoản
                       </Button>
                     ) : (
                       <div className="alert alert-danger py-2 small mb-0">
@@ -800,7 +800,7 @@ export default function AppointmentListPage() {
                   </div>
                 </div>
               ) : isCancelled(selectedAppointment.status) ? (
-                <div className="p-2 bg-light border border-2 border-danger-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-3 bg-light rounded-4 text-center mt-3">
                   <div className="text-danger mb-2" style={{ fontSize: '36px' }}>
                     <FaTimesCircle />
                   </div>

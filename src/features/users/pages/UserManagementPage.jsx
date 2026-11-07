@@ -393,33 +393,8 @@ export default function UserManagementPage() {
         </Col>
       </Row>
 
-      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
-      <div className="bms-table-standalone-section">
-        <div className="bms-table-standalone-header">
-          <div>
-            <h5 className="bms-table-standalone-title">
-              Danh Sách Nhân Sự &amp; Phân Quyền Hệ Thống
-            </h5>
-            <div className="bms-table-standalone-subtitle">
-              Hiển thị {filteredUsers.length} / {safeUsers.length} tài khoản người dùng và cán bộ y tế đang vận hành
-            </div>
-          </div>
-
-          <div className="d-flex align-items-center gap-2">
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
-              className="rounded-pill px-3 fw-semibold"
-            >
-              Xóa bộ lọc
-            </Button>
-          </div>
-        </div>
-
-        {/* Integrated Filter Control Strip */}
-        <div className="bms-filter-bar">
-          <Row className="g-2 align-items-center">
+      <div className="bms-filter-bar">
+        <Row className="g-2 align-items-center">
             <Col xs={12} md={6}>
               <div className="bms-search-input-pill">
                 <FaSearch className="bms-search-icon" />
@@ -465,9 +440,16 @@ export default function UserManagementPage() {
               </Form.Select>
             </Col>
           </Row>
-        </div>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
+        >
+          Xóa bộ lọc
+        </Button>
+      </div>
 
-        {/* Standalone Table Body */}
+      <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-body">
           {loading ? (
             <div className="text-center py-3">

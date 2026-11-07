@@ -532,6 +532,7 @@ export function BookAppointmentPage({
                   <h5 className="mb-0 fw-bold text-dark">Chọn ngày và ca</h5>
                 </div>
                 <div className="card-body p-3">
+                  <div className="bms-book-when">
                   <div className="bms-book-cal">
                     <div className="bms-book-cal-head">
                       <button
@@ -588,6 +589,7 @@ export function BookAppointmentPage({
                         <span>{shift.timeRange}</span>
                       </button>
                     ))}
+                  </div>
                   </div>
 
                   <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`}>

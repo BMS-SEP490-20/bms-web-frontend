@@ -248,8 +248,7 @@ const AuditLogPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
+      <section className="bms-filter-bar">
           <Row className="g-3">
             <Col xs={12} md={4}>
               <div className="bms-search-input-pill">
@@ -310,22 +309,10 @@ const AuditLogPage = () => {
               </Form.Select>
             </Col>
           </Row>
-        </Card.Body>
-      </Card>
+      </section>
 
       {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
-        <div className="bms-table-standalone-header">
-          <div>
-            <h5 className="bms-table-standalone-title">
-              <span>Danh Sách Sự Kiện Kiểm Toán An Ninh &amp; Thao Tác</span>
-            </h5>
-            <div className="bms-table-standalone-subtitle">
-              Hiển thị {safeLogs.length} bản ghi kiểm toán bảo mật bất biến theo chuẩn ISO 15189
-            </div>
-          </div>
-        </div>
-
         <div className="bms-table-standalone-body">
           {loading && safeLogs.length === 0 ? (
             <div className="text-center py-3">

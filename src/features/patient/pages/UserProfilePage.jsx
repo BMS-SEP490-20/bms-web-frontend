@@ -33,7 +33,27 @@ import {
   FaClipboardList
 } from 'react-icons/fa';
 
-const PLACEHOLDER_AVATAR = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="#dbeafe"/><circle cx="40" cy="30" r="14" fill="#1e40af"/><ellipse cx="40" cy="66" rx="22" ry="16" fill="#1e40af"/></svg>')}`;
+function profilePhoto(value) {
+  const src = typeof value === 'string' ? value.trim() : '';
+  if (!src || src === 'null' || src === 'undefined') return '';
+  return src;
+}
+
+function AvatarFace({ src, alt }) {
+  const photo = profilePhoto(src);
+  if (photo) {
+    return <img src={photo} alt={alt || ''} className="bms-avatar-img" />;
+  }
+  return (
+    <span className="bms-avatar-placeholder" role="img" aria-label={alt || 'Ảnh đại diện'}>
+      <svg viewBox="0 0 80 80" aria-hidden="true">
+        <rect width="80" height="80" fill="#dbeafe" />
+        <circle cx="40" cy="30" r="14" fill="#1e40af" />
+        <ellipse cx="40" cy="68" rx="22" ry="16" fill="#1e40af" />
+      </svg>
+    </span>
+  );
+}
 
 // Common chronic conditions list (clean, concise typography)
 const CHRONIC_CONDITIONS = [
@@ -435,12 +455,7 @@ export const UserProfilePage = () => {
             <Col xs={12} lg={4}>
               <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-2 mb-4">
                 <div className="bms-avatar-wrapper mx-auto mb-3">
-                  <img
-                    src={user?.avatarUrl || user?.avatar || PLACEHOLDER_AVATAR}
-                    alt={user?.fullName || 'Ảnh đại diện'}
-                    className="bms-avatar-img rounded-circle"
-                    style={{ width: '110px', height: '110px', objectFit: 'cover', background: '#dbeafe' }}
-                  />
+                  <AvatarFace src={user?.avatarUrl || user?.avatar} alt={user?.fullName || 'Ảnh đại diện'} />
                 </div>
 
                 <h4 className="fw-bold mb-1 text-dark">{user?.fullName || 'Lê tân Đỗ Lan Anh'}</h4>
@@ -581,11 +596,7 @@ export const UserProfilePage = () => {
           <Col xs={12} lg={4} xl={3}>
             <div className="bms-profile-card text-center mb-4">
               <div className="bms-avatar-wrapper mx-auto mb-3">
-                <img
-                  src={profile?.avatarUrl || PLACEHOLDER_AVATAR}
-                  alt={formData.fullName}
-                  className="bms-avatar-img"
-                />
+                <AvatarFace src={profile?.avatarUrl} alt={formData.fullName} />
                 <span className="bms-active-dot" title="Tài khoản hoạt động"></span>
               </div>
 

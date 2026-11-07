@@ -1,25 +1,19 @@
 /**
  * @file InitialMedicalProfileSetup.jsx
  * @description Mandatory First-Time Clinical Intake Screen for Patients.
- * Styled in the clean, flat, borderless Home design language (bms-status-chip, pure flat 2D).
+ * Clinical registration sheet. Identity and blood type lead the form.
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Row,
-  Col,
   Form,
   Alert,
   Spinner
 } from 'react-bootstrap';
 import {
   FaCheckCircle,
-  FaExclamationTriangle,
-  FaShieldAlt,
-  FaSave,
-  FaArrowRight,
-  FaCheck
+  FaExclamationTriangle
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getStoredUser } from '../../../constants/roles';
@@ -32,7 +26,6 @@ import {
   isCanonicalNkda,
   isEntireListNkda,
   isAllergyMatch,
-  splitAllergyTokens,
   splitFreeTextNotes,
   CANONICAL_NO_COAGULATION,
   CANONICAL_NKDA
@@ -53,8 +46,6 @@ const BLOOD_TYPES_RH_NEG = [
   { code: 'B-', label: 'B-', sub: 'Rh- Nhóm máu hiếm' },
   { code: 'AB-', label: 'AB-', sub: 'Rh- Cực kỳ hiếm' }
 ];
-
-const BLOOD_TYPES = [...BLOOD_TYPES_RH_POS, ...BLOOD_TYPES_RH_NEG, { code: 'Unknown', label: 'Chưa rõ' }];
 
 // Common allergy options (concise typography)
 const COMMON_ALLERGIES = [
@@ -286,13 +277,13 @@ export default function InitialMedicalProfileSetup() {
     const num = parseFloat(val);
 
     if (num < 18.5) {
-      return { value: val, label: 'Thiếu cân (< 18.5)', bg: '#FEF3C7', color: '#92400E' };
+      return { value: val, label: 'Thiếu cân', bg: '#FEF3C7', color: '#92400E' };
     } else if (num < 23.0) {
-      return { value: val, label: 'Bình thường (WHO Châu Á 18.5 - 22.9)', bg: '#DCFCE7', color: '#166534' };
+      return { value: val, label: 'Bình thường', bg: '#DCFCE7', color: '#166534' };
     } else if (num < 25.0) {
-      return { value: val, label: 'Thừa cân (Tiền béo phì 23 - 24.9)', bg: '#FEF3C7', color: '#92400E' };
+      return { value: val, label: 'Thừa cân', bg: '#FEF3C7', color: '#92400E' };
     } else {
-      return { value: val, label: 'Béo phì (≥ 25.0)', bg: '#FEE2E2', color: '#991B1B' };
+      return { value: val, label: 'Béo phì', bg: '#FEE2E2', color: '#991B1B' };
     }
   }, [heightCm, weightKg]);
 
@@ -326,6 +317,9 @@ export default function InitialMedicalProfileSetup() {
     const newErrors = {};
     const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
 
+    if (!demographics.fullName.trim() || demographics.fullName.trim().length < 2) {
+      newErrors.fullName = 'Họ và tên là bắt buộc.';
+    }
     if (!/^[0-9]{12}$/.test((demographics.identityNumber || '').trim())) {
       newErrors.identityNumber = 'Số CCCD phải gồm đúng 12 chữ số.';
     }
@@ -447,15 +441,14 @@ export default function InitialMedicalProfileSetup() {
         updateUser({ medicalProfileCompleted: true, bloodType: bloodType });
       }
 
-      setSuccessMessage('Hồ sơ sức khỏe ban đầu đã được lưu thành công! Đang chuyển hướng bạn đến Trang Chủ...');
+      setSuccessMessage('Đã lưu hồ sơ sức khỏe.');
 
       setTimeout(() => {
         navigate('/home', { replace: true });
-      }, 700);
+      }, 1600);
 
     } catch (err) {
       setErrorMessage(err.message || 'Không thể lưu hồ sơ bệnh án. Vui lòng thử lại sau.');
-    } finally {
       setSubmitting(false);
     }
   };
@@ -470,14 +463,17 @@ export default function InitialMedicalProfileSetup() {
   }
 
   return (
-    <div className="bms-setup-page-wrap">
-      <div className="bms-setup-card">
-        {/* Masthead Header (Matching Home Style) */}
-        <div className="bms-setup-header">
-          <h1 className="bms-setup-title">
-            Hồ sơ sức khỏe
-          </h1>
+    <div className="bms-chart-page">
+      {successMessage && (
+        <div className="bms-chart-toast" role="status">
+          {successMessage}
         </div>
+      )}
+      <Form onSubmit={handleSubmit} className="bms-chart">
+        <header className="bms-chart-head">
+          <h1>Đăng Ký Hồ Sơ Sức Khỏe</h1>
+          <p>Phiếu khai báo trước khi lấy mẫu. Mục có dấu * là bắt buộc.</p>
+        </header>
 
         {/* Global Notifications */}
         {errorMessage && (
@@ -494,291 +490,220 @@ export default function InitialMedicalProfileSetup() {
           </Alert>
         )}
 
-        <Form onSubmit={handleSubmit} className="bms-setup-form">
-          {/* SECTION 1: Demographics */}
-          <div className="bms-setup-section">
-            <h2 className="bms-setup-section-title">
-              <span>Thông tin định danh</span>
-              {/^[0-9]{12}$/.test(demographics.identityNumber || '') ? (
-                <span className="badge bg-success-subtle text-success fw-normal px-2 py-1 rounded-pill" style={{ fontSize: '11px' }}>
-                  <FaCheckCircle className="me-1" size={10} /> Đã có CCCD
-                </span>
-              ) : null}
-            </h2>
+        <section className="bms-chart-section">
+          <h2><span>01</span> Định danh</h2>
 
-            <div className="bms-demographics-grid">
-              <div className="bms-readonly-pill-box">
-                <div className="bms-readonly-label">Họ và tên</div>
-                <div className="bms-readonly-val">{demographics.fullName || '—'}</div>
-              </div>
-
-              <div id="field-identityNumber">
-                <label className="bms-setup-label" htmlFor="identityNumber">Số CCCD (12 số)</label>
-                <Form.Control
-                  id="identityNumber"
-                  inputMode="numeric"
-                  className="bms-setup-input"
-                  placeholder="12 chữ số"
-                  value={demographics.identityNumber}
-                  isInvalid={!!errors.identityNumber}
-                  onChange={(e) => {
-                    clearError('identityNumber');
-                    setDemographics((current) => ({ ...current, identityNumber: e.target.value.replace(/\D/g, '').slice(0, 12) }));
-                  }}
-                />
-                {errors.identityNumber && <div className="text-danger small fw-semibold mt-1">{errors.identityNumber}</div>}
-              </div>
-
-              <div id="field-dateOfBirth">
-                <label className="bms-setup-label" htmlFor="dateOfBirth">Ngày sinh</label>
-                <Form.Control
-                  id="dateOfBirth"
-                  type="date"
-                  className="bms-setup-input"
-                  value={demographics.dateOfBirth}
-                  isInvalid={!!errors.dateOfBirth}
-                  onChange={(e) => {
-                    clearError('dateOfBirth');
-                    setDemographics((current) => ({ ...current, dateOfBirth: e.target.value }));
-                  }}
-                />
-                {errors.dateOfBirth && <div className="text-danger small fw-semibold mt-1">{errors.dateOfBirth}</div>}
-              </div>
-
-              <div id="field-gender">
-                <label className="bms-setup-label" htmlFor="gender">Giới tính</label>
-                <Form.Select
-                  id="gender"
-                  className="bms-setup-input"
-                  value={demographics.gender}
-                  isInvalid={!!errors.gender}
-                  onChange={(e) => {
-                    clearError('gender');
-                    setDemographics((current) => ({ ...current, gender: e.target.value }));
-                  }}
-                >
-                  <option value="">Chọn giới tính</option>
-                  <option value="Nam">Nam</option>
-                  <option value="Nữ">Nữ</option>
-                  <option value="Khác">Khác</option>
-                </Form.Select>
-                {errors.gender && <div className="text-danger small fw-semibold mt-1">{errors.gender}</div>}
-              </div>
-
-              <div id="field-phoneNumber">
-                <label className="bms-setup-label" htmlFor="phoneNumber">Số điện thoại</label>
-                <Form.Control
-                  id="phoneNumber"
-                  inputMode="numeric"
-                  className="bms-setup-input"
-                  placeholder="0912345678"
-                  value={demographics.phoneNumber}
-                  isInvalid={!!errors.phoneNumber}
-                  onChange={(e) => {
-                    clearError('phoneNumber');
-                    setDemographics((current) => ({ ...current, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }));
-                  }}
-                />
-                {errors.phoneNumber && <div className="text-danger small fw-semibold mt-1">{errors.phoneNumber}</div>}
-              </div>
-
-              <div className="bms-readonly-pill-box" style={{ gridColumn: 'span 2' }}>
-                <div className="bms-readonly-label">Địa chỉ thường trú</div>
-                <div className="bms-readonly-val">{demographics.address || 'Chưa cập nhật'}</div>
-              </div>
+          <div className="bms-chart-identity">
+            <div id="field-fullName">
+              <label htmlFor="fullName">Họ và tên *</label>
+              <Form.Control
+                id="fullName"
+                className="bms-chart-identity-input"
+                value={demographics.fullName}
+                isInvalid={!!errors.fullName}
+                onChange={(e) => {
+                  clearError('fullName');
+                  setDemographics((current) => ({ ...current, fullName: e.target.value }));
+                }}
+              />
+              {errors.fullName && <small>{errors.fullName}</small>}
             </div>
-
-            <Row className="g-2 mt-1">
-              <Col md={6}>
-                <Form.Group controlId="healthInsuranceNumber">
-                  <label className="bms-setup-label">Mã thẻ BHYT (Tùy chọn)</label>
-                  <Form.Control
-                    type="text"
-                    className="bms-setup-input"
-                    placeholder="Ví dụ: GD4792010099881"
-                    value={healthInsuranceNumber}
-                    onChange={(e) => setHealthInsuranceNumber(e.target.value.toUpperCase())}
-                    maxLength={15}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="occupation">
-                  <label className="bms-setup-label">Nghề nghiệp (Tùy chọn)</label>
-                  <Form.Control
-                    type="text"
-                    className="bms-setup-input"
-                    placeholder="Ví dụ: Kỹ sư, Giáo viên, Tự do..."
-                    value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
+            <div id="field-identityNumber">
+              <label htmlFor="identityNumber">Số CCCD *</label>
+              <Form.Control
+                id="identityNumber"
+                inputMode="numeric"
+                className="bms-chart-identity-input is-mono"
+                placeholder="12 chữ số"
+                value={demographics.identityNumber}
+                isInvalid={!!errors.identityNumber}
+                onChange={(e) => {
+                  clearError('identityNumber');
+                  setDemographics((current) => ({ ...current, identityNumber: e.target.value.replace(/\D/g, '').slice(0, 12) }));
+                }}
+              />
+              {errors.identityNumber && <small>{errors.identityNumber}</small>}
+            </div>
           </div>
 
-          {/* SECTION 2: Blood Type (Structured Clinical Matrix) */}
-          <div className="bms-setup-section">
-            <h2 className="bms-setup-section-title">
-              <span>Nhóm máu hệ ABO / Rh</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
-            </h2>
-
-            <div className="bms-blood-matrix-wrap" id="field-bloodType">
-              <div className="bms-blood-rh-group-label">Yếu tố Rhesus dương tính (Rh+ · Phổ biến)</div>
-              <div className="bms-blood-matrix-grid">
-                {BLOOD_TYPES_RH_POS.map((bt) => {
-                  const isActive = bloodType === bt.code;
-                  return (
-                    <div
-                      key={bt.code}
-                      className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
-                      onClick={() => { clearError('bloodType'); setBloodType(bt.code); }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div>
-                        <div className="bms-blood-code">{bt.label}</div>
-                        <div className="bms-blood-meta">{bt.sub}</div>
-                      </div>
-                      {isActive && <FaCheckCircle size={14} className="text-white flex-shrink-0" />}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="bms-blood-rh-group-label mt-2">Yếu tố Rhesus âm tính (Rh- · Nhóm máu hiếm)</div>
-              <div className="bms-blood-matrix-grid">
-                {BLOOD_TYPES_RH_NEG.map((bt) => {
-                  const isActive = bloodType === bt.code;
-                  return (
-                    <div
-                      key={bt.code}
-                      className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
-                      onClick={() => { clearError('bloodType'); setBloodType(bt.code); }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div>
-                        <div className="bms-blood-code">{bt.label}</div>
-                        <div className="bms-blood-meta">{bt.sub}</div>
-                      </div>
-                      {isActive && <FaCheckCircle size={14} className="text-white flex-shrink-0" />}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="bms-blood-unknown-row">
-                <div
-                  className={`bms-blood-unknown-btn ${bloodType === 'Unknown' ? 'active' : ''}`}
-                  onClick={() => { clearError('bloodType'); setBloodType('Unknown'); }}
-                  role="button"
-                  tabIndex={0}
-                >
-                  {bloodType === 'Unknown' ? <FaCheckCircle size={12} className="me-1" /> : null}
-                  Chưa rõ nhóm máu (Sẽ xét nghiệm định nhóm máu tại phòng Lab)
-                </div>
-
-                {bloodType && bloodType !== 'Unknown' ? (
-                  <div className="bms-blood-selected-banner">
-                    <FaCheckCircle size={12} />
-                    <span>Đã chọn: <strong>Nhóm máu {bloodType}</strong></span>
-                  </div>
-                ) : bloodType === 'Unknown' ? (
-                  <div className="bms-blood-selected-banner bg-light border text-secondary">
-                    <FaCheckCircle size={12} className="text-secondary" />
-                    <span>Đã chọn: <strong>Chưa rõ (Sẽ định nhóm tại phòng Lab)</strong></span>
-                  </div>
-                ) : null}
-              </div>
+          <div className="bms-chart-grid">
+            <div id="field-dateOfBirth">
+              <label htmlFor="dateOfBirth">Ngày sinh *</label>
+              <Form.Control
+                id="dateOfBirth"
+                type="date"
+                value={demographics.dateOfBirth}
+                isInvalid={!!errors.dateOfBirth}
+                onChange={(e) => {
+                  clearError('dateOfBirth');
+                  setDemographics((current) => ({ ...current, dateOfBirth: e.target.value }));
+                }}
+              />
+              {errors.dateOfBirth && <small>{errors.dateOfBirth}</small>}
             </div>
-            {errors.bloodType && (
-              <div className="text-danger small fw-semibold mt-1">{errors.bloodType}</div>
-            )}
+            <div id="field-gender">
+              <label htmlFor="gender">Giới tính *</label>
+              <Form.Select
+                id="gender"
+                value={demographics.gender}
+                isInvalid={!!errors.gender}
+                onChange={(e) => {
+                  clearError('gender');
+                  setDemographics((current) => ({ ...current, gender: e.target.value }));
+                }}
+              >
+                <option value="">Chọn</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+              </Form.Select>
+              {errors.gender && <small>{errors.gender}</small>}
+            </div>
+            <div id="field-phoneNumber">
+              <label htmlFor="phoneNumber">Số điện thoại *</label>
+              <Form.Control
+                id="phoneNumber"
+                inputMode="numeric"
+                placeholder="0912345678"
+                value={demographics.phoneNumber}
+                isInvalid={!!errors.phoneNumber}
+                onChange={(e) => {
+                  clearError('phoneNumber');
+                  setDemographics((current) => ({ ...current, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }));
+                }}
+              />
+              {errors.phoneNumber && <small>{errors.phoneNumber}</small>}
+            </div>
+            <div className="is-wide">
+              <label htmlFor="address">Địa chỉ thường trú</label>
+              <Form.Control
+                id="address"
+                value={demographics.address}
+                placeholder="Số nhà, đường, phường, tỉnh"
+                onChange={(e) => setDemographics((current) => ({ ...current, address: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label htmlFor="healthInsuranceNumber">Mã thẻ BHYT</label>
+              <Form.Control
+                id="healthInsuranceNumber"
+                value={healthInsuranceNumber}
+                placeholder="Không bắt buộc"
+                maxLength={15}
+                onChange={(e) => setHealthInsuranceNumber(e.target.value.toUpperCase())}
+              />
+            </div>
+            <div>
+              <label htmlFor="occupation">Nghề nghiệp</label>
+              <Form.Control
+                id="occupation"
+                value={occupation}
+                placeholder="Không bắt buộc"
+                onChange={(e) => setOccupation(e.target.value)}
+              />
+            </div>
           </div>
+        </section>
 
-          {/* SECTION 3: Vitals & BMI */}
-          <div className="bms-setup-section">
-            <h2 className="bms-setup-section-title">
-              <span>Chỉ số thể trạng ban đầu</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
-            </h2>
-
-            <div className="bms-vitals-row">
-              <div id="field-heightCm">
-                <label className="bms-setup-label" htmlFor="heightCm">Chiều cao (cm)</label>
-                <Form.Control
-                  id="heightCm"
-                  type="number"
-                  min={50}
-                  max={250}
-                  value={heightCm}
-                  onChange={(e) => { clearError('heightCm'); setHeightCm(e.target.value); }}
-                  placeholder="170"
-                  className="bms-setup-input"
-                  isInvalid={!!errors.heightCm}
-                />
-                {errors.heightCm && <div className="text-danger small fw-semibold mt-1">{errors.heightCm}</div>}
-              </div>
-
-              <div id="field-weightKg">
-                <label className="bms-setup-label" htmlFor="weightKg">Cân nặng (kg)</label>
-                <Form.Control
-                  id="weightKg"
-                  type="number"
-                  min={10}
-                  max={250}
-                  step="0.5"
-                  value={weightKg}
-                  onChange={(e) => { clearError('weightKg'); setWeightKg(e.target.value); }}
-                  placeholder="65"
-                  className="bms-setup-input"
-                  isInvalid={!!errors.weightKg}
-                />
-                {errors.weightKg && <div className="text-danger small fw-semibold mt-1">{errors.weightKg}</div>}
-              </div>
-
+        <section className="bms-chart-section" id="field-bloodType">
+          <h2><span>02</span> Nhóm máu *</h2>
+          <div className="bms-abo">
+            <div>
+              <p>Rh dương</p>
               <div>
-                <label className="bms-setup-label" htmlFor="bloodPressure">Huyết áp (mmHg)</label>
-                <Form.Control
-                  id="bloodPressure"
-                  type="text"
-                  placeholder="120/80"
-                  value={bloodPressure}
-                  onChange={(e) => setBloodPressure(e.target.value)}
-                  className="bms-setup-input"
-                />
+                {BLOOD_TYPES_RH_POS.map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={bloodType === item.code ? 'is-on' : ''}
+                    onClick={() => { clearError('bloodType'); setBloodType(item.code); }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
-
-              <div className="bms-bmi-pill-card">
-                <span className="text-muted" style={{ fontSize: '11px', fontWeight: 600 }}>BMI TỰ ĐỘNG</span>
-                <div className="bms-bmi-val">{bmiCalculation.value} kg/m²</div>
-                <div
-                  className="bms-bmi-badge"
-                  style={{ backgroundColor: bmiCalculation.bg, color: bmiCalculation.color }}
-                >
-                  {bmiCalculation.label}
-                </div>
+            </div>
+            <div>
+              <p>Rh âm</p>
+              <div>
+                {BLOOD_TYPES_RH_NEG.map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={bloodType === item.code ? 'is-on' : ''}
+                    onClick={() => { clearError('bloodType'); setBloodType(item.code); }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            className={`bms-abo-unknown${bloodType === 'Unknown' ? ' is-on' : ''}`}
+            onClick={() => { clearError('bloodType'); setBloodType('Unknown'); }}
+          >
+            Chưa rõ nhóm máu
+          </button>
+          {errors.bloodType && <small className="bms-chart-error">{errors.bloodType}</small>}
+        </section>
 
-          {/* SECTION 4: Coagulation */}
-          <div className="bms-setup-section" id="field-coagulation">
-            <h2 className="bms-setup-section-title">
-              <span>Tiền sử rối loạn đông máu &amp; Kháng đông</span>
-            </h2>
+        <section className="bms-chart-section">
+          <h2><span>03</span> Thể trạng</h2>
+          <div className="bms-chart-grid is-vitals">
+            <div id="field-heightCm">
+              <label htmlFor="heightCm">Chiều cao (cm) *</label>
+              <Form.Control
+                id="heightCm"
+                type="number"
+                min={50}
+                max={250}
+                value={heightCm}
+                placeholder="170"
+                isInvalid={!!errors.heightCm}
+                onChange={(e) => { clearError('heightCm'); setHeightCm(e.target.value); }}
+              />
+              {errors.heightCm && <small>{errors.heightCm}</small>}
+            </div>
+            <div id="field-weightKg">
+              <label htmlFor="weightKg">Cân nặng (kg) *</label>
+              <Form.Control
+                id="weightKg"
+                type="number"
+                min={10}
+                max={250}
+                step="0.5"
+                value={weightKg}
+                placeholder="65"
+                isInvalid={!!errors.weightKg}
+                onChange={(e) => { clearError('weightKg'); setWeightKg(e.target.value); }}
+              />
+              {errors.weightKg && <small>{errors.weightKg}</small>}
+            </div>
+            <div>
+              <label htmlFor="bloodPressure">Huyết áp</label>
+              <Form.Control
+                id="bloodPressure"
+                value={bloodPressure}
+                placeholder="120/80"
+                onChange={(e) => setBloodPressure(e.target.value)}
+              />
+            </div>
+            <div className="bms-chart-bmi">
+              <span>BMI</span>
+              <strong>{bmiCalculation.value}</strong>
+              <em style={{ color: bmiCalculation.color }}>{bmiCalculation.label}</em>
+            </div>
+          </div>
+        </section>
 
-            <div className="bms-checkbox-pill-box">
-              <Form.Check
+        <section className="bms-chart-section" id="field-coagulation">
+          <header>
+            <h2><span>04</span> Đông máu</h2>
+            <label>
+              <input
                 type="checkbox"
-                id="no-coagulation"
-                label={
-                  <span className="bms-checkbox-label">
-                    Tôi KHÔNG CÓ tiền sử rối loạn đông máu (máu khó đông, giảm tiểu cầu...)
-                  </span>
-                }
                 checked={hasNoCoagulation}
                 onChange={(e) => {
                   clearError('coagulation');
@@ -786,296 +711,209 @@ export default function InitialMedicalProfileSetup() {
                   if (e.target.checked) setCoagulationNotes('');
                 }}
               />
-            </div>
-
-            {!hasNoCoagulation && (
-              <div className="d-flex flex-column gap-2 mt-1">
-                <div className="bms-chips-wrap">
-                  {COAGULATION_PRESETS.map((preset) => {
-                    const isSelected = coagulationNotes.includes(preset);
-                    return (
-                      <div
-                        key={preset}
-                        className={`bms-chip-pill ${isSelected ? 'active' : ''}`}
-                        onClick={() => toggleCoagulationPreset(preset)}
-                      >
-                        {isSelected && <FaCheck size={10} />}
-                        {preset}
-                      </div>
-                    );
-                  })}
-                </div>
-                <Form.Control
-                  as="textarea"
-                  rows={2}
-                  className="bms-setup-input"
-                  placeholder="Mô tả cụ thể rối loạn đông máu hoặc thuốc đang uống (Warfarin, Sintrom, Aspirin...)"
-                  value={coagulationNotes}
-                  onChange={(e) => setCoagulationNotes(e.target.value)}
-                />
+              Không có
+            </label>
+          </header>
+          {!hasNoCoagulation && (
+            <>
+              <div className="bms-chart-picks">
+                {COAGULATION_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    className={coagulationNotes.includes(preset) ? 'is-on' : ''}
+                    onClick={() => toggleCoagulationPreset(preset)}
+                  >
+                    {preset}
+                  </button>
+                ))}
               </div>
-            )}
-            {errors.coagulation && <div className="text-danger small fw-semibold mt-1">{errors.coagulation}</div>}
-          </div>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                placeholder="Ghi thuốc chống đông hoặc tình trạng chảy máu"
+                value={coagulationNotes}
+                onChange={(e) => setCoagulationNotes(e.target.value)}
+              />
+            </>
+          )}
+          {errors.coagulation && <small className="bms-chart-error">{errors.coagulation}</small>}
+        </section>
 
-          {/* SECTION 5: Chronic Conditions */}
-          <div className="bms-setup-section" id="field-medicalHistory">
-            <h2 className="bms-setup-section-title">
-              <span>Tiền sử bệnh mạn tính</span>
-            </h2>
-
-            <div className="bms-checkbox-pill-box">
-              <Form.Check
+        <section className="bms-chart-section" id="field-medicalHistory">
+          <header>
+            <h2><span>05</span> Bệnh mạn tính</h2>
+            <label>
+              <input
                 type="checkbox"
-                id="no-medical-history"
-                label={
-                  <span className="bms-checkbox-label text-success">
-                    Tôi KHÔNG CÓ tiền sử bệnh lý mạn tính
-                  </span>
-                }
                 checked={hasNoMedicalHistory}
                 onChange={(e) => {
                   clearError('medicalHistory');
-                  const checked = e.target.checked;
-                  setHasNoMedicalHistory(checked);
-                  if (checked) {
+                  setHasNoMedicalHistory(e.target.checked);
+                  if (e.target.checked) {
                     setSelectedConditions([]);
                     setMedicalHistoryNotes('');
                   }
                 }}
               />
-            </div>
-
-            <div className="bms-chips-wrap">
-              {COMMON_CONDITIONS.map((cond) => {
-                const isSelected = selectedConditions.includes(cond);
-                return (
-                  <div
-                    key={cond}
-                    className={`bms-chip-pill ${isSelected ? 'active' : ''} ${hasNoMedicalHistory ? 'disabled' : ''}`}
-                    onClick={() => !hasNoMedicalHistory && toggleCondition(cond)}
+              Không có
+            </label>
+          </header>
+          {!hasNoMedicalHistory && (
+            <>
+              <div className="bms-chart-picks">
+                {COMMON_CONDITIONS.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={selectedConditions.includes(item) ? 'is-on' : ''}
+                    onClick={() => toggleCondition(item)}
                   >
-                    {isSelected && <FaCheck size={10} />}
-                    {cond}
-                  </div>
-                );
-              })}
-            </div>
-
-            {!hasNoMedicalHistory && (
+                    {item}
+                  </button>
+                ))}
+              </div>
               <Form.Control
                 as="textarea"
                 rows={2}
-                className="bms-setup-input mt-2"
-                placeholder="Ghi chú thêm bệnh lý khác hoặc tiền sử can thiệp/phẫu thuật..."
+                placeholder="Bệnh khác hoặc phẫu thuật đã mổ"
                 value={medicalHistoryNotes}
                 onChange={(e) => setMedicalHistoryNotes(e.target.value)}
               />
-            )}
-            {errors.medicalHistory && <div className="text-danger small fw-semibold mt-1">{errors.medicalHistory}</div>}
-          </div>
+            </>
+          )}
+          {errors.medicalHistory && <small className="bms-chart-error">{errors.medicalHistory}</small>}
+        </section>
 
-          {/* SECTION 6: Allergies */}
-          <div className="bms-setup-section" id="field-allergies">
-            <h2 className="bms-setup-section-title">
-              <span>Tiền sử dị ứng (Thuốc, Hóa chất, Thức ăn)</span>
-            </h2>
-
-            <div className="bms-checkbox-pill-box">
-              <Form.Check
+        <section className="bms-chart-section" id="field-allergies">
+          <header>
+            <h2><span>06</span> Dị ứng</h2>
+            <label>
+              <input
                 type="checkbox"
-                id="no-allergies"
-                label={
-                  <span className="bms-checkbox-label text-success">
-                    Tôi KHÔNG CÓ tiền sử dị ứng đã biết (NKDA)
-                  </span>
-                }
                 checked={hasNoAllergies}
                 onChange={(e) => {
                   clearError('allergies');
-                  const checked = e.target.checked;
-                  setHasNoAllergies(checked);
-                  if (checked) {
+                  setHasNoAllergies(e.target.checked);
+                  if (e.target.checked) {
                     setSelectedAllergies([]);
                     setAllergiesNotes('');
                   }
                 }}
               />
-            </div>
-
-            <div className="bms-chips-wrap">
-              {COMMON_ALLERGIES.map((alg) => {
-                const isSelected = selectedAllergies.some((sa) => isAllergyMatch(alg, sa));
-                return (
-                  <div
-                    key={alg}
-                    className={`bms-chip-pill ${isSelected ? 'active' : ''} ${hasNoAllergies ? 'disabled' : ''}`}
-                    onClick={() => !hasNoAllergies && toggleAllergy(alg)}
+              Không có
+            </label>
+          </header>
+          {!hasNoAllergies && (
+            <>
+              <div className="bms-chart-picks">
+                {COMMON_ALLERGIES.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={selectedAllergies.some((saved) => isAllergyMatch(item, saved)) ? 'is-on' : ''}
+                    onClick={() => toggleAllergy(item)}
                   >
-                    {isSelected && <FaCheck size={10} />}
-                    {alg}
-                  </div>
-                );
-              })}
-            </div>
-
-            {!hasNoAllergies && (
+                    {item}
+                  </button>
+                ))}
+              </div>
               <Form.Control
-                type="text"
-                className="bms-setup-input mt-2"
-                placeholder="Ghi chú biểu hiện dị ứng khác (ví dụ: nổi mề đay, khó thở...)"
+                placeholder="Dị ứng khác"
                 value={allergiesNotes}
                 onChange={(e) => setAllergiesNotes(e.target.value)}
               />
-            )}
-            {errors.allergies && <div className="text-danger small fw-semibold mt-1">{errors.allergies}</div>}
-          </div>
+            </>
+          )}
+          {errors.allergies && <small className="bms-chart-error">{errors.allergies}</small>}
+        </section>
 
-          {/* SECTION 7: Current Medications */}
-          <div className="bms-setup-section" id="field-medications">
-            <h2 className="bms-setup-section-title">
-              <span>Thuốc đang dùng định kỳ</span>
-            </h2>
-
-            <div className="bms-checkbox-pill-box">
-              <Form.Check
+        <section className="bms-chart-section" id="field-medications">
+          <header>
+            <h2><span>07</span> Thuốc đang dùng</h2>
+            <label>
+              <input
                 type="checkbox"
-                id="no-medications"
-                label={
-                  <span className="bms-checkbox-label">
-                    Hiện tại tôi KHÔNG sử dụng thuốc điều trị định kỳ
-                  </span>
-                }
                 checked={hasNoMedications}
                 onChange={(e) => {
                   clearError('medications');
-                  const checked = e.target.checked;
-                  setHasNoMedications(checked);
-                  if (checked) setMedicationsNotes('');
+                  setHasNoMedications(e.target.checked);
+                  if (e.target.checked) setMedicationsNotes('');
                 }}
               />
-            </div>
-
-            {!hasNoMedications && (
-              <Form.Control
-                as="textarea"
-                rows={2}
-                className="bms-setup-input mt-1"
-                placeholder="Tên thuốc và liều dùng hàng ngày (ví dụ: Amlodipine 5mg 1 viên sáng...)"
-                value={medicationsNotes}
-                onChange={(e) => setMedicationsNotes(e.target.value)}
-              />
-            )}
-            {errors.medications && <div className="text-danger small fw-semibold mt-1">{errors.medications}</div>}
-          </div>
-
-          {/* SECTION 8: Emergency Contact */}
-          <div className="bms-setup-section" id="field-emergencyContactName">
-            <h2 className="bms-setup-section-title">
-              <span>Người liên hệ khẩn cấp</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
-            </h2>
-
-            <Row className="g-2">
-              <Col md={4} sm={12}>
-                <Form.Group controlId="emergencyContactName">
-                  <label className="bms-setup-label">Họ tên người thân</label>
-                  <Form.Control
-                    type="text"
-                    className="bms-setup-input"
-                    placeholder="Ví dụ: Nguyễn Văn Bình"
-                    value={emergencyContactName}
-                    onChange={(e) => { clearError('emergencyContactName'); setEmergencyContactName(e.target.value); }}
-                    isInvalid={!!errors.emergencyContactName}
-                  />
-                  <Form.Control.Feedback type="invalid" className="small">
-                    {errors.emergencyContactName}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-
-              <Col md={4} sm={6}>
-                <Form.Group controlId="emergencyContactRelationship">
-                  <label className="bms-setup-label">Mối quan hệ</label>
-                  <Form.Select
-                    className="bms-setup-input"
-                    value={emergencyContactRelationship}
-                    onChange={(e) => setEmergencyContactRelationship(e.target.value)}
-                  >
-                    {RELATIONSHIPS.map((rel) => (
-                      <option key={rel} value={rel}>{rel}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-
-              <Col md={4} sm={6} id="field-emergencyContactPhone">
-                <Form.Group controlId="emergencyContactPhone">
-                  <label className="bms-setup-label">Số điện thoại khẩn cấp</label>
-                  <Form.Control
-                    type="tel"
-                    className="bms-setup-input"
-                    placeholder="0912345678"
-                    value={emergencyContactPhone}
-                    onChange={(e) => { clearError('emergencyContactPhone'); setEmergencyContactPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); }}
-                    isInvalid={!!errors.emergencyContactPhone}
-                  />
-                  <Form.Control.Feedback type="invalid" className="small">
-                    {errors.emergencyContactPhone}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-            </Row>
-          </div>
-
-          {/* SECTION 9: Legal Consent */}
-          <div className="bms-legal-pill-box" id="field-consent">
-            <Form.Check
-              type="checkbox"
-              id="consentConfirmed"
-              label={
-                <span>
-                  Tôi cam đoan các thông tin tiền sử bệnh án, thể trạng và dị ứng trên được khai báo trung thực, 
-                  chính xác theo <strong>Luật Khám bệnh, chữa bệnh 2023</strong> để làm căn cứ phục vụ quá trình phân tích và đối chiếu kết quả xét nghiệm y khoa.
-                </span>
-              }
-              checked={consentConfirmed}
-              onChange={(e) => { clearError('consent'); setConsentConfirmed(e.target.checked); }}
-              isInvalid={!!errors.consent}
+              Không dùng
+            </label>
+          </header>
+          {!hasNoMedications && (
+            <Form.Control
+              as="textarea"
+              rows={2}
+              placeholder="Tên thuốc và liều, ví dụ Amlodipine 5mg mỗi sáng"
+              value={medicationsNotes}
+              onChange={(e) => setMedicationsNotes(e.target.value)}
             />
-            {errors.consent && (
-              <div className="text-danger small fw-semibold ps-4 mt-1">{errors.consent}</div>
-            )}
-          </div>
+          )}
+          {errors.medications && <small className="bms-chart-error">{errors.medications}</small>}
+        </section>
 
-          {/* Bottom Actions Row */}
-          <div className="bms-setup-actions">
-            <div className="bms-security-text">
-              <FaShieldAlt className="text-success fs-5 flex-shrink-0" />
-              <span>Bảo mật theo tiêu chuẩn HIPAA &amp; Thông tư 46/2018/TT-BYT.</span>
+        <section className="bms-chart-section">
+          <h2><span>08</span> Người liên hệ khẩn cấp</h2>
+          <div className="bms-chart-grid">
+            <div id="field-emergencyContactName">
+              <label htmlFor="emergencyContactName">Họ tên *</label>
+              <Form.Control
+                id="emergencyContactName"
+                value={emergencyContactName}
+                isInvalid={!!errors.emergencyContactName}
+                onChange={(e) => { clearError('emergencyContactName'); setEmergencyContactName(e.target.value); }}
+              />
+              {errors.emergencyContactName && <small>{errors.emergencyContactName}</small>}
             </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bms-btn-submit-pill"
-            >
-              {submitting ? (
-                <>
-                  <Spinner animation="border" size="sm" />
-                  <span>Đang lưu...</span>
-                </>
-              ) : (
-                <>
-                  <FaSave />
-                  <span>Lưu Hồ Sơ Sức Khỏe</span>
-                  <FaArrowRight size={13} />
-                </>
-              )}
-            </button>
+            <div>
+              <label htmlFor="emergencyContactRelationship">Quan hệ</label>
+              <Form.Select
+                id="emergencyContactRelationship"
+                value={emergencyContactRelationship}
+                onChange={(e) => setEmergencyContactRelationship(e.target.value)}
+              >
+                {RELATIONSHIPS.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </Form.Select>
+            </div>
+            <div id="field-emergencyContactPhone">
+              <label htmlFor="emergencyContactPhone">Số điện thoại *</label>
+              <Form.Control
+                id="emergencyContactPhone"
+                inputMode="numeric"
+                value={emergencyContactPhone}
+                isInvalid={!!errors.emergencyContactPhone}
+                onChange={(e) => {
+                  clearError('emergencyContactPhone');
+                  setEmergencyContactPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
+                }}
+              />
+              {errors.emergencyContactPhone && <small>{errors.emergencyContactPhone}</small>}
+            </div>
           </div>
-        </Form>
-      </div>
+        </section>
+
+        <label className="bms-chart-consent" id="field-consent">
+          <input
+            type="checkbox"
+            checked={consentConfirmed}
+            onChange={(e) => { clearError('consent'); setConsentConfirmed(e.target.checked); }}
+          />
+          <span>Tôi xác nhận các thông tin trên là đúng và được dùng cho việc lấy mẫu, phân tích và trả kết quả xét nghiệm.</span>
+        </label>
+        {errors.consent && <small className="bms-chart-error">{errors.consent}</small>}
+
+        <div className="bms-chart-actions">
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Đang lưu...' : 'Lưu hồ sơ'}
+          </button>
+        </div>
+      </Form>
     </div>
   );
 }

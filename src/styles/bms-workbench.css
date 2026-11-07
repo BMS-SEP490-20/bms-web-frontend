@@ -175,7 +175,9 @@
 .bms-app-layout .bms-page-content table:not(.bms-vat-table) tbody tr:has(td[colspan]) td,
 .bms-app-layout .bms-page-content table:not(.bms-vat-table) tbody tr:has(td[colspan]):hover td {
   background: #ffffff !important;
-  padding: 8px 12px !important;
+  height: 520px;
+  padding: 128px 32px !important;
+  line-height: 1.6 !important;
   cursor: default;
 }
 

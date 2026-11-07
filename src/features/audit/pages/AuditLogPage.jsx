@@ -146,21 +146,14 @@ const AuditLogPage = () => {
       {/* Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaShieldAlt size={12} />
-            <span>QUẢN TRỊ AN NINH · KIỂM TOÁN HỆ THỐNG · ISO 15189 (LƯU TRỮ 10 NĂM)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaShieldAlt size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Nhật Ký Kiểm Toán An Ninh Hệ Thống
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Theo dõi và kiểm tra toàn bộ vết kiểm toán an ninh, nhật ký truy cập, biến động dữ liệu và ghi đè bảo mật trên hệ thống y tế (Read-only, lưu trữ bất biến).
-          </p>
+          
         </div>
 
         <div className="bms-page-actions">
@@ -179,7 +172,7 @@ const AuditLogPage = () => {
             size="sm"
             onClick={fetchLogs}
             disabled={loading}
-            className="d-flex align-items-center gap-2 rounded-pill px-4 py-2 shadow-sm fw-semibold"
+            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm fw-semibold"
             style={{ background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
           >
             <FaSyncAlt size={13} className={loading ? 'fa-spin' : ''} />
@@ -192,7 +185,7 @@ const AuditLogPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -207,7 +200,7 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -222,7 +215,7 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -237,7 +230,7 @@ const AuditLogPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -255,7 +248,7 @@ const AuditLogPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
@@ -335,7 +328,7 @@ const AuditLogPage = () => {
 
         <div className="bms-table-standalone-body">
           {loading && safeLogs.length === 0 ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
               <p className="mt-3 text-muted small">Đang tải nhật ký kiểm toán hệ thống...</p>
             </div>
@@ -422,7 +415,7 @@ const AuditLogPage = () => {
               </table>
             </div>
           ) : (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <FaShieldAlt className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
               <h5 className="text-dark fw-bold">Không tìm thấy bản ghi kiểm toán nào</h5>
               <p className="text-muted small">Thử thay đổi bộ lọc phân loại hoặc từ khóa tìm kiếm.</p>
@@ -439,7 +432,7 @@ const AuditLogPage = () => {
             Chi Tiết Bản Ghi Kiểm Toán An Ninh
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {selectedLog && (
             <div>
               <div className="p-3 bg-light rounded-3 mb-3 border">

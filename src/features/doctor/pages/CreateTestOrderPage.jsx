@@ -311,22 +311,11 @@ export default function CreateTestOrderPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+    <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header Breadcrumbs */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <div>
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-1 text-muted small">
-              <li className="breadcrumb-item">
-                <Link to="/doctor/console" className="text-decoration-none text-secondary">Khám Lâm Sàng</Link>
-              </li>
-              <li className="breadcrumb-item text-secondary">Chỉ Định Xét Nghiệm</li>
-              <li className="breadcrumb-item active fw-semibold" style={{ color: "#1E60E6" }} aria-current="page">Tạo Phiếu Mới</li>
-            </ol>
-          </nav>
-          <h2 className="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaVial style={{ color: "#1E60E6" }} /> Kê Phiếu Chỉ Định Xét Nghiệm Máu & Cận Lâm Sàng
-          </h2>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Chỉ định xét nghiệm</h1>
         </div>
         <button
           className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
@@ -335,7 +324,7 @@ export default function CreateTestOrderPage() {
         >
           <FaArrowLeft /> Quay lại
         </button>
-      </div>
+      </header>
 
       {/* Success Banner */}
       {orderSuccess && (
@@ -479,13 +468,13 @@ export default function CreateTestOrderPage() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-4 text-muted">
+                      <td colSpan="7" className="text-center py-2 text-muted">
                         Đang nạp danh mục xét nghiệm lâm sàng từ hệ thống...
                       </td>
                     </tr>
                   ) : filteredCatalog.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-4 text-muted">
+                      <td colSpan="7" className="text-center py-2 text-muted">
                         Không tìm thấy xét nghiệm nào khớp với điều kiện tìm kiếm.
                       </td>
                     </tr>
@@ -568,7 +557,7 @@ export default function CreateTestOrderPage() {
                 <FaStethoscope style={{ color: "#1E60E6" }} /> Chẩn Đoán ICD-10 & Y Lệnh Lâm Sàng
               </h5>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               {/* ICD-10 Diagnostic Picker (Ràng buộc nghiệp vụ bắt buộc) */}
               <div className="mb-4 p-3 rounded-4 border" style={{ backgroundColor: "#EEF2F6", borderColor: "rgba(15, 23, 42, 0.05)" }}>
                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -720,7 +709,7 @@ export default function CreateTestOrderPage() {
                 <FaFileInvoiceDollar style={{ color: "#1E60E6" }} /> Tóm Tắt Phiếu Chỉ Định
               </h5>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               {/* Selected Tests List */}
               <div className="mb-3">
                 <div className="text-muted small fw-semibold text-uppercase mb-2">

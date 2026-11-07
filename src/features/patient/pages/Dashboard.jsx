@@ -2056,7 +2056,7 @@ const PatientDashboard = () => {
     return (
       <div className="min-vh-100">
         <PatientHeader />
-        <Container className="py-4">
+        <Container className="py-2">
           {/* Access Denied Alert */}
           {accessDeniedMessage && (
             <Alert variant="danger" dismissible onClose={() => setAccessDeniedMessage(null)} className="mb-4">
@@ -2559,7 +2559,7 @@ const PatientDashboard = () => {
             <LazyLoad height={800} offset={100}>
               <motion.section
                 id="services"
-                className="services-section py-5"
+                className="services-section py-3"
                 style={{
                   background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%)',
                   position: 'relative',
@@ -2711,7 +2711,7 @@ const PatientDashboard = () => {
                                 e.currentTarget.style.border = '3px solid rgba(13, 110, 253, 0.2)';
                               }}
                             >
-                              <Card.Body className="text-center p-4">
+                              <Card.Body className="text-center p-2">
                                 <div className="service-image mb-3" style={{
                                   width: 'calc(100% + 12px)',
                                   height: '280px',
@@ -2841,7 +2841,7 @@ const PatientDashboard = () => {
                     ) : (
                       // Loading or empty state rendering
                       <Col xs={12}>
-                        <div className="text-center py-5">
+                        <div className="text-center py-3">
                           <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">Đang tải dịch vụ...</span>
                           </div>
@@ -2857,7 +2857,7 @@ const PatientDashboard = () => {
             {/* My Appointments & Results Section */}
             <LazyLoad height={600} offset={100}>
               <motion.section
-                className="py-5"
+                className="py-3"
                 style={{
                   background: `linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%), url('/assets/ảnh nền quy trình y tế.jpg')`,
                   backgroundSize: 'cover',
@@ -3105,7 +3105,7 @@ const PatientDashboard = () => {
                               </div>
                             ) : (
                               <motion.div
-                                className="text-center py-5"
+                                className="text-center py-3"
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.5 }}
@@ -3407,10 +3407,9 @@ const PatientDashboard = () => {
                         </div>
 
                         {/* Patient Information */}
-                        <div className="mb-4 p-4" style={{
+                        <div className="mb-4 p-2" style={{
                           background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(102, 16, 242, 0.05) 100%)',
                           borderRadius: '16px',
-                          border: '1px solid rgba(13, 110, 253, 0.15)',
                           boxShadow: '0 2px 10px rgba(13, 110, 253, 0.08)'
                         }}>
                           <h6 className="fw-semibold mb-3 text-primary d-flex align-items-center">
@@ -3467,10 +3466,9 @@ const PatientDashboard = () => {
                         </div>
 
                         {/* Appointment Date & Time */}
-                        <div className="mb-4 p-4" style={{
+                        <div className="mb-4 p-2" style={{
                           background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(32, 201, 151, 0.05) 100%)',
                           borderRadius: '16px',
-                          border: '1px solid rgba(40, 167, 69, 0.15)',
                           boxShadow: '0 2px 10px rgba(40, 167, 69, 0.08)'
                         }}>
                           <h6 className="fw-semibold mb-3 text-success d-flex align-items-center">
@@ -3622,11 +3620,10 @@ const PatientDashboard = () => {
 
                         {/* Auto-assignment Details */}
                         {bookingData.shift && (
-                          <div className="mb-4 p-4" style={{
+                          <div className="mb-4 p-2" style={{
                             background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(32, 201, 151, 0.08) 100%)',
                             borderRadius: '16px',
                             border: '2px solid rgba(40, 167, 69, 0.25)',
-                            borderLeft: '5px solid #28a745',
                             boxShadow: '0 4px 15px rgba(40, 167, 69, 0.15)'
                           }}>
                             <h6 className="fw-semibold mb-3 text-success d-flex align-items-center">
@@ -3771,7 +3768,7 @@ const PatientDashboard = () => {
                             })()}
                           </Form.Group>
                           {bookingData.service && (
-                            <div className="p-4 mt-3" style={{
+                            <div className="p-2 mt-3" style={{
                               background: 'linear-gradient(135deg, rgba(13,110,253,0.08) 0%, rgba(102, 16, 242, 0.08) 100%)',
                               borderRadius: '16px',
                               border: '2px solid rgba(13,110,253,0.2)',
@@ -4309,8 +4306,7 @@ const PatientDashboard = () => {
                       <div className="mb-4 p-3" style={{
                         background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%)',
                         borderRadius: '12px',
-                        border: '2px solid rgba(255, 193, 7, 0.3)',
-                        borderLeft: '4px solid #ffc107'
+                        border: '2px solid rgba(255, 193, 7, 0.3)'
                       }}>
                         <h6 className="fw-bold mb-2 text-warning">
                           <i className="fas fa-barcode me-2"></i>
@@ -4332,8 +4328,7 @@ const PatientDashboard = () => {
                       {/* Patient Information */}
                       <div className="mb-4 p-3" style={{
                         background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(102, 16, 242, 0.05) 100%)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(13, 110, 253, 0.1)'
+                        borderRadius: '12px'
                       }}>
                         <h6 className="fw-bold mb-3 text-primary">
                           <i className="fas fa-user-circle me-2"></i>
@@ -4367,8 +4362,7 @@ const PatientDashboard = () => {
                       {/* Appointment Information */}
                       <div className="mb-4 p-3" style={{
                         background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(32, 201, 151, 0.05) 100%)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(40, 167, 69, 0.1)'
+                        borderRadius: '12px'
                       }}>
                         <h6 className="fw-bold mb-3 text-success">
                           <i className="fas fa-calendar-alt me-2"></i>
@@ -4435,9 +4429,7 @@ const PatientDashboard = () => {
                       {selectedAppointment.notes && (
                         <div className="mb-0 p-3" style={{
                           background: 'linear-gradient(135deg, rgba(108, 117, 125, 0.05) 0%, rgba(73, 80, 87, 0.05) 100%)',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(108, 117, 125, 0.2)',
-                          borderLeft: '4px solid #6c757d'
+                          borderRadius: '12px'
                         }}>
                           <h6 className="fw-bold mb-2 text-secondary">
                             <i className="fas fa-notes-medical me-2"></i>

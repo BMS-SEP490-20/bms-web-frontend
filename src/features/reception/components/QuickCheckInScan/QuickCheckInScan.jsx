@@ -916,7 +916,7 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
 
           {!cameraError && !initialized && scanMode === 'camera' && (
             <Card className="mb-3">
-              <Card.Body className="text-center py-5">
+              <Card.Body className="text-center py-3">
                 <Spinner animation="border" variant="primary" className="mb-3" />
                 <p>Đang khởi tạo camera...</p>
               </Card.Body>

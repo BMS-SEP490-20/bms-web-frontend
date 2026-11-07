@@ -27,9 +27,9 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                 </Modal.Title>
             </Modal.Header>
 
-            <Modal.Body className="p-4" style={{ maxHeight: "72vh", overflowY: "auto" }}>
+            <Modal.Body className="p-2" style={{ maxHeight: "72vh", overflowY: "auto" }}>
                 {/* General Info Card */}
-                <div className="p-3 mb-3" style={{ background: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 16 }}>
+                <div className="p-3 mb-3" style={{ background: '#EEF2F6', borderRadius: 16 }}>
                     <Row className="g-3">
                         <Col md={4}>
                             <div className="text-muted small fw-medium">Mã Gói Dịch Vụ</div>
@@ -91,7 +91,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                         Chưa gán xét nghiệm nào cho gói này.
                     </div>
                 ) : (
-                    <div className="table-responsive" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 14, overflow: 'hidden' }}>
+                    <div className="table-responsive" style={{ borderRadius: 14, overflow: 'hidden' }}>
                         <Table hover size="sm" className="mb-0 align-middle">
                             <thead style={{ background: '#EEF2F6' }}>
                                 <tr>

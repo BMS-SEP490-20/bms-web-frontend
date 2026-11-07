@@ -220,21 +220,14 @@ export default function RevenueReportPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>BÁO CÁO TÀI CHÍNH · DOANH THU &amp; VIỆN PHÍ (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaChartLine size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Theo dõi tổng doanh thu gộp, doanh thu thuần thực thu, bảo hiểm y tế chi trả, phân bổ theo chuyên khoa, kênh dịch vụ và xuất file kế toán.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -260,11 +253,9 @@ export default function RevenueReportPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="card shadow-sm mb-4 bg-white" style={{ border: '1px solid rgba(226, 232, 240, 0.85)', borderRadius: '20px', boxShadow: '0 4px 20px -4px rgba(15, 23, 42, 0.04)' }}>
-                <div className="card-body p-4">
-                    <div className="row g-3 align-items-center">
-                        {/* Time Presets */}
-                        <div className="col-12 col-lg-5">
+            <section className="bms-inventory-filter">
+                    <div className="bms-revenue-grid">
+                        <div className="bms-field">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
                                 <FaCalendarAlt className="me-1" style={{ color: '#1E60E6' }} /> Mốc thời gian báo cáo:
                             </label>
@@ -297,13 +288,12 @@ export default function RevenueReportPage() {
                             </div>
                         </div>
 
-                        {/* Date Range Inputs */}
-                        <div className="col-6 col-sm-3 col-lg-2">
+                        <div className="bms-field">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">Từ ngày:</label>
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
                                 value={fromDate}
                                 onChange={e => {
                                     setFromDate(e.target.value);
@@ -312,12 +302,12 @@ export default function RevenueReportPage() {
                             />
                         </div>
 
-                        <div className="col-6 col-sm-3 col-lg-2">
+                        <div className="bms-field">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">Đến ngày:</label>
                             <input
                                 type="date"
                                 className="form-control form-control-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
                                 value={toDate}
                                 onChange={e => {
                                     setToDate(e.target.value);
@@ -326,14 +316,13 @@ export default function RevenueReportPage() {
                             />
                         </div>
 
-                        {/* Category Filter */}
-                        <div className="col-12 col-sm-6 col-lg-3">
+                        <div className="bms-field">
                             <label className="small text-muted fw-bold text-uppercase d-block mb-1">
                                 <FaFilter className="me-1" style={{ color: '#1E60E6' }} /> Chuyên khoa:
                             </label>
                             <select
                                 className="form-select form-select-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
                                 value={categoryFilter}
                                 onChange={e => setCategoryFilter(e.target.value)}
                             >
@@ -346,8 +335,7 @@ export default function RevenueReportPage() {
                             </select>
                         </div>
                     </div>
-                </div>
-            </div>
+            </section>
 
             {/* Financial KPI Cards */}
             <div className="row g-3 mb-4">
@@ -450,14 +438,14 @@ export default function RevenueReportPage() {
                                 <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
                                     <FaChartLine style={{ color: '#1E60E6' }} /> Xu Hướng Doanh Thu Thuần Thực Thu Theo Thời Gian
                                 </h5>
-                                <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                                <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>
                                     {report?.trend?.length || 0} điểm dữ liệu
                                 </span>
                             </div>
 
-                            <div className="card-body p-4 text-center">
+                            <div className="card-body p-2 text-center">
                                 {!trendRender ? (
-                                    <div className="py-5 text-muted">Đang tải biểu đồ xu hướng...</div>
+                                    <div className="py-3 text-muted">Đang tải biểu đồ xu hướng...</div>
                                 ) : (
                                     <div className="table-responsive d-flex justify-content-center">
                                         <svg
@@ -584,7 +572,7 @@ export default function RevenueReportPage() {
                                     <FaChartPie className="text-primary" /> Doanh Thu Theo Chuyên Khoa Xét Nghiệm
                                 </h5>
                             </div>
-                            <div className="card-body p-4">
+                            <div className="card-body p-2">
                                 {(Array.isArray(report?.byCategory) ? report.byCategory : []).map((cat, idx) => (
                                     <div key={idx} className="mb-4">
                                         <div className="d-flex justify-content-between fw-semibold small mb-1">
@@ -613,7 +601,7 @@ export default function RevenueReportPage() {
                                     <FaQrcode className="text-success" /> Cơ Cấu Phương Thức Thanh Toán
                                 </h5>
                             </div>
-                            <div className="card-body p-4">
+                            <div className="card-body p-2">
                                 {(Array.isArray(report?.byPaymentMethod) ? report.byPaymentMethod : []).map((method, idx) => (
                                     <div key={idx} className="mb-4">
                                         <div className="d-flex justify-content-between fw-semibold small mb-1">

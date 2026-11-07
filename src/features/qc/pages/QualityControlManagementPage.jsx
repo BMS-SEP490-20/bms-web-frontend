@@ -267,21 +267,14 @@ export default function QualityControlManagementPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>KIỂM CHUẨN NỘI BỘ IQC · WESTGARD MULTIRULE (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaMicroscope size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đa Quy Tắc Westgard
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Quản lý hồ sơ lô kiểm chuẩn (QC Lots), biểu đồ Levey-Jennings trực quan, tự động phát hiện lỗi ngẫu nhiên và hệ thống theo luật Westgard (1_2s, 1_3s, 2_2s, R_4s, 4_1s, 10_x) và khóa máy khi vi phạm.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -331,7 +324,7 @@ export default function QualityControlManagementPage() {
 
                 {/* Active Lots */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeftColor: '#1E60E6' }}>
+                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ borderLeftColor: '#1E60E6' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Số Lô QC Đang Dùng</span>
                             <span className="badge rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}>Active</span>
@@ -476,9 +469,9 @@ export default function QualityControlManagementPage() {
                             </div>
                         </div>
 
-                        <div className="card-body p-4 text-center">
+                        <div className="card-body p-2 text-center">
                             {!chartRenderData ? (
-                                <div className="py-5 text-muted">
+                                <div className="py-3 text-muted">
                                     <FaInfoCircle className="fs-1 mb-2" />
                                     <p>Chưa có dữ liệu lượt chạy QC cho lô này. Hãy nhấn "Nhập kết quả chạy QC" để ghi nhận lần chạy đầu tiên.</p>
                                 </div>
@@ -668,7 +661,7 @@ export default function QualityControlManagementPage() {
 
                     <div className="bms-table-standalone-body">
                         {flags.length === 0 ? (
-                            <div className="text-center py-5 text-muted">
+                            <div className="text-center py-3 text-muted">
                                 <FaCheckCircle className="fs-1 text-success mb-2" />
                                 <p className="mb-0 fw-semibold">Không có sự cố vi phạm Westgard nào chưa được khắc phục.</p>
                             </div>
@@ -769,7 +762,7 @@ export default function QualityControlManagementPage() {
                             </div>
 
                             <form onSubmit={handleRecordRun}>
-                                <div className="modal-body p-4">
+                                <div className="modal-body p-2">
                                     <div className="mb-3">
                                         <label className="form-label small fw-bold text-muted text-uppercase">Chọn lô kiểm chuẩn:</label>
                                         <select
@@ -866,7 +859,7 @@ export default function QualityControlManagementPage() {
                             </div>
 
                             <form onSubmit={handleCreateLot}>
-                                <div className="modal-body p-4">
+                                <div className="modal-body p-2">
                                     <div className="row g-3">
                                         <div className="col-12 col-sm-6">
                                             <label className="form-label small fw-bold text-muted text-uppercase">Mã số lô (Lot Number):</label>
@@ -1004,7 +997,7 @@ export default function QualityControlManagementPage() {
                             </div>
 
                             <form onSubmit={handleSignoff}>
-                                <div className="modal-body p-4">
+                                <div className="modal-body p-2">
                                     <div className="alert alert-danger bg-danger-subtle border-danger mb-3 p-3">
                                         <div className="fw-bold">Lần chạy #{selectedRunForSignoff.runNumber || selectedRunForSignoff.runId}</div>
                                         <div className="small">Quy tắc vi phạm: <strong>{selectedRunForSignoff.violatedRules?.join(", ")}</strong> (Z = {selectedRunForSignoff.zScore}s)</div>

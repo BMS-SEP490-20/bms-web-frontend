@@ -4044,7 +4044,7 @@ const AdminAppointments = () => {
                             </Table>
                         </div>
                     ) : (
-                        <div className="text-center py-5">
+                        <div className="text-center py-3">
                             <FaCalendarAlt className="text-muted mb-3" style={{fontSize: '3rem'}} />
                             <h5 className="text-muted">Không có lịch hẹn nào</h5>
                             <p className="text-muted">Thử thay đổi bộ lọc hoặc tạo lịch hẹn mới</p>
@@ -4225,7 +4225,7 @@ const AdminAppointments = () => {
                             </Table>
                         </div>
                     ) : (
-                        <div className="text-center py-4">
+                        <div className="text-center py-2">
                             <FaVial className="text-muted mb-3" style={{ fontSize: '2.25rem' }} />
                             <h6 className="text-muted">{isSampleManagementPath ? 'Không có bệnh nhân xét nghiệm nào' : 'Không có mẫu xét nghiệm liên quan'}</h6>
                             <p className="text-muted">{isSampleManagementPath ? 'Chưa tìm thấy bệnh nhân nào phù hợp với bộ lọc hiện tại.' : 'Các mẫu liên quan đến lịch hẹn đã lọc sẽ được hiển thị ở đây.'}</p>
@@ -4282,7 +4282,7 @@ const AdminAppointments = () => {
                                                     
                                                     <Row className="g-3">
                                                         <Col md={6}>
-                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px' }}>
                                                                 <div style={{ fontSize: '0.85rem', color: '#6c757d', marginBottom: '6px', fontWeight: 500 }}>
                                                                     <i className="fas fa-birthday-cake me-2"></i>Ngày sinh
                                                                 </div>
@@ -4290,7 +4290,7 @@ const AdminAppointments = () => {
                                                             </div>
                                                         </Col>
                                                         <Col md={6}>
-                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px' }}>
                                                                 <div style={{ fontSize: '0.85rem', color: '#6c757d', marginBottom: '6px', fontWeight: 500 }}>
                                                                     <i className="fas fa-phone me-2"></i>Số điện thoại
                                                                 </div>
@@ -4298,7 +4298,7 @@ const AdminAppointments = () => {
                                                             </div>
                                                         </Col>
                                                         <Col md={12}>
-                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                                                            <div style={{ padding: '12px', background: '#f8f9fa', borderRadius: '8px' }}>
                                                                 <div style={{ fontSize: '0.85rem', color: '#6c757d', marginBottom: '6px', fontWeight: 500 }}>
                                                                     <i className="fas fa-envelope me-2"></i>Email
                                                                 </div>
@@ -4770,7 +4770,7 @@ const AdminAppointments = () => {
             <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered size="lg">
                 <Modal.Header closeButton><Modal.Title><i className="fas fa-edit me-2"></i>Chỉnh sửa lịch hẹn</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    {editLoading ? (<div className="text-center py-4"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Đang tải...</span></div><div className="mt-2 text-muted">Đang tải thông tin lịch hẹn...</div></div>) 
+                    {editLoading ? (<div className="text-center py-2"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Đang tải...</span></div><div className="mt-2 text-muted">Đang tải thông tin lịch hẹn...</div></div>) 
                         : editForm ? (
                         <div>
                             <p><strong>Bệnh nhân:</strong> {getPatientName(editForm.patientId)}</p>
@@ -4928,14 +4928,14 @@ const AdminAppointments = () => {
                                                 <Col xs={12} md={6}>
                                                     <div>
                                                         <h6 className="mb-3 d-flex align-items-center"><i className="fas fa-info-circle me-2 text-primary"></i><span>Thông tin đầy đủ</span></h6>
-                                                        <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(13, 110, 253, 0.2)'}}>
+                                                        <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px'}}>
                                                             <h6 className="fw-bold mb-2 text-primary" style={{ fontSize: '0.95rem'}}><i className="fas fa-vial me-2" /> Mẫu xét nghiệm</h6>
                                                             <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
                                                             <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
                                                             <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
                                                         </div>
 
-                                                        <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(25, 135, 84, 0.2)'}}>
+                                                        <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px'}}>
                                                             <h6 className="fw-bold mb-2 text-success" style={{ fontSize: '0.9rem' }}><i className="fas fa-user me-2" /> Thông tin bệnh nhân</h6>
                                                             <div className="mb-1"><small className="text-muted d-block">Họ và tên:</small><span className="fw-bold">{patientName}</span></div>
                                                             <div className="mb-1"><small className="text-muted d-block">Ngày sinh:</small><span className="fw-medium">{patientDobDisplay}</span></div>
@@ -4949,7 +4949,7 @@ const AdminAppointments = () => {
 
                                             {sample?.notes && (
                                                 <Row className="mt-3"><Col md={12}>
-                                                    <div className="p-3" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(255, 193, 7, 0.2)'}}>
+                                                    <div className="p-3" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%)', borderRadius: '8px'}}>
                                                         <h6 className="fw-bold mb-2 text-warning" style={{ fontSize: '0.9rem'}}><i className="fas fa-sticky-note me-2"></i>Ghi chú</h6>
                                                         <p className="mb-0">{translateToVietnamese(sample.notes)}</p>
                                                     </div>
@@ -5127,14 +5127,14 @@ const AdminAppointments = () => {
                                                     <Col xs={12} md={6}>
                                                         <div>
                                                             <h6 className="mb-3 d-flex align-items-center"><i className="fas fa-info-circle me-2 text-primary"></i><span>Thông tin đầy đủ</span></h6>
-                                                            <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(13, 110, 253, 0.2)'}}>
+                                                            <div className="mb-3 p-3" style={{ background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px'}}>
                                                                 <h6 className="fw-bold mb-2 text-primary" style={{ fontSize: '0.95rem'}}><i className="fas fa-vial me-2" /> Mẫu xét nghiệm</h6>
                                                                 <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Trạng thái:</span> <span className="fw-semibold"><StatusBadge entity="sample" status={sample && (sample.status || sample.state)} /></span></div>
                                                                 <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Loại mẫu:</span> <span className="fw-semibold">{sample ? formatSampleType(sample.sampleType || sample.type) : '—'}</span></div>
                                                                 <div className="mb-1" style={{ fontSize: '0.95rem' }}><span className="text-muted">Ngày lấy mẫu:</span> <span className="fw-semibold">{sample && (sample.collectedAt || sample.createdAt) ? (formatDateTime(sample.collectedAt || sample.createdAt) || (sample.collectedAt || sample.createdAt)) : '—'}</span></div>
                                                             </div>
 
-                                                            <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(25, 135, 84, 0.2)'}}>
+                                                            <div className="mb-2 p-3" style={{ background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(13, 202, 240, 0.05) 100%)', borderRadius: '8px'}}>
                                                                 <h6 className="fw-bold mb-2 text-success" style={{ fontSize: '0.9rem' }}><i className="fas fa-user me-2" /> Thông tin bệnh nhân</h6>
                                                                 <div className="mb-1"><small className="text-muted d-block">Họ và tên:</small><span className="fw-bold">{patientName}</span></div>
                                                                 <div className="mb-1"><small className="text-muted d-block">Ngày sinh:</small><span className="fw-medium">{patientDobDisplay}</span></div>
@@ -5148,7 +5148,7 @@ const AdminAppointments = () => {
 
                                                 {sample.notes && (
                                                     <Row className="mt-3"><Col md={12}>
-                                                        <div className="p-3" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%)', borderRadius: '8px', border: '1px solid rgba(255, 193, 7, 0.2)'}}>
+                                                        <div className="p-3" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%)', borderRadius: '8px'}}>
                                                             <h6 className="fw-bold mb-2 text-warning" style={{ fontSize: '0.9rem'}}><i className="fas fa-sticky-note me-2"></i>Ghi chú</h6>
                                                             <p className="mb-0">{translateToVietnamese(sample.notes)}</p>
                                                         </div>
@@ -5159,7 +5159,7 @@ const AdminAppointments = () => {
                                                 {(sampleDetailData && (sampleDetailData.packageCriteria || sampleDetailData.packageObj)) && (
                                                     <Row className="mt-3"><Col md={12}>
                                                         <Card className="mb-3 border-0 shadow-sm overflow-hidden" style={{ background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' }}>
-                                                            <Card.Body className="p-4">
+                                                            <Card.Body className="p-2">
                                                                 <div className="d-flex align-items-start">
                                                                     <div className="me-3" style={{ 
                                                                         width: '56px', 
@@ -5327,7 +5327,7 @@ const AdminAppointments = () => {
                 </Modal.Header>
                 <Modal.Body>
                     {sampleEditLoading ? (
-                        <div className="text-center py-4"><div className="spinner-border text-primary" role="status"></div><div className="mt-2 text-muted">Đang tải thông tin mẫu...</div></div>
+                        <div className="text-center py-2"><div className="spinner-border text-primary" role="status"></div><div className="mt-2 text-muted">Đang tải thông tin mẫu...</div></div>
                     ) : sampleEditForm ? (
                         <Form>
                             {/* Patient Information (read-only) */}

@@ -281,12 +281,12 @@ const ReceptionistDashboard = () => {
   };
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="py-2">
       {/* Header Banner */}
       <Row className="mb-4">
         <Col>
           <Card className="shadow-sm rounded-4 border-0" style={{ background: 'linear-gradient(135deg, #1E60E6 0%, #3B5BDB 100%)', color: '#fff' }}>
-            <Card.Body className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <Card.Body className="p-2 d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div>
                 <h4 className="mb-1 fw-bold">
                   <FaConciergeBell className="me-2" />
@@ -316,7 +316,7 @@ const ReceptionistDashboard = () => {
         <Col xs={12} sm={6} lg={3}>
           <Card 
             className="shadow-sm h-100 rounded-4" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff' }}
             onClick={() => navigate('/receptionist/check-in')}
           >
             <Card.Body className="d-flex align-items-center p-3">
@@ -339,7 +339,7 @@ const ReceptionistDashboard = () => {
         <Col xs={12} sm={6} lg={3}>
           <Card 
             className="shadow-sm h-100 rounded-4" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff' }}
             onClick={() => navigate('/receptionist/create-patient')}
           >
             <Card.Body className="d-flex align-items-center p-3">
@@ -362,7 +362,7 @@ const ReceptionistDashboard = () => {
         <Col xs={12} sm={6} lg={3}>
           <Card 
             className="shadow-sm h-100 rounded-4" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff' }}
             onClick={() => handleOpenReceiptModal(appointments[0] || null)}
           >
             <Card.Body className="d-flex align-items-center p-3">
@@ -385,7 +385,7 @@ const ReceptionistDashboard = () => {
         <Col xs={12} sm={6} lg={3}>
           <Card 
             className="shadow-sm h-100 rounded-4" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff' }}
             onClick={() => navigate('/receptionist/appointments')}
           >
             <Card.Body className="d-flex align-items-center p-3">
@@ -408,7 +408,7 @@ const ReceptionistDashboard = () => {
         <Col xs={12} sm={6} lg={3}>
           <Card 
             className="shadow-sm h-100 rounded-4" 
-            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff' }}
             onClick={() => navigate('/notifications')}
           >
             <Card.Body className="d-flex align-items-center p-3">
@@ -480,7 +480,7 @@ const ReceptionistDashboard = () => {
 
         <div className="bms-table-standalone-body">
               {loading ? (
-                <div className="text-center py-5">
+                <div className="text-center py-3">
                   <Spinner animation="border" style={{ color: '#1E60E6' }} />
                   <p className="mt-2 text-muted">Đang tải danh sách bệnh nhân và mã barcode...</p>
                 </div>
@@ -521,7 +521,7 @@ const ReceptionistDashboard = () => {
                           <tr key={appointment.id || Math.random()} style={{ borderBottom: '1px solid #EEF2F6' }}>
                             {/* Appointment ID */}
                             <td style={{ padding: '14px 16px' }}>
-                              <span className="badge px-2.5 py-1.5 font-monospace" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '8px' }}>
+                              <span className="badge px-2.5 py-1.5 font-monospace" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderRadius: '8px' }}>
                                 {appointment.appointmentCode || (appointment.id ? `APT-${String(appointment.id).substring(0, 6).toUpperCase()}` : 'N/A')}
                               </span>
                             </td>
@@ -547,7 +547,7 @@ const ReceptionistDashboard = () => {
                                 <div className="d-flex align-items-center gap-2">
                                   <span 
                                     className="badge px-2.5 py-1.5 font-monospace"
-                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.3)', borderRadius: '9999px' }}
+                                    style={{ fontSize: '0.9rem', cursor: 'pointer', backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', borderRadius: '9999px' }}
                                     onClick={() => handleOpenBarcodeModal(appointment)}
                                     title="Mã Barcode - Nhấn để xem và in"
                                   >
@@ -615,7 +615,7 @@ const ReceptionistDashboard = () => {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-5">
+                <div className="text-center py-3">
                   <FaCalendarAlt className="text-muted mb-2" style={{ fontSize: '2.5rem' }} />
                   <p className="text-muted mb-0">Hôm nay chưa có dữ liệu tiếp nhận bệnh nhân</p>
                 </div>
@@ -630,10 +630,10 @@ const ReceptionistDashboard = () => {
             <FaBarcode className="me-2" /> In Nhãn Mã Vạch Tiếp Nhận (Lễ Tân)
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {selectedBarcodeItem ? (
             <div>
-              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '12px', border: '1px solid rgba(30, 96, 230, 0.3)' }}>
+              <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '12px' }}>
                 <i className="fas fa-info-circle me-1"></i>
                 Nhãn in sẵn sàng cho ống xét nghiệm với 4 trường: <strong>Chữ cái đầu tên</strong>, <strong>Mã mẫu</strong>, <strong>Mã xét nghiệm</strong>, và <strong>Thời gian lấy mẫu</strong>.
               </Alert>
@@ -667,7 +667,7 @@ const ReceptionistDashboard = () => {
             Tính phí & Xuất biên lai thanh toán (Receptionist)
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {selectedReceiptAppointment && (
             <div>
               <Alert variant="light" className="border d-flex justify-content-between align-items-center mb-4" style={{ borderRadius: '14px', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
@@ -813,7 +813,7 @@ const ReceptionistDashboard = () => {
             Biên Lai Thanh Toán Điện Tử
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4" id="printable-receipt">
+        <Modal.Body className="p-2" id="printable-receipt">
           {generatedReceipt && (
             <div style={{ border: '2px dashed #ced4da', padding: '24px', borderRadius: '12px', background: '#fff' }}>
               <div className="text-center mb-4">

@@ -34,7 +34,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
       backdrop="static"
       className="bms-medical-modal"
     >
-      <Modal.Header closeButton className="bg-danger bg-opacity-10 border-danger border-opacity-25 py-3 px-4">
+      <Modal.Header closeButton className="bg-danger bg-opacity-10 border-danger border-opacity-25 py-3 px-3">
         <div>
           <Modal.Title className="h6 fw-bold mb-0 text-danger d-flex align-items-center gap-2">
             <FaExclamationTriangle />
@@ -46,7 +46,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
         </div>
       </Modal.Header>
 
-      <Modal.Body className="p-4">
+      <Modal.Body className="p-2">
         {errorMessage && (
           <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="small mb-3">
             {errorMessage}
@@ -78,7 +78,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
         </Alert>
       </Modal.Body>
 
-      <Modal.Footer className="bg-light py-2 px-4 border-top">
+      <Modal.Footer className="bg-light py-2 px-3 border-top">
         <Button variant="secondary" size="sm" onClick={onClose} disabled={isSubmitting}>
           <FaTimes className="me-1" /> Hủy Bỏ
         </Button>

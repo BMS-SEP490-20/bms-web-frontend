@@ -178,21 +178,14 @@ export default function RoleBasedDashboard() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaCheckCircle size={12} />
-            <span>TIÊU CHUẨN ISO 15189:2022 · HỆ THỐNG BMS CLINICAL LAB</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaSlidersH size={20} />
-            </span>
+            
             <h1 className="bms-page-title">
-              Bảng Điều Khiển Vận Hành Phòng Xét Nghiệm &amp; Quản Trị Y Tế
+              Bảng điều khiển
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Hệ thống giám sát hiệu suất chất lượng phòng Lab, truy vết mẫu bệnh phẩm và điều phối chỉ số thời gian thực theo Quyết định 2429/QĐ-BYT.
-          </p>
+          
         </div>
 
         <div className="bms-page-actions">
@@ -536,87 +529,59 @@ export default function RoleBasedDashboard() {
             </div>
           </div>
 
-          {/* 2. Secondary Clinical Monitoring Grid */}
-          <Row className="g-4 mb-4">
-            {/* Left: TAT ISO 15189 Performance */}
+          <Row className="g-3 mb-4">
             <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+              <section className="bms-monitor-card">
+                <div className="bms-monitor-head">
                   <div>
-                    <h5 className="bms-dash-card-title">
-                      <FaStopwatch style={{ color: '#1E60E6' }} />
-                      Hiệu Suất Thời Gian TAT (ISO 15189)
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Chỉ số cam kết thời gian quay vòng toàn viện (SLA)
-                    </div>
+                    <h5><FaStopwatch /> Hiệu suất TAT</h5>
+                    <p>Cam kết thời gian trả kết quả toàn viện</p>
                   </div>
-                  <Link to="/reports/tat" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
-                    Chi tiết
-                  </Link>
+                  <Link to="/reports/tat" className="bms-monitor-link">Chi tiết</Link>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  {/* STAT TAT */}
-                  <div>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="fw-semibold text-danger small">
-                        Mẫu Cấp Cứu (STAT - Mục tiêu &lt; 60 phút):
-                      </span>
-                      <span className="fw-bold text-success">98.5% đạt chuẩn</span>
-                    </div>
-                    <ProgressBar variant="danger" now={98.5} style={{ height: 8, borderRadius: 4 }} />
-                    <small className="text-muted mt-1 d-block">Thời gian trung bình thực tế: <strong className="text-dark">38 phút</strong></small>
+                <div className="bms-monitor-block">
+                  <div className="bms-monitor-line">
+                    <span className="bms-monitor-name is-stat">Cấp cứu (STAT)</span>
+                    <strong>98.5%</strong>
                   </div>
-
-                  {/* Routine TAT */}
-                  <div>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="fw-semibold text-primary small">
-                        Mẫu Thường Quy (Mục tiêu &lt; 120 phút):
-                      </span>
-                      <span className="fw-bold text-success">96.2% đạt chuẩn</span>
-                    </div>
-                    <ProgressBar variant="primary" now={96.2} style={{ height: 8, borderRadius: 4 }} />
-                    <small className="text-muted mt-1 d-block">Thời gian trung bình thực tế: <strong className="text-dark">84 phút</strong></small>
-                  </div>
+                  <div className="bms-monitor-note">Mục tiêu dưới 60 phút · Trung bình 38 phút</div>
+                  <div className="bms-monitor-track"><div className="is-stat" style={{ width: '98.5%' }} /></div>
                 </div>
-              </div>
+                <div className="bms-monitor-block">
+                  <div className="bms-monitor-line">
+                    <span className="bms-monitor-name is-routine">Thường quy</span>
+                    <strong>96.2%</strong>
+                  </div>
+                  <div className="bms-monitor-note">Mục tiêu dưới 120 phút · Trung bình 84 phút</div>
+                  <div className="bms-monitor-track"><div className="is-routine" style={{ width: '96.2%' }} /></div>
+                </div>
+              </section>
             </Col>
-
-            {/* Right: IoT Cold Storage */}
             <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+              <section className="bms-monitor-card">
+                <div className="bms-monitor-head">
                   <div>
-                    <h5 className="bms-dash-card-title">
-                      <FaTemperatureHigh className="text-success" />
-                      Tủ Bảo Quản Mẫu &amp; Sinh Phẩm (IoT 2°C – 8°C)
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Cảm biến nhiệt độ chuỗi lạnh liên tục thời gian thực
-                    </div>
+                    <h5><FaTemperatureHigh /> Tủ bảo quản mẫu</h5>
+                    <p>Chuỗi lạnh 2°C – 8°C</p>
                   </div>
-                  <span className="bms-pill-badge bms-pill-success">Ổn định</span>
+                  <span className="bms-monitor-status">
+                    {stats?.managerData?.activeAlertsCount === 0 ? 'Ổn định' : `${stats?.managerData?.activeAlertsCount} cảnh báo`}
+                  </span>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-muted small">Nhiệt độ hiện tại:</span>
-                      <strong className="text-success fs-4">{stats?.managerData?.coldStorageTemperature ? `${stats.managerData.coldStorageTemperature}°C` : '—'}</strong>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
-                      <span>Trạng thái kết nối sensor:</span>
-                      <span className="text-dark fw-semibold">{stats?.managerData?.activeAlertsCount === 0 ? 'Hoạt động bình thường' : `${stats?.managerData?.activeAlertsCount} cảnh báo`}</span>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="small text-muted">Dải chuẩn bảo quản an toàn: 2.0°C – 8.0°C</span>
-                    <Link to="/manager/iot-thresholds" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
-                      Cấu hình ngưỡng
-                    </Link>
-                  </div>
+                <div className="bms-monitor-temp">
+                  <span>Nhiệt độ hiện tại</span>
+                  <strong>{stats?.managerData?.coldStorageTemperature ? `${stats.managerData.coldStorageTemperature}°C` : '—'}</strong>
                 </div>
-              </div>
+                <div className="bms-monitor-facts">
+                  <span>Cảm biến</span>
+                  <strong>{stats?.managerData?.activeAlertsCount === 0 ? 'Hoạt động bình thường' : 'Cần kiểm tra'}</strong>
+                </div>
+                <div className="bms-monitor-facts">
+                  <span>Dải an toàn</span>
+                  <strong>2.0°C – 8.0°C</strong>
+                </div>
+                <Link to="/manager/iot-thresholds" className="bms-monitor-link">Cấu hình ngưỡng</Link>
+              </section>
             </Col>
           </Row>
 
@@ -628,7 +593,7 @@ export default function RoleBasedDashboard() {
                 Trung Tâm Quản Trị Chuyên Môn &amp; Danh Mục Y Tế
               </h5>
             </div>
-            <div className="p-4">
+            <div className="p-2">
               <Row className="g-3">
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/laboratory/rooms" className="bms-quick-tile">
@@ -786,8 +751,8 @@ export default function RoleBasedDashboard() {
                   </div>
                   <Badge bg="danger" className="rounded-pill">3 cảnh báo</Badge>
                 </div>
-                <div className="p-4 d-flex flex-column gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
+                <div className="p-2 d-flex flex-column gap-3">
+                  <div className="p-3 rounded-4" style={{ background: '#FFF1F2' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <strong className="text-danger">Glucose Huyết Tương: 14.8 mmol/L (HH)</strong>
                       <span className="bms-pill-badge bms-pill-stat">Nguy cấp</span>
@@ -795,7 +760,7 @@ export default function RoleBasedDashboard() {
                     <div className="small text-dark fw-semibold">Bệnh nhân: Lê Văn Toàn (Nam, 58 tuổi)</div>
                     <div className="small text-muted">Mã chỉ định: ORD-261006-0182 | Chỉ số vượt 2.1x ngưỡng bình thường</div>
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                  <div className="p-3 rounded-4" style={{ background: '#FFFBEB' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <strong className="text-warning text-dark">Troponin T hs: 58 ng/L (H)</strong>
                       <span className="bms-pill-badge bms-pill-urgent">Khẩn</span>
@@ -824,8 +789,8 @@ export default function RoleBasedDashboard() {
                   </div>
                   <span className="bms-pill-badge bms-pill-primary">Phòng 102</span>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Ca trực hôm nay:</span>
                       <strong className="text-primary fs-5">Ca Sáng (07:00 – 15:30)</strong>
@@ -835,7 +800,7 @@ export default function RoleBasedDashboard() {
                       <strong className="text-dark">{currentUser?.fullName || 'BS. CKII Nguyễn Văn Minh'}</strong>
                     </div>
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-primary small fw-semibold">Tiến độ khám bệnh:</span>
                       <span className="bms-pill-badge bms-pill-success">18 / 24 bệnh nhân</span>
@@ -857,7 +822,7 @@ export default function RoleBasedDashboard() {
                 Lối Tắt Nghiệp Vụ Bác Sĩ Lâm Sàng
               </h5>
             </div>
-            <div className="p-4">
+            <div className="p-2">
               <Row className="g-3">
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/doctor/console" className="bms-quick-tile">
@@ -1015,8 +980,8 @@ export default function RoleBasedDashboard() {
                   </div>
                   <span className="bms-pill-badge bms-pill-success">Đạt chuẩn ISO</span>
                 </div>
-                <div className="p-4 d-flex flex-column gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                <div className="p-2 d-flex flex-column gap-3">
+                  <div className="p-3 rounded-4" style={{ background: '#F0FDF4' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <strong className="text-success">Máy Sinh Hóa Tự Động AU680</strong>
                       <span className="bms-pill-badge bms-pill-success">Đang đo</span>
@@ -1024,7 +989,7 @@ export default function RoleBasedDashboard() {
                     <div className="small text-muted">IQC 3 mức nồng độ: Đạt chuẩn Westgard (Không vi phạm 1-3s, 2-2s)</div>
                     <div className="small text-dark mt-1">Độ lệch chuẩn CV%: <strong>1.82%</strong> (Mục tiêu &lt; 2.5%)</div>
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <strong className="text-primary">Máy Huyết Học Beckman Coulter DxH900</strong>
                       <span className="bms-pill-badge bms-pill-primary">Đang đo</span>
@@ -1053,15 +1018,15 @@ export default function RoleBasedDashboard() {
                   </div>
                   <span className="bms-pill-badge bms-pill-primary">4 Khay Đang Chạy</span>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Lô sinh hóa buổi sáng (Batch-BIO-01):</span>
                       <strong className="text-success">42 / 48 mẫu</strong>
                     </div>
                     <ProgressBar variant="success" now={87.5} style={{ height: 8, borderRadius: 4, marginTop: 8 }} />
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Lô miễn dịch &amp; virus (Batch-IMM-02):</span>
                       <strong className="text-primary">18 / 24 mẫu</strong>
@@ -1083,7 +1048,7 @@ export default function RoleBasedDashboard() {
                 Lối Tắt Nghiệp Vụ Kỹ Thuật Viên Phòng Lab
               </h5>
             </div>
-            <div className="p-4">
+            <div className="p-2">
               <Row className="g-3">
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/lab/queue" className="bms-quick-tile">
@@ -1200,7 +1165,7 @@ export default function RoleBasedDashboard() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="text-center py-4 text-muted">
+                        <td colSpan="6" className="text-center py-2 text-muted">
                           Chưa có bệnh nhân nào trong hàng đợi tiếp đón hôm nay.
                         </td>
                       </tr>
@@ -1229,8 +1194,8 @@ export default function RoleBasedDashboard() {
                     Xem Quầy Thu
                   </Link>
                 </div>
-                <div className="p-4 d-flex flex-column gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Tổng thu tiền mặt &amp; thẻ:</span>
                       <strong className="text-success fs-5">{VND.format(38250000)}</strong>
@@ -1240,7 +1205,7 @@ export default function RoleBasedDashboard() {
                       <strong className="text-dark">48 hóa đơn</strong>
                     </div>
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-primary small fw-semibold">Thanh toán qua cổng VNPay-QR:</span>
                       <span className="bms-pill-badge bms-pill-primary">24 lượt</span>
@@ -1268,15 +1233,15 @@ export default function RoleBasedDashboard() {
                   </div>
                   <span className="bms-pill-badge bms-pill-primary">3 Buồng Mở</span>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="fw-semibold text-dark small">Buồng lấy mẫu máu 01:</span>
                       <span className="bms-pill-badge bms-pill-success">Đang phục vụ</span>
                     </div>
                     <div className="small text-muted mt-1">Điều dưỡng: Lê Thị Mai | Đã lấy 28 ca sáng nay</div>
                   </div>
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="fw-semibold text-dark small">Buồng lấy mẫu máu 02:</span>
                       <span className="bms-pill-badge bms-pill-success">Đang phục vụ</span>
@@ -1298,7 +1263,7 @@ export default function RoleBasedDashboard() {
                 Lối Tắt Tiếp Đón &amp; Điều Phối Bệnh Nhân
               </h5>
             </div>
-            <div className="p-4">
+            <div className="p-2">
               <Row className="g-3">
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/receptionist/check-in" className="bms-quick-tile">
@@ -1437,8 +1402,8 @@ export default function RoleBasedDashboard() {
                   </div>
                   <Badge bg="success" className="rounded-pill">Đã xác thực</Badge>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <strong className="text-dark d-flex align-items-center gap-2">
                         <FaDatabase className="text-primary" />
@@ -1471,8 +1436,8 @@ export default function RoleBasedDashboard() {
                   </div>
                   <span className="bms-pill-badge bms-pill-info">{NUM.format(adminOps.auditLogRows || 1420)} sự kiện</span>
                 </div>
-                <div className="p-4 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F8FAFC', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
+                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
+                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="small text-dark fw-semibold mb-1">Bảo đảm an toàn thông tin y tế:</div>
                     <div className="small text-muted">Toàn bộ thao tác nghiệp vụ lâm sàng đều được ghi nhận kèm mã nhân viên, địa chỉ IP và timestamp chuẩn ISO 8601.</div>
                   </div>
@@ -1491,7 +1456,7 @@ export default function RoleBasedDashboard() {
                 Trung Tâm Quản Trị Hệ Thống Toàn Viện
               </h5>
             </div>
-            <div className="p-4">
+            <div className="p-2">
               <Row className="g-3">
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/admin/user-management" className="bms-quick-tile">

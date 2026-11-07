@@ -142,7 +142,7 @@ export default function PublicQueueBoardPage() {
     >
       {/* Top Header Bar */}
       <div
-        className="px-4 py-3 d-flex justify-content-between align-items-center border-bottom"
+        className="px-3 py-3 d-flex justify-content-between align-items-center border-bottom"
         style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1C2541' }}
       >
         <div className="d-flex align-items-center gap-3">
@@ -198,7 +198,7 @@ export default function PublicQueueBoardPage() {
       </div>
 
       {/* Main Board Body */}
-      <Container fluid className="flex-grow-1 p-4">
+      <Container fluid className="flex-grow-1 p-2">
         <Row className="g-4 h-100">
           {/* Left Column: Currently Serving Highlight */}
           <Col lg={7}>
@@ -206,7 +206,7 @@ export default function PublicQueueBoardPage() {
               className="h-100 border-0 rounded-4 shadow-lg overflow-hidden d-flex flex-column"
               style={{ backgroundColor: '#1C2541' }}
             >
-              <div className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
+              <div className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
                 <span className="fw-bold text-uppercase fs-5 d-flex align-items-center gap-2">
                   <FaUserCheck /> ĐANG GỌI VÀO PHÒNG KHÁM
                 </span>
@@ -215,7 +215,7 @@ export default function PublicQueueBoardPage() {
                 </span>
               </div>
 
-              <Card.Body className="p-4 p-xl-5 d-flex flex-column justify-content-center text-center">
+              <Card.Body className="p-2 p-xl-5 d-flex flex-column justify-content-center text-center">
                 {current ? (
                   <div>
                     <div className="text-info fw-bold text-uppercase fs-5 mb-2 letter-spacing-wide">
@@ -254,7 +254,7 @@ export default function PublicQueueBoardPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-5">
+                  <div className="py-3">
                     <div className="display-1 text-white-50 opacity-25 mb-4">
                       <FaHospital />
                     </div>
@@ -275,7 +275,7 @@ export default function PublicQueueBoardPage() {
               style={{ backgroundColor: '#1C2541' }}
             >
               <div
-                className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom"
+                className="py-3 px-3 d-flex justify-content-between align-items-center border-bottom"
                 style={{ borderColor: 'rgba(255,255,255,0.1)' }}
               >
                 <span className="fw-bold text-uppercase fs-5 text-white d-flex align-items-center gap-2">
@@ -288,7 +288,7 @@ export default function PublicQueueBoardPage() {
 
               <Card.Body className="p-3 overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
                 {waiting.length === 0 ? (
-                  <div className="text-center py-5 text-white-50">
+                  <div className="text-center py-3 text-white-50">
                     <div className="fs-1 mb-2">✨</div>
                     <div className="fs-5 fw-semibold">Hàng đợi trống</div>
                     <div className="small">Hiện không có số thứ tự nào đang chờ.</div>
@@ -342,7 +342,7 @@ export default function PublicQueueBoardPage() {
 
       {/* Bottom Ticker Notice */}
       <div
-        className="px-4 py-2 border-top text-center text-white-50 small"
+        className="px-3 py-2 border-top text-center text-white-50 small"
         style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0B132B' }}
       >
         <span>🏥 Quý khách vui lòng giữ trật tự và theo dõi màn hình khi đến lượt. Mọi thắc mắc xin liên hệ Quầy tiếp đón hoặc Hotline: <strong>1900-8888</strong></span>

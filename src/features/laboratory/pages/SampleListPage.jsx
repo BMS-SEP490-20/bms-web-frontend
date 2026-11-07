@@ -182,32 +182,11 @@ export default function SampleListPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+    <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header & Điều hướng */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <div>
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-1 text-muted small">
-              <li className="breadcrumb-item">
-                <Link to="/lab/queue" className="text-decoration-none text-secondary">Tiếp nhận mẫu</Link>
-              </li>
-              <li className="breadcrumb-item active text-primary fw-semibold" aria-current="page">
-                Lập danh sách lấy mẫu
-              </li>
-            </ol>
-          </nav>
-          <div className="d-flex align-items-center gap-2">
-            <h2 className="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-              <FaClipboardList className="text-primary" />
-              <span>Danh Sách Lấy Mẫu Bệnh Phẩm Theo Ca</span>
-            </h2>
-            <span className="badge bg-primary-subtle text-primary border border-primary-subtle">
-              Tiêu chuẩn ISO 15189:2022
-            </span>
-          </div>
-          <small className="text-muted">
-            Chọn các bệnh nhân đã tiếp đón để lập đợt lấy mẫu máu và in nhãn mã vạch (Code 128)
-          </small>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Danh sách lấy mẫu</h1>
         </div>
         <button
           className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
@@ -215,7 +194,7 @@ export default function SampleListPage() {
         >
           <FaArrowLeft /> Quay lại
         </button>
-      </div>
+      </header>
 
       {/* Thông báo Alert */}
       {successMessage && (
@@ -285,13 +264,13 @@ export default function SampleListPage() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-4 text-muted">
+                      <td colSpan="5" className="text-center py-2 text-muted">
                         <FaSpinner className="fa-spin me-2" /> Đang tải danh sách tiếp đón...
                       </td>
                     </tr>
                   ) : filteredAppointments.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-4 text-muted">
+                      <td colSpan="5" className="text-center py-2 text-muted">
                         Không tìm thấy bệnh nhân tiếp đón nào phù hợp.
                       </td>
                     </tr>
@@ -376,7 +355,7 @@ export default function SampleListPage() {
                 <tbody>
                   {selectedAppointments.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-4 text-muted">
+                      <td colSpan="5" className="text-center py-2 text-muted">
                         Chưa có bệnh nhân nào được chọn cho đợt này. Vui lòng tick chọn từ danh sách bên trái.
                       </td>
                     </tr>
@@ -428,7 +407,7 @@ export default function SampleListPage() {
                 <span>Thiết Lập Địa Điểm & Thời Gian Lấy Mẫu</span>
               </h5>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               <div className="row g-3 mb-4">
                 <div className="col-md-7">
                   <label className="form-label fw-semibold text-dark small">Địa Điểm / Bàn Lấy Mẫu *</label>
@@ -460,7 +439,7 @@ export default function SampleListPage() {
               <div className="d-flex gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="btn btn-primary d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm"
+                  className="btn btn-primary d-flex align-items-center gap-2 fw-semibold px-3 shadow-sm"
                   disabled={submitting || selectedAppointments.length === 0}
                   onClick={handleConfirmList}
                 >
@@ -505,13 +484,13 @@ export default function SampleListPage() {
                   onClick={() => setShowBarcodeModal(false)}
                 />
               </div>
-              <div className="modal-body p-4" style={{ maxHeight: "65vh", overflowY: "auto" }}>
+              <div className="modal-body p-2" style={{ maxHeight: "65vh", overflowY: "auto" }}>
                 {loadingBarcodes ? (
-                  <div className="text-center py-4 text-muted">
+                  <div className="text-center py-2 text-muted">
                     <FaSpinner className="fa-spin me-2" /> Đang tạo dữ liệu mã vạch tiêu chuẩn...
                   </div>
                 ) : !barcodeData || !Array.isArray(barcodeData.labels) || barcodeData.labels.length === 0 ? (
-                  <div className="text-center py-4 text-muted">
+                  <div className="text-center py-2 text-muted">
                     <FaBarcode className="fs-1 text-secondary opacity-50 mb-2" />
                     <p>Chưa có nhãn mã vạch nào khả dụng cho đợt gom mẫu này.</p>
                   </div>

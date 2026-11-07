@@ -81,7 +81,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
             style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
+                <div className="modal-content shadow border-0" style={{ borderRadius: 18, overflow: 'hidden' }}>
                     <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
                             <FaDatabase className="fs-5" style={{ color: '#1E60E6' }} />
@@ -98,7 +98,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="modal-body p-4">
+                        <div className="modal-body p-2">
                             {errorMessage && (
                                 <div className="alert alert-danger py-2 small mb-3" style={{ borderRadius: 14 }}>
                                     {errorMessage}

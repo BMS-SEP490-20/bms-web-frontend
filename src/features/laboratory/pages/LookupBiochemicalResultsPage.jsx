@@ -157,17 +157,11 @@ export default function LookupBiochemicalResultsPage() {
   ) || currentResult?.conclusionNotes?.toLowerCase().includes('cảnh báo');
 
   return (
-    <div className="container-fluid px-4 py-4">
+    <div className="container-fluid px-3 py-2">
       {/* Page Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-            <FaFlask style={{ color: '#1E60E6' }} />
-            <span>Tra Cứu Kết Quả Xét Nghiệm Sinh Hóa (Look Up Biochemical Results)</span>
-            </h3>
-          <p className="text-muted small mb-0">
-            Tra cứu kết quả xét nghiệm sinh hóa, huyết học, dải tham chiếu chuẩn WHO/ADA, cờ cảnh báo bất thường và thẩm định chữ ký số y khoa.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Kết quả sinh hóa</h1>
         </div>
 
         <div className="d-flex gap-2">
@@ -186,15 +180,15 @@ export default function LookupBiochemicalResultsPage() {
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
               onClick={() => navigate('/laboratory/notifications')}
             >
-              <FaBell className="me-1" /> Phát Thông Báo
+              <FaBell className="me-1" /> Thông báo
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Search Bar Card */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="p-4">
+      <Card className="bms-filter-bar border-0">
+        <Card.Body className="p-2">
           <Form onSubmit={handleSearchSubmit}>
             <Row className="g-3 align-items-center">
               <Col xs={12} md={7} lg={8}>
@@ -210,7 +204,7 @@ export default function LookupBiochemicalResultsPage() {
                     className="border-start-0 py-2 font-monospace"
                     style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
                   />
-                  <Button type="submit" disabled={loading} className="px-4 fw-semibold rounded-end-pill" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}>
+                  <Button type="submit" disabled={loading} className="px-3 fw-semibold rounded-end-pill" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}>
                     {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-1" /> Tra Cứu</>}
                   </Button>
                 </InputGroup>
@@ -427,7 +421,7 @@ export default function LookupBiochemicalResultsPage() {
                       })
                     ) : (
                       <tr>
-                        <td colSpan={6} className="text-center py-4 text-muted">
+                        <td colSpan={6} className="text-center py-2 text-muted">
                           Chưa có chỉ số chi tiết cho mẫu xét nghiệm này.
                         </td>
                       </tr>
@@ -448,7 +442,7 @@ export default function LookupBiochemicalResultsPage() {
         </Row>
       ) : (
         !loading && (
-          <Card className="border-0 shadow-sm rounded-4 text-center py-5 mb-4 text-muted">
+          <Card className="border-0 shadow-sm rounded-4 text-center py-3 mb-4 text-muted">
             <Card.Body>
               <FaVial className="fs-1 text-secondary opacity-50 mb-3" />
               <div className="fw-semibold fs-5 text-dark">Chưa chọn kết quả xét nghiệm sinh hóa nào</div>
@@ -528,7 +522,7 @@ export default function LookupBiochemicalResultsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="text-center py-4 text-muted">
+                  <td colSpan={6} className="text-center py-2 text-muted">
                     {loadingRecent ? 'Đang tải danh sách kết quả gần đây...' : 'Chưa có hồ sơ kết quả xét nghiệm nào trong cơ sở dữ liệu.'}
                   </td>
                 </tr>

@@ -84,7 +84,7 @@ export default function NotificationDetailModal({
                         ></button>
                     </div>
 
-                    <div className="modal-body p-4">
+                    <div className="modal-body p-2">
                         {actionMessage && (
                             <div className={`alert alert-${actionMessage.type} py-2 small mb-3`}>
                                 {actionMessage.text}
@@ -218,7 +218,7 @@ export default function NotificationDetailModal({
                         </div>
                     </div>
 
-                    <div className="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
+                    <div className="modal-footer bg-light py-2 px-3 d-flex justify-content-between">
                         <div>
                             {canMarkRead && notification.status !== "Read" && (
                                 <button

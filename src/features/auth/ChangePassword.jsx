@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { Card, Form, Button, Alert, InputGroup, ProgressBar, Spinner } from 'react-bootstrap';
+import { Alert, ProgressBar, Spinner } from 'react-bootstrap';
 import api from '../../config/api';
 
 /**
@@ -86,89 +86,78 @@ const ChangePassword = () => {
   };
 
   return (
-    <Card className="shadow-sm border rounded-4" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-      <Card.Header className="bg-white border-bottom py-3 px-4" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-        <h5 className="fw-bold mb-1" style={{ color: 'var(--bms-primary, #1E60E6)', fontSize: '18px' }}>
-          <i className="bi bi-key-fill me-2"></i>Thay Đổi Mật Khẩu Bảo Mật
-        </h5>
-        <small className="text-muted" style={{ fontSize: '12px' }}>Bảo vệ tài khoản y tế BMS theo chuẩn định danh y khoa (BR-IAM-01)</small>
-      </Card.Header>
-      <Card.Body className="p-4">
+    <div className="bms-password-page">
+      <header className="bms-page-header">
+        <h1 className="bms-page-title">Đổi mật khẩu</h1>
+      </header>
+      <form className="bms-password-card" onSubmit={handleSubmit}>
         {errorMsg && <Alert variant="danger" dismissible onClose={() => setErrorMsg('')}>{errorMsg}</Alert>}
         {successMsg && <Alert variant="success" dismissible onClose={() => setSuccessMsg('')}>{successMsg}</Alert>}
 
-        <Form onSubmit={handleSubmit}>
-          {/* Current Password */}
-          <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold small">Mật khẩu hiện tại <span className="text-danger">*</span></Form.Label>
-            <InputGroup>
-              <Form.Control
-                type={showCurrent ? 'text' : 'password'}
-                placeholder="Nhập mật khẩu hiện tại"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-              />
-              <Button variant="outline-secondary" onClick={() => setShowCurrent(!showCurrent)}>
-                <i className={showCurrent ? 'bi bi-eye-slash' : 'bi bi-eye'}></i>
-              </Button>
-            </InputGroup>
-          </Form.Group>
+        <label className="bms-password-field">
+          Mật khẩu hiện tại
+          <span>
+            <input
+              type={showCurrent ? 'text' : 'password'}
+              placeholder="Nhập mật khẩu hiện tại"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+            <button type="button" onClick={() => setShowCurrent(!showCurrent)} aria-label="Hiện mật khẩu hiện tại">
+              {showCurrent ? 'Ẩn' : 'Hiện'}
+            </button>
+          </span>
+        </label>
 
-          {/* New Password */}
-          <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold small">Mật khẩu mới <span className="text-danger">*</span></Form.Label>
-            <InputGroup>
-              <Form.Control
-                type={showNew ? 'text' : 'password'}
-                placeholder="Tối thiểu 6 ký tự"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-              <Button variant="outline-secondary" onClick={() => setShowNew(!showNew)}>
-                <i className={showNew ? 'bi bi-eye-slash' : 'bi bi-eye'}></i>
-              </Button>
-            </InputGroup>
-            {newPassword && (
-              <div className="mt-2">
-                <div className="d-flex justify-content-between small text-muted mb-1">
-                  <span>Độ mạnh:</span>
-                  <span className={`fw-semibold text-${strength.variant}`}>{strength.label}</span>
-                </div>
-                <ProgressBar now={strength.score} variant={strength.variant} style={{ height: '6px' }} />
-              </div>
-            )}
-          </Form.Group>
-
-          {/* Confirm New Password */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold small">Xác nhận mật khẩu mới <span className="text-danger">*</span></Form.Label>
-            <InputGroup>
-              <Form.Control
-                type={showConfirm ? 'text' : 'password'}
-                placeholder="Nhập lại mật khẩu mới"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                required
-              />
-              <Button variant="outline-secondary" onClick={() => setShowConfirm(!showConfirm)}>
-                <i className={showConfirm ? 'bi bi-eye-slash' : 'bi bi-eye'}></i>
-              </Button>
-            </InputGroup>
-          </Form.Group>
-
-          <div className="d-flex justify-content-end gap-2">
-            <Button variant="outline-secondary" className="rounded-pill px-3" type="button" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
-              Hủy bỏ
-            </Button>
-            <Button variant="primary" type="submit" disabled={loading} className="rounded-pill fw-semibold px-4" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
-              {loading ? <Spinner animation="border" size="sm" /> : 'Cập Nhật Mật Khẩu'}
-            </Button>
+        <label className="bms-password-field">
+          Mật khẩu mới
+          <span>
+            <input
+              type={showNew ? 'text' : 'password'}
+              placeholder="Tối thiểu 6 ký tự"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <button type="button" onClick={() => setShowNew(!showNew)} aria-label="Hiện mật khẩu mới">
+              {showNew ? 'Ẩn' : 'Hiện'}
+            </button>
+          </span>
+        </label>
+        {newPassword && (
+          <div className="bms-password-strength">
+            <div><span>Độ mạnh</span><strong>{strength.label}</strong></div>
+            <ProgressBar now={strength.score} variant={strength.variant} />
           </div>
-        </Form>
-      </Card.Body>
-    </Card>
+        )}
+
+        <label className="bms-password-field">
+          Xác nhận mật khẩu mới
+          <span>
+            <input
+              type={showConfirm ? 'text' : 'password'}
+              placeholder="Nhập lại mật khẩu mới"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              required
+            />
+            <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label="Hiện mật khẩu xác nhận">
+              {showConfirm ? 'Ẩn' : 'Hiện'}
+            </button>
+          </span>
+        </label>
+
+        <div className="bms-password-actions">
+          <button type="button" className="is-ghost" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmNewPassword(''); }}>
+            Hủy bỏ
+          </button>
+          <button type="submit" className="is-primary" disabled={loading}>
+            {loading ? <Spinner animation="border" size="sm" /> : 'Cập nhật mật khẩu'}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

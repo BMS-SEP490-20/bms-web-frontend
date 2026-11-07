@@ -1,3 +1,553 @@
+/* Appointment list: same surface as the patient history pages. */
+.bms-appt-list .bms-appt-filter {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #d5e3f5;
+  border-radius: 16px;
+}
+
+.bms-appt-list .bms-appt-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.bms-appt-list .bms-appt-filter-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.bms-appt-list .bms-appt-filter input,
+.bms-appt-list .bms-appt-filter select {
+  width: 100% !important;
+  height: 36px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid #d5e3f5 !important;
+  border-radius: 10px !important;
+  background: #f8fbff !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  color: #0f2744 !important;
+}
+
+.bms-appt-list .bms-appt-filter-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.bms-appt-list .bms-appt-filter-meta button {
+  border: 0;
+  background: transparent;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bms-appt-list .bms-appt-table-wrap {
+  background: #ffffff;
+  border: 1px solid #d5e3f5;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.bms-appt-list .bms-appt-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.bms-appt-list .bms-appt-table th {
+  padding: 5px 14px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  background: #f8fafc !important;
+  border: 0 !important;
+  border-bottom: 1px solid #e6eef8 !important;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.bms-appt-list .bms-appt-table td {
+  padding: 12px 14px !important;
+  font-size: 13px !important;
+  color: #0f2744 !important;
+  background: #ffffff !important;
+  border: 0 !important;
+  border-bottom: 1px solid #e6eef8 !important;
+  vertical-align: middle !important;
+}
+
+.bms-appt-list .bms-appt-table tbody tr:nth-child(even) td {
+  background: #f5f9ff !important;
+}
+
+.bms-appt-list .bms-appt-table tbody tr:hover td {
+  background: #e8f2ff !important;
+}
+
+.bms-appt-list .bms-appt-table tbody tr:has(td[colspan]) td,
+.bms-appt-list .bms-appt-table tbody tr:has(td[colspan]):hover td {
+  background: #ffffff !important;
+  padding: 8px 14px !important;
+  cursor: default;
+}
+
+.bms-appt-list .bms-appt-table td[colspan] svg {
+  width: 14px !important;
+  height: 14px !important;
+  margin-bottom: 2px !important;
+}
+
+.bms-appt-list .bms-appt-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .bms-appt-list .bms-appt-filter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bms-pkg-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bms-pkg-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 8px;
+  border: 0;
+  border-bottom: 1px solid #eef2f6;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bms-pkg-item:last-child {
+  border-bottom: 0;
+}
+
+.bms-pkg-item:hover,
+.bms-pkg-item.is-selected {
+  background: transparent;
+}
+
+.bms-pkg-item.is-selected .bms-pkg-name,
+.bms-pkg-item.is-selected .bms-pkg-note,
+.bms-pkg-item.is-selected .bms-pkg-price {
+  color: #15803d;
+}
+
+.bms-pkg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+}
+
+.bms-pkg-item.is-selected .bms-pkg-icon {
+  background: transparent;
+}
+
+.bms-pkg-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bms-pkg-name {
+  font-size: 14px;
+  font-weight: 650;
+  color: #0f2744;
+  line-height: 1.35;
+}
+
+.bms-pkg-note {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.bms-pkg-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2744;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bms-book-cal {
+  padding: 8px 4px 4px;
+}
+
+.bms-book-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.bms-book-cal-head strong {
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f2744;
+}
+
+.bms-book-cal-head button,
+.bms-book-cal-grid button,
+.bms-book-shifts button,
+.bms-book-slots button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bms-book-cal-head button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d5e3f5;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f2744;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bms-book-cal-week,
+.bms-book-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.bms-book-cal-week span {
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
+}
+
+.bms-book-cal-grid {
+  justify-items: center;
+  align-items: center;
+  gap: 6px 0;
+}
+
+.bms-book-cal-grid button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 650;
+  color: #0f2744;
+}
+
+.bms-book-cal-grid button:hover:not(:disabled):not(.is-selected) {
+  background: #e8f6ee;
+  color: #15803d;
+}
+
+.bms-book-cal-grid button:disabled {
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.bms-book-cal-grid button.is-selected {
+  background: #15803d;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #dcfce7;
+}
+
+.bms-book-shifts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.bms-book-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.bms-book-shifts button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 84px;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.bms-book-shifts button strong {
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.bms-book-shifts button span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bms-book-shifts button.is-morning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.bms-book-shifts button.is-morning span { color: #ea580c; }
+
+.bms-book-shifts button.is-afternoon {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.bms-book-shifts button.is-afternoon span { color: #2563eb; }
+
+.bms-book-shifts button.is-evening {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.bms-book-shifts button.is-evening span { color: #7c3aed; }
+
+.bms-book-shifts button.is-morning.is-selected {
+  background: #f97316;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(249, 115, 22, 0.28);
+}
+
+.bms-book-shifts button.is-afternoon.is-selected {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+}
+
+.bms-book-shifts button.is-evening.is-selected {
+  background: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(124, 58, 237, 0.28);
+}
+
+.bms-book-shifts button.is-selected span {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.bms-book-doctor {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e6eef8;
+}
+
+.bms-book-doctor img {
+  width: 52px;
+  height: 52px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #f8fafc;
+  object-fit: contain;
+}
+
+.bms-book-doctor strong {
+  display: block;
+  font-size: 15px;
+  color: #0f2744;
+}
+
+.bms-book-doctor span,
+.bms-book-room span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.bms-book-doctor.is-empty {
+  grid-template-columns: 1fr;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.bms-book-doctor-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bms-book-doctor-picks button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d5e3f5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.bms-book-doctor-picks button.is-selected {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+.bms-book-doctor.is-morning img { background: #fff7ed; }
+.bms-book-doctor.is-afternoon img { background: #eff6ff; }
+.bms-book-doctor.is-evening img { background: #f5f3ff; }
+
+.bms-book-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.bms-book-slots button {
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.bms-book-slots button.is-selected {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.bms-book-slots button:disabled {
+  color: #cbd5e1;
+  background: transparent;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.bms-book-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.bms-book-actions button {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bms-book-actions button[type="button"] {
+  border: 1px solid #d5e3f5;
+  background: #ffffff;
+  color: #334155;
+}
+
+.bms-book-actions button[type="submit"] {
+  border: 0;
+  background: #1e40af;
+  color: #ffffff;
+}
+
+.bms-book-actions button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bms-book-duty {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.bms-book-patient {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e6eef8;
+  border-radius: 16px;
+}
+
+.bms-book-patient h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2744;
+}
+
+.bms-book-patient dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0;
+}
+
+.bms-book-patient dl div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+
+.bms-book-patient dt {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.bms-book-patient dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: #0f2744;
+}
+
 /* UC21 – Book appointment feature styles */
 .appt-page {
   background: var(--bg-page, #F4F7F9);

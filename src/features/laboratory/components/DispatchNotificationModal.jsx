@@ -196,7 +196,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="modal-body p-4" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                        <div className="modal-body p-2" style={{ maxHeight: "80vh", overflowY: "auto" }}>
                             {errorMessage && (
                                 <div className="alert alert-danger py-2 small mb-3">
                                     {errorMessage}
@@ -454,7 +454,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                             </div>
                         </div>
 
-                        <div className="modal-footer bg-light py-2 px-4">
+                        <div className="modal-footer bg-light py-2 px-3">
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary"

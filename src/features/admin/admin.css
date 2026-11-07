@@ -24,7 +24,7 @@
 
 .adm-page-head h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 16px;
   color: #0F172A;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -33,15 +33,15 @@
 
 .adm-sub {
   color: #64748B;
-  font-size: 13.5px;
+  font-size: 12px;
   margin-top: 4px;
   line-height: 1.5;
 }
 
 .adm-card {
   background: #FFFFFF;
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  border-radius: 18px;
+  border: none;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: none !important;
 }
@@ -50,9 +50,9 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  padding: 14px 20px;
+  padding: 10px 12px;
   background: #F8FAFC;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  border-bottom: none;
   flex-wrap: wrap;
 }
 
@@ -92,42 +92,6 @@
 
 .adm-table-wrap {
   overflow-x: auto;
-}
-
-.adm-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 13px;
-  color: #0F172A;
-}
-
-.adm-table th {
-  text-align: left;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #64748B;
-  padding: 13px 20px;
-  background: #F8FAFC;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-}
-
-.adm-table td {
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(241, 245, 249, 0.95);
-  vertical-align: middle;
-  color: #0F172A;
-  line-height: 1.45;
-}
-
-.adm-table tbody tr:hover td {
-  background-color: rgba(248, 250, 252, 0.85);
-}
-
-.adm-table tbody tr:last-child td {
-  border-bottom: none;
 }
 
 .adm-table .rt {
@@ -171,7 +135,7 @@
   font-weight: 600;
   background: #F1F5F9;
   color: #475569;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: none;
 }
 
 .adm-pill.ok {
@@ -268,8 +232,8 @@
 .adm-input {
   width: 100%;
   box-sizing: border-box;
-  height: 38px;
-  padding: 0 14px;
+  height: 34px;
+  padding: 0 12px;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   font-size: 13px;
@@ -316,7 +280,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: none !important;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border: none;
   overflow: hidden;
 }
 
@@ -383,7 +347,7 @@
 }
 
 .adm-picker {
-  border: 1px solid #E2E8F0;
+  border: none;
   border-radius: 10px;
   max-height: 240px;
   overflow-y: auto;

@@ -9,8 +9,8 @@
   font-weight: 700;
   color: var(--primary, #1E60E6);
   background-color: var(--primary-soft, #EDF3FE);
-  border: 1px solid rgba(30, 96, 230, 0.15);
-  padding: 4px 12px;
+  border: none;
+  padding: 2px 8px;
   border-radius: 9999px;
   display: inline-block;
   font-size: 12.5px;
@@ -29,11 +29,11 @@
 .bms-status-pill.active {
   background-color: #EEF8EB;
   color: #0F3D1A;
-  border: 1px solid rgba(163, 230, 135, 0.4);
+  border: none;
 }
 
 .bms-status-pill.inactive {
   background-color: #EEF2F6;
   color: #6B7280;
-  border: 1px solid rgba(15, 23, 42, 0.04);
+  border: none;
 }

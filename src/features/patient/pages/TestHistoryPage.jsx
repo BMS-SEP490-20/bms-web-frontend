@@ -82,14 +82,14 @@ function HistoryDetail({ id, onClose }) {
       show
       placement="end"
       onHide={onClose}
-      style={{ width: 'min(95vw, 920px)', borderLeft: '1px solid #E2E8F0', boxShadow: 'none' }}
+      style={{ width: 'min(95vw, 920px)', boxShadow: 'none' }}
     >
-      <Offcanvas.Header closeButton className="border-bottom px-4 py-3 bg-light">
+      <Offcanvas.Header closeButton className="border-bottom px-3 py-3 bg-light">
         <Offcanvas.Title className="fs-6 fw-bold text-dark d-flex align-items-center gap-2">
           <FaShieldAlt className="text-primary" /> Chi Tiết Kết Quả Xét Nghiệm
         </Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className="p-4">
+      <Offcanvas.Body className="p-2">
         {loading ? (
           skeleton
         ) : error ? (
@@ -283,16 +283,12 @@ export default function TestHistoryPage() {
   return (
     <div className="bms-payhistory-content">
       {/* 1. Header */}
-      <header className="bms-payhistory-header">
-        <div className="bms-payhistory-badge">
-          <FaShieldAlt className="me-1" /> KẾT QUẢ XÉT NGHIỆM • ISO 15189:2022
-        </div>
+      <header className="bms-page-header">
+        
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div>
             <h1 className="bms-payhistory-title">Lịch Sử Xét Nghiệm</h1>
-            <p className="bms-payhistory-subtitle">
-              Tra cứu hồ sơ kết quả xét nghiệm đã hoàn thành và xem phân tích lâm sàng chi tiết.
-            </p>
+            
           </div>
           <Button
             variant="outline-primary"
@@ -307,7 +303,7 @@ export default function TestHistoryPage() {
       </header>
 
       {/* 2. Filter Toolbar */}
-      <div className="bms-pay-toolbar">
+      <div className="bms-filter-bar">
         <div className="bms-pay-filter-group w-100 flex-wrap">
           <div className="position-relative flex-grow-1" style={{ minWidth: 240 }}>
             <Form.Label htmlFor="history-search" className="visually-hidden">
@@ -420,7 +416,7 @@ export default function TestHistoryPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-5 text-muted">
+                  <td colSpan={6} className="text-center py-3 text-muted">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                     Đang nạp dữ liệu lịch sử xét nghiệm y khoa...
                   </td>
@@ -474,7 +470,7 @@ export default function TestHistoryPage() {
                 ))
               ) : !error && !invalid ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-5 text-muted">
+                  <td colSpan={6} className="text-center py-3 text-muted">
                     <FaHistory size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có kết quả xét nghiệm phù hợp</div>
                     <div className="small text-muted mt-1">Vui lòng thay đổi bộ lọc hoặc kiểm tra hồ sơ xét nghiệm.</div>
@@ -484,10 +480,10 @@ export default function TestHistoryPage() {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* 4. Pagination */}
-        {data && (
-          <div className="bms-pay-pagination">
+      {data && (
+        <div className="bms-pay-pagination">
             <div className="d-flex align-items-center gap-2">
               <span className="small text-muted" style={{ fontSize: 12 }}>Hiển thị:</span>
               <Form.Select
@@ -531,8 +527,7 @@ export default function TestHistoryPage() {
               </Button>
             </div>
           </div>
-        )}
-      </div>
+      )}
 
       {id && <HistoryDetail key={id} id={id} onClose={() => setParams({})} />}
     </div>

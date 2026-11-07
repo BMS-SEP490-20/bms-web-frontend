@@ -304,20 +304,12 @@ export default function DoctorConsolePage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Top Banner & Room Switcher */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border" style={{ borderColor: '#e2e8f0' }}>
-        <div>
-          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
-            <FaUserMd /> Bàn Khám Bác Sĩ & Điều Phối Bệnh Nhân
-          </h3>
-          <div className="small text-muted d-flex align-items-center gap-2">
-            <span>Bác sĩ phụ trách: <strong>{currentUser?.fullName || currentUser?.name || 'BS. Nguyễn Minh'}</strong></span>
-            <span>•</span>
-            <span className="fw-semibold" style={{ color: '#059669' }}>Ca trực: Đang hoạt động</span>
-          </div>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Bàn khám</h1>
         </div>
-
         <div className="d-flex align-items-center gap-3">
           <div className="d-flex align-items-center gap-2">
             <label className="small fw-semibold text-secondary mb-0">Phòng khám:</label>
@@ -344,7 +336,7 @@ export default function DoctorConsolePage() {
             <FaRedo className={loading ? 'fa-spin' : ''} />
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Alerts */}
       {verifiedAlert && (
@@ -395,7 +387,7 @@ export default function DoctorConsolePage() {
         {/* Left Column: Active Patient Console */}
         <Col lg={7}>
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-            <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
+            <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
               <span className="fw-bold text-uppercase small tracking-wide">
                 Bệnh Nhân Đang Khám / Lấy Mẫu
               </span>
@@ -404,7 +396,7 @@ export default function DoctorConsolePage() {
               </Badge>
             </Card.Header>
 
-            <Card.Body className="p-4 d-flex flex-column justify-content-between">
+            <Card.Body className="p-2 d-flex flex-column justify-content-between">
               {currentServing ? (
                 <div>
                   <div className="d-flex justify-content-between align-items-start mb-4">
@@ -528,7 +520,7 @@ export default function DoctorConsolePage() {
 
                     <Button
                       variant="success"
-                      className="d-flex align-items-center gap-2 px-4 fw-bold shadow-sm ms-auto text-white"
+                      className="d-flex align-items-center gap-2 px-3 fw-bold shadow-sm ms-auto text-white"
                       style={{ backgroundColor: '#059669', borderColor: '#059669' }}
                       onClick={() => setShowCompleteModal(true)}
                       disabled={actionLoading}
@@ -538,7 +530,7 @@ export default function DoctorConsolePage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-5 my-auto">
+                <div className="text-center py-3 my-auto">
                   <div className="display-1 text-muted opacity-25 mb-3">
                     <FaUserInjured />
                   </div>
@@ -584,7 +576,7 @@ export default function DoctorConsolePage() {
         {/* Right Column: Waiting Queue List */}
         <Col lg={5}>
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-            <Card.Header className="bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: '#e2e8f0' }}>
+            <Card.Header className="bg-white py-3 px-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: '#e2e8f0' }}>
               <div>
                 <h5 className="fw-bold mb-0 text-dark">Hàng Đợi Chờ Khám</h5>
                 <small className="text-muted">Bệnh nhân đã Check-in và đang chờ gọi số</small>
@@ -607,7 +599,7 @@ export default function DoctorConsolePage() {
                 <tbody>
                   {!Array.isArray(waitingList) || waitingList.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="text-center py-5 text-muted">
+                      <td colSpan={4} className="text-center py-3 text-muted">
                         <div className="fs-3 mb-2">🎉</div>
                         <div className="fw-semibold">Hàng đợi đang rỗng</div>
                         <div className="small">Hiện không có bệnh nhân nào đang chờ tại phòng khám.</div>

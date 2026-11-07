@@ -238,7 +238,7 @@ export default function ReferenceIntervalModal({
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {validationError && (
             <Alert variant="danger" className="py-2 mb-3">
               <FaExclamationTriangle className="me-2" />

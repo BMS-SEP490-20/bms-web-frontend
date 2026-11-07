@@ -174,21 +174,14 @@ export default function ConfigureIotThresholdsPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>GIÁM SÁT THIẾT BỊ · CẤU HÌNH CẢM BIẾN IOT (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaThermometerHalf size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Cấu Hình Ngưỡng Cảm Biến Môi Trường IoT Tủ Trữ Mẫu
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Thiết lập giới hạn an toàn nhiệt độ (2°C - 8°C), độ ẩm (30% - 60%) và tần suất đo telemetry cho thiết bị lưu trữ mẫu y tế và sinh phẩm.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -204,7 +197,7 @@ export default function ConfigureIotThresholdsPage() {
                     </button>
                     <button
                         type="button"
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-4 py-2 fw-semibold"
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3 py-2 fw-semibold"
                         style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         onClick={handleSaveAll}
                         disabled={saving}
@@ -223,7 +216,7 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
             {successMessage && (
-                <div className="alert alert-success d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px', border: '1px solid #10B981' }}>
+                <div className="alert alert-success d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px' }}>
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#2b8a3e' }}></i>
                     <div>{successMessage}</div>
                 </div>
@@ -245,7 +238,7 @@ export default function ConfigureIotThresholdsPage() {
 
                 <div className="bms-table-standalone-body">
                     {loading ? (
-                        <div className="p-5 text-center text-muted">
+                        <div className="p-3 text-center text-muted">
                             <div className="spinner-border text-primary" role="status"></div>
                             <div className="mt-2" style={{ fontSize: '13px' }}>Đang nạp dữ liệu ngưỡng cảm biến IoT...</div>
                         </div>
@@ -331,27 +324,26 @@ export default function ConfigureIotThresholdsPage() {
             </div>
 
             {/* Thẻ 2: Danh Sách Nhân Sự Nhận Cảnh Báo Khẩn Cấp (Escalation Chain) */}
-            <div className="card shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
-                <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card shadow-sm" style={{ borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
+                <div className="card-header py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
                     <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1E60E6' }}>
                         Nhân Sự Trực Tiếp Nhận Cảnh Báo Khi Vi Phạm Ngưỡng
                     </h3>
                     <button
                         className="btn btn-sm"
-                        style={{ fontSize: '12.5px', fontWeight: '600', borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6', border: '1px solid #1E60E6', padding: '6px 14px' }}
+                        style={{ fontSize: '12.5px', fontWeight: '600', borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6', padding: '6px 14px' }}
                         onClick={() => setShowAddModal(true)}
                     >
                         <i className="bi bi-person-plus me-1"></i> Thêm người nhận cảnh báo
                     </button>
                 </div>
-                <div className="card-body p-4">
+                <div className="card-body p-2">
                     <div className="d-flex flex-wrap gap-2 mb-3">
                         {safeRecipients.map((rec) => (
                             <div
                                 key={rec.id}
                                 style={{
                                     background: '#EEF2F6',
-                                    border: '1px solid rgba(15, 23, 42, 0.05)',
                                     borderRadius: '9999px',
                                     padding: '6px 14px',
                                     fontSize: '12.5px',
@@ -374,7 +366,7 @@ export default function ConfigureIotThresholdsPage() {
                         ))}
                     </div>
 
-                    <div style={{ background: 'rgba(30, 96, 230, 0.08)', border: '1px solid rgba(30, 96, 230, 0.25)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
+                    <div style={{ background: 'rgba(30, 96, 230, 0.08)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
                         <i className="bi bi-info-circle-fill me-2" style={{ color: '#1E60E6' }}></i>
                         <span>{escalationPolicy || 'Chính sách thông báo leo thang: Thông báo đẩy ứng dụng (Push) + Email nội viện tức thời. Tự động gửi SMS cảnh báo đến Trưởng Khoa nếu sau 5 phút không có xác nhận can thiệp.'}</span>
                     </div>
@@ -391,13 +383,13 @@ export default function ConfigureIotThresholdsPage() {
                                 <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
                             </div>
                             <form onSubmit={handleAddRecipientSubmit}>
-                                <div className="modal-body p-4">
+                                <div className="modal-body p-2">
                                     <div className="mb-3">
                                         <label className="form-label text-muted small fw-bold">Họ và Tên Nhân Sự <span className="text-danger">*</span></label>
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                             required
                                             value={newRecipient.fullName}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, fullName: e.target.value })}
@@ -409,7 +401,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                             required
                                             value={newRecipient.role}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, role: e.target.value })}
@@ -421,7 +413,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="email"
                                             className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                             value={newRecipient.email}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, email: e.target.value })}
                                             placeholder="lananh.le@medlab.bms.vn"
@@ -432,7 +424,7 @@ export default function ConfigureIotThresholdsPage() {
                                         <input
                                             type="text"
                                             className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                             value={newRecipient.phone}
                                             onChange={(e) => setNewRecipient({ ...newRecipient, phone: e.target.value })}
                                             placeholder="0912345678"

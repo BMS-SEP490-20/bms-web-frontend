@@ -382,21 +382,14 @@ export default function DoctorSchedulePage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaCalendarAlt size={12} />
-            <span>ĐIỀU PHỐI NHÂN LỰC Y TẾ (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaCalendarAlt size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Quản Lý Ca Trực &amp; Điều Phối Lịch Làm Việc
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Xem danh sách ca trực, phân công bác sĩ/nhân viên xét nghiệm, kiểm soát trùng lịch và quản lý công suất tiếp nhận.
-          </p>
+          
         </div>
 
         <div className="bms-page-actions">
@@ -415,7 +408,7 @@ export default function DoctorSchedulePage() {
               variant="primary"
               size="sm"
               onClick={handleOpenCreate}
-              className="d-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm text-white"
+              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white"
               style={{
                 backgroundColor: '#1E60E6',
                 borderColor: '#1E60E6',
@@ -511,7 +504,7 @@ export default function DoctorSchedulePage() {
             </p>
           </div>
 
-          <div className="w-100 pt-2 border-top">
+          <div className="bms-filter-bar">
             <Row className="g-2 align-items-center">
               <Col xs={12} md={4} lg={3}>
                 <div className="bms-search-input-pill">
@@ -540,7 +533,7 @@ export default function DoctorSchedulePage() {
                   size="sm"
                   value={shiftTypeFilter}
                   onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
                 >
                   <option value="">Tất cả ca trực</option>
                   <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
@@ -556,7 +549,7 @@ export default function DoctorSchedulePage() {
                   size="sm"
                   value={statusFilter}
                   onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
                 >
                   <option value="">Tất cả trạng thái</option>
                   <option value="Approved">Đã Duyệt (Approved)</option>
@@ -574,7 +567,7 @@ export default function DoctorSchedulePage() {
                   size="sm"
                   value={fromDate}
                   onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
                   title="Từ ngày"
                 />
               </Col>
@@ -585,7 +578,7 @@ export default function DoctorSchedulePage() {
                   size="sm"
                   value={toDate}
                   onChange={(e) => { setToDate(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', border: '1px solid #CBD5E1', padding: '0 14px' }}
+                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
                   title="Đến ngày"
                 />
               </Col>
@@ -621,14 +614,14 @@ export default function DoctorSchedulePage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-5">
+                  <td colSpan="8" className="text-center py-3">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                     <span className="text-muted">Đang tải danh sách ca làm việc từ máy chủ...</span>
                   </td>
                 </tr>
               ) : shifts.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-5 text-muted">
+                  <td colSpan="8" className="text-center py-3 text-muted">
                     <FaUserMd className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50" />
                     <div className="fw-semibold">Không tìm thấy ca làm việc nào phù hợp</div>
                     <div className="small mb-3">Thử xoá bộ lọc ngày hoặc nhấn &ldquo;Tạo Ca Làm Việc Mới&rdquo; để phân ca.</div>
@@ -771,7 +764,7 @@ export default function DoctorSchedulePage() {
         </div>
 
         {/* Pagination Footer */}
-        <div className="bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <div className="bg-white border-top py-3 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
           <div className="text-muted small">
             Tổng cộng <strong>{totalItems}</strong> ca làm việc • Trang <strong>{page}</strong> / <strong>{totalPages}</strong>
           </div>
@@ -816,7 +809,7 @@ export default function DoctorSchedulePage() {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             {formError && (
               <Alert variant="danger" className="py-2 small">
                 <FaExclamationTriangle className="me-2" />
@@ -1118,7 +1111,7 @@ export default function DoctorSchedulePage() {
             <span>Chi Tiết Ca Làm Việc & Phân Công Nhân Sự</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {detailLoading && (
             <div className="text-center py-2 mb-3">
               <Spinner animation="border" size="sm" variant="primary" className="me-2" />
@@ -1224,7 +1217,7 @@ export default function DoctorSchedulePage() {
             <span>Xác Nhận Xoá Ca Làm Việc</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {deleteError && (
             <Alert variant="danger" className="py-2 small">
               <FaExclamationTriangle className="me-2" />

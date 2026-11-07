@@ -20,6 +20,7 @@ import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 import usePageTransition from '../../shared/hooks/usePageTransition';
+import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
 import './landing-sections.css';
 
 const LANDING_SECTIONS = [
@@ -234,6 +235,14 @@ export default function GuestHomePage() {
   }, []);
 
   const handleBookClick = (pkg) => {
+    const signedIn = getStoredUser();
+    if (signedIn && resolveRoleId(signedIn) === ROLES.PATIENT) {
+      const pkgId = pkg?.packageCode || pkg?.packageId || pkg?.id || '';
+      window.location.href = pkgId
+        ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}`
+        : '/appointments/book';
+      return;
+    }
     setSelectedPackage(pkg);
     setShowRequireLoginModal(true);
   };
@@ -261,7 +270,7 @@ export default function GuestHomePage() {
                   alt="Chính Xác, Khép Kín &amp; Tin Cậy"
                   style={{
                     display: 'block',
-                    height: '100px',
+                    height: '132px',
                     width: 'auto',
                     maxWidth: '100%',
                     objectFit: 'contain',

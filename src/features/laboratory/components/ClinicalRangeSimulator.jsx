@@ -119,7 +119,7 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
         </Badge>
       </Card.Header>
 
-      <Card.Body className="p-4">
+      <Card.Body className="p-2">
         {errorMsg && (
           <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="py-2 mb-3">
             <FaExclamationTriangle className="me-2" />
@@ -212,7 +212,7 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
         </Form>
 
         {evalResult && (
-          <div className="mt-4 p-3 rounded" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div className="mt-4 p-3 rounded" style={{ backgroundColor: '#f8fafc' }}>
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
               <div className="d-flex align-items-center gap-3">
                 {evalResult.isPanic ? (

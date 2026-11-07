@@ -475,7 +475,7 @@ const DoctorDashboard = () => {
                         Phê Duyệt Điện Tử Kết Quả Xét Nghiệm (Bác Sĩ)
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="p-4">
+                <Modal.Body className="p-2">
                     {selectedApproveApt && (
                         <div>
                             <div className="p-3 bg-light rounded-3 mb-3 border">
@@ -535,7 +535,7 @@ const DoctorDashboard = () => {
                     <Button variant="secondary" onClick={handleCloseApproveModal} disabled={approving}>
                         Đóng
                     </Button>
-                    <Button variant="success" className="fw-bold px-4" onClick={handleConfirmApprove} disabled={approving}>
+                    <Button variant="success" className="fw-bold px-3" onClick={handleConfirmApprove} disabled={approving}>
                         {approving ? (
                             <>
                                 <Spinner animation="border" size="sm" className="me-2" />
@@ -553,7 +553,7 @@ const DoctorDashboard = () => {
     );
 
     return (
-        <Container fluid className="py-4 px-4 bg-light" style={{ 
+        <Container fluid className="py-2 px-3 bg-light" style={{ 
           minHeight: '100vh',
           overflowX: 'hidden', 
           maxWidth: '100%', 
@@ -571,7 +571,7 @@ const DoctorDashboard = () => {
                     </p>
                 </Col>
                 <Col xs={12} md="auto" className="mt-2 mt-md-0">
-                    <Button variant="primary" className="rounded-pill px-4 shadow-sm w-100 w-md-auto" onClick={loadData} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+                    <Button variant="primary" className="rounded-pill px-3 shadow-sm w-100 w-md-auto" onClick={loadData} style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                         <i className="fas fa-sync-alt me-2"></i>Làm mới
                     </Button>
                 </Col>
@@ -624,7 +624,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => navigate('/doctor/schedule')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #198754' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
                             >
                                 <div className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-calendar-check fa-lg"></i>
@@ -641,7 +641,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => navigate('/doctor/appointments')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
                             >
                                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-calendar-alt fa-lg"></i>
@@ -658,7 +658,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => setActiveFilterTab('pending_approval')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #ffc107' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
                             >
                                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-file-signature fa-lg"></i>
@@ -675,7 +675,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => navigate('/doctor/patients')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0dcaf0' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
                             >
                                 <div className="rounded-3 bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-user-injured fa-lg"></i>
@@ -692,7 +692,7 @@ const DoctorDashboard = () => {
                             <div 
                                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                                 onClick={() => navigate('/notifications')}
-                                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #fd7e14' }}
+                                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
                             >
                                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                                     <i className="fas fa-bell fa-lg"></i>
@@ -711,7 +711,7 @@ const DoctorDashboard = () => {
             <Row>
                 <Col lg={12}>
                     <Card className="border-0 shadow-sm rounded-4">
-                        <Card.Header className="bg-white border-bottom-0 py-4 px-4">
+                        <Card.Header className="bg-white border-bottom-0 py-2 px-3">
                             <Row className="align-items-center">
                                 <Col xs={12} md={6}>
                                     <h5 className="mb-0 fw-bold text-primary" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
@@ -851,7 +851,7 @@ const DoctorDashboard = () => {
                                     </Table>
                                 </div>
                             ) : (
-                                <div className="text-center py-5">
+                                <div className="text-center py-3">
                                     <div className="mb-3 opacity-25">
                                         <i className="fas fa-clipboard-check fa-4x text-primary"></i>
                                     </div>
@@ -881,7 +881,7 @@ const DoctorDashboard = () => {
                         Phê Duyệt Điện Tử Kết Quả Xét Nghiệm (Bác Sĩ)
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="p-4">
+                <Modal.Body className="p-2">
                     {selectedApproveApt && (
                         <div>
                             <div className="p-3 bg-light rounded-3 mb-3 border">
@@ -941,7 +941,7 @@ const DoctorDashboard = () => {
                     <Button variant="secondary" onClick={handleCloseApproveModal} disabled={approving}>
                         Đóng
                     </Button>
-                    <Button variant="success" className="fw-bold px-4" onClick={handleConfirmApprove} disabled={approving}>
+                    <Button variant="success" className="fw-bold px-3" onClick={handleConfirmApprove} disabled={approving}>
                         {approving ? (
                             <>
                                 <Spinner animation="border" size="sm" className="me-2" />

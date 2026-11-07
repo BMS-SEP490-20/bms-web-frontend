@@ -107,7 +107,7 @@ export default function PatientHomePage({ user: propUser }) {
                 alt="Chính Xác, Khép Kín &amp; Tin Cậy"
                 style={{
                   display: 'block',
-                  height: '100px',
+                  height: '132px',
                   width: 'auto',
                   maxWidth: '100%',
                   objectFit: 'contain',

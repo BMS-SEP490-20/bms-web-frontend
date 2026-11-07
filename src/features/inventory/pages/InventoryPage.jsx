@@ -2,8 +2,7 @@
  * @description UC56 inventory list and detail view, consistent with the existing clinical workspace.
  */
 import React, { useEffect, useState } from 'react';
-import { Alert, Badge, Breadcrumb, Button, Card, Col, Form, Modal, Row, Table } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Alert, Badge, Button, Col, Form, Modal, Row, Table } from 'react-bootstrap';
 import { FaBoxOpen, FaEye, FaRedo, FaSearch } from 'react-icons/fa';
 import { getInventory, getInventoryDetail, inventoryError } from '../api/inventoryApi';
 import InventoryFormModal from '../components/InventoryFormModal';
@@ -81,36 +80,51 @@ export default function InventoryPage() {
   const clear = () => { setSearch(''); setFilters({ ...defaults }); };
   const skeleton = <div aria-label="Đang tải dữ liệu" aria-busy="true">{[1, 2, 3, 4].map((n) => <div key={n} className="bms-skeleton mb-3" style={{ height: 38 }} />)}</div>;
   const item = detail?.item;
-  return <div className="py-3">
-    <Breadcrumb className="mb-3"><Breadcrumb.Item linkAs={Link} linkProps={{ to: '/' }}>Trang Chủ</Breadcrumb.Item><Breadcrumb.Item active>Kho hóa chất</Breadcrumb.Item></Breadcrumb>
-    <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4">
-      <div><h4 className="fw-bold mb-1" style={{ color: '#0F172A' }}><FaBoxOpen className="me-2" style={{ color: '#1E60E6' }} />Quản Lý Kho Hóa Chất & Sinh Phẩm</h4><p className="text-muted mb-0">Theo dõi từng lô, mức tồn tối thiểu và hạn sử dụng.</p></div>
-      <div className="d-flex gap-2">{canManage && <Button className="rounded-pill shadow-sm px-3" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô hóa chất</Button>}<Button variant="outline-primary" className="rounded-pill px-3" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
+  const summaryValue = (key) => data?.summary?.[key[0].toLowerCase() + key.slice(1)];
+  return <div className="bms-inventory-page">
+    <header className="bms-page-header">
+      <div className="bms-page-header-content"><h1 className="bms-page-title">Kho hóa chất</h1></div>
+      <div className="bms-page-actions">{canManage && <Button className="rounded-pill px-3" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setSuccess(''); setShowCreate(true); }}>Thêm lô</Button>}<Button variant="outline-primary" className="rounded-pill px-3" disabled={loading} onClick={() => setRefresh((v) => v + 1)}><FaRedo className="me-2" />Làm mới</Button></div>
+    </header>
+    <div className="bms-inventory-kpis">
+      {[['Total', 'Số lô phù hợp', '#1E60E6'], ['LowStock', 'Tồn thấp', '#B45309'], ['ExpiringSoon', 'Sắp hết hạn', '#B45309'], ['Expired', 'Đã hết hạn', '#dc3545']].map(([key, label, color]) =>
+        <article className="bms-inventory-kpi" key={key}>
+          <span>{label}</span>
+          <strong style={{ color }}>{loading ? '…' : summaryValue(key) ?? '—'}</strong>
+        </article>)}
     </div>
-    <Row className="g-3 mb-4">{[['Total', 'Số lô phù hợp', '#1E60E6'], ['LowStock', 'Tồn thấp', '#B45309'], ['ExpiringSoon', 'Sắp hết hạn', '#B45309'], ['Expired', 'Đã hết hạn', '#dc3545']].map(([key, label, color]) =>
-      <Col sm={6} xl={3} key={key}><Card className="border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}><Card.Body><div className="text-muted small mb-1">{label}</div><div className="fs-3 fw-bold" style={{ color, fontVariantNumeric: 'tabular-nums' }}>{loading ? '…' : data?.summary?.[key[0].toLowerCase() + key.slice(1)] ?? '—'}</div></Card.Body></Card></Col>)}</Row>
-    <Card className="border-0 shadow-sm mb-4 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}><Card.Body className="p-4">
-      <Row className="g-3 align-items-end">
-        <Col lg={4}><Form.Label htmlFor="inventory-search" className="fw-semibold small"><FaSearch className="me-2" style={{ color: '#1E60E6' }} />Tìm kiếm</Form.Label><Form.Control id="inventory-search" className="rounded-3" style={{ backgroundColor: '#EEF2F6' }} value={search} maxLength={100} placeholder="Mã, tên hóa chất, số lô, hãng sản xuất" onChange={(e) => setSearch(e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="inventory-status" className="fw-semibold small">Cảnh báo</Form.Label><Form.Select id="inventory-status" className="rounded-3" style={{ backgroundColor: '#EEF2F6' }} value={filters.status} onChange={(e) => change('status', e.target.value)}><option value="">Tất cả</option><option value="LOW_STOCK">Tồn thấp</option>{Object.entries(expiryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</Form.Select></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-from" className="fw-semibold small">Hạn dùng từ</Form.Label><Form.Control id="expiry-from" type="date" className="rounded-3" style={{ backgroundColor: '#EEF2F6' }} value={filters.expiryFrom} onChange={(e) => change('expiryFrom', e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Form.Label htmlFor="expiry-to" className="fw-semibold small">Hạn dùng đến</Form.Label><Form.Control id="expiry-to" type="date" className="rounded-3" style={{ backgroundColor: '#EEF2F6' }} value={filters.expiryTo} onChange={(e) => change('expiryTo', e.target.value)} /></Col>
-        <Col sm={6} lg={2}><Button variant="outline-secondary" className="w-100 rounded-pill" onClick={clear}>Xóa bộ lọc</Button></Col>
-      </Row>
-      <p className="small text-muted mt-3 mb-0">Tồn thấp khi số lượng ≤ mức tối thiểu. Sắp hết hạn khi còn dưới 30 ngày; số liệu cảnh báo tính trên toàn bộ kết quả lọc.</p>
-    </Card.Body></Card>
+    <section className="bms-inventory-filter">
+      <div className="bms-inventory-filter-grid">
+        <label htmlFor="inventory-search"><FaSearch /> Tìm kiếm
+          <Form.Control id="inventory-search" value={search} maxLength={100} placeholder="Mã, tên hóa chất, số lô, hãng sản xuất" onChange={(e) => setSearch(e.target.value)} />
+        </label>
+        <label htmlFor="inventory-status">Cảnh báo
+          <Form.Select id="inventory-status" value={filters.status} onChange={(e) => change('status', e.target.value)}><option value="">Tất cả</option><option value="LOW_STOCK">Tồn thấp</option>{Object.entries(expiryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</Form.Select>
+        </label>
+        <label htmlFor="expiry-from">Hạn dùng từ
+          <Form.Control id="expiry-from" type="date" value={filters.expiryFrom} onChange={(e) => change('expiryFrom', e.target.value)} />
+        </label>
+        <label htmlFor="expiry-to">Hạn dùng đến
+          <Form.Control id="expiry-to" type="date" value={filters.expiryTo} onChange={(e) => change('expiryTo', e.target.value)} />
+        </label>
+        <Button variant="outline-secondary" className="bms-inventory-clear" onClick={clear}>Xóa bộ lọc</Button>
+      </div>
+      <p>Tồn thấp khi số lượng không vượt mức tối thiểu. Sắp hết hạn khi còn dưới 30 ngày.</p>
+    </section>
     {success && <Alert variant="success" role="status" dismissible onClose={() => setSuccess('')} className="rounded-3">{success}</Alert>}
     {invalidDates && <Alert variant="warning" className="rounded-3">Hạn dùng từ phải trước hoặc bằng hạn dùng đến.</Alert>}
     {error && <Alert variant="danger" role="alert" className="rounded-3">{error} <Button variant="outline-danger" size="sm" className="rounded-pill ms-2" onClick={() => setRefresh((v) => v + 1)}>Thử lại</Button></Alert>}
-    <Card className="border-0 shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}><Card.Body className="p-4">
-      <div className="d-flex justify-content-between mb-3"><h6 className="fw-bold mb-0" style={{ color: '#0F172A' }}>Danh sách lô hóa chất</h6><span className="small text-muted" role="status">{data?.total ?? 0} kết quả</span></div>
+    <section className="bms-table-standalone-section">
+      <div className="bms-table-standalone-header"><h2 className="bms-table-standalone-title">Danh sách lô hóa chất</h2><span className="small text-muted" role="status">{data?.total ?? 0} kết quả</span></div>
+      <div className="bms-table-standalone-body">
       {loading ? skeleton : data?.items.length ? <>
         <Table responsive hover className="align-middle"><thead className="table-light"><tr><th>Mã / Tên hóa chất</th><th>Số lô / Hãng</th><th className="text-end">Tồn / Tối thiểu</th><th>Hạn dùng</th><th className="text-center">Cảnh báo</th><th className="text-center">Chi tiết</th></tr></thead><tbody>
           {data.items.map((row) => <tr key={row.id}><td><div className="font-monospace fw-semibold" style={{ color: '#1E60E6' }}>{row.code}</div><div className="fw-semibold">{row.name}</div></td><td><div>{row.lotNumber || '—'}</div><small className="text-muted">{row.manufacturer || '—'}</small></td><td className="text-end"><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.quantity)}</strong> / <span style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.minimumStock)}</span><div className="small text-muted">{row.unit}</div></td><td className="text-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(row.expiryDate)}</td><td className="text-center"><ExpiryBadge item={row} />{row.isLowStock && <div className="mt-1"><Badge pill bg="warning" text="dark" className="px-2">Tồn thấp</Badge></div>}</td><td className="text-center"><Button size="sm" variant="outline-primary" className="rounded-circle p-2" aria-label={`Xem lô ${row.lotNumber || row.code}`} onClick={() => setSelectedId(row.id)}><FaEye /></Button></td></tr>)}
         </tbody></Table>
         <div className="d-flex flex-wrap align-items-center justify-content-between gap-3"><Form.Select aria-label="Số lô mỗi trang" className="rounded-3" style={{ width: 150 }} value={filters.pageSize} onChange={(e) => change('pageSize', Number(e.target.value))}>{[20, 50, 100].map((n) => <option key={n} value={n}>{n} lô / trang</option>)}</Form.Select><div className="d-flex gap-3 align-items-center"><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page <= 1} onClick={() => setFilters((v) => ({ ...v, page: v.page - 1 }))}>Trước</Button><span className="small">Trang {data.page}/{data.totalPages}</span><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page >= data.totalPages} onClick={() => setFilters((v) => ({ ...v, page: v.page + 1 }))}>Sau</Button></div></div>
-      </> : !error && !invalidDates && <div className="text-center text-muted py-5"><FaBoxOpen size={40} className="mb-3" style={{ color: '#1E60E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p>Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-4" onClick={clear}>Xóa bộ lọc</Button></div>}
-    </Card.Body></Card>
+      </> : !error && !invalidDates && <div className="text-center text-muted py-3"><FaBoxOpen size={40} className="mb-3" style={{ color: '#1E60E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p>Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
+      </div>
+    </section>
     <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="xl" scrollable>
       <Modal.Header closeButton><Modal.Title className="h5">Chi tiết lô hóa chất</Modal.Title></Modal.Header><Modal.Body>
         {detailLoading ? skeleton : detailError ? <Alert variant="danger">{detailError} <Button size="sm" variant="outline-danger" onClick={() => setDetailRefresh((v) => v + 1)}>Thử lại</Button></Alert> : item && <>

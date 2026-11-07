@@ -45,6 +45,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
 import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
+import '../appointment.css';
 
 const HOLD_DURATION_MS = 15 * 60 * 1000;
 
@@ -327,18 +328,13 @@ export default function AppointmentListPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-lg-4">
+    <div className="bms-appt-list">
       {/* Header title */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-        <div>
-          <h2 className="fw-bold mb-1 text-primary d-flex align-items-center gap-2">
-            <FaCalendarAlt /> {isPatient ? 'Lịch Khám & Hẹn Lấy Mẫu Của Tôi' : 'Quản Lý Lịch Hẹn Khám & Lấy Mẫu'}
-          </h2>
-          <p className="text-muted mb-0 small">
-            {isPatient 
-              ? 'Theo dõi, tra cứu thời gian hẹn và thông tin phòng khám hoặc lấy mẫu tại nhà của bạn.' 
-              : 'Theo dõi, tra cứu và điều phối danh sách cuộc hẹn khám bệnh & lấy mẫu tại phòng khám hoặc tại nhà.'}
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">
+            {isPatient ? 'Lịch hẹn của tôi' : 'Lịch hẹn'}
+          </h1>
         </div>
         <div className="d-flex align-items-center gap-2">
           {isPatient && (
@@ -356,7 +352,7 @@ export default function AppointmentListPage() {
             <FaRedo className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Date Validation Alert */}
       {dateValidationWarning && (
@@ -374,122 +370,91 @@ export default function AppointmentListPage() {
       )}
 
       {/* Filters Card */}
-      <Card className="border-0 shadow-sm rounded-3 mb-4">
-        <Card.Body className="p-3">
-          <Row className="g-3 align-items-end">
-            <Col md={3} sm={6}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Từ ngày</Form.Label>
-              <InputGroup size="sm">
-                <InputGroup.Text><FaCalendarAlt className="text-muted" /></InputGroup.Text>
-                <Form.Control
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                    setPage(1);
-                  }}
-                />
-              </InputGroup>
-            </Col>
-
-            <Col md={3} sm={6}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Đến ngày</Form.Label>
-              <InputGroup size="sm">
-                <InputGroup.Text><FaCalendarAlt className="text-muted" /></InputGroup.Text>
-                <Form.Control
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                    setPage(1);
-                  }}
-                />
-              </InputGroup>
-            </Col>
-
-            <Col md={3} sm={6}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Trạng thái</Form.Label>
-              <Form.Select
-                size="sm"
-                value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">-- Tất cả trạng thái --</option>
-                <option value="Pending">Chờ xác nhận (Pending)</option>
-                <option value="Confirmed">Đã xác nhận (Confirmed)</option>
-                <option value="CheckedIn">Đã tiếp nhận (CheckedIn)</option>
-                <option value="InProgress">Đang khám / Lấy mẫu (InProgress)</option>
-                <option value="Completed">Hoàn thành (Completed)</option>
-                <option value="Cancelled">Đã hủy (Cancelled)</option>
-                <option value="NoShow">Vắng mặt (NoShow)</option>
-              </Form.Select>
-            </Col>
-
-            <Col md={3} sm={6}>
-              <Form.Label className="small fw-semibold text-secondary mb-1">Tìm kiếm từ khóa</Form.Label>
-              <InputGroup size="sm">
-                <InputGroup.Text><FaSearch className="text-muted" /></InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Mã hẹn, địa chỉ, ghi chú..."
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                />
-                {keyword && (
-                  <Button variant="outline-secondary" onClick={() => setKeyword('')}>
-                    ×
-                  </Button>
-                )}
-              </InputGroup>
-            </Col>
-          </Row>
-
-          <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-            <span className="small text-muted">
-              Tìm thấy <strong className="text-dark">{totalCount}</strong> cuộc hẹn phù hợp
-            </span>
-            <Button
-              variant="link"
-              size="sm"
-              className="text-decoration-none text-muted p-0"
-              onClick={handleResetFilters}
+      <section className="bms-appt-filter">
+        <div className="bms-appt-filter-grid">
+          <label>
+            Từ ngày
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => {
+                setFromDate(e.target.value);
+                setPage(1);
+              }}
+            />
+          </label>
+          <label>
+            Đến ngày
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => {
+                setToDate(e.target.value);
+                setPage(1);
+              }}
+            />
+          </label>
+          <label>
+            Trạng thái
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
             >
-              Đặt lại bộ lọc
-            </Button>
-          </div>
-        </Card.Body>
-      </Card>
+              <option value="">Tất cả trạng thái</option>
+              <option value="Pending">Chờ xác nhận</option>
+              <option value="Confirmed">Đã xác nhận</option>
+              <option value="CheckedIn">Đã tiếp nhận</option>
+              <option value="InProgress">Đang khám / Lấy mẫu</option>
+              <option value="Completed">Hoàn thành</option>
+              <option value="Cancelled">Đã hủy</option>
+              <option value="NoShow">Vắng mặt</option>
+            </select>
+          </label>
+          <label>
+            Tìm kiếm
+            <input
+              type="text"
+              placeholder="Mã hẹn, địa chỉ, ghi chú"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="bms-appt-filter-meta">
+          <span>Tìm thấy <strong>{totalCount}</strong> cuộc hẹn</span>
+          <button type="button" onClick={handleResetFilters}>Đặt lại bộ lọc</button>
+        </div>
+      </section>
 
-      {/* Data Table Card */}
-      <Card className="border-0 shadow-sm rounded-3 overflow-hidden">
+      <section className="bms-appt-table-wrap">
         <div className="table-responsive">
-          <Table hover className="align-middle mb-0 text-nowrap">
-            <thead className="table-light text-uppercase small text-muted">
+          <table className="bms-appt-table">
+            <thead>
               <tr>
-                <th className="py-3 px-3">Mã Cuộc Hẹn</th>
-                <th className="py-3">Ngày & Khung Giờ</th>
-                <th className="py-3">Bác Sĩ Tiếp Nhận</th>
-                <th className="py-3">Hình Thức</th>
-                <th className="py-3">Địa Chỉ / Phòng Khám</th>
-                <th className="py-3 text-center">Trạng Thái</th>
-                <th className="py-3 text-center" style={{ minWidth: '130px' }}>Mã QR Check-in</th>
-                <th className="py-3 text-center" style={{ minWidth: '90px' }}>Thao Tác</th>
+                <th>Mã cuộc hẹn</th>
+                <th>Ngày và giờ</th>
+                <th>Bác sĩ</th>
+                <th>Hình thức</th>
+                <th>Địa điểm</th>
+                <th className="text-center">Trạng thái</th>
+                <th className="text-center">Mã check-in</th>
+                <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-5">
+                  <td colSpan={8} className="text-center py-3">
                     <Spinner animation="border" variant="primary" className="mb-2" />
                     <div className="text-muted small">Đang tải dữ liệu cuộc hẹn...</div>
                   </td>
                 </tr>
               ) : appointments.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-5">
+                  <td colSpan={8} className="text-center py-3">
                     <div className="text-muted mb-2 fs-4">📋</div>
                     <div className="fw-semibold text-secondary">
                       {isPatient ? 'Bạn chưa có lịch hẹn khám nào trong khoảng thời gian này.' : 'Không tìm thấy cuộc hẹn nào'}
@@ -615,12 +580,12 @@ export default function AppointmentListPage() {
                 })
               )}
             </tbody>
-          </Table>
+          </table>
         </div>
+      </section>
 
-        {/* Pagination Footer */}
-        {totalPages > 1 && (
-          <Card.Footer className="bg-white py-3 d-flex justify-content-between align-items-center border-top">
+      {totalPages > 1 && (
+        <div className="bms-appt-pager">
             <span className="small text-muted">
               Trang {page} / {totalPages} (Tổng số: {totalCount} bản ghi)
             </span>
@@ -647,9 +612,8 @@ export default function AppointmentListPage() {
               <Pagination.Next onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} />
               <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
             </Pagination>
-          </Card.Footer>
+          </div>
         )}
-      </Card>
 
       {/* Appointment Detail Modal */}
       <Modal
@@ -663,9 +627,9 @@ export default function AppointmentListPage() {
             <FaNotesMedical /> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {detailLoading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
               <div className="small text-muted mt-2">Đang tải thông tin chi tiết...</div>
             </div>
@@ -750,7 +714,7 @@ export default function AppointmentListPage() {
 
               {/* Check-in Slip & QR Code Section */}
               {isPaidOrConfirmed(selectedAppointment.status) ? (
-                <div className="p-4 bg-light border border-2 border-success-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-2 bg-light border border-2 border-success-subtle rounded-4 text-center mt-3 shadow-sm">
                   <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
                     <Badge bg="success" className="px-3 py-1.5 fs-6 shadow-xs">
                       <FaCheckCircle className="me-1" /> Đã Thanh Toán &amp; Đủ Điều Kiện Check-in
@@ -784,7 +748,7 @@ export default function AppointmentListPage() {
                   </div>
                 </div>
               ) : isPending(selectedAppointment.status) ? (
-                <div className="p-4 bg-light border border-2 border-warning-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-2 bg-light border border-2 border-warning-subtle rounded-4 text-center mt-3 shadow-sm">
                   <div className="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-2" style={{ fontSize: '36px' }}>
                     <FaLock />
                   </div>
@@ -821,7 +785,7 @@ export default function AppointmentListPage() {
                       <Button
                         variant="success"
                         size="lg"
-                        className="fw-bold px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2"
+                        className="fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2"
                         onClick={() => {
                           setShowDetailModal(false);
                           navigate(`/payments/checkout?appointmentId=${selectedAppointment.appointmentId || selectedAppointment.id}&code=${selectedAppointment.appointmentCode}`);
@@ -837,7 +801,7 @@ export default function AppointmentListPage() {
                   </div>
                 </div>
               ) : isCancelled(selectedAppointment.status) ? (
-                <div className="p-4 bg-light border border-2 border-danger-subtle rounded-4 text-center mt-3 shadow-sm">
+                <div className="p-2 bg-light border border-2 border-danger-subtle rounded-4 text-center mt-3 shadow-sm">
                   <div className="text-danger mb-2" style={{ fontSize: '36px' }}>
                     <FaTimesCircle />
                   </div>

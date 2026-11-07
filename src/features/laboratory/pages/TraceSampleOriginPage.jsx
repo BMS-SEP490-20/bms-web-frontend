@@ -166,7 +166,7 @@ export default function TraceSampleOriginPage() {
     const secondRowNodes = (traceData?.nodes || []).slice(4);
 
     return (
-        <div className="container-fluid py-4 px-md-5" style={{ maxWidth: 1400 }}>
+        <div className="container-fluid py-2 px-md-5" style={{ maxWidth: 1400 }}>
             {/* Top Navigation & Breadcrumb */}
             <div className="d-flex flex-wrap align-items-center justify-content-between mb-3 pb-2 border-bottom">
                 <div className="d-flex align-items-center gap-2 text-muted small">
@@ -182,17 +182,11 @@ export default function TraceSampleOriginPage() {
             </div>
 
             {/* Header */}
-            <div className="row align-items-center mb-4">
-                <div className="col-lg-8">
-                    <h2 className="fw-bold mb-1 d-flex align-items-center gap-2">
-                        <FaHistory style={{ color: '#1E60E6' }} />
-                        Trace sample origin
-                    </h2>
-                    <p className="text-muted mb-0">
-                        Full traceability graph from patient appointment to analyzer result (ISO 15189 compliance)
-                    </p>
+            <header className="bms-page-header">
+                <div className="bms-page-header-content">
+                    <h1 className="bms-page-title">Truy xuất mẫu</h1>
                 </div>
-            </div>
+            </header>
 
             {/* Search Card */}
             <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
@@ -209,7 +203,7 @@ export default function TraceSampleOriginPage() {
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
                             />
-                            <button className="btn px-4 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }} type="submit">
+                            <button className="btn px-3 fw-semibold d-flex align-items-center gap-2 text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }} type="submit">
                                 <FaSearch /> Trace
                             </button>
                         </div>
@@ -261,9 +255,9 @@ export default function TraceSampleOriginPage() {
                             </span>
                         </div>
 
-                        <div className="card-body p-4">
+                        <div className="card-body p-2">
                             {loading ? (
-                                <div className="text-center py-5 text-muted">
+                                <div className="text-center py-3 text-muted">
                                     <div className="spinner-border text-primary mb-2" role="status"></div>
                                     <div>Loading specimen lineage graph...</div>
                                 </div>
@@ -355,7 +349,7 @@ export default function TraceSampleOriginPage() {
                             </h5>
                         </div>
 
-                        <div className="card-body p-4">
+                        <div className="card-body p-2">
                             <ul className="list-group list-group-flush small">
                                 <li className="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                     <span className="text-muted">Integrity</span>

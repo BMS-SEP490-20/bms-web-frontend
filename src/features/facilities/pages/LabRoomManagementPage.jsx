@@ -137,28 +137,22 @@ const LabRoomManagementPage = () => {
     };
 
     return (
-        <Container fluid className="py-4 px-md-5" style={{ maxWidth: 1400 }}>
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <div>
-                    <h2 className="mb-1 text-primary fw-bold d-flex align-items-center gap-2">
-                        <i className="fas fa-door-open"></i>
-                        Quản Lý Phòng Xét Nghiệm &amp; Khám Lâm Sàng
-                    </h2>
-                    <p className="text-muted small mb-0">
-                        Quản lý sơ đồ phòng lab, gán thiết bị phân tích cố định và phân công nhân sự phụ trách (ISO 15189)
-                    </p>
+        <Container fluid className="py-2 px-md-5" style={{ maxWidth: 1400 }}>
+            <header className="bms-page-header">
+                <div className="bms-page-header-content">
+                    <h1 className="bms-page-title">Phòng xét nghiệm</h1>
                 </div>
                 {isManagerOrAdmin && (
-                    <Button variant="primary" className="fw-semibold shadow-sm d-flex align-items-center gap-2" onClick={() => handleOpenModal()}>
-                        <i className="fas fa-plus"></i> Thiết Lập Phòng Mới
+                    <Button variant="primary" className="fw-semibold d-flex align-items-center gap-2" onClick={() => handleOpenModal()}>
+                        <i className="fas fa-plus"></i> Phòng mới
                     </Button>
                 )}
-            </div>
+            </header>
 
             <Card className="shadow-sm border-0 rounded-3">
                 <Card.Body className="p-0">
                     {loading ? (
-                        <div className="text-center py-5">
+                        <div className="text-center py-3">
                             <Spinner animation="border" variant="primary" />
                             <div className="text-muted small mt-2">Đang tải danh sách phòng xét nghiệm...</div>
                         </div>
@@ -222,7 +216,7 @@ const LabRoomManagementPage = () => {
                                         );
                                     }) : (
                                         <tr>
-                                            <td colSpan={7} className="text-center py-5 text-muted">
+                                            <td colSpan={7} className="text-center py-3 text-muted">
                                                 Chưa có dữ liệu phòng xét nghiệm nào được cấu hình trong hệ thống.
                                             </td>
                                         </tr>
@@ -242,7 +236,7 @@ const LabRoomManagementPage = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
-                    <Modal.Body className="p-4">
+                    <Modal.Body className="p-2">
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-semibold">Tên Phòng Xét Nghiệm <span className="text-danger">*</span></Form.Label>
                             <Form.Control

@@ -223,7 +223,7 @@ const NotificationsHistoryPage = () => {
     <div className="w-100" style={{ maxWidth: '100%' }}>
       {/* Top Banner / Header Card */}
       <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
-        <Card.Body className="p-4">
+        <Card.Body className="p-2">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div className="d-flex align-items-center gap-3">
               <Button 
@@ -343,7 +343,7 @@ const NotificationsHistoryPage = () => {
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <Card.Body className="p-0">
           {loading && notifications.length === 0 ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
               <p className="mt-3 text-muted small">Đang tải danh sách thông báo hệ thống...</p>
             </div>
@@ -356,7 +356,7 @@ const NotificationsHistoryPage = () => {
                 return (
                   <div
                     key={item.notificationId}
-                    className={`list-group-item list-group-item-action p-4 d-flex gap-3 align-items-start border-bottom ${
+                    className={`list-group-item list-group-item-action p-2 d-flex gap-3 align-items-start border-bottom ${
                       isUnread ? 'bg-light-subtle' : ''
                     }`}
                     style={{
@@ -449,9 +449,9 @@ const NotificationsHistoryPage = () => {
               })}
             </div>
           ) : (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <div 
-                className="rounded-circle bg-light d-inline-flex align-items-center justify-content-center p-4 mb-3"
+                className="rounded-circle bg-light d-inline-flex align-items-center justify-content-center p-2 mb-3"
                 style={{ width: '80px', height: '80px' }}
               >
                 <FaBell className="text-muted" style={{ fontSize: '2.5rem', opacity: 0.4 }} />
@@ -471,7 +471,7 @@ const NotificationsHistoryPage = () => {
     return (
       <div className="d-flex flex-column min-vh-100 bg-light">
         <PatientHeader />
-        <main className="flex-grow-1 py-4">
+        <main className="flex-grow-1 py-2">
           <Container>
             {pageContent}
           </Container>

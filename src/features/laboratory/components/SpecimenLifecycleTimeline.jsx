@@ -94,7 +94,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                         </button>
                     )}
                 </div>
-                <div className="card-body text-center py-5 text-muted">
+                <div className="card-body text-center py-3 text-muted">
                     <FaClock className="display-6 mb-3 text-secondary opacity-50" />
                     <p className="mb-0">Chưa ghi nhận sự kiện vòng đời nào cho mẫu bệnh phẩm này.</p>
                 </div>
@@ -122,7 +122,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                     </button>
                 )}
             </div>
-            <div className="card-body p-4" style={{ maxHeight: "550px", overflowY: "auto" }}>
+            <div className="card-body p-2" style={{ maxHeight: "550px", overflowY: "auto" }}>
                 <div className="timeline-container position-relative">
                     {/* Vertical guideline */}
                     <div

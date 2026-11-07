@@ -268,22 +268,11 @@ const ValidateSample = () => {
   }, [assessmentType]);
 
   return (
-    <Container fluid className="py-4 px-md-4">
+    <Container fluid className="py-2 px-md-4">
       {/* Tiêu đề trang chuẩn y khoa */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <h3 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-              <FaVial className="text-primary" />
-              <span>Kiểm Chuẩn Chất Lượng Mẫu Tiền Phân Tích (Pre-analytical Specimen Validation)</span>
-            </h3>
-            <Badge bg="primary-subtle" text="primary" className="border border-primary-subtle px-2.5 py-1">
-              ISO 15189:2022 §7.3
-            </Badge>
-          </div>
-          <p className="text-muted small mb-0">
-            Đánh giá chất lượng ống máu trước khi đưa vào máy phân tích tự động: Kiểm soát mẫu <strong>Đạt chuẩn</strong>, mẫu <strong>Tán huyết</strong>, hoặc mẫu <strong>Đông dây</strong>.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
         </div>
 
         <div className="d-flex gap-2">
@@ -292,7 +281,7 @@ const ValidateSample = () => {
             <span>Làm mới</span>
           </Button>
         </div>
-      </div>
+      </header>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
@@ -302,7 +291,7 @@ const ValidateSample = () => {
       )}
 
       {/* Thanh lọc và tìm kiếm */}
-      <Card className="border-0 shadow-sm rounded-3 mb-4 bg-white">
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-2 align-items-center">
             <Col xs={12} md={6}>
@@ -359,14 +348,14 @@ const ValidateSample = () => {
               <tbody>
                 {loading && safeSamples.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-5">
+                    <td colSpan="7" className="text-center py-3">
                       <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                       <span className="text-muted">Đang tải danh sách mẫu xét nghiệm...</span>
                     </td>
                   </tr>
                 ) : filteredSamples.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-5 text-muted">
+                    <td colSpan="7" className="text-center py-3 text-muted">
                       <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
                       <div className="fw-semibold">Không tìm thấy mẫu xét nghiệm nào cần kiểm chuẩn</div>
                     </td>
@@ -486,7 +475,7 @@ const ValidateSample = () => {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             {selectedSample && (
               <div className="p-3 bg-light rounded-3 border mb-3">
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">

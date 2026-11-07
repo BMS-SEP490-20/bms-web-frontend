@@ -144,25 +144,19 @@ export default function SampleRerunPage() {
     };
 
     return (
-        <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+        <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
             {/* Header & Breadcrumb */}
-            <div className="d-flex align-items-center justify-content-between mb-3">
-                <div>
-                    <nav aria-label="breadcrumb">
-                        <ol className="breadcrumb mb-1 text-muted small">
-                            <li className="breadcrumb-item"><Link to="/lab/queue" className="text-decoration-none text-secondary">Specimen</Link></li>
-                            <li className="breadcrumb-item active text-primary fw-semibold" aria-current="page">Request rerun</li>
-                        </ol>
-                    </nav>
-                    <h2 className="h4 fw-bold text-dark mb-0">Request sample rerun</h2>
+            <header className="bms-page-header">
+                <div className="bms-page-header-content">
+                    <h1 className="bms-page-title">Chạy lại mẫu</h1>
                 </div>
                 <button
                     className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
                     onClick={() => navigate(-1)}
                 >
-                    <FaArrowLeft /> Back
+                    <FaArrowLeft /> Quay lại
                 </button>
-            </div>
+            </header>
 
             {/* Notifications */}
             {successMessage && (
@@ -188,12 +182,12 @@ export default function SampleRerunPage() {
             )}
 
             {loading ? (
-                <div className="card border-0 shadow-sm rounded-3 p-5 text-center my-4">
+                <div className="card border-0 shadow-sm rounded-3 p-3 text-center my-4">
                     <div className="spinner-border text-primary mx-auto mb-3" role="status"></div>
                     <p className="text-muted mb-0">Connecting to database and loading specimen analytics...</p>
                 </div>
             ) : !sampleDetails ? (
-                <div className="card border-0 shadow-sm rounded-3 p-5 text-center my-4">
+                <div className="card border-0 shadow-sm rounded-3 p-3 text-center my-4">
                     <FaExclamationTriangle className="text-warning fs-1 mx-auto mb-3" />
                     <h5 className="fw-bold text-dark">Specimen Not Found</h5>
                     <p className="text-muted mb-3">No active specimen record matching ID "{targetSampleId}" was found in the database.</p>
@@ -212,7 +206,7 @@ export default function SampleRerunPage() {
                                     <FaRedo style={{ color: '#1E60E6' }} /> Rerun request — <span className="font-monospace" style={{ color: '#1E60E6' }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
                                 </h5>
                             </div>
-                            <div className="card-body p-4">
+                            <div className="card-body p-2">
                                 {/* Specimen Key-Value Banner */}
                                 <div
                                     className="p-3 mb-4 rounded-4 border"
@@ -328,7 +322,7 @@ export default function SampleRerunPage() {
                                 <div className="d-flex gap-2">
                                     <button
                                         type="button"
-                                        className="btn d-flex align-items-center gap-2 fw-semibold px-4 shadow-sm text-white"
+                                        className="btn d-flex align-items-center gap-2 fw-semibold px-3 shadow-sm text-white"
                                         style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                                         disabled={submitting}
                                         onClick={handleSubmit}
@@ -374,7 +368,7 @@ export default function SampleRerunPage() {
                                     <tbody>
                                         {openReruns.length === 0 ? (
                                             <tr>
-                                                <td colSpan="5" className="text-center py-4 text-muted small">
+                                                <td colSpan="5" className="text-center py-2 text-muted small">
                                                     No active rerun requests found in database.
                                                 </td>
                                             </tr>
@@ -411,7 +405,7 @@ export default function SampleRerunPage() {
                                     Original vs. rerun comparison
                                 </h5>
                             </div>
-                            <div className="card-body p-4">
+                            <div className="card-body p-2">
                                 <table className="table table-sm align-middle mb-2">
                                     <thead className="table-light text-muted small text-uppercase">
                                         <tr>

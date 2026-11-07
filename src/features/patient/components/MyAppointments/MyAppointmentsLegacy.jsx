@@ -2159,7 +2159,7 @@ const MyAppointments = ({ hideHeader = false }) => {
 
   if (loading) {
     return (
-      <Container className="py-4">
+      <Container className="py-2">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Đang tải...</span>
@@ -2183,7 +2183,7 @@ const MyAppointments = ({ hideHeader = false }) => {
         }}
       >
         {!hideHeader && <PatientHeader />}
-        <Container className="py-5">
+        <Container className="py-3">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2320,8 +2320,7 @@ const MyAppointments = ({ hideHeader = false }) => {
             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
             backdropFilter: 'blur(20px)',
             borderRadius: '25px',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)'
+            boxShadow: '0 20px 50px rgba(0,0,0,0.1)'
           }}
         >
           <Card.Header 
@@ -2680,7 +2679,6 @@ const MyAppointments = ({ hideHeader = false }) => {
                             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.8) 100%)',
                             borderRadius: '20px',
                             boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                            border: '1px solid rgba(13, 110, 253, 0.1)',
                             transition: 'all 0.3s ease'
                           }}
                           onMouseEnter={(e) => {
@@ -2692,7 +2690,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                             e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
                           }}
                         >
-                          <Card.Body className="p-4">
+                          <Card.Body className="p-2">
                             <Row>
                               {/* Left Column - Appointment Code */}
                               <Col lg={4}>
@@ -2907,7 +2905,6 @@ const MyAppointments = ({ hideHeader = false }) => {
                             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.8) 100%)',
                             borderRadius: '20px',
                             boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                            border: '1px solid rgba(13, 110, 253, 0.1)',
                             transition: 'all 0.3s ease'
                           }}
                           onMouseEnter={(e) => {
@@ -2919,7 +2916,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                             e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
                           }}
                         >
-                          <Card.Body className="p-4">
+                          <Card.Body className="p-2">
                             {/* Appointment Code Section */}
                             <div className="mb-3">
                               {true ? (
@@ -3135,7 +3132,7 @@ const MyAppointments = ({ hideHeader = false }) => {
               </div>
             ) : (
               <motion.div 
-                className="text-center py-5"
+                className="text-center py-3"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
@@ -3365,8 +3362,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                 {/* Patient Information */}
                 <div className="mb-4 p-3" style={{
                   background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(102, 16, 242, 0.05) 100%)',
-                  borderRadius: '12px',
-                  border: '1px solid rgba(13, 110, 253, 0.1)'
+                  borderRadius: '12px'
                 }}>
                   <h6 className="fw-bold mb-3 text-primary">
                     <i className="fas fa-user-circle me-2"></i>
@@ -3400,8 +3396,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                 {/* Appointment Information */}
                 <div className="mb-4 p-3" style={{
                   background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(32, 201, 151, 0.05) 100%)',
-                  borderRadius: '12px',
-                  border: '1px solid rgba(40, 167, 69, 0.1)'
+                  borderRadius: '12px'
                 }}>
                   <h6 className="fw-bold mb-3 text-success">
                     <i className="fas fa-calendar-alt me-2"></i>
@@ -3493,9 +3488,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     return (
                       <div className="mb-4 p-3" style={{
                         background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255, 193, 7, 0.2)',
-                        borderLeft: '4px solid #ffc107'
+                        borderRadius: '12px'
                       }}>
                         <h6 className="fw-bold mb-3 text-warning">
                           <i className="fas fa-vial me-2"></i>
@@ -3555,9 +3548,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                 {selectedAppointment.notes && (
                   <div className="mb-0 p-3" style={{
                     background: 'linear-gradient(135deg, rgba(108, 117, 125, 0.05) 0%, rgba(73, 80, 87, 0.05) 100%)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(108, 117, 125, 0.2)',
-                    borderLeft: '4px solid #6c757d'
+                    borderRadius: '12px'
                   }}>
                     <h6 className="fw-bold mb-2 text-secondary">
                       <i className="fas fa-notes-medical me-2"></i>
@@ -3758,10 +3749,9 @@ const MyAppointments = ({ hideHeader = false }) => {
                   </div>
                     
                     <div 
-                      className="p-4 rounded mb-3"
+                      className="p-2 rounded mb-3"
                       style={{
                         background: 'white',
-                        border: '1px solid #dee2e6',
                         boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
                       }}
                     >
@@ -3859,7 +3849,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     
                     <div className="mb-4">
                       <div 
-                        className={`p-4 mb-3 rounded ${paymentMethod === 'bank_transfer' ? 'border-primary' : ''}`}
+                        className={`p-2 mb-3 rounded ${paymentMethod === 'bank_transfer' ? 'border-primary' : ''}`}
                         style={{
                           cursor: 'pointer',
                           border: paymentMethod === 'bank_transfer' ? '3px solid #1E60E6' : '2px solid #dee2e6',
@@ -4228,7 +4218,7 @@ const MyAppointments = ({ hideHeader = false }) => {
           <Modal.Header closeButton className="bg-primary text-white border-0">
               <Modal.Title><i className="fas fa-calendar-plus me-2"></i>Tạo lịch hẹn mới</Modal.Title>
           </Modal.Header>
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
               <Form>
                   <Form.Group className="mb-3">
                       <Form.Label className="fw-bold">Thời gian hẹn</Form.Label>
@@ -4251,7 +4241,7 @@ const MyAppointments = ({ hideHeader = false }) => {
           <Modal.Header closeButton className="bg-warning border-0">
               <Modal.Title><i className="fas fa-edit me-2"></i>Chỉnh sửa lịch hẹn</Modal.Title>
           </Modal.Header>
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
               <Form>
                   <Form.Group className="mb-3">
                       <Form.Label className="fw-bold">Đặt lại thời gian hẹn</Form.Label>

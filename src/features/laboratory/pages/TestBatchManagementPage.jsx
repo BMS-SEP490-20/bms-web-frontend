@@ -257,24 +257,12 @@ export default function TestBatchManagementPage() {
   const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
 
   return (
-    <Container fluid className="py-4 px-md-4" style={{ minHeight: '100vh' }}>
+    <Container fluid className="py-2 px-md-4" style={{ minHeight: '100vh' }}>
       {/* Header Banner chuẩn ISO 15189 */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <h3 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-              <FaFlask style={{ color: '#1E60E6' }} />
-              <span>Quản Lý Mẻ Xét Nghiệm Máy Phân Tích (Test Batches)</span>
-            </h3>
-            <Badge pill bg="primary-subtle" className="px-3 py-1 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(30, 96, 230,0.1)' }}>
-              Tiêu chuẩn ISO 15189:2022
-            </Badge>
-          </div>
-          <p className="text-muted small mb-0">
-            Quy trình gom mẫu, sơ đồ khay giếng (Well Plate Layout), bảo lưu vị trí IQC A1/A2 và kiểm soát vòng đời mẻ chạy máy.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Mẻ xét nghiệm</h1>
         </div>
-
         <div className="d-flex gap-2">
           <Button
             size="sm"
@@ -291,10 +279,10 @@ export default function TestBatchManagementPage() {
             className="d-flex align-items-center gap-1 shadow-sm px-3 fw-semibold rounded-pill"
             style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
           >
-            <FaPlus /> Tạo Mẻ Chạy Máy Mới
+            <FaPlus /> Tạo mẻ
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Thông báo Alert */}
       {error && (
@@ -340,14 +328,14 @@ export default function TestBatchManagementPage() {
                 <tbody>
                   {loading && safeBatches.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-5">
+                      <td colSpan="7" className="text-center py-3">
                         <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                         <span className="text-muted">Đang tải danh sách mẻ chạy...</span>
                       </td>
                     </tr>
                   ) : safeBatches.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-5 text-muted">
+                      <td colSpan="7" className="text-center py-3 text-muted">
                         <FaFlask className="fs-1 text-secondary opacity-50 mb-2" />
                         <div className="fw-semibold">Chưa có mẻ xét nghiệm nào trong ca</div>
                         <div className="small mb-3">Hãy tạo mẻ mới để sắp xếp các ống bệnh phẩm vào khay máy.</div>
@@ -464,7 +452,7 @@ export default function TestBatchManagementPage() {
                 <span>1. Chọn Máy Phân Tích &amp; Lô Kiểm Chuẩn IQC (ISO 15189)</span>
               </h5>
             </Card.Header>
-            <Card.Body className="p-4">
+            <Card.Body className="p-2">
               <Row className="g-3">
                 <Col md={5}>
                   <Form.Label className="small fw-semibold text-secondary">Thiết Bị Phân Tích Tự Động *</Form.Label>
@@ -532,7 +520,7 @@ export default function TestBatchManagementPage() {
                   </div>
                 </Card.Header>
 
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <div className="table-responsive">
                     <table className="table table-bordered text-center align-middle mb-0" style={{ tableLayout: 'fixed' }}>
                       <thead className="table-light">
@@ -620,7 +608,7 @@ export default function TestBatchManagementPage() {
                       <Button
                         variant="primary"
                         size="sm"
-                        className="fw-semibold px-4 shadow-sm"
+                        className="fw-semibold px-3 shadow-sm"
                         disabled={loading || Object.keys(assignedWells).length === 0}
                         onClick={handleCreateBatch}
                       >
@@ -646,7 +634,7 @@ export default function TestBatchManagementPage() {
 
                 <Card.Body className="p-3" style={{ maxHeight: '480px', overflowY: 'auto' }}>
                   {safePendingSamples.length === 0 ? (
-                    <div className="text-center py-4 text-muted small">
+                    <div className="text-center py-2 text-muted small">
                       Không có mẫu bệnh phẩm nào đang chờ xếp khay cho chuyên khoa này.
                     </div>
                   ) : (
@@ -713,7 +701,7 @@ export default function TestBatchManagementPage() {
             </Button>
           </Card.Header>
 
-          <Card.Body className="p-4">
+          <Card.Body className="p-2">
             <Row className="g-3 mb-4">
               <Col md={3}>
                 <div className="text-muted small">Trạng Thái Mẻ:</div>

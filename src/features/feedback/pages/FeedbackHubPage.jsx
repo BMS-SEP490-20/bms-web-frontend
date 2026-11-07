@@ -283,28 +283,11 @@ const FeedbackHubPage = () => {
   return (
     <div className="w-100">
       {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-        <Card.Body className="p-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                  <FaComments style={{ color: '#1E60E6' }} />
-                  Góp Ý & Đánh Giá Dịch Vụ (Patient Feedback)
-                </h4>
-                <Badge className="px-3 py-2 rounded-pill fw-semibold" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230, 0.25)' }}>
-                  {isPatient ? 'Bệnh nhân (Patient)' : isManagerOrAdmin ? 'Ban Quản Lý (Clinic Manager)' : 'Bác Sĩ & Nhân Viên'}
-                </Badge>
-              </div>
-              <p className="text-muted mb-0 small mt-1">
-                {isPatient 
-                  ? 'Gửi đánh giá trải nghiệm khám & xét nghiệm, đóng góp ý kiến để giúp phòng khám nâng cao chất lượng phục vụ.'
-                  : 'Theo dõi phản hồi, mức độ hài lòng của bệnh nhân và tương tác phản hồi chính thức từ Ban Quản Lý.'
-                }
-              </p>
-            </div>
-
-            <div className="d-flex align-items-center gap-2 flex-wrap">
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Đánh giá</h1>
+        </div>
+        <div className="bms-page-actions">
               {/* Patient quick return button */}
               {isPatient && (
                 <Button
@@ -345,10 +328,7 @@ const FeedbackHubPage = () => {
                 <span>Làm mới</span>
               </Button>
             </div>
-
-          </div>
-        </Card.Body>
-      </Card>
+      </header>
 
       {alertMsg && (
         <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="shadow-sm" style={{ borderRadius: 14 }}>
@@ -360,8 +340,8 @@ const FeedbackHubPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} md={4}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-              <Card.Body className="p-4 text-center d-flex flex-column justify-content-center">
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
+              <Card.Body className="p-2 text-center d-flex flex-column justify-content-center">
                 <div className="text-muted small fw-semibold text-uppercase mb-2">Đánh giá trung bình</div>
                 <div className="display-4 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>
                   <span>{statistics.averageRating}</span>
@@ -378,8 +358,8 @@ const FeedbackHubPage = () => {
           </Col>
 
           <Col xs={12} md={5}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-              <Card.Body className="p-4">
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
+              <Card.Body className="p-2">
                 <div className="text-muted small fw-semibold text-uppercase mb-3">Phân bổ xếp hạng sao</div>
                 {[5, 4, 3, 2, 1].map((star) => {
                   const count = statistics.ratingDistribution?.[star] || 0;
@@ -404,8 +384,8 @@ const FeedbackHubPage = () => {
           </Col>
 
           <Col xs={12} md={3}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
-              <Card.Body className="p-4 d-flex flex-column justify-content-between">
+            <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
+              <Card.Body className="p-2 d-flex flex-column justify-content-between">
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase mb-1">Đã phản hồi (Manager Reply)</div>
                   <h3 className="fw-bold text-success mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.respondedFeedbacks}</h3>
@@ -424,7 +404,7 @@ const FeedbackHubPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18 }}>
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
@@ -500,7 +480,7 @@ const FeedbackHubPage = () => {
 
       {/* Feedbacks List */}
       {loading && displayedFeedbacks.length === 0 ? (
-        <div className="text-center py-5">
+        <div className="text-center py-3">
           <Spinner animation="border" variant="primary" />
           <p className="mt-3 text-muted small">Đang tải danh sách đánh giá & phản hồi...</p>
         </div>
@@ -510,7 +490,7 @@ const FeedbackHubPage = () => {
             const isOwn = isPatient && user?.id === fb.patientId;
             return (
               <Card key={fb.feedbackId} className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
                     {/* Review Header */}
                     <div className="d-flex align-items-center gap-3">
@@ -654,7 +634,7 @@ const FeedbackHubPage = () => {
           })}
         </div>
       ) : (
-        <Card className="border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+        <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
           <Card.Body>
             <FaComments className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
             <h5 className="text-dark fw-bold">Chưa có phản hồi nào phù hợp</h5>

@@ -33,6 +33,8 @@ import {
   FaClipboardList
 } from 'react-icons/fa';
 
+const PLACEHOLDER_AVATAR = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="#dbeafe"/><circle cx="40" cy="30" r="14" fill="#1e40af"/><ellipse cx="40" cy="66" rx="22" ry="16" fill="#1e40af"/></svg>')}`;
+
 // Common chronic conditions list (clean, concise typography)
 const CHRONIC_CONDITIONS = [
   'Tăng huyết áp',
@@ -214,10 +216,10 @@ export const UserProfilePage = () => {
     const bmiVal = (w / (hMeter * hMeter)).toFixed(1);
     const num = parseFloat(bmiVal);
 
-    if (num < 18.5) return { bmi: bmiVal, label: 'Thiếu cân (< 18.5)', color: 'warning' };
-    if (num < 23.0) return { bmi: bmiVal, label: 'Bình thường (WHO Châu Á 18.5 - 22.9)', color: 'success' };
-    if (num < 25.0) return { bmi: bmiVal, label: 'Thừa cân (Tiền béo phì 23 - 24.9)', color: 'warning' };
-    return { bmi: bmiVal, label: 'Béo phì (≥ 25.0)', color: 'danger' };
+    if (num < 18.5) return { bmi: bmiVal, label: 'Thiếu cân', color: 'warning' };
+    if (num < 23.0) return { bmi: bmiVal, label: 'Bình thường', color: 'success' };
+    if (num < 25.0) return { bmi: bmiVal, label: 'Thừa cân', color: 'warning' };
+    return { bmi: bmiVal, label: 'Béo phì', color: 'danger' };
   }, [formData.heightCm, formData.weightKg]);
 
   // Profile completion status check
@@ -411,7 +413,7 @@ export const UserProfilePage = () => {
     }[roleKey] || 'Cơ sở 1 BMS MedLab';
 
     return (
-      <div className="bms-profile-page py-4">
+      <div className="bms-profile-page py-2">
         <div className="container-xl">
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <div>
@@ -431,13 +433,13 @@ export const UserProfilePage = () => {
           <Row className="g-4">
             {/* Left Column: Staff ID Card */}
             <Col xs={12} lg={4}>
-              <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-4 mb-4">
+              <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-2 mb-4">
                 <div className="bms-avatar-wrapper mx-auto mb-3">
                   <img
-                    src="https://images.unsplash.com/photo-1594824813587-8488e0b68a57?w=200&h=200&fit=crop"
-                    alt={user?.fullName}
-                    className="bms-avatar-img rounded-circle border border-3 border-primary shadow-sm"
-                    style={{ width: '110px', height: '110px', objectFit: 'cover' }}
+                    src={user?.avatarUrl || user?.avatar || PLACEHOLDER_AVATAR}
+                    alt={user?.fullName || 'Ảnh đại diện'}
+                    className="bms-avatar-img rounded-circle"
+                    style={{ width: '110px', height: '110px', objectFit: 'cover', background: '#dbeafe' }}
                   />
                 </div>
 
@@ -448,7 +450,7 @@ export const UserProfilePage = () => {
 
                 <div className="mb-3">
                   <Badge bg="primary" className="px-3 py-2 rounded-pill">
-                    <FaShieldAlt className="me-1" /> {staffRoleLabel}
+                    {staffRoleLabel}
                   </Badge>
                 </div>
 
@@ -493,7 +495,7 @@ export const UserProfilePage = () => {
                     Hồ sơ cán bộ y tế
                   </Badge>
                 </Card.Header>
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <Row className="g-3">
                     <Col md={6}>
                       <div className="text-muted small">Họ và tên nhân viên:</div>
@@ -534,7 +536,7 @@ export const UserProfilePage = () => {
                     Phạm Vi Phân Công Nghiệp Vụ & Quyền Hạn
                   </h5>
                 </Card.Header>
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <div className="p-3 bg-light rounded-3 mb-3">
                     <div className="fw-bold text-primary mb-2">Quyền hạn hệ thống: {staffRoleLabel}</div>
                     <ul className="mb-0 ps-3 small text-muted">
@@ -580,7 +582,7 @@ export const UserProfilePage = () => {
             <div className="bms-profile-card text-center mb-4">
               <div className="bms-avatar-wrapper mx-auto mb-3">
                 <img
-                  src={profile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop'}
+                  src={profile?.avatarUrl || PLACEHOLDER_AVATAR}
                   alt={formData.fullName}
                   className="bms-avatar-img"
                 />
@@ -661,8 +663,9 @@ export const UserProfilePage = () => {
 
                 <div className="bms-summary-tile">
                   <span className="bms-summary-label">Chỉ số BMI:</span>
-                  <span className={`bms-summary-val text-${bmiInfo.color}`}>
-                    {bmiInfo.bmi ? `${bmiInfo.bmi} (${bmiInfo.label})` : 'Chưa đo'}
+                  <span className="bms-bmi-readout">
+                    <strong>{bmiInfo.bmi || '—'}</strong>
+                    <span className={`text-${bmiInfo.color}`}>{bmiInfo.bmi ? bmiInfo.label : 'Chưa đo'}</span>
                   </span>
                 </div>
 
@@ -699,15 +702,9 @@ export const UserProfilePage = () => {
             <div className="bms-profile-card">
               <div className="bms-profile-masthead">
                 <div>
-                  <div className="bms-status-chip">
-                    TIÊU CHUẨN ISO 15189 · HỒ SƠ Y TẾ ĐIỆN TỬ
-                  </div>
                   <h3 className="bms-profile-main-title">
-                    Hồ Sơ Bệnh Án Chuẩn Y Tế Xét Nghiệm Máu
+                    Hồ sơ bệnh án
                   </h3>
-                  <p className="bms-profile-main-subtitle">
-                    Tuân thủ tiêu chuẩn an toàn phòng xét nghiệm ISO 15189:2022 &amp; Quy định Bộ Y Tế
-                  </p>
                 </div>
                 <div className="d-flex align-items-center gap-2">
                   <Link
@@ -1022,23 +1019,19 @@ export const UserProfilePage = () => {
                     <Col md={isEditing ? 4 : 3}>
                       {isEditing ? (
                         <div className="h-100 d-flex flex-column justify-content-end">
-                          <div className="p-2 px-3 rounded-2 d-flex align-items-center justify-content-between" style={{ background: '#F8FAFC', minHeight: '38px', border: '1px solid #E2E8F0' }}>
-                            <span className="small text-muted fw-semibold">BMI: {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}</span>
-                            <Badge bg={bmiInfo.color} className="px-2 py-1 rounded-pill small">
-                              {bmiInfo.label}
-                            </Badge>
+                          <div className="bms-bmi-readout">
+                            <strong>{bmiInfo.bmi || '—'}</strong>
+                            <em>kg/m²</em>
+                            <span className={`text-${bmiInfo.color}`}>{bmiInfo.label}</span>
                           </div>
                         </div>
                       ) : (
                         <div>
                           <Form.Label className="small fw-semibold text-muted">Chỉ số BMI</Form.Label>
-                          <div className="bms-profile-readonly-box d-flex justify-content-between">
-                            <span className={`fw-bold text-${bmiInfo.color}`}>
-                              {bmiInfo.bmi ? `${bmiInfo.bmi} kg/m²` : '—'}
-                            </span>
-                            <Badge bg={bmiInfo.color} className="px-2 py-1 rounded-pill small">
-                              {bmiInfo.label}
-                            </Badge>
+                          <div className="bms-bmi-readout">
+                            <strong>{bmiInfo.bmi || '—'}</strong>
+                            <em>kg/m²</em>
+                            <span className={`text-${bmiInfo.color}`}>{bmiInfo.label}</span>
                           </div>
                         </div>
                       )}

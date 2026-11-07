@@ -115,6 +115,7 @@ import {
   FaUserCircle, FaSignOutAlt, FaFileInvoiceDollar, FaHistory, FaTimes
 } from "react-icons/fa";
 import "./app.css";
+import "./styles/bms-workbench.css";
 
 // =============================================================================
 // AUTHORIZATION & CLIENT-SIDE ACCESS CONTROL

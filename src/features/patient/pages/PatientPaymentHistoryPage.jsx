@@ -311,14 +311,10 @@ export default function PatientPaymentHistoryPage() {
   return (
     <div className="bms-payhistory-content">
       {/* 1. PAGE HEADER */}
-      <header className="bms-payhistory-header">
-        <div className="bms-payhistory-badge">
-          <FaShieldAlt className="me-1" /> HÓA ĐƠN &amp; VIỆN PHÍ
-        </div>
+      <header className="bms-page-header">
+        
         <h1 className="bms-payhistory-title">Lịch Sử Thanh Toán</h1>
-        <p className="bms-payhistory-subtitle">
-          Tra cứu chi tiết các giao dịch viện phí và xem hóa đơn điện tử VAT trực tuyến.
-        </p>
+        
       </header>
 
       {/* 2. KPI FINANCIAL SUMMARY CARDS */}
@@ -376,7 +372,7 @@ export default function PatientPaymentHistoryPage() {
       )}
 
       {/* 3. TOOLBAR & FILTER CONTROLS */}
-      <div className="bms-pay-toolbar">
+      <div className="bms-filter-bar">
         <div className="bms-pay-filter-group">
           {/* Keyword Search */}
           <div className="position-relative">
@@ -485,14 +481,14 @@ export default function PatientPaymentHistoryPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-5 text-muted">
+                  <td colSpan={7} className="text-center py-3 text-muted">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                     Đang tải dữ liệu viện phí và hóa đơn điện tử...
                   </td>
                 </tr>
               ) : displayedTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-5 text-muted">
+                  <td colSpan={7} className="text-center py-3 text-muted">
                     <FaFileInvoiceDollar size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có giao dịch viện phí hoặc hóa đơn nào</div>
                     <div className="small text-muted mt-1">Các giao dịch đặt lịch xét nghiệm sẽ hiển thị tại đây sau khi thanh toán.</div>
@@ -579,9 +575,9 @@ export default function PatientPaymentHistoryPage() {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* 5. PAGINATION CONTROLS */}
-        <div className="bms-pay-pagination">
+      <div className="bms-pay-pagination">
           <div className="d-flex align-items-center gap-2">
             <span className="small text-muted" style={{ fontSize: 12 }}>Hiển thị:</span>
             <Form.Select
@@ -626,7 +622,6 @@ export default function PatientPaymentHistoryPage() {
             </Button>
           </div>
         </div>
-      </div>
 
       {/* 6. HELPFUL FOOTER NOTICE */}
       <div className="bms-pay-footer-note">

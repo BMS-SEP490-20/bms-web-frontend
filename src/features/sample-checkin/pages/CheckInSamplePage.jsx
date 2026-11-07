@@ -148,30 +148,16 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh' }} className="py-3">
       {/* Banner đầu trang chuẩn y khoa ISO 15189 */}
-      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm mx-3" style={{ backgroundColor: '#1E60E6' }}>
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div>
-            <div className="small opacity-75 d-flex align-items-center gap-1 mb-1">
-              <span>Quy trình phòng Lab</span> / <span>Quản lý mẫu</span> / <span>Tiếp nhận ống mẫu</span>
-            </div>
-            <h3 className="mb-1 fw-bold d-flex align-items-center gap-2">
-              <FaBarcode />
-              <span>Tiếp Nhận Ống Mẫu Máu &amp; Quét Barcode (Sample Reception)</span>
-            </h3>
-            <p className="mb-0 small opacity-90">
-              Quét mã vạch Code 128, kiểm tra tiêu chí tiền phân tích ISO 15189:2022 và xác nhận bàn giao vào phòng xét nghiệm.
-            </p>
-          </div>
-          <span className="badge bg-light border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#1E60E6' }}>
-            ISO 15189:2022 §7.3
-          </span>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Tiếp nhận ống mẫu</h1>
         </div>
-      </div>
+      </header>
 
       <div className="container-fluid px-3" style={{ maxWidth: 1200 }}>
         {/* Hộp quét Barcode */}
         <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <div className="card-body p-4">
+          <div className="card-body p-2">
             <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
               <FaSearch style={{ color: '#1E60E6' }} />
               <span>Quét hoặc Tra Cứu Mã Barcode Ống Mẫu</span>
@@ -187,7 +173,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
               />
               <button
                 type="button"
-                className="btn d-flex align-items-center gap-2 px-4 shadow-sm text-white"
+                className="btn d-flex align-items-center gap-2 px-3 shadow-sm text-white"
                 style={{ minHeight: 46, backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                 disabled={lookupLoading}
                 onClick={() => void onLookup()}
@@ -230,7 +216,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
           {/* Cột trái: Kiểm chuẩn bàn giao tại bàn tiếp nhận */}
           <div className="col-lg-8">
             <div className="card border-0 shadow-sm rounded-3 bg-white">
-              <div className="card-body p-4">
+              <div className="card-body p-2">
                 <h5 className="mb-3 fw-bold text-dark d-flex align-items-center gap-2">
                   <FaShieldAlt className="text-primary" />
                   <span>Biên Bản Tiếp Nhận &amp; Kiểm Chuẩn Tiền Phân Tích</span>
@@ -344,7 +330,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
               </div>
 
               {/* Chân thẻ hành động */}
-              <div className="card-footer bg-white border-top d-flex justify-content-end gap-2 px-4 py-3 rounded-bottom-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+              <div className="card-footer bg-white border-top d-flex justify-content-end gap-2 px-3 py-3 rounded-bottom-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <button
                   type="button"
                   className="btn btn-outline-secondary"

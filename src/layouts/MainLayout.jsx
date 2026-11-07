@@ -137,7 +137,7 @@ export default function MainLayout() {
         )}
 
         {/* Dynamic Page Content Outlet - 100% full width layout */}
-        <main className="bms-page-content flex-grow-1 px-3 py-4 px-xl-4 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
+        <main className="bms-page-content flex-grow-1 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
           <Outlet />
         </main>
 

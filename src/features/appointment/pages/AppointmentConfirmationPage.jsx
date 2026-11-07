@@ -104,7 +104,7 @@ export default function AppointmentConfirmationPage() {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center">
+      <div className="container py-3 text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Đang tải thông tin xác nhận...</span>
         </div>
@@ -115,8 +115,8 @@ export default function AppointmentConfirmationPage() {
 
   if (error || !data) {
     return (
-      <div className="container py-5 text-center">
-        <div className="alert alert-warning d-inline-block px-4 py-3 rounded-3 text-start">
+      <div className="container py-3 text-center">
+        <div className="alert alert-warning d-inline-block px-3 py-3 rounded-3 text-start">
           <FaExclamationTriangle className="me-2 text-warning fs-4 align-middle" />
           <span className="align-middle">{error || "Không tìm thấy dữ liệu cuộc hẹn."}</span>
         </div>
@@ -136,21 +136,8 @@ export default function AppointmentConfirmationPage() {
   const qrCodeText = data?.qrCodeData || data?.appointmentCode || targetId || "";
 
   return (
-    <div className="container py-4" style={{ maxWidth: "880px" }}>
+    <div className="container py-2" style={{ maxWidth: "880px" }}>
       {/* Breadcrumb Navigation */}
-      <nav aria-label="breadcrumb" className="mb-3">
-        <ol className="breadcrumb">
-          <li className="breadcrumb-item">
-            <Link to="/appointments/book" className="text-decoration-none">
-              Appointments
-            </Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            Confirmation
-          </li>
-        </ol>
-      </nav>
-
       {/* Page Title */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -178,7 +165,7 @@ export default function AppointmentConfirmationPage() {
 
       {/* Main Confirmation Card */}
       <div className="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
-        <div className="card-body p-4 p-md-5 text-center">
+        <div className="card-body p-2 p-md-5 text-center">
           {/* Green Circle Checkmark */}
           <div
             className="d-inline-flex align-items-center justify-content-center mb-3"
@@ -298,7 +285,7 @@ export default function AppointmentConfirmationPage() {
                 </div>
               </>
             ) : (
-              <div className="p-4 bg-light border border-warning rounded-4 mx-auto text-center" style={{ maxWidth: "480px" }}>
+              <div className="p-2 bg-light border border-warning rounded-4 mx-auto text-center" style={{ maxWidth: "480px" }}>
                 <div className="text-warning mb-2" style={{ fontSize: "32px" }}>
                   <FaLock />
                 </div>
@@ -310,7 +297,7 @@ export default function AppointmentConfirmationPage() {
                 </p>
                 <button
                   type="button"
-                  className="btn btn-success fw-bold px-4 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
+                  className="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
                   onClick={() => navigate(`/payments/checkout?appointmentId=${data?.appointmentId || targetId}&code=${data?.appointmentCode || targetId}`)}
                 >
                   <FaMoneyBillWave /> Tiến Hành Thanh Toán Giữ Chỗ VNPAY Ngay
@@ -370,7 +357,7 @@ export default function AppointmentConfirmationPage() {
         <div className="card-header bg-white py-3 border-bottom">
           <h3 className="h6 fw-bold mb-0 text-dark">Reminder schedule</h3>
         </div>
-        <div className="card-body p-4">
+        <div className="card-body p-2">
           <div className="position-relative ps-4 border-start border-2 border-primary border-opacity-25 ms-2">
             {data?.reminderSchedule?.map((item, idx) => (
               <div key={idx} className="position-relative mb-4">

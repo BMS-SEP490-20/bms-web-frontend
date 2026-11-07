@@ -16,8 +16,8 @@ import { Container, Card, Alert } from "react-bootstrap";
  */
 export default function ResultEntryPage() {
     return (
-        <Container className="py-4">
-            <Card className="shadow-sm p-4 text-center border-0">
+        <Container className="py-2">
+            <Card className="shadow-sm p-2 text-center border-0">
                 <Alert variant="info" className="m-0">
                     <i className="bi bi-eyedropper me-2"></i>
                     <strong>Nhập Kết Quả Xét Nghiệm & Cảnh Báo Ngưỡng Nguy Hiểm:</strong> Giao diện đồng bộ kết quả từ máy xét nghiệm tự động và kiểm soát giá trị Panic.

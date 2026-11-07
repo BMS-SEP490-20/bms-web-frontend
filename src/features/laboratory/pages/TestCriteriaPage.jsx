@@ -191,16 +191,8 @@ export default function TestCriteriaPage() {
   return (
     <div className="bms-criteria-container">
       {/* Header Banner */}
-      <div className="bms-criteria-header">
-        <div className="bms-criteria-title-group">
-          <h1>
-            <span>Danh Mục Chỉ Số Xét Nghiệm</span>
-            <span className="bms-iso-badge">&#9672; ISO 15189:2022 Master Data</span>
-          </h1>
-          <p>
-            Quản lý dải tham chiếu sinh học WHO/ADA, đơn vị đo lường và ngưỡng báo động đỏ Panic Alert phục vụ phân tích lâm sàng.
-          </p>
-        </div>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content"><h1 className="bms-page-title">Danh mục chỉ số</h1></div>
 
         <div className="bms-criteria-actions" style={{ display: 'flex', gap: '10px' }}>
           <button
@@ -211,7 +203,7 @@ export default function TestCriteriaPage() {
             style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd', fontWeight: 600 }}
           >
             <span>&#9825;</span>
-            <span>Khoảng Tham Chiếu</span>
+            <span>Khoảng tham chiếu</span>
           </button>
           <button
             type="button"
@@ -221,16 +213,16 @@ export default function TestCriteriaPage() {
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             <span>+</span>
-            <span>Thêm Chỉ Số Mới</span>
+            <span>Thêm chỉ số</span>
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Toolbar / Filters */}
-      <div className="bms-criteria-toolbar">
+      <div className="bms-filter-bar">
         <div className="bms-criteria-filters">
           <div className="bms-search-input-wrapper">
-            <span className="bms-search-icon">&#128269;</span>
+            <span className="bms-search-icon" aria-hidden="true">⌕</span>
             <input
               type="text"
               className="bms-search-field"
@@ -267,7 +259,7 @@ export default function TestCriteriaPage() {
           </select>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+        <div className="bms-filter-meta">
           Hiển thị <strong>{criteria.length}</strong> / <strong>{pagination.totalCount}</strong> chỉ số xét nghiệm
         </div>
       </div>

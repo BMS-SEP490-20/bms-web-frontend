@@ -424,7 +424,7 @@ export default function MedicalAssessmentForm({
 
   return (
     <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-      <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
+      <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
         <div>
           <h5 className="mb-0 fw-bold d-flex align-items-center gap-2">
             <FaStethoscope /> {isEditMode ? 'Cập Nhật Đánh Giá Y Khoa' : 'Thêm Mới Đánh Giá Y Khoa (Medical Assessment)'}
@@ -440,7 +440,7 @@ export default function MedicalAssessmentForm({
         )}
       </Card.Header>
 
-      <Card.Body className="p-4 bg-light bg-opacity-25">
+      <Card.Body className="p-2 bg-light bg-opacity-25">
         {errorMessage && (
           <Alert variant="danger" dismissible onClose={() => setErrorMessage(null)} className="d-flex align-items-center gap-2 rounded-3">
             <FaExclamationTriangle />
@@ -489,7 +489,7 @@ export default function MedicalAssessmentForm({
             </div>
 
             {loadingPatient ? (
-              <div className="text-center py-4 text-muted bg-light rounded-3 mb-3">
+              <div className="text-center py-2 text-muted bg-light rounded-3 mb-3">
                 <Spinner size="sm" animation="border" className="me-2 text-primary" />
                 Đang nạp thông tin hồ sơ bệnh nhân từ cơ sở dữ liệu...
               </div>
@@ -1056,7 +1056,7 @@ export default function MedicalAssessmentForm({
                 variant="primary"
                 onClick={() => handleSubmit('Finalized')}
                 disabled={submitting}
-                className="d-flex align-items-center gap-2 px-4 shadow-sm text-white"
+                className="d-flex align-items-center gap-2 px-3 shadow-sm text-white"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
               >
                 {submitting ? <Spinner size="sm" animation="border" /> : <FaLock />}
@@ -1088,9 +1088,9 @@ export default function MedicalAssessmentForm({
           </InputGroup>
 
           {searchingPatients ? (
-            <div className="text-center py-4 text-muted"><Spinner size="sm" /> Đang tìm kiếm hồ sơ...</div>
+            <div className="text-center py-2 text-muted"><Spinner size="sm" /> Đang tìm kiếm hồ sơ...</div>
           ) : !Array.isArray(patientList) || patientList.length === 0 ? (
-            <div className="text-center py-4 text-muted">Không tìm thấy bệnh nhân phù hợp.</div>
+            <div className="text-center py-2 text-muted">Không tìm thấy bệnh nhân phù hợp.</div>
           ) : (
             <div className="list-group list-group-flush" style={{ maxHeight: '360px', overflowY: 'auto' }}>
               {patientList.map((p) => (

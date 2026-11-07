@@ -35,7 +35,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
                     Xác Nhận Xóa Gói Dịch Vụ Xét Nghiệm
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-4">
+            <Modal.Body className="p-2">
                 {error && (
                     <Alert variant="danger" className="py-2 small mb-3" style={{ borderRadius: 14 }}>
                         {error}

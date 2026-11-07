@@ -64,7 +64,7 @@ export default function PaymentHistory() {
 
   return (
     <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-      <Card.Header className="bg-white py-3 px-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <Card.Header className="bg-white py-3 px-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div className="d-flex align-items-center gap-3">
           <div className="rounded-3 p-2 bg-success bg-opacity-10 text-success">
             <FaFileInvoiceDollar size={22} />

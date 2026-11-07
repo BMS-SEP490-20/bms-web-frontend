@@ -112,29 +112,20 @@ export function ViewShiftsPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaClock size={12} />
-            <span>ĐIỀU PHỐI LÂM SÀNG &amp; TIẾP ĐÓN (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaCalendarAlt size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               {isAdmin ? 'Lịch Ca Trực Toàn Viện' : 'Lịch Ca Trực Của Tôi'}
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            {isAdmin
-              ? 'Theo dõi, rà soát toàn bộ ca làm việc cá nhân & phân công vị trí bàn trực nhân viên y tế trên toàn viện BMS.'
-              : 'Theo dõi ca làm việc cá nhân & phân công vị trí bàn trực · BMS Cơ sở 1.'}
-          </p>
+          
         </div>
         <div className="bms-page-actions">
           {canManageShifts && (
             <button
               type="button"
-              className="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2 text-white"
+              className="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2 text-white"
               style={{
                 borderRadius: 9999,
                 background: '#1E60E6',
@@ -221,7 +212,7 @@ export function ViewShiftsPage() {
                 className="form-control form-control-sm"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                style={{ width: '140px', borderRadius: '9999px', border: '1px solid #CBD5E1', height: '38px', padding: '0 12px' }}
+                style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
               />
               <span className="small text-muted fw-semibold">Đến:</span>
               <input
@@ -229,7 +220,7 @@ export function ViewShiftsPage() {
                 className="form-control form-control-sm"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                style={{ width: '140px', borderRadius: '9999px', border: '1px solid #CBD5E1', height: '38px', padding: '0 12px' }}
+                style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
               />
             </div>
 
@@ -265,7 +256,7 @@ export function ViewShiftsPage() {
 
         <div className="bms-table-standalone-body">
           {loading ? (
-            <div className="p-5 text-center text-muted">
+            <div className="p-3 text-center text-muted">
               <Spinner animation="border" variant="primary" size="sm" className="me-2" />
               Đang tải danh sách ca trực...
             </div>
@@ -332,7 +323,7 @@ export function ViewShiftsPage() {
                   })}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="text-center text-muted py-5">
+                      <td colSpan={6} className="text-center text-muted py-3">
                         <FaClock className="fs-2 text-muted opacity-50 mb-2 d-block mx-auto" />
                         Không có ca trực nào phù hợp với bộ lọc ngày đã chọn.
                       </td>

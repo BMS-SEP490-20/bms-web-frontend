@@ -565,8 +565,8 @@ const ManagerDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
-    <Card className="stat-card h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
-      <Card.Body className="p-4">
+    <Card className="stat-card h-100" style={{ borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 18px rgba(15, 39, 67, 0.05)' }}>
+      <Card.Body className="p-2">
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div className="rounded-circle p-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
             <Icon className="fs-4" />
@@ -587,7 +587,7 @@ const ManagerDashboard = () => {
 
   if (loading) {
     return (
-      <Container className="py-4" style={{ 
+      <Container className="py-2" style={{ 
         overflowX: 'hidden', 
         maxWidth: '100%', 
         width: '100%',
@@ -604,7 +604,7 @@ const ManagerDashboard = () => {
   }
 
   return (
-    <Container fluid className="py-4" style={{ 
+    <Container fluid className="py-2" style={{ 
       overflowX: 'hidden', 
       maxWidth: '100%', 
       width: '100%',
@@ -714,7 +714,7 @@ const ManagerDashboard = () => {
                   const section = document.getElementById('manager-test-results-section');
                   if (section) section.scrollIntoView({ behavior: 'smooth' });
                 }}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #ffc107' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-file-signature fa-lg"></i>
@@ -731,7 +731,7 @@ const ManagerDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/lab-user/validate-sample')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #dc3545' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-vial fa-lg"></i>
@@ -748,7 +748,7 @@ const ManagerDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/lab-rooms')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-door-open fa-lg"></i>
@@ -765,7 +765,7 @@ const ManagerDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/manager/shift-assignment')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #198754' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-clock fa-lg"></i>
@@ -782,7 +782,7 @@ const ManagerDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/notifications')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #fd7e14' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 48, height: 48, flexShrink: 0 }}>
                   <i className="fas fa-bell fa-lg"></i>
@@ -987,7 +987,7 @@ const ManagerDashboard = () => {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-2">
                   <FaCalendarAlt className="text-muted mb-3" style={{fontSize: '3rem'}} />
                   <p className="text-muted">Không có lịch hẹn nào</p>
                 </div>
@@ -1060,7 +1060,7 @@ const ManagerDashboard = () => {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-2">
                   <FaFlask className="text-muted mb-2" style={{ fontSize: '2.5rem' }} />
                   <p className="text-muted mb-0">Hiện chưa có kết quả xét nghiệm nào cần duyệt.</p>
                 </div>
@@ -1302,8 +1302,7 @@ const ManagerDashboard = () => {
                     <div className="mb-3" style={{ 
                       padding: '12px', 
                       background: 'rgba(102, 126, 234, 0.1)', 
-                      borderRadius: '8px',
-                      borderLeft: '4px solid #667eea'
+                      borderRadius: '8px'
                     }}>
                       <label style={{ fontSize: '0.85rem', color: '#667eea', fontWeight: '600', marginBottom: '4px', display: 'block' }}>
                         Mã phân công Lab
@@ -1350,7 +1349,7 @@ const ManagerDashboard = () => {
             <i className="fas fa-barcode me-2"></i>In Nhãn Mã Vạch Mẫu Xét Nghiệm
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {selectedBarcodeItem ? (
             <div>
               <Alert variant="info" className="py-2 px-3 mb-3" style={{ fontSize: '0.85rem' }}>

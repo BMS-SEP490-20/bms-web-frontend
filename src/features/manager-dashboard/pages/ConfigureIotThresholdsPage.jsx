@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
     FaShieldAlt,
     FaCogs,
@@ -171,6 +172,7 @@ export default function ConfigureIotThresholdsPage() {
 
     return (
         <div className="w-100 py-1">
+            <IotNavigationTabs />
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
@@ -247,11 +249,11 @@ export default function ConfigureIotThresholdsPage() {
                             <table className="bms-dash-table">
                             <thead style={{ background: '#f8fafc', color: '#475569', fontSize: '12px' }}>
                                 <tr>
-                                    <th style={{ paddingLeft: '20px' }}>Mã Thiết Bị (Device ID)</th>
+                                    <th style={{ paddingLeft: '20px' }}>Mã Thiết Bị</th>
                                     <th>Vị Trí Tủ Trữ / Phòng Lab</th>
                                     <th>Loại Cảm Biến</th>
-                                    <th style={{ textAlign: 'right' }}>Ngưỡng Dưới (Min)</th>
-                                    <th style={{ textAlign: 'right' }}>Ngưỡng Trên (Max)</th>
+                                    <th style={{ textAlign: 'right' }}>Ngưỡng Dưới</th>
+                                    <th style={{ textAlign: 'right' }}>Ngưỡng Trên</th>
                                     <th style={{ textAlign: 'center' }}>Chu Kỳ Đo (Giây)</th>
                                     <th style={{ paddingRight: '20px' }}>Trạng Thái Cảm Biến</th>
                                 </tr>
@@ -301,7 +303,7 @@ export default function ConfigureIotThresholdsPage() {
                                             <td style={{ textAlign: 'center' }}>
                                                 <input
                                                     type="number"
-                                                    step="10"
+                                                    step="1"
                                                     className="form-control d-inline-block text-center"
                                                     style={{ width: '70px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.intervalSeconds}

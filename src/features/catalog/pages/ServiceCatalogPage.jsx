@@ -255,9 +255,9 @@ export default function ServiceCatalogPage() {
 
   // Direct Book Appointment
   const handleBook = (pkg) => {
-    const pkgId = pkg.id || pkg.packageCode;
-    const pkgName = encodeURIComponent(pkg.packageName || '');
-    navigate(`/appointments/book?packageId=${pkgId}&packageName=${pkgName}`);
+    const pkgId = pkg.packageCode || pkg.code || pkg.id;
+    const pkgName = encodeURIComponent(pkg.packageName || pkg.name || '');
+    navigate(`/appointments/book?packageId=${encodeURIComponent(pkgId)}&packageName=${pkgName}`);
   };
 
   // Featured Spotlight item

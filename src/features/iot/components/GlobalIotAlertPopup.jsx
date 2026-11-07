@@ -120,6 +120,8 @@ export default function GlobalIotAlertPopup() {
     const timer = setInterval(checkIotStatus, 5000);
 
     const handleInstantRefresh = () => {
+      setDismissedViolationKey('');
+      setMinimized(false);
       checkIotStatus();
     };
     window.addEventListener('bms-iot-status-changed', handleInstantRefresh);

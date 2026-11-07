@@ -99,6 +99,7 @@ export default function ConfigureIotThresholdsPage() {
             if (result) {
                 const updated = result.thresholds || (Array.isArray(result) ? result : thresholds);
                 setThresholds(Array.isArray(updated) ? updated : thresholds);
+                window.dispatchEvent(new CustomEvent('bms-iot-status-changed'));
                 setSuccessMessage('Đã lưu thành công cấu hình ngưỡng cảnh báo và chu kỳ đo cho toàn bộ cảm biến IoT.');
                 setTimeout(() => setSuccessMessage(''), 4000);
             }
@@ -123,6 +124,7 @@ export default function ConfigureIotThresholdsPage() {
             if (result) {
                 const restored = result.thresholds || (Array.isArray(result) ? result : []);
                 setThresholds(Array.isArray(restored) ? restored : []);
+                window.dispatchEvent(new CustomEvent('bms-iot-status-changed'));
                 setSuccessMessage('Đã khôi phục toàn bộ ngưỡng về quy chuẩn chuỗi lạnh y tế (Cold-Chain Standard).');
                 setTimeout(() => setSuccessMessage(''), 4000);
             }
@@ -167,7 +169,11 @@ export default function ConfigureIotThresholdsPage() {
         }
     };
 
-    const safeThresholds = useMemo(() => Array.isArray(thresholds) ? thresholds : [], [thresholds]);
+    const safeThresholds = useMemo(() => {
+        const list = Array.isArray(thresholds) ? thresholds : [];
+        const realDevices = list.filter(t => String(t.deviceId || '').toUpperCase().startsWith('BMS-IOT'));
+        return realDevices.length > 0 ? realDevices : list;
+    }, [thresholds]);
     const safeRecipients = useMemo(() => Array.isArray(recipients) ? recipients : [], [recipients]);
 
     return (

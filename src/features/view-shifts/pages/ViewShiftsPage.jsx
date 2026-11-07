@@ -195,15 +195,11 @@ export function ViewShiftsPage() {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              <FaClock style={{ color: '#1E60E6' }} />
-              Danh Sách Ca Trực Đã Phân Bổ
+              Danh Sách Ca Trực
             </h5>
-            <p className="bms-table-standalone-subtitle">
-              Hiển thị {filtered.length} trên tổng số {sourceShifts.length} ca trực
-            </p>
           </div>
 
-          <div className="d-flex flex-wrap align-items-center gap-3" style={{ justifyContent: 'flex-end', flex: 1 }}>
+          <div className="bms-filter-bar">
             {/* Date Filters */}
             <div className="d-flex align-items-center gap-2">
               <span className="small text-muted fw-semibold">Từ:</span>

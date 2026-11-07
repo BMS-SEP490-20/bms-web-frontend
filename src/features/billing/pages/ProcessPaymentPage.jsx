@@ -1,11 +1,58 @@
 /**
  * Appointment checkout. Shows a SePay VietQR and waits for the bank webhook to confirm the appointment.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Spinner } from 'react-bootstrap';
 import api from '../../../config/api';
 import './ProcessPaymentPage.css';
+
+function money(value) {
+  return `${new Intl.NumberFormat('vi-VN').format(value || 0)} đ`;
+}
+
+function Invoice({ checkout, onDone, onBack }) {
+  return (
+    <section className="bms-sepay-card">
+      <header className="bms-sepay-head">
+        <div>
+          <p>Phiếu thanh toán</p>
+          <h1>{checkout.appointmentCode}</h1>
+        </div>
+        <span className={`bms-sepay-status${checkout.paid ? ' is-paid' : ''}`}>
+          {checkout.paid ? null : <i />}
+          {checkout.paid ? 'Đã thanh toán' : 'Đang chờ thanh toán'}
+        </span>
+      </header>
+
+      {!checkout.paid && checkout.qrUrl ? <img src={checkout.qrUrl} alt="Mã QR chuyển khoản" /> : null}
+
+      <h2>Lịch khám</h2>
+      <dl>
+        <div><dt>Gói xét nghiệm</dt><dd>{checkout.packageName || '—'}</dd></div>
+        <div><dt>Ngày khám</dt><dd>{checkout.visitDate || '—'}</dd></div>
+        <div><dt>Khung giờ</dt><dd>{checkout.slotTime || '—'}</dd></div>
+        <div><dt>Bác sĩ</dt><dd>{checkout.doctorName || '—'}</dd></div>
+        <div><dt>Phòng</dt><dd>{checkout.roomName || '—'}</dd></div>
+      </dl>
+
+      <h2>Chuyển khoản</h2>
+      <dl>
+        <div><dt>Ngân hàng</dt><dd>{checkout.bankCode || '—'}</dd></div>
+        <div><dt>Số tài khoản</dt><dd>{checkout.accountNumber || '—'}</dd></div>
+        <div><dt>Chủ tài khoản</dt><dd>{checkout.accountName || '—'}</dd></div>
+        <div><dt>Nội dung</dt><dd>{checkout.transferContent || '—'}</dd></div>
+        {checkout.paid ? <div><dt>Mã giao dịch</dt><dd>{checkout.transactionId || '—'}</dd></div> : null}
+        {checkout.paid ? <div><dt>Thời điểm</dt><dd>{checkout.paidAt || '—'}</dd></div> : null}
+        <div className="is-amount"><dt>Số tiền</dt><dd>{money(checkout.amount)}</dd></div>
+      </dl>
+
+      {checkout.paid ? (
+        <button type="button" className="bms-sepay-done" onClick={onDone}>Xem lịch của tôi</button>
+      ) : null}
+      <button type="button" className="bms-sepay-back" onClick={onBack}>Quay lại</button>
+    </section>
+  );
+}
 
 export default function ProcessPaymentPage() {
   const navigate = useNavigate();
@@ -14,6 +61,16 @@ export default function ProcessPaymentPage() {
   const [checkout, setCheckout] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [paidNotice, setPaidNotice] = useState(false);
+  const noticed = useRef(false);
+
+  useEffect(() => {
+    if (!checkout?.paid || noticed.current) return undefined;
+    noticed.current = true;
+    setPaidNotice(true);
+    const hide = setTimeout(() => setPaidNotice(false), 4000);
+    return () => clearTimeout(hide);
+  }, [checkout?.paid]);
 
   useEffect(() => {
     if (!appointmentId) {
@@ -38,11 +95,15 @@ export default function ProcessPaymentPage() {
     };
 
     load();
+    let settled = false;
     const timer = setInterval(async () => {
+      if (settled) return;
       try {
         const res = await api.get(`/payments/sepay/status/${encodeURIComponent(appointmentId)}`);
         if (!active) return;
         if (res.data?.data?.paid) {
+          settled = true;
+          clearInterval(timer);
           const full = await api.get(`/payments/sepay/checkout/${encodeURIComponent(appointmentId)}`);
           if (!active) return;
           setCheckout(full.data?.data || null);
@@ -61,58 +122,24 @@ export default function ProcessPaymentPage() {
   if (loading) {
     return (
       <div className="bms-sepay-page">
-        <Spinner animation="border" />
+        <span className="bms-sepay-status"><i />Đang tải phiếu</span>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !checkout) {
     return (
       <div className="bms-sepay-page">
-        <p>{error}</p>
+        <p>{error || 'Không tải được phiếu thanh toán.'}</p>
         <Link to="/appointments">Về lịch khám</Link>
-      </div>
-    );
-  }
-
-  if (checkout?.paid) {
-    return (
-      <div className="bms-sepay-page">
-        <section className="bms-sepay-card bms-receipt">
-          <p className="bms-receipt-state">Đã thanh toán</p>
-          <h1>Hóa đơn giữ chỗ</h1>
-          <p className="bms-receipt-code">{checkout.appointmentCode}</p>
-          <dl>
-            <div><dt>Gói xét nghiệm</dt><dd>{checkout.packageName || '—'}</dd></div>
-            <div><dt>Ngày khám</dt><dd>{checkout.visitDate || '—'}</dd></div>
-            <div><dt>Giờ lấy mẫu</dt><dd>{checkout.slotTime || '—'}</dd></div>
-            <div><dt>Bác sĩ</dt><dd>{checkout.doctorName || '—'}</dd></div>
-            <div><dt>Nội dung chuyển khoản</dt><dd>{checkout.transferContent}</dd></div>
-            <div><dt>Mã giao dịch</dt><dd>{checkout.transactionId || '—'}</dd></div>
-            <div><dt>Thời điểm</dt><dd>{checkout.paidAt || '—'}</dd></div>
-            <div className="is-amount"><dt>Số tiền</dt><dd>{new Intl.NumberFormat('vi-VN').format(checkout.amount)} đ</dd></div>
-          </dl>
-          <button type="button" onClick={() => navigate('/appointments')}>Xem lịch của tôi</button>
-        </section>
       </div>
     );
   }
 
   return (
     <div className="bms-sepay-page">
-      <section className="bms-sepay-card">
-        <h1>Chuyển khoản</h1>
-        <p className="bms-sepay-code">{checkout.appointmentCode}</p>
-        <img src={checkout.qrUrl} alt="Mã QR chuyển khoản" />
-        <dl>
-          <div><dt>Ngân hàng</dt><dd>{checkout.bankCode}</dd></div>
-          <div><dt>Số tài khoản</dt><dd>{checkout.accountNumber}</dd></div>
-          <div><dt>Chủ tài khoản</dt><dd>{checkout.accountName || '—'}</dd></div>
-          <div><dt>Số tiền</dt><dd>{new Intl.NumberFormat('vi-VN').format(checkout.amount)} đ</dd></div>
-          <div><dt>Nội dung</dt><dd>{checkout.transferContent}</dd></div>
-        </dl>
-        <p className="bms-sepay-wait">Đang chờ tiền vào tài khoản. Trang tự xác nhận khi SePay báo đã nhận.</p>
-      </section>
+      {paidNotice ? <div className="bms-sepay-toast" role="status">Đã nhận thanh toán.</div> : null}
+      <Invoice checkout={checkout} onDone={() => navigate('/appointments')} onBack={() => navigate(-1)} />
     </div>
   );
 }

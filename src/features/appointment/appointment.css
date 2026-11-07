@@ -116,6 +116,20 @@
   margin-bottom: 2px !important;
 }
 
+.bms-checkin-qr {
+  display: inline-flex;
+  padding: 4px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.bms-appt-modal .modal-header,
+.bms-appt-modal .modal-body,
+.bms-appt-modal .modal-footer {
+  padding: 22px 24px !important;
+}
+
 .bms-appt-list .bms-appt-pager {
   display: flex;
   align-items: center;
@@ -208,19 +222,27 @@
   white-space: nowrap;
 }
 
+.bms-book-when {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(180px, 3fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
 .bms-book-cal {
-  padding: 8px 4px 4px;
+  min-width: 0;
+  padding: 0;
 }
 
 .bms-book-cal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .bms-book-cal-head strong {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 750;
   color: #0f2744;
 }
@@ -235,13 +257,13 @@
 }
 
 .bms-book-cal-head button {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border: 1px solid #d5e3f5;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #ffffff;
   color: #0f2744;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -252,8 +274,8 @@
 }
 
 .bms-book-cal-week span {
-  padding: 8px 0;
-  font-size: 12px;
+  padding: 4px 0;
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
   text-align: center;
@@ -266,10 +288,10 @@
 }
 
 .bms-book-cal-grid button {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 650;
   color: #0f2744;
 }
@@ -292,9 +314,11 @@
 
 .bms-book-shifts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
 }
 
 .bms-book-slots {
@@ -308,22 +332,26 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  min-height: 84px;
-  padding: 14px 16px;
+  justify-content: center;
+  gap: 2px;
+  min-height: 0;
+  height: 100%;
+  padding: 8px 12px;
   border: 1px solid transparent;
-  border-radius: 16px;
+  border-radius: 14px;
   text-align: left;
 }
 
 .bms-book-shifts button strong {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 750;
+  line-height: 1.2;
 }
 
 .bms-book-shifts button span {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .bms-book-shifts button.is-morning {
@@ -367,6 +395,22 @@
 
 .bms-book-shifts button.is-selected span {
   color: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 720px) {
+  .bms-book-when {
+    grid-template-columns: 1fr;
+  }
+
+  .bms-book-shifts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto;
+  }
+
+  .bms-book-shifts button {
+    min-height: 64px;
+    padding: 8px;
+  }
 }
 
 .bms-book-doctor {

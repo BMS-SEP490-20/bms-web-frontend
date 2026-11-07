@@ -129,7 +129,7 @@ export const RolesManagementPage = () => {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              Quản Lý Phân Quyền Vai Trò (RBAC)
+              Phân Quyền Vai Trò Người Dùng
             </h1>
           </div>
           
@@ -213,63 +213,37 @@ export const RolesManagementPage = () => {
       </Row>
 
       {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
-      <div className="bms-table-standalone-section">
-        {/* Header Toolbar */}
-        <div className="bms-table-standalone-header">
-          <div>
-            <h5 className="bms-table-standalone-title">
-              <FaShieldAlt style={{ color: '#1E60E6' }} />
-              Ma Trận Phân Quyền Vai Trò Người Dùng
-            </h5>
-            <p className="bms-table-standalone-subtitle">
-              Hiển thị {safeRoles.length} trên tổng số {totalCount || safeRoles.length} vai trò hệ thống
-            </p>
-          </div>
-
-          <div className="bms-filter-bar">
-            {/* Unified Search Capsule */}
-            <div className="bms-search-input-pill" style={{ maxWidth: '320px' }}>
-              <FaSearch className="bms-search-icon" />
-              <input
-                type="text"
-                placeholder="Tìm theo mã hoặc tên vai trò..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="bms-search-clear"
-                  onClick={() => setSearchTerm('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <FaTimes />
-                </button>
-              )}
-            </div>
-
-            {/* Status Filter Dropdown */}
-            <Form.Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                width: 'auto',
-                minWidth: '170px',
-                height: '40px',
-                borderRadius: '9999px',
-                padding: '0 16px',
-                fontSize: '13px',
-                background: '#FFFFFF'
-              }}
+      <section className="bms-filter-bar">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã hoặc tên vai trò..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm"
             >
-              <option value="">-- Tất Cả Trạng Thái --</option>
-              <option value="true">Đang Hoạt Động</option>
-              <option value="false">Tạm Khóa</option>
-            </Form.Select>
-          </div>
+              <FaTimes />
+            </button>
+          )}
         </div>
+        <Form.Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="true">Đang hoạt động</option>
+          <option value="false">Tạm khóa</option>
+        </Form.Select>
+      </section>
 
-        {/* Data Table */}
+      <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-body">
           <div className="table-responsive">
             <Table hover className="align-middle mb-0">
@@ -295,8 +269,7 @@ export const RolesManagementPage = () => {
                 ) : safeRoles.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="text-center py-3 text-muted">
-                      <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" style={{ color: '#1E60E6' }} />
-                      Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
+                      Không tìm thấy vai trò nào phù hợp.
                     </td>
                   </tr>
                 ) : (

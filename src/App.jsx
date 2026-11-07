@@ -76,6 +76,8 @@ import QualityControlManagementPage from "./features/qc/pages/QualityControlMana
 import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
 import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
 import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
+import IotMonitorPage from "./features/manager-dashboard/pages/IotMonitorPage.jsx";
+import GlobalIotAlertPopup from "./features/iot/components/GlobalIotAlertPopup.jsx";
 
 // Patient Services, Scheduling & Billing Views
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
@@ -381,6 +383,11 @@ export default function App() {
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                   <Route path="/laboratory/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
+                  <Route path="/iot/monitor" element={<IotMonitorPage />} />
+                  <Route path="/iot/temperature" element={<IotMonitorPage />} />
+                  <Route path="/iot/logs" element={<IotMonitorPage />} />
+                  <Route path="/manager/iot-monitor" element={<IotMonitorPage />} />
+                  <Route path="/laboratory/iot-monitor" element={<IotMonitorPage />} />
                 </Route>
 
                 {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager */}
@@ -458,6 +465,7 @@ export default function App() {
               <Route path="/404" element={<NotFound404 />} />
               <Route path="*" element={<NotFound404 />} />
             </Routes>
+            <GlobalIotAlertPopup />
           </Router>
           <NotificationProvider />
         </NotificationContextProvider>

@@ -16,9 +16,9 @@ import { Container, Card, Alert } from "react-bootstrap";
  */
 export default function TatDashboardPage() {
     return (
-        <Container className="py-4">
-            <Card className="shadow-sm p-4 text-center rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', backgroundColor: '#FFFFFF' }}>
-                <Alert variant="info" className="m-0" style={{ borderRadius: '14px', border: '1px solid rgba(30, 96, 230, 0.3)', backgroundColor: 'rgba(30, 96, 230, 0.08)', color: '#2B4C8C' }}>
+        <Container className="py-2">
+            <Card className="shadow-sm p-2 text-center rounded-4" style={{ backgroundColor: '#FFFFFF' }}>
+                <Alert variant="info" className="m-0" style={{ borderRadius: '14px', backgroundColor: 'rgba(30, 96, 230, 0.08)', color: '#2B4C8C' }}>
                     <i className="bi bi-stopwatch me-2" style={{ color: '#1E60E6' }}></i>
                     <strong>Giám Sát Thời Gian Trả Kết Quả (TAT SLA):</strong> Theo dõi thời gian xử lý mẫu thường ({"<"} 4 giờ) và mẫu cấp cứu STAT ({"<"} 1 giờ) theo cam kết chất lượng.
                 </Alert>

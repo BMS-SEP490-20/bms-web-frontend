@@ -238,21 +238,14 @@ export default function ServicePackagesPage({ onBack }) {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <i className="bi bi-shield-check"></i>
-                        <span>DANH MỤC VIỆN PHÍ &amp; GÓI XÉT NGHIỆM LÂM SÀNG</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <i className="bi bi-box-seam-fill"></i>
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Quản Lý Danh Mục Gói Dịch Vụ &amp; Bảng Giá Viện Phí
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Danh mục các gói xét nghiệm lâm sàng, cấu hình xét nghiệm thành phần và đơn giá niêm yết viện phí theo quy định BYT.
-                    </p>
+                    
                 </div>
                 <div className="bms-page-actions">
                     <Button
@@ -309,7 +302,7 @@ export default function ServicePackagesPage({ onBack }) {
                         </p>
                     </div>
 
-                    <div className="d-flex flex-wrap align-items-center gap-3" style={{ minWidth: '320px', maxWidth: '600px', flex: 1, justifyContent: 'flex-end' }}>
+                    <div className="bms-filter-bar">
                         <div className="bms-search-input-pill" style={{ maxWidth: '340px' }}>
                             <i className="bi bi-search bms-search-icon"></i>
                             <input
@@ -338,7 +331,6 @@ export default function ServicePackagesPage({ onBack }) {
                                 minWidth: '170px',
                                 height: '40px',
                                 borderRadius: '9999px',
-                                border: '1px solid #CBD5E1',
                                 padding: '0 16px',
                                 fontSize: '13px',
                                 background: '#FFFFFF'
@@ -368,14 +360,14 @@ export default function ServicePackagesPage({ onBack }) {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-5">
+                                    <td colSpan="6" className="text-center py-3">
                                         <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                                         Đang tải danh sách gói dịch vụ xét nghiệm...
                                     </td>
                                 </tr>
                             ) : visible.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-5 text-muted">
+                                    <td colSpan="6" className="text-center py-3 text-muted">
                                         <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
                                         Không tìm thấy gói dịch vụ nào phù hợp với bộ lọc tìm kiếm.
                                     </td>

@@ -378,25 +378,7 @@ p {
   color: var(--ink-secondary) !important;
 }
 
-/* --- Clean Modern Tables --- */
-.table {
-  color: var(--ink) !important;
-  margin-bottom: 0 !important;
-}
-
-.table > :not(caption) > * > * {
-  padding: 14px 18px !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
-  background-color: transparent !important;
-}
-
-.table > thead > tr > th {
-  font-size: 12px !important;
-  font-weight: 650 !important;
-  color: var(--ink-secondary) !important;
-  background-color: var(--bg-muted) !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
-}
+/* Dashboard tables are styled only in bms-workbench.css. */
 
 /* Fractional spacing utilities (Bootstrap 5 ships none of these; several pages rely on them) */
 .mt-0\.5 { margin-top: 0.125rem !important; }

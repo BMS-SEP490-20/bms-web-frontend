@@ -1032,9 +1032,8 @@ export default function ServiceCatalogPage() {
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
-        size="lg"
-        centered
-        contentClassName="border-0 rounded-4"
+        dialogClassName="bms-package-detail-dialog"
+        contentClassName="bms-package-detail-content"
       >
         <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: '16px 24px' }}>
           <div>
@@ -1074,15 +1073,7 @@ export default function ServiceCatalogPage() {
 
               {/* Pre-analytical Requirements (Render Only Present Fields, Zero Fabricated Data) */}
               {(selectedPackage.sampleTube || selectedPackage.fastingRule || selectedPackage.tat || selectedPackage.targetAudience) && (
-                <div
-                  className="p-3 mb-3"
-                  style={{
-                    background: '#F8FAFC',
-                    borderRadius: '12px',
-                    border: '1px solid #E2E8F0',
-                    fontSize: '12.5px'
-                  }}
-                >
+                <div className="bms-package-facts">
                   <Row className="g-3">
                     {selectedPackage.sampleTube && (
                       <Col sm={6}>
@@ -1126,15 +1117,7 @@ export default function ServiceCatalogPage() {
               </h5>
 
               {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 ? (
-                <div
-                  className="table-responsive"
-                  style={{
-                    maxHeight: '220px',
-                    overflowY: 'auto',
-                    border: '1px solid #E2E8F0',
-                    borderRadius: '10px'
-                  }}
-                >
+                <div className="table-responsive bms-package-criteria">
                   <table className="table table-sm table-striped mb-0" style={{ fontSize: '12px' }}>
                     <thead style={{ background: '#F1F5F9', position: 'sticky', top: 0 }}>
                       <tr>

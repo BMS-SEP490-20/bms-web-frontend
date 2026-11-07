@@ -64,7 +64,7 @@ export default function TestReportPage() {
 
     if (!orderId) {
         return (
-            <div className="container py-5 text-center text-muted" style={{ minHeight: "80vh" }}>
+            <div className="container py-3 text-center text-muted" style={{ minHeight: "80vh" }}>
                 <FaExclamationCircle className="text-secondary fs-1 mb-3" />
                 <h5>Chưa chọn phiếu chỉ định xét nghiệm</h5>
                 <p className="small">Vui lòng chọn một phiếu chỉ định từ danh sách lịch sử để xem kết quả xét nghiệm chi tiết.</p>
@@ -77,7 +77,7 @@ export default function TestReportPage() {
 
     if (loading) {
         return (
-            <div className="container py-5 text-center text-muted" style={{ minHeight: "80vh" }}>
+            <div className="container py-3 text-center text-muted" style={{ minHeight: "80vh" }}>
                 <div className="spinner-border mb-3" style={{ color: "#0284c7" }} role="status"></div>
                 <div>Đang nạp phiếu kết quả xét nghiệm y khoa chính thức từ hệ thống...</div>
             </div>
@@ -86,7 +86,7 @@ export default function TestReportPage() {
 
     if (!report) {
         return (
-            <div className="container py-5 text-center text-muted" style={{ minHeight: "80vh" }}>
+            <div className="container py-3 text-center text-muted" style={{ minHeight: "80vh" }}>
                 <FaExclamationCircle className="text-danger fs-1 mb-3" />
                 <h5>{errorMessage || `Không tìm thấy phiếu kết quả xét nghiệm cho mã chỉ định #${orderId}`}</h5>
                 <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
@@ -99,21 +99,10 @@ export default function TestReportPage() {
     const parameters = Array.isArray(report.parameters) ? report.parameters : [];
 
     return (
-        <div className="container-fluid py-4 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+        <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
             {/* Action Bar & Breadcrumbs (Hidden on print) */}
             <div className="d-print-none d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
                 <div>
-                    <nav aria-label="breadcrumb">
-                        <ol className="breadcrumb mb-1 text-muted small">
-                            <li className="breadcrumb-item">
-                                <Link to="/doctor/console" className="text-decoration-none text-secondary">Khám Lâm Sàng</Link>
-                            </li>
-                            <li className="breadcrumb-item text-secondary">{report.orderId}</li>
-                            <li className="breadcrumb-item active fw-semibold" style={{ color: "#0284c7" }} aria-current="page">
-                                Phiếu Kết Quả
-                            </li>
-                        </ol>
-                    </nav>
                     <h2 className="h4 fw-bold text-dark mb-0">
                         Phiếu Kết Quả Xét Nghiệm — {report.packageName}
                     </h2>
@@ -155,7 +144,7 @@ export default function TestReportPage() {
             <div className="row justify-content-center">
                 <div className="col-lg-9 col-xl-8">
                     <div
-                        className="card border-0 shadow-sm rounded-3 p-4 p-md-5 bg-white position-relative"
+                        className="card border-0 shadow-sm rounded-3 p-2 p-md-5 bg-white position-relative"
                         style={{
                             minHeight: "1050px",
                             color: "#1e293b",

@@ -57,7 +57,7 @@ export const DeleteRoleConfirmModal = ({
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="p-4">
+      <Modal.Body className="p-2">
         {errorMessage && (
           <Alert variant="danger" className="py-2 small mb-3 shadow-sm">
             {errorMessage}

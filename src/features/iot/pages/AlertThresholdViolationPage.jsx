@@ -206,21 +206,14 @@ export default function AlertThresholdViolationPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>GIÁM SÁT MÔI TRƯỜNG IOT · BẢO QUẢN MẪU BỆNH PHẨM (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaExclamationTriangle size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Cảnh báo thời gian thực về điều kiện bảo quản mẫu bệnh phẩm (Nhiệt độ tủ lưu trữ máu 2-6°C, tủ đông huyết tương -20°C, độ ẩm phòng lab 30-60%) và quản lý quy trình khắc phục sự cố.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -289,7 +282,7 @@ export default function AlertThresholdViolationPage() {
                 </div>
 
                 <div className="text-end d-none d-md-block">
-                    <span className="badge px-3 py-2 fs-6 shadow-sm" style={{ backgroundColor: '#ffffff', color: isCriticalHealth ? '#ef4444' : '#475569', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                    <span className="badge px-3 py-2 fs-6 shadow-sm" style={{ backgroundColor: '#ffffff', color: isCriticalHealth ? '#ef4444' : '#475569', borderRadius: '9999px' }}>
                         {summary.activeAlertsCount} cảnh báo chưa xử lý
                     </span>
                 </div>
@@ -349,7 +342,7 @@ export default function AlertThresholdViolationPage() {
             </div>
 
             {/* Filter Toolbar */}
-            <div className="card shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card bms-filter-bar">
                 <div className="card-body p-3">
                     <div className="row g-3 align-items-center">
                         {/* Status Filter Tabs */}
@@ -392,7 +385,7 @@ export default function AlertThresholdViolationPage() {
                             </label>
                             <select
                                 className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}
+                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6' }}
                                 value={selectedSeverity}
                                 onChange={e => setSelectedSeverity(e.target.value)}
                             >
@@ -409,13 +402,13 @@ export default function AlertThresholdViolationPage() {
                                 Tìm kiếm thiết bị / vị trí:
                             </label>
                             <div className="input-group input-group-sm">
-                                <span className="input-group-text border-end-0" style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px 0 0 12px' }}>
+                                <span className="input-group-text border-end-0" style={{ backgroundColor: '#EEF2F6', borderRadius: '12px 0 0 12px' }}>
                                     <FaSearch className="text-muted" />
                                 </span>
                                 <input
                                     type="text"
                                     className="form-control border-start-0"
-                                    style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '0 12px 12px 0' }}
+                                    style={{ backgroundColor: '#EEF2F6', borderRadius: '0 12px 12px 0' }}
                                     placeholder="Nhập mã TEMP-001, tủ lưu trữ..."
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
@@ -442,14 +435,14 @@ export default function AlertThresholdViolationPage() {
 
                 <div className="bms-table-standalone-body">
                     {loadError ? (
-                        <div className="text-center py-5 text-danger">
+                        <div className="text-center py-3 text-danger">
                             <p className="mb-2 fw-semibold">{loadError}</p>
                             <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={loadData}>
                                 Thử lại
                             </button>
                         </div>
                     ) : filteredAlerts.length === 0 ? (
-                        <div className="text-center py-5 text-muted">
+                        <div className="text-center py-3 text-muted">
                             <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
                             <p className="mb-0 fw-semibold">Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</p>
                         </div>
@@ -489,7 +482,7 @@ export default function AlertThresholdViolationPage() {
                                                     <div className="small text-muted font-monospace">{alert.deviceId} &bull; {alert.location}</div>
                                                 </td>
                                                 <td>
-                                                    <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '9999px', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                                                    <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '9999px' }}>
                                                         {isTemp ? <FaThermometerHalf className="text-danger me-1" /> : <FaTint className="text-info me-1" />}
                                                         {alert.sensorType}
                                                     </span>
@@ -514,17 +507,17 @@ export default function AlertThresholdViolationPage() {
                                                 </td>
                                                 <td className="text-center">
                                                     {isAct && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px' }}>
                                                             KÍCH HOẠT
                                                         </span>
                                                     )}
                                                     {isAck && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.3)' }}>
+                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
                                                             ĐÃ TIẾP NHẬN
                                                         </span>
                                                     )}
                                                     {isRes && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px', border: '1px solid rgba(145, 222, 131, 0.4)' }}>
+                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
                                                             ĐÃ KHẮC PHỤC
                                                         </span>
                                                     )}
@@ -599,7 +592,7 @@ export default function AlertThresholdViolationPage() {
                                 ></button>
                             </div>
 
-                            <div className="modal-body p-4">
+                            <div className="modal-body p-2">
                                 <div className="mb-3 p-3 rounded-4 border" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                     <div className="fw-bold text-dark">{selectedAlertForAction.deviceName} ({selectedAlertForAction.deviceId})</div>
                                     <div className="small text-muted">{selectedAlertForAction.location}</div>
@@ -613,7 +606,7 @@ export default function AlertThresholdViolationPage() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                         value={operatorName}
                                         onChange={e => setOperatorName(e.target.value)}
                                         required
@@ -627,7 +620,7 @@ export default function AlertThresholdViolationPage() {
                                     <textarea
                                         className="form-control"
                                         rows="3"
-                                        style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                         placeholder={actionType === "RESOLVE" ? "Ví dụ: Đã thay rơ-le máy nén lạnh, chuyển mẫu sang tủ R-02 dự phòng, nhiệt độ đã về 3.8°C ổn định." : "Ví dụ: Đang trên đường tới phòng lab kiểm tra máy nén."}
                                         value={actionNotes}
                                         onChange={e => setActionNotes(e.target.value)}
@@ -685,7 +678,7 @@ export default function AlertThresholdViolationPage() {
                                 ></button>
                             </div>
 
-                            <div className="modal-body p-4">
+                            <div className="modal-body p-2">
                                 <p className="small text-muted mb-3">
                                     Công cụ diễn tập mô phỏng cảm biến IoT gửi giá trị bất thường vượt qua ngưỡng Low/High để kiểm tra phản ứng hệ thống, kích hoạt âm thanh cảnh báo và ghi nhận log audit.
                                 </p>
@@ -694,7 +687,7 @@ export default function AlertThresholdViolationPage() {
                                     <label className="form-label small fw-bold text-muted text-uppercase">Mã thiết bị cảm biến:</label>
                                     <select
                                         className="form-select"
-                                        style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                         value={simDeviceId}
                                         onChange={e => setSimDeviceId(e.target.value)}
                                     >
@@ -708,7 +701,7 @@ export default function AlertThresholdViolationPage() {
                                     <label className="form-label small fw-bold text-muted text-uppercase">Loại cảm biến:</label>
                                     <select
                                         className="form-select"
-                                        style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                         value={simSensorType}
                                         onChange={e => setSimSensorType(e.target.value)}
                                     >
@@ -725,7 +718,7 @@ export default function AlertThresholdViolationPage() {
                                         type="number"
                                         step="0.1"
                                         className="form-control form-control-lg fw-bold text-danger"
-                                        style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: '12px' }}
+                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
                                         value={simValue}
                                         onChange={e => setSimValue(e.target.value)}
                                     />

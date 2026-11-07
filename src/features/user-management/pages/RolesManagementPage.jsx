@@ -125,27 +125,20 @@ export const RolesManagementPage = () => {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaShieldAlt size={12} />
-            <span>QUẢN TRỊ HỆ THỐNG · PHÂN QUYỀN RBAC (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaShieldAlt size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Quản Lý Phân Quyền Vai Trò (RBAC)
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Ma trận phân quyền truy cập theo vai trò dành cho nhân sự y tế và quản trị hệ thống BMS (BR-IAM-02).
-          </p>
+          
         </div>
         <div className="bms-page-actions">
           <Button
             variant="primary"
             onClick={handleOpenCreateModal}
-            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2"
+            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2"
             style={{
               borderRadius: 9999,
               background: '#1E60E6',
@@ -233,7 +226,7 @@ export const RolesManagementPage = () => {
             </p>
           </div>
 
-          <div className="d-flex flex-wrap align-items-center gap-3" style={{ minWidth: '320px', maxWidth: '600px', flex: 1, justifyContent: 'flex-end' }}>
+          <div className="bms-filter-bar">
             {/* Unified Search Capsule */}
             <div className="bms-search-input-pill" style={{ maxWidth: '320px' }}>
               <FaSearch className="bms-search-icon" />
@@ -264,7 +257,6 @@ export const RolesManagementPage = () => {
                 minWidth: '170px',
                 height: '40px',
                 borderRadius: '9999px',
-                border: '1px solid #CBD5E1',
                 padding: '0 16px',
                 fontSize: '13px',
                 background: '#FFFFFF'
@@ -295,14 +287,14 @@ export const RolesManagementPage = () => {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-5">
+                    <td colSpan="7" className="text-center py-3">
                       <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                       Đang tải danh sách vai trò hệ thống...
                     </td>
                   </tr>
                 ) : safeRoles.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-5 text-muted">
+                    <td colSpan="7" className="text-center py-3 text-muted">
                       <FaShieldAlt className="fs-2 d-block mb-2 text-muted mx-auto opacity-50" style={{ color: '#1E60E6' }} />
                       Không tìm thấy vai trò nào phù hợp với bộ lọc tìm kiếm.
                     </td>

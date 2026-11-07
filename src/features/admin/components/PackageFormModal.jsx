@@ -254,7 +254,7 @@ export default function PackageFormModal({
                 </Modal.Title>
             </Modal.Header>
 
-            <Modal.Body className="p-4" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
+            <Modal.Body className="p-2" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
                 {error && (
                     <Alert variant="danger" dismissible onClose={() => setError('')} className="py-2 small mb-3">
                         <i className="bi bi-exclamation-triangle-fill me-2"></i>

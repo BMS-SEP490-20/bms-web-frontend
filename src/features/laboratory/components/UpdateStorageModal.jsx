@@ -103,7 +103,7 @@ export default function UpdateStorageModal({ show, onHide, barcode, currentStora
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="modal-body p-4">
+                        <div className="modal-body p-2">
                             {errorMessage && (
                                 <div className="alert alert-danger py-2 small mb-3">
                                     {errorMessage}
@@ -220,7 +220,7 @@ export default function UpdateStorageModal({ show, onHide, barcode, currentStora
                             </div>
                         </div>
 
-                        <div className="modal-footer bg-light py-2 px-4">
+                        <div className="modal-footer bg-light py-2 px-3">
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary"

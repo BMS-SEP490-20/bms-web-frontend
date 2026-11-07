@@ -567,24 +567,23 @@ const SampleQueuePage = () => {
       />
 
       {/* Filter and Search Bar */}
-      <div className="card border-0 shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <div className="card-body p-3">
-          <Form onSubmit={handleSearch}>
-            <Row className="g-2 align-items-center">
-              <Col xs={12} md={4}>
+      <section className="bms-inventory-filter">
+          <Form onSubmit={handleSearch} className="bms-field-grid">
+              <label className="bms-field">
+                Tìm mẫu
                 <InputGroup size="sm">
-                  <InputGroup.Text className="bg-white"><FaSearch className="text-muted" /></InputGroup.Text>
+                  <InputGroup.Text><FaSearch /></InputGroup.Text>
                   <Form.Control
                     type="text"
-                    placeholder="Tìm theo Barcode, Mã mẫu, Mã BN hoặc Tên bệnh nhân..."
+                    placeholder="Barcode, mã mẫu, mã BN"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <Button variant="primary" type="submit" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>Tìm</Button>
                 </InputGroup>
-              </Col>
+              </label>
 
-              <Col xs={6} md={3}>
+              <label className="bms-field">
+                Trạng thái
                 <Form.Select size="sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="All">Tất cả trạng thái mẫu</option>
                   <option value="PendingCollection">Chờ lấy mẫu (PendingCollection)</option>
@@ -597,32 +596,34 @@ const SampleQueuePage = () => {
                   <option value="RerunRequested">Yêu cầu chạy lại (RerunRequested)</option>
                   <option value="Rejected">Từ chối mẫu (Rejected)</option>
                 </Form.Select>
-              </Col>
+              </label>
 
-              <Col xs={6} md={2}>
+              <label className="bms-field">
+                Ưu tiên
                 <Form.Select size="sm" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
                   <option value="All">Mọi mức độ ưu tiên</option>
                   <option value="Normal">Bình thường (Normal)</option>
                   <option value="Urgent">Khẩn cấp (Urgent)</option>
                   <option value="Stat">Cấp cứu (STAT)</option>
                 </Form.Select>
-              </Col>
+              </label>
 
-              <Col xs={8} md={2}>
+              <label className="bms-field">
+                Phòng lab
                 <Form.Control
                   size="sm"
                   type="text"
-                  placeholder="Phòng Lab (VD: LAB-ROOM-01)"
+                  placeholder="LAB-ROOM-01"
                   value={labRoomFilter}
                   onChange={(e) => setLabRoomFilter(e.target.value)}
                 />
-              </Col>
+              </label>
 
-              <Col xs={4} md={1} className="text-end">
+              <div className="bms-field-actions">
+                <Button variant="primary" type="submit" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>Tìm</Button>
                 <Button
                   variant="outline-secondary"
-                  size="sm"
-                  className="w-100"
+                  type="button"
                   onClick={() => {
                     setSearchTerm('');
                     setStatusFilter('All');
@@ -630,24 +631,22 @@ const SampleQueuePage = () => {
                     setLabRoomFilter('');
                   }}
                 >
-                  Xoá lọc
+                  Xóa lọc
                 </Button>
-              </Col>
-            </Row>
+              </div>
           </Form>
-        </div>
-      </div>
+      </section>
 
       {/* Samples Queue Table - Standalone Section */}
       <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-body">
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" size="sm" className="me-2" />
               <span className="text-muted">Đang tải danh sách mẫu bệnh phẩm...</span>
             </div>
           ) : sampleListSafe.length === 0 ? (
-            <div className="text-center py-5 text-muted">
+            <div className="text-center py-3 text-muted">
               <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
@@ -818,7 +817,7 @@ const SampleQueuePage = () => {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             {collectionError && (
               <Alert variant="danger" className="py-2 small">
                 <FaExclamationTriangle className="me-2" />
@@ -1094,7 +1093,7 @@ const SampleQueuePage = () => {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             {statusError && (
               <Alert variant="danger" className="py-2 small">
                 <FaExclamationTriangle className="me-2" />
@@ -1300,7 +1299,7 @@ const SampleQueuePage = () => {
             <span>Yêu Cầu Chạy Lại Mẫu Xét Nghiệm (Rerun)</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {selectedSample && (
             <div className="mb-3 p-3 bg-light rounded-3 border small">
               <div><strong>Mã Barcode:</strong> <code>{selectedSample.barcode}</code></div>

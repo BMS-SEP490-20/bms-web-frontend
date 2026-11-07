@@ -140,7 +140,7 @@ const UnifiedUserInfoModal = ({
           Chi Tiết Tài Khoản Nhân Sự: <span style={{ color: '#1E60E6' }}>{user.fullName || user.username}</span>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="p-4">
+      <Modal.Body className="p-2">
         {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
         
         <Tabs 
@@ -219,7 +219,7 @@ const UnifiedUserInfoModal = ({
           {hasProfile && (
             <Tab eventKey="profile" title="Hồ Sơ Chuyên Môn">
               {profileLoading ? (
-                <div className="text-center py-4 text-muted">
+                <div className="text-center py-2 text-muted">
                   <div className="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>
                   Đang tải thông tin hồ sơ nghiệp vụ...
                 </div>

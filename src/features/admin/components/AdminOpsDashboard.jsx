@@ -53,7 +53,7 @@ export default function AdminOpsDashboard() {
   if (error) return <Alert variant="danger" role="alert">{error}</Alert>;
   if (!ops) {
     return (
-      <div className="text-center py-5" role="status" aria-live="polite">
+      <div className="text-center py-3" role="status" aria-live="polite">
         <Spinner animation="border" variant="primary" aria-hidden="true" />
         <p className="text-muted mt-2">Đang tải số liệu vận hành…</p>
       </div>

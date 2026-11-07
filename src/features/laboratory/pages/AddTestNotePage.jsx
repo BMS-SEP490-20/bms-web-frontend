@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FaSave,
   FaArrowLeft,
@@ -193,35 +193,11 @@ export default function AddTestNotePage() {
   const safeExistingNotes = Array.isArray(existingNotes) ? existingNotes : [];
 
   return (
-    <div className="container-fluid py-4 px-md-4" style={{ maxWidth: "1400px", minHeight: "100vh" }}>
+    <div className="container-fluid py-2 px-md-4" style={{ maxWidth: "1400px", minHeight: "100vh" }}>
       {/* Tiêu đề & Hành động đầu trang */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-1 text-muted small">
-              <li className="breadcrumb-item">
-                <Link to="/lab/queue" className="text-decoration-none" style={{ color: '#1E60E6' }}>Phòng xét nghiệm</Link>
-              </li>
-              <li className="breadcrumb-item">
-                <Link to="/laboratory/samples" className="text-decoration-none" style={{ color: '#1E60E6' }}>Mẫu bệnh phẩm</Link>
-              </li>
-              <li className="breadcrumb-item active fw-semibold" style={{ color: '#1E60E6' }} aria-current="page">
-                Ghi chú kỹ thuật
-              </li>
-            </ol>
-          </nav>
-          <div className="d-flex align-items-center gap-2">
-            <h2 className="h4 fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-              <FaShieldAlt style={{ color: '#1E60E6' }} />
-              <span>Ghi Chú Kỹ Thuật Xét Nghiệm (Add Test Note)</span>
-            </h2>
-            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ backgroundColor: 'rgba(30, 96, 230,0.1)', color: '#1E60E6', border: '1px solid rgba(30, 96, 230,0.2)' }}>
-              Tiêu chuẩn ISO 15189:2022
-            </span>
-          </div>
-          <small className="text-muted">
-            Ghi nhận tình trạng ống mẫu (tán huyết nhẹ, đục mỡ, đông dây), cảnh báo máy phân tích hoặc trao đổi với Bác sĩ điều trị.
-          </small>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Ghi chú kỹ thuật</h1>
         </div>
 
         <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
@@ -237,14 +213,14 @@ export default function AddTestNotePage() {
             type="button"
             onClick={handleSubmit}
             disabled={submitting}
-            className="btn btn-sm px-4 fw-semibold shadow-sm d-flex align-items-center gap-1 rounded-pill"
+            className="btn btn-sm px-3 fw-semibold shadow-sm d-flex align-items-center gap-1 rounded-pill"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
           >
             {submitting ? <FaSpinner className="fa-spin" /> : <FaSave />}
-            <span>{submitting ? "Đang lưu..." : "Lưu Ghi Chú"}</span>
+            <span>{submitting ? "Đang lưu..." : "Lưu ghi chú"}</span>
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Thông báo Alert */}
       {successMessage && (
@@ -273,7 +249,7 @@ export default function AddTestNotePage() {
                 <span>Bối Cảnh Mẫu Xét Nghiệm (Specimen Context)</span>
               </h5>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               {/* Ô nhập / Quét mã vạch */}
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-secondary">
@@ -449,7 +425,7 @@ export default function AddTestNotePage() {
                 KTV thực hiện: {technicianName}
               </span>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               {/* Thanh công cụ định dạng nhanh */}
               <div className="btn-toolbar p-1 mb-2 bg-light rounded border gap-1">
                 <button
@@ -511,7 +487,7 @@ export default function AddTestNotePage() {
             </div>
             <div className="card-body p-3">
               {safeExistingNotes.length === 0 ? (
-                <div className="text-center py-4 text-muted small">
+                <div className="text-center py-2 text-muted small">
                   <FaClock className="mb-2 d-block mx-auto text-secondary" size={24} />
                   Chưa có ghi chú chuyên môn nào được lưu cho mẫu xét nghiệm này.
                 </div>

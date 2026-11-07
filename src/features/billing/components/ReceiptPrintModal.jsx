@@ -274,7 +274,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                             </div>
 
                             {/* SVG QR Code Simulation */}
-                            <div style={{ display: 'inline-block', padding: '6px', backgroundColor: '#ffffff', border: '1px solid #cccccc', borderRadius: '4px' }}>
+                            <div style={{ display: 'inline-block', padding: '6px', backgroundColor: '#ffffff', borderRadius: '4px' }}>
                                 <svg width="90" height="90" viewBox="0 0 100 100">
                                     <rect width="100" height="100" fill="#ffffff" />
                                     {/* Outer markers */}
@@ -339,7 +339,6 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                             style={{
                                 padding: '8px 18px',
                                 borderRadius: '9999px',
-                                border: '1px solid rgba(15, 23, 42, 0.05)',
                                 backgroundColor: '#ffffff',
                                 color: '#475569',
                                 fontWeight: '600',

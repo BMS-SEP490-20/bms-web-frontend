@@ -277,48 +277,7 @@ body {
   transition: all 0.2s ease;
 }
 
-/* Soft Air Tables (Calm, readable, normal-case headers, no dense zebra striping) */
-.bms-soft-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.bms-soft-table thead th {
-  background-color: var(--bg-page);
-  color: var(--ink-secondary);
-  font-size: 12.5px;
-  font-weight: 600;
-  text-transform: none; /* NO hospital uppercase */
-  letter-spacing: -0.01em;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  border-top: none;
-}
-
-.bms-soft-table thead th:first-child {
-  border-top-left-radius: 16px;
-}
-
-.bms-soft-table thead th:last-child {
-  border-top-right-radius: 16px;
-}
-
-.bms-soft-table tbody td {
-  padding: 16px 18px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
-  vertical-align: middle;
-}
-
-.bms-soft-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.bms-soft-table tbody tr:hover td {
-  background-color: rgba(100, 140, 244, 0.03);
-}
+/* Dashboard tables are styled only in bms-workbench.css. */
 
 /* Soft Form Controls */
 .bms-soft-input {

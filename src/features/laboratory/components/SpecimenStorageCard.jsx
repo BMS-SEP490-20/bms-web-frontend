@@ -25,7 +25,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                         Thông Tin Lưu Trữ Lạnh & Tồn Trữ
                     </h6>
                 </div>
-                <div className="card-body text-center py-5 text-muted">
+                <div className="card-body text-center py-3 text-muted">
                     <FaWarehouse className="display-6 mb-3 text-secondary opacity-50" />
                     <p className="mb-3">Mẫu bệnh phẩm chưa được gán vị trí lưu trữ trong tủ lạnh/kho bảo quản.</p>
                     {canEdit && onUpdateStorageClick && (
@@ -91,7 +91,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                 )}
             </div>
 
-            <div className="card-body p-4">
+            <div className="card-body p-2">
                 {/* Physical Location Coordinates */}
                 <div className="row g-3 mb-4">
                     <div className="col-12">

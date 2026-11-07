@@ -208,11 +208,11 @@ export default function CalculateFeesPage() {
   };
 
   return (
-    <div className="calc-fees-page py-4 px-3 bg-light min-vh-100">
+    <div className="calc-fees-page py-2 px-3 bg-light min-vh-100">
       <div className="container-fluid" style={{ maxWidth: 1320 }}>
         {/* Top Header Card */}
         <Card className="shadow-sm border-0 rounded-3 mb-4">
-          <Card.Body className="p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <Card.Body className="p-2 d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div className="d-flex align-items-center gap-3">
               <div
                 style={{
@@ -230,13 +230,8 @@ export default function CalculateFeesPage() {
                 <FaCalculator />
               </div>
               <div>
-                <div className="text-primary small fw-bold text-uppercase" style={{ letterSpacing: "0.5px" }}>
-                  TÍNH PHÍ XÉT NGHIỆM & DỰ TOÁN BHYT TỰ ĐỘNG
-                </div>
-                <h2 className="h4 fw-bold text-dark mb-1">
-                  Dự Toán & Tính Phí Xét Nghiệm Y Tế
-                </h2>
-                <div className="text-muted small">
+                <h1 className="bms-page-title">Tính phí</h1>
+                <div className="d-none">
                   Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí điều dưỡng lấy mẫu tại nhà và mã giảm giá chuẩn Bộ Y Tế.
                 </div>
               </div>
@@ -289,7 +284,7 @@ export default function CalculateFeesPage() {
               </Card.Header>
               <Card.Body className="p-3">
                 {loadingPackages ? (
-                  <div className="text-center py-4 text-muted">
+                  <div className="text-center py-2 text-muted">
                     <Spinner animation="border" size="sm" variant="primary" className="me-2" />
                     Đang tải danh mục gói xét nghiệm từ CSDL...
                   </div>
@@ -557,7 +552,7 @@ export default function CalculateFeesPage() {
                       className="font-monospace text-uppercase"
                     />
                   </InputGroup>
-                  <Button variant="primary" onClick={handleApplyVoucher} className="px-4 fw-bold">
+                  <Button variant="primary" onClick={handleApplyVoucher} className="px-3 fw-bold">
                     Áp Dụng
                   </Button>
                 </div>
@@ -625,9 +620,9 @@ export default function CalculateFeesPage() {
                 </Badge>
               </Card.Header>
 
-              <Card.Body className="p-4">
+              <Card.Body className="p-2">
                 {calculating ? (
-                  <div className="text-center py-5 text-muted">
+                  <div className="text-center py-3 text-muted">
                     <Spinner animation="border" variant="primary" className="mb-2" />
                     <div>Đang tính toán chiết giảm viện phí...</div>
                   </div>

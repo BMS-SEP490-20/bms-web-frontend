@@ -279,32 +279,18 @@ export function EnterTestResultsPage() {
   };
 
   return (
-    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Tiêu đề trang chuẩn y khoa ISO 15189 */}
-      <div className="text-white px-4 py-3 mb-4 rounded-4 shadow-sm" style={{ backgroundColor: '#1E60E6' }}>
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div>
-            <div className="small opacity-75 mb-1">
-              Phòng xét nghiệm &bull; Nhập dữ liệu phân tích &bull; Kiểm soát giá trị nguy hiểm
-            </div>
-            <h3 className="mb-1 fw-bold d-flex align-items-center gap-2">
-              <FaMicroscope />
-              <span>Nhập Kết Quả Phân Tích &amp; Báo Động Giá Trị Nguy Hiểm (Result Entry)</span>
-            </h3>
-            <p className="mb-0 small opacity-90">
-              Nhập và đối chiếu giá trị đo với khoảng tham chiếu sinh học. Bắt buộc kích hoạt quy trình báo động đỏ khi có chỉ số CRITICAL.
-            </p>
-          </div>
-          <Badge bg="light" className="border px-3 py-2 fw-semibold rounded-pill font-monospace" style={{ color: '#1E60E6' }}>
-            ISO 15189:2022 §7.4
-          </Badge>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Nhập kết quả</h1>
         </div>
-      </div>
+      </header>
 
       <div style={{ maxWidth: 1250 }} className="mx-auto">
         {/* Card thiết lập lượt chạy máy */}
         <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Body className="p-4">
+          <Card.Body className="p-2">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
               <FaFlask style={{ color: '#1E60E6' }} />
               <span>Thông Tin Mẻ Phân Tích &amp; Thiết Bị Đo</span>
@@ -412,7 +398,7 @@ export function EnterTestResultsPage() {
           <Col lg={8}>
             <Form onSubmit={onSubmit}>
               <Card className="border-0 shadow-sm rounded-3 bg-white mb-4">
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div>
                       <h5 className="mb-0 fw-bold text-dark">Bảng Nhập Chỉ Số Đo Bệnh Phẩm</h5>
@@ -638,7 +624,7 @@ export function EnterTestResultsPage() {
                   </div>
                 </Card.Body>
 
-                <Card.Footer className="bg-white border-top d-flex justify-content-end gap-2 px-4 py-3 rounded-bottom-3">
+                <Card.Footer className="bg-white border-top d-flex justify-content-end gap-2 px-3 py-3 rounded-bottom-3">
                   <Button variant="outline-secondary" type="button" onClick={() => setParams(DEFAULT_PARAMS.map(p => ({ ...p })))}>
                     Nhập lại giá trị
                   </Button>
@@ -646,7 +632,7 @@ export function EnterTestResultsPage() {
                     variant="primary"
                     type="submit"
                     disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
-                    className="d-flex align-items-center gap-2 shadow-sm px-4 fw-semibold text-white"
+                    className="d-flex align-items-center gap-2 shadow-sm px-3 fw-semibold text-white"
                     style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                   >
                     {loading ? (

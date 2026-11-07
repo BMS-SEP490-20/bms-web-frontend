@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FaCalendarAlt,
   FaClock,
@@ -23,6 +23,8 @@ import { useBookAppointment } from '../hooks/useBookAppointment';
 import { getAvailableSlots, getAvailableDoctors } from '../api/appointmentApi';
 import { fetchServiceCatalog } from '../../catalog/api/catalogApi';
 import { getStoredUser } from '../../../constants/roles';
+import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
+import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
 import { getMyPatientInformation } from '../../../services/patientService';
 
 const SHIFT_DEFINITIONS = [
@@ -48,6 +50,36 @@ const SHIFT_DEFINITIONS = [
     desc: 'Lấy mẫu ngoài giờ thuận tiện cho người đi làm'
   }
 ];
+
+const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+function toDateKey(value) {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function monthCells(cursor) {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const lead = (first.getDay() + 6) % 7;
+  const count = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+  const cells = Array.from({ length: lead }, () => null);
+  for (let day = 1; day <= count; day += 1) {
+    cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day));
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+  return cells;
+}
+
+function packageIconKey(pkg) {
+  const blob = `${pkg.category || ''} ${pkg.packageName || ''} ${pkg.packageCode || ''}`;
+  const fromKit = getCategoryIconKey(blob);
+  if (fromKit !== 'general') return fromKit;
+  const name = blob.toLowerCase();
+  if (name.includes('tế bào') || name.includes('cbc') || name.includes('huyết học')) return 'hematology';
+  return 'general';
+}
 
 const DEFAULT_FALLBACK_PACKAGES = [
   {
@@ -127,20 +159,26 @@ export function BookAppointmentPage({
   });
 
   const [patientInfo, setPatientInfo] = useState({
-    name: storedUser?.fullName || storedUser?.username || 'Trần Văn An',
-    phone: storedUser?.phone || storedUser?.phoneNumber || storedUser?.contactPhone || '0909123456',
-    identityCard: storedUser?.identityCard || storedUser?.idCard || '079201004829',
-    patientId: storedUser?.patientId || storedUser?.id || initialPatientId || 'BN-2026-670560000000000000000010',
-    insuranceNumber: storedUser?.healthInsuranceNumber || 'DN 4 79 79 1234567'
+    name: storedUser?.fullName || '',
+    phone: storedUser?.phone || storedUser?.phoneNumber || '',
+    identityCard: storedUser?.identityCard || storedUser?.identityNumber || storedUser?.idCard || '',
+    patientId: storedUser?.patientId || storedUser?.id || initialPatientId || '',
+    insuranceNumber: storedUser?.healthInsuranceNumber || ''
   });
 
   const [date, setDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
-    return d.toISOString().slice(0, 10);
+    return toDateKey(d);
+  });
+  const [calendarCursor, setCalendarCursor] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return new Date(d.getFullYear(), d.getMonth(), 1);
   });
 
   const [selectedShiftId, setSelectedShiftId] = useState('Morning');
+  const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [availableShifts, setAvailableShifts] = useState([]);
   const [loadingShifts, setLoadingShifts] = useState(false);
 
@@ -210,6 +248,7 @@ export function BookAppointmentPage({
             packageId: p.packageCode || p.id || p.packageId || `PKG-${idx}`,
             packageCode: p.packageCode || p.code || '',
             packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
+            category: p.category || '',
             price: p.price ?? 250000,
             description: p.description || 'Gói xét nghiệm chuẩn ISO 15189 tại phòng xét nghiệm BMS.',
             fastingRule: p.fastingRule || ''
@@ -260,59 +299,23 @@ export function BookAppointmentPage({
     void loadDoctorShifts();
   }, [loadDoctorShifts]);
 
-  // Current active shift metadata: mapped to Doctor & Room from doctor_shifts and lab_rooms
-  const activeShiftData = useMemo(() => {
-    const found = availableShifts.find(
+  const shiftDoctors = useMemo(() => {
+    return availableShifts.filter(
       (s) => (s.shiftType || '').toLowerCase() === selectedShiftId.toLowerCase()
     );
-    if (found) return found;
-
-    // Default shift assignments mapped from Clinic Room & Shift Management
-    if (selectedShiftId === 'Afternoon') {
-      return {
-        doctorId: '670560000000000000000002',
-        doctorName: 'BS. CKI Nguyễn Văn Minh',
-        specialty: 'Huyết học & Miễn dịch học lâm sàng',
-        shiftType: 'Afternoon',
-        shiftStart: '13:00',
-        shiftEnd: '17:00',
-        roomId: 'ROOM-102',
-        roomName: 'Phòng Lấy Mẫu & Khám Chuyên Sâu 102',
-        roomNumber: '102',
-        floor: 'Tầng 1 - Khu A'
-      };
-    }
-    if (selectedShiftId === 'Evening') {
-      return {
-        doctorId: '670560000000000000000002',
-        doctorName: 'BS. CKI Nguyễn Văn Minh',
-        specialty: 'Huyết học & Miễn dịch học lâm sàng',
-        shiftType: 'Evening',
-        shiftStart: '17:30',
-        shiftEnd: '20:30',
-        roomId: 'ROOM-103',
-        roomName: 'Phòng Tư Vấn Kết Quả & Xét Nghiệm Nhanh',
-        roomNumber: '103',
-        floor: 'Tầng 1 - Khu A'
-      };
-    }
-    return {
-      doctorId: '670560000000000000000002',
-      doctorName: 'BS. CKI Nguyễn Văn Minh',
-      specialty: 'Huyết học & Miễn dịch học lâm sàng',
-      shiftType: 'Morning',
-      shiftStart: '07:00',
-      shiftEnd: '11:30',
-      roomId: 'ROOM-101',
-      roomName: 'Phòng khám Huyết học Tổng quát 1',
-      roomNumber: '101',
-      floor: 'Tầng 1 - Khu A'
-    };
   }, [availableShifts, selectedShiftId]);
+
+  const activeShiftData = useMemo(() => {
+    if (shiftDoctors.length === 0) return null;
+    return shiftDoctors.find((s) => s.doctorId === selectedDoctorId) || shiftDoctors[0];
+  }, [shiftDoctors, selectedDoctorId]);
 
   // Load slots for the active doctor and date
   useEffect(() => {
-    if (!activeShiftData?.doctorId || !date) return;
+    if (!activeShiftData?.doctorId || !date) {
+      setAllSlots([]);
+      return;
+    }
     let isMounted = true;
     setLoadingSlots(true);
     getAvailableSlots(activeShiftData.doctorId, date)
@@ -336,6 +339,7 @@ export function BookAppointmentPage({
 
   // Filter slots strictly inside active shift time window
   const shiftSlots = useMemo(() => {
+    if (!activeShiftData) return [];
     const start = activeShiftData.shiftStart || '07:00';
     const end = activeShiftData.shiftEnd || '11:30';
 
@@ -349,26 +353,16 @@ export function BookAppointmentPage({
       })
       .filter((s) => s.slotTime >= start && s.slotTime < end);
 
-    if (normalized.length > 0) return normalized;
-
-    // Fallback standard slots for shift if backend has no slot reservations yet
-    const defaults =
-      selectedShiftId === 'Morning'
-        ? ['07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00']
-        : selectedShiftId === 'Afternoon'
-        ? ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
-        : ['17:30', '18:00', '18:30', '19:00', '19:30', '20:00'];
-
-    return defaults.map((time) => ({ slotTime: time, isAvailable: true }));
-  }, [allSlots, activeShiftData, selectedShiftId]);
+    return normalized;
+  }, [allSlots, activeShiftData]);
 
   // Auto-select first AVAILABLE slot of the shift
   useEffect(() => {
     const availableSlots = shiftSlots.filter((s) => s.isAvailable);
     const currentIsValid = availableSlots.some((s) => s.slotTime === slotTime);
 
-    if (!currentIsValid && availableSlots.length > 0) {
-      setSlotTime(availableSlots[0].slotTime);
+    if (!currentIsValid) {
+      setSlotTime(availableSlots[0]?.slotTime || '');
     }
   }, [shiftSlots, slotTime]);
 
@@ -388,7 +382,7 @@ export function BookAppointmentPage({
     if (!slotTime || !selectedPackageId || !activeShiftData?.doctorId) return;
 
     await book({
-      patientId: patientInfo.patientId || 'BN-2026-670560000000000000000010',
+      patientId: patientInfo.patientId,
       doctorId: activeShiftData.doctorId,
       appointmentDate: date,
       slotTime,
@@ -403,9 +397,9 @@ export function BookAppointmentPage({
   // SUCCESS STATE
   if (result) {
     return (
-      <div className="container py-5" style={{ maxWidth: 840 }}>
+      <div className="container py-3" style={{ maxWidth: 840 }}>
         <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div className="bg-success text-white p-4 text-center">
+          <div className="bg-success text-white p-2 text-center">
             <FaCheckCircle className="display-4 mb-2" />
             <h3 className="fw-bold mb-1">Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến) Thành Công!</h3>
             <p className="mb-0 text-white-50">
@@ -413,7 +407,7 @@ export function BookAppointmentPage({
             </p>
           </div>
 
-          <div className="card-body p-4 p-md-5">
+          <div className="card-body p-2 p-md-5">
             <div className="alert alert-primary d-flex align-items-center gap-3 border-0 py-3 mb-4 rounded-3">
               <FaCalendarCheck className="text-primary fs-2 flex-shrink-0" />
               <div>
@@ -444,8 +438,8 @@ export function BookAppointmentPage({
                   <div className="small text-muted mb-1 d-flex align-items-center gap-1">
                     <FaUserMd className="text-secondary" /> Bác sĩ phụ trách:
                   </div>
-                  <div className="fw-bold text-dark">{activeShiftData.doctorName}</div>
-                  <div className="small text-muted">{activeShiftData.specialty}</div>
+                  <div className="fw-bold text-dark">{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
+                  <div className="small text-muted">{activeShiftData?.specialty || ''}</div>
                 </div>
               </div>
               <div className="col-sm-6">
@@ -453,9 +447,12 @@ export function BookAppointmentPage({
                   <div className="small text-muted mb-1 d-flex align-items-center gap-1">
                     <FaHospital className="text-secondary" /> Phòng xét nghiệm & khám:
                   </div>
-                  <div className="fw-bold text-dark">{activeShiftData.roomName}</div>
+                  <div className="fw-bold text-dark">{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
                   <div className="small text-muted">
-                    Phòng {activeShiftData.roomNumber} · {activeShiftData.floor}
+                    {[
+                      activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
+                      activeShiftData?.floor || ''
+                    ].filter(Boolean).join(' · ')}
                   </div>
                 </div>
               </div>
@@ -474,7 +471,7 @@ export function BookAppointmentPage({
               </div>
             </div>
 
-            <div className="p-4 bg-warning-subtle border border-warning rounded-4 mb-4 text-start">
+            <div className="p-2 bg-warning-subtle border border-warning rounded-4 mb-4 text-start">
               <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-2">
                 <FaClock className="text-warning" /> Phiếu Lịch Hẹn Đang Ở Trạng Thái "Chờ Thanh Toán"
               </h6>
@@ -486,21 +483,21 @@ export function BookAppointmentPage({
             <div className="d-flex flex-wrap gap-3 justify-content-end">
               <button
                 type="button"
-                className="btn btn-outline-secondary px-4 py-2 rounded-3"
+                className="btn btn-outline-secondary px-3 py-2 rounded-3"
                 onClick={reset}
               >
                 Đặt Lịch Khám Khác
               </button>
               <button
                 type="button"
-                className="btn btn-outline-primary px-4 py-2 rounded-3 d-flex align-items-center gap-2"
+                className="btn btn-outline-primary px-3 py-2 rounded-3 d-flex align-items-center gap-2"
                 onClick={() => navigate('/appointments')}
               >
                 Xem Lịch Khám Của Tôi <FaArrowRight />
               </button>
               <button
                 type="button"
-                className="btn btn-success btn-lg px-4 py-2 rounded-3 fw-bold shadow d-flex align-items-center gap-2"
+                className="btn btn-success btn-lg px-3 py-2 rounded-3 fw-bold shadow d-flex align-items-center gap-2"
                 onClick={() => {
                   const pkgPrice = selectedPackage?.price || 180000;
                   const pkgName = selectedPackage?.packageName || selectedPackage?.name || '';
@@ -517,146 +514,64 @@ export function BookAppointmentPage({
   }
 
   return (
-    <div className="bms-booking-page py-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="bms-booking-page py-2" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       <div className="container" style={{ maxWidth: 1160 }}>
-        {/* Header Breadcrumb */}
-        <div className="d-flex align-items-center gap-2 mb-3 text-muted small">
-          <Link to="/" className="text-decoration-none text-muted">Trang Chủ</Link>
-          <span>/</span>
-          <Link to="/services" className="text-decoration-none text-muted">Gói Xét Nghiệm</Link>
-          <span>/</span>
-          <span className="text-dark fw-semibold">Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến)</span>
-        </div>
 
-        {/* Page Title */}
-        <div className="mb-4">
-          <div className="bms-page-meta" style={{ marginBottom: 12 }}><span>Tiêu chuẩn ISO 15189:2022 · phòng khám chuyên khoa BMS</span></div>
-          <h2 className="fw-bold mb-1" style={{ color: 'var(--bms-text-primary, #20242B)' }}>
-            Đăng Ký Lịch Khám & Xét Nghiệm (Đặt Lịch Hẹn Trực Tuyến)
-          </h2>
-          <p className="text-muted mb-0">
-            Hệ thống tự động đồng bộ ca làm việc của Bác sĩ trực ban và sơ đồ Phòng xét nghiệm chuyên khoa.
-          </p>
-        </div>
+        <header className="bms-page-header">
+          <h1 className="bms-page-title">Đặt lịch khám</h1>
+        </header>
 
         <form onSubmit={onSubmit}>
           <div className="row g-4">
             {/* Left Column: Form Fields */}
             <div className="col-lg-8">
               {error && (
-                <div className="alert alert-danger py-3 px-4 rounded-3 border-0 shadow-sm mb-4">
+                <div className="alert alert-danger py-3 px-3 rounded-3 border-0 shadow-sm mb-4">
                   <strong>Thông báo:</strong> {error}
                 </div>
               )}
 
               {/* SECTION 1: Patient Information */}
-              <div className="card border-0 shadow-sm rounded-3 mb-4">
-                <div className="card-header bg-white border-bottom py-3 px-4">
-                  <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaIdCard className="text-primary" /> 1. Thông Tin Bệnh Nhân Đặt Hẹn
-                  </h5>
-                </div>
-                <div className="card-body p-4">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label text-muted small fw-semibold">
-                        Họ và tên bệnh nhân <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        style={{ minHeight: 46 }}
-                        value={patientInfo.name}
-                        onChange={(e) => setPatientInfo({ ...patientInfo, name: e.target.value })}
-                        placeholder="Ví dụ: Trần Văn An"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label text-muted small fw-semibold">
-                        Số điện thoại liên lạc <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        style={{ minHeight: 46 }}
-                        value={patientInfo.phone}
-                        onChange={(e) => setPatientInfo({ ...patientInfo, phone: e.target.value })}
-                        placeholder="Ví dụ: 0909123456"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label text-muted small fw-semibold">
-                        Số CCCD / Mã Định Danh (12 số)
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        style={{ minHeight: 46 }}
-                        value={patientInfo.identityCard}
-                        onChange={(e) => setPatientInfo({ ...patientInfo, identityCard: e.target.value })}
-                        placeholder="Ví dụ: 079201004829"
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label text-muted small fw-semibold">
-                        Mã thẻ BHYT (nếu có)
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        style={{ minHeight: 46 }}
-                        value={patientInfo.insuranceNumber}
-                        onChange={(e) => setPatientInfo({ ...patientInfo, insuranceNumber: e.target.value })}
-                        placeholder="Ví dụ: DN 4 79 79 1234567"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <section className="bms-book-patient">
+                <h2>Thông tin bệnh nhân</h2>
+                <dl>
+                  <div><dt>Họ tên</dt><dd>{patientInfo.name || '—'}</dd></div>
+                  <div><dt>Điện thoại</dt><dd>{patientInfo.phone || '—'}</dd></div>
+                  <div><dt>CCCD</dt><dd>{patientInfo.identityCard || '—'}</dd></div>
+                </dl>
+              </section>
 
               {/* SECTION 2: Test Package Selection */}
               <div className="card border-0 shadow-sm rounded-3 mb-4">
-                <div className="card-header bg-white border-bottom py-3 px-4">
+                <div className="card-header bg-white border-bottom py-3 px-3">
                   <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                     <FaVial className="text-primary" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
                   </h5>
                 </div>
-                <div className="card-body p-4">
-                  <div className="row g-2">
+                <div className="card-body p-2">
+                  <div className="bms-pkg-list" role="listbox" aria-label="Chọn gói xét nghiệm">
                     {packages.map((pkg) => {
                       const isSelected = pkg.packageId === selectedPackageId;
                       return (
-                        <div key={pkg.packageId} className="col-12">
-                          <div
-                            onClick={() => setSelectedPackageId(pkg.packageId)}
-                            className={`p-3 rounded-3 border cursor-pointer transition d-flex align-items-center justify-content-between ${
-                              isSelected ? 'border-primary bg-primary-subtle' : 'border-light-subtle bg-white'
-                            }`}
-                            style={{ cursor: 'pointer', transition: 'all 0.2s' }}
-                          >
-                            <div className="d-flex align-items-center gap-3">
-                              <input
-                                type="radio"
-                                name="packageRadio"
-                                checked={isSelected}
-                                onChange={() => setSelectedPackageId(pkg.packageId)}
-                                className="form-check-input mt-0"
-                                style={{ width: 18, height: 18 }}
-                              />
-                              <div>
-                                <div className="fw-bold text-dark">{pkg.packageName}</div>
-                                <div className="small text-muted">{pkg.fastingRule}</div>
-                              </div>
-                            </div>
-                            <div className="text-end">
-                              <div className="fw-bold text-primary fs-6">
-                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <button
+                          key={pkg.packageId}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          className={`bms-pkg-item${isSelected ? ' is-selected' : ''}`}
+                          onClick={() => setSelectedPackageId(pkg.packageId)}
+                        >
+                          <span className="bms-pkg-icon">
+                            <BmsPackageIcon name={packageIconKey(pkg)} size={40} />
+                          </span>
+                          <span className="bms-pkg-copy">
+                            <span className="bms-pkg-name">{pkg.packageName}</span>
+                            {pkg.fastingRule ? <span className="bms-pkg-note">{pkg.fastingRule}</span> : null}
+                          </span>
+                          <span className="bms-pkg-price">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
+                          </span>
+                        </button>
                       );
                     })}
                   </div>
@@ -665,151 +580,124 @@ export function BookAppointmentPage({
 
               {/* SECTION 3: Shift, Doctor & Room Management */}
               <div className="card border-0 shadow-sm rounded-3 mb-4">
-                <div className="card-header bg-white border-bottom py-3 px-4">
-                  <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaCalendarAlt className="text-primary" /> 3. Chọn Ngày, Ca Khám & Phòng Xét Nghiệm
-                  </h5>
+                <div className="card-header bg-white border-bottom py-3 px-3">
+                  <h5 className="mb-0 fw-bold text-dark">Chọn ngày và ca</h5>
                 </div>
-                <div className="card-body p-4">
-                  {/* Date Input */}
-                  <div className="mb-4">
-                    <label className="form-label text-muted small fw-semibold">
-                      Ngày hẹn khám / lấy mẫu <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      style={{ minHeight: 48, maxWidth: 320 }}
-                      min={new Date().toISOString().slice(0, 10)}
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      required
-                    />
-                    <div className="form-text text-muted">
-                      Hệ thống tự động tải lịch trực ca của Bác sĩ và phòng Lab theo ngày bạn chọn.
+                <div className="card-body p-3">
+                  <div className="bms-book-cal">
+                    <div className="bms-book-cal-head">
+                      <button
+                        type="button"
+                        aria-label="Tháng trước"
+                        onClick={() => setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
+                      >
+                        ‹
+                      </button>
+                      <strong>
+                        Tháng {calendarCursor.getMonth() + 1}, {calendarCursor.getFullYear()}
+                      </strong>
+                      <button
+                        type="button"
+                        aria-label="Tháng sau"
+                        onClick={() => setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
+                      >
+                        ›
+                      </button>
                     </div>
-                  </div>
-
-                  {/* SHIFT PICKER: Ca Sáng, Ca Chiều, Ca Tối */}
-                  <div className="mb-4">
-                    <label className="form-label text-muted small fw-semibold d-block mb-2">
-                      Chọn Ca Khám Trực Ban <span className="text-danger">*</span>
-                    </label>
-                    <div className="row g-2">
-                      {SHIFT_DEFINITIONS.map((shift) => {
-                        const isSelected = selectedShiftId === shift.id;
+                    <div className="bms-book-cal-week">
+                      {WEEKDAYS.map((label) => <span key={label}>{label}</span>)}
+                    </div>
+                    <div className="bms-book-cal-grid">
+                      {monthCells(calendarCursor).map((cell, index) => {
+                        if (!cell) return <span key={`empty-${index}`} />;
+                        const key = toDateKey(cell);
+                        const today = toDateKey(new Date());
+                        const disabled = key < today;
                         return (
-                          <div key={shift.id} className="col-md-4">
-                            <div
-                              onClick={() => setSelectedShiftId(shift.id)}
-                              className={`p-3 rounded-3 border h-100 cursor-pointer ${
-                                isSelected
-                                  ? 'border-primary bg-primary text-white shadow-sm'
-                                  : 'border-light-subtle bg-light text-dark'
-                              }`}
-                              style={{ cursor: 'pointer', transition: 'all 0.2s' }}
-                            >
-                              <div className="d-flex align-items-center justify-content-between mb-1">
-                                <span className="fs-5">{shift.icon}</span>
-                                <span
-                                  className={`badge rounded-pill ${
-                                    isSelected ? 'bg-white text-primary' : 'bg-secondary-subtle text-secondary'
-                                  }`}
-                                  style={{ fontSize: '11px' }}
-                                >
-                                  {shift.timeRange}
-                                </span>
-                              </div>
-                              <div className="fw-bold mb-1">{shift.name}</div>
-                              <div
-                                style={{
-                                  fontSize: '12px',
-                                  color: isSelected ? 'rgba(255,255,255,0.85)' : '#64748b'
-                                }}
-                              >
-                                {shift.desc}
-                              </div>
-                            </div>
-                          </div>
+                          <button
+                            key={key}
+                            type="button"
+                            disabled={disabled}
+                            className={key === date ? 'is-selected' : ''}
+                            onClick={() => setDate(key)}
+                          >
+                            {cell.getDate()}
+                          </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* DYNAMIC DOCTOR & ROOM INFO CARD */}
-                  <div className="card border-0 mb-4 rounded-4" style={{ backgroundColor: 'var(--bms-surface-card, #EEF2F6)', borderLeft: '4px solid #1E60E6' }}>
-                    <div className="card-body p-3">
-                      <div className="d-flex align-items-start gap-3">
-                        <div
-                          className="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0"
-                          style={{ width: 44, height: 44, backgroundColor: '#1E60E6' }}
-                        >
-                          <FaUserMd className="fs-5" />
-                        </div>
-                        <div className="flex-grow-1">
-                          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                            <div>
-                              <span className="badge rounded-pill text-white mb-1" style={{ backgroundColor: '#1E60E6' }}>
-                                Bác Sĩ & Phòng Khám Trực Ban {selectedShiftId === 'Morning' ? 'Ca Sáng' : selectedShiftId === 'Afternoon' ? 'Ca Chiều' : 'Ca Tối'}
-                              </span>
-                              <h6 className="fw-bold text-dark mb-0">{activeShiftData.doctorName}</h6>
-                              <div className="small text-muted">{activeShiftData.specialty}</div>
-                            </div>
-                            <div className="text-md-end">
-                              <div className="small text-muted d-flex align-items-center gap-1 justify-content-md-end">
-                                <FaHospital style={{ color: '#1E60E6' }} /> <strong>{activeShiftData.roomName}</strong>
-                              </div>
-                              <div className="badge bg-light text-dark border rounded-pill">
-                                Phòng {activeShiftData.roomNumber} · {activeShiftData.floor}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="bms-book-shifts">
+                    {SHIFT_DEFINITIONS.map((shift) => (
+                      <button
+                        key={shift.id}
+                        type="button"
+                        className={`is-${shift.id.toLowerCase()}${selectedShiftId === shift.id ? ' is-selected' : ''}`}
+                        onClick={() => setSelectedShiftId(shift.id)}
+                      >
+                        <strong>{shift.name}</strong>
+                        <span>{shift.timeRange}</span>
+                      </button>
+                    ))}
                   </div>
 
-                  {/* TIME SLOT PICKER */}
-                  <div className="mb-3">
-                    <label className="form-label text-muted small fw-semibold d-flex align-items-center gap-1">
-                      <FaClock style={{ color: '#1E60E6' }} /> Khung giờ lấy mẫu cụ thể trong ca:
-                    </label>
-                    {loadingSlots ? (
-                      <div className="text-muted small py-2">Đang tải các khung giờ trống...</div>
+                  <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`}>
+                    {loadingShifts ? (
+                      <span>Đang tải ca trực...</span>
+                    ) : !activeShiftData ? (
+                      <span>Ca này chưa có bác sĩ trực.</span>
                     ) : (
-                      <div className="d-flex flex-wrap gap-2">
-                        {shiftSlots.map((item) => {
-                          const slot = item.slotTime;
-                          const isAvailable = item.isAvailable;
-                          const isPicked = slotTime === slot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              disabled={!isAvailable}
-                              onClick={() => isAvailable && setSlotTime(slot)}
-                              className={`btn btn-sm px-3 py-2 rounded-pill fw-semibold ${
-                                !isAvailable
-                                    ? 'btn-light text-muted border-light text-decoration-line-through'
-                                    : isPicked
-                                    ? 'btn-primary shadow-sm'
-                                    : 'btn-outline-secondary'
-                              }`}
-                              style={{
-                                backgroundColor: isPicked ? '#1E60E6' : undefined,
-                                borderColor: isPicked ? '#1E60E6' : '#cbd5e1',
-                                minWidth: 80,
-                                opacity: isAvailable ? 1 : 0.5,
-                                cursor: isAvailable ? 'pointer' : 'not-allowed'
-                              }}
-                              title={isAvailable ? `Khung giờ ${slot}` : `Khung giờ ${slot} đã đầy`}
-                            >
-                              {slot}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <>
+                        <img src="/assets/bms/svg/icons/lab/doctor-review.svg" alt="" />
+                        <div>
+                          <strong>{activeShiftData.doctorName || 'Chưa có tên trên ca trực'}</strong>
+                          <span>{activeShiftData.specialty || 'Chưa ghi chuyên khoa'}</span>
+                        </div>
+                        <div className="bms-book-room">
+                          <strong>{activeShiftData.roomName || 'Chưa gán phòng'}</strong>
+                          <span>
+                            {[
+                              activeShiftData.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
+                              activeShiftData.floor || ''
+                            ].filter(Boolean).join(' · ')}
+                          </span>
+                        </div>
+                      </>
                     )}
+                  </div>
+
+                  {shiftDoctors.length > 1 && (
+                    <div className="bms-book-doctor-picks">
+                      {shiftDoctors.map((doctor) => (
+                        <button
+                          key={`${doctor.doctorId}-${doctor.roomId}`}
+                          type="button"
+                          className={doctor.doctorId === activeShiftData?.doctorId ? 'is-selected' : ''}
+                          onClick={() => setSelectedDoctorId(doctor.doctorId)}
+                        >
+                          {doctor.doctorName || 'Chưa có tên'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="bms-book-slots">
+                    {loadingSlots ? (
+                      <span className="bms-book-duty">Đang tải khung giờ trống...</span>
+                    ) : shiftSlots.length === 0 ? (
+                      <span className="bms-book-duty">Ca này chưa có khung giờ trống.</span>
+                    ) : shiftSlots.map((item) => (
+                      <button
+                        key={item.slotTime}
+                        type="button"
+                        disabled={!item.isAvailable}
+                        className={slotTime === item.slotTime ? 'is-selected' : ''}
+                        onClick={() => item.isAvailable && setSlotTime(item.slotTime)}
+                      >
+                        {item.slotTime}
+                      </button>
+                    ))}
                   </div>
 
                   {/* CLINICAL NOTES */}
@@ -826,41 +714,25 @@ export function BookAppointmentPage({
                     />
                   </div>
                 </div>
+              </div>
 
-                <div className="card-footer bg-white border-top p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                  <div className="small text-muted">
-                    Lịch khám được đồng bộ ngay lập tức tới bộ phận tiếp nhận & phòng Lab.
-                  </div>
-                  <div className="d-flex gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary px-4 py-2 rounded-pill"
-                      onClick={() => navigate('/services')}
-                    >
-                      Quay Lại
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-primary px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', minHeight: 46 }}
-                      disabled={loading || !slotTime || !selectedPackageId}
-                    >
-                      {loading ? 'Đang Xử Lý...' : 'Xác Nhận Đặt Lịch Xét Nghiệm'}
-                    </button>
-                  </div>
-                </div>
+              <div className="bms-book-actions">
+                <button type="button" onClick={() => navigate('/services')}>Quay lại</button>
+                <button type="submit" disabled={loading || !slotTime || !selectedPackageId}>
+                  {loading ? 'Đang xử lý...' : 'Xác nhận đặt lịch'}
+                </button>
               </div>
             </div>
 
             {/* Right Column: Appointment Summary & Hospital Standards */}
             <div className="col-lg-4">
               <div className="card border-0 shadow-sm rounded-3 mb-4 sticky-top" style={{ top: '90px' }}>
-                <div className="card-header bg-white border-bottom py-3 px-4">
+                <div className="card-header bg-white border-bottom py-3 px-3">
                   <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                     <FaFileMedical className="text-primary" /> Tóm Tắt Phiếu Hẹn
                   </h6>
                 </div>
-                <div className="card-body p-4">
+                <div className="card-body p-2">
                   {selectedPackage && (
                     <div className="mb-3 pb-3 border-bottom">
                       <div className="small text-muted">Gói xét nghiệm chỉ định:</div>
@@ -881,15 +753,18 @@ export function BookAppointmentPage({
 
                   <div className="mb-3 pb-3 border-bottom">
                     <div className="small text-muted mb-1">Bác sĩ tiếp nhận:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData.doctorName}</div>
-                    <div className="small text-muted">{activeShiftData.specialty}</div>
+                    <div className="fw-semibold text-dark">{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
+                    <div className="small text-muted">{activeShiftData?.specialty || ''}</div>
                   </div>
 
                   <div className="mb-3">
                     <div className="small text-muted mb-1">Phòng khám & Lấy mẫu:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData.roomName}</div>
+                    <div className="fw-semibold text-dark">{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
                     <div className="small text-muted">
-                      Phòng {activeShiftData.roomNumber} · {activeShiftData.floor}
+                      {[
+                        activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
+                        activeShiftData?.floor || ''
+                      ].filter(Boolean).join(' · ')}
                     </div>
                   </div>
 

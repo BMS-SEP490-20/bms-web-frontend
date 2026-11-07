@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     FaCheckCircle,
     FaExclamationTriangle,
@@ -266,38 +266,13 @@ export default function VerifyTestResultsPage() {
     }, [verificationData]);
 
     return (
-        <div className="container-fluid py-4 px-md-5" style={{ maxWidth: 1400 }}>
-            {/* Thanh điều hướng & Breadcrumb */}
-            <div className="d-flex flex-wrap align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <div className="d-flex align-items-center gap-2 text-muted small">
-                    <Link to="/dashboard" className="text-decoration-none text-muted">Bảng điều khiển</Link>
-                    <span>/</span>
-                    <Link to="/laboratory" className="text-decoration-none text-muted">Phòng Xét Nghiệm</Link>
-                    <span>/</span>
-                    <span className="text-secondary">Quy trình thẩm định</span>
-                    <span>/</span>
-                    <span className="fw-semibold" style={{ color: '#1E60E6' }}>Ký số · {selectedSpecimenId}</span>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                    <div className="badge bg-light text-dark border px-3 py-2 d-flex align-items-center gap-2 shadow-sm rounded-pill">
-                        <span className="rounded-circle bg-success" style={{ width: 8, height: 8 }}></span>
-                        <span>Ca trực: <strong>Sáng</strong> · Người thẩm định: <strong>{currentUser?.fullName || currentUser?.name || "BSCKII. Lê Lan Anh (Trưởng Khoa)"}</strong></span>
-                    </div>
-                </div>
-            </div>
-
+        <div className="container-fluid py-2 px-md-5" style={{ maxWidth: 1400 }}>
             {/* Tiêu đề & Chọn mẫu xét nghiệm */}
-            <div className="row align-items-center mb-4">
-                <div className="col-lg-8">
-                    <h2 className="fw-bold mb-1 d-flex align-items-center gap-2 text-dark">
-                        <FaClipboardCheck style={{ color: '#1E60E6' }} />
-                        Thẩm Định Kết Quả Xét Nghiệm &amp; Ký Số Điện Tử (Verify)
-                    </h2>
-                    <p className="text-muted mb-0">
-                        Quy trình thẩm định chuyên môn y tế bắt buộc trước khi chuyển Bác sĩ điều trị hội chẩn (Tuân thủ ISO 15189 &amp; QĐ 2429/QĐ-BYT)
-                    </p>
+            <header className="bms-page-header">
+                <div className="bms-page-header-content">
+                    <h1 className="bms-page-title">Thẩm định kết quả</h1>
                 </div>
-                <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div className="bms-page-actions">
                     <div className="d-inline-flex align-items-center gap-2 bg-white p-2 rounded-4 border shadow-sm" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <label className="text-muted small fw-semibold mb-0">Chọn mẫu:</label>
                         <select
@@ -325,7 +300,7 @@ export default function VerifyTestResultsPage() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* Thông báo Alert */}
             {alertMessage && (
@@ -337,7 +312,7 @@ export default function VerifyTestResultsPage() {
             )}
 
             {/* Banner Thông Tin Mẫu Bệnh Phẩm */}
-            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6' }}>
                 <div className="card-body p-3">
                     <div className="row g-3 align-items-center">
                         <div className="col-md-3 border-end" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
@@ -373,23 +348,20 @@ export default function VerifyTestResultsPage() {
                 </div>
             </div>
 
-            {/* Khối Thẩm Định Chính (Checklist + Ký số) */}
-            <div className="card shadow-sm border-0 mb-4">
-                <div className="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
-                    <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <FaShieldAlt className="text-primary" />
-                        Bảng Kiểm Thẩm Định Kỹ Thuật (Checklist) — {verificationData?.specimenId || selectedSpecimenId}
-                    </h5>
+            <div className="bms-table-standalone-section mb-3">
+                <div className="bms-table-standalone-header">
+                    <h2 className="bms-table-standalone-title">
+                        Bảng kiểm — {verificationData?.specimenId || selectedSpecimenId}
+                    </h2>
                     {verificationData?.flagCount > 0 && (
-                        <span className="badge bg-warning text-dark border px-3 py-1">
-                            <FaExclamationTriangle className="me-1" /> {verificationData.flagCount} chỉ số cần lưu ý xem xét
+                        <span className="small text-warning">
+                            {verificationData.flagCount} chỉ số cần xem
                         </span>
                     )}
                 </div>
-
-                <div className="card-body p-0">
+                <div className="bms-table-standalone-body">
                     {loading ? (
-                        <div className="text-center py-5 text-muted">
+                        <div className="text-center py-3 text-muted">
                             <div className="spinner-border text-primary mb-2" role="status"></div>
                             <div>Đang nạp bảng kiểm thẩm định kết quả...</div>
                         </div>
@@ -414,7 +386,7 @@ export default function VerifyTestResultsPage() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={3} className="text-center py-4 text-muted">
+                                            <td colSpan={3} className="text-center py-2 text-muted">
                                                 Tất cả các tiêu chí tiền phân tích và phân tích trên máy đạt chuẩn kiểm định.
                                             </td>
                                         </tr>
@@ -424,9 +396,10 @@ export default function VerifyTestResultsPage() {
                         </div>
                     )}
                 </div>
+            </div>
 
-                {/* Phần Ký Số & Chứng Thư Điện Tử Của Trưởng Khoa */}
-                <div className="card-footer bg-light p-4 border-top">
+            <div className="bms-page-header" style={{ alignItems: 'stretch' }}>
+                <div className="w-100">
                     {isVerified && (
                         <div className="alert alert-success d-flex align-items-center gap-3 mb-4 shadow-sm">
                             <FaAward className="fs-1 text-success flex-shrink-0" />
@@ -504,7 +477,7 @@ export default function VerifyTestResultsPage() {
                                 <button type="button" className="btn-close" onClick={() => setShowReturnModal(false)}></button>
                             </div>
                             <form onSubmit={handleReturnSubmit}>
-                                <div className="modal-body p-4">
+                                <div className="modal-body p-2">
                                     <p className="text-muted small mb-3">
                                         Mẫu bệnh phẩm <strong>{selectedSpecimenId}</strong> sẽ được chuyển về hàng đợi của Kỹ thuật viên xét nghiệm. Vui lòng ghi rõ hướng dẫn hiệu chuẩn hoặc đo lường lại.
                                     </p>

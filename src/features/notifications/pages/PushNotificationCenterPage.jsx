@@ -331,21 +331,14 @@ export default function PushNotificationCenterPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>TRUNG TÂM PHÁT THÔNG BÁO ĐA KÊNH · FCM &amp; IN-APP (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaBell size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Trung Tâm Quản Lý &amp; Phát Thông Báo Đa Kênh
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Phát thông báo đẩy đa kênh (FCM Push, InApp, SMS, Email), kiểm soát giới hạn tần suất (BR-NOTIF-01: Tối đa 5 tin/phút) và kích hoạt ngoại lệ Báo động Nguy kịch (Critical Panic).
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -690,7 +683,7 @@ export default function PushNotificationCenterPage() {
                             </ul>
 
                             {/* Search & Channel Filters */}
-                            <div className="row g-2 mt-2 pt-2 border-top">
+                            <div className="bms-filter-bar">
                                 <div className="col-12 col-sm-6">
                                     <div className="bms-search-input-pill">
                                         <FaSearch className="bms-search-icon" />
@@ -768,14 +761,14 @@ export default function PushNotificationCenterPage() {
                                 <tbody>
                                     {isLoading ? (
                                         <tr>
-                                            <td colSpan="6" className="text-center py-4 text-muted">
+                                            <td colSpan="6" className="text-center py-2 text-muted">
                                                 <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                                                 Đang tải dữ liệu nhật ký...
                                             </td>
                                         </tr>
                                     ) : loadError ? (
                                         <tr>
-                                            <td colSpan="6" className="text-center py-4 text-danger">
+                                            <td colSpan="6" className="text-center py-2 text-danger">
                                                 <div className="mb-2 fw-semibold">{loadError}</div>
                                                 <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={fetchLogs}>
                                                     Thử lại
@@ -784,7 +777,7 @@ export default function PushNotificationCenterPage() {
                                         </tr>
                                     ) : logs.length === 0 ? (
                                         <tr>
-                                            <td colSpan="6" className="text-center py-4 text-muted">
+                                            <td colSpan="6" className="text-center py-2 text-muted">
                                                 Không tìm thấy thông báo nào phù hợp với bộ lọc.
                                             </td>
                                         </tr>
@@ -964,7 +957,7 @@ export default function PushNotificationCenterPage() {
                     {/* Drawer Notification List */}
                     <div className="flex-grow-1 overflow-auto p-2">
                         {userNotifications.length === 0 ? (
-                            <div className="text-center py-5 text-muted">
+                            <div className="text-center py-3 text-muted">
                                 <FaBell className="fs-1 text-light-emphasis mb-2" />
                                 <p className="mb-0 small">Chưa có thông báo nào cho tài khoản này.</p>
                             </div>

@@ -355,7 +355,7 @@ const AdminDashboard = () => {
 
   const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
     <Card className="stat-card h-100">
-      <Card.Body className="p-4">
+      <Card.Body className="p-2">
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div className={`stat-icon stat-icon-${color}`}>
             <Icon />
@@ -376,7 +376,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <Container className="py-4">
+      <Container className="py-2">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Đang tải...</span>
@@ -388,7 +388,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <Container fluid className="py-4" style={{ 
+    <Container fluid className="py-2" style={{ 
       overflowX: 'hidden', 
       maxWidth: '100%', 
       width: '100%',
@@ -535,7 +535,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/patients')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #198754' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaUsers size={20} />
@@ -552,7 +552,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/appointments')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaCalendarAlt size={20} />
@@ -569,7 +569,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/sample-management')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #dc3545' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaVial size={20} />
@@ -586,7 +586,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/lab-rooms')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #0dcaf0' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <i className="fas fa-door-open fa-lg"></i>
@@ -603,7 +603,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/services')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #6610f2' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-purple bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaCogs size={20} />
@@ -620,7 +620,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/invoices')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #ffc107' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaReceipt size={20} />
@@ -637,7 +637,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/reports')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #1E60E6' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaChartLine size={20} />
@@ -654,7 +654,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/admin/user-management')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #20c997' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaUserMd size={20} />
@@ -671,7 +671,7 @@ const AdminDashboard = () => {
               <div 
                 className="p-3 rounded-4 border bg-body-tertiary h-100 d-flex align-items-center gap-3 shadow-sm"
                 onClick={() => navigate('/notifications')}
-                style={{ transition: 'all 0.2s', cursor: 'pointer', borderLeft: '4px solid #fd7e14' }}
+                style={{ transition: 'all 0.2s', cursor: 'pointer' }}
               >
                 <div className="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-3" style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <FaBell size={20} />
@@ -751,7 +751,7 @@ const AdminDashboard = () => {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-2">
                   <FaCalendarAlt className="text-muted mb-3" style={{fontSize: '3rem'}} />
                   <p className="text-muted">Không có lịch hẹn nào</p>
                 </div>
@@ -825,7 +825,7 @@ const AdminDashboard = () => {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-2">
                   <FaFlask className="text-muted mb-3" style={{fontSize: '3rem'}} />
                   <p className="text-muted">Không có xét nghiệm nào</p>
                 </div>

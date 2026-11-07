@@ -4,7 +4,7 @@
  * Styled in the clean, flat, borderless Home design language (bms-status-chip, pure flat 2D).
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Row,
@@ -113,7 +113,7 @@ export default function InitialMedicalProfileSetup() {
     fullName: '',
     identityNumber: '',
     dateOfBirth: '',
-    gender: 'Nam',
+    gender: '',
     phoneNumber: '',
     email: '',
     address: '',
@@ -121,25 +121,25 @@ export default function InitialMedicalProfileSetup() {
   });
 
   // Clinical profile state
-  const [bloodType, setBloodType] = useState('Unknown');
-  const [hasNoCoagulation, setHasNoCoagulation] = useState(true);
+  const [bloodType, setBloodType] = useState('');
+  const [hasNoCoagulation, setHasNoCoagulation] = useState(false);
   const [coagulationNotes, setCoagulationNotes] = useState('');
 
-  const [hasNoAllergies, setHasNoAllergies] = useState(true);
+  const [hasNoAllergies, setHasNoAllergies] = useState(false);
   const [selectedAllergies, setSelectedAllergies] = useState([]);
   const [allergiesNotes, setAllergiesNotes] = useState('');
 
-  const [hasNoMedicalHistory, setHasNoMedicalHistory] = useState(true);
+  const [hasNoMedicalHistory, setHasNoMedicalHistory] = useState(false);
   const [selectedConditions, setSelectedConditions] = useState([]);
   const [medicalHistoryNotes, setMedicalHistoryNotes] = useState('');
 
-  const [hasNoMedications, setHasNoMedications] = useState(true);
+  const [hasNoMedications, setHasNoMedications] = useState(false);
   const [medicationsNotes, setMedicationsNotes] = useState('');
 
   // Vitals
-  const [heightCm, setHeightCm] = useState('168');
-  const [weightKg, setWeightKg] = useState('62');
-  const [bloodPressure, setBloodPressure] = useState('120/80');
+  const [heightCm, setHeightCm] = useState('');
+  const [weightKg, setWeightKg] = useState('');
+  const [bloodPressure, setBloodPressure] = useState('');
 
   // Emergency contact
   const [emergencyContactName, setEmergencyContactName] = useState('');
@@ -155,10 +155,21 @@ export default function InitialMedicalProfileSetup() {
 
   // Field validation tracking
   const [errors, setErrors] = useState({});
+  const loadedRef = useRef(false);
 
-  // 1. Fetch current profile on mount
+  const clearError = (key) => {
+    setErrors((current) => {
+      if (!current[key]) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  };
+
+  // 1. Fetch current profile once. A later user-object change must not wipe what the patient typed.
   useEffect(() => {
     async function loadData() {
+      if (loadedRef.current) return;
       setLoading(true);
       try {
         const stored = getStoredUser() || user || {};
@@ -170,12 +181,13 @@ export default function InitialMedicalProfileSetup() {
           // Fallback to stored user session
         }
 
-        const fullName = pat?.fullName || stored?.fullName || stored?.FullName || 'Bệnh Nhân';
+        const fullName = pat?.fullName || stored?.fullName || stored?.FullName || '';
         const identityNumber = pat?.identityCardNumber || pat?.identityNumber || stored?.identityCardNumber || stored?.IdentityCardNumber || '';
         const phoneNumber = pat?.phoneNumber || pat?.phone || stored?.phoneNumber || stored?.PhoneNumber || '';
         const email = pat?.email || stored?.email || stored?.Email || '';
         const address = pat?.address || stored?.address || stored?.Address || '';
-        const gender = pat?.gender || pat?.genderString || stored?.gender || stored?.Gender || 'Nam';
+        const rawGender = pat?.gender || pat?.genderString || stored?.gender || stored?.Gender || '';
+        const gender = ['Nam', 'Nữ', 'Khác', 'Male', 'Female', 'Other'].includes(rawGender) ? rawGender : '';
         const patientCode = pat?.patientCode || pat?.id || stored?.patientCode || '';
 
         let dobStr = '';
@@ -201,8 +213,6 @@ export default function InitialMedicalProfileSetup() {
 
         if (pat?.bloodType) {
           setBloodType(pat.bloodType);
-        } else {
-          setBloodType('Unknown');
         }
         if (pat?.coagulationDisorders) {
           const isNo = isNoCoagulation(pat.coagulationDisorders);
@@ -256,6 +266,7 @@ export default function InitialMedicalProfileSetup() {
       } catch (err) {
         setErrorMessage('Không thể tải dữ liệu hồ sơ bệnh nhân. Vui lòng thử lại.');
       } finally {
+        loadedRef.current = true;
         setLoading(false);
       }
     }
@@ -313,28 +324,60 @@ export default function InitialMedicalProfileSetup() {
   // 3. Form Validation
   const validateForm = () => {
     const newErrors = {};
-
-    if (!bloodType) {
-      newErrors.bloodType = 'Vui lòng chọn nhóm máu.';
-    }
-
-    if (!emergencyContactName.trim() || emergencyContactName.trim().length < 2) {
-      newErrors.emergencyContactName = 'Vui lòng nhập họ và tên người liên hệ khẩn cấp.';
-    }
-
     const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
-    if (!emergencyContactPhone.trim()) {
-      newErrors.emergencyContactPhone = 'Vui lòng nhập số điện thoại người liên hệ.';
-    } else if (!phoneRegex.test(emergencyContactPhone.trim())) {
-      newErrors.emergencyContactPhone = 'Số điện thoại gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).';
-    }
 
+    if (!/^[0-9]{12}$/.test((demographics.identityNumber || '').trim())) {
+      newErrors.identityNumber = 'Số CCCD phải gồm đúng 12 chữ số.';
+    }
+    if (!phoneRegex.test((demographics.phoneNumber || '').trim())) {
+      newErrors.phoneNumber = 'Số điện thoại liên hệ phải gồm 10 số, bắt đầu bằng 03, 05, 07, 08 hoặc 09.';
+    }
+    if (!demographics.dateOfBirth) {
+      newErrors.dateOfBirth = 'Ngày sinh là bắt buộc.';
+    }
+    if (!demographics.gender) {
+      newErrors.gender = 'Giới tính là bắt buộc.';
+    }
+    if (!bloodType) {
+      newErrors.bloodType = 'Chọn nhóm máu, hoặc chọn "Chưa rõ nhóm máu".';
+    }
+    if (!heightCm) {
+      newErrors.heightCm = 'Chiều cao là bắt buộc.';
+    }
+    if (!weightKg) {
+      newErrors.weightKg = 'Cân nặng là bắt buộc.';
+    }
+    if (!hasNoCoagulation && !coagulationNotes.trim()) {
+      newErrors.coagulation = 'Chọn "Tôi không có tiền sử rối loạn đông máu", hoặc ghi tình trạng.';
+    }
+    if (!hasNoMedicalHistory && selectedConditions.length === 0 && !medicalHistoryNotes.trim()) {
+      newErrors.medicalHistory = 'Chọn "Tôi không có tiền sử bệnh", hoặc chọn ít nhất một bệnh.';
+    }
+    if (!hasNoAllergies && selectedAllergies.length === 0 && !allergiesNotes.trim()) {
+      newErrors.allergies = 'Chọn "Tôi không có dị ứng", hoặc chọn ít nhất một dị ứng.';
+    }
+    if (!hasNoMedications && !medicationsNotes.trim()) {
+      newErrors.medications = 'Chọn "Tôi không dùng thuốc định kỳ", hoặc ghi tên thuốc.';
+    }
+    if (!emergencyContactName.trim() || emergencyContactName.trim().length < 2) {
+      newErrors.emergencyContactName = 'Nhập họ tên người liên hệ khẩn cấp.';
+    }
+    if (!phoneRegex.test(emergencyContactPhone.trim())) {
+      newErrors.emergencyContactPhone = 'Số điện thoại khẩn cấp phải gồm 10 số, bắt đầu bằng 03, 05, 07, 08 hoặc 09.';
+    }
     if (!consentConfirmed) {
-      newErrors.consent = 'Vui lòng tích xác nhận cam đoan thông tin khai báo là chính xác.';
+      newErrors.consent = 'Cần tích ô cam đoan thông tin là chính xác.';
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const messages = Object.values(newErrors);
+    if (messages.length > 0) {
+      setErrorMessage(messages.join(' '));
+      const firstKey = Object.keys(newErrors)[0];
+      document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
   };
 
   // 4. Save clinical intake
@@ -344,8 +387,6 @@ export default function InitialMedicalProfileSetup() {
     setSuccessMessage('');
 
     if (!validateForm()) {
-      setErrorMessage('Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc.');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -355,7 +396,7 @@ export default function InitialMedicalProfileSetup() {
       const payload = {
         fullName: demographics.fullName,
         identityNumber: demographics.identityNumber,
-        dateOfBirth: demographics.dateOfBirth ? new Date(demographics.dateOfBirth).toISOString() : new Date().toISOString(),
+        dateOfBirth: new Date(demographics.dateOfBirth).toISOString(),
         gender: demographics.gender,
         phoneNumber: demographics.phoneNumber,
         email: demographics.email,
@@ -364,7 +405,7 @@ export default function InitialMedicalProfileSetup() {
         vitals: {
           heightCm: heightCm ? parseFloat(heightCm) : null,
           weightKg: weightKg ? parseFloat(weightKg) : null,
-          bloodPressure: bloodPressure.trim() || '120/80',
+          bloodPressure: bloodPressure.trim() || null,
           heartRateBpm: null,
           temperatureC: null,
           spo2Percent: null
@@ -421,7 +462,7 @@ export default function InitialMedicalProfileSetup() {
 
   if (loading) {
     return (
-      <div className="d-flex flex-column align-items-center justify-content-center py-5" style={{ minHeight: '60vh' }}>
+      <div className="d-flex flex-column align-items-center justify-content-center py-3" style={{ minHeight: '60vh' }}>
         <Spinner animation="border" variant="primary" style={{ width: '2.5rem', height: '2.5rem' }} />
         <div className="mt-3 text-secondary small fw-medium">Đang tải thông tin hồ sơ...</div>
       </div>
@@ -433,15 +474,9 @@ export default function InitialMedicalProfileSetup() {
       <div className="bms-setup-card">
         {/* Masthead Header (Matching Home Style) */}
         <div className="bms-setup-header">
-          <div className="bms-status-chip">
-            THÔNG TƯ 46/2018/TT-BYT · CHUẨN XÉT NGHIỆM BMS
-          </div>
           <h1 className="bms-setup-title">
-            Hồ Sơ Sức Khỏe &amp; Tiền Sử Y Tế
+            Hồ sơ sức khỏe
           </h1>
-          <p className="bms-setup-desc">
-            Khai báo thông tin lâm sàng ban đầu để bác sĩ đối chiếu kết quả xét nghiệm máu và kích hoạt liên hệ kịp thời trong các tình huống khẩn cấp.
-          </p>
         </div>
 
         {/* Global Notifications */}
@@ -464,9 +499,11 @@ export default function InitialMedicalProfileSetup() {
           <div className="bms-setup-section">
             <h2 className="bms-setup-section-title">
               <span>Thông tin định danh</span>
-              <span className="badge bg-success-subtle text-success fw-normal px-2 py-1 rounded-pill" style={{ fontSize: '11px' }}>
-                <FaCheckCircle className="me-1" size={10} /> Đã đối soát CCCD
-              </span>
+              {/^[0-9]{12}$/.test(demographics.identityNumber || '') ? (
+                <span className="badge bg-success-subtle text-success fw-normal px-2 py-1 rounded-pill" style={{ fontSize: '11px' }}>
+                  <FaCheckCircle className="me-1" size={10} /> Đã có CCCD
+                </span>
+              ) : null}
             </h2>
 
             <div className="bms-demographics-grid">
@@ -475,21 +512,74 @@ export default function InitialMedicalProfileSetup() {
                 <div className="bms-readonly-val">{demographics.fullName || '—'}</div>
               </div>
 
-              <div className="bms-readonly-pill-box">
-                <div className="bms-readonly-label">Số CCCD (12 số)</div>
-                <div className="bms-readonly-val font-monospace">{demographics.identityNumber || 'Chưa cập nhật'}</div>
+              <div id="field-identityNumber">
+                <label className="bms-setup-label" htmlFor="identityNumber">Số CCCD (12 số)</label>
+                <Form.Control
+                  id="identityNumber"
+                  inputMode="numeric"
+                  className="bms-setup-input"
+                  placeholder="12 chữ số"
+                  value={demographics.identityNumber}
+                  isInvalid={!!errors.identityNumber}
+                  onChange={(e) => {
+                    clearError('identityNumber');
+                    setDemographics((current) => ({ ...current, identityNumber: e.target.value.replace(/\D/g, '').slice(0, 12) }));
+                  }}
+                />
+                {errors.identityNumber && <div className="text-danger small fw-semibold mt-1">{errors.identityNumber}</div>}
               </div>
 
-              <div className="bms-readonly-pill-box">
-                <div className="bms-readonly-label">Ngày sinh &amp; Giới tính</div>
-                <div className="bms-readonly-val">
-                  {demographics.dateOfBirth || '—'} ({demographics.gender})
-                </div>
+              <div id="field-dateOfBirth">
+                <label className="bms-setup-label" htmlFor="dateOfBirth">Ngày sinh</label>
+                <Form.Control
+                  id="dateOfBirth"
+                  type="date"
+                  className="bms-setup-input"
+                  value={demographics.dateOfBirth}
+                  isInvalid={!!errors.dateOfBirth}
+                  onChange={(e) => {
+                    clearError('dateOfBirth');
+                    setDemographics((current) => ({ ...current, dateOfBirth: e.target.value }));
+                  }}
+                />
+                {errors.dateOfBirth && <div className="text-danger small fw-semibold mt-1">{errors.dateOfBirth}</div>}
               </div>
 
-              <div className="bms-readonly-pill-box">
-                <div className="bms-readonly-label">Số điện thoại</div>
-                <div className="bms-readonly-val font-monospace">{demographics.phoneNumber || '—'}</div>
+              <div id="field-gender">
+                <label className="bms-setup-label" htmlFor="gender">Giới tính</label>
+                <Form.Select
+                  id="gender"
+                  className="bms-setup-input"
+                  value={demographics.gender}
+                  isInvalid={!!errors.gender}
+                  onChange={(e) => {
+                    clearError('gender');
+                    setDemographics((current) => ({ ...current, gender: e.target.value }));
+                  }}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </Form.Select>
+                {errors.gender && <div className="text-danger small fw-semibold mt-1">{errors.gender}</div>}
+              </div>
+
+              <div id="field-phoneNumber">
+                <label className="bms-setup-label" htmlFor="phoneNumber">Số điện thoại</label>
+                <Form.Control
+                  id="phoneNumber"
+                  inputMode="numeric"
+                  className="bms-setup-input"
+                  placeholder="0912345678"
+                  value={demographics.phoneNumber}
+                  isInvalid={!!errors.phoneNumber}
+                  onChange={(e) => {
+                    clearError('phoneNumber');
+                    setDemographics((current) => ({ ...current, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }));
+                  }}
+                />
+                {errors.phoneNumber && <div className="text-danger small fw-semibold mt-1">{errors.phoneNumber}</div>}
               </div>
 
               <div className="bms-readonly-pill-box" style={{ gridColumn: 'span 2' }}>
@@ -534,7 +624,7 @@ export default function InitialMedicalProfileSetup() {
               <span className="bms-setup-section-badge">Bắt buộc</span>
             </h2>
 
-            <div className="bms-blood-matrix-wrap">
+            <div className="bms-blood-matrix-wrap" id="field-bloodType">
               <div className="bms-blood-rh-group-label">Yếu tố Rhesus dương tính (Rh+ · Phổ biến)</div>
               <div className="bms-blood-matrix-grid">
                 {BLOOD_TYPES_RH_POS.map((bt) => {
@@ -543,7 +633,7 @@ export default function InitialMedicalProfileSetup() {
                     <div
                       key={bt.code}
                       className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
-                      onClick={() => setBloodType(bt.code)}
+                      onClick={() => { clearError('bloodType'); setBloodType(bt.code); }}
                       role="button"
                       tabIndex={0}
                     >
@@ -565,7 +655,7 @@ export default function InitialMedicalProfileSetup() {
                     <div
                       key={bt.code}
                       className={`bms-blood-matrix-item ${isActive ? 'active' : ''}`}
-                      onClick={() => setBloodType(bt.code)}
+                      onClick={() => { clearError('bloodType'); setBloodType(bt.code); }}
                       role="button"
                       tabIndex={0}
                     >
@@ -582,7 +672,7 @@ export default function InitialMedicalProfileSetup() {
               <div className="bms-blood-unknown-row">
                 <div
                   className={`bms-blood-unknown-btn ${bloodType === 'Unknown' ? 'active' : ''}`}
-                  onClick={() => setBloodType('Unknown')}
+                  onClick={() => { clearError('bloodType'); setBloodType('Unknown'); }}
                   role="button"
                   tabIndex={0}
                 >
@@ -616,7 +706,7 @@ export default function InitialMedicalProfileSetup() {
             </h2>
 
             <div className="bms-vitals-row">
-              <div>
+              <div id="field-heightCm">
                 <label className="bms-setup-label" htmlFor="heightCm">Chiều cao (cm)</label>
                 <Form.Control
                   id="heightCm"
@@ -624,13 +714,15 @@ export default function InitialMedicalProfileSetup() {
                   min={50}
                   max={250}
                   value={heightCm}
-                  onChange={(e) => setHeightCm(e.target.value)}
+                  onChange={(e) => { clearError('heightCm'); setHeightCm(e.target.value); }}
                   placeholder="170"
                   className="bms-setup-input"
+                  isInvalid={!!errors.heightCm}
                 />
+                {errors.heightCm && <div className="text-danger small fw-semibold mt-1">{errors.heightCm}</div>}
               </div>
 
-              <div>
+              <div id="field-weightKg">
                 <label className="bms-setup-label" htmlFor="weightKg">Cân nặng (kg)</label>
                 <Form.Control
                   id="weightKg"
@@ -639,10 +731,12 @@ export default function InitialMedicalProfileSetup() {
                   max={250}
                   step="0.5"
                   value={weightKg}
-                  onChange={(e) => setWeightKg(e.target.value)}
+                  onChange={(e) => { clearError('weightKg'); setWeightKg(e.target.value); }}
                   placeholder="65"
                   className="bms-setup-input"
+                  isInvalid={!!errors.weightKg}
                 />
+                {errors.weightKg && <div className="text-danger small fw-semibold mt-1">{errors.weightKg}</div>}
               </div>
 
               <div>
@@ -671,10 +765,9 @@ export default function InitialMedicalProfileSetup() {
           </div>
 
           {/* SECTION 4: Coagulation */}
-          <div className="bms-setup-section">
+          <div className="bms-setup-section" id="field-coagulation">
             <h2 className="bms-setup-section-title">
               <span>Tiền sử rối loạn đông máu &amp; Kháng đông</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
             </h2>
 
             <div className="bms-checkbox-pill-box">
@@ -688,6 +781,7 @@ export default function InitialMedicalProfileSetup() {
                 }
                 checked={hasNoCoagulation}
                 onChange={(e) => {
+                  clearError('coagulation');
                   setHasNoCoagulation(e.target.checked);
                   if (e.target.checked) setCoagulationNotes('');
                 }}
@@ -721,13 +815,13 @@ export default function InitialMedicalProfileSetup() {
                 />
               </div>
             )}
+            {errors.coagulation && <div className="text-danger small fw-semibold mt-1">{errors.coagulation}</div>}
           </div>
 
           {/* SECTION 5: Chronic Conditions */}
-          <div className="bms-setup-section">
+          <div className="bms-setup-section" id="field-medicalHistory">
             <h2 className="bms-setup-section-title">
               <span>Tiền sử bệnh mạn tính</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
             </h2>
 
             <div className="bms-checkbox-pill-box">
@@ -741,6 +835,7 @@ export default function InitialMedicalProfileSetup() {
                 }
                 checked={hasNoMedicalHistory}
                 onChange={(e) => {
+                  clearError('medicalHistory');
                   const checked = e.target.checked;
                   setHasNoMedicalHistory(checked);
                   if (checked) {
@@ -777,13 +872,13 @@ export default function InitialMedicalProfileSetup() {
                 onChange={(e) => setMedicalHistoryNotes(e.target.value)}
               />
             )}
+            {errors.medicalHistory && <div className="text-danger small fw-semibold mt-1">{errors.medicalHistory}</div>}
           </div>
 
           {/* SECTION 6: Allergies */}
-          <div className="bms-setup-section">
+          <div className="bms-setup-section" id="field-allergies">
             <h2 className="bms-setup-section-title">
               <span>Tiền sử dị ứng (Thuốc, Hóa chất, Thức ăn)</span>
-              <span className="bms-setup-section-badge">Bắt buộc</span>
             </h2>
 
             <div className="bms-checkbox-pill-box">
@@ -797,6 +892,7 @@ export default function InitialMedicalProfileSetup() {
                 }
                 checked={hasNoAllergies}
                 onChange={(e) => {
+                  clearError('allergies');
                   const checked = e.target.checked;
                   setHasNoAllergies(checked);
                   if (checked) {
@@ -832,10 +928,11 @@ export default function InitialMedicalProfileSetup() {
                 onChange={(e) => setAllergiesNotes(e.target.value)}
               />
             )}
+            {errors.allergies && <div className="text-danger small fw-semibold mt-1">{errors.allergies}</div>}
           </div>
 
           {/* SECTION 7: Current Medications */}
-          <div className="bms-setup-section">
+          <div className="bms-setup-section" id="field-medications">
             <h2 className="bms-setup-section-title">
               <span>Thuốc đang dùng định kỳ</span>
             </h2>
@@ -851,6 +948,7 @@ export default function InitialMedicalProfileSetup() {
                 }
                 checked={hasNoMedications}
                 onChange={(e) => {
+                  clearError('medications');
                   const checked = e.target.checked;
                   setHasNoMedications(checked);
                   if (checked) setMedicationsNotes('');
@@ -868,10 +966,11 @@ export default function InitialMedicalProfileSetup() {
                 onChange={(e) => setMedicationsNotes(e.target.value)}
               />
             )}
+            {errors.medications && <div className="text-danger small fw-semibold mt-1">{errors.medications}</div>}
           </div>
 
           {/* SECTION 8: Emergency Contact */}
-          <div className="bms-setup-section">
+          <div className="bms-setup-section" id="field-emergencyContactName">
             <h2 className="bms-setup-section-title">
               <span>Người liên hệ khẩn cấp</span>
               <span className="bms-setup-section-badge">Bắt buộc</span>
@@ -886,7 +985,7 @@ export default function InitialMedicalProfileSetup() {
                     className="bms-setup-input"
                     placeholder="Ví dụ: Nguyễn Văn Bình"
                     value={emergencyContactName}
-                    onChange={(e) => setEmergencyContactName(e.target.value)}
+                    onChange={(e) => { clearError('emergencyContactName'); setEmergencyContactName(e.target.value); }}
                     isInvalid={!!errors.emergencyContactName}
                   />
                   <Form.Control.Feedback type="invalid" className="small">
@@ -910,7 +1009,7 @@ export default function InitialMedicalProfileSetup() {
                 </Form.Group>
               </Col>
 
-              <Col md={4} sm={6}>
+              <Col md={4} sm={6} id="field-emergencyContactPhone">
                 <Form.Group controlId="emergencyContactPhone">
                   <label className="bms-setup-label">Số điện thoại khẩn cấp</label>
                   <Form.Control
@@ -918,7 +1017,7 @@ export default function InitialMedicalProfileSetup() {
                     className="bms-setup-input"
                     placeholder="0912345678"
                     value={emergencyContactPhone}
-                    onChange={(e) => setEmergencyContactPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    onChange={(e) => { clearError('emergencyContactPhone'); setEmergencyContactPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); }}
                     isInvalid={!!errors.emergencyContactPhone}
                   />
                   <Form.Control.Feedback type="invalid" className="small">
@@ -930,7 +1029,7 @@ export default function InitialMedicalProfileSetup() {
           </div>
 
           {/* SECTION 9: Legal Consent */}
-          <div className="bms-legal-pill-box">
+          <div className="bms-legal-pill-box" id="field-consent">
             <Form.Check
               type="checkbox"
               id="consentConfirmed"
@@ -941,7 +1040,7 @@ export default function InitialMedicalProfileSetup() {
                 </span>
               }
               checked={consentConfirmed}
-              onChange={(e) => setConsentConfirmed(e.target.checked)}
+              onChange={(e) => { clearError('consent'); setConsentConfirmed(e.target.checked); }}
               isInvalid={!!errors.consent}
             />
             {errors.consent && (

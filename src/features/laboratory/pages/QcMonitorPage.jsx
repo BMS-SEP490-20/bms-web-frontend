@@ -16,8 +16,8 @@ import { Container, Card, Alert } from "react-bootstrap";
  */
 export default function QcMonitorPage() {
     return (
-        <Container className="py-4">
-            <Card className="shadow-sm p-4 text-center border-0">
+        <Container className="py-2">
+            <Card className="shadow-sm p-2 text-center border-0">
                 <Alert variant="info" className="m-0">
                     <i className="bi bi-graph-up me-2"></i>
                     <strong>Kiểm Tra Chất Lượng IQC & Biểu Đồ Levey-Jennings:</strong> Hệ thống tự động phân tích quy tắc Westgard kiểm soát chất lượng phân tích.

@@ -106,27 +106,20 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaCalendarAlt size={12} />
-            <span>QUẢN LÝ LỊCH CÁ NHÂN · BÁC SĨ (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaCalendarAlt size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Lịch Làm Việc Cá Nhân
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Theo dõi, tạo mới ca làm việc cá nhân và kiểm soát công suất tiếp nhận bệnh nhân tại BMS Cơ sở 1.
-          </p>
+          
         </div>
         <div className="bms-page-actions">
           <Button
             variant="primary"
             onClick={() => setShowForm((v) => !v)}
-            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2 text-white"
+            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2 text-white"
             style={{
               borderRadius: 9999,
               background: '#1E60E6',
@@ -189,7 +182,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
 
       {/* Create Shift Form */}
       {showForm && (
-        <form className="bg-white p-4 rounded-4 shadow-sm border mb-4" onSubmit={onCreate} style={{ borderColor: 'rgba(226, 232, 240, 0.85)' }}>
+        <form className="bg-white p-2 rounded-4 shadow-sm border mb-4" onSubmit={onCreate} style={{ borderColor: 'rgba(226, 232, 240, 0.85)' }}>
           <h5 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
             <FaPlus className="text-primary" />
             <span>Tạo Ca Làm Việc Mới</span>
@@ -200,7 +193,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
               <input
                 type="date"
                 className="form-control"
-                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
+                style={{ minHeight: 40, borderRadius: '9999px' }}
                 required
                 value={form.shiftDate}
                 onChange={(e) => setForm({ ...form, shiftDate: e.target.value })}
@@ -210,7 +203,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
               <label className="form-label small fw-semibold text-secondary">Khung giờ ca</label>
               <select
                 className="form-select"
-                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
+                style={{ minHeight: 40, borderRadius: '9999px' }}
                 value={form.shiftType}
                 onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
               >
@@ -223,7 +216,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
               <label className="form-label small fw-semibold text-secondary">Phòng làm việc</label>
               <select
                 className="form-select"
-                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
+                style={{ minHeight: 40, borderRadius: '9999px' }}
                 value={form.roomId}
                 onChange={(e) => setForm({ ...form, roomId: e.target.value })}
               >
@@ -240,7 +233,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
               <input
                 type="number"
                 className="form-control"
-                style={{ minHeight: 40, borderRadius: '9999px', border: '1px solid #CBD5E1' }}
+                style={{ minHeight: 40, borderRadius: '9999px' }}
                 min={1}
                 max={100}
                 value={form.maxPatients}
@@ -327,14 +320,14 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
               <tbody>
                 {loading && (
                   <tr>
-                    <td colSpan={6} className="text-center py-5 text-muted">
+                    <td colSpan={6} className="text-center py-3 text-muted">
                       Đang tải danh sách lịch ca...
                     </td>
                   </tr>
                 )}
                 {!loading && filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center py-5 text-muted">
+                    <td colSpan={6} className="text-center py-3 text-muted">
                       <FaCalendarAlt className="fs-2 text-muted opacity-50 mb-2 d-block mx-auto" />
                       Không tìm thấy ca làm việc nào.
                     </td>

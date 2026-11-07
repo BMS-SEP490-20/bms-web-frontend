@@ -250,22 +250,17 @@ export default function ProcessPaymentPage() {
   };
 
   return (
-    <div className="bms-payment-page py-4 bg-light" style={{ minHeight: '85vh' }}>
+    <div className="bms-payment-page py-2 bg-light" style={{ minHeight: '85vh' }}>
       <div className="container-xl">
         {/* Top Header / Breadcrumb */}
-        <div className="d-flex align-items-center justify-content-between mb-4">
-          <div>
-            <Link to="/appointments/book" className="text-decoration-none text-secondary small d-flex align-items-center gap-1 mb-1">
-              <FaArrowLeft /> Quay lại trang đặt lịch
-            </Link>
-            <h3 className="fw-bold text-dark mb-0">Thanh Toán &amp; Giữ Chỗ Lịch Xét Nghiệm</h3>
+        <header className="bms-page-header">
+          <div className="bms-page-header-content">
+            <h1 className="bms-page-title">Thanh toán</h1>
           </div>
-          <div>
-            <Badge bg="primary-subtle" text="primary" className="px-3 py-2 border border-primary-subtle rounded-pill">
-              <FaShieldAlt className="me-1" /> Bảo Mật Chuẩn PCI-DSS / ISO 15189
-            </Badge>
+          <div className="bms-page-actions">
+            <Link to="/appointments/book" className="btn btn-light btn-sm rounded-pill">Quay lại</Link>
           </div>
-        </div>
+        </header>
 
         {/* 15-Minute Countdown Banner */}
         {!successData && !isExpired && (
@@ -294,7 +289,7 @@ export default function ProcessPaymentPage() {
 
         {/* Verifying return loader */}
         {verifyingReturn && (
-          <Alert variant="info" className="rounded-4 p-4 shadow-sm text-center mb-4">
+          <Alert variant="info" className="rounded-4 p-2 shadow-sm text-center mb-4">
             <Spinner animation="border" variant="primary" className="me-2" />
             <span className="fw-semibold">Đang xác thực kết quả giao dịch từ Cổng VNPAY...</span>
           </Alert>
@@ -302,14 +297,14 @@ export default function ProcessPaymentPage() {
 
         {/* Reservation Expired Alert */}
         {isExpired && !successData && (
-          <Alert variant="danger" className="rounded-4 p-4 shadow-sm mb-4">
+          <Alert variant="danger" className="rounded-4 p-2 shadow-sm mb-4">
             <h5 className="fw-bold d-flex align-items-center gap-2">
               <FaTimesCircle /> Thời Gian Giữ Chỗ Đã Hết Hạn (15:00)
             </h5>
             <p className="mb-3">
               Rất tiếc, khung giờ hẹn xét nghiệm <strong>{appointmentCode}</strong> đã hết thời gian giữ chỗ 15 phút và hệ thống đã tự động giải phóng vị trí.
             </p>
-            <Button variant="danger" onClick={() => navigate('/appointments/book')} className="fw-semibold px-4">
+            <Button variant="danger" onClick={() => navigate('/appointments/book')} className="fw-semibold px-3">
               Đặt Lại Lịch Hẹn Mới
             </Button>
           </Alert>
@@ -330,7 +325,7 @@ export default function ProcessPaymentPage() {
 
         {/* SUCCESS RECEIPT VIEW */}
         {successData ? (
-          <Card className="border-0 shadow-sm rounded-4 p-4 p-md-5 text-center mb-4 bg-white">
+          <Card className="border-0 shadow-sm rounded-4 p-2 p-md-5 text-center mb-4 bg-white">
             <div className="mb-3">
               <div
                 className="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center"
@@ -346,7 +341,7 @@ export default function ProcessPaymentPage() {
 
             <div className="row g-3 justify-content-center text-start mb-4">
               <div className="col-md-8">
-                <div className="p-4 bg-light rounded-4 border">
+                <div className="p-2 bg-light rounded-4 border">
                   <div className="d-flex justify-content-between pb-2 border-bottom mb-2">
                     <span className="text-muted">Mã Giao Dịch VNPAY:</span>
                     <strong className="font-monospace text-primary">{successData.transactionCode}</strong>
@@ -368,7 +363,7 @@ export default function ProcessPaymentPage() {
             </div>
 
             {/* Check-in QR Code & Prominent Manual Code */}
-            <div className="p-4 bg-light border border-2 border-primary-subtle rounded-4 mx-auto mb-4" style={{ maxWidth: 540 }}>
+            <div className="p-2 bg-light border border-2 border-primary-subtle rounded-4 mx-auto mb-4" style={{ maxWidth: 540 }}>
               <h5 className="fw-bold text-primary text-uppercase mb-2 d-flex align-items-center justify-content-center gap-2">
                 <FaQrcode /> Phiếu Tiếp Đón &amp; Check-in Xét Nghiệm
               </h5>
@@ -401,7 +396,7 @@ export default function ProcessPaymentPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="fw-semibold px-4 rounded-3 shadow-sm"
+                className="fw-semibold px-3 rounded-3 shadow-sm"
                 onClick={() => navigate('/appointments')}
               >
                 <FaQrcode className="me-2" /> Xem Danh Sách Lịch Khám Của Tôi
@@ -421,7 +416,7 @@ export default function ProcessPaymentPage() {
           <Row className="g-4">
             {/* Left Column: Order Breakdown & Patient Details */}
             <Col xs={12} lg={5}>
-              <Card className="border-0 shadow-sm rounded-4 p-4 mb-4">
+              <Card className="border-0 shadow-sm rounded-4 p-2 mb-4">
                 <div className="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3">
                   <h5 className="fw-bold mb-0 text-dark">Thông Tin Phiếu Khám</h5>
                   <Badge bg="warning-subtle" text="warning" className="border border-warning-subtle px-3 py-2 fw-semibold">
@@ -479,7 +474,7 @@ export default function ProcessPaymentPage() {
 
             {/* Right Column: Clean VNPAY Payment Gate */}
             <Col xs={12} lg={7}>
-              <Card className="border-0 shadow-sm rounded-4 p-4">
+              <Card className="border-0 shadow-sm rounded-4 p-2">
                 <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
                   <div>
                     <h5 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
@@ -686,7 +681,7 @@ export default function ProcessPaymentPage() {
               <FaCreditCard /> Thông Tin Thẻ Test NCB (VNPAY Sandbox)
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             <p className="small text-muted mb-3">
               Khi hệ thống chuyển hướng sang cổng VNPAY, chọn ngân hàng <strong>NCB</strong> và nhập thông tin kiểm thử sau:
             </p>

@@ -325,16 +325,11 @@ export default function MedicalRecordPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <h3 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-            <FaNotesMedical /> Phân Hệ Bệnh Án Điện Tử (EMR Workspace)
-          </h3>
-          <p className="small text-muted mb-0">
-            Quản lý hồ sơ bệnh án, dấu hiệu sinh tồn, chẩn đoán ICD-10 và phác đồ điều trị lâm sàng.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Bệnh án điện tử</h1>
         </div>
 
         {/* Patient Code Search Bar & Create Button */}
@@ -373,10 +368,10 @@ export default function MedicalRecordPage() {
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
             onClick={handleStartCreate}
           >
-            <FaPlus /> Tạo Bệnh Án Mới
+            <FaPlus /> Tạo bệnh án
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Alerts */}
       {feedbackMsg && (
@@ -409,12 +404,12 @@ export default function MedicalRecordPage() {
 
             <Card.Body className="p-2 overflow-auto" style={{ maxHeight: '720px' }}>
               {loading ? (
-                <div className="text-center py-5">
+                <div className="text-center py-3">
                   <Spinner animation="border" style={{ color: '#1E60E6' }} />
                   <div className="small text-muted mt-2">Đang tải hồ sơ bệnh án...</div>
                 </div>
               ) : !Array.isArray(records) || records.length === 0 ? (
-                <div className="text-center py-5 text-muted">
+                <div className="text-center py-3 text-muted">
                   <div className="fs-3 mb-2">📋</div>
                   <div className="fw-semibold">Chưa có hồ sơ bệnh án</div>
                   <div className="small">Bệnh nhân chưa có lịch sử khám nào tại cơ sở y tế.</div>
@@ -488,7 +483,7 @@ export default function MedicalRecordPage() {
           {isCreatingNew || isEditing ? (
             /* CREATE / EDIT FORM */
             <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Header className="text-white py-3 px-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
+              <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
                 <span className="fw-bold text-uppercase fs-6">
                   {isCreatingNew ? 'Tạo Bệnh Án Điện Tử Mới' : `Chỉnh Sửa Bệnh Án #${selectedRecord?.recordCode}`}
                 </span>
@@ -497,7 +492,7 @@ export default function MedicalRecordPage() {
                 </Button>
               </Card.Header>
 
-              <Card.Body className="p-4">
+              <Card.Body className="p-2">
                 <Form onSubmit={handleSubmitForm}>
                   {/* Chief Complaint */}
                   <Form.Group className="mb-3">
@@ -744,7 +739,7 @@ export default function MedicalRecordPage() {
                       variant="primary"
                       type="submit"
                       disabled={submitLoading || !bpValidation.valid}
-                      className="px-4 fw-bold shadow-sm"
+                      className="px-3 fw-bold shadow-sm"
                       style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                     >
                       {submitLoading ? (
@@ -763,7 +758,7 @@ export default function MedicalRecordPage() {
           ) : selectedRecord ? (
             /* RECORD DETAIL VIEWER */
             <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Header className="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+              <Card.Header className="bg-white py-3 px-3 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <div>
                   <span className="small text-muted text-uppercase fw-bold">Chi Tiết Bệnh Án</span>
                   <div className="h4 fw-bold font-monospace mb-0" style={{ color: '#1E60E6' }}>
@@ -829,7 +824,7 @@ export default function MedicalRecordPage() {
                 </div>
               </Card.Header>
 
-              <Card.Body className="p-4">
+              <Card.Body className="p-2">
                 {/* Meta header */}
                 <Row className="g-3 mb-4 p-3 rounded-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   <Col sm={6}>
@@ -954,7 +949,7 @@ export default function MedicalRecordPage() {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <Card className="shadow-sm rounded-4 text-center py-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <div className="display-1 text-muted opacity-25 mb-3">
                 <FaNotesMedical />
               </div>

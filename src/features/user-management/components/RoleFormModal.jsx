@@ -149,7 +149,7 @@ export const RoleFormModal = ({
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
-        <Modal.Body className="p-4">
+        <Modal.Body className="p-2">
           {errorMessage && (
             <Alert variant="danger" className="py-2 small shadow-sm">
               {errorMessage}

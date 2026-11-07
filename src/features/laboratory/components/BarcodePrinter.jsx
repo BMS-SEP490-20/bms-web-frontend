@@ -16,7 +16,7 @@ import { Card, Alert } from "react-bootstrap";
  */
 export default function BarcodePrinter() {
     return (
-        <Card className="shadow-sm p-4 text-center border-0">
+        <Card className="shadow-sm p-2 text-center border-0">
             <Alert variant="info" className="m-0">
                 <i className="bi bi-upc-scan me-2"></i>
                 <strong>In Tem Mã Vạch Ống Máu (Code 128):</strong> Trình tạo mã vạch và chỉ định màu nắp ống nghiệm chuẩn y tế.

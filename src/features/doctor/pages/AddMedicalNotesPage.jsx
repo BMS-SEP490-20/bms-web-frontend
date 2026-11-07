@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Badge, Breadcrumb, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaNotesMedical, FaSave, FaSearch, FaUserMd, FaHospitalUser } from 'react-icons/fa';
 import { addMedicalNote, getMedicalNotes, medicalNoteError } from '../api/medicalNoteApi';
@@ -101,29 +101,20 @@ export default function AddMedicalNotesPage() {
   const pageSize = context?.pageSize || 20;
 
   return (
-    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <Breadcrumb className="mb-2">
-        <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/doctor/console' }}>Bàn Khám Bác Sĩ</Breadcrumb.Item>
-        <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/doctor/emr' }}>Hồ Sơ Bệnh Án</Breadcrumb.Item>
-        <Breadcrumb.Item active>Ghi Chú Y Khoa Tiến Trình</Breadcrumb.Item>
-      </Breadcrumb>
-
-      <div className="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-        <div>
-          <h4 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-            <FaNotesMedical /> Ghi Chú Y Khoa & Tiến Trình Điều Trị
-          </h4>
-          <p className="text-muted small mb-0">Bổ sung diễn biến lâm sàng, chỉ dẫn điều trị và lời dặn vào hồ sơ bệnh án EMR.</p>
+    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Ghi chú y khoa</h1>
         </div>
         <div className="d-flex gap-2">
           <Button as={Link} to="/doctor/console" variant="outline-secondary" size="sm" className="d-flex align-items-center gap-1 shadow-sm" style={{ borderRadius: '9999px' }}>
             <FaHospitalUser /> Bàn khám bác sĩ
           </Button>
           <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-flex align-items-center gap-1 shadow-sm text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
-            <FaUserMd /> Hồ sơ bệnh án EMR
+            <FaUserMd /> Hồ sơ bệnh án
           </Button>
         </div>
-      </div>
+      </header>
 
       <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
         <Card.Body className="p-3">
@@ -299,7 +290,7 @@ export default function AddMedicalNotesPage() {
               </Card.Header>
               <Card.Body>
                 {!notes.length ? (
-                  <div className="text-center text-muted py-5">
+                  <div className="text-center text-muted py-3">
                     <FaNotesMedical size={36} className="mb-3 text-secondary" />
                     <h6>Chưa có ghi chú bổ sung nào</h6>
                     <p className="mb-0 small">Bác sĩ nhập ghi chú đầu tiên trong biểu mẫu bên trái.</p>
@@ -330,7 +321,7 @@ export default function AddMedicalNotesPage() {
         </Row>
       ) : !loadError && (
         <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Body className="text-center text-muted py-5">
+          <Card.Body className="text-center text-muted py-3">
             <FaNotesMedical size={40} className="mb-3" style={{ color: '#1E60E6' }} />
             <h5 className="fw-bold text-secondary">Chọn hoặc Nhập Mã Bệnh Án Để Bắt Đầu</h5>
             <p className="mb-0 small">Nhập mã bệnh án EMR ở ô tìm kiếm phía trên hoặc mở trực tiếp từ phân hệ Hồ Sơ Bệnh Án EMR.</p>

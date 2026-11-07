@@ -61,7 +61,7 @@ export default function ConfigureReferenceIntervalsPage() {
   });
 
   // Simulator toggle
-  const [showSimulator, setShowSimulator] = useState(true);
+  const [showSimulator, setShowSimulator] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -179,7 +179,7 @@ export default function ConfigureReferenceIntervalsPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-md-4">
+    <div className="container-fluid py-2 px-md-4">
       {/* Toast Notification */}
       {toast && (
         <Alert
@@ -199,29 +199,9 @@ export default function ConfigureReferenceIntervalsPage() {
       )}
 
       {/* Header Banner */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={() => navigate('/criteria')}
-              className="d-flex align-items-center gap-1 me-2"
-            >
-              <FaArrowLeft /> Danh Mục Chỉ Số
-            </Button>
-            <h4 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-              <FaHeartbeat className="text-danger" />
-              Cấu Hình Khoảng Tham Chiếu Sinh Học
-            </h4>
-            <Badge bg="primary" className="ms-2">
-              Iteration 3
-            </Badge>
-            <Badge bg="success">BR-LAB-02 / BR-LAB-03</Badge>
-          </div>
-          <p className="text-muted small mb-0">
-            Quản trị dải tham chiếu bình thường theo Độ tuổi & Giới tính và Ngưỡng báo động nguy hiểm (PANIC Values) theo chuẩn Bộ Y Tế & WHO.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Khoảng tham chiếu</h1>
         </div>
 
         <div className="d-flex gap-2">
@@ -232,7 +212,7 @@ export default function ConfigureReferenceIntervalsPage() {
             className="d-flex align-items-center gap-2 fw-semibold"
           >
             <FaFlask />
-            {showSimulator ? 'Ẩn Thử Nghiệm' : 'Mở Thử Nghiệm Lâm Sàng'}
+            {showSimulator ? 'Ẩn thử nghiệm' : 'Thử nghiệm'}
           </Button>
 
           {canConfigureIntervals && (
@@ -242,11 +222,11 @@ export default function ConfigureReferenceIntervalsPage() {
               onClick={handleOpenCreateModal}
               className="d-flex align-items-center gap-2 fw-semibold shadow-sm"
             >
-              <FaPlus /> Thêm Khoảng Tham Chiếu Mới
+              <FaPlus /> Thêm khoảng
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Interactive Clinical Range Simulator */}
       {showSimulator && (
@@ -258,7 +238,7 @@ export default function ConfigureReferenceIntervalsPage() {
       )}
 
       {/* Filter Toolbar */}
-      <Card className="shadow-sm border-0 mb-4" style={{ borderRadius: '10px' }}>
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-3 align-items-center">
             <Col md={4}>
@@ -323,9 +303,9 @@ export default function ConfigureReferenceIntervalsPage() {
                   <th className="py-3 px-3">Chỉ Số Xét Nghiệm</th>
                   <th className="py-3">Giới Tính</th>
                   <th className="py-3">Nhóm Tuổi & Bối Cảnh</th>
-                  <th className="py-3 text-end">Khoảng Bình Thường (BR-LAB-02)</th>
-                  <th className="py-3 text-end text-danger">Ngưỡng PANIC (BR-LAB-03)</th>
-                  <th className="py-3">Chuẩn Tham Chiếu</th>
+                  <th className="py-3 text-end">Khoảng bình thường</th>
+                  <th className="py-3 text-end text-danger">Ngưỡng panic</th>
+                  <th className="py-3">Nguồn</th>
                   <th className="py-3 text-center">Trạng Thái</th>
                   {canConfigureIntervals && <th className="py-3 text-end px-3">Thao Tác</th>}
                 </tr>
@@ -333,14 +313,14 @@ export default function ConfigureReferenceIntervalsPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-5">
+                    <td colSpan="8" className="text-center py-3">
                       <Spinner animation="border" variant="primary" />
                       <div className="mt-2 text-muted small">Đang tải khoảng tham chiếu sinh học...</div>
                     </td>
                   </tr>
                 ) : intervals.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-5 text-muted">
+                    <td colSpan="8" className="text-center py-3 text-muted">
                       <FaInfoCircle size={32} className="mb-2 text-secondary opacity-50 d-block mx-auto" />
                       Không tìm thấy khoảng tham chiếu phù hợp với bộ lọc.
                     </td>

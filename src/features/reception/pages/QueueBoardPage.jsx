@@ -162,21 +162,14 @@ export default function QueueBoardPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaShieldAlt size={12} />
-            <span>QUẦY TIẾP ĐÓN · ĐIỀU PHỐI HÀNG ĐỢI &amp; GỌI SỐ (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaClinicMedical size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Bảng Gọi Số &amp; Điều Phối Tiếp Đón
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Hàng đợi trực tuyến · <strong style={{ color: '#1E60E6' }}>{data.stats.inQueueNow} đang chờ</strong> · Chờ trung bình {data.stats.avgWaitMinutes} phút
-          </p>
+          
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
           {data.counters?.length > 0 && (
@@ -257,7 +250,7 @@ export default function QueueBoardPage() {
                 <tbody>
                   {data.currentQueue.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="text-center py-5 text-muted">
+                      <td colSpan="8" className="text-center py-3 text-muted">
                         Hiện không có bệnh nhân nào trong hàng đợi.
                       </td>
                     </tr>
@@ -349,7 +342,7 @@ export default function QueueBoardPage() {
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Cấp Số Thứ Tự Mới</h3>
             </div>
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               <div className="text-uppercase text-muted small fw-bold mb-2">
                 SỐ TIẾP THEO
               </div>

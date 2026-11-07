@@ -8,8 +8,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Breadcrumb, Button, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate, useSearchParams, useParams, Link } from 'react-router-dom';
+import { Container, Button, Alert, Spinner } from 'react-bootstrap';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaStethoscope,
@@ -66,25 +66,13 @@ export default function AddMedicalAssessmentPage() {
   };
 
   return (
-    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Top Header & Breadcrumb */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <div>
-          <Breadcrumb className="mb-1">
-            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/doctor/console' }}>
-              Bàn Khám Bác Sĩ
-            </Breadcrumb.Item>
-            <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/medical-assessments' }}>
-              Đánh Giá Y Khoa
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>
-              {id ? 'Cập Nhật' : 'Thêm Mới'}
-            </Breadcrumb.Item>
-          </Breadcrumb>
-          <h4 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaStethoscope style={{ color: '#1E60E6' }} />
-            {id ? 'Chỉnh Sửa Đánh Giá Y Khoa Lâm Sàng' : 'Kê Phiếu Đánh Giá Y Khoa Lâm Sàng'}
-          </h4>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">
+            {id ? 'Sửa đánh giá y khoa' : 'Thêm đánh giá y khoa'}
+          </h1>
         </div>
         <div className="mt-2 mt-sm-0 d-flex gap-2">
           <Button
@@ -104,10 +92,10 @@ export default function AddMedicalAssessmentPage() {
             <FaUserMd /> Bàn Khám Bác Sĩ
           </Button>
         </div>
-      </div>
+      </header>
 
       {loading ? (
-        <div className="text-center py-5">
+        <div className="text-center py-3">
           <Spinner animation="border" variant="primary" />
           <p className="mt-2 text-muted">Đang tải thông tin đánh giá y khoa...</p>
         </div>

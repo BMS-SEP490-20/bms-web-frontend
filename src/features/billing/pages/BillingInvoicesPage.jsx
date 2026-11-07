@@ -168,19 +168,9 @@ export default function BillingInvoicesPage() {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-              Quản lý Viện Phí &amp; In Biên Lai K80 (POS Billing)
-            </h1>
-            <span style={{ backgroundColor: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
-              ÄÃ£ xÃ¡c thá»±c
-            </span>
-          </div>
-          <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '14px' }}>
-            Thu tiền viện phí tại quầy, chống in đè gian lận (Anti-fraud Reprint Count), chuyển đổi tiền bằng chữ và in nhiệt K80.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Viện phí</h1>
         </div>
 
         <button
@@ -199,39 +189,39 @@ export default function BillingInvoicesPage() {
             gap: '6px'
           }}
         >
-          ➕ Tạo Hóa Đơn Thu Phí Mới
+          Tạo hóa đơn
         </button>
-      </div>
+      </header>
 
       {/* Notifications */}
       {error && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', marginBottom: '16px' }}>
+        <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', borderRadius: '8px', color: '#991b1b', marginBottom: '16px' }}>
           ⚠️ {error}
         </div>
       )}
       {successMsg && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', marginBottom: '16px' }}>
+        <div style={{ padding: '12px 16px', backgroundColor: '#ecfdf5', borderRadius: '8px', color: '#065f46', marginBottom: '16px' }}>
           ✅ {successMsg}
         </div>
       )}
 
       {/* Metrics Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Doanh Thu Đã Thu (Paid)</div>
           <div style={{ fontSize: '24px', fontWeight: '800', color: '#16a34a', marginTop: '6px' }}>
             {totalPaid.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
           </div>
         </div>
 
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Chờ Thu Phí (Unpaid)</div>
           <div style={{ fontSize: '24px', fontWeight: '800', color: '#d97706', marginTop: '6px' }}>
             {totalPending.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
           </div>
         </div>
 
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng Hóa Đơn Trong Ca</div>
           <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', marginTop: '6px' }}>
             {invoices.length} <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }}>hóa đơn</span>
@@ -240,18 +230,18 @@ export default function BillingInvoicesPage() {
       </div>
 
       {/* Filter Bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', backgroundColor: '#ffffff', padding: '12px 16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+      <div className="bms-filter-bar">
         <input
           type="text"
           placeholder="🔍 Tìm theo mã HĐ, tên bệnh nhân, số điện thoại..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+          style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
           />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', backgroundColor: '#ffffff' }}
+          style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '14px', backgroundColor: '#ffffff' }}
         >
           <option value="">Tất cả trạng thái</option>
           <option value="1">Đã thanh toán (Paid)</option>
@@ -259,14 +249,14 @@ export default function BillingInvoicesPage() {
         </select>
         <button
           onClick={loadInvoices}
-          style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}
+          style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#f8fafc', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}
         >
           🔄 Làm mới
         </button>
       </div>
 
       {/* Invoices Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
@@ -365,7 +355,6 @@ export default function BillingInvoicesPage() {
                               style={{
                                 padding: '6px 12px',
                                 borderRadius: '6px',
-                                border: '1px solid #cbd5e1',
                                 backgroundColor: '#ffffff',
                                 color: '#1E60E6',
                                 fontSize: '12px',
@@ -381,7 +370,6 @@ export default function BillingInvoicesPage() {
                               style={{
                                 padding: '6px 10px',
                                 borderRadius: '6px',
-                                border: '1px solid #0284c7',
                                 backgroundColor: '#f0f9ff',
                                 color: '#0369a1',
                                 fontSize: '12px',
@@ -424,7 +412,7 @@ export default function BillingInvoicesPage() {
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '20px', fontSize: '14px' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}
             >
               <option value="1">Tiền mặt (Cash)</option>
               <option value="2">VNPay QR</option>
@@ -436,7 +424,7 @@ export default function BillingInvoicesPage() {
               <button
                 type="button"
                 onClick={() => setShowPayModal(false)}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#ffffff', cursor: 'pointer' }}
               >
                 Hủy bỏ
               </button>
@@ -469,7 +457,7 @@ export default function BillingInvoicesPage() {
                 value={newPatientName}
                 onChange={(e) => setNewPatientName(e.target.value)}
                 placeholder="Nguyễn Văn A"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
                 />
             </div>
 
@@ -480,7 +468,7 @@ export default function BillingInvoicesPage() {
                 value={newPatientPhone}
                 onChange={(e) => setNewPatientPhone(e.target.value)}
                 placeholder="0912345678"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
                 />
             </div>
 
@@ -490,7 +478,7 @@ export default function BillingInvoicesPage() {
                 type="text"
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
                 />
             </div>
 
@@ -501,7 +489,7 @@ export default function BillingInvoicesPage() {
                   type="number"
                   value={newItemPrice}
                   onChange={(e) => setNewItemPrice(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
                   />
             </div>
               <div>
@@ -510,7 +498,7 @@ export default function BillingInvoicesPage() {
                   type="number"
                   value={newDiscount}
                   onChange={(e) => setNewDiscount(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
                   />
             </div>
             </div>
@@ -519,7 +507,7 @@ export default function BillingInvoicesPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#ffffff', cursor: 'pointer' }}
               >
                 Hủy
               </button>

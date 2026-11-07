@@ -83,7 +83,7 @@ export function RegisterWalkInPage({ onSuccess }) {
 
   if (result) {
     return (
-      <div className="container py-4" style={{ maxWidth: 760 }}>
+      <div className="container py-2" style={{ maxWidth: 760 }}>
         <div className="card shadow-sm border-0 rounded-3 overflow-hidden">
           <div className="card-header bg-success text-white py-3">
             <h5 className="mb-0 fw-bold">
@@ -91,7 +91,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               Tiếp Nhận Khách Vãng Lai Thành Công
             </h5>
           </div>
-          <div className="card-body p-4">
+          <div className="card-body p-2">
             <div className="row g-3">
               <div className="col-md-6">
                 <div className="p-3 bg-light rounded-2">
@@ -122,7 +122,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             </div>
 
             {issuedTicket ? (
-              <div className="mt-4 p-4 text-center rounded-3 border-2" style={{ background: '#eff6ff', border: '2px solid #bfdbfe' }}>
+              <div className="mt-4 p-2 text-center rounded-3 border-2" style={{ background: '#eff6ff', border: '2px solid #bfdbfe' }}>
                 <div className="text-primary fw-bold small text-uppercase">Số Thứ Tự Lấy Mẫu Đã Cấp</div>
                 <div style={{ fontSize: '3rem', fontWeight: '800', color: '#1E60E6', lineHeight: 1.2 }}>
                   {issuedTicket.ticketNumber}
@@ -189,16 +189,16 @@ export function RegisterWalkInPage({ onSuccess }) {
 
   return (
     <div className="container-fluid py-3" style={{ background: '#f5f7fb', minHeight: '100vh' }}>
-      <div className="mb-2 text-muted small">BMS / Quầy Tiếp Đón Lễ Tân</div>
-      <h3 className="fw-bold mb-1">Tiếp Nhận Khách Vãng Lai & Tạo Hồ Sơ</h3>
-      <p className="text-muted mb-4">
-        Tiếp đón tại quầy · Tạo hồ sơ bệnh nhân mới chưa đặt lịch trực tuyến (Đề án 06 & Tiêu chuẩn ISO 15189)
-      </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Tiếp nhận khách vãng lai</h1>
+        </div>
+      </header>
 
       <div className="row g-4">
         <div className="col-lg-8">
           <form onSubmit={onSubmit} className="card border-0 shadow-sm">
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               {error && <div className="alert alert-danger py-2">{error}</div>}
               {lookupMsg && <div className="alert alert-info py-2">{lookupMsg}</div>}
 
@@ -348,7 +348,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 <option value="HIGH">Ưu tiên (Người già &gt;75t, phụ nữ mang thai, trẻ sơ sinh)</option>
               </select>
             </div>
-            <div className="card-footer bg-white border-0 d-flex justify-content-between px-4 py-3">
+            <div className="card-footer bg-white border-0 d-flex justify-content-between px-3 py-3">
               <span className="text-muted small">
                 <i className="fas fa-info-circle me-1"></i> Hồ sơ sau khi lưu sẽ sẵn sàng cấp STT lấy mẫu.
               </span>
@@ -385,7 +385,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               </p>
             </div>
           </div>
-          <div className="card border-0 shadow-sm" style={{ background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+          <div className="card border-0 shadow-sm" style={{ background: '#eff6ff' }}>
             <div className="card-body">
               <h6 className="fw-bold text-primary">
                 <i className="fas fa-receipt me-2"></i>

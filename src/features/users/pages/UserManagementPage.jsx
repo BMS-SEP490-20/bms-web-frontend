@@ -309,27 +309,20 @@ export default function UserManagementPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaShieldAlt size={12} />
-            <span>QUẢN TRỊ HỆ THỐNG · PHÂN QUYỀN RBAC (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaUserCog size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Quản trị viên theo dõi, phân quyền, cấp tài khoản cho bác sĩ lâm sàng, kỹ thuật viên xét nghiệm và nhân viên y tế (BR-IAM-01 / BR-IAM-02).
-          </p>
+          
         </div>
         <div className="bms-page-actions">
           <Button
             variant="primary"
             onClick={() => setShowCreateModal(true)}
-            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2"
+            className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2"
             style={{
               borderRadius: 9999,
               background: '#1E60E6',
@@ -425,7 +418,7 @@ export default function UserManagementPage() {
         </div>
 
         {/* Integrated Filter Control Strip */}
-        <div className="p-3 border-bottom" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+        <div className="bms-filter-bar">
           <Row className="g-2 align-items-center">
             <Col xs={12} md={6}>
               <div className="bms-search-input-pill">
@@ -477,12 +470,12 @@ export default function UserManagementPage() {
         {/* Standalone Table Body */}
         <div className="bms-table-standalone-body">
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
               <div className="mt-2 text-muted small">Đang tải danh sách tài khoản nhân sự...</div>
             </div>
           ) : filteredUsers.length === 0 ? (
-            <div className="text-center py-5 text-muted">
+            <div className="text-center py-3 text-muted">
               <FaUser className="fs-1 text-secondary opacity-50 mb-3" />
               <div>Không tìm thấy tài khoản nào phù hợp với bộ lọc.</div>
             </div>
@@ -588,7 +581,7 @@ export default function UserManagementPage() {
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateUser}>
-          <Modal.Body className="p-4">
+          <Modal.Body className="p-2">
             {createError && <Alert variant="danger">{createError}</Alert>}
             <Row className="g-3">
               <Col md={6}>

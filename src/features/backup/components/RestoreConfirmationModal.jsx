@@ -92,7 +92,7 @@ export default function RestoreConfirmationModal({
             style={{ backgroundColor: "rgba(15, 39, 67, 0.5)", backdropFilter: 'blur(4px)', zIndex: 1050 }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content shadow border-0" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, overflow: 'hidden' }}>
+                <div className="modal-content shadow border-0" style={{ borderRadius: 18, overflow: 'hidden' }}>
                     <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
                             <FaUndo className="fs-5" style={{ color: '#EF4444' }} />
@@ -108,7 +108,7 @@ export default function RestoreConfirmationModal({
                         ></button>
                     </div>
 
-                    <div className="modal-body p-4">
+                    <div className="modal-body p-2">
                         {errorMessage && (
                             <div className="alert alert-danger py-2 small mb-3" style={{ borderRadius: 14 }}>
                                 {errorMessage}
@@ -116,7 +116,7 @@ export default function RestoreConfirmationModal({
                         )}
 
                         {/* Backup Summary Banner */}
-                        <div className="p-3 mb-4" style={{ background: '#EEF2F6', border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 14 }}>
+                        <div className="p-3 mb-4" style={{ background: '#EEF2F6', borderRadius: 14 }}>
                             <div className="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 className="fw-bold text-dark mb-1">{backup.backupName}</h6>
@@ -141,7 +141,7 @@ export default function RestoreConfirmationModal({
                                 </h6>
 
                                 {validating ? (
-                                    <div className="text-center py-4">
+                                    <div className="text-center py-2">
                                         <div className="spinner-border text-primary mb-2"></div>
                                         <div className="small text-secondary">
                                             Đang kiểm tra tính toàn vẹn SHA-256 và cấu trúc bản ghi...

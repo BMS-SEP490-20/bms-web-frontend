@@ -344,21 +344,14 @@ export default function CheckInPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          <div className="bms-page-chip">
-            <FaShieldAlt size={12} />
-            <span>QUẢN TRỊ HỒ SƠ · TIẾP ĐÓN BỆNH NHÂN (ISO 15189)</span>
-          </div>
+          
           <div className="bms-page-title-row">
-            <span className="bms-page-title-icon">
-              <FaUserInjured size={22} />
-            </span>
+            
             <h1 className="bms-page-title">
               Quản Lý Hồ Sơ Bệnh Nhân &amp; Tiếp Nhận Khách Vãng Lai
             </h1>
           </div>
-          <p className="bms-page-subtitle">
-            Tra cứu thông tin định danh, sinh hiệu, tiền sử y khoa và tiếp nhận khởi tạo hồ sơ khách vãng lai Walk-in theo quy định bảo mật.
-          </p>
+          
         </div>
         <div className="bms-page-actions">
           <Button
@@ -373,7 +366,7 @@ export default function CheckInPage() {
           {canCreateGuest && (
             <Button
               size="sm"
-              className="fw-semibold text-white rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
+              className="fw-semibold text-white rounded-pill px-3 py-2 d-flex align-items-center gap-2 shadow-sm"
               onClick={handleOpenCreateGuestModal}
               id="btn-create-guest-profile"
               style={{
@@ -491,7 +484,7 @@ export default function CheckInPage() {
         </div>
 
         {/* Integrated Filter Control Strip */}
-        <div className="p-3 border-bottom" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+        <div className="bms-filter-bar">
           <Row className="g-2 align-items-center">
             <Col xs={12} md={5}>
               <div className="bms-search-input-pill">
@@ -519,7 +512,7 @@ export default function CheckInPage() {
               <Form.Select
                 value={guestFilter}
                 className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(226, 232, 240, 1)', fontSize: '13.5px' }}
+                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
                 onChange={(e) => {
                   setGuestFilter(e.target.value);
                   setPage(1);
@@ -535,7 +528,7 @@ export default function CheckInPage() {
               <Form.Select
                 value={genderFilter}
                 className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(226, 232, 240, 1)', fontSize: '13.5px' }}
+                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
                 onChange={(e) => {
                   setGenderFilter(e.target.value);
                   setPage(1);
@@ -552,7 +545,7 @@ export default function CheckInPage() {
               <Form.Select
                 value={bloodTypeFilter}
                 className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(226, 232, 240, 1)', fontSize: '13.5px' }}
+                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
                 onChange={(e) => {
                   setBloodTypeFilter(e.target.value);
                   setPage(1);
@@ -590,14 +583,14 @@ export default function CheckInPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-5">
+                    <td colSpan="8" className="text-center py-3">
                       <Spinner animation="border" size="sm" className="me-2" style={{ color: '#1E60E6' }} />
                       <span className="text-muted">Đang tải danh sách hồ sơ bệnh nhân...</span>
                     </td>
                   </tr>
                 ) : patients.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-5 text-muted">
+                    <td colSpan="8" className="text-center py-3 text-muted">
                       <FaUserInjured className="fs-2 d-block mx-auto mb-2 opacity-50" style={{ color: '#64748B' }} />
                       Không tìm thấy hồ sơ bệnh nhân nào phù hợp. Bạn có thể tạo mới Hồ Sơ Khách Vãng Lai (Guest Profile).
                     </td>
@@ -615,11 +608,11 @@ export default function CheckInPage() {
                       </td>
                       <td className="py-3">
                         {pt.isGuest ? (
-                          <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.3)', fontWeight: '600' }}>
+                          <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', fontWeight: '600' }}>
                             Khách vãng lai (Guest)
                           </span>
                         ) : (
-                          <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px', border: '1px solid rgba(145, 222, 131, 0.4)', fontWeight: '600' }}>
+                          <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px', fontWeight: '600' }}>
                             Thành viên chính thức
                           </span>
                         )}
@@ -631,7 +624,7 @@ export default function CheckInPage() {
                       <td className="font-monospace py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{pt.phoneNumber || '—'}</td>
                       <td className="font-monospace py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{pt.identityNumber || '—'}</td>
                       <td className="text-center py-3">
-                        <span className="badge px-2.5 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                        <span className="badge px-2.5 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
                           <FaTint className="me-1" />
                           {pt.bloodType || 'Unknown'}
                         </span>
@@ -690,8 +683,8 @@ export default function CheckInPage() {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-4" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
-            <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px', border: '1px solid rgba(30, 96, 230, 0.3)' }}>
+          <Modal.Body className="p-2" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
+            <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
               <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
             </Alert>
 
@@ -1000,7 +993,7 @@ export default function CheckInPage() {
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+        <Modal.Body className="p-2" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
           {detailError && (
             <Alert variant="danger" className="mb-3" style={{ borderRadius: '12px' }}>
               <FaExclamationTriangle className="me-2" />
@@ -1009,14 +1002,14 @@ export default function CheckInPage() {
           )}
 
           {detailLoading && !selectedPatient ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" style={{ color: '#1E60E6' }} />
               <div className="mt-2 text-muted">Đang tải hồ sơ y tế bệnh nhân...</div>
             </div>
           ) : selectedPatient ? (
             <>
               {/* Patient Identity Banner (matching screens/04-doctor.html #uc30) */}
-              <div className="p-4 rounded-4 border mb-4 shadow-sm" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #2e4a8a 100%)', color: '#fff', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+              <div className="p-2 rounded-4 border mb-4 shadow-sm" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #2e4a8a 100%)', color: '#fff', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <Row className="align-items-center g-3">
                   <Col xs={12} md={6}>
                     <div className="d-flex align-items-center gap-3">
@@ -1030,9 +1023,9 @@ export default function CheckInPage() {
                         <div className="d-flex flex-wrap align-items-center gap-2">
                           <h4 className="fw-bold mb-0 text-white">{selectedPatient.fullName}</h4>
                           {selectedPatient.isGuest ? (
-                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fef08a', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.4)' }}>Khách vãng lai (Guest)</span>
+                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fef08a', borderRadius: '9999px' }}>Khách vãng lai (Guest)</span>
                           ) : (
-                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.25)', color: '#bbf7d0', borderRadius: '9999px', border: '1px solid rgba(145, 222, 131, 0.4)' }}>Bệnh nhân chính thức</span>
+                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.25)', color: '#bbf7d0', borderRadius: '9999px' }}>Bệnh nhân chính thức</span>
                           )}
                         </div>
                         <div className="small text-white-50 font-monospace mt-1">
@@ -1042,11 +1035,11 @@ export default function CheckInPage() {
                           {' · '}{formatDate(selectedPatient.dateOfBirth)} ({selectedPatient.age ?? '—'} tuổi)
                         </div>
                         <div className="d-flex flex-wrap gap-2 mt-2">
-                          <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', borderRadius: '9999px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                          <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', borderRadius: '9999px' }}>
                             <FaTint className="me-1" /> Nhóm máu: {selectedPatient.bloodType || 'Unknown'}
                           </span>
                           {selectedPatient.allergies?.length > 0 ? (
-                            <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fde047', borderRadius: '9999px', border: '1px solid rgba(231, 188, 76, 0.4)' }}>
+                            <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fde047', borderRadius: '9999px' }}>
                               <FaExclamationTriangle className="me-1" />
                               Dị ứng: {selectedPatient.allergies.join(', ')}
                             </span>
@@ -1221,7 +1214,7 @@ export default function CheckInPage() {
                   <tbody>
                     {!selectedPatient.recentAppointments || selectedPatient.recentAppointments.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center py-4 text-muted">
+                        <td colSpan="7" className="text-center py-2 text-muted">
                           Chưa có lịch sử đặt lịch xét nghiệm cho bệnh nhân này.
                         </td>
                       </tr>
@@ -1266,7 +1259,7 @@ export default function CheckInPage() {
                   <tbody>
                     {!selectedPatient.recentMedicalRecords || selectedPatient.recentMedicalRecords.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="text-center py-4 text-muted">
+                        <td colSpan="5" className="text-center py-2 text-muted">
                           Chưa có hồ sơ bệnh án hoặc nhận định bác sĩ nào được lưu.
                         </td>
                       </tr>

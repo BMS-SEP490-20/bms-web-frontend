@@ -1874,7 +1874,7 @@ const ReceptionistCheckIn = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="text-center py-3">
         <Spinner animation="border" variant="primary" />
         <p className="mt-3">Đang tải dữ liệu...</p>
       </div>
@@ -1910,27 +1910,20 @@ const ReceptionistCheckIn = () => {
         {/* 1. Master Luxury Page Header Card */}
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content">
-            <div className="bms-page-chip">
-              <FaShieldAlt size={12} />
-              <span>QUẦY TIẾP ĐÓN · CHECK-IN &amp; CẤP SỐ THỨ TỰ (ISO 15189)</span>
-            </div>
+            
             <div className="bms-page-title-row">
-              <span className="bms-page-title-icon">
-                <FaCalendarCheck size={22} />
-              </span>
+              
               <h1 className="bms-page-title">
                 Quầy Tiếp Đón Lễ Tân &amp; Điều Phối Lấy Mẫu
               </h1>
             </div>
-            <p className="bms-page-subtitle">
-              Tiếp đón bệnh nhân, quét mã QR check-in hẹn khám, cấp số thứ tự lấy mẫu xét nghiệm tự động và quản lý phân luồng phục vụ theo quy chuẩn y tế.
-            </p>
+            
           </div>
           <div className="bms-page-actions">
             <Button
               size="lg"
               onClick={() => handleOpenQuickQRModal('camera')}
-              className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-4 py-2"
+              className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2"
               style={{
                 borderRadius: 9999,
                 background: '#1E60E6',
@@ -2002,7 +1995,7 @@ const ReceptionistCheckIn = () => {
               </div>
             </div>
 
-            <div className="d-flex align-items-center gap-2">
+            <div className="bms-filter-bar">
               <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
                 <FaSearch className="bms-search-icon" />
                 <input
@@ -2193,7 +2186,7 @@ const ReceptionistCheckIn = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-5">
+              <div className="text-center py-3">
                 <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }} />
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h5>
                 <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
@@ -2327,7 +2320,7 @@ const ReceptionistCheckIn = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-5">
+              <div className="text-center py-3">
                 <FaUserTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }} />
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Chưa có bệnh nhân nào check-in</h5>
                 <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
@@ -2662,9 +2655,9 @@ const ReceptionistCheckIn = () => {
                         Thông tin Lab User được phân công
                       </h5>
                     </Card.Header>
-                    <Card.Body className="p-4">
+                    <Card.Body className="p-2">
                       {loadingLabAssignment ? (
-                        <div className="text-center py-4">
+                        <div className="text-center py-2">
                           <Spinner animation="border" variant="primary" className="me-2" />
                           <span style={{ fontSize: '1.1rem' }}>Đang tải thông tin phân công...</span>
                         </div>

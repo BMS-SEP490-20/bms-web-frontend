@@ -97,7 +97,7 @@ export default function MyAppointments({ onBookNew }) {
   return (
     <div className="bms-my-appointments">
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-        <Card.Header className="bg-white py-3 px-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <Card.Header className="bg-white py-3 px-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div className="d-flex align-items-center gap-3">
             <div className="rounded-3 p-2 bg-primary bg-opacity-10 text-primary">
               <FaCalendarCheck size={22} />
@@ -146,7 +146,7 @@ export default function MyAppointments({ onBookNew }) {
               <tbody>
                 {filteredAppointments.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-5 text-muted">
+                    <td colSpan={8} className="text-center py-3 text-muted">
                       <FaCalendarCheck size={36} className="d-block mx-auto mb-2 opacity-50" />
                       Không tìm thấy lịch hẹn nào phù hợp với bộ lọc.
                     </td>

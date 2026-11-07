@@ -603,7 +603,7 @@ const DoctorPatientProfile = () => {
     if (accessError) return <Container className="pt-5"><Alert variant="danger">{accessError}</Alert></Container>;
 
     return (
-        <Container fluid className="py-4 px-4 bg-light" style={{ 
+        <Container fluid className="py-2 px-3 bg-light" style={{ 
           minHeight: '100vh',
           overflowX: 'hidden', 
           maxWidth: '100%', 
@@ -622,7 +622,7 @@ const DoctorPatientProfile = () => {
             <Row className="g-4">
                 <Col lg={4}>
                     <Card className="border-0 shadow-sm rounded-4 h-100">
-                        <Card.Body className="p-4 text-center">
+                        <Card.Body className="p-2 text-center">
                             <div className="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '80px', height: '80px', fontSize: '2rem' }}>
                                 {patientInfo?.fullName?.charAt(0) || 'BN'}
                             </div>
@@ -667,7 +667,7 @@ const DoctorPatientProfile = () => {
                                         ))}
                                     </tbody>
                                 </Table>
-                            ) : <div className="p-5 text-center text-muted">Chưa có kết quả nào.</div>}
+                            ) : <div className="p-3 text-center text-muted">Chưa có kết quả nào.</div>}
                         </Card.Body>
                     </Card>
                 </Col>
@@ -676,9 +676,9 @@ const DoctorPatientProfile = () => {
             {/* Main Details Modal */}
             <Modal show={showResultModal} onHide={() => setShowResultModal(false)} size="xl" backdrop="static">
                 <Modal.Header closeButton><Modal.Title>Chi tiết & Chẩn đoán</Modal.Title></Modal.Header>
-                <Modal.Body className="p-4">
+                <Modal.Body className="p-2">
                     {loadingDetails ? (
-                        <div className="text-center py-5">
+                        <div className="text-center py-3">
                             <Spinner animation="border" variant="primary" />
                             <p className="mt-2 text-muted">Đang tải và đối chiếu dữ liệu chuẩn...</p>
                         </div>
@@ -813,7 +813,7 @@ const DoctorPatientProfile = () => {
                 <Modal.Header className="bg-warning text-dark border-0">
                     <Modal.Title className="fw-bold"><i className="fas fa-exclamation-triangle me-2"></i>XÁC NHẬN DUYỆT</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="p-4">
+                <Modal.Body className="p-2">
                     <div className="text-center mb-4">
                         <i className="fas fa-file-medical-alt fa-4x text-warning mb-3"></i>
                         <h5 className="fw-bold">Xác nhận duyệt kết quả này?</h5>
@@ -848,10 +848,10 @@ const DoctorPatientProfile = () => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer className="border-0 bg-light justify-content-center gap-3 pb-4">
-                    <Button variant="outline-secondary" className="px-4 rounded-pill" onClick={() => setShowConfirmModal(false)}>Hủy bỏ</Button>
+                    <Button variant="outline-secondary" className="px-3 rounded-pill" onClick={() => setShowConfirmModal(false)}>Hủy bỏ</Button>
                     <Button
                         variant="primary"
-                        className="px-4 rounded-pill fw-bold shadow-sm"
+                        className="px-3 rounded-pill fw-bold shadow-sm"
                         onClick={onConfirmApprove}
                         disabled={!isConfirmedCheckbox}
                     >

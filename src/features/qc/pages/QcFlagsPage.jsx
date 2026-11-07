@@ -220,25 +220,11 @@ const QcFlagsPage = () => {
   return (
     <div className="w-100">
       {/* Top Banner */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="p-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-                  <FaFlask style={{ color: '#1E60E6' }} />
-                  Cờ Kiểm Chuẩn QC (Quality Control Flags)
-                </h4>
-                <Badge pill bg="primary-subtle" className="px-3 py-2 fw-semibold" style={{ color: '#1E60E6', backgroundColor: 'rgba(30, 96, 230,0.1)' }}>
-                  Laboratory User / Manager
-                </Badge>
-              </div>
-              <p className="text-muted mb-0 small mt-1">
-                Thiết lập, theo dõi và xử lý các cờ kiểm chuẩn chất lượng kích hoạt bởi máy phân tích máu hoặc quy tắc vượt ngưỡng sai số (Westgard Rules).
-              </p>
-            </div>
-
-            <div className="d-flex align-items-center gap-2 flex-wrap">
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Cờ kiểm chuẩn</h1>
+        </div>
+        <div className="bms-page-actions">
               <Button
                 size="sm"
                 onClick={() => setShowCreateModal(true)}
@@ -259,10 +245,8 @@ const QcFlagsPage = () => {
                 <FaSyncAlt className={loading ? 'fa-spin' : ''} />
                 <span>Làm mới</span>
               </Button>
-            </div>
-          </div>
-        </Card.Body>
-      </Card>
+        </div>
+      </header>
 
       {alertMsg && (
         <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="rounded-4 shadow-sm">
@@ -289,7 +273,7 @@ const QcFlagsPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #1E60E6' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #1E60E6' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -304,7 +288,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #dc3545' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #dc3545' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -319,7 +303,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #B45309' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #B45309' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -334,7 +318,7 @@ const QcFlagsPage = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderLeft: '4px solid #10B981' }}>
+            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #10B981' }}>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
@@ -352,7 +336,7 @@ const QcFlagsPage = () => {
       )}
 
       {/* Filter Bar */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-3">
             <Col xs={12} md={4}>
@@ -416,7 +400,7 @@ const QcFlagsPage = () => {
 
       {/* QC Flags Cards List */}
       {loading && (!Array.isArray(flags) || flags.length === 0) ? (
-        <div className="text-center py-5">
+        <div className="text-center py-3">
           <Spinner animation="border" variant="warning" />
           <p className="mt-3 text-muted small">Đang tải danh sách cờ kiểm chuẩn QC...</p>
         </div>
@@ -432,7 +416,7 @@ const QcFlagsPage = () => {
                   borderLeft: flag.status === 'ACTIVE' ? '5px solid #dc3545' : flag.status === 'INVESTIGATING' ? '5px solid #ffc107' : '5px solid #198754'
                 }}
               >
-                <Card.Body className="p-4">
+                <Card.Body className="p-2">
                   <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
                     <div className="d-flex align-items-start gap-3">
                       <div 
@@ -526,7 +510,7 @@ const QcFlagsPage = () => {
           })}
         </div>
       ) : (
-        <Card className="border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+        <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
           <Card.Body>
             <FaCheckCircle className="text-success mb-3" style={{ fontSize: '3rem', opacity: 0.4 }} />
             <h5 className="text-dark fw-bold">Hệ thống phòng Lab không có cờ QC nào trong mục này</h5>

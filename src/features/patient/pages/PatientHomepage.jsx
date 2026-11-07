@@ -273,7 +273,7 @@ export default function PatientHomepage() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-muted">
+                  <div className="text-center py-2 text-muted">
                     <Icon>calendar-x</Icon>
                     <p className="mt-2 mb-0">Hiện tại bạn chưa có lịch hẹn xét nghiệm nào.</p>
                   </div>
@@ -334,7 +334,7 @@ export default function PatientHomepage() {
                     </tbody>
                   </table>
                 ) : (
-                  <div className="text-center py-4 text-muted">
+                  <div className="text-center py-2 text-muted">
                     <p className="mb-0">Chưa có kết quả xét nghiệm mới cần xử lý.</p>
                   </div>
                 )}

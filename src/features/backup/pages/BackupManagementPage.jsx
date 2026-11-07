@@ -242,21 +242,14 @@ export default function BackupManagementPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>ISO 15189 · NGHỊ ĐỊNH 123/2020/NĐ-CP · NIÊM PHONG SHA-256 (LƯU TRỮ 10 NĂM)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaDatabase size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Quản Lý Sao Lưu &amp; Phục Hồi Dữ Liệu Xét Nghiệm
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Lưu trữ và niêm phong dữ liệu xét nghiệm của bệnh nhân, xác thực mã băm SHA-256 và quy trình khôi phục an toàn.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -272,7 +265,7 @@ export default function BackupManagementPage() {
                     {isAdmin && (
                         <button
                             type="button"
-                            className="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm px-4 py-2 fw-semibold"
+                            className="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm px-3 py-2 fw-semibold"
                             onClick={() => setShowCreateModal(true)}
                             style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                         >
@@ -305,7 +298,7 @@ export default function BackupManagementPage() {
             {/* KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -326,7 +319,7 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -347,7 +340,7 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -368,7 +361,7 @@ export default function BackupManagementPage() {
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)', borderRadius: 18, background: '#ffffff' }}>
+                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
                         <div className="card-body p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -414,7 +407,7 @@ export default function BackupManagementPage() {
                     </div>
 
                     {activeTab !== "HISTORY" && (
-                        <div style={{ minWidth: 280, maxWidth: 360 }}>
+                        <div className="bms-filter-bar">
                             <div className="bms-search-input-pill">
                                 <FaSearch className="bms-search-icon" />
                                 <input
@@ -493,14 +486,14 @@ export default function BackupManagementPage() {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                            <td colSpan="8" className="text-center py-3 text-muted">
                                                 <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                                 Đang tải nhật ký khôi phục...
                                             </td>
                                         </tr>
                                     ) : (!Array.isArray(restoreHistory) || restoreHistory.length === 0) ? (
                                         <tr>
-                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                            <td colSpan="8" className="text-center py-3 text-muted">
                                                 Chưa ghi nhận phiên khôi phục nào trên hệ thống.
                                             </td>
                                         </tr>
@@ -555,14 +548,14 @@ export default function BackupManagementPage() {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                            <td colSpan="8" className="text-center py-3 text-muted">
                                                 <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                                 Đang tải dữ liệu bản sao lưu...
                                             </td>
                                         </tr>
                                     ) : filteredBackups.length === 0 ? (
                                         <tr>
-                                            <td colSpan="8" className="text-center py-5 text-muted">
+                                            <td colSpan="8" className="text-center py-3 text-muted">
                                                 Không tìm thấy bản sao lưu nào phù hợp với bộ lọc.
                                             </td>
                                         </tr>

@@ -242,21 +242,14 @@ export default function SpecimenHistoryPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>TRUY XUẤT NGUỒN GỐC · LỊCH SỬ MẪU BỆNH PHẨM (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaHistory size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Truy Vấn Lịch Sử &amp; Vòng Đời Mẫu Bệnh Phẩm
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Theo dõi định danh barcode, chuỗi hành trình lấy mẫu - vận chuyển - phân tích và giám sát điều kiện bảo quản lạnh theo thời gian thực.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -294,7 +287,7 @@ export default function SpecimenHistoryPage() {
             )}
 
             {/* Quick Barcode Scanner & Search Bar */}
-            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+            <div className="card bms-filter-bar">
                 <div className="card-body p-3">
                     <form onSubmit={handleSearchSubmit} className="row g-2 align-items-center">
                         <div className="col-12 col-md-6 col-lg-7">
@@ -361,13 +354,13 @@ export default function SpecimenHistoryPage() {
 
             {/* Active Specimen Master Card */}
             {loadingSpecimen ? (
-                <div className="card shadow-sm border-0 mb-4 text-center py-5 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                <div className="card shadow-sm border-0 mb-4 text-center py-3 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                     <div className="spinner-border text-primary mx-auto mb-3" role="status"></div>
                     <p className="text-muted mb-0">Đang truy xuất chuỗi hành trình bệnh phẩm từ cơ sở dữ liệu y khoa...</p>
                 </div>
             ) : currentSpecimen ? (
                 <div className="card shadow-sm border-0 mb-4 overflow-hidden rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                    <div className="card-header bg-white border-bottom p-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                    <div className="card-header bg-white border-bottom p-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <div className="row g-3 align-items-center justify-content-between">
                             <div className="col-12 col-md-auto d-flex align-items-center gap-3">
                                 <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
@@ -425,7 +418,7 @@ export default function SpecimenHistoryPage() {
                     </div>
 
                     {/* Specimen Key Attribute Grid */}
-                    <div className="card-body p-4 bg-light border-bottom">
+                    <div className="card-body p-2 bg-light border-bottom">
                         <div className="row g-3">
                             {/* Patient Info */}
                             <div className="col-12 col-md-6 col-lg-4">
@@ -481,7 +474,7 @@ export default function SpecimenHistoryPage() {
                     </div>
 
                     {/* Side-by-side: Timeline & Physical Storage */}
-                    <div className="card-body p-4">
+                    <div className="card-body p-2">
                         <div className="row g-4">
                             <div className="col-12 col-xl-7">
                                 <SpecimenLifecycleTimeline
@@ -552,14 +545,14 @@ export default function SpecimenHistoryPage() {
                         <tbody>
                             {loadingList ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-4 text-muted">
+                                    <td colSpan="8" className="text-center py-2 text-muted">
                                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                         Đang tải danh sách mẫu...
                                     </td>
                                 </tr>
                             ) : specimenList.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-4 text-muted">
+                                    <td colSpan="8" className="text-center py-2 text-muted">
                                         Không tìm thấy mẫu bệnh phẩm nào phù hợp với bộ lọc.
                                     </td>
                                 </tr>

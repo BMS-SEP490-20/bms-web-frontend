@@ -236,21 +236,14 @@ export default function NotifyTestResultsPage() {
             {/* Master Luxury Page Header Card */}
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    <div className="bms-page-chip">
-                        <FaShieldAlt size={12} />
-                        <span>QUẢN TRỊ THÔNG BÁO XÉT NGHIỆM · PANIC VALUE ESCALATION (ISO 15189)</span>
-                    </div>
+                    
                     <div className="bms-page-title-row">
-                        <span className="bms-page-title-icon">
-                            <FaBell size={22} />
-                        </span>
+                        
                         <h1 className="bms-page-title">
                             Quản Lý &amp; Phát Thông Báo Kết Quả Xét Nghiệm
                         </h1>
                     </div>
-                    <p className="bms-page-subtitle">
-                        Cơ chế truyền thông báo đa kênh (In-App, SMS, Email, Push) và kích hoạt quy trình báo động nguy kịch y khoa.
-                    </p>
+                    
                 </div>
 
                 <div className="bms-page-actions">
@@ -266,7 +259,7 @@ export default function NotifyTestResultsPage() {
                     {canDispatch && (
                         <button
                             type="button"
-                            className="btn btn-sm d-flex align-items-center gap-2 shadow-sm rounded-pill px-4 py-2 fw-semibold text-white"
+                            className="btn btn-sm d-flex align-items-center gap-2 shadow-sm rounded-pill px-3 py-2 fw-semibold text-white"
                             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
                             onClick={() => setShowDispatchModal(true)}
                         >
@@ -359,11 +352,8 @@ export default function NotifyTestResultsPage() {
             </div>
 
             {/* Filter Tabs & Search Bar */}
-            <div className="card shadow-sm border-0 mb-4">
-                <div className="card-body p-3">
-                    <div className="row g-2 align-items-center justify-content-between">
-                        {/* Tabs */}
-                        <div className="col-12 col-xl-auto">
+            <div className="card bms-filter-bar">
+                <div className="bms-notify-tools">
                             <div className="btn-group btn-group-sm">
                                 {TABS.map((tab) => {
                                     const isActive = activeTab === tab.key;
@@ -387,11 +377,8 @@ export default function NotifyTestResultsPage() {
                                     );
                                 })}
                             </div>
-                        </div>
-
-                        {/* Search and Filters */}
-                        <div className="col-12 col-xl-auto d-flex flex-wrap gap-2">
-                            <div className="input-group input-group-sm" style={{ width: "260px" }}>
+                        <div className="bms-notify-fields">
+                            <div className="input-group input-group-sm">
                                 <span className="input-group-text bg-light text-muted border-end-0">
                                     <FaSearch />
                                 </span>
@@ -406,7 +393,6 @@ export default function NotifyTestResultsPage() {
 
                             <select
                                 className="form-select form-select-sm"
-                                style={{ width: "140px" }}
                                 value={selectedChannel}
                                 onChange={(e) => setSelectedChannel(e.target.value)}
                             >
@@ -419,7 +405,6 @@ export default function NotifyTestResultsPage() {
 
                             <select
                                 className="form-select form-select-sm"
-                                style={{ width: "140px" }}
                                 value={selectedPriority}
                                 onChange={(e) => setSelectedPriority(e.target.value)}
                             >
@@ -430,7 +415,6 @@ export default function NotifyTestResultsPage() {
                                 <option value="Critical">Nguy kịch</option>
                             </select>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -461,14 +445,14 @@ export default function NotifyTestResultsPage() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-5 text-muted">
+                                    <td colSpan="8" className="text-center py-3 text-muted">
                                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                         Đang tải thông báo kết quả...
                                     </td>
                                 </tr>
                             ) : notifications.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-5 text-muted">
+                                    <td colSpan="8" className="text-center py-3 text-muted">
                                         Không tìm thấy thông báo kết quả nào phù hợp.
                                     </td>
                                 </tr>

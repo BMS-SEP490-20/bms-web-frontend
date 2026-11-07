@@ -292,7 +292,7 @@ export default function ExportTestResultPdfPage() {
         )}
 
         {loading ? (
-          <div className="text-center py-5">
+          <div className="text-center py-3">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải phiếu kết quả xét nghiệm...</span>
             </div>
@@ -346,7 +346,7 @@ export default function ExportTestResultPdfPage() {
             {/* Official Printable Diagnostic Report Sheet */}
             <div className="card shadow-sm border-0 mb-4" id="printable-diagnostic-report" style={{ borderRadius: '10px', overflow: 'hidden', background: '#ffffff' }}>
               {/* Report Header: Clinic Branding & ISO 15189 Notice */}
-              <div className="p-4 border-bottom" style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)' }}>
+              <div className="p-2 border-bottom" style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)' }}>
                 <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
                   <div>
                     <div className="d-flex align-items-center gap-2 mb-1">
@@ -459,7 +459,7 @@ export default function ExportTestResultPdfPage() {
                     <tbody>
                       {parametersList.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center py-4 text-muted">
+                          <td colSpan={6} className="text-center py-2 text-muted">
                             Chưa có danh mục chỉ số đo lường chi tiết cho phiếu xét nghiệm này.
                           </td>
                         </tr>
@@ -558,7 +558,7 @@ export default function ExportTestResultPdfPage() {
               </div>
 
               {/* 4. DIGITAL SIGNATURE BLOCK (TRƯỞNG KHOA KÝ SỐ SHA-256) */}
-              <div className="p-4 border-top">
+              <div className="p-2 border-top">
                 <div className="row text-center">
                   <div className="col-6">
                     <div className="text-muted small mb-1">KỸ THUẬT VIÊN XÉT NGHIỆM</div>
@@ -598,7 +598,7 @@ export default function ExportTestResultPdfPage() {
             </div>
           </>
         ) : (
-          <div className="card p-5 text-center text-muted shadow-sm border-0" style={{ borderRadius: '10px' }}>
+          <div className="card p-3 text-center text-muted shadow-sm border-0" style={{ borderRadius: '10px' }}>
             <FaVial size={48} className="mx-auto mb-3 text-secondary opacity-50" />
             <h5 className="text-dark fw-bold">Chưa Có Phiếu Kết Quả Xét Nghiệm Đã Ký Số</h5>
             <p className="small text-secondary mx-auto" style={{ maxWidth: '480px' }}>

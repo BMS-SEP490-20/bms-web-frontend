@@ -163,16 +163,11 @@ export default function MedicalAssessmentListPage() {
   };
 
   return (
-    <Container fluid className="py-4 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-3 shadow-sm border" style={{ borderColor: '#e2e8f0' }}>
-        <div>
-          <h4 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
-            <FaStethoscope /> Hồ Sơ Đánh Giá Y Khoa Lâm Sàng
-          </h4>
-          <p className="text-muted small mb-0">
-            Quản lý bệnh án khám bệnh, mã chẩn đoán quốc tế WHO ICD-10 và đề xuất cận lâm sàng.
-          </p>
+      <header className="bms-page-header">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Đánh giá lâm sàng</h1>
         </div>
         <div className="d-flex gap-2">
           <Button
@@ -189,14 +184,14 @@ export default function MedicalAssessmentListPage() {
               className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold text-white"
               style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
             >
-              <FaPlus /> Thêm Đánh Giá Y Khoa
+              <FaPlus /> Thêm đánh giá
             </Button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Filter and Search Bar */}
-      <Card className="border-0 shadow-sm rounded-3 mb-4" style={{ borderColor: '#e2e8f0' }}>
+      <Card className="bms-filter-bar border-0">
         <Card.Body className="p-3">
           <Row className="g-3 align-items-center">
             <Col md={6}>
@@ -246,12 +241,12 @@ export default function MedicalAssessmentListPage() {
       <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
         <Card.Body className="p-0">
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
               <p className="mt-2 text-muted">Đang tải dữ liệu đánh giá y khoa...</p>
             </div>
           ) : !Array.isArray(assessments) || assessments.length === 0 ? (
-            <div className="text-center py-5">
+            <div className="text-center py-3">
               <FaStethoscope className="text-muted display-4 mb-3" />
               <h5 className="text-secondary">Chưa có bản ghi đánh giá y khoa nào</h5>
               <p className="text-muted small">
@@ -390,7 +385,7 @@ export default function MedicalAssessmentListPage() {
                 <FaStethoscope /> Phiếu Đánh Giá Y Khoa Lâm Sàng: {selectedAssessment.assessmentCode}
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-4" id="printable-assessment">
+            <Modal.Body className="p-2" id="printable-assessment">
               <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                 <div>
                   <h5 className="fw-bold mb-1">{selectedAssessment.patientName}</h5>

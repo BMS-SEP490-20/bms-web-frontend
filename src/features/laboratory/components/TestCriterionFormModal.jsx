@@ -174,7 +174,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
       keyboard={false}
       className="bms-medical-modal"
     >
-      <Modal.Header closeButton className="bg-primary text-white py-3 px-4 border-0">
+      <Modal.Header closeButton className="bg-primary text-white py-3 px-3 border-0">
         <div>
           <Modal.Title className="h5 fw-bold mb-1 text-white d-flex align-items-center gap-2">
             <FaVial className="text-warning" />
@@ -187,7 +187,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
-        <Modal.Body className="p-4" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
+        <Modal.Body className="p-2" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
           {validationError && (
             <Alert variant="danger" dismissible onClose={() => setValidationError('')} className="d-flex align-items-center gap-2 mb-4">
               <FaExclamationTriangle className="flex-shrink-0" />
@@ -468,11 +468,11 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="bg-light py-3 px-4 border-top">
+        <Modal.Footer className="bg-light py-3 px-3 border-top">
           <Button variant="secondary" size="sm" onClick={onClose} disabled={isSubmitting} className="px-3">
             <FaTimes className="me-1" /> Hủy Bỏ
           </Button>
-          <Button variant="primary" size="sm" type="submit" disabled={isSubmitting} className="px-4">
+          <Button variant="primary" size="sm" type="submit" disabled={isSubmitting} className="px-3">
             {isSubmitting ? (
               <>
                 <Spinner size="sm" className="me-2" /> Đang Lưu...

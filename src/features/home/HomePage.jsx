@@ -1,8 +1,8 @@
 /**
  * @file HomePage.jsx
  * @description Master Home Controller resolving between:
- *  1. PatientHomePage: Personalized Medical Hub for logged-in Patients.
- *  2. GuestHomePage: Landing Portal for unauthenticated visitors.
+ *  1. GuestHomePage: the same public landing for guests and signed-in patients.
+ *  2. Staff roles leave this page and open their own workstation.
  *  3. Staff roles (Receptionist, Doctor, Lab, Manager, Admin): automatically redirected to their dedicated clinical workstations.
  * Conforms to: Production Medical Standards ISO 15189 & RBAC Matrix.
  */
@@ -11,7 +11,6 @@ import React, { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
 import GuestHomePage from './GuestHomePage';
-import PatientHomePage from './PatientHomePage';
 
 export default function HomePage() {
   const user = useMemo(() => {
@@ -44,7 +43,7 @@ export default function HomePage() {
     if (!user.medicalProfileCompleted) {
       return <Navigate to="/patient/medical-profile-setup" replace />;
     }
-    return <PatientHomePage user={user} />;
+    return <GuestHomePage />;
   }
 
   // If unauthenticated guest

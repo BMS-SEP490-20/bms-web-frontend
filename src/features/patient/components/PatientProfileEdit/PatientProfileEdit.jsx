@@ -62,7 +62,7 @@ export default function PatientProfileEdit({ profile, onUpdated }) {
 
   return (
     <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-      <Card.Header className="bg-white py-3 px-4 border-bottom d-flex align-items-center gap-3">
+      <Card.Header className="bg-white py-3 px-3 border-bottom d-flex align-items-center gap-3">
         <div className="rounded-3 p-2 bg-primary bg-opacity-10 text-primary">
           <FaUserEdit size={22} />
         </div>
@@ -72,7 +72,7 @@ export default function PatientProfileEdit({ profile, onUpdated }) {
         </div>
       </Card.Header>
 
-      <Card.Body className="p-4">
+      <Card.Body className="p-2">
         {successMsg && (
           <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="d-flex align-items-center gap-2">
             <FaCheckCircle />
@@ -165,7 +165,7 @@ export default function PatientProfileEdit({ profile, onUpdated }) {
             </Col>
 
             <Col md={12} className="pt-2 text-end">
-              <Button variant="primary" type="submit" disabled={loading} className="px-4">
+              <Button variant="primary" type="submit" disabled={loading} className="px-3">
                 {loading ? (
                   <>
                     <Spinner size="sm" className="me-2" /> Đang Lưu...

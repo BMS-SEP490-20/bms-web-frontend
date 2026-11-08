@@ -12,6 +12,8 @@ function authHeaders() {
 }
 
 async function handle(res) {
+  // Callers pass fetch promises; resolve them before reading status or the body.
+  res = await res;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || err.Message || err.title || err.detail || `HTTP ${res.status}`);

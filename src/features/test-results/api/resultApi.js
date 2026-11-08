@@ -19,10 +19,10 @@ export const resultApi = {
       : [];
 
     const payload = {
-      appointmentId: body.appointmentId || body.packageId || body.sampleId || 'ORD-DEFAULT',
+      // The server resolves a missing order from the sample; batch IDs are not appointment IDs.
+      appointmentId: body.appointmentId || undefined,
       sampleId: body.sampleId,
       deviceId: body.equipmentCode || body.deviceId || 'Sysmex XN-1000',
-      reviewedBy: body.reviewedBy || 'KTV. Lê Minh Tuấn',
       status: body.status || 'waiting_review',
       reagentCode: body.reagentCode || undefined,
       quantity: Number(body.quantity) || 1,
@@ -30,28 +30,26 @@ export const resultApi = {
       notes: body.notes || undefined,
       isPanic: body.isPanic || false,
       criticalNotified: body.criticalNotified || false,
+      confirmRerunChecked: body.confirmRerunChecked || false,
       doctorNotifiedName: body.doctorNotifiedName || undefined,
       notifiedAt: body.notifiedAt || undefined
     };
 
     try {
       const res = await api.post('/TestOrder/TestResult', payload);
+      const stored = res.data?.data ?? res.data;
+      const resultId = stored?.testResultId ?? stored?.id;
+      if (!resultId) throw new Error('Máy chủ chưa xác nhận mã kết quả đã lưu.');
       return {
         success: true,
-        resultId: res.data?.testResultId || res.data?.id || 'RES-' + body.sampleId,
+        resultId,
         message: 'Kết quả xét nghiệm đã được nhập và chuyển trạng thái chờ duyệt (Waiting Review).',
-        isPanic: body.isPanic || false,
-        data: res.data
+        isPanic: stored.isPanic || false,
+        data: stored
       };
     } catch (err) {
-      // Fallback to /test-results if custom route
-      try {
-        const fallbackRes = await api.post('/test-results', body);
-        return fallbackRes.data;
-      } catch {
         const msg = err.response?.data?.message || err.response?.data?.title || err.message || 'Không thể lưu kết quả xét nghiệm.';
         throw new Error(msg);
-      }
     }
   },
 

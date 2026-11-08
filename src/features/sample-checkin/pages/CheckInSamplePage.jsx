@@ -33,6 +33,7 @@ const REJECTION_CODES = [
 ];
 
 export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 'KTV. Lê Minh Tuấn' }) {
+  const [selectedRoom, setSelectedRoom] = useState(labRoomId);
   const [code, setCode] = useState('');
   const [pending, setPending] = useState([]);
   const [current, setCurrent] = useState(null);
@@ -107,7 +108,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
     try {
       const res = await sampleApi.checkIn({
         code: targetCode,
-        labRoomId,
+        labRoomId: selectedRoom,
         rejectionCode: reject ? rejectCode : undefined,
         rejectionNote: reject ? rejectNote : undefined,
         notes: handoverNote
@@ -225,7 +226,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận *</label>
-                    <select className="form-select" defaultValue={labRoomId}>
+                    <select className="form-select" value={selectedRoom} onChange={(event) => setSelectedRoom(event.target.value)}>
                       <option value="LAB-ROOM-01">Bàn 01 &bull; Phòng Xét Nghiệm Huyết Học</option>
                       <option value="LAB-ROOM-02">Bàn 02 &bull; Phòng Xét Nghiệm Hóa Sinh - Miễn Dịch</option>
                       <option value="LAB-ROOM-03">Bàn 03 &bull; Phòng Xét Nghiệm Vi Sinh</option>

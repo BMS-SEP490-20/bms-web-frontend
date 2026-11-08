@@ -17,6 +17,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { clearAuthTokens, getToken } from "../../config/api";
+import { logoutSession } from '../auth/logoutSession';
 
 const USER_STORAGE_KEY = "bms_user";
 const SESSION_EXPIRED_EVENT = "bms:session-expired";
@@ -112,9 +113,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
-    clearAuthTokens();
     setUser(null);
     setToken(null);
+    return logoutSession();
   }, []);
 
   const value = useMemo(() => {

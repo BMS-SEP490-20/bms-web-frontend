@@ -347,8 +347,8 @@ export default function App() {
                   <Route path="/laboratory/sample-list" element={<SampleListPage />} />
                 </Route>
 
-                {/* UC41 sample check-in: Lab, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[LAB, RECEPTIONIST]} />}>
+                {/* UC73 sample reception is a Lab operation, matching queue/status API permissions. */}
+                <Route element={<ProtectedRoute allowedRoles={[LAB]} />}>
                   <Route path="/laboratory/checkinsample" element={<CheckInSamplePage />} />
                 </Route>
 

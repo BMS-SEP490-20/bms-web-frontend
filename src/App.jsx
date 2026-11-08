@@ -394,6 +394,9 @@ export default function App() {
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/manage/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/manager/shift-assignment" element={<DoctorSchedulePage />} />
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, LAB, RECEPTIONIST]} />}>
                   <Route path="/schedule/personal" element={<ScheduleManagementPage />} />
                 </Route>
 

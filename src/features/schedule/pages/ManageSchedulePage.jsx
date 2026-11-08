@@ -18,8 +18,11 @@ import {
   FaTimes
 } from 'react-icons/fa';
 import { scheduleApi } from '../api/scheduleApi';
+import { getStoredUser } from '../../../constants/roles';
 
-export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
+export function ManageSchedulePage({ doctorId: selectedDoctorId, rooms: initialRooms }) {
+  const session = getStoredUser();
+  const doctorId = selectedDoctorId ?? session?.id ?? session?.userId ?? session?.UserId;
   const [rooms, setRooms] = useState(initialRooms || []);
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -53,6 +56,7 @@ export function ManageSchedulePage({ doctorId, rooms: initialRooms }) {
     setLoading(true);
     setError(null);
     try {
+      if (!doctorId) throw new Error('Vui lòng đăng nhập lại để xem lịch cá nhân.');
       const list = await scheduleApi.list(doctorId, undefined, undefined);
       setShifts(list || []);
     } catch (e) {

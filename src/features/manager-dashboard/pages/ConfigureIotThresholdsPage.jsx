@@ -20,32 +20,18 @@ import {
 import {
     fetchIotThresholdsSummary,
     batchUpdateIotThresholds,
-    resetDefaultIotThresholds,
-    addAlertRecipient,
-    removeAlertRecipient
+    resetDefaultIotThresholds
 } from '../api/iotThresholdApi';
 
 export default function ConfigureIotThresholdsPage() {
     const navigate = useNavigate();
 
     const [thresholds, setThresholds] = useState([]);
-    const [recipients, setRecipients] = useState([]);
-    const [escalationPolicy, setEscalationPolicy] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [resetting, setResetting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
-    // Modal thêm nhân sự nhận cảnh báo khẩn cấp
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [newRecipient, setNewRecipient] = useState({
-        fullName: '',
-        role: 'Kỹ thuật viên phòng Lab',
-        email: '',
-        phone: '',
-        channels: ['Push', 'Email']
-    });
 
     useEffect(() => {
         loadData();
@@ -58,10 +44,7 @@ export default function ConfigureIotThresholdsPage() {
             const data = await fetchIotThresholdsSummary();
             if (data) {
                 const rawThresholds = data.thresholds || (Array.isArray(data) ? data : []);
-                const rawRecipients = data.recipients || [];
                 setThresholds(Array.isArray(rawThresholds) ? rawThresholds : []);
-                setRecipients(Array.isArray(rawRecipients) ? rawRecipients : []);
-                setEscalationPolicy(data.escalationPolicy || '');
             }
         } catch (err) {
             console.error('Lỗi khi tải cấu hình ngưỡng cảm biến IoT:', err);
@@ -136,45 +119,7 @@ export default function ConfigureIotThresholdsPage() {
         }
     };
 
-    const handleRemoveRecipient = async (recipientId) => {
-        try {
-            const ok = await removeAlertRecipient(recipientId);
-            if (ok) {
-                setRecipients(prev => (Array.isArray(prev) ? prev : []).filter(r => r.id !== recipientId));
-                setSuccessMessage('Đã xóa nhân sự khỏi danh sách nhận cảnh báo.');
-                setTimeout(() => setSuccessMessage(''), 3000);
-            }
-        } catch (err) {
-            console.error('Lỗi khi xóa nhân sự nhận cảnh báo:', err);
-            setErrorMessage('Không thể xóa nhân sự nhận cảnh báo.');
-        }
-    };
-
-    const handleAddRecipientSubmit = async (e) => {
-        e.preventDefault();
-        if (!newRecipient.fullName.trim()) return;
-
-        try {
-            const added = await addAlertRecipient(newRecipient);
-            if (added) {
-                setRecipients(prev => [...(Array.isArray(prev) ? prev : []), added]);
-                setShowAddModal(false);
-                setNewRecipient({ fullName: '', role: 'Kỹ thuật viên phòng Lab', email: '', phone: '', channels: ['Push', 'Email'] });
-                setSuccessMessage(`Đã thêm '${added.fullName}' vào danh sách trực tiếp nhận cảnh báo khẩn cấp.`);
-                setTimeout(() => setSuccessMessage(''), 3000);
-            }
-        } catch (err) {
-            console.error('Lỗi khi thêm người nhận cảnh báo:', err);
-            setErrorMessage('Thêm người nhận cảnh báo thất bại.');
-        }
-    };
-
-    const safeThresholds = useMemo(() => {
-        const list = Array.isArray(thresholds) ? thresholds : [];
-        const realDevices = list.filter(t => String(t.deviceId || '').toUpperCase().startsWith('BMS-IOT'));
-        return realDevices.length > 0 ? realDevices : list;
-    }, [thresholds]);
-    const safeRecipients = useMemo(() => Array.isArray(recipients) ? recipients : [], [recipients]);
+    const safeThresholds = useMemo(() => (Array.isArray(thresholds) ? thresholds : []), [thresholds]);
 
     return (
         <div className="w-100 py-1">
@@ -331,123 +276,6 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             </div>
 
-            {/* Thẻ 2: Danh Sách Nhân Sự Nhận Cảnh Báo Khẩn Cấp (Escalation Chain) */}
-            <div className="card shadow-sm" style={{ borderRadius: '18px', background: '#ffffff', overflow: 'hidden' }}>
-                <div className="card-header py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1E60E6' }}>
-                        Nhân Sự Trực Tiếp Nhận Cảnh Báo Khi Vi Phạm Ngưỡng
-                    </h3>
-                    <button
-                        className="btn btn-sm"
-                        style={{ fontSize: '12.5px', fontWeight: '600', borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6', padding: '6px 14px' }}
-                        onClick={() => setShowAddModal(true)}
-                    >
-                        <i className="bi bi-person-plus me-1"></i> Thêm người nhận cảnh báo
-                    </button>
-                </div>
-                <div className="card-body p-2">
-                    <div className="d-flex flex-wrap gap-2 mb-3">
-                        {safeRecipients.map((rec) => (
-                            <div
-                                key={rec.id}
-                                style={{
-                                    background: '#EEF2F6',
-                                    borderRadius: '9999px',
-                                    padding: '6px 14px',
-                                    fontSize: '12.5px',
-                                    fontWeight: '500',
-                                    color: '#334155',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <i className="bi bi-person-fill" style={{ color: '#1E60E6' }}></i>
-                                <span>{rec.fullName} ({rec.role})</span>
-                                <i
-                                    className="bi bi-x-circle-fill text-danger ms-1"
-                                    style={{ cursor: 'pointer', fontSize: '13px' }}
-                                    title="Xóa người nhận"
-                                    onClick={() => handleRemoveRecipient(rec.id)}
-                                ></i>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div style={{ background: 'rgba(30, 96, 230, 0.08)', borderRadius: '12px', padding: '12px 16px', fontSize: '12.5px', color: '#2B4C8C' }}>
-                        <i className="bi bi-info-circle-fill me-2" style={{ color: '#1E60E6' }}></i>
-                        <span>{escalationPolicy || 'Chính sách thông báo leo thang: Thông báo đẩy ứng dụng (Push) + Email nội viện tức thời. Tự động gửi SMS cảnh báo đến Trưởng Khoa nếu sau 5 phút không có xác nhận can thiệp.'}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Modal Thêm Người Nhận Cảnh Báo */}
-            {showAddModal && (
-                <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}>
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content shadow-lg border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
-                            <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                <h5 className="modal-title fw-bold" style={{ fontSize: '16px', color: '#1E60E6' }}>Thêm Nhân Sự Nhận Cảnh Báo</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
-                            </div>
-                            <form onSubmit={handleAddRecipientSubmit}>
-                                <div className="modal-body p-2">
-                                    <div className="mb-3">
-                                        <label className="form-label text-muted small fw-bold">Họ và Tên Nhân Sự <span className="text-danger">*</span></label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
-                                            required
-                                            value={newRecipient.fullName}
-                                            onChange={(e) => setNewRecipient({ ...newRecipient, fullName: e.target.value })}
-                                            placeholder="VD: BSCKII. Lê Lan Anh"
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label text-muted small fw-bold">Chức Danh / Vị Trí <span className="text-danger">*</span></label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
-                                            required
-                                            value={newRecipient.role}
-                                            onChange={(e) => setNewRecipient({ ...newRecipient, role: e.target.value })}
-                                            placeholder="VD: Trưởng Khoa Xét Nghiệm / Trưởng Ca Trực"
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label text-muted small fw-bold">Địa Chỉ Email Y Tế</label>
-                                        <input
-                                            type="email"
-                                            className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
-                                            value={newRecipient.email}
-                                            onChange={(e) => setNewRecipient({ ...newRecipient, email: e.target.value })}
-                                            placeholder="lananh.le@medlab.bms.vn"
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label text-muted small fw-bold">Số Điện Thoại (SMS khẩn cấp)</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
-                                            value={newRecipient.phone}
-                                            onChange={(e) => setNewRecipient({ ...newRecipient, phone: e.target.value })}
-                                            placeholder="0912345678"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="modal-footer" style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                    <button type="button" className="btn btn-outline-secondary btn-sm" style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)', padding: '6px 16px' }} onClick={() => setShowAddModal(false)}>Hủy Bỏ</button>
-                                    <button type="submit" className="btn btn-sm fw-semibold text-white" style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', padding: '6px 20px' }}>Xác Nhận Thêm</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

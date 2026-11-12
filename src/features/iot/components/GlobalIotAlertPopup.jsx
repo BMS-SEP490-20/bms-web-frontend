@@ -20,7 +20,7 @@ import {
   FaCheckCircle,
   FaTimes
 } from 'react-icons/fa';
-import { fetchIotConnectionStatus } from '../api/iotTelemetryApi';
+import { fetchIotConnectionStatus, getSelectedIotDeviceId } from '../api/iotTelemetryApi';
 
 function formatDateTimeVi(isoString) {
   if (!isoString) return 'Chưa ghi nhận';
@@ -85,7 +85,8 @@ export default function GlobalIotAlertPopup() {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
     try {
-      const data = await fetchIotConnectionStatus('BMS-IOT-001');
+      const activeDeviceId = getSelectedIotDeviceId();
+      const data = await fetchIotConnectionStatus(activeDeviceId || undefined);
       if (!data) return;
 
       const isNowConnected = Boolean(data.isConnected);
@@ -125,10 +126,12 @@ export default function GlobalIotAlertPopup() {
       checkIotStatus();
     };
     window.addEventListener('bms-iot-status-changed', handleInstantRefresh);
+    window.addEventListener('bms-iot-device-changed', handleInstantRefresh);
 
     return () => {
       clearInterval(timer);
       window.removeEventListener('bms-iot-status-changed', handleInstantRefresh);
+      window.removeEventListener('bms-iot-device-changed', handleInstantRefresh);
     };
   }, [checkIotStatus]);
 

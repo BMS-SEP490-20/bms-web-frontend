@@ -232,3 +232,43 @@ export async function reconnectAndSyncIot(payload = {}) {
     }
     return res;
 }
+
+
+const SELECTED_IOT_DEVICE_KEY = "bms_selected_iot_device_id";
+
+export function getSelectedIotDeviceId(fallback = "") {
+    if (typeof window === "undefined") return fallback;
+    try {
+        return window.localStorage.getItem(SELECTED_IOT_DEVICE_KEY) || fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+export function setSelectedIotDeviceId(deviceId) {
+    if (typeof window === "undefined" || !deviceId) return;
+    try {
+        window.localStorage.setItem(SELECTED_IOT_DEVICE_KEY, deviceId);
+        window.dispatchEvent(new CustomEvent("bms-iot-device-changed", { detail: { deviceId } }));
+    } catch {
+        // Ignore storage restrictions
+    }
+}
+
+export async function fetchIotDevices() {
+    const res = unwrap(await api.get("/iot/devices"));
+    return Array.isArray(res) ? res : [];
+}
+
+
+export async function createIotDevice(payload) {
+    return unwrap(await api.post("/iot/devices", payload));
+}
+
+export async function fetchIotMqttConfig() {
+    return unwrap(await api.get("/iot/mqtt-config"));
+}
+
+export async function updateIotMqttConfig(payload) {
+    return unwrap(await api.put("/iot/mqtt-config", payload));
+}

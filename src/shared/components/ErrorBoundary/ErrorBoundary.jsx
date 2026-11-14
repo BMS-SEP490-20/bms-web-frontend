@@ -45,11 +45,16 @@ export default class ErrorBoundary extends React.Component {
     }
     return (
       <Container className="min-vh-100 d-flex flex-column align-items-center justify-content-center text-center" role="alert">
-        <h1 className="h4 fw-bold mb-2">Đã xảy ra lỗi không mong muốn</h1>
-        <p className="text-secondary mb-4">Vui lòng tải lại trang. Nếu lỗi lặp lại, hãy báo cho quản trị viên.</p>
-        <Button variant="primary" onClick={() => window.location.reload()}>
-          Tải lại trang
-        </Button>
+        <h1 className="h4 fw-bold mb-2">Đã xảy ra sự cố hiển thị</h1>
+        <p className="text-secondary mb-4">Vui lòng tải lại trang hoặc quay về trang chủ để tiếp tục làm việc.</p>
+        <div className="d-flex gap-3">
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Tải lại trang
+          </Button>
+          <Button variant="outline-secondary" onClick={() => { window.location.href = '/'; }}>
+            Về Trang Chủ
+          </Button>
+        </div>
       </Container>
     );
   }

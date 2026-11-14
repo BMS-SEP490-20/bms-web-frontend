@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaVial, FaClock } from 'react-icons/fa';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
 import { getTestHistory } from '../patient/api/testHistoryApi';
@@ -22,6 +22,7 @@ import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 import usePageTransition from '../../shared/hooks/usePageTransition';
 
 export default function PatientHomePage({ user: propUser }) {
+  const navigate = useNavigate();
   const pageTransitionClass = usePageTransition();
   const [user] = useState(() => {
     if (propUser) return propUser;
@@ -64,10 +65,10 @@ export default function PatientHomePage({ user: propUser }) {
 
   const handleBookClick = (pkg) => {
     const pkgId = pkg?.packageCode || pkg?.id || '';
-    window.location.href = pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book';
+    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book');
   };
 
-  const patientCode = user?.patientCode || user?.medicalRecordNumber || (user?.id ? `PAT-${user.id}` : 'Chưa cấp mã EMR');
+  const patientCode = user?.patientCode || user?.medicalRecordNumber || user?.patientId || 'Chờ kích hoạt tại Lễ tân';
 
   const mapOrderStatus = (status) => {
     const s = String(status || '').toLowerCase();
@@ -118,7 +119,7 @@ export default function PatientHomePage({ user: propUser }) {
             </h1>
 
             <p className="bms-hero-lead" style={{ fontSize: '13.5px', lineHeight: '1.65', maxWidth: '520px' }}>
-              Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích LIS, bác sĩ thẩm định và trả kết quả trực tuyến.
+              Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích máy tự động, bác sĩ thẩm định và trả kết quả trực tuyến.
             </p>
 
             {/* Search Pill */}
@@ -126,7 +127,7 @@ export default function PatientHomePage({ user: propUser }) {
               className="bms-search-pill-capsule"
               onSubmit={(e) => {
                 e.preventDefault();
-                window.location.href = `/services?search=${encodeURIComponent(searchTerm)}`;
+                navigate(`/services?search=${encodeURIComponent(searchTerm)}`);
               }}
             >
               <input
@@ -223,67 +224,14 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 2. Clinical Workflow Section (4 Soft Steps) */}
-      <section className="bms-section-wrap" id="quy-trinh" style={{ marginBottom: '56px' }}>
-        <div className="bms-inner-container">
-          <div className="bms-section-lead-center">
-            <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
-            <h2 className="bms-section-h2">Xét Nghiệm Máu Dễ Dàng Chỉ Với 4 Bước</h2>
-            <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch đến khi nhận phiếu kết quả được chuẩn hóa theo quy chuẩn y tế ISO 15189:2022.
-            </p>
-          </div>
-
-          <div className="bms-steps-quad">
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>01</div>
-              <h3 className="bms-step-h3">Đăng Ký Trực Tuyến</h3>
-              <p className="bms-step-desc">
-                Chọn gói khám và thời gian thuận tiện. Lựa chọn lấy mẫu tại trung tâm BMS hoặc dịch vụ lấy mẫu tại nhà.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>02</div>
-              <h3 className="bms-step-h3">Lấy Mẫu Vô Trùng</h3>
-              <p className="bms-step-desc">
-                Điều dưỡng thực hiện lấy mẫu nhẹ nhàng, mã hóa Barcode một chiều và đưa ngay vào chuỗi lạnh bảo quản 2-6°C.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>03</div>
-              <h3 className="bms-step-h3">Phân Tích Tự Động</h3>
-              <p className="bms-step-desc">
-                Mẫu được chạy trên hệ thống máy phân tích tự động thế hệ mới, kiểm soát chất lượng nội kiểm Westgard.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card">
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>04</div>
-              <h3 className="bms-step-h3">Nhận Kết Quả Ký Số</h3>
-              <p className="bms-step-desc">
-                Bác sĩ Chuyên khoa thẩm định &amp; ký số. Xem trực tuyến và tải PDF có giá trị pháp lý toàn quốc.
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Service Packages Catalog */}
-      <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
+      {/* 2. Service Packages Catalog (Moved to Top) */}
+      <section className="bms-section-wrap" id="danh-muc" style={{ marginBottom: '56px' }}>
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
             <h2 className="bms-section-h2">Gói Xét Nghiệm Máu Tiêu Biểu</h2>
             <p className="bms-section-p">
-              Bảng giá niêm yết công khai, minh bạch, hỗ trợ chiết tính BHYT tự động theo quy định Bộ Y Tế.
+              Bảng giá dịch vụ công khai minh bạch 100%, hỗ trợ chiết tính bảo hiểm y tế tự động và xuất hóa đơn điện tử VAT theo quy định Bộ Y Tế.
             </p>
           </div>
 
@@ -301,10 +249,9 @@ export default function PatientHomePage({ user: propUser }) {
                 }}
                 className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
               >
-                {/* Left: Specialty Icon + Full-Width Content Stack (Zero Awkward Breaks) */}
+                {/* Left: Specialty Icon + Full-Width Content Stack */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="d-flex align-items-center" style={{ gap: '24px' }}>
-                    {/* Centered Large SVG Icon (25% Larger, No Background Box) */}
                     <div
                       style={{
                         width: '68px',
@@ -352,7 +299,7 @@ export default function PatientHomePage({ user: propUser }) {
                         </span>
                       </div>
 
-                      {/* Row 2: Full Package Title (No Ellipsis, Full Available Width) */}
+                      {/* Row 2: Full Package Title */}
                       <h3
                         className="mb-1.5"
                         style={{
@@ -383,7 +330,7 @@ export default function PatientHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Middle Dedicated Column: Specimen Standards & TAT SLA */}
+                {/* Middle Dedicated Column: Specimen Standards & TAT */}
                 <div
                   className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
                   style={{
@@ -393,7 +340,7 @@ export default function PatientHomePage({ user: propUser }) {
                   }}
                 >
                   <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    Tiêu Chuẩn Lấy Mẫu &amp; SLA
+                    Tiêu Chuẩn Lấy Mẫu &amp; Kết Quả
                   </div>
 
                   {/* Tube Specimen */}
@@ -409,7 +356,7 @@ export default function PatientHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  {/* TAT SLA */}
+                  {/* TAT */}
                   <div className="d-flex align-items-center gap-2.5">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
@@ -423,7 +370,7 @@ export default function PatientHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Right: Price & CTA Action Button (Clean Vertical Border Divider) */}
+                {/* Right: Price & CTA Action Button */}
                 <div
                   className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
                   style={{
@@ -473,6 +420,59 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
+      {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
+      <section className="bms-section-wrap" id="quy-trinh" style={{ marginBottom: '56px' }}>
+        <div className="bms-inner-container">
+          <div className="bms-section-lead-center">
+            <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
+            <h2 className="bms-section-h2">Xét Nghiệm Máu Dễ Dàng Chỉ Với 4 Bước</h2>
+            <p className="bms-section-p">
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+            </p>
+          </div>
+
+          <div className="bms-steps-quad">
+            <div className="bms-step-soft-card">
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>01</div>
+              <h3 className="bms-step-h3">Đăng Ký Linh Hoạt</h3>
+              <p className="bms-step-desc">
+                Lựa chọn gói xét nghiệm và khung giờ thuận tiện. Đặt lịch lấy mẫu tận nơi hoặc tại phòng khám BMS chỉ trong 30 giây.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card">
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>02</div>
+              <h3 className="bms-step-h3">Lấy Mẫu Êm Ái &amp; An Toàn</h3>
+              <p className="bms-step-desc">
+                Điều dưỡng giàu kinh nghiệm thao tác nhẹ nhàng, không đau. Dụng cụ chân không vô khuẩn một lần, dán mã định danh chuẩn xác 100%.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card">
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>03</div>
+              <h3 className="bms-step-h3">Phân Tích Tự Động Chính Xác</h3>
+              <p className="bms-step-desc">
+                Mẫu máu được phân tích trên hệ thống máy xét nghiệm hiện đại tự động hoàn toàn, vận hành dưới quy chuẩn kiểm định nghiêm ngặt đạt độ chính xác trên 99.9%.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card">
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '34px', fontWeight: 800, marginBottom: '14px' }}>04</div>
+              <h3 className="bms-step-h3">Nhận Kết Quả &amp; Bác Sĩ Tư Vấn</h3>
+              <p className="bms-step-desc">
+                Tra cứu kết quả online tức thời, tải bản PDF có chữ ký số pháp lý và được Bác sĩ Chuyên khoa gọi điện tư vấn chi tiết từng chỉ số.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-4">
+            <Link to="/iso-process" className="bms-btn-neutral-pill">
+              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 4. Quality & Trust Pillars */}
       <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
         <div className="bms-inner-container">
@@ -483,23 +483,23 @@ export default function PatientHomePage({ user: propUser }) {
 
           <div className="bms-trust-trio">
             <div className="bms-trust-soft-card">
-              <h3 className="bms-trust-h3">Chuỗi Lạnh IoT Bảo Quản Mẫu 2-6°C</h3>
+              <h3 className="bms-trust-h3">Bảo Quản Chuẩn Chuỗi Lạnh 2-6°C</h3>
               <p className="bms-trust-p">
-                Cảm biến IoT giám sát nhiệt độ và độ ẩm liên tục trong suốt hành trình vận chuyển mẫu, phát hiện và cảnh báo vi phạm ngay lập tức.
+                Mẫu máu luôn được bảo quản trong dải nhiệt độ tối ưu 2-6°C từ lúc lấy mẫu đến phòng Lab, bảo toàn trọn vẹn chất lượng chỉ số sinh học.
               </p>
             </div>
 
             <div className="bms-trust-soft-card">
-              <h3 className="bms-trust-h3">Chữ Ký Số Y Tế &amp; Mã QR Xác Thực</h3>
+              <h3 className="bms-trust-h3">Kết Quả Điện Tử Có Chữ Ký Số Bác Sĩ</h3>
               <p className="bms-trust-p">
-                Phiếu kết quả điện tử được cấp dấu thời gian và chữ ký số Bác sĩ chuyên khoa, có giá trị pháp lý tương đương bản giấy.
+                Phiếu kết quả được Bác sĩ Chuyên khoa xét nghiệm thẩm định kỹ lưỡng, cấp chữ ký số pháp lý toàn quốc để bạn an tâm sử dụng khi tái khám hoặc bảo hiểm.
               </p>
             </div>
 
             <div className="bms-trust-soft-card">
-              <h3 className="bms-trust-h3">Lấy Mẫu Tận Nơi Tiện Lợi</h3>
+              <h3 className="bms-trust-h3">Lấy Mẫu Tận Nơi Nhẹ Nhàng, Không Đau</h3>
               <p className="bms-trust-p">
-                Đội ngũ điều dưỡng đến tận nhà đúng giờ hẹn, thao tác vô trùng chuẩn mực, tiết kiệm thời gian chờ đợi cho người già và trẻ nhỏ.
+                Đội ngũ điều dưỡng chuyên nghiệp thao tác nhẹ nhàng, kim siêu nhỏ vô trùng 1 lần, mang lại trải nghiệm y tế êm ái ngay tại không gian quen thuộc của gia đình bạn.
               </p>
             </div>
           </div>

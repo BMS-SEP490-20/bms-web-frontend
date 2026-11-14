@@ -213,6 +213,22 @@
     background: rgba(0, 0, 0, 0.04) !important;
 }
 
+@media (max-width: 1250px) {
+    .bms-capsule-item,
+    .bms-nav-link {
+        padding: 5px 9px;
+        font-size: 11.8px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .bms-capsule-item,
+    .bms-nav-link {
+        padding: 4px 7px;
+        font-size: 11px;
+    }
+}
+
 /* 3. Right Identity & CTA Cluster */
 .bms-identity-cluster,
 .bms-header-actions {

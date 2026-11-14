@@ -48,7 +48,8 @@ export const CANONICAL_NKDA = 'Không có tiền sử dị ứng đã biết (NK
  */
 export function isCanonicalNkda(val) {
   if (!val) return false;
-  const normalized = val.trim().toLowerCase();
+  const str = typeof val === 'string' ? val : (val && typeof val === 'object' ? (val.name || val.allergyName || '') : String(val));
+  const normalized = str.trim().toLowerCase();
   return NO_ALLERGY_STRINGS.includes(normalized);
 }
 
@@ -57,7 +58,11 @@ export function isCanonicalNkda(val) {
  */
 export function isEntireListNkda(allergies) {
   if (!allergies || !Array.isArray(allergies) || allergies.length === 0) return true;
-  const nonEmpties = allergies.map(a => a.trim()).filter(Boolean);
+  const nonEmpties = allergies.map(a => {
+    if (typeof a === 'string') return a.trim();
+    if (a && typeof a === 'object') return String(a.name || a.allergyName || '').trim();
+    return String(a || '').trim();
+  }).filter(Boolean);
   if (nonEmpties.length === 0) return true;
   return nonEmpties.every(a => isCanonicalNkda(a));
 }

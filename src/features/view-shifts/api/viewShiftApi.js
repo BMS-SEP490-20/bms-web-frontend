@@ -4,7 +4,8 @@
  * Uses ShiftsController: GET /api/shifts & /api/v1/shifts
  */
 
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/shifts';
+const rawBase = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE = (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`) + '/shifts';
 
 function authHeaders() {
   const token =

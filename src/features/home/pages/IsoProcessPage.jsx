@@ -25,45 +25,45 @@ const ISO_PHASES = [
   {
     step: '01',
     phase: 'CHẶNG 01 / TIỀN PHÂN TÍCH',
-    title: 'Lấy Mẫu Chân Không & Barcode 1D/2D',
-    desc: 'Lấy máu bằng ống chân không vô trùng, in và dán barcode định danh 3 yếu tố ngay tại chỗ.',
-    standards: ['Ống chân không có gel tách', 'Barcode Code 128 chuẩn y tế', 'Đối chiếu 3 yếu tố định danh'],
+    title: 'Lấy Mẫu Vô Trùng & Mã Hóa Định Danh',
+    desc: 'Lấy máu bằng kim bướm siêu êm và ống chân không vô trùng dùng 1 lần, dán mã định danh bảo mật ngay trước mắt người bệnh.',
+    standards: ['Kim bướm lấy máu êm ái, vô trùng tuyệt đối', 'Mã hóa định danh bảo mật thông tin', 'Đối chiếu thông tin chính xác 100%'],
     tat: '10 – 15 phút',
     svgFile: 'stage-01-barcode-reception.svg'
   },
   {
     step: '02',
-    phase: 'CHẶNG 02 / VẬN CHUYỂN & NHẬP LAB',
-    title: 'Chuỗi Lạnh IoT 2°C – 6°C & Nhập LIS',
-    desc: 'Duy trì nhiệt độ 2°C – 6°C qua cảm biến IoT, kiểm tra chỉ số HIL và đồng bộ LIS tự động.',
-    standards: ['Cảm biến IoT 2°C – 6°C', 'Kiểm tra chất lượng mẫu HIL Index', 'Biên bản số hóa không giấy'],
+    phase: 'CHẶNG 02 / BẢO QUẢN & VẬN CHUYỂN',
+    title: 'Chuỗi Lạnh Giám Sát 2°C – 6°C & Tiếp Nhận Lab',
+    desc: 'Mẫu máu được giữ trong thùng chuyên dụng kiểm soát nhiệt độ nghiêm ngặt, đảm bảo nguyên vẹn phẩm chất tế bào máu.',
+    standards: ['Giám sát nhiệt độ tự động 2°C – 6°C', 'Kiểm tra chất lượng mẫu toàn diện', 'Hệ thống quản lý mẫu khép kín'],
     tat: '15 – 20 phút',
     svgFile: 'stage-02-centrifuge-cold.svg'
   },
   {
     step: '03',
-    phase: 'CHẶNG 03 / PHÂN TÍCH & NỘI KIỂM',
-    title: 'Phân Tích Tự Động & Nội Kiểm Westgard',
-    desc: 'Vận hành trên dàn máy đa kênh tự động, kiểm chuẩn IQC và biểu đồ Levey-Jennings mỗi ca.',
-    standards: ['Kết nối LIS 2 chiều tự động', 'Nội kiểm IQC 6 quy tắc Westgard', 'Ngoại kiểm quốc tế EQAS / RIQAS'],
+    phase: 'CHẶNG 03 / PHÂN TÍCH TỰ ĐỘNG',
+    title: 'Phân Tích Tự Động & Kiểm Chuẩn Chất Lượng',
+    desc: 'Vận hành trên hệ thống máy phân tích tự động hiện đại của Roche / Sysmex, kiểm định chất lượng nghiêm ngặt trước mỗi mẻ chạy.',
+    standards: ['Hệ thống phân tích tự động thế hệ mới', 'Kiểm chuẩn chất lượng máy hàng ngày', 'Đạt chuẩn ngoại kiểm quốc tế định kỳ'],
     tat: '30 – 45 phút',
     svgFile: 'stage-03-auto-analysis.svg'
   },
   {
     step: '04',
-    phase: 'CHẶNG 04 / HỘI CHẨN & THẨM ĐỊNH',
-    title: 'Cảnh Báo Delta Check & Bác Sĩ Ký Duyệt',
-    desc: 'LIS đối chiếu lịch sử xét nghiệm gần nhất, Bác sĩ Chuyên khoa thẩm định và hội chẩn.',
-    standards: ['Cảnh báo Delta Check tự động', 'Quy trình chạy lại mẫu (Auto-Rerun)', 'Bác sĩ chuyên khoa ký duyệt'],
+    phase: 'CHẶNG 04 / CHUYÊN MÔN THẨM ĐỊNH',
+    title: 'Bác Sĩ Chuyên Khoa Thẩm Định & Hội Chẩn',
+    desc: 'Hệ thống tự động đối chiếu tiền sử xét nghiệm của người bệnh, Bác sĩ Chuyên khoa trực tiếp duyệt và tư vấn bất thường.',
+    standards: ['Tự động đối chiếu lịch sử xét nghiệm', 'Cảnh báo chỉ số nguy cơ cho bác sĩ', 'Bác sĩ chuyên khoa thẩm định và ký tên'],
     tat: '15 – 20 phút',
     svgFile: 'stage-04-qc-westgard.svg'
   },
   {
     step: '05',
     phase: 'CHẶNG 05 / TRẢ KẾT QUẢ & LƯU MẪU',
-    title: 'Chữ Ký Số Pháp Lý & Lưu Mẫu 7 Ngày',
-    desc: 'Cấp chứng thư số PKI kèm con dấu thời gian, lưu trữ mẫu âm sâu -20°C trong 7 ngày.',
-    standards: ['Chữ ký số PKI pháp lý toàn quốc', 'Mã hóa PII theo Nghị định 13/2023', 'Lưu mẫu Biobank -20°C'],
+    title: 'Chữ Ký Số Pháp Lý & Lưu Trữ Dự Phòng',
+    desc: 'Phiếu kết quả có chữ ký số điện tử có giá trị pháp lý toàn quốc, mẫu máu được lưu trữ an toàn 7 ngày để đối chiếu khi cần.',
+    standards: ['Chữ ký số Bác sĩ - Giá trị pháp lý toàn quốc', 'Bảo mật dữ liệu theo Nghị định 13/2023', 'Lưu mẫu dự phòng 7 ngày miễn phí'],
     tat: 'Tức thì (SMS / Web)',
     svgFile: 'stage-05-doctor-esign.svg'
   }
@@ -73,15 +73,15 @@ const ISO_METRICS = [
   {
     badge: 'CHỨNG NHẬN',
     value: 'ISO 15189:2022',
-    label: 'Văn phòng Công nhận Chất lượng (BoA) đánh giá và cấp chứng chỉ định kỳ.',
+    label: 'Tiêu chuẩn vàng quốc tế về năng lực và chất lượng phòng xét nghiệm y khoa.',
     accent: '#1E60E6',
     bgAccent: 'rgba(30, 96, 230, 0.08)',
     icon: FaShieldAlt
   },
   {
-    badge: 'ĐỘ TIN CẬY',
+    badge: 'ĐỘ CHÍNH XÁC',
     value: '99.85%',
-    label: 'Tỷ lệ kiểm chuẩn IQC đạt quy chuẩn Westgard ngay từ lần chạy đầu tiên.',
+    label: 'Kết quả chuẩn xác cao, được các bệnh viện tuyến đầu tin cậy và liên thông sử dụng.',
     accent: '#10B981',
     bgAccent: 'rgba(16, 185, 129, 0.08)',
     icon: FaCheckCircle
@@ -95,9 +95,9 @@ const ISO_METRICS = [
     icon: FaVial
   },
   {
-    badge: 'KIỂM SOÁT SLA',
-    value: 'Giám Sát TAT',
-    label: 'Theo dõi tiến độ phân tích mẫu theo từng danh mục chỉ định và chữ ký số bác sĩ.',
+    badge: 'CAM KẾT TRẢ KẾT QUẢ',
+    value: 'Đúng Hẹn 100%',
+    label: 'Cam kết trả kết quả đúng thời gian hẹn, thông báo tự động ngay khi Bác sĩ hoàn tất ký số.',
     accent: '#7C3AED',
     bgAccent: 'rgba(124, 58, 237, 0.08)',
     icon: FaClock

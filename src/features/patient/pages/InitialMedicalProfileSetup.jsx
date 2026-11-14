@@ -13,7 +13,8 @@ import {
 } from 'react-bootstrap';
 import {
   FaCheckCircle,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaShieldAlt
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getStoredUser } from '../../../constants/roles';
@@ -210,28 +211,32 @@ export default function InitialMedicalProfileSetup() {
           setHasNoCoagulation(isNo);
           setCoagulationNotes(isNo ? '' : pat.coagulationDisorders);
         }
-        if (pat?.allergies && Array.isArray(pat.allergies) && pat.allergies.length > 0) {
-          const isNkda = isEntireListNkda(pat.allergies);
-          if (isNkda) {
-            setHasNoAllergies(true);
-            setSelectedAllergies([]);
-            setAllergiesNotes('');
-          } else {
-            setHasNoAllergies(false);
-            const loaded = [];
-            const other = [];
-            pat.allergies.forEach((a) => {
-              if (isCanonicalNkda(a)) return; // skip redundant NKDA string if mixed with real allergies
-              const matched = COMMON_ALLERGIES.find((ca) => isAllergyMatch(ca, a));
-              if (matched) {
-                if (!loaded.includes(matched)) loaded.push(matched);
-              } else {
-                other.push(a);
+        if (pat?.allergies) {
+          const rawAllergies = Array.isArray(pat.allergies) ? pat.allergies : [String(pat.allergies)];
+          if (rawAllergies.length > 0) {
+            const isNkda = isEntireListNkda(rawAllergies);
+            if (isNkda) {
+              setHasNoAllergies(true);
+              setSelectedAllergies([]);
+              setAllergiesNotes('');
+            } else {
+              setHasNoAllergies(false);
+              const loaded = [];
+              const other = [];
+              rawAllergies.forEach((a) => {
+                const aStr = typeof a === 'string' ? a : (a?.name || a?.allergyName || String(a || ''));
+                if (isCanonicalNkda(aStr)) return;
+                const matched = COMMON_ALLERGIES.find((ca) => isAllergyMatch(ca, aStr));
+                if (matched) {
+                  if (!loaded.includes(matched)) loaded.push(matched);
+                } else {
+                  other.push(aStr);
+                }
+              });
+              setSelectedAllergies(loaded);
+              if (other.length > 0) {
+                setAllergiesNotes(other.join('; '));
               }
-            });
-            setSelectedAllergies(loaded);
-            if (other.length > 0) {
-              setAllergiesNotes(other.join('; '));
             }
           }
         }
@@ -267,8 +272,8 @@ export default function InitialMedicalProfileSetup() {
 
   // 2. BMI Calculation (Unified WHO Asian Standard)
   const bmiCalculation = useMemo(() => {
-    const h = parseFloat(heightCm);
-    const w = parseFloat(weightKg);
+    const h = parseFloat(String(heightCm || '').replace(',', '.'));
+    const w = parseFloat(String(weightKg || '').replace(',', '.'));
     if (!h || !w || h <= 0 || w <= 0) {
       return { value: '--', label: 'Chưa đủ dữ liệu', bg: '#F1F5F9', color: '#64748B' };
     }
@@ -397,8 +402,8 @@ export default function InitialMedicalProfileSetup() {
         address: demographics.address,
         bloodType: bloodType,
         vitals: {
-          heightCm: heightCm ? parseFloat(heightCm) : null,
-          weightKg: weightKg ? parseFloat(weightKg) : null,
+          heightCm: heightCm ? parseFloat(String(heightCm).replace(',', '.')) : null,
+          weightKg: weightKg ? parseFloat(String(weightKg).replace(',', '.')) : null,
           bloodPressure: bloodPressure.trim() || null,
           heartRateBpm: null,
           temperatureC: null,
@@ -474,6 +479,13 @@ export default function InitialMedicalProfileSetup() {
           <h1>Đăng Ký Hồ Sơ Sức Khỏe</h1>
           <p>Phiếu khai báo trước khi lấy mẫu. Mục có dấu * là bắt buộc.</p>
         </header>
+
+        <div className="alert alert-info border-0 rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6' }}>
+          <FaShieldAlt className="text-primary fs-4 flex-shrink-0" />
+          <div className="small text-dark" style={{ lineHeight: 1.5 }}>
+            <strong>Cam kết bảo mật y tế:</strong> Mọi thông tin sức khỏe cá nhân được mã hóa an toàn theo tiêu chuẩn ISO 15189:2022 và Nghị định 13/2023/NĐ-CP. Dữ liệu chỉ phục vụ Bác sĩ đối chiếu khoảng tham chiếu sinh học và đảm bảo an toàn tuyệt đối khi lấy mẫu xét nghiệm máu.
+          </div>
+        </div>
 
         {/* Global Notifications */}
         {errorMessage && (

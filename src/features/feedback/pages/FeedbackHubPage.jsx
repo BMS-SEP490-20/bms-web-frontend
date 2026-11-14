@@ -23,6 +23,7 @@ import {
   FaUserCheck, FaUserSecret, FaUserMd, FaPlus, FaArrowLeft
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+import { ROLES, resolveRoleId } from '../../../constants/roles';
 import { patientFeedbackService } from '../../../services/patientFeedbackService';
 
 const FeedbackHubPage = () => {
@@ -31,22 +32,21 @@ const FeedbackHubPage = () => {
 
   // The server is the authoritative boundary for authorization and MongoDB operations.
   // These client-side role checks tailor the UI presentation (tabs, modals, and actions).
+  const currentRoleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(userRoleId), [user, userRoleId]);
+
   const isPatient = useMemo(() => {
-    const roleIdNum = typeof userRoleId === 'string' ? parseInt(userRoleId, 10) : userRoleId;
-    return roleIdNum === 5 || userRole === 'patient';
-  }, [userRoleId, userRole]);
+    return currentRoleId === ROLES.PATIENT || userRole === 'patient';
+  }, [currentRoleId, userRole]);
 
   // Exclusively Admin has permission to moderate and delete feedback
   const isAdmin = useMemo(() => {
-    const roleIdNum = typeof userRoleId === 'string' ? parseInt(userRoleId, 10) : userRoleId;
-    return roleIdNum === 1 || userRole === 'admin' || userRole === 'administrator';
-  }, [userRoleId, userRole]);
+    return currentRoleId === ROLES.ADMIN || userRole === 'admin' || userRole === 'administrator';
+  }, [currentRoleId, userRole]);
 
   // Clinic Managers and Admins can view analytics and submit official responses
   const isManagerOrAdmin = useMemo(() => {
-    const roleIdNum = typeof userRoleId === 'string' ? parseInt(userRoleId, 10) : userRoleId;
-    return roleIdNum === 1 || roleIdNum === 2 || userRole === 'admin' || userRole === 'manager';
-  }, [userRoleId, userRole]);
+    return currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER || userRole === 'admin' || userRole === 'manager';
+  }, [currentRoleId, userRole]);
 
 
 
@@ -293,12 +293,12 @@ const FeedbackHubPage = () => {
                 <Button
                   variant="outline-primary"
                   size="sm"
-                  onClick={() => navigate('/patient/dashboard')}
+                  onClick={() => navigate('/')}
                   className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
                   style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                 >
                   <FaArrowLeft />
-                  <span>Quay về Dashboard</span>
+                  <span>Quay về Trang chủ</span>
                 </Button>
               )}
 

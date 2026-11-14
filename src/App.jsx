@@ -83,6 +83,9 @@ import GlobalIotAlertPopup from "./features/iot/components/GlobalIotAlertPopup.j
 const ServiceCatalogPage = lazy(() => import("./features/catalog/pages/ServiceCatalogPage"));
 const PricingPage = lazy(() => import("./features/catalog/pages/PricingPage.jsx"));
 const IsoProcessPage = lazy(() => import("./features/home/pages/IsoProcessPage.jsx"));
+const TermsOfServicePage = lazy(() => import("./features/legal/pages/TermsOfServicePage.jsx"));
+const PrivacyPolicyPage = lazy(() => import("./features/legal/pages/PrivacyPolicyPage.jsx"));
+const InsurancePolicyPage = lazy(() => import("./features/legal/pages/InsurancePolicyPage.jsx"));
 const BookAppointmentPage = lazy(() => import("./features/appointment/pages/BookAppointmentPage.jsx"));
 const AppointmentListPage = lazy(() => import("./features/appointment/pages/AppointmentListPage.jsx"));
 const AppointmentConfirmationPage = lazy(() => import("./features/appointment/pages/AppointmentConfirmationPage"));
@@ -169,6 +172,12 @@ export default function App() {
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/catalog" element={<PricingPage />} />
               <Route path="/iso-process" element={<IsoProcessPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/insurance-policy" element={<InsurancePolicyPage />} />
+              <Route path="/bhyt-policy" element={<InsurancePolicyPage />} />
               <Route path="/tracking" element={<TrackTestProgressPage />} />
               <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
               <Route path="/patient" element={<Navigate to="/" replace />} />

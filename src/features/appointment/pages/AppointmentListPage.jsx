@@ -38,7 +38,8 @@ import {
   FaNotesMedical,
   FaQrcode,
   FaLock,
-  FaMoneyBillWave
+  FaMoneyBillWave,
+  FaCheckCircle
 } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -73,7 +74,10 @@ const isCancelled = (rawStatus) => {
 
 const getRemainingSeconds = (createdAt, now = Date.now()) => {
   if (!createdAt) return 0;
-  const createdTime = new Date(createdAt).getTime();
+  const str = String(createdAt);
+  const normalizedStr = str.endsWith('Z') || str.includes('+') ? str : `${str}Z`;
+  const createdTime = new Date(normalizedStr).getTime();
+  if (Number.isNaN(createdTime)) return 0;
   const expiresAt = createdTime + HOLD_DURATION_MS;
   const remaining = Math.floor((expiresAt - now) / 1000);
   return Math.max(0, remaining);
@@ -273,14 +277,14 @@ export default function AppointmentListPage() {
       case '0':
         return (
           <Badge bg="warning" text="dark" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            Chờ xác nhận
+            <FaClock className="me-1" /> Chờ thanh toán
           </Badge>
         );
       case 'CONFIRMED':
       case '1':
         return (
-          <Badge bg="info" className="px-2.5 py-1.5 rounded-pill shadow-xs text-white">
-            Đã xác nhận
+          <Badge bg="success" className="px-2.5 py-1.5 rounded-pill shadow-xs text-white" style={{ backgroundColor: '#16a34a' }}>
+            <FaCheckCircle className="me-1" /> Đã xác nhận
           </Badge>
         );
       case 'CHECKEDIN':
@@ -541,12 +545,12 @@ export default function AppointmentListPage() {
                             <FaQrcode className="text-success" /> Mã Check-in
                           </Button>
                         ) : isPending(apt.status) ? (
-                          <div className="d-inline-flex flex-column align-items-center">
-                            <Badge bg="warning-subtle" text="dark" className="border border-warning-subtle px-2 py-1 d-inline-flex align-items-center gap-1">
-                              <FaLock className="text-warning" /> <span>Chưa mở (Cần TT)</span>
-                            </Badge>
+                          <div className="d-inline-flex flex-column align-items-center gap-1">
+                            <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 small fw-semibold">
+                              <FaLock className="me-1" /> Chưa thanh toán
+                            </span>
                             {apt.createdAt && (
-                              <span className="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace mt-1 px-1.5 py-0.5" style={{ fontSize: '0.75rem' }}>
+                              <span className="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace px-1.5 py-0.5" style={{ fontSize: '0.75rem' }}>
                                 <FaClock className="me-1" />
                                 {formatCountdown(getRemainingSeconds(apt.createdAt, now))}
                               </span>
@@ -563,15 +567,32 @@ export default function AppointmentListPage() {
                         )}
                       </td>
                       <td className="text-center">
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="px-2 py-1 d-inline-flex align-items-center gap-1"
-                          onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
-                          title="Xem chi tiết cuộc hẹn"
-                        >
-                          <FaEye /> Chi tiết
-                        </Button>
+                        <div className="d-inline-flex align-items-center justify-content-center gap-1.5 flex-wrap">
+                          {isPending(apt.status) && (
+                            <Button
+                              variant="success"
+                              size="sm"
+                              className="px-2.5 py-1 d-inline-flex align-items-center gap-1 fw-bold shadow-xs text-white"
+                              style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+                              onClick={() => {
+                                const targetId = apt.appointmentId || apt.id;
+                                navigate(`/payments/checkout?appointmentId=${targetId}&code=${apt.appointmentCode || ''}`);
+                              }}
+                              title="Thanh toán ngay để giữ chỗ và nhận Mã QR Check-in"
+                            >
+                              <FaMoneyBillWave /> Thanh toán
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="px-2 py-1 d-inline-flex align-items-center gap-1"
+                            onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
+                            title="Xem chi tiết cuộc hẹn"
+                          >
+                            <FaEye /> Chi tiết
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -784,13 +805,14 @@ export default function AppointmentListPage() {
                       <Button
                         variant="success"
                         size="lg"
-                        className="fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2"
+                        className="fw-bold px-4 py-2.5 shadow-sm d-inline-flex align-items-center gap-2 text-white"
+                        style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
                         onClick={() => {
                           setShowDetailModal(false);
                           navigate(`/payments/checkout?appointmentId=${selectedAppointment.appointmentId || selectedAppointment.id}&code=${selectedAppointment.appointmentCode}`);
                         }}
                       >
-                        <FaMoneyBillWave /> Thanh toán chuyển khoản
+                        <FaMoneyBillWave /> Tiến Hành Thanh Toán Ngay (VietQR / Chuyển Khoản)
                       </Button>
                     ) : (
                       <div className="alert alert-danger py-2 small mb-0">

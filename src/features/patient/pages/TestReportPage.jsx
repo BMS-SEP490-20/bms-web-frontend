@@ -20,10 +20,14 @@ import {
     FaUserMd
 } from "react-icons/fa";
 import { fetchReportByOrder } from "../api/testReportApi";
+import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
 
 export default function TestReportPage() {
     const { orderId } = useParams();
     const navigate = useNavigate();
+
+    const currentUser = getStoredUser();
+    const isDoctor = hasRole(currentUser, ROLES.DOCTOR);
 
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(Boolean(orderId));
@@ -109,14 +113,16 @@ export default function TestReportPage() {
                 </div>
 
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                    {/* Direct Clinical Action: Mở form tư vấn / Đánh giá ICD-10 cho Bác sĩ */}
-                    <Link
-                        to={`/medical-assessments/add?patientId=${encodeURIComponent(report.patientId || '')}&encounterId=${encodeURIComponent(report.orderId || '')}&patientName=${encodeURIComponent(report.patientName || '')}`}
-                        className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm text-white fw-semibold"
-                        style={{ backgroundColor: "#059669", borderColor: "#059669" }}
-                    >
-                        <FaStethoscope /> Tư Vấn & Lập Đánh Giá Y Khoa (ICD-10)
-                    </Link>
+                    {/* Direct Clinical Action: Mở form tư vấn / Đánh giá ICD-10 chỉ dành cho Bác sĩ */}
+                    {isDoctor && (
+                        <Link
+                            to={`/medical-assessments/add?patientId=${encodeURIComponent(report.patientId || '')}&encounterId=${encodeURIComponent(report.orderId || '')}&patientName=${encodeURIComponent(report.patientName || '')}`}
+                            className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm text-white fw-semibold"
+                            style={{ backgroundColor: "#059669", borderColor: "#059669" }}
+                        >
+                            <FaStethoscope /> Tư Vấn & Lập Đánh Giá Y Khoa (ICD-10)
+                        </Link>
+                    )}
 
                     <button
                         className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"

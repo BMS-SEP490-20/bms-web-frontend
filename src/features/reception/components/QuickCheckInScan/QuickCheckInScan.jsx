@@ -63,13 +63,28 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
 
     scanningRef.current = true;
     try {
+      console.log('[QuickCheckInScan] handleManualSubmit Searching code:', manualCode.trim());
       const respGet = await appointmentService.getAppointmentByCode(manualCode.trim());
+      console.log('[QuickCheckInScan] respGet result:', respGet);
       if (respGet.success && respGet.data) {
         const apt = respGet.data;
-        const patientName = apt.patientName || (apt.patient && apt.patient.name) || (apt.patientId && apt.patientId.name) || 'Bệnh nhân';
+        let patientName = apt.patientName || (apt.patient && (apt.patient.fullName || apt.patient.name)) || (apt.patientId && apt.patientId.name) || '';
+        if (!patientName && apt.patientId) {
+          const cleanPid = String(apt.patientId).replace(/^(PAT-)+/i, '');
+          patientName = `PAT-${cleanPid.substring(0, 8)}...`;
+        }
+        if (!patientName) patientName = 'Bệnh nhân';
 
-        if (apt.status === 'Completed' || apt.status === 'Cancelled') {
-          showError(`❌ Lịch hẹn không ở trạng thái cho phép check-in.`);
+        const rawStatus = (apt.status || '').toString();
+        const normStatus = rawStatus.toLowerCase().replace(/[_-]/g, '');
+        if (normStatus === 'checkedin' || normStatus === '2') {
+          showError(`ℹ️ Lịch hẹn của ${patientName} đã được tiếp đón / check-in trước đó.`);
+          scanningRef.current = false;
+          return;
+        }
+
+        if (normStatus === 'completed' || normStatus === '4' || normStatus === 'cancelled' || normStatus === '5') {
+          showError(`❌ Lịch hẹn không ở trạng thái cho phép check-in (${rawStatus}).`);
           scanningRef.current = false;
           return;
         }
@@ -314,20 +329,22 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
               }
 
               // Check if already checked in
-              if (apt.status === 'checked_in') {
+              const rawAptStatus = (apt.status || '').toString();
+              const normAptStatus = rawAptStatus.toLowerCase().replace(/[_-]/g, '');
+              if (normAptStatus === 'checkedin' || normAptStatus === '2') {
                 scanningRef.current = false;
                 const checkedInTime = apt.checkedInAt
                   ? new Date(apt.checkedInAt).toLocaleString('vi-VN')
-                  : 'N/A';
-                showError(`❌ Bệnh nhân "${patientName}" đã được check-in lúc ${checkedInTime}. Không thể check-in lại.`);
+                  : 'trước đó';
+                showError(`ℹ️ Bệnh nhân "${patientName}" đã được check-in lúc ${checkedInTime}. Không thể check-in lại.`);
                 return;
               }
 
               // Verify appointment workflow status
-              const allowed = ['scheduled', 'confirmed'];
-              if (!allowed.includes(apt.status)) {
+              const allowed = ['scheduled', 'confirmed', 'paid', '1'];
+              if (!allowed.includes(normAptStatus)) {
                 scanningRef.current = false;
-                showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in. Trạng thái hiện tại: ${apt.status}. Chỉ có thể check-in lịch hẹn đã được xác nhận hoặc đã thanh toán.`);
+                showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in. Trạng thái hiện tại: ${rawAptStatus}. Chỉ có thể check-in lịch hẹn đã được xác nhận hoặc đã thanh toán.`);
                 return;
               }
 
@@ -530,18 +547,26 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         }
 
         const apt = respGet.data;
-        const patientName = apt.patientName || 'Bệnh nhân';
+        let patientName = apt.patientName || (apt.patient && (apt.patient.fullName || apt.patient.name)) || (apt.patientId && apt.patientId.name) || '';
+        if (!patientName && apt.patientId) {
+          const cleanPid = String(apt.patientId).replace(/^(PAT-)+/i, '');
+          patientName = `PAT-${cleanPid.substring(0, 8)}...`;
+        }
+        if (!patientName) patientName = 'Bệnh nhân';
 
-        if (apt.status === 'checked_in') {
+        const rawFileStatus = (apt.status || '').toString();
+        const normFileStatus = rawFileStatus.toLowerCase().replace(/[_-]/g, '');
+
+        if (normFileStatus === 'checkedin' || normFileStatus === '2') {
           scanningRef.current = false;
-          showError(`❌ Bệnh nhân "${patientName}" đã được check-in.`);
+          showError(`ℹ️ Bệnh nhân "${patientName}" đã được tiếp đón / check-in trước đó.`);
           return;
         }
 
-        const allowed = ['scheduled', 'confirmed'];
-        if (!allowed.includes(apt.status)) {
+        const allowed = ['scheduled', 'confirmed', 'paid', '1'];
+        if (!allowed.includes(normFileStatus)) {
           scanningRef.current = false;
-          showError(`❌ Lịch hẹn không ở trạng thái cho phép check-in.`);
+          showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in. Trạng thái: ${rawFileStatus}.`);
           return;
         }
 

@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     FaBell,
     FaPaperPlane,
@@ -28,9 +29,16 @@ import {
     FaBolt,
     FaUser,
     FaArrowRight,
+    FaArrowLeft,
     FaTimes,
-    FaInfoCircle
+    FaInfoCircle,
+    FaFlask,
+    FaCalendarAlt,
+    FaReceipt,
+    FaCheck
 } from "react-icons/fa";
+import { useAuth } from "../../../shared/contexts/AuthContext";
+import { ROLES, resolveRoleId } from "../../../constants/roles";
 import {
     dispatchNotification,
     getNotificationLogs,
@@ -51,6 +59,12 @@ const CATEGORIES = [
 ];
 
 export default function PushNotificationCenterPage() {
+    const { user, userRole, userRoleId } = useAuth();
+    const navigate = useNavigate();
+    const currentRoleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(userRoleId), [user, userRoleId]);
+    const isPatient = useMemo(() => currentRoleId === ROLES.PATIENT || userRole === 'patient', [currentRoleId, userRole]);
+    const [patientFilter, setPatientFilter] = useState("ALL");
+
     // Audit logs state
     const [logs, setLogs] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
@@ -122,8 +136,12 @@ export default function PushNotificationCenterPage() {
         }
     }, []);
 
-    // Load audit logs
+    // Load audit logs (staff only)
     const fetchLogs = useCallback(async () => {
+        if (isPatient) {
+            setIsLoading(false);
+            return;
+        }
         setIsLoading(true);
         setLoadError(null);
         try {
@@ -154,19 +172,26 @@ export default function PushNotificationCenterPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
+    }, [isPatient, activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
 
-    // Load user notifications for drawer
+    // Target user ID for inbox retrieval (Patient own ID or Drawer selected ID)
+    const targetUserId = useMemo(() => {
+        if (isPatient) return user?.id || user?._id || user?.sub || "";
+        return drawerUserId;
+    }, [isPatient, user, drawerUserId]);
+
+    // Load user notifications for drawer or patient hub
     const fetchUserNotifs = useCallback(async () => {
+        if (!targetUserId) return;
         try {
-            const raw = await getUserNotifications(drawerUserId, { unreadOnly: drawerUnreadOnly });
+            const raw = await getUserNotifications(targetUserId, { unreadOnly: drawerUnreadOnly });
             const list = Array.isArray(raw) ? raw : (raw?.items ?? []);
             setUserNotifications(list);
         } catch (err) {
             console.error("Failed to fetch user notifications:", err);
             setUserNotifications([]);
         }
-    }, [drawerUserId, drawerUnreadOnly]);
+    }, [targetUserId, drawerUnreadOnly]);
 
     useEffect(() => {
         fetchLogs();
@@ -188,11 +213,12 @@ export default function PushNotificationCenterPage() {
 
     // Unread count for bell
     const unreadCount = useMemo(() => {
-        return userNotifications.filter(n => !n.isRead).length;
+        return userNotifications.filter(n => !n.isRead && !n.IsRead).length;
     }, [userNotifications]);
 
-    // Load real users from database
+    // Load real users from database (staff only)
     useEffect(() => {
+        if (isPatient) return;
         userManagementService.getAllUsers({ params: { pageSize: 20 } })
             .then(res => {
                 const list = res?.success && Array.isArray(res.data) ? res.data : [];
@@ -204,7 +230,7 @@ export default function PushNotificationCenterPage() {
                 }
             })
             .catch(() => setAvailableUsers([]));
-    }, []);
+    }, [isPatient, formUserId]);
 
     // Handle Quick User Selection
     const handleSelectDemoUser = (user) => {
@@ -314,17 +340,222 @@ export default function PushNotificationCenterPage() {
 
     // Mark single notification read
     const handleMarkRead = async (id) => {
-        await markNotificationRead(id);
-        await fetchLogs();
-        await fetchUserNotifs();
+        try {
+            await markNotificationRead(id);
+            if (!isPatient) await fetchLogs();
+            await fetchUserNotifs();
+        } catch (err) {
+            console.error("Failed to mark read:", err);
+        }
     };
 
     // Mark all read for user
     const handleMarkAllRead = async () => {
-        await markAllNotificationsRead(drawerUserId);
-        await fetchLogs();
-        await fetchUserNotifs();
+        try {
+            const uid = isPatient ? (user?.id || user?._id || user?.sub) : drawerUserId;
+            if (!uid) return;
+            await markAllNotificationsRead(uid);
+            if (!isPatient) await fetchLogs();
+            await fetchUserNotifs();
+        } catch (err) {
+            console.error("Failed to mark all read:", err);
+        }
     };
+
+    if (isPatient) {
+        const filteredNotifications = userNotifications.filter(item => {
+            const isUnread = !item.isRead && !item.IsRead;
+            const title = (item.title || item.Title || "").toLowerCase();
+            const category = item.category || item.type || "";
+            if (patientFilter === "UNREAD") return isUnread;
+            if (patientFilter === "RESULTS") return category === "RESULT_READY" || category === "TEST_RESULT_READY" || title.includes("kết quả");
+            if (patientFilter === "APPOINTMENTS") return category === "APPOINTMENT_REMINDER" || category === "APPOINTMENT" || title.includes("lịch");
+            return true;
+        });
+
+        return (
+            <div className="container-fluid py-4" style={{ maxWidth: "1050px" }}>
+                {/* Header Card */}
+                <div className="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                                <span className="badge bg-primary-subtle text-primary fw-semibold px-2.5 py-1.5 rounded-pill">
+                                    <FaBell className="me-1" /> Hộp thư thông báo y khoa
+                                </span>
+                                {unreadCount > 0 && (
+                                    <span className="badge bg-danger text-white rounded-pill">
+                                        {unreadCount} chưa đọc
+                                    </span>
+                                )}
+                            </div>
+                            <h2 className="fw-bold mb-1" style={{ color: "#0f2743" }}>Thông Báo &amp; Lời Nhắc Y Khoa</h2>
+                            <p className="text-muted small mb-0">
+                                Xin chào <strong>{user?.fullName || user?.username || "Quý khách"}</strong> ({user?.patientCode || "Bệnh nhân"}) • Cập nhật kết quả xét nghiệm, lịch hẹn và hướng dẫn lâm sàng
+                            </p>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                            <button
+                                className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+                                onClick={() => navigate("/")}
+                            >
+                                <FaArrowLeft /> Trang chủ
+                            </button>
+                            <button
+                                className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+                                onClick={fetchUserNotifs}
+                                title="Tải lại thông báo"
+                            >
+                                <FaSync /> Làm mới
+                            </button>
+                            {unreadCount > 0 && (
+                                <button
+                                    className="btn btn-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+                                    onClick={handleMarkAllRead}
+                                >
+                                    <FaCheckDouble /> Đã đọc tất cả
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="d-flex gap-2 mb-3 overflow-auto pb-1">
+                    {[
+                        { key: "ALL", label: `Tất cả (${userNotifications.length})` },
+                        { key: "UNREAD", label: `Chưa đọc (${unreadCount})` },
+                        { key: "RESULTS", label: "Kết quả xét nghiệm" },
+                        { key: "APPOINTMENTS", label: "Lịch hẹn khám" }
+                    ].map(tab => (
+                        <button
+                            key={tab.key}
+                            className={`btn btn-sm rounded-pill px-3.5 py-2 fw-semibold ${patientFilter === tab.key ? "btn-primary text-white" : "btn-light text-secondary border"}`}
+                            onClick={() => setPatientFilter(tab.key)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Notification List */}
+                {filteredNotifications.length === 0 ? (
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+                        <div className="text-muted mb-3">
+                            <FaBell style={{ fontSize: "3rem", opacity: 0.3 }} />
+                        </div>
+                        <h5 className="fw-bold text-dark">Không có thông báo nào</h5>
+                        <p className="text-muted small mb-3">
+                            {patientFilter === "UNREAD"
+                                ? "Quý khách đã đọc hết tất cả các thông báo."
+                                : "Hiện tại không có thông báo y khoa nào trong mục này."}
+                        </p>
+                        <div>
+                            <button className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2" onClick={() => setPatientFilter("ALL")}>
+                                Xem tất cả thông báo
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="d-flex flex-column gap-3">
+                        {filteredNotifications.map((notif, idx) => {
+                            const isUnread = !notif.isRead && !notif.IsRead;
+                            const title = notif.title || notif.Title || "Thông báo y khoa";
+                            const body = notif.body || notif.message || notif.Message || "";
+                            const isResult = notif.category === "RESULT_READY" || notif.type === "TEST_RESULT_READY" || title.toLowerCase().includes("kết quả");
+                            const isPanic = notif.priority === "Critical_Panic" || notif.category === "CRITICAL_PANIC" || notif.type === "PANIC_RESULT_ALERT";
+                            const isAppt = notif.category === "APPOINTMENT_REMINDER" || notif.type === "APPOINTMENT" || title.toLowerCase().includes("lịch");
+                            const isPayment = notif.category === "PAYMENT_REMINDER" || title.toLowerCase().includes("thanh toán");
+
+                            return (
+                                <div
+                                    key={notif.id || notif._id || idx}
+                                    className={`card border-0 shadow-sm rounded-4 p-3.5 ${isUnread ? "bg-white" : "bg-light bg-opacity-75"}`}
+                                    style={{
+                                        borderLeft: isPanic ? "5px solid #dc3545" : isUnread ? "5px solid #0d6efd" : "5px solid #dee2e6"
+                                    }}
+                                >
+                                    <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                                        <div className="d-flex align-items-start gap-3 flex-grow-1">
+                                            <div
+                                                className={`rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 ${
+                                                    isPanic ? "bg-danger-subtle text-danger" :
+                                                    isResult ? "bg-success-subtle text-success" :
+                                                    isAppt ? "bg-info-subtle text-info" :
+                                                    isPayment ? "bg-warning-subtle text-warning" : "bg-primary-subtle text-primary"
+                                                }`}
+                                                style={{ width: "48px", height: "48px" }}
+                                            >
+                                                {isPanic ? <FaExclamationTriangle size={20} /> :
+                                                 isResult ? <FaFlask size={20} /> :
+                                                 isAppt ? <FaCalendarAlt size={20} /> :
+                                                 isPayment ? <FaReceipt size={20} /> : <FaBell size={20} />}
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                    <span className="fw-bold text-dark fs-6">{title}</span>
+                                                    {isUnread && (
+                                                        <span className="badge bg-primary rounded-pill small">Mới</span>
+                                                    )}
+                                                    {isPanic && (
+                                                        <span className="badge bg-danger text-white rounded-pill small">Khẩn cấp</span>
+                                                    )}
+                                                </div>
+                                                <p className="text-secondary small mb-2" style={{ lineHeight: 1.5 }}>
+                                                    {body}
+                                                </p>
+                                                <div className="d-flex align-items-center gap-2 text-muted small" style={{ fontSize: "0.8rem" }}>
+                                                    <FaClock size={12} />
+                                                    <span>{notif.createdAt || notif.CreatedAt ? new Date(notif.createdAt || notif.CreatedAt).toLocaleString("vi-VN") : "Gần đây"}</span>
+                                                    {notif.channel && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span className="text-uppercase fw-semibold">{notif.channel}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                                            {isUnread && (
+                                                <button
+                                                    className="btn btn-light btn-sm rounded-pill px-3 py-1.5 text-secondary border d-flex align-items-center gap-1"
+                                                    onClick={() => handleMarkRead(notif.id || notif._id)}
+                                                    title="Đánh dấu đã đọc"
+                                                >
+                                                    <FaCheck size={11} /> Đã đọc
+                                                </button>
+                                            )}
+                                            {(notif.actionUrl || isResult || isAppt || isPayment) && (
+                                                <button
+                                                    className="btn btn-primary btn-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1"
+                                                    onClick={() => {
+                                                        if (isUnread) handleMarkRead(notif.id || notif._id);
+                                                        if (notif.actionUrl) {
+                                                            navigate(notif.actionUrl);
+                                                        } else if (isResult) {
+                                                            navigate("/patient/test-history");
+                                                        } else if (isAppt) {
+                                                            navigate("/appointments");
+                                                        } else if (isPayment) {
+                                                            navigate("/patient/payment-history");
+                                                        }
+                                                    }}
+                                                >
+                                                    <span>Chi tiết</span> <FaArrowRight size={10} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="w-100 py-1">

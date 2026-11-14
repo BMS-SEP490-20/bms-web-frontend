@@ -9,7 +9,7 @@
 import '../view-shifts.css';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Col, Badge, Spinner } from 'react-bootstrap';
+import { Row, Col, Badge, Spinner, Modal, Button, Card } from 'react-bootstrap';
 import {
   FaCalendarAlt,
   FaClock,
@@ -21,7 +21,10 @@ import {
   FaShieldAlt,
   FaPlus,
   FaCalendarCheck,
-  FaHospital
+  FaHospital,
+  FaInfoCircle,
+  FaTimes,
+  FaUserNurse
 } from 'react-icons/fa';
 import { viewShiftApi } from '../api/viewShiftApi';
 import { useAuth } from '../../../shared/contexts/AuthContext';
@@ -100,6 +103,75 @@ export function ViewShiftsPage() {
 
   const activeCount = sourceShifts.filter((s) => (s.status || 'Approved') !== 'Cancelled').length;
   const unassigned = sourceShifts.filter((s) => s.currentPatientsCount === 0).length;
+
+  const [selectedShift, setSelectedShift] = useState(null);
+  const [showShiftDetailModal, setShowShiftDetailModal] = useState(false);
+
+  const formatShiftType = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t.includes('morning') || t.includes('sáng')) return 'Ca Sáng (07:00 – 11:30)';
+    if (t.includes('afternoon') || t.includes('chiều')) return 'Ca Chiều (13:00 – 17:00)';
+    if (t.includes('evening') || t.includes('tối')) return 'Ca Tối (17:30 – 20:30)';
+    if (t.includes('night') || t.includes('đêm')) return 'Ca Đêm (21:00 – 06:00)';
+    if (t.includes('fullday') || t.includes('toàn')) return 'Ca Toàn Ngày (07:00 – 17:00)';
+    return type || 'Ca Sáng (07:00 – 11:30)';
+  };
+
+  const formatShiftCode = (sid) => {
+    if (!sid) return 'CA-001';
+    const s = String(sid);
+    if (s.startsWith('SHF-') || s.startsWith('CA-')) return s;
+    return `CA-${s.slice(-6).toUpperCase()}`;
+  };
+
+  const getShiftStatusBadge = (status) => {
+    const st = String(status || 'Approved').toLowerCase();
+    if (st === 'approved' || st === 'đã phê duyệt') {
+      return (
+        <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+          <i className="fas fa-check-circle me-1"></i> Đã phê duyệt
+        </span>
+      );
+    }
+    if (st === 'active' || st === 'đang diễn ra' || st === 'đang hoạt động') {
+      return (
+        <span className="badge bg-success text-white px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+          <i className="fas fa-circle me-1" style={{ fontSize: '8px' }}></i> Đang diễn ra
+        </span>
+      );
+    }
+    if (st === 'scheduled' || st === 'đã lên lịch') {
+      return (
+        <span className="badge bg-info-subtle text-primary border border-info-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+          <i className="fas fa-clock me-1"></i> Đã lên lịch
+        </span>
+      );
+    }
+    if (st === 'pending' || st === 'chờ duyệt') {
+      return (
+        <span className="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+          <i className="fas fa-hourglass-half me-1"></i> Chờ duyệt
+        </span>
+      );
+    }
+    if (st === 'cancelled' || st === 'đã hủy') {
+      return (
+        <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+          <i className="fas fa-ban me-1"></i> Đã hủy
+        </span>
+      );
+    }
+    return (
+      <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
+        {status}
+      </span>
+    );
+  };
+
+  const handleOpenShiftDetail = (shift) => {
+    setSelectedShift(shift);
+    setShowShiftDetailModal(true);
+  };
 
   const filtered = sourceShifts.filter((s) => {
     if (filter === 'active') return (s.status || 'Approved') !== 'Cancelled';
@@ -272,18 +344,22 @@ export function ViewShiftsPage() {
                 <tbody>
                   {filtered.map((s, idx) => {
                     const sid = String(s.shiftId || s.id || `SHF-${idx}`);
+                    const shiftCode = formatShiftCode(sid);
+                    const shiftTypeVi = formatShiftType(s.shiftType);
+                    const timeWindow = s.shiftStart && s.shiftEnd
+                      ? `${s.shiftStart} – ${s.shiftEnd}`
+                      : (s.shiftDate ? new Date(s.shiftDate).toLocaleDateString('vi-VN') : '07:00 – 11:30');
+
                     return (
                       <tr key={sid}>
-                        <td className="fw-semibold text-primary font-monospace">{sid.slice(-10)}</td>
+                        <td className="fw-semibold text-primary font-monospace">{shiftCode}</td>
                         <td>
-                          <div className="fw-bold text-dark">{s.shiftType}</div>
+                          <div className="fw-bold text-dark">{shiftTypeVi}</div>
                           <div className="small text-muted">{s.employeeName || s.doctorName || user?.fullName || 'Nhân viên trực'}</div>
                         </td>
                         <td>
                           <span className="badge bg-light text-dark border font-monospace" style={{ fontSize: '12px', padding: '5px 10px', borderRadius: 9999 }}>
-                            {s.shiftStart && s.shiftEnd
-                              ? `${s.shiftStart} – ${s.shiftEnd}`
-                              : (s.shiftDate ? new Date(s.shiftDate).toLocaleDateString('vi-VN') : '07:00 – 11:30')}
+                            {timeWindow}
                           </span>
                         </td>
                         <td>
@@ -291,25 +367,14 @@ export function ViewShiftsPage() {
                           <div className="text-muted small">{s.department || s.specialty || 'Khoa Tiếp Nhận & Lấy Mẫu'} · Tiếp nhận: {s.currentPatientsCount || 0}/{s.maxPatients || 30} lượt</div>
                         </td>
                         <td>
-                          <span
-                            className={`badge ${
-                              s.status === 'Đang diễn ra'
-                                ? 'bg-success'
-                                : (s.status || 'Approved') === 'Cancelled'
-                                ? 'bg-secondary'
-                                : 'bg-primary'
-                            }`}
-                            style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}
-                          >
-                            {s.status || 'Đang hiệu lực'}
-                          </span>
+                          {getShiftStatusBadge(s.status)}
                         </td>
                         <td className="text-end pe-4">
                           <button
                             type="button"
-                            className="btn btn-link btn-sm p-0 text-decoration-none fw-semibold"
-                            onClick={() => navigate(canManageShifts ? '/manage/schedule' : '/doctor/schedule')}
-                            style={{ color: '#1E60E6' }}
+                            className="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill fw-semibold shadow-sm"
+                            onClick={() => handleOpenShiftDetail(s)}
+                            style={{ fontSize: '12px' }}
                           >
                             Chi tiết ca →
                           </button>
@@ -331,6 +396,164 @@ export function ViewShiftsPage() {
           )}
         </div>
       </div>
+
+      {/* Shift Detail Modal */}
+      <Modal 
+        show={showShiftDetailModal} 
+        onHide={() => setShowShiftDetailModal(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton className="border-bottom bg-white py-3 px-4">
+          <div className="d-flex align-items-center gap-3">
+            <div className="rounded-3 bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 44, height: 44 }}>
+              <FaHospital className="fs-5" />
+            </div>
+            <div>
+              <Modal.Title className="fw-bold fs-5 text-dark mb-0">
+                Thông Tin Chi Tiết Ca Trực Y Tế
+              </Modal.Title>
+              <div className="text-muted small">
+                Tiêu chuẩn phân công lịch trực ISO 15189 &amp; Quản trị bệnh viện BMS
+              </div>
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="p-4" style={{ backgroundColor: '#F8FAFC' }}>
+          {selectedShift && (() => {
+            const sid = String(selectedShift.shiftId || selectedShift.id || 'CA-001');
+            const code = formatShiftCode(sid);
+            const shiftTypeVi = formatShiftType(selectedShift.shiftType);
+            const timeWindow = selectedShift.shiftStart && selectedShift.shiftEnd 
+              ? `${selectedShift.shiftStart} – ${selectedShift.shiftEnd}` 
+              : '07:00 – 11:30';
+            const empName = selectedShift.employeeName || selectedShift.doctorName || user?.fullName || 'Cán bộ trực';
+            const roomName = selectedShift.roomName || 'Quầy Tiếp Đón Sảnh A / Phòng 101';
+            const dept = selectedShift.department || selectedShift.specialty || 'Khoa Tiếp Nhận & Lấy Mẫu';
+            const current = selectedShift.currentPatientsCount || 0;
+            const max = selectedShift.maxPatients || 30;
+
+            return (
+              <div className="d-flex flex-column gap-3">
+                {/* Header Card */}
+                <div className="d-flex flex-wrap align-items-center justify-content-between p-3 bg-white rounded-3 border shadow-sm gap-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="badge bg-primary px-3 py-2 fs-6 font-monospace shadow-sm">
+                      {code}
+                    </span>
+                    <Badge bg="light" text="dark" className="border px-2 py-2">
+                      <FaCalendarAlt className="text-primary me-1" />
+                      {selectedShift.shiftDate ? new Date(selectedShift.shiftDate).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hôm nay'}
+                    </Badge>
+                  </div>
+                  <div>
+                    {getShiftStatusBadge(selectedShift.status)}
+                  </div>
+                </div>
+
+                {/* 2-Column Details */}
+                <Row className="g-3">
+                  {/* Left Column: Personnel Info */}
+                  <Col xs={12} md={6}>
+                    <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
+                      <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
+                        <FaUserMd className="text-primary" />
+                        Nhân Sự Phụ Trách Ca
+                      </div>
+                      <div className="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3 border">
+                        <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 50, height: 50 }}>
+                          <FaUserNurse className="fs-4" />
+                        </div>
+                        <div>
+                          <div className="fw-bold fs-6 text-dark">{empName}</div>
+                          <div className="text-primary small fw-semibold">{dept}</div>
+                          <div className="text-muted small" style={{ fontSize: '11px' }}>
+                            Mã nhân viên: <span className="font-monospace fw-semibold">{code.replace('CA-', 'NV-')}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-2 border rounded-2 bg-light small">
+                        <span className="text-muted d-block">Phân loại chuyên môn:</span>
+                        <strong className="text-dark">
+                          {dept.includes('Huyết học') ? 'Bác sĩ chuyên khoa Huyết học' : 
+                           dept.includes('Xét nghiệm') ? 'Kỹ thuật viên xét nghiệm tự động' : 
+                           'Chuyên viên tiếp đón & điều phối'}
+                        </strong>
+                      </div>
+                    </Card>
+                  </Col>
+
+                  {/* Right Column: Time & Room Info */}
+                  <Col xs={12} md={6}>
+                    <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
+                      <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
+                        <FaClock className="text-primary" />
+                        Thời Gian &amp; Vị Trí Trực
+                      </div>
+                      <div className="d-flex flex-column gap-2 small">
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Loại ca làm việc:</span>
+                          <strong className="text-primary fs-6">{shiftTypeVi}</strong>
+                        </div>
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Khung giờ quy chuẩn:</span>
+                          <strong className="text-dark font-monospace fs-6">
+                            <FaClock className="text-primary me-1" />
+                            {timeWindow}
+                          </strong>
+                        </div>
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Vị trí phòng / quầy trực:</span>
+                          <strong className="text-dark">
+                            <FaDoorOpen className="text-primary me-1" />
+                            {roomName}
+                          </strong>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Capacity & Workflow Card */}
+                <Card className="border shadow-sm rounded-3 bg-white p-3">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <div className="small fw-semibold text-muted text-uppercase d-flex align-items-center gap-2">
+                      <FaUsers className="text-primary" />
+                      Công Suất Tiếp Nhận Bệnh Nhân
+                    </div>
+                    <Badge bg={current >= max ? 'danger' : 'success'} className="px-3 py-1">
+                      {current} / {max} lượt
+                    </Badge>
+                  </div>
+                  <div className="progress mb-3" style={{ height: 10, borderRadius: 9999 }}>
+                    <div 
+                      className={`progress-bar ${current >= max ? 'bg-danger' : 'bg-primary'}`} 
+                      style={{ width: `${Math.min(100, (current / max) * 100)}%` }}
+                    />
+                  </div>
+                  <div className="p-2 border rounded-2 bg-light small text-muted">
+                    <strong className="text-dark me-1">
+                      <FaShieldAlt className="text-success me-1" />
+                      Tiêu chuẩn ISO 15189:2022:
+                    </strong>
+                    Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra chất lượng hóa chất nội kiểm QC và đồng bộ hệ thống trước khi mở cửa tiếp nhận bệnh nhân.
+                  </div>
+                </Card>
+              </div>
+            );
+          })()}
+        </Modal.Body>
+        <Modal.Footer className="bg-white border-top py-3 px-4 d-flex justify-content-end">
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowShiftDetailModal(false)}
+            className="px-4 py-2 rounded-3 fw-semibold"
+          >
+            <FaTimes className="me-2" />
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -3,7 +3,8 @@
  * @description UC33 – Electronic Medical Records (EMR) API client.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
+const rawBase = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`;
 
 function authHeaders() {
   const token = localStorage.getItem('bms_access_token') || localStorage.getItem('bms_token') || sessionStorage.getItem('bms_access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token');

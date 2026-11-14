@@ -83,6 +83,9 @@ import GlobalIotAlertPopup from "./features/iot/components/GlobalIotAlertPopup.j
 import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
 import PricingPage from "./features/catalog/pages/PricingPage.jsx";
 import IsoProcessPage from "./features/home/pages/IsoProcessPage.jsx";
+import TermsOfServicePage from "./features/legal/pages/TermsOfServicePage.jsx";
+import PrivacyPolicyPage from "./features/legal/pages/PrivacyPolicyPage.jsx";
+import InsurancePolicyPage from "./features/legal/pages/InsurancePolicyPage.jsx";
 import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
 import AppointmentListPage from "./features/appointment/pages/AppointmentListPage.jsx";
 import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
@@ -168,6 +171,12 @@ export default function App() {
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/catalog" element={<PricingPage />} />
               <Route path="/iso-process" element={<IsoProcessPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/insurance-policy" element={<InsurancePolicyPage />} />
+              <Route path="/bhyt-policy" element={<InsurancePolicyPage />} />
               <Route path="/tracking" element={<TrackTestProgressPage />} />
               <Route path="/tracking/:identifier" element={<TrackTestProgressPage />} />
               <Route path="/patient" element={<Navigate to="/" replace />} />

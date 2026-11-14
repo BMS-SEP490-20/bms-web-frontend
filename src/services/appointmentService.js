@@ -11,16 +11,21 @@ const normalizeAppointment = (item) => {
   // 2. Patient Name Mapping
   // Backend may return: patientName, PatientName, patient_name
   // Or nested in object: patient.fullname, Patient.FullName
-  let patientName = item.patientName || item.PatientName || item.patient_name || "Chưa cập nhật";
+  let patientName = item.patientName || item.PatientName || item.patient_name || null;
 
   if (item.patient && typeof item.patient === 'object') {
     patientName = item.patient.fullname || item.patient.fullName || item.patient.name || patientName;
   }
 
   // Fallback to truncated ID if patient name is missing
-  const patientId = item.patientId || item.patient_id || item.createdBy || item.createdById || 'N/A';
-  if (patientName === "Chưa cập nhật" && patientId !== 'N/A') {
-    patientName = `PAT-${patientId.substring(0, 8)}...`; // Compact fallback format
+  const rawPatientId = item.patientId || item.patient_id || item.createdBy || item.createdById || '';
+  if (!patientName || patientName === "Chưa cập nhật") {
+    if (rawPatientId && rawPatientId !== 'N/A') {
+      const cleanId = String(rawPatientId).replace(/^(PAT-)+/i, '');
+      patientName = `PAT-${cleanId.substring(0, 8)}...`; // Compact fallback format without duplicate prefix
+    } else {
+      patientName = "Chưa cập nhật";
+    }
   }
 
   // 3. Package/Service Name Mapping
@@ -50,7 +55,7 @@ const normalizeAppointment = (item) => {
     ...item,
     id,
     appointmentId: id,
-    patientId,
+    patientId: rawPatientId,
     patientName, // Standardized field for UI
     packageName, // Standardized field for UI
     appointmentDate,
@@ -160,13 +165,37 @@ export const appointmentService = {
    * const result = await appointmentService.getAppointmentByCode('AP123456');
    */
   getAppointmentByCode: async (code) => {
+    if (!code) return { success: false, message: 'Mã lịch hẹn không hợp lệ' };
+    const cleanCode = String(code).trim();
+    console.log('[appointmentService.getAppointmentByCode] Searching cleanCode:', cleanCode);
     try {
-      const response = await api.get('/gateway/testorder/appointment');
-      const raw = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+      // 1. Direct indexed fetch by ID or AppointmentCode (fastest and most accurate)
+      try {
+        const directRes = await api.get(`/gateway/testorder/appointment/${cleanCode}`);
+        console.log('[appointmentService.getAppointmentByCode] directRes:', directRes.status, directRes.data);
+        const data = directRes.data?.data || directRes.data;
+        if (data && (data.appointmentCode || data.appointmentId || data.id)) {
+          return { success: true, data: normalizeAppointment(data) };
+        }
+      } catch (directErr) {
+        console.warn('[appointmentService.getAppointmentByCode] direct lookup error:', directErr?.response?.status, directErr.message);
+      }
+
+      // 2. Fallback search by keyword with higher PageSize
+      const response = await api.get('/gateway/testorder/appointment', { params: { Keyword: cleanCode, PageSize: 50 } });
+      console.log('[appointmentService.getAppointmentByCode] fallback response:', response.status, response.data);
+      const raw = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.items || []);
       const allAppointments = Array.isArray(raw) ? raw.map(normalizeAppointment) : [];
-      const appointment = allAppointments.find(apt => apt.appointmentCode === code || String(apt.id) === String(code));
-      return { success: true, data: appointment };
+      const appointment = allAppointments.find(apt =>
+        (apt.appointmentCode && apt.appointmentCode.toLowerCase() === cleanCode.toLowerCase()) ||
+        String(apt.id) === cleanCode
+      );
+      if (appointment) {
+        return { success: true, data: appointment };
+      }
+      return { success: false, message: `Không tìm thấy lịch hẹn với mã "${cleanCode}"` };
     } catch (error) {
+      console.error('[appointmentService.getAppointmentByCode] overall error:', error);
       return { success: false, message: 'Lỗi lấy lịch hẹn theo mã' };
     }
   },
@@ -359,20 +388,22 @@ export const appointmentService = {
         return { success: false, message: 'Không tìm thấy lịch hẹn' };
       }
 
-      // Check if already checked in
-      const statusLower = (appointment.status || appointment.Status || '').toLowerCase();
-      if (statusLower === 'checked_in' || statusLower === 'checked-in') {
+      // Check if already checked in or further along in clinical workflow
+      const statusRaw = (appointment.status || appointment.Status || '').toString();
+      const statusLower = statusRaw.toLowerCase().replace(/[_-]/g, '');
+
+      if (['checkedin', '2', 'inprogress', '3', 'completed', '4'].includes(statusLower)) {
         const checkedInTime = appointment.checkedInAt
           ? new Date(appointment.checkedInAt).toLocaleString('vi-VN')
-          : 'N/A';
+          : 'trước đó';
         return {
           success: false,
-          message: `Bệnh nhân đã được check-in lúc ${checkedInTime}. Không thể check-in lại.`
+          message: `Lịch hẹn này đã được tiếp đón / check-in (${checkedInTime}). Không thể check-in lại.`
         };
       }
 
-      // Accept 'scheduled', 'confirmed', and 'paid' statuses (case-insensitive)
-      if (!['scheduled', 'confirmed', 'paid'].includes(statusLower)) {
+      // Accept 'scheduled', 'confirmed', and 'paid' statuses (case-insensitive and enum numeric)
+      if (!['scheduled', 'confirmed', 'paid', '1'].includes(statusLower)) {
         return { success: false, message: 'Chỉ có thể check-in lịch hẹn đã thanh toán hoặc đã xác nhận' };
       }
 

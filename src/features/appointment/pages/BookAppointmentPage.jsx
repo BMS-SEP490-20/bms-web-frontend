@@ -81,51 +81,6 @@ function packageIconKey(pkg) {
   return 'general';
 }
 
-const DEFAULT_FALLBACK_PACKAGES = [
-  {
-    packageId: 'PKG-CBC-01',
-    packageCode: 'CBC-01',
-    packageName: 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)',
-    price: 180000,
-    fastingRule: 'Không cần nhịn ăn'
-  },
-  {
-    packageId: 'PKG-LIV-02',
-    packageCode: 'LIV-02',
-    packageName: 'Tầm soát Viêm gan B & C (HBsAg, Anti-HBs, Anti-HCV)',
-    price: 320000,
-    fastingRule: 'Nhịn ăn sáng 8 - 12 giờ'
-  },
-  {
-    packageId: 'PKG-LIP-03',
-    packageCode: 'LIP-03',
-    packageName: 'Bộ mỡ máu toàn phần (Cholesterol, Triglyceride, HDL, LDL)',
-    price: 200000,
-    fastingRule: 'Nhịn ăn sáng 8 - 12 giờ'
-  },
-  {
-    packageId: 'PKG-DIA-04',
-    packageCode: 'DIA-04',
-    packageName: 'Gói Tầm Soát Đái Tháo Đường Chuyên Sâu (Glucose + HbA1c)',
-    price: 380000,
-    fastingRule: 'Nhịn ăn sáng 8 - 12 giờ'
-  },
-  {
-    packageId: 'PKG-GEN-05',
-    packageCode: 'GEN-05',
-    packageName: 'Gói Xét Nghiệm Tổng Quát Cơ Bản (Huyết học + Sinh hóa)',
-    price: 550000,
-    fastingRule: 'Nhịn ăn sáng 8 - 12 giờ'
-  },
-  {
-    packageId: 'PKG-COAG-01',
-    packageCode: 'COAG-01',
-    packageName: 'Đông máu cơ bản (PT, APTT, Fibrinogen, INR)',
-    price: 220000,
-    fastingRule: 'Không cần nhịn ăn'
-  }
-];
-
 export function BookAppointmentPage({
   patientId: initialPatientId = '',
   initialPackageIds = [],
@@ -148,17 +103,14 @@ export function BookAppointmentPage({
     return Boolean(name && String(pkg.packageName || '').trim().toLowerCase() === name);
   };
 
-  // Initialize with fallback immediately so user NEVER sees stuck loading state
+  // Pure dynamic state from database (cấm hardcode fallback)
   const [packages, setPackages] = useState(() => {
     if (propPackages && propPackages.length > 0) return propPackages;
-    return DEFAULT_FALLBACK_PACKAGES;
+    return [];
   });
 
   const [selectedPackageId, setSelectedPackageId] = useState(() => {
-    if (preselectedPkgId || preselectedName) {
-      const match = DEFAULT_FALLBACK_PACKAGES.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
-      if (match) return match.packageId;
-    }
+    if (preselectedPkgId) return preselectedPkgId;
     if (initialPackageIds.length > 0) return initialPackageIds[0];
     return '';
   });
@@ -183,7 +135,6 @@ export function BookAppointmentPage({
   });
 
   const [selectedShiftId, setSelectedShiftId] = useState('Morning');
-  const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [availableShifts, setAvailableShifts] = useState([]);
   const [loadingShifts, setLoadingShifts] = useState(false);
 
@@ -221,23 +172,30 @@ export function BookAppointmentPage({
     return () => { isMounted = false; };
   }, []);
 
-  const isProfileComplete = useMemo(() => {
-    if (!patientProfile) {
-      // Check stored user fallback
-      return Boolean(storedUser?.bloodType && storedUser?.isProfileComplete);
+  const [validationError, setValidationError] = useState('');
+
+  // Quick dates for 1-click pill navigation to prevent dead-end traps (suggests next upcoming days)
+  const quickDates = useMemo(() => {
+    const list = [];
+    const base = date ? new Date(date + 'T00:00:00') : new Date();
+    for (let i = 1; i <= 4; i++) {
+      const d = new Date(base);
+      d.setDate(base.getDate() + i);
+      list.push({
+        key: toDateKey(d),
+        label: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+        weekday: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][d.getDay()]
+      });
     }
-    return Boolean(
-      patientProfile.fullName?.trim() &&
-      patientProfile.identityNumber?.trim() &&
-      patientProfile.phoneNumber?.trim() &&
-      patientProfile.bloodType &&
-      patientProfile.bloodType !== 'Unknown' &&
-      patientProfile.vitals &&
-      patientProfile.vitals.heightCm > 0 &&
-      patientProfile.vitals.weightKg > 0 &&
-      patientProfile.emergencyContactName?.trim()
-    );
-  }, [patientProfile, storedUser]);
+    return list;
+  }, [date]);
+
+  // Patient identity validation: Họ tên & SĐT là đủ để xác lập cuộc hẹn y tế (không ép buộc biết trước nhóm máu!)
+  const isProfileComplete = useMemo(() => {
+    const name = patientProfile?.fullName || patientInfo.name || storedUser?.fullName || '';
+    const phone = patientProfile?.phoneNumber || patientInfo.phone || storedUser?.phone || '';
+    return Boolean(name.trim() && phone.trim());
+  }, [patientProfile, patientInfo, storedUser]);
 
   const { book, loading, error, result, reset } = useBookAppointment();
 
@@ -260,16 +218,24 @@ export function BookAppointmentPage({
             fastingRule: p.fastingRule || ''
           }));
           setPackages(mapped);
+          setSelectedPackageId((current) => {
+            if (current && mapped.some(p => p.packageId === current)) return current;
+            if (preselectedPkgId) {
+              const found = mapped.find(p => packageMatchesSelection(p, preselectedPkgId, preselectedName));
+              if (found) return found.packageId;
+            }
+            return mapped[0]?.packageId || '';
+          });
         }
       })
       .catch(() => {
-        // Fallback already pre-set
+        // Fallback already handled
       });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [preselectedPkgId, preselectedName]);
 
   // Sync preselected package from URL whenever preselectedPkgId or packages changes
   useEffect(() => {
@@ -302,16 +268,73 @@ export function BookAppointmentPage({
     void loadDoctorShifts();
   }, [loadDoctorShifts]);
 
+  const selectedPackage = useMemo(() => {
+    return (
+      packages.find((p) => p.packageId === selectedPackageId || p.packageCode === selectedPackageId) ||
+      packages[0] ||
+      null
+    );
+  }, [packages, selectedPackageId]);
+
+  // Khớp Tam Giác Y Khoa Chuẩn (Auto-Allocation): Gói xét nghiệm -> Bác sĩ Chuyên khoa -> Phòng khám chuyên khoa
   const shiftDoctors = useMemo(() => {
-    return availableShifts.filter(
+    if (!availableShifts || availableShifts.length === 0) return [];
+    const inShift = availableShifts.filter(
       (s) => (s.shiftType || '').toLowerCase() === selectedShiftId.toLowerCase()
     );
-  }, [availableShifts, selectedShiftId]);
+    if (inShift.length === 0) return [];
 
+    const pkgCat = (selectedPackage?.category || '').toLowerCase().trim();
+    if (pkgCat) {
+      // 1. Ưu tiên 1: Khớp chính xác chuyên khoa y tế
+      const exactMatched = inShift.filter((s) => {
+        const spec = (s.specialty || '').toLowerCase();
+        const dept = (s.department || '').toLowerCase();
+        const room = (s.roomName || '').toLowerCase();
+        return (
+          spec.includes(pkgCat) ||
+          dept.includes(pkgCat) ||
+          room.includes(pkgCat) ||
+          pkgCat.includes(spec) ||
+          (pkgCat.includes('huyết học') && spec.includes('huyết học')) ||
+          (pkgCat.includes('sinh hóa') && spec.includes('sinh hóa')) ||
+          (pkgCat.includes('miễn dịch') && spec.includes('miễn dịch')) ||
+          (pkgCat.includes('đông máu') && spec.includes('đông máu'))
+        );
+      });
+      if (exactMatched.length > 0) return exactMatched;
+
+      // 2. Ưu tiên 2: Bác sĩ Đa khoa Tổng quát tiếp nhận tư vấn
+      const generalMatched = inShift.filter((s) => {
+        const spec = (s.specialty || '').toLowerCase();
+        const dept = (s.department || '').toLowerCase();
+        const room = (s.roomName || '').toLowerCase();
+        return spec.includes('tổng quát') || dept.includes('tổng quát') || room.includes('tổng quát');
+      });
+      if (generalMatched.length > 0) return generalMatched;
+
+      // Tuyệt đối không fallback sang bác sĩ chuyên khoa khác để bảo đảm an toàn lâm sàng
+      return [];
+    }
+
+    return inShift;
+  }, [availableShifts, selectedShiftId, selectedPackage]);
+
+  // Hệ thống tự động điều phối Bác sĩ chuyên khoa phụ trách ca này (không để bệnh nhân tự chọn)
   const activeShiftData = useMemo(() => {
     if (shiftDoctors.length === 0) return null;
-    return shiftDoctors.find((s) => s.doctorId === selectedDoctorId) || shiftDoctors[0];
-  }, [shiftDoctors, selectedDoctorId]);
+    return shiftDoctors[0];
+  }, [shiftDoctors]);
+
+  // Fasting clinical warning indicator
+  const requiresFasting = useMemo(() => {
+    const rule = (selectedPackage?.fastingRule || '').toLowerCase();
+    const cat = (selectedPackage?.category || '').toLowerCase();
+    const name = (selectedPackage?.packageName || '').toLowerCase();
+    return rule.includes('nhịn ăn') || cat.includes('sinh hóa') || name.includes('đường huyết') || name.includes('mỡ máu') || name.includes('glucose');
+  }, [selectedPackage]);
+
+  const showFastingWarning = requiresFasting && (selectedShiftId === 'Afternoon' || selectedShiftId === 'Evening');
 
   // Load slots for the active doctor and date
   useEffect(() => {
@@ -369,20 +392,22 @@ export function BookAppointmentPage({
     }
   }, [shiftSlots, slotTime]);
 
-  const selectedPackage = useMemo(() => {
-    return (
-      packages.find((p) => p.packageId === selectedPackageId || p.packageCode === selectedPackageId) ||
-      packages[0]
-    );
-  }, [packages, selectedPackageId]);
-
   const onSubmit = async (e) => {
     e.preventDefault();
+    setValidationError('');
+
     if (!isProfileComplete) {
-      navigate('/profile');
+      setValidationError('MSG-ERR-PROFILE-01: Quý khách vui lòng hoàn thiện Họ tên và Số điện thoại liên hệ để nhân viên y tế xác nhận lịch hẹn.');
       return;
     }
-    if (!slotTime || !selectedPackageId || !activeShiftData?.doctorId) return;
+    if (!selectedPackageId) {
+      setValidationError('MSG-ERR-APPT-03: Vui lòng chọn gói xét nghiệm để tiếp tục.');
+      return;
+    }
+    if (!activeShiftData?.doctorId || !slotTime) {
+      setValidationError('MSG-ERR-APPT-04: Ca làm việc chưa có Bác sĩ trực hoặc chưa chọn khung giờ lấy mẫu. Vui lòng chọn ca hoặc ngày khác.');
+      return;
+    }
 
     await book({
       patientId: patientInfo.patientId,
@@ -592,21 +617,73 @@ export function BookAppointmentPage({
                   </div>
                   </div>
 
-                  <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`}>
+                  {showFastingWarning && (
+                    <div className="alert alert-warning border-0 rounded-3 p-2.5 my-3 d-flex align-items-start gap-2 text-dark" style={{ backgroundColor: '#fef3c7', fontSize: '12.5px' }}>
+                      <FaInfoCircle className="text-warning mt-0.5 flex-shrink-0" />
+                      <div>
+                        <strong>Dặn dò lâm sàng:</strong> Gói xét nghiệm này có chỉ định nhịn ăn 8 – 12 giờ. Nếu chọn ca Chiều hoặc Tối, quý khách vui lòng đảm bảo đã nhịn ăn đủ thời gian, hoặc khuyến nghị chuyển sang <strong>Ca Sáng</strong> để kết quả đạt độ chính xác tối đa.
+                      </div>
+                    </div>
+                  )}
+
+                  {(!activeShiftData || shiftSlots.length === 0) && (
+                    <div className="alert alert-warning border-0 rounded-3 p-3 my-3" style={{ backgroundColor: '#fffbeb', borderLeft: '4px solid #f59e0b' }}>
+                      <div className="d-flex align-items-center gap-2 fw-bold text-dark small mb-1">
+                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <span>
+                          {!activeShiftData
+                            ? `[MSG-ERR-APPT-04] Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} hiện chưa có Bác sĩ chuyên khoa ${selectedPackage?.category || ''} trực tiếp nhận.`
+                            : `[MSG-ERR-APPT-04] Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} của ${activeShiftData.doctorName} đã kín lịch hẹn (hết khung giờ trống).`}
+                        </span>
+                      </div>
+                      <div className="small text-muted mb-2">
+                        Quý khách vui lòng chọn ca khác trong ngày hoặc chuyển nhanh sang các ngày tiếp theo có ca trực sẵn sàng:
+                      </div>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        {quickDates.map((qd) => (
+                          <button
+                            key={qd.key}
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            style={{ borderRadius: '999px', fontSize: '12px', padding: '4px 12px' }}
+                            onClick={() => setDate(qd.key)}
+                          >
+                            {qd.weekday} ({qd.label})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Thẻ Điều Phối Y Khoa Chuyên Biệt (Auto-Allocation - Khóa chặt theo Chuyên khoa Gói) */}
+                  <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`} style={{ borderLeft: '4px solid #16a34a' }}>
                     {loadingShifts ? (
-                      <span>Đang tải ca trực...</span>
+                      <span className="text-muted small py-2 d-flex align-items-center gap-2">
+                        <span className="spinner-border spinner-border-sm text-primary" role="status" />
+                        Đang đối soát lịch trực Bác sĩ chuyên khoa...
+                      </span>
                     ) : !activeShiftData ? (
-                      <span>Ca này chưa có bác sĩ trực.</span>
+                      <div className="py-2 text-muted small d-flex align-items-center gap-2">
+                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <span>Ca này hiện chưa có Bác sĩ chuyên khoa {selectedPackage?.category || ''} trực tiếp nhận. Quý khách vui lòng chọn ca khác hoặc ngày khác.</span>
+                      </div>
                     ) : (
                       <>
-                        <img src="/assets/bms/svg/icons/lab/doctor-review.svg" alt="" />
+                        <img src="/assets/bms/svg/icons/lab/doctor-review.svg" alt="Doctor Review" />
                         <div>
-                          <strong>{activeShiftData.doctorName || 'Chưa có tên trên ca trực'}</strong>
-                          <span>{activeShiftData.specialty || 'Chưa ghi chuyên khoa'}</span>
+                          <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <strong className="text-dark mb-0">{activeShiftData.doctorName || 'Bác sĩ Phụ trách'}</strong>
+                            <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style={{ fontSize: '11px', borderRadius: '999px' }}>
+                              <FaCheckCircle className="me-1" /> Điều phối tự động
+                            </span>
+                          </div>
+                          <span className="text-primary fw-medium" style={{ fontSize: '12.5px' }}>
+                            Chuyên khoa: {activeShiftData.specialty || selectedPackage?.category || 'Chuyên khoa xét nghiệm'}
+                          </span>
                         </div>
-                        <div className="bms-book-room">
-                          <strong>{activeShiftData.roomName || 'Chưa gán phòng'}</strong>
-                          <span>
+                        <div className="bms-book-room text-end">
+                          <strong className="text-dark">{activeShiftData.roomName || 'Phòng khám chuyên khoa'}</strong>
+                          <span className="text-muted" style={{ fontSize: '12px' }}>
                             {[
                               activeShiftData.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
                               activeShiftData.floor || ''
@@ -616,21 +693,6 @@ export function BookAppointmentPage({
                       </>
                     )}
                   </div>
-
-                  {shiftDoctors.length > 1 && (
-                    <div className="bms-book-doctor-picks">
-                      {shiftDoctors.map((doctor) => (
-                        <button
-                          key={`${doctor.doctorId}-${doctor.roomId}`}
-                          type="button"
-                          className={doctor.doctorId === activeShiftData?.doctorId ? 'is-selected' : ''}
-                          onClick={() => setSelectedDoctorId(doctor.doctorId)}
-                        >
-                          {doctor.doctorName || 'Chưa có tên'}
-                        </button>
-                      ))}
-                    </div>
-                  )}
 
                   <div className="bms-book-slots">
                     {loadingSlots ? (
@@ -665,6 +727,13 @@ export function BookAppointmentPage({
                   </div>
                 </div>
               </div>
+
+              {(validationError || error) && (
+                <div className="alert alert-danger border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-2 text-dark small" style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444' }}>
+                  <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                  <span>{validationError || error}</span>
+                </div>
+              )}
 
               <div className="bms-book-actions">
                 <button type="button" onClick={() => navigate('/services')}>Quay lại</button>

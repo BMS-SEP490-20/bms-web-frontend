@@ -17,7 +17,10 @@ import {
   FaEye, 
   FaEyeSlash, 
   FaShieldAlt, 
-  FaCheckCircle 
+  FaCheckCircle,
+  FaUserMd,
+  FaFlask,
+  FaIdCard
 } from "react-icons/fa";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
@@ -71,6 +74,77 @@ const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN
   { id: 'patient', name: 'Patient', title: 'Bệnh Nhân', username: 'patient_tranvanan', password: 'Admin@123', desc: 'Tra cứu kết quả, theo dõi tiến trình' },
 ] : [];
 
+/**
+ * 5 Core Clinical & Administrative Roles for 1-Click Fast Login:
+ * 1. Admin (Quản trị viên) - admin_bms
+ * 2. Doctor (Bác sĩ khám bệnh) - dr_nguyenminh
+ * 3. Lab (Kỹ thuật viên xét nghiệm) - tech_quochung
+ * 4. Receptionist (Tiếp đón & Lễ tân) - recep_lananh
+ * 5. Patient (Cổng bệnh nhân) - patient_tranvanan
+ */
+const QUICK_LOGIN_ROLES = [
+  {
+    id: "admin",
+    roleName: "Admin",
+    title: "Admin",
+    roleLabel: "Quản Trị Viên",
+    username: "admin_bms",
+    password: "Admin@123",
+    color: "#2563EB",
+    bg: "#EFF6FF",
+    border: "#BFDBFE",
+    icon: FaShieldAlt,
+  },
+  {
+    id: "doctor",
+    roleName: "Doctor",
+    title: "Bác Sĩ",
+    roleLabel: "Bác Sĩ Khám Bệnh",
+    username: "dr_nguyenminh",
+    password: "Admin@123",
+    color: "#0D9488",
+    bg: "#F0FDFA",
+    border: "#99F6E4",
+    icon: FaUserMd,
+  },
+  {
+    id: "lab",
+    roleName: "Lab",
+    title: "KTV Lab",
+    roleLabel: "Kỹ Thuật Viên Lab",
+    username: "tech_quochung",
+    password: "Admin@123",
+    color: "#16A34A",
+    bg: "#F0FDF4",
+    border: "#BBF7D0",
+    icon: FaFlask,
+  },
+  {
+    id: "receptionist",
+    roleName: "Receptionist",
+    title: "Lễ Tân",
+    roleLabel: "Tiếp Đón & Lễ Tân",
+    username: "recep_lananh",
+    password: "Admin@123",
+    color: "#D97706",
+    bg: "#FFFBEB",
+    border: "#FDE68A",
+    icon: FaIdCard,
+  },
+  {
+    id: "patient",
+    roleName: "Patient",
+    title: "Bệnh Nhân",
+    roleLabel: "Cổng Bệnh Nhân",
+    username: "patient_tranvanan",
+    password: "Admin@123",
+    color: "#7C3AED",
+    bg: "#F5F3FF",
+    border: "#DDD6FE",
+    icon: FaUser,
+  },
+];
+
 export default function LoginPage({
   onBack,
   onLogin,
@@ -88,6 +162,7 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const [successNotice, setSuccessNotice] = useState("");
   const [focusedInput, setFocusedInput] = useState(null);
+  const [activeQuickRole, setActiveQuickRole] = useState(null);
 
   // Easter Egg State: 3 clicks in top-right corner reveals QA/Testing Role Modal
   const [secretClicks, setSecretClicks] = useState(0);
@@ -320,7 +395,8 @@ export default function LoginPage({
   }
 
   // Quick Demo Account Auto-Fill & One-Click Login
-  const handleQuickDemoFill = async (roleName, defaultId, defaultPwd) => {
+  const handleQuickDemoFill = async (roleName, defaultId, defaultPwd, roleKey = null) => {
+    if (roleKey) setActiveQuickRole(roleKey);
     setIdentifier(defaultId);
     setPassword(defaultPwd);
     setError("");
@@ -364,6 +440,7 @@ export default function LoginPage({
       );
     } finally {
       setLoading(false);
+      setActiveQuickRole(null);
     }
   };
 
@@ -671,6 +748,131 @@ export default function LoginPage({
             )}
           </button>
         </form>
+
+        {/* ======================================================================
+            QUICK 1-CLICK ROLE LOGIN: 5 System Roles (Admin, Bác Sĩ, KTV Lab, Lễ Tân, Bệnh Nhân)
+            ====================================================================== */}
+        <div style={{ marginTop: '24px', marginBottom: '8px' }}>
+          <div className="d-flex align-items-center justify-content-between mb-2.5">
+            <span 
+              style={{ 
+                fontSize: '12px', 
+                fontWeight: 700, 
+                color: '#64748B', 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.04em' 
+              }}
+            >
+              Đăng nhập nhanh theo vai trò
+            </span>
+            <span 
+              className="badge rounded-pill" 
+              style={{ 
+                backgroundColor: '#EFF6FF', 
+                color: '#2563EB', 
+                fontSize: '11px', 
+                fontWeight: 600,
+                border: '1px solid #BFDBFE',
+                padding: '3px 8px'
+              }}
+            >
+              5 Roles (1-Click)
+            </span>
+          </div>
+
+          <div 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '8px',
+            }}
+          >
+            {QUICK_LOGIN_ROLES.map((r, idx) => {
+              const isFullWidth = idx === QUICK_LOGIN_ROLES.length - 1 && QUICK_LOGIN_ROLES.length % 2 !== 0;
+              const isSelectedLoading = activeQuickRole === r.id;
+              const IconComponent = r.icon;
+
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => handleQuickDemoFill(r.roleName, r.username, r.password, r.id)}
+                  disabled={loading || isLocked}
+                  className="btn text-start d-flex align-items-center gap-2.5 p-2"
+                  style={{
+                    gridColumn: isFullWidth ? 'span 2' : 'span 1',
+                    backgroundColor: r.bg,
+                    border: `1.5px solid ${r.border}`,
+                    borderRadius: '12px',
+                    color: '#0F172A',
+                    transition: 'all 0.18s ease',
+                    cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
+                    opacity: loading && !isSelectedLoading ? 0.6 : 1,
+                    minHeight: '48px',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading && !isLocked) {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = `0 3px 10px ${r.color}25`;
+                      e.currentTarget.style.borderColor = r.color;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = r.border;
+                  }}
+                  title={`Đăng nhập nhanh với vai trò ${r.roleLabel} (${r.username})`}
+                >
+                  <div
+                    className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      backgroundColor: '#FFFFFF',
+                      color: r.color,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                      border: `1px solid ${r.border}`
+                    }}
+                  >
+                    {isSelectedLoading ? (
+                      <Spinner animation="border" size="sm" style={{ width: '13px', height: '13px', borderWidth: '2px', color: r.color }} />
+                    ) : (
+                      <IconComponent style={{ fontSize: '14px' }} />
+                    )}
+                  </div>
+                  <div className="flex-grow-1 overflow-hidden" style={{ minWidth: 0 }}>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="fw-bold text-truncate" style={{ fontSize: '13px', color: '#0F172A', lineHeight: 1.2 }}>
+                        {r.title}
+                      </span>
+                      <span 
+                        style={{ 
+                          fontSize: '9.5px', 
+                          color: r.color, 
+                          fontWeight: 700, 
+                          textTransform: 'uppercase',
+                          backgroundColor: '#FFFFFF',
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          border: `1px solid ${r.border}`
+                        }}
+                      >
+                        {r.roleName}
+                      </span>
+                    </div>
+                    <div 
+                      className="text-muted text-truncate" 
+                      style={{ fontSize: '11px', marginTop: '1px', fontFamily: 'monospace' }}
+                    >
+                      {r.username}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Google OAuth 2.0 Single Sign-On Button (Lockout & Loading Protected) */}
         {Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID) && (

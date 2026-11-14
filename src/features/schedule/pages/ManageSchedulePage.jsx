@@ -91,18 +91,50 @@ export function ManageSchedulePage({ doctorId: selectedDoctorId, rooms: initialR
   };
 
   const statusBadge = (st) => {
-    const map = {
-      Approved: 'bg-primary',
-      Active: 'bg-success',
-      Completed: 'bg-secondary',
-      Cancelled: 'bg-light text-dark border',
-      Pending: 'bg-warning text-dark',
-    };
+    const s = String(st || 'Approved').toLowerCase();
+    if (s === 'approved' || s === 'đã phê duyệt') {
+      return (
+        <span className="badge bg-success-subtle text-success border border-success-subtle" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+          <i className="fas fa-check-circle me-1"></i> Đã phê duyệt
+        </span>
+      );
+    }
+    if (s === 'active' || s === 'đang hoạt động') {
+      return (
+        <span className="badge bg-success text-white" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+          <i className="fas fa-circle me-1" style={{ fontSize: '8px' }}></i> Đang hoạt động
+        </span>
+      );
+    }
+    if (s === 'pending' || s === 'chờ duyệt') {
+      return (
+        <span className="badge bg-warning-subtle text-dark border border-warning-subtle" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+          Chờ duyệt
+        </span>
+      );
+    }
+    if (s === 'cancelled' || s === 'đã hủy') {
+      return (
+        <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+          Đã hủy
+        </span>
+      );
+    }
     return (
-      <span className={`badge ${map[st] ?? 'bg-light text-dark border'}`} style={{ borderRadius: 9999, padding: '5px 12px' }}>
-        {st || 'Approved'}
+      <span className="badge bg-primary-subtle text-primary border border-primary-subtle" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
+        {st || 'Đã phê duyệt'}
       </span>
     );
+  };
+
+  const formatShiftType = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t.includes('morning') || t.includes('sáng')) return 'Ca Sáng (07:00 – 11:30)';
+    if (t.includes('afternoon') || t.includes('chiều')) return 'Ca Chiều (13:00 – 17:00)';
+    if (t.includes('evening') || t.includes('tối')) return 'Ca Tối (17:30 – 20:30)';
+    if (t.includes('night') || t.includes('đêm')) return 'Ca Đêm (21:00 – 06:00)';
+    if (t.includes('fullday') || t.includes('toàn')) return 'Ca Toàn Ngày (07:00 – 17:00)';
+    return type || 'Ca Sáng (07:00 – 11:30)';
   };
 
   return (
@@ -341,7 +373,7 @@ export function ManageSchedulePage({ doctorId: selectedDoctorId, rooms: initialR
                       </td>
                       <td>
                         <span className="badge bg-light text-primary border" style={{ borderRadius: 9999, padding: '5px 12px', fontSize: '12px' }}>
-                          {s.shiftType}
+                          {formatShiftType(s.shiftType)}
                         </span>
                       </td>
                       <td>

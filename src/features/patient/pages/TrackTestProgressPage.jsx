@@ -175,13 +175,13 @@ export default function TrackTestProgressPage() {
                             <div className="col-lg-6">
                                 <div className="d-flex align-items-center gap-2 mb-2" style={{ fontSize: '11px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                                     <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                                    <span>TIÊU CHUẨN ISO 15189:2022 · BẢO MẬT PII</span>
+                                    <span>TIÊU CHUẨN ISO 15189:2022 · BẢO MẬT DỮ LIỆU Y TẾ 100%</span>
                                 </div>
                                 <h1 className="fw-bold mb-2" style={{ fontSize: '26px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
                                     Tra Cứu Lộ Trình Mẫu Máu
                                 </h1>
                                 <p className="mb-0 text-muted" style={{ fontSize: '13px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
-                                    Theo dõi tiến trình phân tích mẫu và thời gian trả kết quả theo thời gian thực.
+                                    Theo dõi trực tiếp lộ trình phân tích mẫu và thời gian nhận kết quả có chữ ký số theo thời gian thực.
                                 </p>
                             </div>
 
@@ -291,7 +291,7 @@ export default function TrackTestProgressPage() {
                                     <div className="bms-step-num">01</div>
                                     <h3 className="bms-step-title">Nhận Mã Phiếu Lấy Mẫu</h3>
                                     <p className="bms-step-desc">
-                                        Mã vạch Barcode (Code 128) được in trực tiếp trên phiếu tiếp nhận lấy mẫu hoặc gửi qua tin nhắn SMS sau khi hoàn tất thủ tục đăng ký.
+                                        Mã phiếu tra cứu được in trực tiếp trên phiếu tiếp nhận lấy mẫu hoặc gửi qua tin nhắn SMS/Zalo sau khi hoàn tất thủ tục đăng ký.
                                     </p>
                                 </div>
 
@@ -302,7 +302,7 @@ export default function TrackTestProgressPage() {
                                     <div className="bms-step-num">02</div>
                                     <h3 className="bms-step-title">Nhập Mã Tra Cứu</h3>
                                     <p className="bms-step-desc">
-                                        Điền mã vạch vào thanh tìm kiếm phía trên. Hệ thống hỗ trợ tra cứu nhanh cả mã vạch ống máu (BC-...) và mã phiếu khám (ORD-...).
+                                        Điền mã vào thanh tìm kiếm phía trên. Hệ thống hỗ trợ tra cứu nhanh cả mã ống máu (BC-...) và mã phiếu xét nghiệm (ORD-...).
                                     </p>
                                 </div>
 
@@ -313,7 +313,7 @@ export default function TrackTestProgressPage() {
                                     <div className="bms-step-num">03</div>
                                     <h3 className="bms-step-title">Theo Dõi Thời Gian Thực</h3>
                                     <p className="bms-step-desc">
-                                        Nắm rõ vị trí mẫu máu đang ở đâu trong chu trình 6 chặng chuẩn ISO 15189, thời gian dự kiến trả kết quả và chữ ký số bác sĩ.
+                                        Nắm rõ vị trí mẫu máu đang được xử lý ở bước nào, thời gian dự kiến hoàn thành và xem kết quả được Bác sĩ ký duyệt ngay lập tức.
                                     </p>
                                 </div>
                             </div>
@@ -321,9 +321,9 @@ export default function TrackTestProgressPage() {
                             {/* 6-Stage Workflow Strip with Custom Designed Flow Connectors */}
                             <div className="bms-stages-overview my-4" style={{ padding: '28px 32px' }}>
                                 <div className="text-center mb-3">
-                                    <h4 className="bms-stages-overview-title mb-1" style={{ fontSize: '16px' }}>Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế ISO 15189</h4>
+                                    <h4 className="bms-stages-overview-title mb-1" style={{ fontSize: '16px' }}>Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế Quốc Tế</h4>
                                     <p className="bms-stages-overview-subtitle mb-0" style={{ fontSize: '12.5px' }}>
-                                        Toàn bộ mẫu bệnh phẩm được theo dõi bằng mã định danh duy nhất xuyên suốt phòng Lab tự động
+                                        Mẫu bệnh phẩm được kiểm soát nghiêm ngặt bằng mã định danh bảo mật từ khâu lấy mẫu đến kết quả cuối cùng
                                     </p>
                                 </div>
                                 
@@ -341,7 +341,7 @@ export default function TrackTestProgressPage() {
 
                                     <div className="bms-stage-flow-card">
                                         <span className="bms-stage-flow-badge">Chặng 2</span>
-                                        <div className="bms-stage-flow-title">Lấy Mẫu &amp; Barcode</div>
+                                        <div className="bms-stage-flow-title">Lấy Mẫu An Toàn</div>
                                     </div>
                                     <div className="bms-stage-flow-connector" aria-hidden="true">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -352,7 +352,7 @@ export default function TrackTestProgressPage() {
 
                                     <div className="bms-stage-flow-card">
                                         <span className="bms-stage-flow-badge">Chặng 3</span>
-                                        <div className="bms-stage-flow-title">Nhập Lab (LIS)</div>
+                                        <div className="bms-stage-flow-title">Tiếp Nhận Vào Lab</div>
                                     </div>
                                     <div className="bms-stage-flow-connector" aria-hidden="true">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E60E6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -406,10 +406,10 @@ export default function TrackTestProgressPage() {
                             {/* Trust & Support Strip - Clean typography without decorative icons */}
                             <div className="bms-trust-box">
                                 <div className="bms-trust-item">
-                                    <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Tên bệnh nhân được mã hóa PII khi tra cứu công khai).</span>
+                                    <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Thông tin cá nhân của người bệnh được bảo vệ và ẩn danh khi tra cứu trực tuyến).</span>
                                 </div>
                                 <div className="bms-trust-item">
-                                    <span>Tổng đài hỗ trợ: <strong>1900 6868</strong> (06:00 - 20:30 hàng ngày)</span>
+                                    <span>Tổng đài hỗ trợ kết quả: <strong>1900 8686</strong> (06:00 - 20:30 hàng ngày)</span>
                                 </div>
                             </div>
                         </div>
@@ -485,10 +485,10 @@ export default function TrackTestProgressPage() {
                                     <div className="d-grid gap-2 mt-4 pt-3 border-top">
                                         {trackingData.isCompleted && (
                                             <a 
-                                                href={`/results/${encodeURIComponent(trackingData.orderNumber)}/report`} 
+                                                href={`/patient/export-pdf/${encodeURIComponent(trackingData.orderNumber)}`} 
                                                 className="btn btn-success d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
                                             >
-                                                <FaFileMedicalAlt /> Xem Báo Cáo Kết Quả
+                                                <FaFileMedicalAlt /> Xem & Tải Phiếu Kết Quả Ký Số (PDF)
                                             </a>
                                         )}
                                         <button 

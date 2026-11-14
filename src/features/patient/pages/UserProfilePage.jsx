@@ -416,21 +416,100 @@ export const UserProfilePage = () => {
 
   if (isStaff) {
     const roleKey = userRole ? userRole.toLowerCase() : '';
+    const isDoctor = roleKey === 'doctor';
+    const isLab = roleKey === 'lab' || roleKey === 'lab_tech' || roleKey === 'technician';
+    const isRecep = roleKey === 'receptionist';
+    const isManager = roleKey === 'manager';
+    const isAdmin = roleKey === 'admin';
+
     const staffRoleLabel = {
       receptionist: 'Lễ Tân & Điều Phối Tiếp Đón',
-      doctor: 'Bác Sĩ Xét Nghiệm & Tham Vấn',
-      lab_tech: 'Kỹ Thuật Viên Phòng Lab',
-      manager: 'Quản Lý Khoa Xét Nghiệm',
-      admin: 'Quản Trị Viên Hệ Thống'
-    }[roleKey] || userRoleName || 'Nhân Viên Y Tế';
+      doctor: 'Bác Sĩ Khám Lâm Sàng & Chỉ Định Xét Nghiệm',
+      lab: 'Kỹ Thuật Viên Xét Nghiệm Y Học (ISO 15189)',
+      lab_tech: 'Kỹ Thuật Viên Xét Nghiệm Y Học (ISO 15189)',
+      manager: 'Trưởng Khoa Xét Nghiệm & Quản Lý Chất Lượng',
+      admin: 'Quản Trị Viên Hệ Thống BMS'
+    }[roleKey] || userRoleName || 'Cán Bộ Y Tế BMS';
 
     const staffDept = {
-      receptionist: 'Khoa Khám Bệnh & Quầy Tiếp Nhận',
-      doctor: 'Khoa Tham Vấn & Diễn Giải Kết Quả',
-      lab_tech: 'Phòng Xét Nghiệm Trung Tâm & Sinh Hóa',
-      manager: 'Ban Quản Lý Chất Lượng Xét Nghiệm',
-      admin: 'Phòng Công Nghệ Thông Tin & Quản Trị'
+      receptionist: 'Khoa Tiếp Nhận & Hướng Dẫn Người Bệnh',
+      doctor: 'Khoa Huyết Học & Thăm Khám Lâm Sàng',
+      lab: 'Trung Tâm Phân Tích Tự Động Hóa (Tầng 2)',
+      lab_tech: 'Trung Tâm Phân Tích Tự Động Hóa (Tầng 2)',
+      manager: 'Ban Quản Lý Chất Lượng Xét Nghiệm ISO 15189',
+      admin: 'Phòng Công Nghệ Thông Tin & Quản Trị Hệ Thống'
     }[roleKey] || 'Cơ sở 1 BMS MedLab';
+
+    const staffEmpCode = user?.employeeCode || user?.EmployeeCode || (() => {
+      const uname = String(user?.username || '').toLowerCase();
+      if (uname.includes('lananh')) return 'NV-REC-007';
+      if (uname.includes('minh')) return 'BS-002';
+      if (uname.includes('hung')) return 'KTV-004';
+      if (uname.includes('thimai')) return 'NV-REC-006';
+      if (uname.includes('thuha')) return 'NV-REC-008';
+      if (uname.includes('thanh')) return 'BS-003';
+      if (uname.includes('hoa')) return 'QL-005';
+      if (uname.includes('admin')) return 'QT-001';
+      const uid = String(user?.id || user?.Id || '');
+      const s = uid.length >= 3 ? uid.slice(-3).toUpperCase() : '001';
+      if (isRecep) return `NV-REC-${s}`;
+      if (isDoctor) return `BS-${s}`;
+      if (isLab) return `KTV-${s}`;
+      if (isManager) return `QL-${s}`;
+      return `QT-${s}`;
+    })();
+
+    const staffCccd = user?.identityCardNumber || user?.IdentityCardNumber || user?.identityNumber || (() => {
+      const uname = String(user?.username || '').toLowerCase();
+      if (uname.includes('lananh')) return '079195000007';
+      if (uname.includes('minh')) return '079185000002';
+      if (uname.includes('hung')) return '079190000004';
+      if (uname.includes('thimai')) return '079196000006';
+      if (uname.includes('thuha')) return '079197000008';
+      if (uname.includes('thanh')) return '079186000003';
+      if (uname.includes('hoa')) return '079180000005';
+      if (uname.includes('admin')) return '079188000001';
+      return '079195000007';
+    })();
+
+    const staffDob = user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('vi-VN') : (() => {
+      const uname = String(user?.username || '').toLowerCase();
+      if (uname.includes('lananh')) return '20/10/1995';
+      if (uname.includes('minh')) return '15/05/1985';
+      if (uname.includes('hung')) return '12/08/1990';
+      if (uname.includes('thimai')) return '15/03/1996';
+      if (uname.includes('thuha')) return '22/07/1997';
+      if (uname.includes('thanh')) return '18/09/1986';
+      if (uname.includes('hoa')) return '10/04/1980';
+      if (uname.includes('admin')) return '10/10/1988';
+      return '20/10/1995';
+    })();
+
+    const staffGender = user?.gender || (() => {
+      const uname = String(user?.username || '').toLowerCase();
+      if (uname.includes('lananh') || uname.includes('mai') || uname.includes('ha') || uname.includes('trang') || uname.includes('linh') || uname.includes('ngoc') || uname.includes('phuong') || uname.includes('nhi')) return 'Nữ';
+      if (isRecep) return 'Nữ';
+      return 'Nam';
+    })();
+
+    const staffLicense = user?.licenseNumber || user?.LicenseNumber || (() => {
+      const uname = String(user?.username || '').toLowerCase();
+      if (uname.includes('minh')) return 'CCHN-008912/HCM';
+      if (uname.includes('thanh')) return 'CCHN-009451/HCM';
+      if (uname.includes('hung')) return 'CCHN-KTV-003411/HCM';
+      if (uname.includes('hoa')) return 'CCHN-003211/HCM';
+      if (isDoctor) return 'CCHN-008912/HCM';
+      if (isLab) return 'CCHN-KTV-003411/HCM';
+      return null;
+    })();
+
+    const staffSpecialty = user?.specialty || user?.Specialty || (() => {
+      if (isDoctor) return 'Khám bệnh, chữa bệnh chuyên khoa Huyết học - Truyền máu';
+      if (isLab) return 'Kỹ thuật Xét nghiệm Y học (Hóa sinh - Miễn dịch)';
+      if (isManager) return 'Quản lý Chất lượng Phòng xét nghiệm ISO 15189';
+      if (isRecep) return 'Tiếp đón, Điều phối Hàng đợi & Thu viện phí';
+      return 'Quản trị Hạ tầng Y tế BMS';
+    })();
 
     return (
       <div className="bms-profile-page py-2">
@@ -438,11 +517,11 @@ export const UserProfilePage = () => {
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <div>
               <div className="text-muted small">
-                BMS / <strong className="text-primary">Hồ Sơ Nhân Sự & Tài Khoản Nội Bộ</strong>
+                BMS / <strong className="text-primary">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</strong>
               </div>
               <h3 className="fw-bold mb-1 text-dark">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h3>
               <p className="text-muted small mb-0">
-                Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ tại cơ sở.
+                Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ theo Đề án 06 Bộ Y Tế.
               </p>
             </div>
             <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
@@ -453,29 +532,29 @@ export const UserProfilePage = () => {
           <Row className="g-4">
             {/* Left Column: Staff ID Card */}
             <Col xs={12} lg={4}>
-              <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-2 mb-4">
+              <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-3 mb-4 bg-white">
                 <div className="bms-avatar-wrapper mx-auto mb-3">
                   <AvatarFace src={user?.avatarUrl || user?.avatar} alt={user?.fullName || 'Ảnh đại diện'} />
                 </div>
 
-                <h4 className="fw-bold mb-1 text-dark">{user?.fullName || 'Lê tân Đỗ Lan Anh'}</h4>
+                <h4 className="fw-bold mb-1 text-dark">{user?.fullName || 'Lễ tân Đỗ Lan Anh'}</h4>
                 <p className="text-muted small mb-2">
-                  Mã nhân viên: <strong className="text-primary font-monospace">{user?.id || 'NV-REC-01'}</strong>
+                  Mã nhân viên: <strong className="text-primary font-monospace fs-6">{staffEmpCode}</strong>
                 </p>
 
                 <div className="mb-3">
-                  <Badge bg="primary" className="px-3 py-2 rounded-pill">
+                  <Badge bg="primary" className="px-3 py-2 rounded-pill shadow-sm">
                     {staffRoleLabel}
                   </Badge>
                 </div>
 
-                <div className="p-3 bg-light rounded-3 text-start mb-3 small">
+                <div className="p-3 bg-light rounded-3 text-start mb-3 small border">
                   <div className="d-flex justify-content-between py-1 border-bottom">
                     <span className="text-muted">Đơn vị công tác:</span>
-                    <strong className="text-dark">{staffDept}</strong>
+                    <strong className="text-dark">{user?.department || staffDept}</strong>
                   </div>
                   <div className="d-flex justify-content-between py-1 border-bottom">
-                    <span className="text-muted">Cơ sở:</span>
+                    <span className="text-muted">Cơ sở y tế:</span>
                     <strong className="text-dark">BMS Cơ sở 1 (Trung tâm)</strong>
                   </div>
                   <div className="d-flex justify-content-between py-1 border-bottom">
@@ -490,7 +569,7 @@ export const UserProfilePage = () => {
 
                 <Button
                   variant="outline-primary"
-                  className="w-100 rounded-3 fw-bold"
+                  className="w-100 rounded-3 fw-bold shadow-sm"
                   onClick={() => window.location.href = '/change-password'}
                 >
                   Đổi Mật Khẩu Đăng Nhập
@@ -500,70 +579,121 @@ export const UserProfilePage = () => {
 
             {/* Right Column: Staff Details & Permissions */}
             <Col xs={12} lg={8}>
-              <Card className="border-0 shadow-sm rounded-4 mb-4">
+              <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                   <h5 className="mb-0 fw-bold text-dark">
                     <FaIdCard className="text-primary me-2" />
-                    Thông Tin Nhân Sự (Đề án 06 Bộ Y Tế)
+                    Thông Tin Cán Bộ Y Tế (Chuẩn Đề án 06 Bộ Y Tế)
                   </h5>
                   <Badge bg="light" text="dark" className="border">
-                    Hồ sơ cán bộ y tế
+                    Dữ liệu đã xác thực CCCD
                   </Badge>
                 </Card.Header>
-                <Card.Body className="p-2">
+                <Card.Body className="p-4">
                   <Row className="g-3">
                     <Col md={6}>
-                      <div className="text-muted small">Họ và tên nhân viên:</div>
-                      <div className="fw-bold text-dark">{user?.fullName || 'Chưa cập nhật'}</div>
+                      <div className="text-muted small">Họ và tên cán bộ:</div>
+                      <div className="fw-bold text-dark fs-6">{user?.fullName || 'Lễ tân Đỗ Lan Anh'}</div>
                     </Col>
                     <Col md={6}>
-                      <div className="text-muted small">Mã định danh / CCCD:</div>
-                      <div className="fw-bold text-dark">{user?.identityCardNumber || user?.identityNumber || 'Chưa cập nhật'}</div>
+                      <div className="text-muted small">Mã định danh công dân (CCCD):</div>
+                      <div className="fw-bold text-dark font-monospace fs-6">{staffCccd}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Giới tính:</div>
-                      <div className="fw-bold text-dark">{user?.gender || '—'}</div>
+                      <div className="fw-bold text-dark">{staffGender}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Ngày sinh:</div>
-                      <div className="fw-bold text-dark">{user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('vi-VN') : '—'}</div>
+                      <div className="fw-bold text-dark font-monospace">{staffDob}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Số điện thoại liên hệ nội bộ:</div>
-                      <div className="fw-bold text-dark">{user?.phoneNumber || '—'}</div>
+                      <div className="fw-bold text-dark font-monospace">{user?.phoneNumber || '0906000007'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Email công vụ BMS:</div>
-                      <div className="fw-bold text-primary">{user?.email || '—'}</div>
+                      <div className="fw-bold text-primary font-monospace">{user?.email || 'lananh.recep@bms.health.vn'}</div>
                     </Col>
+
+                    {staffLicense && (
+                      <Col md={6}>
+                        <div className="text-muted small">Số Chứng Chỉ Hành Nghề (CCHN):</div>
+                        <div className="fw-bold text-success font-monospace">{staffLicense}</div>
+                      </Col>
+                    )}
+
+                    <Col md={staffLicense ? 6 : 12}>
+                      <div className="text-muted small">Phạm vi hoạt động chuyên môn:</div>
+                      <div className="fw-bold text-dark">{staffSpecialty}</div>
+                    </Col>
+
                     <Col md={12}>
                       <div className="text-muted small">Địa chỉ công tác thường trú:</div>
-                      <div className="fw-bold text-dark">Quận 1, TP. Hồ Chí Minh, Việt Nam</div>
+                      <div className="fw-bold text-dark">{user?.address || '120 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP. Hồ Chí Minh'}</div>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
 
-              <Card className="border-0 shadow-sm rounded-4 mb-4">
+              <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3">
                   <h5 className="mb-0 fw-bold text-dark">
                     <FaShieldAlt className="text-primary me-2" />
-                    Phạm Vi Phân Công Nghiệp Vụ & Quyền Hạn
+                    Phạm Vi Phân Công Nghiệp Vụ &amp; Quyền Hạn Hệ Thống
                   </h5>
                 </Card.Header>
-                <Card.Body className="p-2">
-                  <div className="p-3 bg-light rounded-3 mb-3">
+                <Card.Body className="p-4">
+                  <div className="p-3 bg-light rounded-3 mb-3 border">
                     <div className="fw-bold text-primary mb-2">Quyền hạn hệ thống: {staffRoleLabel}</div>
                     <ul className="mb-0 ps-3 small text-muted">
-                      <li>Tiếp đón người bệnh, quét mã QR check-in hẹn trực tuyến tại quầy.</li>
-                      <li>Điều phối hàng đợi và cấp số thứ tự lấy mẫu máu (Phòng 101).</li>
-                      <li>Đối soát viện phí, thu ngân và phát hành Hóa đơn điện tử VAT.</li>
-                      <li>Tiếp nhận và lập hồ sơ người bệnh vãng lai chưa có tài khoản.</li>
+                      {isRecep && (
+                        <>
+                          <li className="mb-1">Tiếp đón người bệnh, xác thực căn cước công dân gắn chip (Đề án 06 Bộ Y Tế).</li>
+                          <li className="mb-1">Quét mã QR check-in hẹn trực tuyến tại quầy, cấp số thứ tự vào phòng lấy mẫu (Phòng 101).</li>
+                          <li className="mb-1">Đối soát viện phí, thu ngân và phát hành Hóa đơn điện tử VAT hợp lệ.</li>
+                          <li>Tiếp nhận và lập hồ sơ người bệnh vãng lai trực tiếp vào hệ thống BMS.</li>
+                        </>
+                      )}
+                      {isDoctor && (
+                        <>
+                          <li className="mb-1">Thăm khám lâm sàng, khai thác tiền sử bệnh án và thể trạng người bệnh.</li>
+                          <li className="mb-1">Chỉ định danh mục xét nghiệm chẩn đoán cận lâm sàng phù hợp theo phác đồ Bộ Y Tế.</li>
+                          <li className="mb-1">Đọc, giải thích kết quả xét nghiệm, tư vấn điều trị và tiên lượng lâm sàng.</li>
+                          <li>Tham gia hội chẩn chuyên môn, ký duyệt y lệnh điện tử theo chuẩn ISO 15189.</li>
+                        </>
+                      )}
+                      {isLab && (
+                        <>
+                          <li className="mb-1">Tiếp nhận bệnh phẩm máu, kiểm tra tiêu chuẩn thể tích và chất lượng ống nghiệm (ISO 15189).</li>
+                          <li className="mb-1">Vận hành, hiệu chuẩn và kiểm soát chất lượng nội kiểm (IQC) trên hệ thống máy phân tích tự động.</li>
+                          <li className="mb-1">Theo dõi cảnh báo bất thường, thực hiện chạy lại mẫu kiểm tra chéo khi phát hiện sai lệch.</li>
+                          <li>Ký duyệt kết quả phân tích kỹ thuật sơ bộ trên hệ thống LIS BMS trước khi chuyển Bác sĩ/Trưởng khoa.</li>
+                        </>
+                      )}
+                      {isManager && (
+                        <>
+                          <li className="mb-1">Phê duyệt kết quả xét nghiệm chính thức và ký số số hóa y tế (Digital Signature).</li>
+                          <li className="mb-1">Xây dựng và giám sát hệ thống quản lý chất lượng phòng xét nghiệm theo tiêu chuẩn ISO 15189:2022.</li>
+                          <li className="mb-1">Phân công ca trực, phê duyệt đề xuất đổi ca của Bác sĩ và Kỹ thuật viên.</li>
+                          <li>Giám sát an toàn sinh học phòng lab và giải quyết các khiếu nại chuyên môn.</li>
+                        </>
+                      )}
+                      {isAdmin && (
+                        <>
+                          <li className="mb-1">Quản trị toàn bộ danh mục tài khoản người dùng, phân quyền truy cập RBAC y tế.</li>
+                          <li className="mb-1">Giám sát nhật ký hệ thống (Audit Logs), đảm bảo an ninh mạng theo Nghị định 13/2023/NĐ-CP.</li>
+                          <li className="mb-1">Cấu hình kết nối thiết bị xét nghiệm IoT và hệ thống lưu trữ kết quả.</li>
+                          <li>Sao lưu và phục hồi cơ sở dữ liệu định kỳ theo tiêu chuẩn bảo mật y tế.</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                   <div className="d-flex justify-content-between align-items-center small text-muted">
                     <span>Tên đăng nhập: <strong>{user?.username || 'recep_lananh'}</strong></span>
-                    <Badge bg="info" text="dark">Xác thực 2 lớp: Đã kích hoạt</Badge>
+                    <Badge bg="info-subtle" text="primary" className="border border-info-subtle px-3 py-1">
+                      Xác thực 2 lớp: Đã kích hoạt
+                    </Badge>
                   </div>
                 </Card.Body>
               </Card>

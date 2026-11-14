@@ -21,6 +21,7 @@ import {
   FaTimes
 } from 'react-icons/fa';
 import { fetchIotConnectionStatus } from '../api/iotTelemetryApi';
+import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 
 function formatDateTimeVi(isoString) {
   if (!isoString) return 'Chưa ghi nhận';
@@ -76,12 +77,27 @@ export default function GlobalIotAlertPopup() {
   const wasDisconnectedRef = useRef(false);
   const inFlightRef = useRef(false);
 
+  // Security & Medical SaaS UX: IoT Cold-Chain Alert is strictly internal to Admin and Manager (ROLE-PERMISSION-MATRIX §1).
+  // It MUST ONLY be displayed inside internal management/lab routes, NEVER on public marketing or patient-facing pages!
+  const currentUser = getStoredUser();
+  const isRoleAuthorized = hasRole(currentUser, ROLES.ADMIN, ROLES.MANAGER);
+
+  const isInternalPortal =
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/manager') ||
+    location.pathname.startsWith('/lab') ||
+    location.pathname.startsWith('/iot') ||
+    location.pathname.startsWith('/dashboard');
+
+  const isAuthorized = isRoleAuthorized && isInternalPortal;
+
   const isAuthPage =
     location.pathname === '/login' ||
     location.pathname === '/register' ||
     location.pathname === '/forgot-password';
 
   const checkIotStatus = useCallback(async () => {
+    if (!isAuthorized) return;
     if (inFlightRef.current) return;
     inFlightRef.current = true;
     try {
@@ -116,6 +132,7 @@ export default function GlobalIotAlertPopup() {
   }, [soundEnabled]);
 
   useEffect(() => {
+    if (!isAuthorized) return;
     checkIotStatus();
     const timer = setInterval(checkIotStatus, 5000);
 
@@ -130,9 +147,9 @@ export default function GlobalIotAlertPopup() {
       clearInterval(timer);
       window.removeEventListener('bms-iot-status-changed', handleInstantRefresh);
     };
-  }, [checkIotStatus]);
+  }, [checkIotStatus, isAuthorized]);
 
-  if (isAuthPage || !statusData) {
+  if (!isAuthorized || isAuthPage || !statusData) {
     return null;
   }
 

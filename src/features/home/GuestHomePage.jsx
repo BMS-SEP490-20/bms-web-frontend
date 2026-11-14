@@ -27,11 +27,11 @@ const LANDING_SECTIONS = [
   {
     num: '01 / TỰ ĐỘNG HÓA LAB',
     title: 'Phòng Lab Tự Động Hóa 100%',
-    desc: 'Chuỗi máy phân tích kết nối trực tiếp với LIS, loại trừ nguy cơ sai sót con người.',
+    desc: 'Chuỗi máy phân tích tự động khép kín, loại trừ triệt để nguy cơ sai sót thủ công.',
     svg: '/assets/bms/svg/sections/landing/sec-01-lab-automation.svg',
     bullets: [
       'Mã hóa barcode tự động hai chiều',
-      'Đồng bộ kết quả tức thì với LIS/HIS',
+      'Đồng bộ kết quả tức thì với hồ sơ sức khỏe điện tử',
       'Thời gian phân tích chỉ từ 30 – 45 phút'
     ]
   },
@@ -92,12 +92,12 @@ const LANDING_SECTIONS = [
   },
   {
     num: '07 / KIỂM SOÁT TIẾN ĐỘ',
-    title: 'Kiểm Soát Thời Gian Trả KQ (SLA)',
-    desc: 'Giám sát tiến trình phân tích theo thời gian thực, thông báo ngay khi bác sĩ hoàn tất thẩm duyệt.',
+    title: 'Cam Kết Thời Gian Trả Kết Quả Đúng Hẹn',
+    desc: 'Giám sát tiến trình phân tích theo thời gian thực, thông báo ngay khi bác sĩ hoàn tất thẩm duyệt và ký số.',
     svg: '/assets/bms/svg/sections/landing/sec-07-tat-sla.svg',
     bullets: [
       'Theo dõi lộ trình xử lý mẫu theo thời gian thực',
-      'Cảnh báo trễ hạn phân tích mẫu tại phòng Lab',
+      'Cảnh báo sớm tiến độ phân tích mẫu tại phòng Lab',
       'Thông báo tức thời qua cổng thông tin bệnh nhân'
     ]
   },
@@ -147,12 +147,12 @@ const LANDING_SECTIONS = [
   },
   {
     num: '12 / BẢO MẬT DỮ LIỆU',
-    title: 'Bảo Vệ Dữ Liệu Nghị Định 13/2023',
-    desc: 'Mã hóa kết quả AES-256 và ẩn danh hóa thông tin PII khi tra cứu công khai.',
+    title: 'Bảo Vệ Dữ Liệu Bệnh Án Nghị Định 13/2023',
+    desc: 'Mã hóa kết quả chuẩn y tế và bảo vệ tuyệt đối thông tin danh tính cá nhân khi tra cứu trực tuyến.',
     svg: '/assets/bms/svg/sections/landing/sec-12-security-privacy.svg',
     bullets: [
       'Mã hóa đầu cuối kết quả xét nghiệm',
-      'Ẩn danh định danh PII khi tra cứu',
+      'Ẩn danh định danh cá nhân khi tra cứu',
       'Nhật ký kiểm toán truy cập bất biến'
     ]
   },
@@ -281,7 +281,7 @@ export default function GuestHomePage() {
               </h1>
 
               <p className="bms-hero-lead mb-4" style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.65', maxWidth: '520px' }}>
-                Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích LIS, bác sĩ thẩm định và trả kết quả trực tuyến.
+                Trung tâm xét nghiệm máu kỹ thuật cao chuẩn quốc tế ISO 15189:2022. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
               </p>
 
               {/* Search Pill Capsule */}
@@ -304,34 +304,34 @@ export default function GuestHomePage() {
                 </button>
               </form>
 
-              {/* 2x2 Metric Grid (Real BMS Workflow Capabilities - Zero Fake Marketing Numbers) */}
+              {/* 2x2 Metric Grid (Patient-Centric Value Propositions) */}
               <div className="bms-hero-page-metrics">
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number" style={{ fontSize: '18px' }}>Mã Vạch 1D/2D</div>
-                    <div className="metric-label">Định danh duy nhất mẫu máu</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Chính Xác 99.9%</div>
+                    <div className="metric-label">Chuẩn chất lượng ISO 15189</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-qc-accuracy.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number" style={{ fontSize: '18px' }}>Nội Kiểm QC</div>
-                    <div className="metric-label">Kiểm soát quy tắc Westgard</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Lấy Mẫu Êm Ái</div>
+                    <div className="metric-label">Điều dưỡng tận tâm, không đau</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-sla-tat.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number" style={{ fontSize: '18px' }}>Bác Sĩ Xác Nhận</div>
-                    <div className="metric-label">Thẩm định chuyên môn y khoa</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Bác Sĩ Tư Vấn</div>
+                    <div className="metric-label">Giải thích cặn kẽ từng chỉ số</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-coldchain.svg" alt="" aria-hidden="true" />
                   <div>
-                    <div className="metric-number" style={{ fontSize: '18px' }}>Chuỗi Lạnh IoT</div>
-                    <div className="metric-label">Giám sát nhiệt độ 2-6°C</div>
+                    <div className="metric-number" style={{ fontSize: '18px' }}>Kết Quả Online</div>
+                    <div className="metric-label">Tra cứu 24/7, có chữ ký số</div>
                   </div>
                 </div>
               </div>
@@ -351,103 +351,18 @@ export default function GuestHomePage() {
         </div>
       </section>
 
-      {/* 2. Clinical Workflow Section (4 Soft Steps with 120px Vignettes) */}
-      <section className="bms-section-wrap py-5" id="quy-trinh" style={{ marginBottom: '56px' }}>
-        <div className="container" style={{ maxWidth: '1360px' }}>
-          <div className="bms-section-lead-center text-center mb-5">
-            <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
-            <h2 className="bms-section-h2 mt-2 mb-2">Bốn Bước, Một Hành Trình An Tâm</h2>
-            <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch đến khi nhận phiếu kết quả được chuẩn hóa theo quy chuẩn y tế ISO 15189:2022.
-            </p>
-          </div>
-
-          <div className="bms-steps-quad">
-            <div className="bms-step-soft-card d-flex flex-column align-items-start">
-              <div className="w-100 text-center mb-3">
-                <img
-                  src="/assets/bms/svg/sections/landing/step-01-register.svg?v=transparent-20261106-1442"
-                  alt="Đăng Ký Trực Tuyến"
-                  className="bms-step-art-v3"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>01</div>
-              <h3 className="bms-step-h3">Đăng Ký Trực Tuyến</h3>
-              <p className="bms-step-desc">
-                Chọn gói khám và thời gian thuận tiện. Lựa chọn lấy mẫu tại trung tâm BMS hoặc dịch vụ lấy mẫu tại nhà.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card d-flex flex-column align-items-start">
-              <div className="w-100 text-center mb-3">
-                <img
-                  src="/assets/bms/svg/sections/landing/step-02-sampling.svg?v=transparent-20261106-1442"
-                  alt="Lấy Mẫu Vô Trùng"
-                  className="bms-step-art-v3"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>02</div>
-              <h3 className="bms-step-h3">Lấy Mẫu Vô Trùng</h3>
-              <p className="bms-step-desc">
-                Điều dưỡng thực hiện lấy mẫu nhẹ nhàng, mã hóa Barcode một chiều và đưa ngay vào chuỗi lạnh bảo quản 2-6°C.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card d-flex flex-column align-items-start">
-              <div className="w-100 text-center mb-3">
-                <img
-                  src="/assets/bms/svg/sections/landing/step-03-analysis.svg?v=transparent-20261106-1442"
-                  alt="Phân Tích Tự Động"
-                  className="bms-step-art-v3"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>03</div>
-              <h3 className="bms-step-h3">Phân Tích Tự Động</h3>
-              <p className="bms-step-desc">
-                Mẫu được chạy trên hệ thống máy phân tích tự động thế hệ mới, kiểm soát chất lượng nội kiểm Westgard.
-              </p>
-            </div>
-
-            <div className="bms-step-soft-card d-flex flex-column align-items-start">
-              <div className="w-100 text-center mb-3">
-                <img
-                  src="/assets/bms/svg/sections/landing/step-04-esign.svg?v=transparent-20261106-1442"
-                  alt="Nhận Kết Quả Ký Số"
-                  className="bms-step-art-v3"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>04</div>
-              <h3 className="bms-step-h3">Nhận Kết Quả Ký Số</h3>
-              <p className="bms-step-desc">
-                Bác sĩ Chuyên khoa thẩm định &amp; ký số. Xem trực tuyến và tải PDF có giá trị pháp lý toàn quốc.
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Service Packages Catalog (Spacious Horizontal Service Strips - No Cramped Cards) */}
-      <section className="bms-section-wrap py-5" style={{ marginBottom: '56px' }}>
+      {/* 2. Service Packages Catalog (Spacious Horizontal Service Strips - Moved to Top) */}
+      <section className="bms-section-wrap py-5" id="danh-muc" style={{ marginBottom: '56px' }}>
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
             <h2 className="bms-section-h2 mt-2 mb-2">Gói Xét Nghiệm Máu Tiêu Biểu</h2>
             <p className="bms-section-p">
-              Bảng giá niêm yết công khai, minh bạch, hỗ trợ chiết tính BHYT tự động theo quy định Bộ Y Tế.
+              Bảng giá dịch vụ công khai minh bạch 100%, hỗ trợ chiết tính bảo hiểm y tế tự động và xuất hóa đơn điện tử VAT theo quy định Bộ Y Tế.
             </p>
           </div>
 
-          {/* Spacious Horizontal Floating Service Strips (Zero Cramped Cards, Generous Breathing Room) */}
+          {/* Spacious Horizontal Floating Service Strips */}
           <div className="d-flex flex-column gap-3 mb-4">
             {packages.map((pkg, idx) => (
               <div
@@ -462,10 +377,9 @@ export default function GuestHomePage() {
                 }}
                 className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
               >
-                {/* Left: Specialty Icon + Full-Width Content Stack (Zero Awkward Breaks) */}
+                {/* Left: Specialty Icon + Full-Width Content Stack */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="d-flex align-items-center" style={{ gap: '24px' }}>
-                    {/* Centered Large SVG Icon (25% Larger, No Background Box) */}
                     <div
                       style={{
                         width: '68px',
@@ -513,7 +427,7 @@ export default function GuestHomePage() {
                         </span>
                       </div>
 
-                      {/* Row 2: Full Package Title (No Ellipsis, Full Available Width) */}
+                      {/* Row 2: Full Package Title */}
                       <h3
                         className="mb-1.5"
                         style={{
@@ -544,7 +458,7 @@ export default function GuestHomePage() {
                   </div>
                 </div>
 
-                {/* Middle Dedicated Column: Specimen Standards & TAT SLA */}
+                {/* Middle Dedicated Column: Specimen Standards & Turnaround Time */}
                 <div
                   className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
                   style={{
@@ -554,7 +468,7 @@ export default function GuestHomePage() {
                   }}
                 >
                   <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    Tiêu Chuẩn Lấy Mẫu &amp; SLA
+                    Tiêu Chuẩn Lấy Mẫu &amp; Kết Quả
                   </div>
 
                   {/* Tube Specimen */}
@@ -570,7 +484,7 @@ export default function GuestHomePage() {
                     </div>
                   </div>
 
-                  {/* TAT SLA */}
+                  {/* Turnaround Time */}
                   <div className="d-flex align-items-center gap-2.5">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
@@ -584,7 +498,7 @@ export default function GuestHomePage() {
                   </div>
                 </div>
 
-                {/* Right: Price & CTA Action Button (Clean Vertical Border Divider) */}
+                {/* Right: Price & CTA Action Button */}
                 <div
                   className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
                   style={{
@@ -629,6 +543,91 @@ export default function GuestHomePage() {
             </Link>
             <Link to="/pricing" className="bms-btn-neutral-pill">
               Tra Cứu Bảng Giá Niêm Yết &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
+      <section className="bms-section-wrap py-5" id="quy-trinh" style={{ marginBottom: '56px' }}>
+        <div className="container" style={{ maxWidth: '1360px' }}>
+          <div className="bms-section-lead-center text-center mb-5">
+            <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
+            <h2 className="bms-section-h2 mt-2 mb-2">Bốn Bước Đơn Giản, Một Hành Trình An Tâm</h2>
+            <p className="bms-section-p">
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+            </p>
+          </div>
+
+          <div className="bms-steps-quad">
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-01-register.svg?v=transparent-20261106-1442"
+                  alt="Đăng Ký Linh Hoạt"
+                  className="bms-step-art-v3"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>01</div>
+              <h3 className="bms-step-h3">Đăng Ký Linh Hoạt</h3>
+              <p className="bms-step-desc">
+                Lựa chọn gói xét nghiệm và khung giờ thuận tiện. Đặt lịch lấy mẫu tận nơi hoặc tại phòng khám BMS chỉ trong 30 giây.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-02-sampling.svg?v=transparent-20261106-1442"
+                  alt="Lấy Mẫu Êm Ái &amp; An Toàn"
+                  className="bms-step-art-v3"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>02</div>
+              <h3 className="bms-step-h3">Lấy Mẫu Êm Ái &amp; An Toàn</h3>
+              <p className="bms-step-desc">
+                Điều dưỡng giàu kinh nghiệm thao tác nhẹ nhàng, không đau. Dụng cụ chân không vô khuẩn một lần, dán mã định danh chuẩn xác 100%.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-03-analysis.svg?v=transparent-20261106-1442"
+                  alt="Phân Tích Tự Động Chính Xác"
+                  className="bms-step-art-v3"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>03</div>
+              <h3 className="bms-step-h3">Phân Tích Tự Động Chính Xác</h3>
+              <p className="bms-step-desc">
+                Mẫu máu được phân tích trên hệ thống máy xét nghiệm hiện đại tự động hoàn toàn, vận hành dưới quy chuẩn kiểm định nghiêm ngặt đạt độ chính xác trên 99.9%.
+              </p>
+            </div>
+
+            <div className="bms-step-soft-card d-flex flex-column align-items-start">
+              <div className="w-100 text-center mb-3">
+                <img
+                  src="/assets/bms/svg/sections/landing/step-04-esign.svg?v=transparent-20261106-1442"
+                  alt="Nhận Kết Quả &amp; Bác Sĩ Tư Vấn"
+                  className="bms-step-art-v3"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="bms-step-badge-num tabular-nums" style={{ color: '#1E60E6', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>04</div>
+              <h3 className="bms-step-h3">Nhận Kết Quả &amp; Bác Sĩ Tư Vấn</h3>
+              <p className="bms-step-desc">
+                Tra cứu kết quả online tức thời, tải bản PDF có chữ ký số pháp lý và được Bác sĩ Chuyên khoa gọi điện tư vấn chi tiết từng chỉ số.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-4">
+            <Link to="/iso-process" className="bms-btn-neutral-pill">
+              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
             </Link>
           </div>
         </div>

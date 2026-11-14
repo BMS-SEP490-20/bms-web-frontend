@@ -10,7 +10,7 @@ function money(value) {
   return `${new Intl.NumberFormat('vi-VN').format(value || 0)} đ`;
 }
 
-function Invoice({ checkout, onDone, onBack }) {
+function Invoice({ checkout, onDone, onBack, onSimulatePay, isSimulating }) {
   return (
     <section className="bms-sepay-card">
       <header className="bms-sepay-head">
@@ -46,8 +46,36 @@ function Invoice({ checkout, onDone, onBack }) {
         <div className="is-amount"><dt>Số tiền</dt><dd>{money(checkout.amount)}</dd></div>
       </dl>
 
+      {!checkout.paid ? (
+        <button
+          type="button"
+          className="bms-sepay-simulate-btn"
+          onClick={onSimulatePay}
+          disabled={isSimulating}
+          style={{
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '9999px',
+            padding: '12px 20px',
+            fontWeight: '600',
+            fontSize: '0.95rem',
+            cursor: isSimulating ? 'not-allowed' : 'pointer',
+            width: '100%',
+            marginBottom: '0.75rem',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
+        >
+          {isSimulating ? 'Đang xác nhận...' : '⚡ Xác nhận đã thanh toán (Mô phỏng Demo)'}
+        </button>
+      ) : null}
+
       {checkout.paid ? (
-        <button type="button" className="bms-sepay-done" onClick={onDone}>Xem lịch của tôi</button>
+        <button type="button" className="bms-sepay-done" onClick={onDone}>Xem lịch của tôi (Đã cấp mã QR)</button>
       ) : null}
       <button type="button" className="bms-sepay-back" onClick={onBack}>Quay lại</button>
     </section>
@@ -62,7 +90,26 @@ export default function ProcessPaymentPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [paidNotice, setPaidNotice] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
   const noticed = useRef(false);
+
+  const handleSimulatePay = async () => {
+    if (!appointmentId || isSimulating) return;
+    try {
+      setIsSimulating(true);
+      const res = await api.post(`/payments/sepay/simulate/${encodeURIComponent(appointmentId)}`);
+      if (res.data?.success) {
+        setPaidNotice(true);
+        // Refresh checkout immediately
+        const full = await api.get(`/payments/sepay/checkout/${encodeURIComponent(appointmentId)}`);
+        setCheckout(full.data?.data || null);
+      }
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Lỗi khi mô phỏng thanh toán.');
+    } finally {
+      setIsSimulating(false);
+    }
+  };
 
   useEffect(() => {
     if (!checkout?.paid || noticed.current) return undefined;
@@ -139,7 +186,13 @@ export default function ProcessPaymentPage() {
   return (
     <div className="bms-sepay-page">
       {paidNotice ? <div className="bms-sepay-toast" role="status">Đã nhận thanh toán.</div> : null}
-      <Invoice checkout={checkout} onDone={() => navigate('/appointments')} onBack={() => navigate(-1)} />
+      <Invoice
+        checkout={checkout}
+        onDone={() => navigate('/appointments')}
+        onBack={() => navigate(-1)}
+        onSimulatePay={handleSimulatePay}
+        isSimulating={isSimulating}
+      />
     </div>
   );
 }

@@ -85,7 +85,9 @@ export default function PricingPage() {
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
-      <PortalNavbar />
+      <div className="d-print-none">
+        <PortalNavbar />
+      </div>
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
@@ -109,9 +111,22 @@ export default function PricingPage() {
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
                   Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm
                 </h1>
-                <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
-                  Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Áp dụng thanh toán BHYT đúng tuyến &amp; thông tuyến, xuất hóa đơn điện tử VAT 0% theo Nghị định 123/2020/NĐ-CP.
+                <p className="mb-3 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
+                  Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Đã bao gồm trọn gói vật tư lấy mẫu vô trùng, tự động giảm trừ chi phí BHYT, hỗ trợ xuất hóa đơn điện tử VAT và Bác sĩ chuyên khoa tư vấn kết quả.
                 </p>
+
+                {/* 3 Gold Commitments Badges */}
+                <div className="d-flex flex-wrap gap-2 pt-1">
+                  <div style={{ background: '#EFF6FF', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#1E60E6', fontWeight: 650 }}>
+                    ✓ Không phụ phí ẩn &amp; Miễn phí vật tư lấy mẫu
+                  </div>
+                  <div style={{ background: '#ECFDF5', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#059669', fontWeight: 650 }}>
+                    ✓ Tự động chiết khấu quyền lợi BHYT
+                  </div>
+                  <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#475569', fontWeight: 650, border: '1px solid #E2E8F0' }}>
+                    ✓ Bác sĩ Chuyên khoa giải thích kết quả miễn phí
+                  </div>
+                </div>
               </div>
 
               {/* Pricing Hero SVG Illustration */}
@@ -123,7 +138,7 @@ export default function PricingPage() {
                 />
               </div>
 
-              <div className="d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
+              <div className="d-print-none d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
                 <button
                   type="button"
                   className="btn"
@@ -164,7 +179,7 @@ export default function PricingPage() {
       </section>
 
       {/* 2. Filter & Search Toolbar Section */}
-      <section className="py-2 mb-5">
+      <section className="d-print-none py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           
           {/* Unified Toolbar Card - Pure 2D Flat, Zero Border */}
@@ -475,11 +490,19 @@ export default function PricingPage() {
                 <h6 className="fw-bold mb-2" style={{ color: '#0F172A', fontSize: '13.5px' }}>
                   Quy Định Về Giá Dịch Vụ &amp; Thanh Toán Viện Phí
                 </h6>
-                <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
-                  <li>Bảng giá đã bao gồm toàn bộ vật tư y tế tiêu hao (kim lấy máu chân không, ống chân không có gel tách huyết thanh, bông cồn sát khuẩn). Không phụ thu bất kỳ khoản chi phí ẩn nào.</li>
+                <ul className="mb-3 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
+                  <li>Bảng giá đã bao gồm toàn bộ vật tư y tế tiêu hao (kim lấy máu chân không vô trùng, ống chân không có gel tách huyết thanh, bông cồn sát khuẩn). Không phụ thu bất kỳ khoản chi phí ẩn nào.</li>
                   <li>Bệnh nhân có thẻ Bảo Hiểm Y Tế (BHYT) được hưởng mức chi trả theo quy định hiện hành khi có chỉ định của bác sĩ tại phòng khám BMS.</li>
                   <li>Miễn phí tư vấn giải thích kết quả và định hướng điều trị lâm sàng từ Bác sĩ chuyên khoa xét nghiệm.</li>
                 </ul>
+                <div className="d-flex flex-wrap gap-3" style={{ fontSize: '12.5px' }}>
+                  <Link to="/insurance-policy" style={{ color: '#1E60E6', textDecoration: 'none', fontWeight: 600 }}>
+                    Tra cứu chính sách chi trả BHYT →
+                  </Link>
+                  <Link to="/terms" style={{ color: '#1E60E6', textDecoration: 'none', fontWeight: 600 }}>
+                    Xem điều khoản dịch vụ &amp; quyền lợi bệnh nhân →
+                  </Link>
+                </div>
               </div>
               <div className="col-lg-4 text-center d-none d-md-block">
                 <img
@@ -493,7 +516,9 @@ export default function PricingPage() {
         </Container>
       </section>
 
-        <MegaFooter />
+        <div className="d-print-none">
+          <MegaFooter />
+        </div>
       </div>
     </div>
   );

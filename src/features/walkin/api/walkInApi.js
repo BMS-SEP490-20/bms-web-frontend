@@ -1,7 +1,8 @@
 /**
  * UC26 – Walk-in registration API.
  */
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api') + '/walk-in';
+const rawBase = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE = (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`) + '/walk-in';
 
 function authHeaders() {
   const token = localStorage.getItem('bms_access_token') || localStorage.getItem('bms_token') || sessionStorage.getItem('bms_access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token');

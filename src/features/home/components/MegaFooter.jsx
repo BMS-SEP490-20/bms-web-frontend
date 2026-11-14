@@ -82,9 +82,9 @@ export default function MegaFooter() {
             &copy; {new Date().getFullYear()} BMS Clinical Laboratory. ISO 15189:2022 &amp; Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.
           </div>
           <div className="bms-ft-bottom-links">
-            <Link to="/pricing">Điều khoản dịch vụ</Link>
-            <Link to="/pricing">Chính sách bảo mật</Link>
-            <Link to="/pricing">Chính sách chi trả BHYT</Link>
+            <Link to="/terms">Điều khoản dịch vụ</Link>
+            <Link to="/privacy">Chính sách bảo mật</Link>
+            <Link to="/insurance-policy">Chính sách chi trả BHYT</Link>
           </div>
         </div>
       </div>

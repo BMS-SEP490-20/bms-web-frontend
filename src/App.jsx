@@ -12,7 +12,7 @@
  * Conforms to: Production Medical Standards ISO 15189, HIPAA Privacy, & AGENTS-CODE.md.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 
 // Layouts, Global State Providers & Error Boundaries
@@ -26,90 +26,90 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import { ROLES, ALL_ROLES, resolveRoleId, getStoredUser } from "./constants/roles";
 
 // Authentication & Http Error Views
-import LoginPage from "./features/auth/pages/LoginPage.jsx";
-import Register from "./features/auth/Register";
-import ForgotPassword from "./features/auth/pages/ForgotPassword.jsx";
-import ChangePassword from "./features/auth/ChangePassword";
+const LoginPage = lazy(() => import("./features/auth/pages/LoginPage.jsx"));
+const Register = lazy(() => import("./features/auth/Register"));
+const ForgotPassword = lazy(() => import("./features/auth/pages/ForgotPassword.jsx"));
+const ChangePassword = lazy(() => import("./features/auth/ChangePassword"));
 import NotFound404 from "./components/errors/NotFound404";
 import Forbidden403 from "./components/errors/Forbidden403";
-import HomePage from "./features/home/HomePage.jsx";
-import GuestHomePage from "./features/home/GuestHomePage.jsx";
+const HomePage = lazy(() => import("./features/home/HomePage.jsx"));
+const GuestHomePage = lazy(() => import("./features/home/GuestHomePage.jsx"));
 
 // Clinical, Consultation & Receptionist Views
-import RoleBasedDashboard from "./features/manager-dashboard/pages/RoleDashboard";
-import UserProfilePage from "./features/patient/pages/UserProfilePage";
-import CheckInPage from "./features/reception/pages/CheckInPage.jsx";
-import ReceptionistCheckIn from "./features/reception/components/Receptionist/ReceptionistCheckIn.jsx";
-import RegisterWalkInPatientPage from "./features/walkin/pages/RegisterWalkInPage.jsx";
-import QueueBoardPage from "./features/reception/pages/QueueBoardPage.jsx";
-import PublicQueueBoardPage from "./features/reception/pages/PublicQueueBoardPage.jsx";
-import DoctorConsolePage from "./features/doctor/pages/DoctorConsolePage.jsx";
-import MedicalRecordPage from "./features/doctor/pages/MedicalRecordPage.jsx";
-import AddMedicalNotesPage from "./features/doctor/pages/AddMedicalNotesPage.jsx";
-import MedicalAssessmentListPage from "./features/doctor/pages/MedicalAssessmentListPage.jsx";
-import AddMedicalAssessmentPage from "./features/doctor/pages/AddMedicalAssessmentPage.jsx";
-import CreateTestOrderPage from "./features/doctor/pages/CreateTestOrderPage.jsx";
-import DoctorSchedulePage from "./features/doctor-schedule/pages/DoctorSchedulePage";
-import ViewShiftsPage from "./features/view-shifts/pages/ViewShiftsPage.jsx";
+const RoleBasedDashboard = lazy(() => import("./features/manager-dashboard/pages/RoleDashboard"));
+const UserProfilePage = lazy(() => import("./features/patient/pages/UserProfilePage"));
+const CheckInPage = lazy(() => import("./features/reception/pages/CheckInPage.jsx"));
+const ReceptionistCheckIn = lazy(() => import("./features/reception/components/Receptionist/ReceptionistCheckIn.jsx"));
+const RegisterWalkInPatientPage = lazy(() => import("./features/walkin/pages/RegisterWalkInPage.jsx"));
+const QueueBoardPage = lazy(() => import("./features/reception/pages/QueueBoardPage.jsx"));
+const PublicQueueBoardPage = lazy(() => import("./features/reception/pages/PublicQueueBoardPage.jsx"));
+const DoctorConsolePage = lazy(() => import("./features/doctor/pages/DoctorConsolePage.jsx"));
+const MedicalRecordPage = lazy(() => import("./features/doctor/pages/MedicalRecordPage.jsx"));
+const AddMedicalNotesPage = lazy(() => import("./features/doctor/pages/AddMedicalNotesPage.jsx"));
+const MedicalAssessmentListPage = lazy(() => import("./features/doctor/pages/MedicalAssessmentListPage.jsx"));
+const AddMedicalAssessmentPage = lazy(() => import("./features/doctor/pages/AddMedicalAssessmentPage.jsx"));
+const CreateTestOrderPage = lazy(() => import("./features/doctor/pages/CreateTestOrderPage.jsx"));
+const DoctorSchedulePage = lazy(() => import("./features/doctor-schedule/pages/DoctorSchedulePage"));
+const ViewShiftsPage = lazy(() => import("./features/view-shifts/pages/ViewShiftsPage.jsx"));
 
 // Laboratory Operations, QC, IoT & Inventory Views
-import SampleQueuePage from "./features/laboratory/pages/SampleQueuePage";
-import CheckInSamplePage from "./features/sample-checkin/pages/CheckInSamplePage.jsx";
-import SampleTimelinePage from "./features/laboratory/pages/SampleTimelinePage.jsx";
-import TestBatchManagementPage from "./features/laboratory/pages/TestBatchManagementPage.jsx";
-import SampleListPage from "./features/laboratory/pages/SampleListPage.jsx";
-import SampleRerunPage from "./features/laboratory/pages/SampleRerunPage.jsx";
-import AddTestNotePage from "./features/laboratory/pages/AddTestNotePage.jsx";
-import VerifyTestResultsPage from "./features/laboratory/pages/VerifyTestResultsPage.jsx";
-import EnterTestResultsPage from "./features/test-results/pages/EnterTestResultsPage.jsx";
-import TraceSampleOriginPage from "./features/laboratory/pages/TraceSampleOriginPage.jsx";
-import SpecimenHistoryPage from "./features/laboratory/pages/SpecimenHistoryPage.jsx";
-import LookupBiochemicalResultsPage from "./features/laboratory/pages/LookupBiochemicalResultsPage.jsx";
-import NotifyTestResultsPage from "./features/laboratory/pages/NotifyTestResultsPage.jsx";
-import TestCriteriaPage from "./features/laboratory/pages/TestCriteriaPage";
-import ConfigureReferenceIntervalsPage from "./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx";
-import LabProfilesPage from "./features/lab-profiles/pages/LabProfilesPage.jsx";
-import LabRoomManagement from "./features/facilities/pages/LabRoomManagementPage";
-import ValidateSample from "./features/lab-user/pages/ValidateSample.jsx";
-import QcFlagsPage from "./features/qc/pages/QcFlagsPage.jsx";
-import QualityControlManagementPage from "./features/qc/pages/QualityControlManagementPage.jsx";
-import InventoryPage from "./features/inventory/pages/InventoryPage.jsx";
-import ConfigureIotThresholdsPage from "./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx";
-import AlertThresholdViolationPage from "./features/iot/pages/AlertThresholdViolationPage.jsx";
-import IotMonitorPage from "./features/manager-dashboard/pages/IotMonitorPage.jsx";
+const SampleQueuePage = lazy(() => import("./features/laboratory/pages/SampleQueuePage"));
+const CheckInSamplePage = lazy(() => import("./features/sample-checkin/pages/CheckInSamplePage.jsx"));
+const SampleTimelinePage = lazy(() => import("./features/laboratory/pages/SampleTimelinePage.jsx"));
+const TestBatchManagementPage = lazy(() => import("./features/laboratory/pages/TestBatchManagementPage.jsx"));
+const SampleListPage = lazy(() => import("./features/laboratory/pages/SampleListPage.jsx"));
+const SampleRerunPage = lazy(() => import("./features/laboratory/pages/SampleRerunPage.jsx"));
+const AddTestNotePage = lazy(() => import("./features/laboratory/pages/AddTestNotePage.jsx"));
+const VerifyTestResultsPage = lazy(() => import("./features/laboratory/pages/VerifyTestResultsPage.jsx"));
+const EnterTestResultsPage = lazy(() => import("./features/test-results/pages/EnterTestResultsPage.jsx"));
+const TraceSampleOriginPage = lazy(() => import("./features/laboratory/pages/TraceSampleOriginPage.jsx"));
+const SpecimenHistoryPage = lazy(() => import("./features/laboratory/pages/SpecimenHistoryPage.jsx"));
+const LookupBiochemicalResultsPage = lazy(() => import("./features/laboratory/pages/LookupBiochemicalResultsPage.jsx"));
+const NotifyTestResultsPage = lazy(() => import("./features/laboratory/pages/NotifyTestResultsPage.jsx"));
+const TestCriteriaPage = lazy(() => import("./features/laboratory/pages/TestCriteriaPage"));
+const ConfigureReferenceIntervalsPage = lazy(() => import("./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx"));
+const LabProfilesPage = lazy(() => import("./features/lab-profiles/pages/LabProfilesPage.jsx"));
+const LabRoomManagement = lazy(() => import("./features/facilities/pages/LabRoomManagementPage"));
+const ValidateSample = lazy(() => import("./features/lab-user/pages/ValidateSample.jsx"));
+const QcFlagsPage = lazy(() => import("./features/qc/pages/QcFlagsPage.jsx"));
+const QualityControlManagementPage = lazy(() => import("./features/qc/pages/QualityControlManagementPage.jsx"));
+const InventoryPage = lazy(() => import("./features/inventory/pages/InventoryPage.jsx"));
+const ConfigureIotThresholdsPage = lazy(() => import("./features/manager-dashboard/pages/ConfigureIotThresholdsPage.jsx"));
+const AlertThresholdViolationPage = lazy(() => import("./features/iot/pages/AlertThresholdViolationPage.jsx"));
+const IotMonitorPage = lazy(() => import("./features/manager-dashboard/pages/IotMonitorPage.jsx"));
 import GlobalIotAlertPopup from "./features/iot/components/GlobalIotAlertPopup.jsx";
 
 // Patient Services, Scheduling & Billing Views
-import ServiceCatalogPage from "./features/catalog/pages/ServiceCatalogPage";
-import PricingPage from "./features/catalog/pages/PricingPage.jsx";
-import IsoProcessPage from "./features/home/pages/IsoProcessPage.jsx";
-import TermsOfServicePage from "./features/legal/pages/TermsOfServicePage.jsx";
-import PrivacyPolicyPage from "./features/legal/pages/PrivacyPolicyPage.jsx";
-import InsurancePolicyPage from "./features/legal/pages/InsurancePolicyPage.jsx";
-import BookAppointmentPage from "./features/appointment/pages/BookAppointmentPage.jsx";
-import AppointmentListPage from "./features/appointment/pages/AppointmentListPage.jsx";
-import AppointmentConfirmationPage from "./features/appointment/pages/AppointmentConfirmationPage";
-import TestHistoryPage from "./features/patient/pages/TestHistoryPage.jsx";
-import TestReportPage from "./features/patient/pages/TestReportPage.jsx";
-import ExportTestResultPdfPage from "./features/patient/pages/ExportTestResultPdfPage.jsx";
-import TrackTestProgressPage from "./features/patient/pages/TrackTestProgressPage.jsx";
-import BillingInvoicesPage from "./features/billing/pages/BillingInvoicesPage.jsx";
-import PatientPaymentHistoryPage from "./features/patient/pages/PatientPaymentHistoryPage.jsx";
-import ProcessPaymentPage from "./features/billing/pages/ProcessPaymentPage.jsx";
-import CalculateFeesPage from "./features/billing/pages/CalculateFeesPage.jsx";
-import FeedbackHubPage from "./features/feedback/pages/FeedbackHubPage.jsx";
-import InitialMedicalProfileSetup from "./features/patient/pages/InitialMedicalProfileSetup.jsx";
+const ServiceCatalogPage = lazy(() => import("./features/catalog/pages/ServiceCatalogPage"));
+const PricingPage = lazy(() => import("./features/catalog/pages/PricingPage.jsx"));
+const IsoProcessPage = lazy(() => import("./features/home/pages/IsoProcessPage.jsx"));
+const TermsOfServicePage = lazy(() => import("./features/legal/pages/TermsOfServicePage.jsx"));
+const PrivacyPolicyPage = lazy(() => import("./features/legal/pages/PrivacyPolicyPage.jsx"));
+const InsurancePolicyPage = lazy(() => import("./features/legal/pages/InsurancePolicyPage.jsx"));
+const BookAppointmentPage = lazy(() => import("./features/appointment/pages/BookAppointmentPage.jsx"));
+const AppointmentListPage = lazy(() => import("./features/appointment/pages/AppointmentListPage.jsx"));
+const AppointmentConfirmationPage = lazy(() => import("./features/appointment/pages/AppointmentConfirmationPage"));
+const TestHistoryPage = lazy(() => import("./features/patient/pages/TestHistoryPage.jsx"));
+const TestReportPage = lazy(() => import("./features/patient/pages/TestReportPage.jsx"));
+const ExportTestResultPdfPage = lazy(() => import("./features/patient/pages/ExportTestResultPdfPage.jsx"));
+const TrackTestProgressPage = lazy(() => import("./features/patient/pages/TrackTestProgressPage.jsx"));
+const BillingInvoicesPage = lazy(() => import("./features/billing/pages/BillingInvoicesPage.jsx"));
+const PatientPaymentHistoryPage = lazy(() => import("./features/patient/pages/PatientPaymentHistoryPage.jsx"));
+const ProcessPaymentPage = lazy(() => import("./features/billing/pages/ProcessPaymentPage.jsx"));
+const CalculateFeesPage = lazy(() => import("./features/billing/pages/CalculateFeesPage.jsx"));
+const FeedbackHubPage = lazy(() => import("./features/feedback/pages/FeedbackHubPage.jsx"));
+const InitialMedicalProfileSetup = lazy(() => import("./features/patient/pages/InitialMedicalProfileSetup.jsx"));
 
 // System Administration, Notifications Center & Security Views
-import UserManagementPage from "./features/users/pages/UserManagementPage.jsx";
-import RolesManagementPage from "./features/user-management/pages/RolesManagementPage";
-import ServicePackagesPage from "./features/admin/pages/ServicePackagesPage.jsx";
-import ScheduleManagementPage from "./features/schedule/pages/ManageSchedulePage.jsx";
-import BackupManagementPage from "./features/backup/pages/BackupManagementPage.jsx";
-import AuditLogPage from "./features/audit/pages/AuditLogPage.jsx";
-import TatStatisticsDashboardPage from "./features/reports/pages/TatStatisticsDashboardPage.jsx";
-import RevenueReportPage from "./features/reports/pages/RevenueReportPage.jsx";
-import PushNotificationCenterPage from "./features/notifications/pages/PushNotificationCenterPage.jsx";
+const UserManagementPage = lazy(() => import("./features/users/pages/UserManagementPage.jsx"));
+const RolesManagementPage = lazy(() => import("./features/user-management/pages/RolesManagementPage"));
+const ServicePackagesPage = lazy(() => import("./features/admin/pages/ServicePackagesPage.jsx"));
+const ScheduleManagementPage = lazy(() => import("./features/schedule/pages/ManageSchedulePage.jsx"));
+const BackupManagementPage = lazy(() => import("./features/backup/pages/BackupManagementPage.jsx"));
+const AuditLogPage = lazy(() => import("./features/audit/pages/AuditLogPage.jsx"));
+const TatStatisticsDashboardPage = lazy(() => import("./features/reports/pages/TatStatisticsDashboardPage.jsx"));
+const RevenueReportPage = lazy(() => import("./features/reports/pages/RevenueReportPage.jsx"));
+const PushNotificationCenterPage = lazy(() => import("./features/notifications/pages/PushNotificationCenterPage.jsx"));
 
 // API Clients & UI Icons
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
@@ -162,6 +162,7 @@ export default function App() {
       <AuthProvider>
         <NotificationContextProvider>
           <Router>
+            <Suspense fallback={<div className="d-flex justify-content-center p-5" role="status">Đang tải trang...</div>}>
             <Routes>
               {/* --- 1. Public Portals & Catalogs (UC01, UC15/UC20 view, UC48 lookup by code with PII masked) --- */}
               <Route path="/" element={<HomePage />} />
@@ -356,8 +357,8 @@ export default function App() {
                   <Route path="/laboratory/sample-list" element={<SampleListPage />} />
                 </Route>
 
-                {/* UC41 sample check-in: Lab, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[LAB, RECEPTIONIST]} />}>
+                {/* UC73 sample reception is a Lab operation, matching queue/status API permissions. */}
+                <Route element={<ProtectedRoute allowedRoles={[LAB]} />}>
                   <Route path="/laboratory/checkinsample" element={<CheckInSamplePage />} />
                 </Route>
 
@@ -477,6 +478,7 @@ export default function App() {
               <Route path="/404" element={<NotFound404 />} />
               <Route path="*" element={<NotFound404 />} />
             </Routes>
+            </Suspense>
             <GlobalIotAlertPopup />
           </Router>
           <NotificationProvider />

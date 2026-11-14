@@ -16,14 +16,15 @@ import {
   FaHistory as History
 } from 'react-icons/fa';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
-import { getIotMonitorDashboard } from '../../iot/api/iotTelemetryApi';
-
-const DEVICE_OPTIONS = [
-  { id: 'BMS-IOT-001', label: 'BMS-IOT-001 — Kho Bảo Quản Máu Số 01' },
-  { id: 'TEMP-001', label: 'TEMP-001 — Tủ Lạnh Lưu Trữ Khối Hồng Cầu A' },
-  { id: 'TEMP-002', label: 'TEMP-002 — Tủ Đông Huyết Tương B' },
-  { id: 'TEMP-003', label: 'TEMP-003 — Tủ Bảo Quản Tiểu Cầu C' }
-];
+import {
+  getIotMonitorDashboard,
+  fetchIotDevices,
+  getSelectedIotDeviceId,
+  setSelectedIotDeviceId,
+  createIotDevice,
+  fetchIotMqttConfig,
+  updateIotMqttConfig
+} from '../../iot/api/iotTelemetryApi';
 
 const TIMEFRAME_OPTIONS = [
   { id: '1h', label: '1 giờ qua', hours: 1 },
@@ -490,7 +491,8 @@ function TelemetryTimeSeriesChart({
 }
 
 export default function IotMonitorPage() {
-  const [selectedDeviceId, setSelectedDeviceId] = useState('BMS-IOT-001');
+  const [deviceOptions, setDeviceOptions] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(() => getSelectedIotDeviceId(''));
   const [timeframe, setTimeframe] = useState('24h');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchInput, setSearchInput] = useState('');
@@ -507,6 +509,115 @@ export default function IotMonitorPage() {
   const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState(null);
   const [selectedLogModal, setSelectedLogModal] = useState(null);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [configTab, setConfigTab] = useState('mqtt');
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [mqttForm, setMqttForm] = useState({
+    brokerHost: 'broker.emqx.io',
+    brokerPort: 1883,
+    topicPrefix: 'bms/sep490/iot/hkd-lab01',
+    defaultDeviceId: 'BMS-IOT-001',
+    isBridgeConnected: false
+  });
+  const [newDeviceForm, setNewDeviceForm] = useState({
+    deviceId: '',
+    location: '',
+    minTemp: 2,
+    maxTemp: 8,
+    minHumidity: 45,
+    maxHumidity: 75
+  });
+
+  const openConfigModal = async (tab = 'mqtt') => {
+    setConfigTab(tab);
+    setShowConfigModal(true);
+    try {
+      const cfg = await fetchIotMqttConfig();
+      if (cfg) {
+        setMqttForm({
+          brokerHost: cfg.brokerHost || 'broker.emqx.io',
+          brokerPort: cfg.brokerPort || 1883,
+          topicPrefix: cfg.topicPrefix || 'bms/sep490/iot/hkd-lab01',
+          defaultDeviceId: cfg.defaultDeviceId || selectedDeviceId || 'BMS-IOT-001',
+          isBridgeConnected: Boolean(cfg.isBridgeConnected)
+        });
+      }
+    } catch {
+      // Non-fatal
+    }
+  };
+
+  const handleSaveMqttConfig = async (e) => {
+    e.preventDefault();
+    setSavingConfig(true);
+    try {
+      await updateIotMqttConfig({
+        brokerHost: mqttForm.brokerHost,
+        brokerPort: Number(mqttForm.brokerPort) || 1883,
+        topicPrefix: mqttForm.topicPrefix,
+        defaultDeviceId: mqttForm.defaultDeviceId
+      });
+      setShowConfigModal(false);
+      setFeedbackMsg({ type: 'success', text: `Đã cập nhật kênh MQTT (${mqttForm.topicPrefix}) và kết nối lại ngay lập tức.` });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    } catch (err) {
+      setFeedbackMsg({ type: 'error', text: err?.message || 'Cập nhật cấu hình MQTT thất bại.' });
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleCreateDevice = async (e) => {
+    e.preventDefault();
+    if (!newDeviceForm.deviceId.trim()) return;
+    setSavingConfig(true);
+    try {
+      const created = await createIotDevice({
+        deviceId: newDeviceForm.deviceId.trim(),
+        location: newDeviceForm.location.trim() || 'Blood Storage Room',
+        minTemp: Number(newDeviceForm.minTemp),
+        maxTemp: Number(newDeviceForm.maxTemp),
+        minHumidity: Number(newDeviceForm.minHumidity),
+        maxHumidity: Number(newDeviceForm.maxHumidity)
+      });
+      const freshList = await fetchIotDevices();
+      if (Array.isArray(freshList) && freshList.length > 0) {
+        setDeviceOptions(freshList);
+      }
+      const nextId = created?.deviceId || newDeviceForm.deviceId.trim();
+      setSelectedDeviceId(nextId);
+      setSelectedIotDeviceId(nextId);
+      setShowConfigModal(false);
+      setNewDeviceForm({ deviceId: '', location: '', minTemp: 2, maxTemp: 8, minHumidity: 45, maxHumidity: 75 });
+      setFeedbackMsg({ type: 'success', text: `Đã thêm và chuyển sang theo dõi thiết bị ${nextId}.` });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    } catch (err) {
+      setFeedbackMsg({ type: 'error', text: err?.message || 'Thêm thiết bị mới thất bại.' });
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  useEffect(() => {
+    let active = true;
+    fetchIotDevices()
+      .then((list) => {
+        if (!active || !Array.isArray(list) || list.length === 0) return;
+        setDeviceOptions(list);
+        setSelectedDeviceId((prev) => {
+          const valid = prev && list.some((d) => d.id === prev);
+          const nextId = valid ? prev : list[0].id;
+          setSelectedIotDeviceId(nextId);
+          return nextId;
+        });
+      })
+      .catch(() => {
+        // Keep current selection if device list fetch fails transiently
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -517,6 +628,10 @@ export default function IotMonitorPage() {
 
   const loadDashboard = useCallback(
     async (silent = false) => {
+      if (!selectedDeviceId) {
+        if (!silent) setLoading(false);
+        return;
+      }
       if (silent && inFlightRef.current) return;
       inFlightRef.current = true;
       if (!silent) setLoading(true);
@@ -556,8 +671,50 @@ export default function IotMonitorPage() {
   );
 
   useEffect(() => {
+    let active = true;
+    fetchIotDevices()
+      .then((list) => {
+        if (!active || !Array.isArray(list) || list.length === 0) return;
+        setDeviceOptions(list);
+        setSelectedDeviceId((prev) => {
+          const valid = prev && list.some((d) => d.id === prev);
+          const nextId = valid ? prev : list[0].id;
+          setSelectedIotDeviceId(nextId);
+          return nextId;
+        });
+      })
+      .catch(() => {
+        // Keep current selection if device list fetch fails transiently
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     loadDashboard(false);
   }, [loadDashboard]);
+
+  useEffect(() => {
+    let active = true;
+    fetchIotDevices()
+      .then((list) => {
+        if (!active || !Array.isArray(list) || list.length === 0) return;
+        setDeviceOptions(list);
+        setSelectedDeviceId((prev) => {
+          const valid = prev && list.some((d) => d.id === prev);
+          const nextId = valid ? prev : list[0].id;
+          setSelectedIotDeviceId(nextId);
+          return nextId;
+        });
+      })
+      .catch(() => {
+        // Keep current selection if device list fetch fails transiently
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!autoRefresh) return undefined;
@@ -817,7 +974,9 @@ export default function IotMonitorPage() {
           <select
             value={selectedDeviceId}
             onChange={(e) => {
-              setSelectedDeviceId(e.target.value);
+              const nextId = e.target.value;
+              setSelectedDeviceId(nextId);
+              setSelectedIotDeviceId(nextId);
               setSelectedOutageId('');
             }}
             style={{
@@ -830,12 +989,37 @@ export default function IotMonitorPage() {
               background: '#f8fafc'
             }}
           >
-            {DEVICE_OPTIONS.map((dev) => (
-              <option key={dev.id} value={dev.id}>
-                {dev.label}
-              </option>
-            ))}
+            {deviceOptions.length === 0 ? (
+              <option value={selectedDeviceId || ''}>{selectedDeviceId || 'Đang tải thiết bị...'}</option>
+            ) : (
+              deviceOptions.map((dev) => (
+                <option key={dev.id} value={dev.id}>
+                  {dev.label}
+                </option>
+              ))
+            )}
           </select>
+
+          <button
+            type="button"
+            onClick={() => openConfigModal('mqtt')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '9px 12px',
+              borderRadius: '9px',
+              border: '1px solid #cbd5e1',
+              background: '#ffffff',
+              color: '#1e293b',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            <Sliders size={12} />
+            Cấu hình MQTT / Thiết bị
+          </button>
 
           <button
             type="button"
@@ -1636,6 +1820,205 @@ export default function IotMonitorPage() {
       </div>
 
       {/* 8. DETAIL MODAL */}
+      {showConfigModal && (
+        <div
+          onClick={() => setShowConfigModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '16px'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '560px',
+              background: '#ffffff',
+              borderRadius: '14px',
+              padding: '22px',
+              boxShadow: '0 20px 40px rgba(15, 23, 42, 0.22)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                Cấu Hình Kết Nối MQTT &amp; Thiết Bị IoT
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowConfigModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setConfigTab('mqtt')}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  background: configTab === 'mqtt' ? '#1e40af' : '#f8fafc',
+                  color: configTab === 'mqtt' ? '#ffffff' : '#334155',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Kênh MQTT Broker
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfigTab('device')}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  background: configTab === 'device' ? '#1e40af' : '#f8fafc',
+                  color: configTab === 'device' ? '#ffffff' : '#334155',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                + Thêm / Kết nối thiết bị mới
+              </button>
+            </div>
+
+            {configTab === 'mqtt' ? (
+              <form onSubmit={handleSaveMqttConfig} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      MQTT Broker Host
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={mqttForm.brokerHost}
+                      onChange={(e) => setMqttForm({ ...mqttForm, brokerHost: e.target.value })}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      Port
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={mqttForm.brokerPort}
+                      onChange={(e) => setMqttForm({ ...mqttForm, brokerPort: e.target.value })}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                    Tên kênh MQTT riêng (Topic Prefix)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={mqttForm.topicPrefix}
+                    onChange={(e) => setMqttForm({ ...mqttForm, topicPrefix: e.target.value })}
+                    placeholder="bms/sep490/iot/hkd-lab01"
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'monospace' }}
+                  />
+                </div>
+
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#334155' }}>
+                  <div style={{ fontWeight: 700, marginBottom: '4px' }}>
+                    Topic đồng bộ với mạch ESP32 ({mqttForm.isBridgeConnected ? 'Đang kết nối Broker' : 'Đang chờ kết nối'}):
+                  </div>
+                  <div style={{ fontFamily: 'monospace', color: '#0369a1' }}>{mqttForm.topicPrefix}/{selectedDeviceId || mqttForm.defaultDeviceId}/telemetry</div>
+                  <div style={{ fontFamily: 'monospace', color: '#0369a1' }}>{mqttForm.topicPrefix}/{selectedDeviceId || mqttForm.defaultDeviceId}/status</div>
+                  <div style={{ fontFamily: 'monospace', color: '#0369a1' }}>{mqttForm.topicPrefix}/{selectedDeviceId || mqttForm.defaultDeviceId}/config</div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+                  <button type="button" onClick={() => setShowConfigModal(false)} style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    Đóng
+                  </button>
+                  <button type="submit" disabled={savingConfig} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#1e40af', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                    {savingConfig ? 'Đang kết nối lại...' : 'Lưu & Kết nối lại MQTT'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleCreateDevice} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      Mã Thiết Bị (Device ID) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDeviceForm.deviceId}
+                      onChange={(e) => setNewDeviceForm({ ...newDeviceForm, deviceId: e.target.value })}
+                      placeholder="VD: BMS-IOT-002"
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      Vị trí tủ bảo quản / Phòng
+                    </label>
+                    <input
+                      type="text"
+                      value={newDeviceForm.location}
+                      onChange={(e) => setNewDeviceForm({ ...newDeviceForm, location: e.target.value })}
+                      placeholder="VD: Blood Storage Room 02"
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Min °C</label>
+                    <input type="number" step="0.5" value={newDeviceForm.minTemp} onChange={(e) => setNewDeviceForm({ ...newDeviceForm, minTemp: e.target.value })} style={{ width: '100%', padding: '7px 8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Max °C</label>
+                    <input type="number" step="0.5" value={newDeviceForm.maxTemp} onChange={(e) => setNewDeviceForm({ ...newDeviceForm, maxTemp: e.target.value })} style={{ width: '100%', padding: '7px 8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Min %</label>
+                    <input type="number" step="1" value={newDeviceForm.minHumidity} onChange={(e) => setNewDeviceForm({ ...newDeviceForm, minHumidity: e.target.value })} style={{ width: '100%', padding: '7px 8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>Max %</label>
+                    <input type="number" step="1" value={newDeviceForm.maxHumidity} onChange={(e) => setNewDeviceForm({ ...newDeviceForm, maxHumidity: e.target.value })} style={{ width: '100%', padding: '7px 8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+                  <button type="button" onClick={() => setShowConfigModal(false)} style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    Đóng
+                  </button>
+                  <button type="submit" disabled={savingConfig} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#1e40af', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                    {savingConfig ? 'Đang thêm...' : 'Thêm & Theo dõi thiết bị'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {selectedLogModal && (
         <div
           onClick={() => setSelectedLogModal(null)}

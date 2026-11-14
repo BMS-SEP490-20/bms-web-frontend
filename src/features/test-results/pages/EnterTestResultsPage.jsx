@@ -251,6 +251,7 @@ export function EnterTestResultsPage() {
         notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG ĐỎ CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
         isPanic: hasCritical,
         criticalNotified: doctorNotified,
+        confirmRerunChecked: confirmRerun,
         doctorNotifiedName: doctorName,
         notifiedAt: new Date().toISOString(),
         reviewedBy: 'KTV. Lê Minh Tuấn'

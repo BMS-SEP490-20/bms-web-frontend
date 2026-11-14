@@ -1,7 +1,7 @@
 /**
  * @fileoverview API client for UC16 – View Doctor Schedule & Shifts CRUD (View, Create, Update, Delete Shifts).
  */
-import api from '../../../config/api';
+import api, { getToken } from '../../../config/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -24,7 +24,7 @@ export async function fetchDoctorSchedule({ date, doctorId, search } = {}) {
 
   const response = await fetch(url, {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
   });
 
   if (!response.ok) {

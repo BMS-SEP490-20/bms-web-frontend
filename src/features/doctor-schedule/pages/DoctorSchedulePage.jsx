@@ -12,7 +12,7 @@ import {
 import {
   FaCalendarAlt, FaUserMd, FaSearch, FaClock, FaClinicMedical,
   FaCheckCircle, FaPlus, FaEdit, FaTrash, FaEye, FaSyncAlt,
-  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock, FaTimes
+  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock, FaTimes, FaThList, FaFlask, FaUserNurse
 } from 'react-icons/fa';
 import {
   fetchShifts,
@@ -24,13 +24,13 @@ import {
   fetchShiftStaff
 } from '../api/scheduleApi';
 import { userManagementService } from '../../../services/userManagementService';
+import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr } from '../../schedule/components/WeeklyShiftTimetable';
 
 import { ROLES, resolveRoleId, hasRole, getStoredUser } from '../../../constants/roles';
 const SHIFT_TYPE_META = {
   Morning: { label: 'Ca Sáng', defaultStart: '07:00', defaultEnd: '11:30', badge: 'bg-primary-subtle text-primary border border-primary-subtle' },
   Afternoon: { label: 'Ca Chiều', defaultStart: '13:00', defaultEnd: '17:00', badge: 'bg-info-subtle text-info-emphasis border border-info-subtle' },
   Evening: { label: 'Ca Tối / Ngoài Giờ', defaultStart: '17:00', defaultEnd: '21:00', badge: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' },
-  Night: { label: 'Ca Đêm', defaultStart: '21:00', defaultEnd: '23:59', badge: 'bg-dark-subtle text-dark border border-secondary-subtle' },
   FullDay: { label: 'Ca Cả Ngày', defaultStart: '07:00', defaultEnd: '17:00', badge: 'bg-success-subtle text-success border border-success-subtle' }
 };
 
@@ -89,17 +89,41 @@ const EMPTY_FORM = {
   notes: ''
 };
 
+
+export function getShiftRoleCategory(shift) {
+  if (!shift) return 'doctor';
+  const role = String(shift.employeeRole || '').toLowerCase();
+  if (role === 'doctor' || role === 'bác sĩ' || role === 'bacsi') return 'doctor';
+  if (role.includes('lab') || role === 'labtech' || role === 'labhead' || role.includes('xét nghiệm')) return 'lab';
+  if (role.includes('reception') || role.includes('lễ tân') || role === 'letan') return 'receptionist';
+
+  const dept = String(shift.department || '').toLowerCase();
+  const room = String(shift.roomName || shift.roomId || '').toLowerCase();
+  const type = String(shift.shiftType || '').toLowerCase();
+
+  if (dept.includes('xét nghiệm') || dept.includes('lab') || room.includes('lab') || type.includes('lab') || type.includes('xét nghiệm')) {
+    return 'lab';
+  }
+  if (dept.includes('lễ tân') || dept.includes('tiếp nhận') || dept.includes('tiếp đón') || room.includes('quầy') || room.includes('sảnh') || type.includes('lễ tân') || type.includes('tiếp nhận')) {
+    return 'receptionist';
+  }
+  return 'doctor';
+}
+
 export default function DoctorSchedulePage() {
   // Filter & pagination states
+  const [activeRoleTab, setActiveRoleTab] = useState('doctor'); // 'doctor' | 'lab' | 'receptionist'
+  const [viewMode, setViewMode] = useState('timetable'); // 'timetable' | 'table'
+  const [currentWeekMonday, setCurrentWeekMonday] = useState(() => getMonday(new Date()));
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [shiftTypeFilter, setShiftTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [roomIdFilter, setRoomIdFilter] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [fromDate, setFromDate] = useState(() => toIsoDateStr(getMonday(new Date())));
+  const [toDate, setToDate] = useState(() => toIsoDateStr(addDays(getMonday(new Date()), 6)));
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(15);
+  const [pageSize, setPageSize] = useState(100);
 
   // Rooms & Staff from DB
   const [rooms, setRooms] = useState([]);
@@ -108,7 +132,14 @@ export default function DoctorSchedulePage() {
 
   // WHY: UC35 Create/Update/Delete Shifts are restricted to Manager role per ROLE-PERMISSION-MATRIX §1.
   // All staff roles (Admin, Manager, Doctor, Lab, Receptionist) can View Shifts.
-  const canManageShifts = React.useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
+  const storedUser = React.useMemo(() => getStoredUser(), []);
+  const canManageShifts = React.useMemo(() => hasRole(storedUser, ROLES.ADMIN, ROLES.MANAGER), [storedUser]);
+  const currentUserId = React.useMemo(() => {
+    return String(storedUser?.id || storedUser?.userId || storedUser?.UserId || '').trim();
+  }, [storedUser]);
+  const currentUserName = React.useMemo(() => {
+    return String(storedUser?.fullName || storedUser?.name || storedUser?.username || '').trim();
+  }, [storedUser]);
 
   useEffect(() => {
     setLoadingStaff(true);
@@ -186,6 +217,7 @@ export default function DoctorSchedulePage() {
         roomId: roomIdFilter.trim() || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        employeeId: canManageShifts ? undefined : (currentUserId || undefined),
         page,
         pageSize
       });
@@ -206,17 +238,139 @@ export default function DoctorSchedulePage() {
   }, [loadShifts]);
 
   // Summary KPIs
-  const activeCount = shifts.filter(s => ['Approved', 'Scheduled', 'Active'].includes(s.status)).length;
+  // Role categories for tabs
+  const doctorShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'doctor'), [shifts]);
+  const labShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'lab'), [shifts]);
+  const receptionistShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'receptionist'), [shifts]);
+
+  const currentRoleShifts = React.useMemo(() => {
+    if (activeRoleTab === 'doctor') return doctorShifts;
+    if (activeRoleTab === 'lab') return labShifts;
+    if (activeRoleTab === 'receptionist') return receptionistShifts;
+    return shifts;
+  }, [activeRoleTab, doctorShifts, labShifts, receptionistShifts, shifts]);
+
+  // Strict personal shift scoping:
+  // Non-manager staff (e.g. Lab tech Hưng) only see shifts assigned to them!
+  const myRoleShifts = React.useMemo(() => {
+    if (canManageShifts) {
+      return currentRoleShifts;
+    }
+    const uid = currentUserId.toLowerCase();
+    const uname = currentUserName.toLowerCase();
+
+    return shifts.filter(s => {
+      const sid = String(s.employeeId || s.doctorId || '').trim().toLowerCase();
+      if (sid && uid && (sid === uid || sid.includes(uid) || uid.includes(sid))) {
+        return true;
+      }
+      const sname = String(s.employeeName || s.doctorName || '').trim().toLowerCase();
+      if (sname && uname && (sname.includes(uname) || uname.includes(sname))) {
+        return true;
+      }
+      return false;
+    });
+  }, [canManageShifts, currentRoleShifts, shifts, currentUserId, currentUserName]);
+
+  // Filter staff list based on active tab
+  const displayStaffList = React.useMemo(() => {
+    const list = staffList || [];
+    if (activeRoleTab === 'doctor') {
+      const docs = list.filter(u => String(u.role || '').toLowerCase() === 'doctor');
+      return docs.length > 0 ? docs : list;
+    }
+    if (activeRoleTab === 'lab') {
+      const labs = list.filter(u => {
+        const r = String(u.role || '').toLowerCase();
+        return r === 'lab' || r === 'lab_technician' || r === 'labtech' || r === 'manager' || r === 'labhead';
+      });
+      return labs.length > 0 ? labs : list;
+    }
+    if (activeRoleTab === 'receptionist') {
+      const recs = list.filter(u => String(u.role || '').toLowerCase() === 'receptionist');
+      return recs.length > 0 ? recs : list;
+    }
+    return list;
+  }, [staffList, activeRoleTab]);
+
+  // Role-specific room filtering:
+  // - Lab: only Lab rooms
+  // - Doctor: only Doctor / Clinic exam rooms
+  // - Receptionist: only 1 fixed location (Quầy Tiếp Đón)
+  const availableRoomsForRole = React.useMemo(() => {
+    if (activeRoleTab === 'receptionist') {
+      return [{ id: 'QUAY-01', name: 'Quầy Tiếp Đón (Sảnh Tầng 1)', department: 'Bộ Phận Tiếp Đón & Lấy Mẫu', floor: '1' }];
+    }
+    if (activeRoleTab === 'lab') {
+      const labRooms = rooms.filter(r => {
+        const type = String(r.type || '').toLowerCase();
+        const dept = String(r.department || '').toLowerCase();
+        const name = String(r.name || '').toLowerCase();
+        const id = String(r.id || '').toLowerCase();
+        return type === 'laboratory' || dept.includes('xét nghiệm') || dept.includes('lab') || name.includes('lab') || name.includes('xét nghiệm') || id.includes('lab');
+      });
+      return labRooms.length > 0 ? labRooms : [
+        { id: 'LAB-01', name: 'Phòng Xét Nghiệm Sinh Hóa - Huyết Học', department: 'Khoa Xét Nghiệm', floor: '2' },
+        { id: 'LAB-02', name: 'Phòng Xét Nghiệm Miễn Dịch - Vi Sinh', department: 'Khoa Xét Nghiệm', floor: '2' }
+      ];
+    }
+    // Doctor / Clinic examination rooms
+    const docRooms = rooms.filter(r => {
+      const type = String(r.type || '').toLowerCase();
+      const dept = String(r.department || '').toLowerCase();
+      const name = String(r.name || '').toLowerCase();
+      const id = String(r.id || '').toLowerCase();
+      if (type === 'laboratory' || dept.includes('xét nghiệm') || dept.includes('lab') || name.includes('lab') || name.includes('xét nghiệm') || id.includes('lab')) return false;
+      if (name.includes('quầy') || name.includes('tiếp đón') || id.includes('quay')) return false;
+      return true;
+    });
+    return docRooms.length > 0 ? docRooms : [
+      { id: 'R.101', name: 'Phòng Khám Nội Tổng Quát', department: 'Khoa Khám Bệnh Lâm Sàng', floor: '1' },
+      { id: 'R.102', name: 'Phòng Khám Chuyên Khoa', department: 'Khoa Khám Bệnh Lâm Sàng', floor: '1' }
+    ];
+  }, [rooms, activeRoleTab]);
+
+  const activeCount = myRoleShifts.filter(s => ['Approved', 'Scheduled', 'Active'].includes(s.status)).length;
   const totalBooked = shifts.reduce((acc, s) => acc + (s.currentPatientsCount || 0), 0);
   const totalCapacity = shifts.reduce((acc, s) => acc + (s.maxPatients || 0), 0);
   const uniqueRooms = new Set(shifts.map(s => s.roomId).filter(Boolean)).size;
 
   // Open Create Modal
-  const handleOpenCreate = () => {
+  const handleOpenCreate = (prefill) => {
     setEditingShift(null);
+    let shiftType = 'Morning';
+    let shiftStart = '07:00';
+    let shiftEnd = '11:30';
+    if (prefill?.slotId === 2) {
+      shiftType = 'Afternoon';
+      shiftStart = '13:00';
+      shiftEnd = '17:00';
+    } else if (prefill?.slotId === 3) {
+      shiftType = 'Evening';
+      shiftStart = '17:30';
+      shiftEnd = '20:30';
+
+    }
+
+    let defaultRole = 'Doctor';
+    let defaultDept = 'Khoa Khám Bệnh';
+    if (activeRoleTab === 'lab') {
+      defaultRole = 'LabTech';
+      defaultDept = 'Khoa Xét Nghiệm';
+    } else if (activeRoleTab === 'receptionist') {
+      defaultRole = 'Receptionist';
+      defaultDept = 'Bộ Phận Tiếp Đón & Lấy Mẫu';
+    }
+
     setFormData({
       ...EMPTY_FORM,
-      shiftDate: toDateInputStr(new Date())
+      shiftDate: prefill?.dateStr || toDateInputStr(new Date()),
+      shiftType,
+      shiftStart: prefill?.shiftStart || shiftStart,
+      shiftEnd: prefill?.shiftEnd || shiftEnd,
+      employeeRole: defaultRole,
+      department: defaultDept,
+      roomId: activeRoleTab === 'receptionist' ? 'QUAY-01' : (availableRoomsForRole[0]?.id || availableRoomsForRole[0]?.roomNumber || '')
     });
     setFormError('');
     setShowFormModal(true);
@@ -490,6 +644,57 @@ export default function DoctorSchedulePage() {
         </Col>
       </Row>
 
+      {/* Role Tabs Bar: Bác Sĩ (Doctor) / Xét Nghiệm (Lab) / Lễ Tân (Receptionist) */}
+      {canManageShifts && (
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <div className="d-flex align-items-center gap-2 p-1 bg-white border rounded-pill shadow-sm">
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'doctor' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('doctor')}
+            style={activeRoleTab === 'doctor' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaUserMd />
+            <span>Bác Sĩ (Doctor)</span>
+            <Badge bg={activeRoleTab === 'doctor' ? 'light' : 'secondary'} text={activeRoleTab === 'doctor' ? 'primary' : 'white'} pill>
+              {doctorShifts.length}
+            </Badge>
+          </button>
+
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'lab' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('lab')}
+            style={activeRoleTab === 'lab' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaFlask />
+            <span>Kỹ Thuật Viên Xét Nghiệm (Lab)</span>
+            <Badge bg={activeRoleTab === 'lab' ? 'light' : 'secondary'} text={activeRoleTab === 'lab' ? 'primary' : 'white'} pill>
+              {labShifts.length}
+            </Badge>
+          </button>
+
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'receptionist' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('receptionist')}
+            style={activeRoleTab === 'receptionist' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaUserNurse />
+            <span>Lễ Tân &amp; Tiếp Nhận (Receptionist)</span>
+            <Badge bg={activeRoleTab === 'receptionist' ? 'light' : 'secondary'} text={activeRoleTab === 'receptionist' ? 'primary' : 'white'} pill>
+              {receptionistShifts.length}
+            </Badge>
+          </button>
+        </div>
+
+        <div className="small text-muted fw-semibold">
+          Đang xem: <strong className="text-primary">{activeRoleTab === 'doctor' ? 'Khoa Khám Bác Sĩ' : activeRoleTab === 'lab' ? 'Phòng Phân Tích Lab' : 'Quầy Sảnh Lễ Tân'}</strong> ({currentRoleShifts.length} ca trực)
+        </div>
+      </div>
+
+      )}
+
       {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
         {/* Header Toolbar */}
@@ -497,298 +702,348 @@ export default function DoctorSchedulePage() {
           <div className="mb-2 mb-lg-0">
             <h5 className="bms-table-standalone-title">
               <FaCalendarAlt style={{ color: '#1E60E6' }} />
-              Danh Sách Ca Làm Việc &amp; Điều Phối Nhân Lực
+              {viewMode === 'timetable' 
+                ? (activeRoleTab === 'doctor' ? 'Thời Khóa Biểu Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Thời Khóa Biểu Ca Trực KTV Xét Nghiệm' : 'Thời Khóa Biểu Ca Trực Lễ Tân Tiếp Đón')
+                : (activeRoleTab === 'doctor' ? 'Danh Sách Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Danh Sách Ca Trực Xét Nghiệm' : 'Danh Sách Ca Trực Lễ Tân')}
             </h5>
             <p className="bms-table-standalone-subtitle">
-              Hiển thị {shifts.length} trên tổng số {totalItems} ca trực toàn viện
+              {viewMode === 'timetable' ? 'Ma trận ca trực tuần theo Slot (Sáng / Chiều / Tối / Đêm)' : `Hiển thị ${shifts.length} trên tổng số ${totalItems} ca trực toàn viện`}
             </p>
           </div>
 
-          <div className="bms-filter-bar">
-            <Row className="g-2 align-items-center">
-              <Col xs={12} md={4} lg={3}>
-                <div className="bms-search-input-pill">
-                  <FaSearch className="bms-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Tên BS, mã NV, phòng..."
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                  />
-                  {keyword && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setKeyword('')}
-                      title="Xóa tìm kiếm"
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+              <Button
+                variant={viewMode === 'timetable' ? 'primary' : 'outline-secondary'}
+                size="sm"
+                onClick={() => {
+                  setViewMode('timetable');
+                  setPageSize(100);
+                  setPage(1);
+                  setFromDate(toIsoDateStr(currentWeekMonday));
+                  setToDate(toIsoDateStr(addDays(currentWeekMonday, 6)));
+                }}
+                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'primary' : 'outline-secondary'}
+                size="sm"
+                onClick={() => {
+                  setViewMode('table');
+                  setPageSize(15);
+                  setPage(1);
+                }}
+                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaThList className="me-1" /> Dạng Bảng
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Body */}
+        {viewMode === 'timetable' ? (
+          <div className="p-3 bg-white">
+            <WeeklyShiftTimetable
+              shifts={myRoleShifts}
+              currentWeekMonday={currentWeekMonday}
+              onChangeWeek={(newMonday) => {
+                setCurrentWeekMonday(newMonday);
+                setFromDate(toIsoDateStr(newMonday));
+                setToDate(toIsoDateStr(addDays(newMonday, 6)));
+                setPage(1);
+              }}
+              onSelectShift={handleOpenDetail}
+              onCreateShift={handleOpenCreate}
+              canManage={canManageShifts}
+              loading={loading}
+            />
+          </div>
+        ) : (
+          <>
+            <div className="p-3 bg-light border-bottom">
+              <div className="bms-filter-bar">
+                <Row className="g-2 align-items-center">
+                  <Col xs={12} md={4} lg={3}>
+                    <div className="bms-search-input-pill">
+                      <FaSearch className="bms-search-icon" />
+                      <input
+                        type="text"
+                        placeholder="Tên BS, mã NV, phòng..."
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                      />
+                      {keyword && (
+                        <button
+                          type="button"
+                          className="bms-search-clear"
+                          onClick={() => setKeyword('')}
+                          title="Xóa tìm kiếm"
+                        >
+                          <FaTimes />
+                        </button>
+                      )}
+                    </div>
+                  </Col>
+
+                  <Col xs={6} md={3} lg={2}>
+                    <Form.Select
+                      size="sm"
+                      value={shiftTypeFilter}
+                      onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
+                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
                     >
-                      <FaTimes />
-                    </button>
-                  )}
-                </div>
-              </Col>
+                      <option value="">Tất cả ca trực</option>
+                      <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
+                      <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
+                      <option value="Evening">Ca Tối (17:00 - 21:00)</option>
+                                            <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
+                    </Form.Select>
+                  </Col>
 
-              <Col xs={6} md={3} lg={2}>
-                <Form.Select
-                  size="sm"
-                  value={shiftTypeFilter}
-                  onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                >
-                  <option value="">Tất cả ca trực</option>
-                  <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
-                  <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
-                  <option value="Evening">Ca Tối (17:00 - 21:00)</option>
-                  <option value="Night">Ca Đêm (21:00 - 23:59)</option>
-                  <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
-                </Form.Select>
-              </Col>
+                  <Col xs={6} md={3} lg={2}>
+                    <Form.Select
+                      size="sm"
+                      value={statusFilter}
+                      onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
+                    >
+                      <option value="">Tất cả trạng thái</option>
+                      <option value="Approved">Đã Duyệt (Approved)</option>
+                      <option value="Scheduled">Đã Lên Lịch (Scheduled)</option>
+                      <option value="Active">Đang Trực (Active)</option>
+                      <option value="Pending">Chờ Duyệt (Pending)</option>
+                      <option value="Completed">Hoàn Thành (Completed)</option>
+                      <option value="Cancelled">Đã Huỷ (Cancelled)</option>
+                    </Form.Select>
+                  </Col>
 
-              <Col xs={6} md={3} lg={2}>
-                <Form.Select
-                  size="sm"
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                >
-                  <option value="">Tất cả trạng thái</option>
-                  <option value="Approved">Đã Duyệt (Approved)</option>
-                  <option value="Scheduled">Đã Lên Lịch (Scheduled)</option>
-                  <option value="Active">Đang Trực (Active)</option>
-                  <option value="Pending">Chờ Duyệt (Pending)</option>
-                  <option value="Completed">Hoàn Thành (Completed)</option>
-                  <option value="Cancelled">Đã Huỷ (Cancelled)</option>
-                </Form.Select>
-              </Col>
+                  <Col xs={6} md={3} lg={2}>
+                    <Form.Control
+                      type="date"
+                      size="sm"
+                      value={fromDate}
+                      onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
+                      title="Từ ngày"
+                    />
+                  </Col>
 
-              <Col xs={6} md={3} lg={2}>
-                <Form.Control
-                  type="date"
-                  size="sm"
-                  value={fromDate}
-                  onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                  title="Từ ngày"
-                />
-              </Col>
+                  <Col xs={6} md={3} lg={2}>
+                    <Form.Control
+                      type="date"
+                      size="sm"
+                      value={toDate}
+                      onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
+                      title="Đến ngày"
+                    />
+                  </Col>
 
-              <Col xs={6} md={3} lg={2}>
-                <Form.Control
-                  type="date"
-                  size="sm"
-                  value={toDate}
-                  onChange={(e) => { setToDate(e.target.value); setPage(1); }}
-                  style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                  title="Đến ngày"
-                />
-              </Col>
+                  <Col xs={12} lg={1} className="d-flex gap-1 justify-content-end">
+                    <Button variant="outline-primary" size="sm" className="w-100" onClick={filterToday} title="Lọc ca hôm nay" style={{ borderRadius: '9999px', height: '40px' }}>
+                      Hôm nay
+                    </Button>
+                    <Button variant="outline-secondary" size="sm" onClick={resetFilters} title="Xoá bộ lọc" style={{ borderRadius: '9999px', height: '40px' }}>
+                      Xoá
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            </div>
 
-              <Col xs={12} lg={1} className="d-flex gap-1 justify-content-end">
-                <Button variant="outline-primary" size="sm" className="w-100" onClick={filterToday} title="Lọc ca hôm nay" style={{ borderRadius: '9999px', height: '40px' }}>
-                  Hôm nay
-                </Button>
-                <Button variant="outline-secondary" size="sm" onClick={resetFilters} title="Xoá bộ lọc" style={{ borderRadius: '9999px', height: '40px' }}>
-                  Xoá
-                </Button>
-              </Col>
-            </Row>
-          </div>
-        </div>
-
-        {/* Data Table */}
-        <div className="bms-table-standalone-body">
-          <div className="table-responsive">
-            <Table hover className="align-middle mb-0">
-            <thead className="table-light">
-              <tr>
-                <th className="ps-4">Nhân Sự Phụ Trách</th>
-                <th>Khoa / Chuyên Môn</th>
-                <th>Phòng Làm Việc</th>
-                <th>Ngày Trực</th>
-                <th>Khung Giờ Ca</th>
-                <th className="text-center">Công Suất (BN)</th>
-                <th className="text-center">Trạng Thái</th>
-                <th className="text-end pe-4">Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="8" className="text-center py-3">
-                    <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    <span className="text-muted">Đang tải danh sách ca làm việc từ máy chủ...</span>
-                  </td>
-                </tr>
-              ) : shifts.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center py-3 text-muted">
-                    <FaUserMd className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50" />
-                    <div className="fw-semibold">Không tìm thấy ca làm việc nào phù hợp</div>
-                    <div className="small mb-3">Thử xoá bộ lọc ngày hoặc nhấn &ldquo;Tạo Ca Làm Việc Mới&rdquo; để phân ca.</div>
-                    {canManageShifts && (
-                      <Button variant="primary" size="sm" onClick={handleOpenCreate}>
-                        <FaPlus className="me-1" /> Tạo Ca Làm Việc Đầu Tiên
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ) : (
-                shifts.map((shift) => {
-                  const typeMeta = SHIFT_TYPE_META[shift.shiftType] || {
-                    label: shift.shiftType || 'Ca Trực',
-                    badge: 'bg-secondary-subtle text-secondary'
-                  };
-                  const statusMeta = SHIFT_STATUS_META[shift.status] || {
-                    label: shift.status || 'Approved',
-                    badge: 'bg-secondary-subtle text-secondary'
-                  };
-                  const currentPts = shift.currentPatientsCount || 0;
-                  const maxPts = shift.maxPatients || 30;
-                  const percent = Math.min(100, Math.round((currentPts / Math.max(1, maxPts)) * 100));
-
-                  return (
-                    <tr key={shift.id}>
-                      <td className="ps-4">
-                        <div className="d-flex align-items-center gap-2">
-                          <div
-                            className="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
-                            style={{ width: 38, height: 38 }}
-                          >
-                            <FaUserMd />
-                          </div>
-                          <div>
-                            <div className="fw-bold text-dark">{shift.employeeName || shift.employeeId || shift.doctorId}</div>
-                            <div className="text-muted small d-flex align-items-center gap-2">
-                              <code>{shift.employeeId || shift.doctorId}</code>
-                              <Badge bg="light" text="dark" className="border fw-normal">
-                                {shift.employeeRole || 'Doctor'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="fw-semibold text-secondary">{shift.department || 'Lâm sàng'}</div>
-                        {shift.licenseNumber && (
-                          <div className="text-muted small">CCHN: {shift.licenseNumber}</div>
-                        )}
-                      </td>
-
-                      <td>
-                        <div className="d-flex align-items-center gap-1 fw-semibold text-dark">
-                          <FaClinicMedical className="text-primary small" />
-                          <span>{shift.roomName || shift.roomId}</span>
-                        </div>
-                        <div className="text-muted small">
-                          Mã phòng: <code>{shift.roomId}</code>
-                          {shift.floor ? ` • Tầng ${shift.floor}` : ''}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="fw-semibold text-dark">{formatVNDate(shift.shiftDate)}</div>
-                      </td>
-
-                      <td>
-                        <span className={`badge ${typeMeta.badge} px-2 py-1 mb-1 d-inline-block`}>
-                          {typeMeta.label}
-                        </span>
-                        <div className="small text-muted d-flex align-items-center gap-1">
-                          <FaClock className="text-secondary" />
-                          <span>{shift.workingHoursLabel || `${shift.shiftStart} - ${shift.shiftEnd}`}</span>
-                        </div>
-                      </td>
-
-                      <td className="text-center" style={{ minWidth: 130 }}>
-                        <div className="fw-bold text-dark small">
-                          {currentPts} / {maxPts} BN
-                        </div>
-                        <div className="progress mt-1" style={{ height: 6 }}>
-                          <div
-                            className={`progress-bar ${percent >= 85 ? 'bg-danger' : percent >= 60 ? 'bg-warning' : 'bg-success'}`}
-                            role="progressbar"
-                            style={{ width: `${percent}%` }}
-                          />
-                        </div>
-                        <div className="text-muted" style={{ fontSize: '0.72rem' }}>
-                          Còn trống: {Math.max(0, maxPts - currentPts)}
-                        </div>
-                      </td>
-
-                      <td className="text-center">
-                        <span className={`badge ${statusMeta.badge} px-3 py-1 rounded-pill`}>
-                          {statusMeta.label}
-                        </span>
-                      </td>
-
-                      <td className="text-end pe-4">
-                        <div className="d-inline-flex gap-1">
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            title="Xem chi tiết ca trực"
-                            onClick={() => handleOpenDetail(shift)}
-                          >
-                            <FaEye />
-                          </Button>
-                          {canManageShifts && (
-                            <>
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                title="Cập nhật ca trực"
-                                onClick={() => handleOpenEdit(shift)}
-                              >
-                                <FaEdit />
-                              </Button>
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                title="Xoá ca trực"
-                                onClick={() => handleOpenDelete(shift)}
-                              >
-                                <FaTrash />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </td>
+            {/* Data Table */}
+            <div className="bms-table-standalone-body">
+              <div className="table-responsive">
+                <Table hover className="align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th className="ps-4">Nhân Sự Phụ Trách</th>
+                      <th>Khoa / Chuyên Môn</th>
+                      <th>Phòng Làm Việc</th>
+                      <th>Ngày Trực</th>
+                      <th>Khung Giờ Ca</th>
+                      <th className="text-center">Công Suất (BN)</th>
+                      <th className="text-center">Trạng Thái</th>
+                      <th className="text-end pe-4">Thao Tác</th>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </Table>
-        </div>
-        </div>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="8" className="text-center py-3">
+                          <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                          <span className="text-muted">Đang tải danh sách ca làm việc từ máy chủ...</span>
+                        </td>
+                      </tr>
+                    ) : myRoleShifts.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="text-center py-3 text-muted">
+                          <FaUserMd className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50" />
+                          <div className="fw-semibold">Không tìm thấy ca làm việc nào phù hợp</div>
+                          <div className="small mb-3">Thử xoá bộ lọc ngày hoặc nhấn &ldquo;Tạo Ca Làm Việc Mới&rdquo; để phân ca.</div>
+                          {canManageShifts && (
+                            <Button variant="primary" size="sm" onClick={handleOpenCreate}>
+                              <FaPlus className="me-1" /> Tạo Ca Làm Việc Đầu Tiên
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ) : (
+                      myRoleShifts.map((shift) => {
+                        const typeMeta = SHIFT_TYPE_META[shift.shiftType] || {
+                          label: shift.shiftType || 'Ca Trực',
+                          badge: 'bg-secondary-subtle text-secondary'
+                        };
+                        const statusMeta = SHIFT_STATUS_META[shift.status] || {
+                          label: shift.status || 'Approved',
+                          badge: 'bg-secondary-subtle text-secondary'
+                        };
+                        const currentPts = shift.currentPatientsCount || 0;
+                        const maxPts = shift.maxPatients || 30;
+                        const percent = Math.min(100, Math.round((currentPts / Math.max(1, maxPts)) * 100));
 
-        {/* Pagination Footer */}
-        <div className="bg-white border-top py-3 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-          <div className="text-muted small">
-            Tổng cộng <strong>{totalItems}</strong> ca làm việc • Trang <strong>{page}</strong> / <strong>{totalPages}</strong>
-          </div>
-          <div className="d-flex gap-2">
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              disabled={page <= 1 || loading}
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              style={{ borderRadius: 9999 }}
-            >
-              Trang trước
-            </Button>
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              disabled={page >= totalPages || loading}
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              style={{ borderRadius: 9999 }}
-            >
-              Trang sau
-            </Button>
-          </div>
-        </div>
+                        return (
+                          <tr key={shift.id}>
+                            <td className="ps-4">
+                              <div className="d-flex align-items-center gap-2">
+                                <div
+                                  className="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                  style={{ width: 38, height: 38 }}
+                                >
+                                  <FaUserMd />
+                                </div>
+                                <div>
+                                  <div className="fw-bold text-dark">{shift.employeeName || shift.employeeId || shift.doctorId}</div>
+                                  <div className="text-muted small d-flex align-items-center gap-2">
+                                    <code>{shift.employeeId || shift.doctorId}</code>
+                                    <Badge bg="light" text="dark" className="border fw-normal">
+                                      {shift.employeeRole || 'Doctor'}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td>
+                              <div className="fw-semibold text-secondary">{shift.department || 'Lâm sàng'}</div>
+                              {shift.licenseNumber && (
+                                <div className="text-muted small">CCHN: {shift.licenseNumber}</div>
+                              )}
+                            </td>
+
+                            <td>
+                              <div className="d-flex align-items-center gap-1 fw-semibold text-dark">
+                                <FaClinicMedical className="text-primary small" />
+                                <span>{shift.roomName || shift.roomId}</span>
+                              </div>
+                              <div className="text-muted small">
+                                Mã phòng: <code>{shift.roomId}</code>
+                                {shift.floor ? ` • Tầng ${shift.floor}` : ''}
+                              </div>
+                            </td>
+
+                            <td>
+                              <div className="fw-semibold text-dark">{formatVNDate(shift.shiftDate)}</div>
+                            </td>
+
+                            <td>
+                              <span className={`badge ${typeMeta.badge} px-2 py-1 mb-1 d-inline-block`}>
+                                {typeMeta.label}
+                              </span>
+                              <div className="small text-muted d-flex align-items-center gap-1">
+                                <FaClock className="text-secondary" />
+                                <span>{shift.workingHoursLabel || `${shift.shiftStart} - ${shift.shiftEnd}`}</span>
+                              </div>
+                            </td>
+
+                            <td className="text-center">
+                              <div className="fw-bold text-dark">{currentPts} / {maxPts}</div>
+                              <div className="progress mt-1" style={{ height: 4 }}>
+                                <div
+                                  className={`progress-bar ${percent > 80 ? 'bg-danger' : percent > 50 ? 'bg-warning' : 'bg-success'}`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                            </td>
+
+                            <td className="text-center">
+                              <span className={`badge ${statusMeta.badge} px-2 py-1`}>
+                                {statusMeta.label}
+                              </span>
+                            </td>
+
+                            <td className="text-end pe-4">
+                              <div className="d-flex justify-content-end gap-1">
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={() => handleOpenDetail(shift)}
+                                  title="Xem chi tiết ca"
+                                >
+                                  <FaEye />
+                                </Button>
+                                {canManageShifts && (
+                                  <>
+                                    <Button
+                                      variant="outline-secondary"
+                                      size="sm"
+                                      onClick={() => handleOpenEdit(shift)}
+                                      title="Chỉnh sửa ca"
+                                    >
+                                      <FaEdit />
+                                    </Button>
+                                    <Button
+                                      variant="outline-danger"
+                                      size="sm"
+                                      onClick={() => handleOpenDelete(shift)}
+                                      title="Xoá ca"
+                                    >
+                                      <FaTrash />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="bg-white border-top py-3 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+              <div className="text-muted small">
+                Tổng cộng <strong>{totalItems}</strong> ca làm việc • Trang <strong>{page}</strong> / <strong>{totalPages}</strong>
+              </div>
+              <div className="d-flex gap-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  disabled={page <= 1 || loading}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  style={{ borderRadius: 9999 }}
+                >
+                  Trang trước
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  disabled={page >= totalPages || loading}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  style={{ borderRadius: 9999 }}
+                >
+                  Trang sau
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* =====================================================================
@@ -872,7 +1127,7 @@ export default function DoctorSchedulePage() {
                   required
                 >
                   <option value="">-- Chọn Bác Sĩ / Kỹ Thuật Viên / Lễ Tân từ CSDL Nhân Sự --</option>
-                  {staffList.map(emp => {
+                  {displayStaffList.map(emp => {
                     const rawRole = String(emp.role || '').toLowerCase();
                     const roleLabel =
                       rawRole === 'doctor' ? 'Bác sĩ' :
@@ -951,32 +1206,51 @@ export default function DoctorSchedulePage() {
               
             <Row className="g-3">
               <Col md={6}>
-                <Form.Label className="small fw-semibold">
-                  Phòng Khám / Phòng Lab (Cơ Sở Dữ Liệu) <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Select
-                  value={formData.roomId}
-                  onChange={(e) => {
-                    const selId = e.target.value;
-                    const r = rooms.find(item => (item.id || item.roomNumber) === selId);
-                    setFormData(prev => ({
-                      ...prev,
-                      roomId: selId,
-                      department: r?.department ? r.department : prev.department,
-                    }));
-                  }}
-                  required
-                >
-                  <option value="">-- Chọn phòng trực từ cơ sở dữ liệu --</option>
-                  {rooms.map(r => (
-                    <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
-                      {r.name ? `${r.id || r.roomNumber} - ${r.name} (${r.department || (r.floor ? `Tầng ${r.floor}` : r.type || 'Phòng')})` : (r.id || r.roomNumber)}
-                    </option>
-                  ))}
-                  {formData.roomId && !rooms.some(r => (r.id || r.roomNumber) === formData.roomId) && (
-                    <option value={formData.roomId}>{formData.roomId}</option>
-                  )}
-                </Form.Select>
+                {activeRoleTab === 'receptionist' ? (
+                  <div>
+                    <Form.Label className="small fw-semibold text-muted">
+                      Vị Trí Trực (Cố định bộ phận Lễ tân) <span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      value="Quầy Tiếp Đón (Sảnh Tầng 1) [Mã: QUAY-01]"
+                      readOnly
+                      className="bg-light fw-bold text-primary"
+                    />
+                    <Form.Text className="text-muted small">
+                      Vị trí duy nhất cố định cho bộ phận lễ tân.
+                    </Form.Text>
+                  </div>
+                ) : (
+                  <div>
+                    <Form.Label className="small fw-semibold">
+                      {activeRoleTab === 'lab' ? 'Phòng Xét Nghiệm (Lab Room)' : 'Phòng Khám Bác Sĩ (Clinic Room)'} <span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Select
+                      value={formData.roomId}
+                      onChange={(e) => {
+                        const selId = e.target.value;
+                        const r = availableRoomsForRole.find(item => (item.id || item.roomNumber) === selId);
+                        setFormData(prev => ({
+                          ...prev,
+                          roomId: selId,
+                          department: r?.department ? r.department : prev.department,
+                        }));
+                      }}
+                      required
+                    >
+                      <option value="">{activeRoleTab === 'lab' ? '-- Chọn phòng xét nghiệm Lab --' : '-- Chọn phòng khám bác sĩ --'}</option>
+                      {availableRoomsForRole.map(r => (
+                        <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                          {r.name ? `${r.id || r.roomNumber} - ${r.name} (${r.department || (r.floor ? `Tầng ${r.floor}` : '')})` : (r.id || r.roomNumber)}
+                        </option>
+                      ))}
+                      {formData.roomId && !availableRoomsForRole.some(r => (r.id || r.roomNumber) === formData.roomId) && (
+                        <option value={formData.roomId}>{formData.roomId}</option>
+                      )}
+                    </Form.Select>
+                  </div>
+                )}
               </Col>
 
               <Col md={4}>
@@ -1002,8 +1276,7 @@ export default function DoctorSchedulePage() {
                   <option value="Morning">Ca Sáng (Morning)</option>
                   <option value="Afternoon">Ca Chiều (Afternoon)</option>
                   <option value="Evening">Ca Tối / Ngoài Giờ (Evening)</option>
-                  <option value="Night">Ca Đêm (Night)</option>
-                  <option value="FullDay">Cả Ngày (FullDay)</option>
+                                    <option value="FullDay">Cả Ngày (FullDay)</option>
                 </Form.Select>
               </Col>
 

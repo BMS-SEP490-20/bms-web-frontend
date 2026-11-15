@@ -42,11 +42,12 @@ function unwrapItems(data) {
  * @param {string} to YYYY-MM-DD
  * @param {string} [specialty] mapped to department filter when supported
  */
-async function list(from, to, specialty) {
+async function list(from, to, specialty, employeeId) {
   const q = new URLSearchParams();
   if (from) q.set('fromDate', from);
   if (to) q.set('toDate', to);
   if (specialty) q.set('department', specialty);
+  if (employeeId) q.set('employeeId', employeeId);
   q.set('page', '1');
   q.set('pageSize', '100');
   const res = await fetch(`${BASE}?${q}`, { headers: authHeaders() });

@@ -1,0 +1,297 @@
+/* WeeklyShiftTimetable.css - FPT / BMS Portal-style Weekly Timetable Matrix */
+
+.timetable-container {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.timetable-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.timetable-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timetable-week-btn {
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.timetable-current-range {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 0 8px;
+}
+
+.timetable-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.timetable-grid {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.timetable-grid th,
+.timetable-grid td {
+  border: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+/* Header Cells */
+.timetable-header-slot {
+  width: 80px;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  padding: 14px 6px;
+  letter-spacing: 0.5px;
+}
+
+.timetable-header-day {
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px 6px;
+  transition: background-color 0.2s ease;
+}
+
+.timetable-header-day.is-today {
+  background-color: #e8f5e9 !important;
+  color: #1b5e20 !important;
+  border-bottom: 3px solid #2e7d32;
+}
+
+.timetable-header-day.is-sunday {
+  background-color: #eafaf1;
+  color: #0e6251;
+}
+
+.timetable-header-day .day-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.timetable-header-day .day-date {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* Slot Column */
+.timetable-slot-cell {
+  background-color: #f8fafc;
+  text-align: center;
+  padding: 12px 4px;
+  width: 80px;
+}
+
+.timetable-slot-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: #334155;
+  display: block;
+  line-height: 1.2;
+}
+
+.timetable-slot-time {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+  display: block;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+/* Shift Content Cell */
+.timetable-content-cell {
+  vertical-align: top;
+  padding: 8px 6px;
+  background-color: #ffffff;
+  height: 120px;
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.timetable-content-cell.is-today-column {
+  background-color: #fafdfb;
+}
+
+.timetable-content-cell:hover {
+  background-color: #f8fafc;
+}
+
+.timetable-empty-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 80px;
+  color: #94a3b8;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.timetable-empty-cell .btn-add-quick {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  margin-top: 4px;
+}
+
+.timetable-content-cell:hover .timetable-empty-cell .btn-add-quick {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Shift Card in Timetable */
+.timetable-shift-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #1e40af;
+  border-radius: 6px;
+  padding: 7px 9px;
+  margin-bottom: 6px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.timetable-shift-card:last-child {
+  margin-bottom: 0;
+}
+
+.timetable-shift-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+.timetable-shift-card.status-cancelled {
+  border-left-color: #ef4444;
+  opacity: 0.85;
+}
+
+.timetable-shift-card.status-active {
+  border-left-color: #10b981;
+}
+
+/* Card Lines */
+.timetable-card-title {
+  color: #1e3a8a;
+  font-weight: 700;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.timetable-card-title .card-icon {
+  font-size: 12px;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.timetable-card-status {
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.timetable-card-status.present {
+  color: #15803d;
+}
+
+.timetable-card-status.absent {
+  color: #b91c1c;
+}
+
+.timetable-card-status.active {
+  color: #0284c7;
+}
+
+.timetable-card-status.pending {
+  color: #d97706;
+}
+
+.timetable-card-time {
+  font-size: 11px;
+  color: #b45309;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.timetable-card-time .badge-mode {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.timetable-card-room {
+  font-size: 11px;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.timetable-card-staff {
+  font-size: 11.5px;
+  color: #1e293b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}

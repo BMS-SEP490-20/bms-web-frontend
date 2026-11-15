@@ -24,8 +24,11 @@ import {
   FaHospital,
   FaInfoCircle,
   FaTimes,
-  FaUserNurse
+  FaUserNurse,
+  FaFlask
 } from 'react-icons/fa';
+import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr, getShiftRoleCategory } from '../../schedule/components/WeeklyShiftTimetable';
+import { FaThList } from 'react-icons/fa';
 import { viewShiftApi } from '../api/viewShiftApi';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, hasRole, getStoredUser, resolveRoleId } from '../../../constants/roles';
@@ -41,12 +44,28 @@ export function ViewShiftsPage() {
     return hasRole(storedUser, ROLES.ADMIN, ROLES.MANAGER) || ['admin', 'manager'].includes((userRole || '').toLowerCase());
   }, [storedUser, userRole]);
 
-  const [from, setFrom] = useState(() => new Date().toISOString().slice(0, 10));
-  const [to, setTo] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 7);
-    return d.toISOString().slice(0, 10);
-  });
+  const currentUserId = useMemo(() => {
+    return String(user?.id || user?.userId || user?.UserId || storedUser?.id || storedUser?.userId || storedUser?.UserId || '').trim();
+  }, [user, storedUser]);
+
+  const currentUserName = useMemo(() => {
+    return String(user?.fullName || user?.name || user?.username || storedUser?.fullName || storedUser?.username || '').trim();
+  }, [user, storedUser]);
+
+  const isLab = useMemo(() => {
+    return [ROLES.LAB_TECHNICIAN, ROLES.LAB_MANAGER].includes(roleId) || ['lab', 'labtech', 'labhead'].includes((userRole || '').toLowerCase());
+  }, [roleId, userRole]);
+
+  const isReceptionist = useMemo(() => {
+    return roleId === ROLES.RECEPTIONIST || (userRole || '').toLowerCase() === 'receptionist';
+  }, [roleId, userRole]);
+
+  const defaultRole = isLab ? 'lab' : isReceptionist ? 'receptionist' : 'doctor';
+  const [activeRoleTab, setActiveRoleTab] = useState(defaultRole);
+  const [viewMode, setViewMode] = useState('timetable');
+  const [currentWeekMonday, setCurrentWeekMonday] = useState(() => getMonday(new Date()));
+  const [from, setFrom] = useState(() => toIsoDateStr(getMonday(new Date())));
+  const [to, setTo] = useState(() => toIsoDateStr(addDays(getMonday(new Date()), 6)));
   const [shifts, setShifts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +77,8 @@ export function ViewShiftsPage() {
       setLoading(true);
       setError(null);
       try {
-        const list = await viewShiftApi.list(from, to, undefined);
+        const empIdParam = canManageShifts ? undefined : (currentUserId || undefined);
+        const list = await viewShiftApi.list(from, to, undefined, empIdParam);
         if (!cancelled) setShifts(list || []);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Lỗi khi tải danh sách ca trực.');
@@ -74,34 +94,74 @@ export function ViewShiftsPage() {
   // Default realistic shifts for receptionist/staff if backend returns empty
   const defaultStaffShifts = [
     {
-      shiftId: 'SHF-REC-01',
-      shiftType: 'Ca Sáng Lễ Tân',
-      employeeName: user?.fullName || 'Lê tân Đỗ Lan Anh',
+      shiftId: 'SHF-MY-01',
+      shiftType: isLab ? 'Ca Sáng Xét Nghiệm' : isReceptionist ? 'Ca Sáng Lễ Tân' : 'Ca Sáng Khám Bệnh',
+      shiftDate: toIsoDateStr(currentWeekMonday),
+      employeeId: currentUserId || 'EMP-ME',
+      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
+      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
       shiftStart: '07:00',
       shiftEnd: '11:30',
-      department: 'Khoa Tiếp Nhận & Lấy Mẫu',
-      roomName: 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)',
-      currentPatientsCount: 18,
+      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
+      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
+      currentPatientsCount: 12,
       maxPatients: 30,
-      status: 'Đang diễn ra'
+      status: 'Approved'
     },
     {
-      shiftId: 'SHF-REC-02',
-      shiftType: 'Ca Chiều Lễ Tân',
-      employeeName: user?.fullName || 'Lê tân Đỗ Lan Anh',
+      shiftId: 'SHF-MY-02',
+      shiftType: isLab ? 'Ca Chiều Xét Nghiệm' : isReceptionist ? 'Ca Chiều Lễ Tân' : 'Ca Chiều Khám Bệnh',
+      shiftDate: toIsoDateStr(addDays(currentWeekMonday, 2)),
+      employeeId: currentUserId || 'EMP-ME',
+      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
+      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
       shiftStart: '13:00',
       shiftEnd: '17:00',
-      department: 'Khoa Tiếp Nhận & Lấy Mẫu',
-      roomName: 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)',
-      currentPatientsCount: 0,
+      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
+      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
+      currentPatientsCount: 6,
       maxPatients: 25,
-      status: 'Chờ giao ban'
+      status: 'Approved'
     }
   ];
 
   const sourceShifts = shifts.length > 0 ? shifts : defaultStaffShifts;
 
-  const activeCount = sourceShifts.filter((s) => (s.status || 'Approved') !== 'Cancelled').length;
+  const doctorShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'doctor'), [sourceShifts]);
+  const labShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'lab'), [sourceShifts]);
+  const receptionistShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'receptionist'), [sourceShifts]);
+
+  const roleFilteredShifts = useMemo(() => {
+    if (activeRoleTab === 'doctor') return doctorShifts;
+    if (activeRoleTab === 'lab') return labShifts;
+    if (activeRoleTab === 'receptionist') return receptionistShifts;
+    return sourceShifts;
+  }, [activeRoleTab, doctorShifts, labShifts, receptionistShifts, sourceShifts]);
+
+  // Strict personal shift scoping:
+  // If user is Admin or Manager -> can see all shifts & switch tabs.
+  // If user is regular staff (e.g. Lab tech Hưng) -> ONLY sees shifts belonging to Hưng!
+  const myVisibleShifts = useMemo(() => {
+    if (canManageShifts) {
+      return roleFilteredShifts;
+    }
+    const uid = currentUserId.toLowerCase();
+    const uname = currentUserName.toLowerCase();
+
+    return sourceShifts.filter(s => {
+      const sid = String(s.employeeId || s.doctorId || '').trim().toLowerCase();
+      if (sid && uid && (sid === uid || sid.includes(uid) || uid.includes(sid))) {
+        return true;
+      }
+      const sname = String(s.employeeName || s.doctorName || '').trim().toLowerCase();
+      if (sname && uname && (sname.includes(uname) || uname.includes(sname))) {
+        return true;
+      }
+      return false;
+    });
+  }, [canManageShifts, roleFilteredShifts, sourceShifts, currentUserId, currentUserName]);
+
+  const activeCount = myVisibleShifts.filter((s) => (s.status || 'Approved') !== 'Cancelled').length;
   const unassigned = sourceShifts.filter((s) => s.currentPatientsCount === 0).length;
 
   const [selectedShift, setSelectedShift] = useState(null);
@@ -112,7 +172,6 @@ export function ViewShiftsPage() {
     if (t.includes('morning') || t.includes('sáng')) return 'Ca Sáng (07:00 – 11:30)';
     if (t.includes('afternoon') || t.includes('chiều')) return 'Ca Chiều (13:00 – 17:00)';
     if (t.includes('evening') || t.includes('tối')) return 'Ca Tối (17:30 – 20:30)';
-    if (t.includes('night') || t.includes('đêm')) return 'Ca Đêm (21:00 – 06:00)';
     if (t.includes('fullday') || t.includes('toàn')) return 'Ca Toàn Ngày (07:00 – 17:00)';
     return type || 'Ca Sáng (07:00 – 11:30)';
   };
@@ -173,7 +232,7 @@ export function ViewShiftsPage() {
     setShowShiftDetailModal(true);
   };
 
-  const filtered = sourceShifts.filter((s) => {
+  const filtered = myVisibleShifts.filter((s) => {
     if (filter === 'active') return (s.status || 'Approved') !== 'Cancelled';
     if (filter === 'unused') return s.currentPatientsCount === 0;
     return true;
@@ -188,7 +247,7 @@ export function ViewShiftsPage() {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              {isAdmin ? 'Lịch Ca Trực Toàn Viện' : 'Lịch Ca Trực Của Tôi'}
+              {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : `Lịch Ca Trực Của Tôi - ${currentUserName || 'Cá Nhân'}`}
             </h1>
           </div>
           
@@ -262,68 +321,159 @@ export function ViewShiftsPage() {
         </Col>
       </Row>
 
+      {/* Role Tabs Bar: Bác Sĩ / Xét Nghiệm / Lễ Tân */}
+      {canManageShifts && (
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <div className="d-flex align-items-center gap-2 p-1 bg-white border rounded-pill shadow-sm">
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'doctor' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('doctor')}
+            style={activeRoleTab === 'doctor' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaUserMd />
+            <span>Bác Sĩ (Doctor)</span>
+            <Badge bg={activeRoleTab === 'doctor' ? 'light' : 'secondary'} text={activeRoleTab === 'doctor' ? 'primary' : 'white'} pill>
+              {doctorShifts.length}
+            </Badge>
+          </button>
+
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'lab' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('lab')}
+            style={activeRoleTab === 'lab' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaFlask />
+            <span>Kỹ Thuật Viên Xét Nghiệm (Lab)</span>
+            <Badge bg={activeRoleTab === 'lab' ? 'light' : 'secondary'} text={activeRoleTab === 'lab' ? 'primary' : 'white'} pill>
+              {labShifts.length}
+            </Badge>
+          </button>
+
+          <button
+            type="button"
+            className={`btn btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold transition-all ${activeRoleTab === 'receptionist' ? 'btn-primary text-white shadow-sm' : 'text-secondary btn-light'}`}
+            onClick={() => setActiveRoleTab('receptionist')}
+            style={activeRoleTab === 'receptionist' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+          >
+            <FaUserNurse />
+            <span>Lễ Tân &amp; Tiếp Nhận</span>
+            <Badge bg={activeRoleTab === 'receptionist' ? 'light' : 'secondary'} text={activeRoleTab === 'receptionist' ? 'primary' : 'white'} pill>
+              {receptionistShifts.length}
+            </Badge>
+          </button>
+        </div>
+
+        <div className="small text-muted fw-semibold">
+          Phòng ban: <strong className="text-primary">{activeRoleTab === 'doctor' ? 'Khám Bệnh (Bác Sĩ)' : activeRoleTab === 'lab' ? 'Xét Nghiệm (KTV)' : 'Tiếp Đón & Lấy Mẫu (Lễ Tân)'}</strong> ({roleFilteredShifts.length} ca)
+        </div>
+      </div>
+
+      )}
+
       {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              Danh Sách Ca Trực
+              {viewMode === 'timetable' ? 'Thời Khóa Biểu Ca Trực' : 'Danh Sách Ca Trực'}
             </h5>
+            <p className="bms-table-standalone-subtitle">
+              {viewMode === 'timetable' ? 'Ma trận ca trực theo tuần (Slot & Thứ trong tuần)' : 'Xem dạng bảng chi tiết từng ca trực'}
+            </p>
           </div>
 
-          <div className="bms-filter-bar">
-            {/* Date Filters */}
-            <div className="d-flex align-items-center gap-2">
-              <span className="small text-muted fw-semibold">Từ:</span>
-              <input
-                type="date"
-                className="form-control form-control-sm"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-              />
-              <span className="small text-muted fw-semibold">Đến:</span>
-              <input
-                type="date"
-                className="form-control form-control-sm"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-              />
-            </div>
-
-            {/* Pill filter buttons */}
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            {/* View Mode Toggle */}
             <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <button
                 type="button"
-                className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                onClick={() => setFilter('all')}
+                className={`btn btn-sm ${viewMode === 'timetable' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('timetable')}
                 style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                Tất cả ({sourceShifts.length})
+                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
               </button>
               <button
                 type="button"
-                className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                onClick={() => setFilter('active')}
+                className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('table')}
                 style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                Đang hiệu lực ({activeCount})
-              </button>
-              <button
-                type="button"
-                className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                onClick={() => setFilter('unused')}
-                style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-              >
-                Chưa tiếp nhận ({unassigned})
+                <FaThList className="me-1" /> Dạng Bảng
               </button>
             </div>
+
+            {viewMode === 'table' && (
+              <div className="bms-filter-bar ms-lg-2">
+                {/* Date Filters */}
+                <div className="d-flex align-items-center gap-2">
+                  <span className="small text-muted fw-semibold">Từ:</span>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
+                  />
+                  <span className="small text-muted fw-semibold">Đến:</span>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
+                  />
+                </div>
+
+                {/* Pill filter buttons */}
+                <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilter('all')}
+                    style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
+                  >
+                    Tất cả ({sourceShifts.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilter('active')}
+                    style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
+                  >
+                    Đang hiệu lực ({activeCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilter('unused')}
+                    style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
+                  >
+                    Chưa tiếp nhận ({unassigned})
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="bms-table-standalone-body">
-          {loading ? (
+          {viewMode === 'timetable' ? (
+            <WeeklyShiftTimetable
+              shifts={filtered}
+              currentWeekMonday={currentWeekMonday}
+              onChangeWeek={(newMonday) => {
+                setCurrentWeekMonday(newMonday);
+                setFrom(toIsoDateStr(newMonday));
+                setTo(toIsoDateStr(addDays(newMonday, 6)));
+              }}
+              onSelectShift={handleOpenShiftDetail}
+              loading={loading}
+              canManage={canManageShifts}
+            />
+          ) : loading ? (
             <div className="p-3 text-center text-muted">
               <Spinner animation="border" variant="primary" size="sm" className="me-2" />
               Đang tải danh sách ca trực...

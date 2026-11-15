@@ -35,9 +35,20 @@ import {
   FaKeyboard,
   FaVial,
   FaStethoscope,
-  FaFileMedicalAlt
+  FaFileMedicalAlt,
+  FaCalendarAlt,
+  FaBarcode,
+  FaPrint,
+  FaEnvelope,
+  FaExclamationTriangle,
+  FaShieldAlt,
+  FaUndo,
+  FaThLarge,
+  FaHeartbeat,
+  FaFileSignature
 } from 'react-icons/fa';
 import { receptionApi } from '../../reception/api/receptionApi';
+import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laboratory/components/BarcodePrinter';
 
 export default function DoctorConsolePage() {
   const navigate = useNavigate();
@@ -274,6 +285,156 @@ export default function DoctorConsolePage() {
     }
   };
 
+  // =========================================================================
+  // SÀNG LỌC TIỀN PHÂN TÍCH & DỜI LỊCH HẸN (PRE-ANALYTICAL & RESCHEDULE)
+  // =========================================================================
+  const [showPreAnalyticsModal, setShowPreAnalyticsModal] = useState(false);
+  const [preAnalyticsForm, setPreAnalyticsForm] = useState({
+    isFasting8h: true,
+    bloodPressureSystolic: 120,
+    bloodPressureDiastolic: 80,
+    isAcuteFever: false,
+    isTakingAnticoagulant: false,
+    rescheduleReason: 'Chưa nhịn ăn đủ 8-12 giờ (đã ăn sáng/uống sữa - nguy cơ sai lệch Glucose & Lipid máu)',
+    newAppointmentDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    newSlotTime: '07:00 - 08:30 (Khung giờ nhịn ăn vàng)',
+    doctorAdvice: 'Nhịn ăn sau 21h tối hôm trước, chỉ uống nước lọc, đến phòng lấy mẫu trước 08h00 sáng.',
+    patientConsent: true,
+  });
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(null);
+
+  // Xử lý Dời Lịch Xét Nghiệm (Hoãn Lấy Mẫu)
+  const handleRescheduleConfirm = async () => {
+    if (!currentServing || actionLoading) return;
+    setActionLoading(true);
+    setErrorMsg(null);
+
+    try {
+      await receptionApi.reschedulePatient(currentServing.appointmentId, {
+        newDate: preAnalyticsForm.newAppointmentDate,
+        slotTime: preAnalyticsForm.newSlotTime,
+        reason: preAnalyticsForm.rescheduleReason,
+        notes: `BS dặn: ${preAnalyticsForm.doctorAdvice} (Đồng thuận BN: ${preAnalyticsForm.patientConsent ? 'Đã xác nhận' : 'Chưa'})`,
+        doctorId: doctorId,
+      });
+
+      // Cập nhật lượt khám hiện tại hoàn tất trạng thái hoãn
+      await receptionApi.completePatient(
+        currentServing.appointmentId,
+        `[HOÃN LẤY MẪU & DỜI LỊCH]: ${preAnalyticsForm.rescheduleReason}. Hẹn lại: ${preAnalyticsForm.newAppointmentDate} (${preAnalyticsForm.newSlotTime})`
+      );
+
+      const slipData = {
+        patientName: currentServing.patientName,
+        patientId: currentServing.patientId || 'PT-001',
+        appointmentCode: currentServing.appointmentCode || currentServing.appointmentId,
+        reason: preAnalyticsForm.rescheduleReason,
+        newDate: preAnalyticsForm.newAppointmentDate,
+        newSlotTime: preAnalyticsForm.newSlotTime,
+        doctorAdvice: preAnalyticsForm.doctorAdvice,
+        doctorName: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
+        doctorCchn: 'CCHN-008912/HCM'
+      };
+
+      setRescheduleSuccess(slipData);
+      setShowPreAnalyticsModal(false);
+      setMessage(`Đã hoãn lấy mẫu và dời lịch xét nghiệm cho bệnh nhân ${currentServing.patientName} sang ngày ${preAnalyticsForm.newAppointmentDate}.`);
+      setCurrentServing(null);
+      await fetchQueue();
+    } catch (err) {
+      console.error('Lỗi khi dời lịch xét nghiệm:', err);
+      setErrorMsg(err.message || 'Không thể dời lịch xét nghiệm. Vui lòng thử lại.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // =========================================================================
+  // THẨM ĐỊNH KẾT QUẢ & TƯ VẤN BỆNH NHÂN (DOCTOR CONSULTATION & DELIVERY)
+  // =========================================================================
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [consultationStep, setConsultationStep] = useState('review'); // 'review' | 'consult' | 'delivered'
+  const [consultationData, setConsultationData] = useState(null);
+  const [clinicalIcdCode, setClinicalIcdCode] = useState('E11.9');
+  const [clinicalDiagnosis, setClinicalDiagnosis] = useState('Đái tháo đường typ 2 không biến chứng, Rối loạn lipid máu nhẹ');
+  const [clinicalConclusion, setClinicalConclusion] = useState('Đường huyết đói 5.8 mmol/L (kiểm soát tốt), Men gan và chức năng thận trong giới hạn bình thường. Triglyceride 1.95 mmol/L (hơi tăng nhẹ).');
+  const [treatmentAdvice, setTreatmentAdvice] = useState('Chế độ ăn giảm tinh bột trắng và mỡ động vật, tăng cường rau xanh, duy trì đi bộ 30 phút/ngày. Tạm thời chưa cần dùng thuốc hạ mỡ máu.');
+  const [followUpDate, setFollowUpDate] = useState('Tái khám kiểm tra bilan lipid máu sau 3 tháng');
+  const [patientEmail, setPatientEmail] = useState('an.tran@gmail.com');
+  const [isDeliverySuccess, setIsDeliverySuccess] = useState(false);
+  const [showReturnRerunModal, setShowReturnRerunModal] = useState(false);
+  const [returnReason, setReturnReason] = useState('Chỉ số Kali 6.8 mmol/L không phù hợp với lâm sàng và điện tim bình thường, nghi ngờ vỡ hồng cầu in vitro');
+
+  // Mở modal thẩm định kết quả
+  const handleOpenConsultationModal = (customAlert = null) => {
+    const pt = customAlert || currentServing || {
+      patientName: 'Trần Văn An',
+      patientId: 'PT-2026-004523',
+      appointmentId: 'APT-261113-0001',
+      specimenId: 'BC-PT001-A01-1-EDTA',
+      orderId: 'ORD-261116-A01'
+    };
+    setConsultationData(pt);
+    setConsultationStep('review');
+    setIsDeliverySuccess(false);
+    setShowConsultationModal(true);
+  };
+
+  // Bác sĩ gọi bệnh nhân vào bàn tư vấn
+  const handleCallPatientConsultation = () => {
+    const ptName = consultationData?.patientName || currentServing?.patientName || 'bệnh nhân';
+    const voiceText = `Xin mời bệnh nhân ${ptName} vào ${roomId} để Bác sĩ tư vấn kết quả xét nghiệm.`;
+    speakAnnouncement(voiceText);
+    setConsultationStep('consult');
+  };
+
+  // Bác sĩ yêu cầu Lab chạy lại (Clinical Discordance)
+  const handleDoctorRequestRerun = () => {
+    if (!returnReason.trim()) return;
+    const rerunPayload = {
+      specimenId: consultationData?.specimenId || 'SPC-001',
+      orderId: consultationData?.orderId || 'ORD-001',
+      patientName: consultationData?.patientName || 'Bệnh nhân',
+      reason: returnReason.trim(),
+      requestedBy: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
+      timestamp: new Date().toISOString()
+    };
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bms:doctor-request-rerun', { detail: rerunPayload }));
+      localStorage.setItem('bms_last_rerun_request', JSON.stringify(rerunPayload));
+    }
+
+    setShowReturnRerunModal(false);
+    setShowConsultationModal(false);
+    setMessage(`Đã gửi yêu cầu trả kết quả về Lab chạy lại cho bệnh nhân ${consultationData?.patientName}. Lý do: ${returnReason}`);
+  };
+
+  // Bác sĩ ký duyệt và trả kết quả cho người bệnh (Email / Portal / PDF)
+  const handleApproveAndDeliverToPatient = async () => {
+    setActionLoading(true);
+    try {
+      if (currentServing?.appointmentId) {
+        await receptionApi.completePatient(
+          currentServing.appointmentId,
+          `[TƯ VẤN XÉT NGHIỆM HOÀN TẤT]: Chẩn đoán ICD-10 ${clinicalIcdCode}. Bác sĩ đã tư vấn kết quả và dặn dò người bệnh. Kết quả đã gửi qua Email: ${patientEmail}.`
+        );
+      }
+      setIsDeliverySuccess(true);
+      setConsultationStep('delivered');
+      setMessage(`Đã ký số và trả kết quả thành công cho bệnh nhân ${consultationData?.patientName}! Email thông báo đã gửi tới ${patientEmail}.`);
+      await fetchQueue();
+    } catch (err) {
+      console.error('Lỗi khi ký duyệt và trả kết quả:', err);
+      setErrorMsg(err.message || 'Lỗi khi ký số trả kết quả.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Barcode Printer Modal state
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+
   // Keyboard Shortcuts: F2 (Gọi số tiếp), F3 (Gọi lại), F4 (Bỏ qua), F8 (Hoàn tất)
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -344,17 +505,58 @@ export default function DoctorConsolePage() {
           variant="success"
           dismissible
           onClose={() => setVerifiedAlert(null)}
-          className="d-flex align-items-center gap-3 shadow-sm mb-3 border border-success border-opacity-25"
+          className="d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-sm mb-3 border border-success border-opacity-25"
         >
-          <FaCheckCircle className="fs-3 text-success flex-shrink-0" />
-          <div className="flex-grow-1">
-            <div className="fw-bold text-success d-flex align-items-center gap-2">
-              <span>KẾT QUẢ XÉT NGHIỆM ĐÃ ĐƯỢC TRƯỞNG KHOA PHÊ DUYỆT</span>
-              <Badge bg="success">Sẵn sàng hội chẩn</Badge>
+          <div className="d-flex align-items-center gap-3">
+            <FaCheckCircle className="fs-3 text-success flex-shrink-0" />
+            <div className="flex-grow-1">
+              <div className="fw-bold text-success d-flex align-items-center gap-2">
+                <span>KẾT QUẢ XÉT NGHIỆM ĐÃ ĐƯỢC TRƯỞNG KHOA PHÊ DUYỆT</span>
+                <Badge bg="success">Sẵn sàng hội chẩn</Badge>
+              </div>
+              <div className="small text-dark mt-1">
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã hoàn tất thẩm định và ký số điện tử. Bác sĩ có thể mở hồ sơ để kết luận lâm sàng.
+              </div>
             </div>
-            <div className="small text-dark mt-1">
-              Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã hoàn tất thẩm định và ký số điện tử. Bác sĩ có thể mở hồ sơ để kết luận lâm sàng.
+          </div>
+          <Button
+            variant="success"
+            size="sm"
+            className="fw-bold px-3 py-1.5 shadow-sm text-white text-nowrap ms-auto"
+            onClick={() => handleOpenConsultationModal(verifiedAlert)}
+          >
+            <FaUserMd className="me-1" /> Thẩm Định &amp; Tư Vấn Ngay
+          </Button>
+        </Alert>
+      )}
+
+      {rescheduleSuccess && (
+        <Alert
+          variant="warning"
+          dismissible
+          onClose={() => setRescheduleSuccess(null)}
+          className="shadow-sm mb-3 border border-warning"
+        >
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div className="d-flex align-items-center gap-2">
+              <FaCalendarAlt className="fs-3 text-warning-emphasis flex-shrink-0" />
+              <div>
+                <strong className="text-warning-emphasis">ĐÃ CẤP PHIẾU HOÃN &amp; HẸN LẠI NGÀY LẤY MẪU XÉT NGHIỆM:</strong>
+                <div className="small text-dark mt-0.5">
+                  Bệnh nhân: <strong>{rescheduleSuccess.patientName}</strong> ({rescheduleSuccess.patientId}) · Lý do: <em>{rescheduleSuccess.reason}</em> ·
+                  Ngày hẹn mới: <strong className="text-primary">{rescheduleSuccess.newDate} ({rescheduleSuccess.newSlotTime})</strong> ·
+                  Bác sĩ: <strong>{rescheduleSuccess.doctorName}</strong> ({rescheduleSuccess.doctorCchn}).
+                </div>
+              </div>
             </div>
+            <Button
+              variant="outline-dark"
+              size="sm"
+              className="fw-semibold d-flex align-items-center gap-1 shadow-sm"
+              onClick={() => window.print()}
+            >
+              <FaPrint /> In Phiếu Hẹn Lại
+            </Button>
           </div>
         </Alert>
       )}
@@ -456,6 +658,33 @@ export default function DoctorConsolePage() {
                     </div>
                     <div className="d-flex flex-wrap gap-2">
                       <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-xs"
+                        onClick={() => setShowPreAnalyticsModal(true)}
+                      >
+                        <FaCalendarAlt /> Sàng Lọc Tiền Phân Tích &amp; Dời Lịch
+                      </Button>
+
+                      <Button
+                        variant="info"
+                        size="sm"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-xs text-white"
+                        onClick={() => handleOpenConsultationModal()}
+                      >
+                        <FaUserMd /> Thẩm Định &amp; Tư Vấn Bệnh Nhân
+                      </Button>
+
+                      <Button
+                        variant="outline-dark"
+                        size="sm"
+                        className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-xs"
+                        onClick={() => setShowBarcodeModal(true)}
+                      >
+                        <FaBarcode /> Tem 3 Ống Máu
+                      </Button>
+
+                      <Button
                         as={Link}
                         to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId)}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}`}
                         variant="primary"
@@ -535,9 +764,27 @@ export default function DoctorConsolePage() {
                     <FaUserInjured />
                   </div>
                   <h4 className="fw-bold text-secondary mb-2">Phòng khám đang trống</h4>
-                  <p className="text-muted small mb-4" style={{ maxWidth: '380px', margin: '0 auto' }}>
+                  <p className="text-muted small mb-3" style={{ maxWidth: '380px', margin: '0 auto' }}>
                     Hiện chưa có bệnh nhân nào trong phòng. Bác sĩ bấm nút &quot;Gọi Số Tiếp Theo&quot; để tiếp nhận bệnh nhân đã check-in từ hàng đợi.
                   </p>
+                  <div>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
+                      onClick={() => setCurrentServing({
+                        appointmentId: 'APT-261116-0001',
+                        appointmentCode: 'APT-261116-0001',
+                        patientId: 'PT-2026-004523',
+                        patientName: 'Trần Văn An',
+                        patientPhone: '0909123456',
+                        queueNumberFormatted: '001',
+                        consultationStartTime: new Date().toISOString()
+                      })}
+                    >
+                      <FaUserInjured /> Tiếp Nhận Bệnh Nhân Khám (Trần Văn An)
+                    </Button>
+                  </div>
                 </div>
               )}
 
@@ -699,6 +946,591 @@ export default function DoctorConsolePage() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal Sàng Lọc Tiền Phân Tích & Dời Lịch Hẹn (Pre-analytical & Reschedule) */}
+      <Modal show={showPreAnalyticsModal} onHide={() => setShowPreAnalyticsModal(false)} size="lg" centered>
+        <Modal.Header closeButton className="bg-light border-bottom">
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
+            <FaCalendarAlt style={{ color: "#1E60E6" }} />
+            <span>Sàng Lọc Tiền Phân Tích &amp; Dời Lịch Xét Nghiệm Máu (Bộ Y Tế)</span>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
+          {/* Thông tin bệnh nhân */}
+          <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
+            <Row className="g-2">
+              <Col sm={6}>
+                <div className="small text-muted">Bệnh nhân khám:</div>
+                <div className="fw-bold fs-6 text-dark">
+                  {currentServing?.patientName || "Bệnh nhân hiện tại"}
+                </div>
+                <div className="small text-muted font-monospace">
+                  Mã lượt: {currentServing?.appointmentCode || currentServing?.appointmentId || "APT-001"} · STT: {currentServing?.queueNumberFormatted || "01"}
+                </div>
+              </Col>
+              <Col sm={6} className="text-sm-end">
+                <div className="small text-muted">Bác sĩ khám:</div>
+                <div className="fw-bold text-dark fs-6">
+                  {currentUser?.fullName || "BS. CKI Nguyễn Văn Minh"}
+                </div>
+                <div className="small text-muted font-monospace">Số CCHN: CCHN-008912/HCM</div>
+              </Col>
+            </Row>
+          </div>
+
+          {/* Checklist Tiêu Chuẩn Tiền Phân Tích (Circular 01/2013/TT-BYT) */}
+          <Card className="border-0 shadow-sm rounded-3 mb-3 bg-white">
+            <Card.Header className="bg-white py-2 border-bottom">
+              <span className="fw-bold small text-uppercase text-secondary">
+                1. Tiêu Chuẩn Tiền Phân Tích Trước Lấy Máu (Đánh Giá Lâm Sàng)
+              </span>
+            </Card.Header>
+            <Card.Body className="p-3">
+              <Row className="g-3">
+                <Col md={6}>
+                  <div className="p-2.5 rounded-3 border bg-light">
+                    <Form.Check
+                      type="switch"
+                      id="fasting-switch"
+                      label={<strong className="small">Đã nhịn ăn đủ 8 &ndash; 12 tiếng?</strong>}
+                      checked={preAnalyticsForm.isFasting8h}
+                      onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, isFasting8h: e.target.checked }))}
+                    />
+                    <div className="small text-muted mt-1 ps-4">
+                      {preAnalyticsForm.isFasting8h ? (
+                        <span className="text-success fw-semibold">✓ Đủ điều kiện xét nghiệm sinh hóa (Glucose, Men gan, Lipid)</span>
+                      ) : (
+                        <span className="text-danger fw-semibold">⚠ Chưa nhịn ăn: Nguy cơ sai lệch đường huyết và lipid máu</span>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+
+                <Col md={6}>
+                  <div className="p-2.5 rounded-3 border bg-light">
+                    <Form.Label className="small fw-bold mb-1">Huyết áp đo tại phòng khám (mmHg):</Form.Label>
+                    <div className="d-flex align-items-center gap-2">
+                      <Form.Control
+                        type="number"
+                        size="sm"
+                        style={{ width: "80px" }}
+                        value={preAnalyticsForm.bloodPressureSystolic}
+                        onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, bloodPressureSystolic: Number(e.target.value) }))}
+                      />
+                      <span>/</span>
+                      <Form.Control
+                        type="number"
+                        size="sm"
+                        style={{ width: "80px" }}
+                        value={preAnalyticsForm.bloodPressureDiastolic}
+                        onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, bloodPressureDiastolic: Number(e.target.value) }))}
+                      />
+                      <span className="small text-muted">mmHg</span>
+                    </div>
+                  </div>
+                </Col>
+
+                <Col md={6}>
+                  <div className="p-2.5 rounded-3 border bg-light">
+                    <Form.Check
+                      type="switch"
+                      id="fever-switch"
+                      label={<strong className="small">Có sốt cao cấp tính / Mất nước?</strong>}
+                      checked={preAnalyticsForm.isAcuteFever}
+                      onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, isAcuteFever: e.target.checked }))}
+                    />
+                    <div className="small text-muted mt-1 ps-4">
+                      {preAnalyticsForm.isAcuteFever ? (
+                        <span className="text-danger fw-semibold">⚠ Sốt cao cấp tính: Nên hoãn lấy máu thường quy</span>
+                      ) : (
+                        <span className="text-success fw-semibold">✓ Thể trạng ổn định</span>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+
+                <Col md={6}>
+                  <div className="p-2.5 rounded-3 border bg-light">
+                    <Form.Check
+                      type="switch"
+                      id="anticoagulant-switch"
+                      label={<strong className="small">Đang dùng thuốc chống đông máu?</strong>}
+                      checked={preAnalyticsForm.isTakingAnticoagulant}
+                      onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, isTakingAnticoagulant: e.target.checked }))}
+                    />
+                    <div className="small text-muted mt-1 ps-4">
+                      {preAnalyticsForm.isTakingAnticoagulant ? (
+                        <span className="text-warning-emphasis fw-semibold">⚠ Đang dùng kháng đông: Nguy cơ chảy máu sau chích</span>
+                      ) : (
+                        <span className="text-success fw-semibold">✓ Không ghi nhận thuốc can thiệp</span>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+
+          {/* Form Hoãn Lấy Máu & Dời Lịch */}
+          <Card className="border-0 shadow-sm rounded-3 bg-white">
+            <Card.Header className="bg-white py-2 border-bottom d-flex justify-content-between align-items-center">
+              <span className="fw-bold small text-uppercase text-secondary">
+                2. Kế Hoạch Hoãn Lấy Máu &amp; Dời Lịch Xét Nghiệm (Luật Khám Bệnh 2023)
+              </span>
+              <Badge bg="warning" text="dark">Hoãn Lấy Mẫu</Badge>
+            </Card.Header>
+            <Card.Body className="p-3">
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-semibold text-dark">
+                  Lý do y khoa hoãn lấy mẫu xét nghiệm: <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Select
+                  value={preAnalyticsForm.rescheduleReason}
+                  onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, rescheduleReason: e.target.value }))}
+                  className="fw-semibold text-danger border-danger"
+                >
+                  <option value="Chưa nhịn ăn đủ 8-12 giờ (đã ăn sáng/uống sữa - nguy cơ sai lệch Glucose & Lipid máu)">
+                    Chưa nhịn ăn đủ 8-12 giờ (đã ăn sáng/uống sữa - nguy cơ sai lệch Glucose &amp; Lipid máu)
+                  </option>
+                  <option value="Huyết áp quá cao (>180/110 mmHg - nguy cơ tai biến khi can thiệp lấy máu)">
+                    Huyết áp dao động / Quá cao (&gt;180/110 mmHg - nguy cơ tai biến khi can thiệp)
+                  </option>
+                  <option value="Bệnh nhân đang có cơn sốt cao cấp tính / Mất nước nghiêm trọng">
+                    Đang có cơn sốt cao cấp tính / Mất nước nghiêm trọng
+                  </option>
+                  <option value="Đang dùng thuốc chống đông máu liều cao (chưa có chỉ định ngưng)">
+                    Đang dùng thuốc chống đông máu liều cao (chưa có chỉ định ngưng)
+                  </option>
+                  <option value="Bệnh nhân mệt mỏi, chóng mặt, yêu cầu dời ngày vì lý do sức khỏe cá nhân">
+                    Bệnh nhân mệt mỏi, chóng mặt, yêu cầu dời ngày vì lý do sức khỏe cá nhân
+                  </option>
+                </Form.Select>
+              </Form.Group>
+
+              <Row className="g-3 mb-3">
+                <Col md={6}>
+                  <Form.Label className="small fw-semibold text-dark">Ngày hẹn lấy mẫu mới:</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={preAnalyticsForm.newAppointmentDate}
+                    onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, newAppointmentDate: e.target.value }))}
+                  />
+                </Col>
+                <Col md={6}>
+                  <Form.Label className="small fw-semibold text-dark">Khung giờ hẹn mới:</Form.Label>
+                  <Form.Select
+                    value={preAnalyticsForm.newSlotTime}
+                    onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, newSlotTime: e.target.value }))}
+                  >
+                    <option value="07:00 - 08:30 (Khung giờ nhịn ăn vàng)">07:00 - 08:30 (Khung giờ nhịn ăn vàng)</option>
+                    <option value="08:30 - 10:00 (Buổi sáng)">08:30 - 10:00 (Buổi sáng)</option>
+                    <option value="13:30 - 15:00 (Buổi chiều)">13:30 - 15:00 (Buổi chiều)</option>
+                  </Form.Select>
+                </Col>
+              </Row>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-semibold text-dark">Dặn dò y khoa chuẩn bị cho lần lấy mẫu tới:</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={preAnalyticsForm.doctorAdvice}
+                  onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, doctorAdvice: e.target.value }))}
+                />
+              </Form.Group>
+
+              <div className="p-2.5 rounded-3 bg-light border">
+                <Form.Check
+                  type="checkbox"
+                  id="consent-check"
+                  label={
+                    <span className="small fw-semibold text-dark">
+                      Bệnh nhân / Người đại diện hợp pháp đã được giải thích rõ lý do chuyên môn và đồng ý dời lịch xét nghiệm.
+                    </span>
+                  }
+                  checked={preAnalyticsForm.patientConsent}
+                  onChange={(e) => setPreAnalyticsForm(prev => ({ ...prev, patientConsent: e.target.checked }))}
+                />
+              </div>
+            </Card.Body>
+          </Card>
+        </Modal.Body>
+
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" onClick={() => setShowPreAnalyticsModal(false)}>
+            Hủy
+          </Button>
+          <Button
+            as={Link}
+            to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing?.appointmentId || '')}&patientId=${encodeURIComponent(currentServing?.patientId || '')}&patientName=${encodeURIComponent(currentServing?.patientName || '')}`}
+            variant="outline-success"
+            className="fw-semibold px-3"
+            onClick={() => setShowPreAnalyticsModal(false)}
+          >
+            Đạt Tiêu Chuẩn &rarr; Chỉ Định Xét Nghiệm
+          </Button>
+          <Button
+            variant="warning"
+            onClick={handleRescheduleConfirm}
+            disabled={actionLoading || !preAnalyticsForm.patientConsent}
+            className="fw-bold px-3 text-dark shadow-sm"
+          >
+            {actionLoading ? 'Đang cập nhật...' : 'Xác Nhận Dời Lịch & Cấp Phiếu Hẹn'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Thẩm Định Kết Quả Xét Nghiệm & Tư Vấn Bệnh Nhân (Doctor Consultation Modal) */}
+      <Modal show={showConsultationModal} onHide={() => setShowConsultationModal(false)} size="xl" centered>
+        <Modal.Header closeButton className="bg-light border-bottom">
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
+            <FaUserMd style={{ color: "#1E60E6" }} />
+            <span>Thẩm Định Kết Quả Xét Nghiệm &amp; Tư Vấn Bệnh Nhân (Quy Trình Khép Kín ISO 15189)</span>
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
+          {/* Banner Bệnh Nhân & Đơn Xét Nghiệm */}
+          <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
+            <Row className="g-2">
+              <Col sm={6}>
+                <div className="small text-muted">Bệnh nhân hội chẩn:</div>
+                <div className="fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+                  <FaUserInjured style={{ color: "#1E60E6" }} />
+                  {consultationData?.patientName || "Trần Văn An"}
+                </div>
+                <div className="small text-muted font-monospace">
+                  Mã BN: {consultationData?.patientId || "PT-2026-004523"} · Đơn: {consultationData?.orderId || "ORD-261116-A01"}
+                </div>
+              </Col>
+              <Col sm={6} className="text-sm-end">
+                <div className="small text-muted">Chữ ký số kỹ thuật Lab:</div>
+                <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
+                  <FaShieldAlt /> BSCKII. Lê Lan Anh (Trưởng Khoa Xét Nghiệm)
+                </div>
+                <div className="small text-muted">Chứng thư số y tế hợp lệ · Tiêu chuẩn ISO 15189:2022</div>
+              </Col>
+            </Row>
+          </div>
+
+          {/* BẢNG TỔNG HỢP KẾT QUẢ 3 ỐNG MÁU */}
+          <Card className="border-0 shadow-sm rounded-3 mb-3 bg-white">
+            <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center">
+              <span className="fw-bold small text-uppercase text-dark">
+                Bảng Kết Quả Chi Tiết 3 Ống Máu (EDTA, SST Gel, Citrate)
+              </span>
+              <span className="badge bg-success-subtle text-success border border-success-subtle">
+                Nội kiểm IQC đạt chuẩn Westgard
+              </span>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <div className="table-responsive">
+                <Table hover className="align-middle mb-0 table-sm">
+                  <thead className="table-light small text-uppercase text-secondary">
+                    <tr>
+                      <th className="ps-3 py-2">Loại Ống &amp; Thông Số</th>
+                      <th className="py-2 text-end" style={{ width: "120px" }}>Kết Quả Đo</th>
+                      <th className="py-2">Đơn Vị</th>
+                      <th className="py-2">Khoảng Tham Chiếu</th>
+                      <th className="py-2 text-center" style={{ width: "130px" }}>Đánh Giá</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Nhóm 1: Ống Tím EDTA */}
+                    <tr className="table-light fw-bold" style={{ backgroundColor: "#f3e8ff" }}>
+                      <td colSpan={5} className="ps-3 text-purple" style={{ color: "#7c3aed" }}>
+                        <FaVial className="me-1" /> Ống 1 · Nắp Tím (K2-EDTA): Tổng phân tích tế bào máu CBC (Laser Sysmex XN-1000)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">WBC (Số lượng bạch cầu)</td>
+                      <td className="text-end font-monospace fw-bold">6.80</td>
+                      <td className="small text-secondary">10⁹/L</td>
+                      <td className="small text-muted font-monospace">4.0 &ndash; 10.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">RBC (Số lượng hồng cầu)</td>
+                      <td className="text-end font-monospace fw-bold">4.52</td>
+                      <td className="small text-secondary">10¹²/L</td>
+                      <td className="small text-muted font-monospace">3.8 &ndash; 5.2</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">HGB (Hemoglobin)</td>
+                      <td className="text-end font-monospace fw-bold">13.8</td>
+                      <td className="small text-secondary">g/dL</td>
+                      <td className="small text-muted font-monospace">12.0 &ndash; 16.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">PLT (Số lượng tiểu cầu)</td>
+                      <td className="text-end font-monospace fw-bold">245</td>
+                      <td className="small text-secondary">10⁹/L</td>
+                      <td className="small text-muted font-monospace">150 &ndash; 400</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+
+                    {/* Nhóm 2: Ống Vàng SST Gel */}
+                    <tr className="table-light fw-bold" style={{ backgroundColor: "#fef9c3" }}>
+                      <td colSpan={5} className="ps-3" style={{ color: "#ca8a04" }}>
+                        <FaVial className="me-1" /> Ống 2 · Nắp Vàng (SST Gel): Hóa sinh &amp; Miễn dịch (Roche Cobas 6000)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">GLU (Đường huyết đói Glucose)</td>
+                      <td className="text-end font-monospace fw-bold">5.80</td>
+                      <td className="small text-secondary">mmol/L</td>
+                      <td className="small text-muted font-monospace">3.9 &ndash; 6.4</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">AST (Men gan GOT)</td>
+                      <td className="text-end font-monospace fw-bold">28.0</td>
+                      <td className="small text-secondary">U/L</td>
+                      <td className="small text-muted font-monospace">&lt; 37.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">ALT (Men gan GPT)</td>
+                      <td className="text-end font-monospace fw-bold">32.0</td>
+                      <td className="small text-secondary">U/L</td>
+                      <td className="small text-muted font-monospace">&lt; 40.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr className="table-warning">
+                      <td className="ps-4 fw-semibold text-danger">CHOL (Cholesterol toàn phần)</td>
+                      <td className="text-end font-monospace fw-bold text-danger">5.42</td>
+                      <td className="small text-secondary">mmol/L</td>
+                      <td className="small text-muted font-monospace">&lt; 5.20</td>
+                      <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
+                    </tr>
+                    <tr className="table-warning">
+                      <td className="ps-4 fw-semibold text-danger">TRIG (Triglyceride máu)</td>
+                      <td className="text-end font-monospace fw-bold text-danger">1.95</td>
+                      <td className="small text-secondary">mmol/L</td>
+                      <td className="small text-muted font-monospace">&lt; 1.70</td>
+                      <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">K+ (Kali máu)</td>
+                      <td className="text-end font-monospace fw-bold">4.10</td>
+                      <td className="small text-secondary">mmol/L</td>
+                      <td className="small text-muted font-monospace">3.5 &ndash; 5.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+
+                    {/* Nhóm 3: Ống Xanh Dương Citrate */}
+                    <tr className="table-light fw-bold" style={{ backgroundColor: "#e0f2fe" }}>
+                      <td colSpan={5} className="ps-3" style={{ color: "#0284c7" }}>
+                        <FaVial className="me-1" /> Ống 3 · Nắp Xanh (Sodium Citrate 3.2%): Đông máu (Stago Compact Max)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">PT (Thời gian Prothrombin)</td>
+                      <td className="text-end font-monospace fw-bold">12.4</td>
+                      <td className="small text-secondary">Giây</td>
+                      <td className="small text-muted font-monospace">11.0 &ndash; 14.0</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="ps-4">INR (Chỉ số bình thường hóa quốc tế)</td>
+                      <td className="text-end font-monospace fw-bold">1.02</td>
+                      <td className="small text-secondary">—</td>
+                      <td className="small text-muted font-monospace">0.80 &ndash; 1.20</td>
+                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
+
+          {/* Form Tư Vấn Lâm Sàng Khi Bác Sĩ Đồng Thuận Kết Quả */}
+          <Card className="border-0 shadow-sm rounded-3 bg-white mb-3">
+            <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center">
+              <span className="fw-bold small text-uppercase text-dark d-flex align-items-center gap-1.5">
+                <FaStethoscope style={{ color: "#1E60E6" }} /> Tư Vấn Lâm Sàng, Chẩn Đoán &amp; Ký Số Trả Kết Quả Cho Người Bệnh
+              </span>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="d-flex align-items-center gap-1 fw-semibold rounded-pill px-3"
+                onClick={handleCallPatientConsultation}
+              >
+                <FaBullhorn /> Phát Loa Mời Bệnh Nhân Vào Bàn Tư Vấn
+              </Button>
+            </Card.Header>
+
+            <Card.Body className="p-3">
+              <Row className="g-3 mb-3">
+                <Col md={4}>
+                  <Form.Label className="small fw-semibold text-dark">Mã Bệnh ICD-10:</Form.Label>
+                  <Form.Select
+                    value={clinicalIcdCode}
+                    onChange={(e) => setClinicalIcdCode(e.target.value)}
+                    className="font-monospace fw-bold text-primary"
+                  >
+                    <option value="E11.9">E11.9 · Đái tháo đường typ 2</option>
+                    <option value="E78.5">E78.5 · Rối loạn lipid máu (Tăng mỡ máu)</option>
+                    <option value="I10">I10 · Tăng huyết áp nguyên phát</option>
+                    <option value="Z00.0">Z00.0 · Khám sức khỏe bình thường</option>
+                  </Form.Select>
+                </Col>
+                <Col md={8}>
+                  <Form.Label className="small fw-semibold text-dark">Chẩn Đoán Xác Định Của Bác Sĩ:</Form.Label>
+                  <Form.Control
+                    value={clinicalDiagnosis}
+                    onChange={(e) => setClinicalDiagnosis(e.target.value)}
+                  />
+                </Col>
+              </Row>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-semibold text-dark">Kết Luận Chuyên Môn Của Bác Sĩ:</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={clinicalConclusion}
+                  onChange={(e) => setClinicalConclusion(e.target.value)}
+                />
+              </Form.Group>
+
+              <Row className="g-3 mb-3">
+                <Col md={8}>
+                  <Form.Label className="small fw-semibold text-dark">Lời Dặn Điều Trị, Dinh Dưỡng &amp; Lối Sống:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={treatmentAdvice}
+                    onChange={(e) => setTreatmentAdvice(e.target.value)}
+                  />
+                </Col>
+                <Col md={4}>
+                  <Form.Label className="small fw-semibold text-dark">Hẹn Tái Khám:</Form.Label>
+                  <Form.Control
+                    value={followUpDate}
+                    onChange={(e) => setFollowUpDate(e.target.value)}
+                    className="mb-2"
+                  />
+                  <Form.Label className="small fw-semibold text-dark">Email Nhận Kết Quả Của BN:</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={patientEmail}
+                    onChange={(e) => setPatientEmail(e.target.value)}
+                  />
+                </Col>
+              </Row>
+
+              {isDeliverySuccess && (
+                <Alert variant="success" className="py-2.5 mb-0 rounded-3 shadow-sm border-success">
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div className="d-flex align-items-center gap-2">
+                      <FaCheckCircle className="fs-4 text-success flex-shrink-0" />
+                      <div>
+                        <strong>KẾT QUẢ ĐÃ ĐƯỢC KÝ SỐ &amp; PHÁT HÀNH THÀNH CÔNG:</strong>
+                        <div className="small text-dark mt-0.5">
+                          Đã gửi Email thông báo tới: <strong>{patientEmail}</strong> · Đã đồng bộ lên Cổng Tra Cứu Bệnh Nhân.
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      className="d-flex align-items-center gap-1 shadow-sm"
+                      onClick={() => window.print()}
+                    >
+                      <FaPrint /> In Phiếu Kết Quả Xét Nghiệm (PDF)
+                    </Button>
+                  </div>
+                </Alert>
+              )}
+            </Card.Body>
+          </Card>
+        </Modal.Body>
+
+        <Modal.Footer className="bg-light d-flex justify-content-between">
+          <div>
+            <Button
+              variant="outline-danger"
+              className="d-flex align-items-center gap-1.5 fw-semibold"
+              onClick={() => setShowReturnRerunModal(true)}
+            >
+              <FaUndo /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
+            </Button>
+          </div>
+
+          <div className="d-flex gap-2">
+            <Button variant="secondary" onClick={() => setShowConsultationModal(false)}>
+              Đóng
+            </Button>
+            <Button
+              variant="success"
+              onClick={handleApproveAndDeliverToPatient}
+              disabled={actionLoading || isDeliverySuccess}
+              className="d-flex align-items-center gap-2 fw-bold text-white px-3 shadow-sm"
+              style={{ backgroundColor: '#059669', borderColor: '#059669' }}
+            >
+              <FaFileSignature />
+              {isDeliverySuccess ? 'Đã Trả Kết Quả Xong' : 'Ký Số & Trả Kết Quả Cho Bệnh Nhân (Email/Portal)'}
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Bác Sĩ Trả Kết Quả Về Lab Yêu Cầu Chạy Lại */}
+      <Modal show={showReturnRerunModal} onHide={() => setShowReturnRerunModal(false)} centered>
+        <Modal.Header closeButton className="bg-danger text-white">
+          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
+            <FaUndo />
+            <span>Bác Sĩ Trả Về Yêu Cầu Xét Nghiệm Lại</span>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3">
+          <p className="small text-secondary mb-3">
+            Bác sĩ nghi ngờ kết quả xét nghiệm bất tương thích với triệu chứng lâm sàng hoặc có sai lệch kỹ thuật:
+          </p>
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold text-dark">
+              Lý do lâm sàng yêu cầu Lab phân tích lại: <span className="text-danger">*</span>
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={returnReason}
+              onChange={(e) => setReturnReason(e.target.value)}
+              placeholder="Ví dụ: Chỉ số Kali máu 6.8 mmol/L không tương xứng với điện tâm đồ bình thường, nghi ngờ vỡ hồng cầu in vitro..."
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" size="sm" onClick={() => setShowReturnRerunModal(false)}>
+            Hủy
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDoctorRequestRerun}
+            disabled={!returnReason.trim()}
+            className="fw-semibold px-3"
+          >
+            Xác Nhận Gửi Yêu Cầu Cho Lab
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Barcode Printer Modal */}
+      <BarcodePrinterModal
+        show={showBarcodeModal}
+        onHide={() => setShowBarcodeModal(false)}
+        patient={currentServing ? {
+          id: currentServing.patientId || "PT-001",
+          name: currentServing.patientName,
+          gender: "Nam",
+          age: 35
+        } : null}
+        orderCode={currentServing?.appointmentCode || "ORD-261116-A01"}
+      />
     </div>
   );
 }

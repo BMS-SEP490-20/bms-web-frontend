@@ -20,7 +20,8 @@ import {
   Alert,
   Form,
   Spinner,
-  InputGroup
+  InputGroup,
+  Modal
 } from 'react-bootstrap';
 import {
   FaFlask,
@@ -37,7 +38,12 @@ import {
   FaBell,
   FaVolumeUp,
   FaStopwatch,
-  FaHospital
+  FaHospital,
+  FaEye,
+  FaTimesCircle,
+  FaRedo,
+  FaUndo,
+  FaFileSignature
 } from 'react-icons/fa';
 import { resultApi } from '../api/resultApi';
 import api from '../../../config/api';
@@ -127,6 +133,29 @@ export function EnterTestResultsPage() {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [sampleDetails, setSampleDetails] = useState(null);
+
+  // Xem trước (Preview) & Hủy kết quả yêu cầu làm lại (Re-run) states
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showRerunModal, setShowRerunModal] = useState(false);
+  const [rerunReason, setRerunReason] = useState('Mẫu bị vỡ hồng cầu / Tan máu (Hemolysis) làm sai lệch chỉ số Kali và Men gan');
+  const [rerunActionType, setRerunActionType] = useState('current_sample');
+  const [cancellationSuccess, setCancellationSuccess] = useState(null);
+
+  // Xử lý Hủy kết quả và chạy lại
+  const handleCancelAndRerun = () => {
+    if (!rerunReason) return;
+    const targetSample = sampleId.trim() || 'Mẫu hiện tại';
+    // Reset toàn bộ chỉ số để KTV nhập lại
+    setParams(DEFAULT_PARAMS.map(p => ({ ...p, value: 0 })));
+    setShowRerunModal(false);
+    setCancellationSuccess(
+      `Đã hủy thành công kết quả mẫu ${targetSample}. Lý do y khoa: "${rerunReason}". ${
+        rerunActionType === 'redraw_sample'
+          ? 'Đã gửi thông báo yêu cầu Phòng Khám / Điều Dưỡng lấy lại ống mẫu mới từ người bệnh.'
+          : 'Hệ thống đã reset toàn bộ kết quả đo để Kỹ Thuật Viên chạy kiểm chứng và nhập lại kết quả mới.'
+      }`
+    );
+  };
 
   // Danh sách kiểm soát chất lượng
   const [checks, setChecks] = useState({
@@ -335,6 +364,12 @@ export function EnterTestResultsPage() {
         </Card>
 
         {/* Thông báo Alert */}
+        {cancellationSuccess && (
+          <Alert variant="warning" dismissible onClose={() => setCancellationSuccess(null)} className="rounded-3 shadow-sm border-warning">
+            <FaUndo className="me-2 text-warning-emphasis" />
+            <strong>Đã Hủy &amp; Yêu Cầu Chạy Lại:</strong> {cancellationSuccess}
+          </Alert>
+        )}
         {error && (
           <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
             <FaExclamationTriangle className="me-2" />
@@ -625,34 +660,59 @@ export function EnterTestResultsPage() {
                   </div>
                 </Card.Body>
 
-                <Card.Footer className="bg-white border-top d-flex justify-content-end gap-2 px-3 py-3 rounded-bottom-3">
-                  <Button variant="outline-secondary" type="button" onClick={() => setParams(DEFAULT_PARAMS.map(p => ({ ...p })))}>
-                    Nhập lại giá trị
-                  </Button>
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
-                    className="d-flex align-items-center gap-2 shadow-sm px-3 fw-semibold text-white"
-                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner size="sm" animation="border" />
-                        <span>Đang lưu...</span>
-                      </>
-                    ) : hasCritical ? (
-                      <>
-                        <FaExclamationTriangle />
-                        <span>Xác Nhận Đã Báo BS &amp; Gửi Phê Duyệt</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaCheckCircle />
-                        <span>Lưu &amp; Gửi Phê Duyệt Kết Quả</span>
-                      </>
-                    )}
-                  </Button>
+                <Card.Footer className="bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3 rounded-bottom-3">
+                  <div className="d-flex gap-2">
+                    <Button
+                      variant="outline-danger"
+                      type="button"
+                      onClick={() => setShowRerunModal(true)}
+                      className="d-flex align-items-center gap-1.5 fw-semibold"
+                    >
+                      <FaUndo /> Hủy Kết Quả &amp; Yêu Cầu Chạy Lại
+                    </Button>
+                  </div>
+
+                  <div className="d-flex flex-wrap gap-2">
+                    <Button
+                      variant="outline-secondary"
+                      type="button"
+                      onClick={() => setParams(DEFAULT_PARAMS.map(p => ({ ...p })))}
+                    >
+                      Nhập lại giá trị
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      type="button"
+                      onClick={() => setShowPreviewModal(true)}
+                      className="d-flex align-items-center gap-1.5 fw-semibold"
+                    >
+                      <FaEye /> Xem Trước (Preview)
+                    </Button>
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
+                      className="d-flex align-items-center gap-2 shadow-sm px-3 fw-semibold text-white"
+                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
+                    >
+                      {loading ? (
+                        <>
+                          <Spinner size="sm" animation="border" />
+                          <span>Đang lưu...</span>
+                        </>
+                      ) : hasCritical ? (
+                        <>
+                          <FaExclamationTriangle />
+                          <span>Xác Nhận Đã Báo BS &amp; Gửi Phê Duyệt</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaCheckCircle />
+                          <span>Ký Duyệt Kỹ Thuật &amp; Gửi BS</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </Card.Footer>
               </Card>
             </Form>
@@ -716,6 +776,189 @@ export function EnterTestResultsPage() {
           </Col>
         </Row>
       </div>
+
+      {/* Modal 1: Xem Trước Kết Quả (Preview Results Modal) */}
+      <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
+        <Modal.Header closeButton className="bg-light">
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
+            <FaEye style={{ color: "#1E60E6" }} />
+            <span>Xem Trước Bảng Kết Quả Xét Nghiệm (Bản Kiểm Thảo Kỹ Thuật ISO 15189)</span>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
+          <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
+            <Row className="g-2">
+              <Col sm={6}>
+                <div className="small text-muted">Mã Barcode Ống Mẫu:</div>
+                <div className="fw-bold font-monospace fs-6" style={{ color: "#1E60E6" }}>
+                  {sampleId || "SMP-CHƯA-CHỌN"}
+                </div>
+                <div className="small text-secondary mt-1">
+                  Thiết bị: <strong>{device}</strong>
+                </div>
+              </Col>
+              <Col sm={6} className="text-sm-end">
+                <div className="small text-muted">Bệnh nhân:</div>
+                <div className="fw-bold text-dark fs-6">
+                  {sampleDetails?.patientName || "Bệnh nhân xét nghiệm"}
+                </div>
+                <div className="small text-muted">
+                  Thời gian đo: {new Date().toLocaleString("vi-VN")}
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <div className="table-responsive bg-white rounded-3 border shadow-sm mb-3">
+            <Table hover align="middle" className="mb-0 table-sm">
+              <thead className="table-light small text-uppercase text-secondary">
+                <tr>
+                  <th className="py-2 ps-3">Chỉ Số Xét Nghiệm</th>
+                  <th className="py-2 text-end">Giá Trị Đo</th>
+                  <th className="py-2">Đơn Vị</th>
+                  <th className="py-2">Khoảng Tham Chiếu</th>
+                  <th className="py-2 text-end pe-3">Đánh Giá Kỹ Thuật</th>
+                </tr>
+              </thead>
+              <tbody>
+                {flags.filter(p => p.value !== 0 && p.value !== '').length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-3 text-muted">
+                      Chưa có chỉ số nào được nhập giá trị đo. Vui lòng nhập số liệu từ máy trước khi xem trước.
+                    </td>
+                  </tr>
+                ) : (
+                  flags.filter(p => p.value !== 0 && p.value !== '').map(p => (
+                    <tr key={p.code}>
+                      <td className="ps-3">
+                        <strong className="text-dark">{p.name}</strong>
+                        <span className="badge bg-light text-secondary border font-monospace ms-2">{p.code}</span>
+                      </td>
+                      <td className="text-end fw-bold font-monospace fs-6" style={{ color: p.flag === 'CRITICAL' ? '#dc2626' : p.flag !== 'NORMAL' ? '#d97706' : '#059669' }}>
+                        {p.value}
+                      </td>
+                      <td className="text-secondary small">{p.unit}</td>
+                      <td className="small text-muted font-monospace">{p.refLow} &ndash; {p.refHigh} {p.unit}</td>
+                      <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </div>
+
+          {/* Đánh giá mẫu theo ISO 15189 */}
+          <div className="p-3 bg-white rounded-3 border small">
+            <div className="fw-bold text-dark mb-1 d-flex align-items-center gap-1">
+              <FaCheckCircle className="text-success" />
+              <span>Biên Bản Đánh Giá Mẫu Tiền Phân Tích &amp; Nội Kiểm IQC:</span>
+            </div>
+            <Row className="g-2 text-muted">
+              <Col sm={4}>• Vỡ hồng cầu (Tan máu): <strong className="text-success">Âm tính</strong></Col>
+              <Col sm={4}>• Đông dây / Cục đông: <strong className="text-success">Âm tính</strong></Col>
+              <Col sm={4}>• Độ đục lipid: <strong className="text-success">Bình thường</strong></Col>
+              <Col sm={6}>• Nội kiểm IQC: <strong className="text-success">Đạt chuẩn Westgard (Chấp nhận)</strong></Col>
+              <Col sm={6}>• Kỹ thuật viên ký số: <strong className="text-dark">KTV. Lê Minh Tuấn</strong></Col>
+            </Row>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" onClick={() => setShowPreviewModal(false)}>
+            Đóng
+          </Button>
+          <Button
+            variant="primary"
+            onClick={(e) => {
+              setShowPreviewModal(false);
+              onSubmit(e);
+            }}
+            disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
+            className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
+            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+          >
+            <FaFileSignature /> Xác Nhận Ký Số Kỹ Thuật &amp; Gửi Bác Sĩ
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal 2: Hủy Kết Quả & Yêu Cầu Chạy Lại (Re-run / Re-sample) */}
+      <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
+        <Modal.Header closeButton className="bg-danger text-white">
+          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
+            <FaUndo />
+            <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại (Re-run)</span>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3">
+          <p className="text-secondary small mb-3">
+            Kỹ thuật viên phát hiện bất thường về mẫu bệnh phẩm hoặc chỉ số kỹ thuật vi phạm nội kiểm. Vui lòng ghi nhận lý do chuẩn y tế Bộ Y Tế để tiến hành chạy lại:
+          </p>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold text-dark">
+              Lý do y khoa hủy kết quả <span className="text-danger">*</span>
+            </Form.Label>
+            <Form.Select
+              value={rerunReason}
+              onChange={(e) => setRerunReason(e.target.value)}
+              className="fw-semibold text-danger border-danger"
+            >
+              <option value="Mẫu bị vỡ hồng cầu / Tan máu (Hemolysis) làm sai lệch chỉ số Kali và Men gan">
+                Mẫu bị vỡ hồng cầu / Tan máu (Hemolysis) - Sai lệch Kali, AST/ALT
+              </option>
+              <option value="Mẫu bị đông dây / Cục đông vi thể (Micro-clots) làm sai lệch tiểu cầu và đông máu">
+                Mẫu bị đông dây / Cục đông vi thể (Micro-clots) - Sai lệch Tiểu cầu, Đông máu
+              </option>
+              <option value="Huyết tương đục do tăng lipid máu nặng (Lipemia) gây nhiễu quang học">
+                Huyết tương đục do tăng lipid máu nặng (Lipemia) - Nhiễu quang học
+              </option>
+              <option value="Tỷ lệ máu và chất chống đông không chuẩn (Thể tích mẫu không đủ vạch)">
+                Tỷ lệ máu và chất chống đông không chuẩn (Thiếu thể tích mẫu)
+              </option>
+              <option value="Máy xét nghiệm cảnh báo lỗi cảm biến quang học hoặc lỗi kim hút mẫu">
+                Máy xét nghiệm cảnh báo lỗi cảm biến / Kim hút mẫu
+              </option>
+              <option value="Kết quả nội kiểm IQC ca trực vi phạm quy tắc Westgard 1:3s / 2:2s">
+                Kết quả nội kiểm IQC vi phạm quy tắc Westgard 1:3s / 2:2s
+              </option>
+              <option value="Nghi ngờ sai sót nhận diện mẫu bệnh phẩm hoặc nhầm lẫn mã Barcode">
+                Nghi ngờ sai sót nhận diện bệnh phẩm / Nhầm lẫn Barcode
+              </option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold text-dark">Phương án xử lý kỹ thuật</Form.Label>
+            <Form.Select
+              value={rerunActionType}
+              onChange={(e) => setRerunActionType(e.target.value)}
+            >
+              <option value="current_sample">
+                Chạy lại trên ống mẫu hiện tại (Re-run sau khi ly tâm / kiểm tra lại máy)
+              </option>
+              <option value="redraw_sample">
+                Hủy mẫu hoàn toàn &amp; Yêu cầu phòng khám lấy lại mẫu máu mới (Re-draw)
+              </option>
+            </Form.Select>
+          </Form.Group>
+
+          <div className="alert alert-warning p-2 small mb-0 border-0">
+            <strong>Lưu ý:</strong> Sau khi xác nhận, toàn bộ kết quả đo hiện tại sẽ được giải phóng để KTV thực hiện đo kiểm chứng lần 2.
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" onClick={() => setShowRerunModal(false)}>
+            Đóng
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleCancelAndRerun}
+            className="d-flex align-items-center gap-2 fw-semibold px-3"
+          >
+            <FaTimesCircle /> Xác Nhận Hủy &amp; Chạy Lại
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }

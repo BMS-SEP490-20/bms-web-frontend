@@ -76,10 +76,32 @@ export async function getQueueStatus(roomId, doctorId, signal) {
   return handleResponse(res);
 }
 
+export async function reschedulePatient(appointmentId, payload, signal) {
+  const res = await fetch(`${BASE_URL}/appointments/${encodeURIComponent(appointmentId)}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({
+      status: 'Rescheduled',
+      appointmentDate: payload.newDate,
+      slotTime: payload.slotTime || '07:00 - 08:30',
+      reasonForRescheduling: payload.reason,
+      notes: payload.notes || '',
+      doctorId: payload.doctorId
+    }),
+    signal,
+  });
+  if (res.ok) {
+    if (res.status === 204) return { success: true };
+    return res.json().catch(() => ({ success: true }));
+  }
+  return handleResponse(res);
+}
+
 export const receptionApi = {
   callNextPatient,
   recallPatient,
   skipPatient,
   completePatient,
+  reschedulePatient,
   getQueueStatus,
 };

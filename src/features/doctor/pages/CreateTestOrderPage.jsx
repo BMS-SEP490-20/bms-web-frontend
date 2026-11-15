@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Modal, Button as BsButton } from "react-bootstrap";
 import {
   FaSearch,
   FaClipboardList,
@@ -24,10 +25,13 @@ import {
   FaStethoscope,
   FaPlus,
   FaTimes,
-  FaUserMd
+  FaUserMd,
+  FaBarcode,
+  FaThLarge
 } from "react-icons/fa";
 import { fetchTestCatalog, createTestOrder } from "../api/testOrderApi";
 import { getPatientById, searchPatients } from "../../../services/patientService";
+import BarcodePrinterModal, { AntiCollisionRackVisualizer } from "../../laboratory/components/BarcodePrinter";
 
 // Standard clinical ICD-10 catalog for test requisitions
 const CLINICAL_ICD10_LIST = [
@@ -106,6 +110,8 @@ export default function CreateTestOrderPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [showRackModal, setShowRackModal] = useState(false);
 
   // Load patient demographic details if patientId is provided
   useEffect(() => {
@@ -328,34 +334,53 @@ export default function CreateTestOrderPage() {
 
       {/* Success Banner */}
       {orderSuccess && (
-        <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", borderLeft: "5px solid #10B981" }}>
-          <div className="d-flex align-items-center gap-3">
-            <FaCheckCircle className="fs-2" style={{ color: "#16a34a" }} />
-            <div>
-              <div className="fw-bold fs-6 text-dark">
-                Đã tạo thành công Phiếu Chỉ Định Xét Nghiệm #{orderSuccess.orderNumber || orderSuccess.id}!
+        <div className="alert alert-success border-0 shadow-sm p-3 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", borderLeft: "5px solid #10B981" }}>
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div className="d-flex align-items-center gap-3">
+              <FaCheckCircle className="fs-2 flex-shrink-0" style={{ color: "#16a34a" }} />
+              <div>
+                <div className="fw-bold fs-6 text-dark">
+                  Đã tạo thành công Phiếu Chỉ Định Xét Nghiệm #{orderSuccess.orderNumber || orderSuccess.id}!
+                </div>
+                <small className="text-muted">
+                  Bệnh nhân: <strong>{orderSuccess.patientName || patient.name}</strong> ({orderSuccess.patientId || patient.id}) ·
+                  Trạng thái: <span className="badge rounded-pill bg-warning text-dark ms-1">{orderSuccess.status || "Chờ lấy mẫu"}</span> ·
+                  Ưu tiên: <span className="badge rounded-pill text-white ms-1" style={{ backgroundColor: "#1E60E6" }}>{orderSuccess.priority || priority}</span>
+                </small>
               </div>
-              <small className="text-muted">
-                Bệnh nhân: <strong>{orderSuccess.patientName || patient.name}</strong> ({orderSuccess.patientId || patient.id}) ·
-                Trạng thái: <span className="badge rounded-pill bg-warning text-dark ms-1">{orderSuccess.status || "Chờ lấy mẫu"}</span> ·
-                Ưu tiên: <span className="badge rounded-pill text-white ms-1" style={{ backgroundColor: "#1E60E6" }}>{orderSuccess.priority || priority}</span>
-              </small>
             </div>
-          </div>
-          <div className="d-flex gap-2">
-            <button
-              className="btn btn-sm btn-outline-success"
-              style={{ borderRadius: "9999px" }}
-              onClick={() => {
-                setOrderSuccess(null);
-                setSelectedCodes(new Set());
-              }}
-            >
-              Tạo Chỉ Định Mới
-            </button>
-            <Link to="/doctor/console" className="btn btn-sm text-white" style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6", borderRadius: "9999px" }}>
-              Về Bàn Khám Bác Sĩ
-            </Link>
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-primary d-flex align-items-center gap-1.5 fw-semibold shadow-sm text-white"
+                style={{ backgroundColor: "#7c3aed", borderColor: "#7c3aed", borderRadius: "9999px" }}
+                onClick={() => setShowBarcodeModal(true)}
+              >
+                <FaBarcode /> In Bộ 3 Tem Barcode (Anti-Collision)
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 fw-semibold"
+                style={{ borderRadius: "9999px" }}
+                onClick={() => setShowRackModal(true)}
+              >
+                <FaThLarge /> Sơ Đồ Rack 3x3 Chống Trùng
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-success"
+                style={{ borderRadius: "9999px" }}
+                onClick={() => {
+                  setOrderSuccess(null);
+                  setSelectedCodes(new Set());
+                }}
+              >
+                Tạo Chỉ Định Mới
+              </button>
+              <Link to="/doctor/console" className="btn btn-sm text-white" style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6", borderRadius: "9999px" }}>
+                Về Bàn Khám Bác Sĩ
+              </Link>
+            </div>
           </div>
         </div>
       )}
@@ -704,10 +729,30 @@ export default function CreateTestOrderPage() {
         {/* Right Sticky Column: Order Summary & Actions */}
         <div className="col-lg-4">
           <div className="card shadow-sm rounded-4 position-sticky" style={{ top: "24px", border: "1px solid rgba(15, 23, 42, 0.05)" }}>
-            <div className="card-header bg-white border-bottom py-3" style={{ borderColor: "rgba(15, 23, 42, 0.05)" }}>
+            <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2" style={{ borderColor: "rgba(15, 23, 42, 0.05)" }}>
               <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
                 <FaFileInvoiceDollar style={{ color: "#1E60E6" }} /> Tóm Tắt Phiếu Chỉ Định
               </h5>
+              <div className="d-flex gap-1.5">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 rounded-pill px-2.5 py-1"
+                  style={{ fontSize: "11.5px" }}
+                  onClick={() => setShowRackModal(true)}
+                  title="Xem sơ đồ 9 vị trí khay rack chống nhầm lẫn mẫu"
+                >
+                  <FaThLarge /> Sơ Đồ Rack 3x3
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 rounded-pill px-2.5 py-1"
+                  style={{ fontSize: "11.5px" }}
+                  onClick={() => setShowBarcodeModal(true)}
+                  title="Xem bộ 3 tem barcode mẫu ống nghiệm"
+                >
+                  <FaBarcode /> Tem 3 Ống
+                </button>
+              </div>
             </div>
             <div className="card-body p-2">
               {/* Selected Tests List */}
@@ -819,6 +864,61 @@ export default function CreateTestOrderPage() {
           </div>
         </div>
       </div>
+
+      {/* Barcode Printer Modal */}
+      <BarcodePrinterModal
+        show={showBarcodeModal}
+        onHide={() => setShowBarcodeModal(false)}
+        patient={{
+          id: orderSuccess?.patientId || patient.id,
+          name: orderSuccess?.patientName || patient.name,
+          gender: patient.gender,
+          age: patient.age
+        }}
+        orderCode={orderSuccess?.orderNumber || orderSuccess?.id || "ORD-261116-A01"}
+      />
+
+      {/* Anti-Collision Rack 3x3 Modal */}
+      <Modal show={showRackModal} onHide={() => setShowRackModal(false)} size="xl" centered>
+        <Modal.Header closeButton className="bg-light">
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
+            <FaThLarge style={{ color: "#1E60E6" }} />
+            <span>Sơ Đồ Khay Mẫu Rack 3x3 Chống Trùng Lặp (ISO 15189:2022)</span>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
+          <AntiCollisionRackVisualizer
+            patientsData={[
+              {
+                id: patient.id || "BN-001",
+                name: patient.name || "Bệnh nhân hiện tại (A)",
+                gender: patient.gender,
+                age: patient.age,
+                code: orderSuccess?.orderNumber || "ORD-A01"
+              },
+              {
+                id: "BN-002",
+                name: "Nguyễn Thị Bình (Bệnh nhân B)",
+                gender: "Nữ",
+                age: 28,
+                code: "ORD-B02"
+              },
+              {
+                id: "BN-003",
+                name: "Lê Hoàng Cường (Bệnh nhân C)",
+                gender: "Nam",
+                age: 45,
+                code: "ORD-C03"
+              }
+            ]}
+          />
+        </Modal.Body>
+        <Modal.Footer className="bg-light">
+          <BsButton variant="secondary" onClick={() => setShowRackModal(false)}>
+            Đóng
+          </BsButton>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

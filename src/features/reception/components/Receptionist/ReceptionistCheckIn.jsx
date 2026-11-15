@@ -359,7 +359,7 @@ const ReceptionistCheckIn = () => {
         appointmentService.getAllAppointments(),
         patientService.getAllPatients(),
         medicalService.getAllServices(),
-        api.get('/gateway/testorder/doctor', { params: { page: 1, pageSize: 1000 } }).catch(() => ({ data: [] })), // Get all doctors with large pageSize
+        api.get('/gateway/testorder/doctor', { params: { date: new Date().toISOString().slice(0, 10), page: 1, pageSize: 1000 } }).catch(() => ({ data: [] })), // Get all doctors with large pageSize
         doctorService.getAllDoctorRooms({ page: 1, pageSize: 100 }).catch(() => ({ success: false, data: [] })) // Get rooms
       ]);
 

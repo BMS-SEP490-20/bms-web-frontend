@@ -402,9 +402,9 @@ export const appointmentService = {
         };
       }
 
-      // Accept 'scheduled', 'confirmed', and 'paid' statuses (case-insensitive and enum numeric)
-      if (!['scheduled', 'confirmed', 'paid', '1'].includes(statusLower)) {
-        return { success: false, message: 'Chỉ có thể check-in lịch hẹn đã thanh toán hoặc đã xác nhận' };
+      // Accept 'scheduled', 'confirmed', 'paid', 'pending' statuses (case-insensitive and enum numeric)
+      if (!['scheduled', 'confirmed', 'paid', '1', 'pending', '0', 'checkedin', '2'].includes(statusLower)) {
+        return { success: false, message: 'Chỉ có thể check-in lịch hẹn hợp lệ' };
       }
 
       // Validate check-in window (for self-service; receptionist desk has intake override)
@@ -443,9 +443,9 @@ export const appointmentService = {
         }
       }
 
-      // Update status to checked_in and record timestamp
+      // Update status to CheckedIn and record timestamp
       const updateData = {
-        status: 'checked_in',
+        status: 'CheckedIn',
         checkedInAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

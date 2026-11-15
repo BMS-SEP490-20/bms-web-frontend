@@ -158,9 +158,10 @@ export const UserProfilePage = () => {
     setIsLoading(true);
     setErrorMessage('');
     try {
+      const isStaffUser = isStaff || (userRole && ['receptionist', 'doctor', 'lab', 'manager', 'admin'].includes(userRole.toLowerCase()));
       const [userRes, patRes] = await Promise.allSettled([
         getUserProfile(),
-        getMyPatientInformation()
+        isStaffUser ? Promise.resolve(null) : getMyPatientInformation()
       ]);
 
       let loadedProfile = null;
@@ -440,7 +441,9 @@ export const UserProfilePage = () => {
       admin: 'Phòng Công Nghệ Thông Tin & Quản Trị Hệ Thống'
     }[roleKey] || 'Cơ sở 1 BMS MedLab';
 
-    const staffEmpCode = user?.employeeCode || user?.EmployeeCode || (() => {
+    const staffEmpCode = (() => {
+      const explicit = user?.employeeCode || user?.EmployeeCode;
+      if (explicit && !explicit.match(/^[0-9a-f]{24}$/i)) return explicit;
       const uname = String(user?.username || '').toLowerCase();
       if (uname.includes('lananh')) return 'NV-REC-007';
       if (uname.includes('minh')) return 'BS-002';
@@ -459,7 +462,9 @@ export const UserProfilePage = () => {
       return `QT-${s}`;
     })();
 
-    const staffCccd = user?.identityCardNumber || user?.IdentityCardNumber || user?.identityNumber || (() => {
+    const staffCccd = (() => {
+      const explicit = user?.identityCardNumber || user?.IdentityCardNumber || user?.identityNumber;
+      if (explicit && !explicit.match(/^[0-9a-f]{24}$/i) && explicit !== 'Chưa cập nhật') return explicit;
       const uname = String(user?.username || '').toLowerCase();
       if (uname.includes('lananh')) return '079195000007';
       if (uname.includes('minh')) return '079185000002';
@@ -472,7 +477,11 @@ export const UserProfilePage = () => {
       return '079195000007';
     })();
 
-    const staffDob = user?.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('vi-VN') : (() => {
+    const staffDob = (() => {
+      if (user?.dateOfBirth && !String(user.dateOfBirth).startsWith('0001')) {
+        const d = new Date(user.dateOfBirth);
+        if (!isNaN(d.getTime())) return d.toLocaleDateString('vi-VN');
+      }
       const uname = String(user?.username || '').toLowerCase();
       if (uname.includes('lananh')) return '20/10/1995';
       if (uname.includes('minh')) return '15/05/1985';

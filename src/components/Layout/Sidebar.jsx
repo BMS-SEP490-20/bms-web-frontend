@@ -113,7 +113,6 @@ const MENU_SECTIONS = [
       { id: 'lab-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất & Vật Tư', icon: FaBoxOpen, roles: [LAB] },
       { id: 'lab-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [LAB] },
       { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] },
-      { id: 'lab-personal', path: '/schedule/personal', label: 'Lịch Cá Nhân', icon: FaClock, roles: [LAB] },
       { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Nội Bộ Lab', icon: FaBell, roles: [LAB] }
     ]
   },
@@ -151,11 +150,11 @@ const MENU_SECTIONS = [
     category: 'Tiếp Đón & Điều Phối Bệnh Nhân',
     roles: [RECEPTIONIST],
     items: [
-      { id: 'rec-checkin', path: '/receptionist/check-in', label: '1. Quầy Tiếp Đón & Check-in QR', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
-      { id: 'rec-queue', path: '/reception/queue', label: '2. Bảng Gọi Số & Hàng Đợi', icon: FaClock, roles: [RECEPTIONIST] },
-      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: '3. Tạo Hồ Sơ Bệnh Nhân', icon: FaUserPlus, roles: [RECEPTIONIST] },
-      { id: 'rec-appointments', path: '/appointments', label: '4. Sổ Lịch Hẹn & Khung Giờ', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
-      { id: 'rec-patients', path: '/patients', label: '5. Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] }
+      { id: 'rec-checkin', path: '/receptionist/check-in', label: 'Quầy Tiếp Đón & Check-in QR', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
+      { id: 'rec-queue', path: '/reception/queue', label: 'Bảng Gọi Số & Điều Phối Hàng Đợi', icon: FaClock, roles: [RECEPTIONIST] },
+      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: 'Tiếp Nhận & Đăng Ký Khách Vãng Lai', icon: FaUserPlus, roles: [RECEPTIONIST] },
+      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn & Khung Giờ Khám', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
+      { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân (Đề án 06)', icon: FaUsers, roles: [RECEPTIONIST] }
     ]
   },
   {
@@ -163,9 +162,14 @@ const MENU_SECTIONS = [
     roles: [RECEPTIONIST],
     items: [
       { id: 'rec-invoices', path: '/invoices', label: 'Quầy Thu Viện Phí & Hóa Đơn VAT', icon: FaReceipt, roles: [RECEPTIONIST] },
-      { id: 'rec-fees', path: '/calculate-fees', label: 'Tra Cứu Bảng Giá & Dự Toán BHYT', icon: FaReceipt, roles: [RECEPTIONIST] },
-      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST] },
-      { id: 'rec-personal', path: '/schedule/personal', label: 'Lịch Cá Nhân', icon: FaClock, roles: [RECEPTIONIST] }
+      { id: 'rec-fees', path: '/calculate-fees', label: 'Tra Cứu Bảng Giá & Dự Toán BHYT', icon: FaReceipt, roles: [RECEPTIONIST] }
+    ]
+  },
+  {
+    category: 'Lịch Phân Công & Trực Ca',
+    roles: [RECEPTIONIST],
+    items: [
+      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST] }
     ]
   },
 

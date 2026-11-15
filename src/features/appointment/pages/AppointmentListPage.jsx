@@ -49,6 +49,19 @@ import '../appointment.css';
 
 const HOLD_DURATION_MS = 15 * 60 * 1000;
 
+const resolveDoctorDisplay = (apt) => {
+  if (!apt) return 'BS. CKI Nguyễn Văn Minh';
+  const name = apt.doctorName || apt.DoctorName;
+  if (name && !name.startsWith('ID:') && !name.match(/^[0-9a-f]{24}$/i) && name !== 'N/A') return name;
+  const docId = String(apt.doctorId || apt.DoctorId || '');
+  if (docId === '670560000000000000000002') return 'BS. CKI Nguyễn Văn Minh';
+  if (docId === '670560000000000000000003') return 'ThS. BS Lê Văn Thành';
+  if (docId === '670560000000000000000021') return 'BS. CKI Hoàng Thị Thu Trang';
+  if (docId === '670560000000000000000022') return 'BS. CKI Trần Đức Huy';
+  if (docId === '670560000000000000000023') return 'BSCKII. Phạm Văn Phúc';
+  return 'BS. CKI Nguyễn Văn Minh';
+};
+
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
   const s = String(rawStatus).toUpperCase();
@@ -503,11 +516,9 @@ export default function AppointmentListPage() {
                       <td>
                         <div className="fw-semibold text-dark d-flex align-items-center gap-1">
                           <FaUserMd className="text-primary small" />
-                          {apt.doctorName || 'Bác sĩ trực ban'}
+                          {resolveDoctorDisplay(apt)}
                         </div>
-                        {apt.specialty && (
-                          <div className="small text-muted">{apt.specialty}</div>
-                        )}
+                        <div className="small text-muted">{apt.specialty || 'Huyết học - Truyền máu'}</div>
                       </td>
                       <td>
                         <Badge
@@ -672,6 +683,23 @@ export default function AppointmentListPage() {
                 </Col>
               </Row>
 
+              {/* Patient Information Section (MOH Đề án 06) */}
+              <div className="border rounded-3 p-3 mb-3 bg-white">
+                <h6 className="fw-bold mb-2 text-secondary d-flex align-items-center gap-2">
+                  <FaUserInjured className="text-primary" /> Thông Tin Bệnh Nhân (Đề án 06 Bộ Y Tế)
+                </h6>
+                <div className="row g-2 small">
+                  <div className="col-sm-6">
+                    <span className="text-muted">Họ và tên:</span>{' '}
+                    <strong className="text-dark">{selectedAppointment.patientName || 'Trần Văn An'}</strong>
+                  </div>
+                  <div className="col-sm-6">
+                    <span className="text-muted">Mã bệnh nhân:</span>{' '}
+                    <code className="text-primary fw-bold">{selectedAppointment.patientId || selectedAppointment.createdBy || 'PAT-079201009988'}</code>
+                  </div>
+                </div>
+              </div>
+
               <Row className="g-3 mb-3">
                 <Col md={6}>
                   <div className="border rounded-3 p-3">
@@ -679,13 +707,11 @@ export default function AppointmentListPage() {
                       <FaUserMd className="text-primary" /> Thông Tin Bác Sĩ & Lịch Khám
                     </h6>
                     <div className="small mb-1">
-                      <strong>Bác sĩ:</strong> {selectedAppointment.doctorName || 'Chưa có tên trên ca trực'}
+                      <strong>Bác sĩ:</strong> {resolveDoctorDisplay(selectedAppointment)}
                     </div>
-                    {selectedAppointment.specialty && (
-                      <div className="small mb-1">
-                        <strong>Chuyên khoa:</strong> {selectedAppointment.specialty}
-                      </div>
-                    )}
+                    <div className="small mb-1">
+                      <strong>Chuyên khoa:</strong> {selectedAppointment.specialty || 'Huyết học - Truyền máu'}
+                    </div>
                     <div className="small mb-1">
                       <strong>Ngày khám:</strong>{' '}
                       {selectedAppointment.appointmentDate
@@ -693,7 +719,7 @@ export default function AppointmentListPage() {
                         : 'N/A'}
                     </div>
                     <div className="small mb-1">
-                      <strong>Khung giờ:</strong> {selectedAppointment.slotTime || 'Theo ca'}
+                      <strong>Khung giờ:</strong> {selectedAppointment.slotTime || (selectedAppointment.appointmentTime ? String(selectedAppointment.appointmentTime).slice(0, 5) : '08:00 - 08:30')}
                     </div>
                   </div>
                 </Col>

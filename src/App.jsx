@@ -407,7 +407,7 @@ export default function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={[DOCTOR, LAB, RECEPTIONIST]} />}>
-                  <Route path="/schedule/personal" element={<ScheduleManagementPage />} />
+                  <Route path="/schedule/personal" element={<Navigate to="/shifts/view" replace />} />
                 </Route>
 
                 {/* UC68 IoT alerts: Lab, Manager */}

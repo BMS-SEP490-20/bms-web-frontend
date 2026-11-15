@@ -126,11 +126,11 @@ export default function QueueBoardPage() {
   const getPriorityBadge = (priority) => {
     switch (priority) {
       case "STAT":
-        return <span className="badge bg-danger">STAT</span>;
+        return <span className="badge bg-danger px-2.5 py-1">STAT (Cấp cứu)</span>;
       case "Urgent":
-        return <span className="badge bg-warning text-dark">Urgent</span>;
+        return <span className="badge bg-warning text-dark px-2.5 py-1">Ưu tiên khẩn</span>;
       default:
-        return <span className="badge bg-secondary bg-opacity-25 text-dark">Routine</span>;
+        return <span className="badge bg-secondary bg-opacity-25 text-dark px-2.5 py-1">Thường quy</span>;
     }
   };
 

@@ -189,9 +189,12 @@ export function RegisterWalkInPage({ onSuccess }) {
 
   return (
     <div className="container-fluid py-3" style={{ background: '#f5f7fb', minHeight: '100vh' }}>
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Tiếp nhận khách vãng lai</h1>
+      <header className="bms-page-header mb-3">
+        <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+          <h1 className="bms-page-title fs-4">Tiếp Nhận &amp; Đăng Ký Hồ Sơ Khách Vãng Lai</h1>
+          <p className="text-muted small mb-0">
+            Tra cứu CCCD đối soát dữ liệu y tế, khai báo thông tin lâm sàng và cấp số thứ tự vào phòng lấy mẫu máu (ISO 15189:2022).
+          </p>
         </div>
       </header>
 

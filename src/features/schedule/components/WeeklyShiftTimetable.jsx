@@ -259,8 +259,13 @@ export function WeeklyShiftTimetable({
 
   // Helper to format code & title
   const getShiftTitle = (shift) => {
-    const code = shift.shiftId || shift.id ? `SHF-${String(shift.shiftId || shift.id).slice(-4).toUpperCase()}` : 'CA-01';
-    const dept = shift.department || shift.specialty || shift.shiftType || 'Khoa Nội';
+    const raw = shift.shiftId || shift.id;
+    const code = raw ? (String(raw).startsWith('CA-') ? String(raw) : `CA-${String(raw).slice(-6).toUpperCase()}`) : 'CA-01';
+    let dept = shift.department || shift.specialty || shift.shiftType || 'Khoa Khám Bệnh';
+    const lowerDept = String(dept).toLowerCase();
+    if (lowerDept.includes('morning') || lowerDept.includes('sáng')) dept = 'Ca Sáng';
+    else if (lowerDept.includes('afternoon') || lowerDept.includes('chiều')) dept = 'Ca Chiều';
+    else if (lowerDept.includes('evening') || lowerDept.includes('tối')) dept = 'Ca Tối';
     return `${code} - ${dept}`;
   };
 
@@ -386,7 +391,7 @@ export function WeeklyShiftTimetable({
                                 <FaClock size={11} className="flex-shrink-0" />
                                 <span>{timeStr}</span>
                                 <span className="badge-mode">
-                                  <FaWifi size={9} className="me-1 opacity-75" /> Offline
+                                  <FaHospitalAlt size={9} className="me-1 opacity-75" /> Tại viện
                                 </span>
                               </div>
 

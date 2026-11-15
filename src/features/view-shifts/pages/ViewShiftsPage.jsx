@@ -28,6 +28,7 @@ import {
   FaFlask
 } from 'react-icons/fa';
 import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr, getShiftRoleCategory } from '../../schedule/components/WeeklyShiftTimetable';
+import { resolveStaffProfileMOH } from '../../schedule/utils/shiftStaffUtils';
 import { FaThList } from 'react-icons/fa';
 import { viewShiftApi } from '../api/viewShiftApi';
 import { useAuth } from '../../../shared/contexts/AuthContext';
@@ -332,7 +333,7 @@ export function ViewShiftsPage() {
             style={activeRoleTab === 'doctor' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
             <FaUserMd />
-            <span>Bác Sĩ (Doctor)</span>
+            <span>Bác Sĩ Khám Lâm Sàng</span>
             <Badge bg={activeRoleTab === 'doctor' ? 'light' : 'secondary'} text={activeRoleTab === 'doctor' ? 'primary' : 'white'} pill>
               {doctorShifts.length}
             </Badge>
@@ -345,7 +346,7 @@ export function ViewShiftsPage() {
             style={activeRoleTab === 'lab' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
             <FaFlask />
-            <span>Kỹ Thuật Viên Xét Nghiệm (Lab)</span>
+            <span>Kỹ Thuật Viên Xét Nghiệm</span>
             <Badge bg={activeRoleTab === 'lab' ? 'light' : 'secondary'} text={activeRoleTab === 'lab' ? 'primary' : 'white'} pill>
               {labShifts.length}
             </Badge>
@@ -358,7 +359,7 @@ export function ViewShiftsPage() {
             style={activeRoleTab === 'receptionist' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
             <FaUserNurse />
-            <span>Lễ Tân &amp; Tiếp Nhận</span>
+            <span>Lễ Tân &amp; Điều Phối Tiếp Đón</span>
             <Badge bg={activeRoleTab === 'receptionist' ? 'light' : 'secondary'} text={activeRoleTab === 'receptionist' ? 'primary' : 'white'} pill>
               {receptionistShifts.length}
             </Badge>
@@ -577,11 +578,10 @@ export function ViewShiftsPage() {
             const timeWindow = selectedShift.shiftStart && selectedShift.shiftEnd 
               ? `${selectedShift.shiftStart} – ${selectedShift.shiftEnd}` 
               : '07:00 – 11:30';
-            const empName = selectedShift.employeeName || selectedShift.doctorName || user?.fullName || 'Cán bộ trực';
             const roomName = selectedShift.roomName || 'Quầy Tiếp Đón Sảnh A / Phòng 101';
-            const dept = selectedShift.department || selectedShift.specialty || 'Khoa Tiếp Nhận & Lấy Mẫu';
             const current = selectedShift.currentPatientsCount || 0;
             const max = selectedShift.maxPatients || 30;
+            const staffMOH = resolveStaffProfileMOH(selectedShift, user);
 
             return (
               <div className="d-flex flex-column gap-3">
@@ -596,45 +596,77 @@ export function ViewShiftsPage() {
                       {selectedShift.shiftDate ? new Date(selectedShift.shiftDate).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hôm nay'}
                     </Badge>
                   </div>
-                  <div>
+                  <div className="d-flex align-items-center gap-2">
+                    <Badge bg="info" className="px-3 py-2 fw-normal">
+                      {staffMOH.roleVi}
+                    </Badge>
                     {getShiftStatusBadge(selectedShift.status)}
                   </div>
                 </div>
 
-                {/* 2-Column Details */}
+                {/* 2-Column Details: MOH Staff Identity + Shift Location */}
                 <Row className="g-3">
-                  {/* Left Column: Personnel Info */}
-                  <Col xs={12} md={6}>
+                  {/* Left Column: MOH Personnel Credentials */}
+                  <Col xs={12} md={7}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
-                      <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
-                        <FaUserMd className="text-primary" />
-                        Nhân Sự Phụ Trách Ca
+                      <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center justify-content-between">
+                        <span className="d-flex align-items-center gap-2">
+                          <FaUserMd className="text-primary" />
+                          Hồ Sơ Cán Bộ Trực (Đề Án 06 Bộ Y Tế)
+                        </span>
+                        <Badge bg="success-subtle" className="text-success border border-success-subtle">
+                          Đã xác thực CCCD
+                        </Badge>
                       </div>
+
                       <div className="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3 border">
-                        <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 50, height: 50 }}>
-                          <FaUserNurse className="fs-4" />
+                        <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: 54, height: 54 }}>
+                          <FaUserNurse className="fs-3 text-primary" />
                         </div>
                         <div>
-                          <div className="fw-bold fs-6 text-dark">{empName}</div>
-                          <div className="text-primary small fw-semibold">{dept}</div>
-                          <div className="text-muted small" style={{ fontSize: '11px' }}>
-                            Mã nhân viên: <span className="font-monospace fw-semibold">{code.replace('CA-', 'NV-')}</span>
+                          <div className="fw-bold fs-6 text-dark">{staffMOH.name}</div>
+                          <div className="text-primary small fw-semibold">{staffMOH.title}</div>
+                          <div className="text-muted small mt-1">
+                            Mã NV: <span className="font-monospace fw-bold text-dark me-2">{staffMOH.code}</span>
+                            Trình độ: <span className="fw-semibold text-secondary">{staffMOH.qualification}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="p-2 border rounded-2 bg-light small">
-                        <span className="text-muted d-block">Phân loại chuyên môn:</span>
-                        <strong className="text-dark">
-                          {dept.includes('Huyết học') ? 'Bác sĩ chuyên khoa Huyết học' : 
-                           dept.includes('Xét nghiệm') ? 'Kỹ thuật viên xét nghiệm tự động' : 
-                           'Chuyên viên tiếp đón & điều phối'}
-                        </strong>
+
+                      <div className="d-flex flex-column gap-2 small">
+                        <div className="p-2 border rounded-2 bg-light d-flex justify-content-between align-items-center">
+                          <span className="text-muted">Mã định danh CCCD (12 số):</span>
+                          <span className="font-monospace fw-bold text-dark">{staffMOH.cccd}</span>
+                        </div>
+
+                        {staffMOH.license && (
+                          <div className="p-2 border rounded-2 bg-light d-flex justify-content-between align-items-center">
+                            <span className="text-muted">Chứng chỉ hành nghề (CCHN):</span>
+                            <span className="font-monospace fw-bold text-success">{staffMOH.license}</span>
+                          </div>
+                        )}
+
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Phạm vi chuyên môn &amp; Y lệnh:</span>
+                          <strong className="text-dark">{staffMOH.specialty}</strong>
+                          <div className="text-muted mt-0.5" style={{ fontSize: '11px' }}>{staffMOH.scope}</div>
+                        </div>
+
+                        <div className="p-2 border rounded-2 bg-light d-flex justify-content-between align-items-center">
+                          <span className="text-muted">Đơn vị công tác:</span>
+                          <span className="fw-semibold text-dark text-end">{staffMOH.department}</span>
+                        </div>
+
+                        <div className="p-2 border rounded-2 bg-light d-flex justify-content-between align-items-center">
+                          <span className="text-muted">Liên hệ nội bộ:</span>
+                          <span className="text-dark font-monospace">{staffMOH.phone} • {staffMOH.email}</span>
+                        </div>
                       </div>
                     </Card>
                   </Col>
 
                   {/* Right Column: Time & Room Info */}
-                  <Col xs={12} md={6}>
+                  <Col xs={12} md={5}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
                         <FaClock className="text-primary" />
@@ -659,6 +691,19 @@ export function ViewShiftsPage() {
                             {roomName}
                           </strong>
                         </div>
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Hình thức tiếp nhận:</span>
+                          <strong className="text-success">
+                            <FaHospital className="me-1 text-success" />
+                            Trực tiếp tại viện (On-site Clinical / Lab)
+                          </strong>
+                        </div>
+                        <div className="p-2 border rounded-2 bg-light">
+                          <span className="text-muted d-block">Chế độ phân luồng:</span>
+                          <span className="text-muted">
+                            Hệ thống tự động đồng bộ STT từ Kiosk và Quầy tiếp đón đến phòng làm việc.
+                          </span>
+                        </div>
                       </div>
                     </Card>
                   </Col>
@@ -669,7 +714,7 @@ export function ViewShiftsPage() {
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <div className="small fw-semibold text-muted text-uppercase d-flex align-items-center gap-2">
                       <FaUsers className="text-primary" />
-                      Công Suất Tiếp Nhận Bệnh Nhân
+                      Công Suất Tiếp Nhận Bệnh Nhân &amp; Mẫu Bệnh Phẩm
                     </div>
                     <Badge bg={current >= max ? 'danger' : 'success'} className="px-3 py-1">
                       {current} / {max} lượt
@@ -684,9 +729,9 @@ export function ViewShiftsPage() {
                   <div className="p-2 border rounded-2 bg-light small text-muted">
                     <strong className="text-dark me-1">
                       <FaShieldAlt className="text-success me-1" />
-                      Tiêu chuẩn ISO 15189:2022:
+                      Tiêu chuẩn ISO 15189:2022 &amp; Quy định Bộ Y tế:
                     </strong>
-                    Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra chất lượng hóa chất nội kiểm QC và đồng bộ hệ thống trước khi mở cửa tiếp nhận bệnh nhân.
+                    Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra đối soát QC hóa chất hoặc phôi phiếu tiếp đón và đồng bộ hệ thống trước khi bắt đầu tiếp nhận bệnh nhân.
                   </div>
                 </Card>
               </div>

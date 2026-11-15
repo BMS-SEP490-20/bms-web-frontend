@@ -168,28 +168,32 @@ export default function BillingInvoicesPage() {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
       {/* Header */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Viện phí</h1>
+      <header className="bms-page-header mb-4">
+        <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+          <h1 className="bms-page-title fs-4">Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử</h1>
+          <p className="text-muted small mb-0">
+            Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT theo Nghị định 123/2020/NĐ-CP.
+          </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
           style={{
             padding: '10px 20px',
-            borderRadius: '8px',
+            borderRadius: '9999px',
             border: 'none',
             backgroundColor: '#1E60E6',
             color: '#ffffff',
             fontWeight: '600',
             cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(37,99,235,0.2)',
+            boxShadow: '0 4px 12px rgba(30, 96, 230, 0.25)',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '8px'
           }}
         >
-          Tạo hóa đơn
+          <span>+</span>
+          <span>Tạo Hóa Đơn Thu Viện Phí</span>
         </button>
       </header>
 

@@ -767,15 +767,15 @@ export default function DoctorConsolePage() {
                   <p className="text-muted small mb-3" style={{ maxWidth: '380px', margin: '0 auto' }}>
                     Hiện chưa có bệnh nhân nào trong phòng. Bác sĩ bấm nút &quot;Gọi Số Tiếp Theo&quot; để tiếp nhận bệnh nhân đã check-in từ hàng đợi.
                   </p>
-                  <div>
+                  <div className="d-flex justify-content-center gap-2 flex-wrap mt-2">
                     <Button
                       variant="outline-primary"
                       size="sm"
                       className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
                       onClick={() => setCurrentServing({
-                        appointmentId: 'APT-261116-0001',
-                        appointmentCode: 'APT-261116-0001',
-                        patientId: 'PT-2026-004523',
+                        appointmentId: 'APT-261127-0001',
+                        appointmentCode: 'APT-261127-0001',
+                        patientId: 'PAT-079201009988',
                         patientName: 'Trần Văn An',
                         patientPhone: '0909123456',
                         queueNumberFormatted: '001',
@@ -783,6 +783,16 @@ export default function DoctorConsolePage() {
                       })}
                     >
                       <FaUserInjured /> Tiếp Nhận Bệnh Nhân Khám (Trần Văn An)
+                    </Button>
+                    <Button
+                      as={Link}
+                      to="/doctor/orders/create"
+                      variant="primary"
+                      size="sm"
+                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
+                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                    >
+                      <FaVial /> Tạo Y Lệnh Xét Nghiệm Máu
                     </Button>
                   </div>
                 </div>
@@ -846,10 +856,13 @@ export default function DoctorConsolePage() {
                 <tbody>
                   {!Array.isArray(waitingList) || waitingList.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="text-center py-3 text-muted">
-                        <div className="fs-3 mb-2">🎉</div>
-                        <div className="fw-semibold">Hàng đợi đang rỗng</div>
-                        <div className="small">Hiện không có bệnh nhân nào đang chờ tại phòng khám.</div>
+                      <td colSpan={4} className="text-center py-4 text-muted">
+                        <div className="fs-3 mb-2">📋</div>
+                        <div className="fw-semibold text-dark">Hàng đợi gọi số tự động đang trống</div>
+                        <div className="small mb-3">Hiện chưa có số mới được gọi vào phòng. Bác sĩ có thể mở ngay danh mục tạo y lệnh:</div>
+                        <Link to="/doctor/orders/create" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                          <FaVial className="me-1" /> Mở Bàn Lập Y Lệnh Xét Nghiệm
+                        </Link>
                       </td>
                     </tr>
                   ) : (

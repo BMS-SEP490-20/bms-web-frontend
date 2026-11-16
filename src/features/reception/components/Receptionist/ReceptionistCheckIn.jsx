@@ -74,7 +74,7 @@ const ReceptionistCheckIn = () => {
         const mm = String(d.getMinutes()).padStart(2, '0');
         return `${hh}:${mm}`;
       }
-    } catch {}
+    } catch { }
     return s;
   };
 
@@ -93,7 +93,7 @@ const ReceptionistCheckIn = () => {
 
   const resolveDoctorInfo = (apt) => {
     if (!apt) return { fullName: 'BS. CKI Nguyễn Văn Minh', specialty: 'Huyết học - Truyền máu', room: 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)', license: 'CCHN-008912/HCM' };
-    
+
     if (apt.resolvedDoctor && (apt.resolvedDoctor.fullName || apt.resolvedDoctor.name)) {
       return {
         fullName: apt.resolvedDoctor.fullName || apt.resolvedDoctor.name,
@@ -145,7 +145,7 @@ const ReceptionistCheckIn = () => {
           if (!isNaN(d.getTime())) {
             return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
           }
-        } catch {}
+        } catch { }
       }
       return str;
     }
@@ -371,7 +371,7 @@ const ReceptionistCheckIn = () => {
   const loadData = async (forceFresh = false) => {
     try {
       setLoading(true);
-      
+
       const [appointmentsResult, patientsResult, servicesResult, doctorsResult, roomsResult] = await Promise.all([
         appointmentService.getAllAppointments(),
         patientService.getAllPatients(),
@@ -381,7 +381,7 @@ const ReceptionistCheckIn = () => {
       ]);
 
       let appointmentList = appointmentsResult.success ? (appointmentsResult.data || []) : [];
-      
+
       // Enrich appointments with shift date/time if missing
       if (appointmentList.length > 0) {
         try {
@@ -391,8 +391,8 @@ const ReceptionistCheckIn = () => {
               .map(apt => apt.doctorShiftId || apt.DoctorShiftId || apt.doctor_shift_id || apt.shiftId || apt.ShiftId)
               .filter(Boolean)
           )];
-          
-          
+
+
           // Fetch shifts to retrieve date and time
           const shiftsMap = new Map();
           for (const shiftId of shiftIds) {
@@ -405,7 +405,7 @@ const ReceptionistCheckIn = () => {
                 const shiftKeyOriginal = String(shiftId);
                 shiftsMap.set(shiftKeyLower, shift);
                 shiftsMap.set(shiftKeyOriginal, shift); // Also store with original case
-                
+
                 // Index shift by primary key
                 const shiftOwnId = shift.ShiftId || shift.shiftId || shift.Id || shift.id;
                 if (shiftOwnId) {
@@ -417,8 +417,8 @@ const ReceptionistCheckIn = () => {
             } catch (err) {
             }
           }
-          
-          
+
+
           // Fetch TestPackageName when missing for test packages
           const packageIdsToFetch = [...new Set(
             appointmentList
@@ -430,8 +430,8 @@ const ReceptionistCheckIn = () => {
               .map(apt => apt.TestPackageId || apt.testPackageId || apt.test_package_id)
               .filter(Boolean)
           )];
-          
-          
+
+
           // Retrieve packages to resolve PackageName
           const packagesMap = new Map();
           for (const packageId of packageIdsToFetch) {
@@ -450,24 +450,24 @@ const ReceptionistCheckIn = () => {
             } catch (err) {
             }
           }
-          
-          
+
+
           // Populate date and time from shift metadata
           appointmentList = appointmentList.map(apt => {
             const enrichedApt = { ...apt }; // Shallow copy to avoid mutation
             const aptShiftId = enrichedApt.doctorShiftId || enrichedApt.DoctorShiftId || enrichedApt.doctor_shift_id || enrichedApt.shiftId || enrichedApt.ShiftId;
-            
+
             // Enrich shift details whenever shiftId is present
             if (aptShiftId) {
               // Match shift by alternative key identifiers
               const shiftKey1 = String(aptShiftId).toLowerCase();
               const shiftKey2 = String(aptShiftId);
-              const relatedShift = shiftsMap.get(shiftKey1) || shiftsMap.get(shiftKey2) || 
-                                   Array.from(shiftsMap.values()).find(s => {
-                                     const sId = s.ShiftId || s.shiftId || s.Id || s.id;
-                                     return String(sId) === String(aptShiftId) || String(sId).toLowerCase() === shiftKey1;
-                                   });
-              
+              const relatedShift = shiftsMap.get(shiftKey1) || shiftsMap.get(shiftKey2) ||
+                Array.from(shiftsMap.values()).find(s => {
+                  const sId = s.ShiftId || s.shiftId || s.Id || s.id;
+                  return String(sId) === String(aptShiftId) || String(sId).toLowerCase() === shiftKey1;
+                });
+
               if (relatedShift) {
                 // Enrich date
                 const shiftDate = relatedShift.ShiftDate || relatedShift.shiftDate || relatedShift.date || relatedShift.Date;
@@ -481,7 +481,7 @@ const ReceptionistCheckIn = () => {
                   } catch (err) {
                   }
                 }
-                
+
                 // Enrich time
                 const shiftStart = relatedShift.ShiftStart || relatedShift.shiftStart || relatedShift.start || relatedShift.Start;
                 if (shiftStart) {
@@ -494,28 +494,28 @@ const ReceptionistCheckIn = () => {
                 }
               } else {
               }
-              } else {
-              }
-            
+            } else {
+            }
+
             // Populate TestPackageName from packagesMap
             const aptPackageId = enrichedApt.TestPackageId || enrichedApt.testPackageId || enrichedApt.test_package_id;
             const aptPackageName = enrichedApt.TestPackageName || enrichedApt.testPackageName || enrichedApt.test_package_name;
-            
+
             if (aptPackageId && !aptPackageName) {
               const packageKey1 = String(aptPackageId).toLowerCase();
               const packageKey2 = String(aptPackageId);
               const fetchedPackageName = packagesMap.get(packageKey1) || packagesMap.get(packageKey2);
-              
+
               if (fetchedPackageName) {
                 enrichedApt.TestPackageName = fetchedPackageName;
                 enrichedApt.testPackageName = fetchedPackageName;
               } else {
               }
             }
-            
+
             return enrichedApt;
           });
-          
+
           // Log sample enriched appointment record for debugging
           const sampleEnriched = appointmentList.slice(0, 3).map(apt => ({
             id: apt.id || apt.appointmentId,
@@ -527,7 +527,7 @@ const ReceptionistCheckIn = () => {
         } catch (err) {
         }
       }
-      
+
       if (appointmentsResult.success) {
         setAppointments(appointmentList);
       } else {
@@ -550,8 +550,8 @@ const ReceptionistCheckIn = () => {
       }
 
       if (doctorsResult.data) {
-        const doctorsData = Array.isArray(doctorsResult.data) 
-          ? doctorsResult.data 
+        const doctorsData = Array.isArray(doctorsResult.data)
+          ? doctorsResult.data
           : (doctorsResult.data?.data || []);
         setDoctors(doctorsData);
       } else {
@@ -628,7 +628,7 @@ const ReceptionistCheckIn = () => {
           const mm = String(d.getUTCMinutes()).padStart(2, '0');
           return `${hh}:${mm}`;
         }
-      } catch (err) {}
+      } catch (err) { }
     }
     const match = String(timeStr).match(/(\d{1,2}):(\d{2})/);
     if (match) {
@@ -648,7 +648,7 @@ const ReceptionistCheckIn = () => {
           hour = d.getUTCHours();
           minute = d.getUTCMinutes();
         }
-      } catch (err) {}
+      } catch (err) { }
     } else {
       const match = String(timeRaw).match(/(\d{1,2}):(\d{2})/);
       if (match) {
@@ -666,7 +666,7 @@ const ReceptionistCheckIn = () => {
   const getTimeStatus = (appointment) => {
     const slot = getSlotForAppointment(appointment);
     const formattedTime = formatSlotTime(appointment?.appointmentTime || appointment?.time);
-    
+
     if (slot === 'SLOT_1') {
       return {
         status: 'slot1',
@@ -714,11 +714,11 @@ const ReceptionistCheckIn = () => {
   };
 
   const getPackageDisplayName = (apt) => {
-    return apt?.testPackageName 
-      || apt?.TestPackageName 
-      || apt?.packageName 
-      || apt?.PackageName 
-      || apt?.service 
+    return apt?.testPackageName
+      || apt?.TestPackageName
+      || apt?.packageName
+      || apt?.PackageName
+      || apt?.service
       || 'Tổng phân tích tế bào máu (24 chỉ số)';
   };
 
@@ -743,7 +743,7 @@ const ReceptionistCheckIn = () => {
    * filterAppointments();
    */
   const filterAppointments = () => {
-    
+
     // Debug log all appointments and statuses
     const allStatuses = [...new Set(appointments.map(apt => apt.status || apt.Status || 'null'))];
     const statusBreakdownDetailed = {};
@@ -762,27 +762,27 @@ const ReceptionistCheckIn = () => {
       // Check both camelCase and PascalCase status properties
       const rawStatus = apt.status || apt.Status;
       const status = (rawStatus || '').toLowerCase();
-      
+
       // Detailed debug log
       if (!status || status === 'null') {
       }
-      
+
       // Exclude already checked-in appointments
       const norm = (status || '').replace(/[_-]/g, '');
       if (norm === 'checkedin' || norm === '2' || norm === 'inprogress' || norm === '3' || norm === 'completed' || norm === '4') {
         return false;
       }
-      
+
       // Only display appointments with confirmed / paid status
       const isPaidAndConfirmed = norm === 'confirmed' || norm === 'scheduled' || norm === 'paid' || norm === '1';
-      
+
       // Log unmatched appointments for diagnosis
       if (!isPaidAndConfirmed && status && status !== 'null') {
       }
-      
+
       return isPaidAndConfirmed;
     });
-    
+
     // Log filtered appointment details for debugging
 
     // Debug: Log appointments before filtering
@@ -798,7 +798,7 @@ const ReceptionistCheckIn = () => {
         appointmentDate: apt.appointmentDate
       });
     });
-    
+
     // Log status breakdown for debugging
 
     // Filter by search term
@@ -814,7 +814,7 @@ const ReceptionistCheckIn = () => {
           appointmentCode.toLowerCase().includes(searchLower) ||
           apt.id?.toString().includes(searchLower)
         );
-        
+
         return matches;
       });
     }
@@ -829,11 +829,11 @@ const ReceptionistCheckIn = () => {
       const now = new Date();
       const timeA = getAppointmentDateTime(a);
       const timeB = getAppointmentDateTime(b);
-      
+
       if (!timeA && !timeB) return 0;
       if (!timeA) return 1;
       if (!timeB) return -1;
-      
+
       const diffA = Math.abs(timeA - now);
       const diffB = Math.abs(timeB - now);
       return diffA - diffB; // Ascending time proximity
@@ -872,7 +872,7 @@ const ReceptionistCheckIn = () => {
       // Filter by current date - include if checked in today or appointment date is today
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      
+
       const checkInDateStr = apt.checkedInAt ? new Date(apt.checkedInAt).toISOString().split('T')[0] : '';
       const aptDateStr = apt.appointmentDate ? String(apt.appointmentDate).split('T')[0] : '';
 
@@ -918,7 +918,7 @@ const ReceptionistCheckIn = () => {
     try {
       const rawStatus = (appointment.status || appointment.Status || '').toString();
       const status = rawStatus.toLowerCase().replace(/[_-]/g, '');
-      
+
       if (['checkedin', '2', 'inprogress', '3', 'completed', '4'].includes(status)) {
         showError('Lịch hẹn đã được tiếp đón / check-in rồi.');
         return;
@@ -1016,12 +1016,12 @@ const ReceptionistCheckIn = () => {
     const headers = ['Mã lịch hẹn', 'Bệnh nhân', 'Ngày hẹn', 'Giờ hẹn', 'Trạng thái', 'Người check-in'];
     const rows = checkedInAppointments.map(apt => {
       const patient = getPatientInfo(apt.patientId);
-      const statusText = apt.status === 'checked_in' ? 'Đã check-in' : 
-                        apt.status === 'scheduled' ? 'Đã thanh toán' :
-                        apt.status === 'confirmed' ? 'Đã xác nhận' :
-                        apt.status === 'sample_collected' ? 'Đã lấy mẫu' :
-                        apt.status || 'N/A';
-      
+      const statusText = apt.status === 'checked_in' ? 'Đã check-in' :
+        apt.status === 'scheduled' ? 'Đã thanh toán' :
+          apt.status === 'confirmed' ? 'Đã xác nhận' :
+            apt.status === 'sample_collected' ? 'Đã lấy mẫu' :
+              apt.status || 'N/A';
+
       return [
         apt.appointmentCode || apt.code || apt.id,
         patient?.fullName || patient?.name || 'N/A',
@@ -1083,13 +1083,13 @@ const ReceptionistCheckIn = () => {
             </thead>
             <tbody>
               ${checkedInAppointments.map(apt => {
-                const patient = getPatientInfo(apt.patientId);
-                const statusText = apt.status === 'checked_in' ? 'Đã check-in' : 
-                                  apt.status === 'scheduled' ? 'Đã thanh toán' :
-                                  apt.status === 'confirmed' ? 'Đã xác nhận' :
-                                  apt.status === 'sample_collected' ? 'Đã lấy mẫu' :
-                                  apt.status || 'N/A';
-                return `
+      const patient = getPatientInfo(apt.patientId);
+      const statusText = apt.status === 'checked_in' ? 'Đã check-in' :
+        apt.status === 'scheduled' ? 'Đã thanh toán' :
+          apt.status === 'confirmed' ? 'Đã xác nhận' :
+            apt.status === 'sample_collected' ? 'Đã lấy mẫu' :
+              apt.status || 'N/A';
+      return `
                   <tr>
                     <td>${apt.appointmentCode || apt.code || apt.id}</td>
                     <td>${patient?.fullName || patient?.name || 'N/A'}</td>
@@ -1098,7 +1098,7 @@ const ReceptionistCheckIn = () => {
                     <td>${statusText}</td>
                   </tr>
                 `;
-              }).join('')}
+    }).join('')}
             </tbody>
           </table>
         </body>
@@ -1113,7 +1113,7 @@ const ReceptionistCheckIn = () => {
     // Fetch appointment details and resolve doctor/shift metadata
     try {
       let enrichedAppointment = { ...appointment };
-      
+
       // Try to fetch latest appointment data
       if (appointment.id || appointment.appointmentId || appointment.AppointmentId) {
         try {
@@ -1131,18 +1131,18 @@ const ReceptionistCheckIn = () => {
               TestPackageName: resp.data.TestPackageName || resp.data.testPackageName || enrichedAppointment.TestPackageName || enrichedAppointment.testPackageName,
               testPackageName: resp.data.testPackageName || resp.data.TestPackageName || enrichedAppointment.testPackageName || enrichedAppointment.TestPackageName
             };
-            
+
             // Resolve TestPackageName if missing
             const hasPackageId = enrichedAppointment.TestPackageId || enrichedAppointment.testPackageId;
             const hasPackageName = enrichedAppointment.TestPackageName || enrichedAppointment.testPackageName;
-            
+
             if (hasPackageId && !hasPackageName) {
               try {
                 const packageResp = await medicalService.getServiceById(hasPackageId);
                 if (packageResp.success && packageResp.data) {
                   const packageData = packageResp.data;
                   const packageName = packageData.PackageName || packageData.packageName || packageData.name || packageData.Name;
-                  
+
                   if (packageName) {
                     enrichedAppointment.TestPackageName = packageName;
                     enrichedAppointment.testPackageName = packageName;
@@ -1163,15 +1163,15 @@ const ReceptionistCheckIn = () => {
       if (shiftKey) {
         try {
           const shiftResp = await shiftService.getShiftById(shiftKey);
-          
+
           if (shiftResp.success && shiftResp.data) {
             const shift = shiftResp.data;
-            
+
             // Backend returns PascalCase ShiftDate (DateOnly) and ShiftStart (TimeOnly)
             // Populate appointmentDate from shift
             if (!enrichedAppointment.appointmentDate) {
               const shiftDate = shift.ShiftDate || shift.shiftDate || shift.date || shift.Date;
-              
+
               if (shiftDate) {
                 try {
                   // DateOnly is serialized as YYYY-MM-DD string
@@ -1186,12 +1186,12 @@ const ReceptionistCheckIn = () => {
               } else {
               }
             }
-            
+
             // Populate appointmentTime from shift
             if (!enrichedAppointment.appointmentTime) {
               // TimeOnly is serialized as HH:MM:SS or HH:MM string
               const shiftStart = shift.ShiftStart || shift.shiftStart || shift.start || shift.Start;
-              
+
               if (shiftStart) {
                 try {
                   if (typeof shiftStart === 'string') {
@@ -1205,20 +1205,20 @@ const ReceptionistCheckIn = () => {
               } else {
               }
             }
-            
+
             // Get doctor ID from shift
             // Backend returns DoctorId (PascalCase) in DoctorShiftDto
             const doctorId = shift.DoctorId || shift.doctor_id || shift.doctorId || enrichedAppointment.doctorId || enrichedAppointment.doctor_id;
-            
+
             if (doctorId) {
               // Find doctor in doctors list - check multiple field variations
               const doctor = doctors.find(d => {
                 const dId = d.id || d.Id || d.doctorId || d.DoctorId;
-                return dId === doctorId || 
-                       dId === parseInt(doctorId) ||
-                       String(dId) === String(doctorId);
+                return dId === doctorId ||
+                  dId === parseInt(doctorId) ||
+                  String(dId) === String(doctorId);
               });
-              
+
               if (doctor) {
                 enrichedAppointment.resolvedDoctor = doctor;
               } else {
@@ -1236,13 +1236,13 @@ const ReceptionistCheckIn = () => {
             // Extract room from shift: prioritize RoomName, fallback to mapped RoomId
             const roomId = shift.RoomId || shift.roomId || shift.room;
             const roomNameFromShift = shift.RoomName || shift.roomName || shift.room;
-            
+
             if (roomNameFromShift) {
               enrichedAppointment.resolvedRoom = roomNameFromShift;
             } else if (roomId) {
               // Map RoomId to room name if available
               // Fallback to RoomId if rooms state is not yet loaded
-              const room = rooms.find(r => 
+              const room = rooms.find(r =>
                 (r.id || r.Id || r.roomId || r.RoomId) === roomId ||
                 String(r.id || r.Id || r.roomId || r.RoomId) === String(roomId)
               );
@@ -1272,9 +1272,9 @@ const ReceptionistCheckIn = () => {
       if (doctorId && !enrichedAppointment.resolvedDoctor) {
         const doctor = doctors.find(d => {
           const dId = d.id || d.Id || d.doctorId || d.DoctorId;
-          return dId === doctorId || 
-                 dId === parseInt(doctorId) ||
-                 String(dId) === String(doctorId);
+          return dId === doctorId ||
+            dId === parseInt(doctorId) ||
+            String(dId) === String(doctorId);
         });
         if (doctor) {
           enrichedAppointment.resolvedDoctor = doctor;
@@ -1337,7 +1337,7 @@ const ReceptionistCheckIn = () => {
     try {
       let assignment = null;
       const currentLabAssignmentId = detailAppointment.labAssignmentId || detailAppointment.LabAssignmentId;
-      
+
       // Method 1: Load directly via existing LabAssignmentId
       if (currentLabAssignmentId) {
         const assignmentResult = await shiftService.getLabAssignmentById(currentLabAssignmentId);
@@ -1345,12 +1345,12 @@ const ReceptionistCheckIn = () => {
           assignment = assignmentResult.data;
         }
       }
-      
+
       // Method 2: Match assignment based on appointment date and time
       if (!assignment) {
         const appointmentDate = detailAppointment.appointmentDate || detailAppointment.appointment_date;
         const appointmentTime = detailAppointment.appointmentTime || detailAppointment.time;
-        
+
         if (appointmentDate && appointmentTime) {
           // Normalize date
           const normalizeDate = (dateValue) => {
@@ -1369,7 +1369,7 @@ const ReceptionistCheckIn = () => {
             } catch (e) { return null; }
             return null;
           };
-          
+
           // Normalize time to HH:MM format (convert HH:mm:ss to HH:MM)
           const normalizeTime = (timeValue) => {
             if (!timeValue) return null;
@@ -1384,7 +1384,7 @@ const ReceptionistCheckIn = () => {
             }
             return null;
           };
-          
+
           // Convert time string to minutes for proper comparison
           const timeToMinutes = (timeStr) => {
             if (!timeStr) return null;
@@ -1394,15 +1394,15 @@ const ReceptionistCheckIn = () => {
             }
             return null;
           };
-          
+
           const targetDate = normalizeDate(appointmentDate);
           const targetTime = normalizeTime(appointmentTime);
           const targetTimeMinutes = timeToMinutes(appointmentTime);
-          
+
           if (targetDate && targetTime) {
             // Retrieve all lab assignments
             const allAssignmentsResult = await shiftService.getAllLabAssignments();
-            
+
             if (allAssignmentsResult.success && allAssignmentsResult.data && Array.isArray(allAssignmentsResult.data)) {
               // Match lab assignment by date and time window
               const matchedAssignment = allAssignmentsResult.data.find(la => {
@@ -1413,10 +1413,10 @@ const ReceptionistCheckIn = () => {
                 const laEnd = normalizeTime(laEndRaw);
                 const laStartMinutes = timeToMinutes(laStartRaw);
                 const laEndMinutes = timeToMinutes(laEndRaw);
-                
+
                 // Match date
                 if (laDate !== targetDate) return false;
-                
+
                 // Check if appointment time falls within assignment shift interval
                 // Compare in minutes for exact boundary checking
                 if (laStartMinutes !== null && laEndMinutes !== null && targetTimeMinutes !== null) {
@@ -1425,15 +1425,15 @@ const ReceptionistCheckIn = () => {
                     return true;
                   }
                 }
-                
+
                 // Fallback: match exact time string against shift start
                 if (laStart && targetTime && laStart === targetTime) {
                   return true;
                 }
-                
+
                 return false;
               });
-              
+
               if (matchedAssignment) {
                 assignment = matchedAssignment;
               } else {
@@ -1447,7 +1447,7 @@ const ReceptionistCheckIn = () => {
           }
         }
       }
-      
+
       // Load complete details for matched assignment
       if (assignment) {
         const labUserId = assignment.labUserId || assignment.LabUserId;
@@ -1468,7 +1468,7 @@ const ReceptionistCheckIn = () => {
         // Load lab room details
         let labRoomInfo = null;
         const roomsResult = await testOrderService.getAllLabRooms();
-        
+
         if (labRoomId && roomsResult.success && roomsResult.data) {
           // Resolve room entity via LabRoomId
           labRoomInfo = roomsResult.data.find(r => {
@@ -1476,7 +1476,7 @@ const ReceptionistCheckIn = () => {
             return rId && String(rId) === String(labRoomId);
           });
         }
-        
+
         // Fallback: resolve room from lab user defaultRoomId
         if (!labRoomInfo && labUserInfo && roomsResult.success && roomsResult.data) {
           const defaultRoomId = labUserInfo.defaultRoomId || labUserInfo.DefaultRoomId;
@@ -1500,32 +1500,10 @@ const ReceptionistCheckIn = () => {
           shiftEnd: assignment.ShiftEnd || assignment.shiftEnd || assignment.shift_end
         });
       } else {
-        setLabAssignmentInfo({
-          assignmentId: 'AUTO-LAB-01',
-          labUserId: '670560000000000000000005',
-          labRoomId: 'ROOM-LAB-201',
-          labUser: {
-            fullName: 'KTV. Phạm Quốc Hưng',
-            jobTitle: 'Kỹ thuật viên Phân tích Tự động'
-          },
-          labRoom: {
-            roomName: 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)'
-          }
-        });
+        setLabAssignmentInfo(null);
       }
     } catch (error) {
-      setLabAssignmentInfo({
-        assignmentId: 'AUTO-LAB-01',
-        labUserId: '670560000000000000000005',
-        labRoomId: 'ROOM-LAB-201',
-        labUser: {
-          fullName: 'KTV. Phạm Quốc Hưng',
-          jobTitle: 'Kỹ thuật viên Phân tích Tự động'
-        },
-        labRoom: {
-          roomName: 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)'
-        }
-      });
+      setLabAssignmentInfo(null);
     } finally {
       setLoadingLabAssignment(false);
     }
@@ -1535,16 +1513,45 @@ const ReceptionistCheckIn = () => {
   const handlePrintAppointmentSlip = async () => {
     if (!detailAppointment) return;
 
-    let currentLabAssignmentInfo = labAssignmentInfo;
-    if (!currentLabAssignmentInfo) {
+    // Ensure lab assignment info is loaded
+    if (loadingLabAssignment) {
+      showError('Vui lòng đợi hệ thống tải thông tin phân công...');
+      return;
+    }
+
+    // Retry loading lab assignment if not yet resolved
+    if (!labAssignmentInfo) {
       const currentLabAssignmentId = detailAppointment.labAssignmentId || detailAppointment.LabAssignmentId;
       if (currentLabAssignmentId) {
+        showError('Vui lòng đợi hệ thống tải thông tin phân công...');
         await loadLabAssignmentInfo();
-        await new Promise(resolve => setTimeout(resolve, 300));
-        currentLabAssignmentInfo = labAssignmentInfo;
+        // Brief wait for state propagation
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } else {
+        showError('Lịch hẹn này chưa được phân công lab user. Vui lòng kiểm tra hệ thống phân ca làm việc.');
+        return;
       }
     }
 
+    const patient = detailAppointment.resolvedPatient || getPatientInfo(detailAppointment.patientId);
+    const packageInfo = getPackageInfo(detailAppointment);
+
+    const appointmentDate = detailAppointment.appointmentDate
+      ? new Date(detailAppointment.appointmentDate).toLocaleDateString('vi-VN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      : 'N/A';
+    const appointmentTime = detailAppointment.appointmentTime || 'N/A';
+    const appointmentCode = detailAppointment.appointmentCode || detailAppointment.id || 'N/A';
+    const patientName = patient?.fullName || patient?.name || 'N/A';
+    const patientPhone = patient?.phone || patient?.Phone || 'N/A';
+    const patientEmail = patient?.email || patient?.Email || 'N/A';
+
+    // Display lab user and room info using resolved assignment
+    let currentLabAssignmentInfo = labAssignmentInfo;
     if (!currentLabAssignmentInfo) {
       currentLabAssignmentInfo = {
         labUser: {
@@ -1557,58 +1564,19 @@ const ReceptionistCheckIn = () => {
       };
     }
 
-    const patient = detailAppointment.resolvedPatient || getPatientInfo(detailAppointment.patientId);
-    const packageInfo = getPackageInfo(detailAppointment);
-    
-    const appointmentDate = detailAppointment.appointmentDate 
-      ? new Date(detailAppointment.appointmentDate).toLocaleDateString('vi-VN', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        })
-      : 'N/A';
-    const appointmentTime = detailAppointment.appointmentTime || 'N/A';
-    const appointmentCode = detailAppointment.appointmentCode || detailAppointment.id || 'N/A';
-    const patientName = patient?.fullName || patient?.name || 'N/A';
-    const patientPhone = patient?.phone || patient?.Phone || 'N/A';
-    const patientEmail = patient?.email || patient?.Email || 'N/A';
-    
-    // Display lab user and room info using resolved assignment
-    const labUserName = currentLabAssignmentInfo?.labUser 
+    const labUserName = currentLabAssignmentInfo?.labUser
       ? (currentLabAssignmentInfo.labUser.fullName || currentLabAssignmentInfo.labUser.FullName || currentLabAssignmentInfo.labUser.name || 'KTV. Phạm Quốc Hưng')
       : 'KTV. Phạm Quốc Hưng';
-    const labUserJobTitle = currentLabAssignmentInfo?.labUser 
+    const labUserJobTitle = currentLabAssignmentInfo?.labUser
       ? (currentLabAssignmentInfo.labUser.jobTitle || currentLabAssignmentInfo.labUser.JobTitle || 'Kỹ thuật viên Xét nghiệm')
       : 'Kỹ thuật viên Phân tích Tự động';
-    
-    // Resolve room name with fallbacks
-    let labRoomName = currentLabAssignmentInfo?.labRoom?.roomName 
-      || currentLabAssignmentInfo?.labRoom?.RoomName 
-      || currentLabAssignmentInfo?.labRoom?.name;
-    
-    if (!labRoomName && currentLabAssignmentInfo?.labUser) {
-      const defaultRoomId = currentLabAssignmentInfo.labUser.defaultRoomId || currentLabAssignmentInfo.labUser.DefaultRoomId;
-      if (defaultRoomId) {
-        try {
-          const roomsResult = await testOrderService.getAllLabRooms();
-          if (roomsResult.success && roomsResult.data) {
-            const defaultRoom = roomsResult.data.find(r => {
-              const rId = r.roomId || r.RoomId || r.id || r.Id || r.labRoomId || r.LabRoomId;
-              return rId && String(rId) === String(defaultRoomId);
-            });
-            if (defaultRoom) {
-              labRoomName = defaultRoom.roomName || defaultRoom.RoomName || defaultRoom.name;
-            }
-          }
-        } catch (err) {}
-      }
-    }
 
-    if (!labRoomName) {
-      labRoomName = 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)';
-    }
-    
+    // Resolve room name with fallbacks
+    let labRoomName = currentLabAssignmentInfo?.labRoom?.roomName
+      || currentLabAssignmentInfo?.labRoom?.RoomName
+      || currentLabAssignmentInfo?.labRoom?.name
+      || 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)';
+
     const printHTML = `
 <!DOCTYPE html>
 <html lang="vi">
@@ -1841,7 +1809,7 @@ const ReceptionistCheckIn = () => {
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printHTML);
     printWindow.document.close();
-    
+
     setTimeout(() => {
       printWindow.focus();
       printWindow.print();
@@ -1856,7 +1824,7 @@ const ReceptionistCheckIn = () => {
   const generateQRCodeData = (appointment) => {
     const appointmentCode = getAppointmentCode(appointment);
     const patient = getPatientInfo(appointment?.patientId);
-    
+
     return JSON.stringify({
       t: 'checkin', // type
       c: appointmentCode, // code - this is what scanner looks for
@@ -1877,7 +1845,7 @@ const ReceptionistCheckIn = () => {
     // Backend now returns TestPackageName (PascalCase) in AppointmentReadDto
     // If TestPackageName is available, use it directly (no need to match)
     const testPackageName = appointment?.TestPackageName || appointment?.testPackageName || appointment?.test_package_name || null;
-    
+
     if (testPackageName) {
       // Try to find package in testPackages to get price
       const pkgId = appointment?.TestPackageId || appointment?.testPackageId || appointment?.test_package_id || null;
@@ -1888,20 +1856,20 @@ const ReceptionistCheckIn = () => {
           return pId && String(pId) === String(pkgId);
         });
       }
-      
+
       const price = matchedPkg ? (matchedPkg.Price || matchedPkg.price || matchedPkg.servicePrice || matchedPkg.packagePrice || matchedPkg.amount || null) : null;
       return { name: testPackageName, price, package: matchedPkg };
     }
-    
+
     // Fallback: Try to match by ID if TestPackageName is not available
     // Backend returns TestPackageId (PascalCase) in AppointmentReadDto
     // normalizeAppointment preserves both TestPackageId (PascalCase) and testPackageId (camelCase)
     const pkgId = appointment?.TestPackageId || appointment?.testPackageId || appointment?.test_package_id || appointment?.packageId || appointment?.package_id || null;
     const pkgCode = appointment?.testPackageCode || appointment?.test_package_code || appointment?.package_code || appointment?.packageCode || null;
-    
+
     if (!pkgId && !pkgCode) {
       // Fallback: Try to find package from other sources
-      
+
       // Try to find package by name if service name is available
       if (appointment?.serviceName || appointment?.service) {
         const serviceName = appointment?.serviceName || appointment?.service;
@@ -1909,17 +1877,17 @@ const ReceptionistCheckIn = () => {
           const pName = p.PackageName || p.packageName || p.name || p.Name || p.serviceName || p.ServiceName;
           return pName && String(pName).toLowerCase() === String(serviceName).toLowerCase();
         });
-        
+
         if (matchedByName) {
           const price = matchedByName.Price || matchedByName.price || matchedByName.servicePrice || matchedByName.packagePrice || matchedByName.amount || null;
-          return { 
-            name: matchedByName.PackageName || matchedByName.packageName || matchedByName.name || serviceName, 
-            price, 
-            package: matchedByName 
+          return {
+            name: matchedByName.PackageName || matchedByName.packageName || matchedByName.name || serviceName,
+            price,
+            package: matchedByName
           };
         }
       }
-      
+
       // Final fallback: Try to find package from TestResults if available
       // Note: This is a workaround for appointments that don't have TestPackageId in DB
       // The proper solution is to update the database to set TestPackageId for old appointments
@@ -1932,13 +1900,13 @@ const ReceptionistCheckIn = () => {
           // Ignore errors in fallback
         }
       }
-      
+
       // Final fallback
       const service = appointment?.service || appointment?.serviceName || '';
-      return { 
-        name: service || 'Chưa xác định (Appointment không có TestPackageId trong database. Vui lòng cập nhật database để hiển thị tên gói dịch vụ.)', 
-        price: null, 
-        package: null 
+      return {
+        name: service || 'Chưa xác định (Appointment không có TestPackageId trong database. Vui lòng cập nhật database để hiển thị tên gói dịch vụ.)',
+        price: null,
+        package: null
       };
     }
 
@@ -1946,18 +1914,18 @@ const ReceptionistCheckIn = () => {
     // Database uses package_id like P001, P002, etc.
     // Try to match by ID first (most reliable)
     let matchedPkg = null;
-    
+
     if (pkgId) {
       matchedPkg = safePackages.find(p => {
         // Backend returns PackageId (PascalCase) - this is the primary field
         const pId = p.PackageId || p.packageId || p.id || p.Id || p.serviceId || p.ServiceId;
         // Match by exact string comparison (case-insensitive for safety)
         const idMatch = pId && String(pId).toLowerCase() === String(pkgId).toLowerCase();
-        
+
         return idMatch;
       });
     }
-    
+
     // If not found by ID, try by code
     if (!matchedPkg && pkgCode) {
       matchedPkg = safePackages.find(p => {
@@ -2024,14 +1992,14 @@ const ReceptionistCheckIn = () => {
         {/* 1. Master Luxury Page Header Card */}
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content">
-            
+
             <div className="bms-page-title-row">
-              
+
               <h1 className="bms-page-title">
                 Quầy Tiếp Đón Lễ Tân &amp; Điều Phối Lấy Mẫu
               </h1>
             </div>
-            
+
           </div>
           <div className="bms-page-actions">
             <Button
@@ -2236,7 +2204,7 @@ const ReceptionistCheckIn = () => {
                                     const year = date.getFullYear();
                                     return day + '/' + month + '/' + year;
                                   }
-                                } catch (err) {}
+                                } catch (err) { }
                               }
                               return 'Hôm nay';
                             })()}
@@ -2265,8 +2233,8 @@ const ReceptionistCheckIn = () => {
                                 size="sm"
                                 onClick={() => handleDirectCheckIn(apt)}
                                 className="rounded-pill px-3 shadow-sm fw-semibold d-flex align-items-center gap-1"
-                                style={{ 
-                                  fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                style={{
+                                  fontSize: isMobile ? '0.8rem' : '0.88rem',
                                   padding: '6px 14px',
                                   whiteSpace: 'nowrap',
                                   backgroundColor: '#1E60E6',
@@ -2283,8 +2251,8 @@ const ReceptionistCheckIn = () => {
                                 size="sm"
                                 onClick={() => handleViewDetail(apt)}
                                 className="rounded-pill px-3 d-flex align-items-center gap-1"
-                                style={{ 
-                                  fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                                style={{
+                                  fontSize: isMobile ? '0.8rem' : '0.88rem',
                                   padding: '6px 12px',
                                   whiteSpace: 'nowrap',
                                   color: '#1E60E6',
@@ -2354,14 +2322,14 @@ const ReceptionistCheckIn = () => {
 
           <Card.Body className="p-0">
             {checkedInAppointments.length > 0 ? (
-              <div className="table-responsive" style={{ 
-                overflowX: 'auto', 
+              <div className="table-responsive" style={{
+                overflowX: 'auto',
                 WebkitOverflowScrolling: 'touch',
                 maxWidth: '100%',
                 width: '100%'
               }}>
-                <Table hover striped className="align-middle mb-0" style={{ 
-                  fontSize: isMobile ? '0.85rem' : '0.95rem', 
+                <Table hover striped className="align-middle mb-0" style={{
+                  fontSize: isMobile ? '0.85rem' : '0.95rem',
                   minWidth: isMobile ? '600px' : 'auto',
                   width: '100%',
                   tableLayout: 'auto'
@@ -2405,7 +2373,7 @@ const ReceptionistCheckIn = () => {
                                     const year = date.getFullYear();
                                     return `${day}/${month}/${year}`;
                                   }
-                                } catch (err) {}
+                                } catch (err) { }
                               }
                               return 'N/A';
                             })()}
@@ -2424,8 +2392,8 @@ const ReceptionistCheckIn = () => {
                               size="sm"
                               onClick={() => handleViewDetail(apt)}
                               className="rounded-pill px-3 d-flex align-items-center gap-1 mx-auto"
-                              style={{ 
-                                fontSize: isMobile ? '0.8rem' : '0.88rem', 
+                              style={{
+                                fontSize: isMobile ? '0.8rem' : '0.88rem',
                                 whiteSpace: 'nowrap'
                               }}
                             >
@@ -2451,9 +2419,9 @@ const ReceptionistCheckIn = () => {
       </div>
 
       {/* Quick QR Code Check-in Modal */}
-      <Modal 
-        show={showQuickQRModal} 
-        onHide={handleCloseQuickQRModal} 
+      <Modal
+        show={showQuickQRModal}
+        onHide={handleCloseQuickQRModal}
         onEntered={() => {
           // Ensure modal is fully mounted before camera initialization
           // Component auto-initializes when isModalOpen is true
@@ -2461,7 +2429,7 @@ const ReceptionistCheckIn = () => {
         onExited={() => {
           // Reset state when modal is dismissed
         }}
-        size={isMobile ? undefined : "lg"} 
+        size={isMobile ? undefined : "lg"}
         fullscreen={isMobile}
         centered={!isMobile}
       >
@@ -2478,6 +2446,10 @@ const ReceptionistCheckIn = () => {
             isModalOpen={showQuickQRModal}
             initialMode={quickScanMode}
             initialManualCode={mainPageManualCode}
+            onViewDetail={(apt) => {
+              setShowQuickQRModal(false);
+              handleViewDetail(apt);
+            }}
           />
         </Modal.Body>
         <Modal.Footer style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
@@ -2489,10 +2461,10 @@ const ReceptionistCheckIn = () => {
       </Modal>
 
       {/* Appointment Detail Modal - Designed to BMS Medical Management Standard */}
-      <Modal 
-        show={showDetailModal} 
-        onHide={handleCloseDetailModal} 
-        size={isMobile ? undefined : "xl"} 
+      <Modal
+        show={showDetailModal}
+        onHide={handleCloseDetailModal}
+        size={isMobile ? undefined : "xl"}
         fullscreen={isMobile}
         centered={!isMobile}
       >
@@ -2513,21 +2485,21 @@ const ReceptionistCheckIn = () => {
         </Modal.Header>
         <Modal.Body className="p-4" style={{ backgroundColor: '#F8FAFC' }}>
           {detailAppointment && (() => {
-            const patient = detailAppointment.resolvedPatient 
+            const patient = detailAppointment.resolvedPatient
               || getPatientInfo(detailAppointment.patientId)
               || getPatientInfo(detailAppointment.patient_id)
               || getPatientInfo(detailAppointment.userId)
               || (patients && patients.length > 0 ? patients[0] : null)
               || {
-                fullName: detailAppointment.patientName || 'Trần Văn An',
-                identityCardNumber: '079195000792',
-                dateOfBirth: '1995-08-15',
-                gender: 'Nam',
-                phone: '0909 123 456',
-                email: 'an.tran@gmail.com',
-                address: 'Số 123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. HCM',
-                patientCode: 'BN-2026-0792'
-              };
+              fullName: detailAppointment.patientName || 'Trần Văn An',
+              identityCardNumber: '079195000792',
+              dateOfBirth: '1995-08-15',
+              gender: 'Nam',
+              phone: '0909 123 456',
+              email: 'an.tran@gmail.com',
+              address: 'Số 123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. HCM',
+              patientCode: 'BN-2026-0792'
+            };
             const appointmentCode = getAppointmentCode(detailAppointment);
             const docInfo = resolveDoctorInfo(detailAppointment);
             const slotTime = resolveTimeSlot(detailAppointment);
@@ -2573,8 +2545,8 @@ const ReceptionistCheckIn = () => {
                         Mã Tiếp Đón &amp; Check-In
                       </div>
                       <div className="p-3 bg-light rounded-3 d-inline-block mx-auto mb-2 border shadow-sm">
-                        <QRCodeSVG 
-                          value={generateQRCodeData(detailAppointment)} 
+                        <QRCodeSVG
+                          value={generateQRCodeData(detailAppointment)}
                           size={180}
                           level="H"
                           includeMargin={true}
@@ -2586,7 +2558,7 @@ const ReceptionistCheckIn = () => {
                       <p className="text-muted small mb-3">
                         Quét mã này tại quầy tiếp đón hoặc máy quét tự động để hoàn tất thủ tục vào lấy mẫu.
                       </p>
-                      
+
                       {isCheckedIn ? (
                         <div className="p-2 rounded-3 bg-success-subtle text-success small fw-semibold border border-success-subtle">
                           <i className="fas fa-check-circle me-1"></i>
@@ -2817,8 +2789,8 @@ const ReceptionistCheckIn = () => {
           })()}
         </Modal.Body>
         <Modal.Footer className="bg-white border-top py-3 px-4 d-flex justify-content-between">
-          <Button 
-            variant="outline-secondary" 
+          <Button
+            variant="outline-secondary"
             onClick={handleCloseDetailModal}
             className="px-4 py-2 rounded-3 fw-semibold"
           >
@@ -2827,8 +2799,8 @@ const ReceptionistCheckIn = () => {
           </Button>
 
           <div className="d-flex gap-2">
-            <Button 
-              variant="outline-primary" 
+            <Button
+              variant="outline-primary"
               onClick={handlePrintAppointmentSlip}
               className="px-4 py-2 rounded-3 fw-semibold shadow-sm"
             >
@@ -2837,8 +2809,8 @@ const ReceptionistCheckIn = () => {
             </Button>
 
             {detailAppointment && ['scheduled', 'confirmed', 'paid', '1'].includes((detailAppointment.status || '').toLowerCase().replace(/[_-]/g, '')) && (
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 onClick={() => {
                   handleCloseDetailModal();
                   handleDirectCheckIn(detailAppointment);
@@ -2910,7 +2882,7 @@ const ReceptionistCheckIn = () => {
             Đóng
           </Button>
           <div className="d-flex gap-2">
-            <Button 
+            <Button
               variant="outline-primary"
               onClick={() => {
                 const printContent = document.getElementById('reception-stt-ticket');
@@ -2925,7 +2897,7 @@ const ReceptionistCheckIn = () => {
             >
               <i className="fas fa-print me-1"></i> In Phiếu STT
             </Button>
-            <Button 
+            <Button
               variant="primary"
               onClick={() => {
                 setShowTicketModal(false);

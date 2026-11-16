@@ -24,7 +24,14 @@ import { queueApi } from '../../api/queueApi';
  * @param {string} [props.initialManualCode=''] - Initial appointment code for manual fallback.
  * @returns {JSX.Element} The rendered QR scanner and intake confirmation interface.
  */
-const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initialMode = "camera", initialManualCode = "" }) => {
+const QuickCheckInScan = ({ 
+  receptionistId, 
+  onSuccess, 
+  isModalOpen = true, 
+  initialMode = "camera", 
+  initialManualCode = "",
+  onViewDetail = null 
+}) => {
   const { showSuccess, showError, showInfo, showWarning } = useNotificationContext();
   const scannerRef = useRef(null);
   const clearedRef = useRef(false);
@@ -40,6 +47,7 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
   const containerIdRef = useRef(null);
   const [lastCheckedInPatient, setLastCheckedInPatient] = useState(null);
   const [pendingCheckInPatient, setPendingCheckInPatient] = useState(null);
+  const [alreadyCheckedInPatient, setAlreadyCheckedInPatient] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const retryCountRef = useRef(0);
@@ -91,6 +99,106 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
     }
   }, [isModalOpen, initialMode, initialManualCode]);
 
+  const isAlreadyCheckedIn = (status) => {
+    const norm = String(status || '').toLowerCase().replace(/[_-]/g, '');
+    return ['checkedin', '2', 'inprogress', '3'].includes(norm);
+  };
+
+  const isTerminalStatus = (status) => {
+    const norm = String(status || '').toLowerCase().replace(/[_-]/g, '');
+    return ['completed', '4', 'cancelled', '5', 'noshow', '6'].includes(norm);
+  };
+
+  const resolveQueueNumber = async (apt, fallbackCode) => {
+    if (apt?.queueNumber) return apt.queueNumber;
+    if (apt?.QueueNumber) return apt.QueueNumber;
+    if (apt?.ticketNumber) return apt.ticketNumber;
+    try {
+      const liveQ = await queueApi.fetchLiveQueue();
+      const list = liveQ?.data || liveQ || [];
+      if (Array.isArray(list)) {
+        const targetCode = fallbackCode || apt?.appointmentCode || apt?.code;
+        const matched = list.find(t => 
+          (targetCode && t.patientCode === targetCode) || 
+          (apt?.patientId && t.patientId === apt?.patientId)
+        );
+        if (matched?.ticketNumber) return matched.ticketNumber;
+      }
+    } catch (e) {
+      console.warn('Cannot fetch queue ticket:', e);
+    }
+    return 'Q-001';
+  };
+
+  const handlePrintK80Slip = (patientData) => {
+    if (!patientData) return;
+    const ticketNo = patientData.queueNumber || 'Q-001';
+    const win = window.open('', '_blank');
+    if (!win) {
+      showError('Không thể mở cửa sổ in. Vui lòng cho phép popup trên trình duyệt.');
+      return;
+    }
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Phieu_Tiep_Don_K80_${patientData.appointmentCode || 'BMS'}</title>
+          <style>
+            @page { size: 80mm auto; margin: 0; }
+            body {
+              font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+              margin: 0;
+              padding: 10px;
+              background: #fff;
+              color: #000;
+              display: flex;
+              justify-content: center;
+            }
+            .ticket {
+              width: 76mm;
+              max-width: 100%;
+              text-align: center;
+            }
+            .dashed { border-bottom: 1px dashed #000; margin: 8px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="ticket">
+            <div style="font-weight: 800; font-size: 13px; text-transform: uppercase;">HỆ THỐNG XÉT NGHIỆM BMS MEDLAB</div>
+            <div style="font-size: 10px; color: #555;">Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868</div>
+            <div class="dashed"></div>
+            <div style="font-size: 11px; font-weight: bold; margin-top: 4px;">PHIẾU TIẾP ĐÓN & SỐ THỨ TỰ LẤY MẪU</div>
+            <div style="margin: 8px 0; padding: 8px; border: 2px solid #000; border-radius: 8px;">
+              <div style="font-size: 10px; text-transform: uppercase;">Số Thứ Tự Lấy Mẫu</div>
+              <div style="font-size: 36px; font-weight: 900; line-height: 1.1; margin: 4px 0;">${ticketNo}</div>
+              <div style="font-size: 10px; font-weight: 600;">Phòng Lấy Mẫu 101 • Tầng 1 Khu B</div>
+            </div>
+            <div style="text-align: left; font-size: 11px; line-height: 1.6;">
+              <div><strong>Bệnh nhân:</strong> ${patientData.name || patientData.patientName}</div>
+              <div><strong>Mã lịch hẹn:</strong> ${patientData.appointmentCode}</div>
+              <div><strong>Ngày khám:</strong> ${formatDisplayDate(patientData.appointmentDate)}</div>
+              <div><strong>Khung giờ:</strong> ${formatDisplayTime(patientData.appointmentTime)}</div>
+              <div><strong>Dịch vụ:</strong> ${patientData.service || 'Tổng phân tích tế bào máu'}</div>
+              <div><strong>Thời gian in:</strong> ${new Date().toLocaleTimeString('vi-VN')} ${new Date().toLocaleDateString('vi-VN')}</div>
+            </div>
+            <div class="dashed"></div>
+            <div style="font-size: 10px; color: #444; line-height: 1.4;">
+              Vui lòng theo dõi bảng điện tử gọi số tại sảnh chờ.<br/>
+              Chuẩn bị CCCD/VNeID khi vào bàn lấy mẫu.
+            </div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+  };
+
   const handleManualSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!manualCode.trim() || scanningRef.current) return;
@@ -106,22 +214,44 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         let patientName = cleanPatientName(rawName, apt.patientId);
 
         const rawStatus = (apt.status || '').toString();
-        const normStatus = rawStatus.toLowerCase().replace(/[_-]/g, '');
 
-        if (normStatus === 'completed' || normStatus === '4' || normStatus === 'cancelled' || normStatus === '5') {
+        if (isTerminalStatus(rawStatus)) {
           showError(`❌ Lịch hẹn không ở trạng thái cho phép check-in (${rawStatus}).`);
           scanningRef.current = false;
           return;
         }
 
+        if (isAlreadyCheckedIn(rawStatus)) {
+          const qNum = await resolveQueueNumber(apt, manualCode.trim());
+          setAlreadyCheckedInPatient({
+            aptId: apt.id,
+            name: patientName,
+            patientId: apt.patientId || (apt.patient && apt.patient.id),
+            appointmentCode: manualCode.trim() || apt.appointmentCode || apt.code,
+            appointmentDate: apt.appointmentDate,
+            appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
+            service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
+            status: apt.status,
+            queueNumber: qNum,
+            rawAppointment: apt
+          });
+          setPendingCheckInPatient(null);
+          showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+          scanningRef.current = false;
+          return;
+        }
+
+        setAlreadyCheckedInPatient(null);
         setPendingCheckInPatient({
           aptId: apt.id,
           name: patientName,
+          patientId: apt.patientId || (apt.patient && apt.patient.id),
           appointmentCode: manualCode.trim(),
           appointmentDate: apt.appointmentDate,
           appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
           service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
-          status: apt.status
+          status: apt.status,
+          rawAppointment: apt
         });
         showInfo(`Đã tìm thấy lịch hẹn của "${patientName}". Vui lòng xác nhận check-in.`);
         scanningRef.current = false;
@@ -168,11 +298,8 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         });
         showSuccess(`✅ Check-in thành công cho "${pendingCheckInPatient.name}"! STT: ${issuedQueueNum || 'Tiếp theo'}`, 5000);
         setPendingCheckInPatient(null);
-        setTimeout(() => {
-          scanningRef.current = false;
-          setLastCheckedInPatient(null);
-          if (onSuccess) onSuccess();
-        }, 5000);
+        if (onSuccess) onSuccess();
+        scanningRef.current = false;
       } else {
         showError(`❌ Không thể check-in. ${respUpdate.message || 'Vui lòng thử lại.'}`);
         scanningRef.current = false;
@@ -187,6 +314,7 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
 
   const cancelPendingCheckIn = () => {
     setPendingCheckInPatient(null);
+    setAlreadyCheckedInPatient(null);
     scanningRef.current = false;
   };
 
@@ -356,28 +484,48 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
 
               // Verify appointment workflow status
               const rawAptStatus = (apt.status || '').toString();
-              const normAptStatus = rawAptStatus.toLowerCase().replace(/[_-]/g, '');
 
-              if (normAptStatus === 'completed' || normAptStatus === '4' || normAptStatus === 'cancelled' || normAptStatus === '5') {
+              if (isTerminalStatus(rawAptStatus)) {
                 scanningRef.current = false;
                 showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawAptStatus}).`);
                 return;
               }
 
-              // Display appointment preview before confirming check-in
-              showInfo(`Đã tìm thấy lịch hẹn của "${patientName}". Vui lòng xác nhận check-in.`);
+              if (isAlreadyCheckedIn(rawAptStatus)) {
+                const qNum = await resolveQueueNumber(apt, appointmentCodeFromQR);
+                setAlreadyCheckedInPatient({
+                  aptId: apt.id,
+                  name: patientName,
+                  patientId: apt.patientId || (apt.patient && apt.patient.id),
+                  appointmentCode: appointmentCodeFromQR || apt.appointmentCode || apt.code,
+                  appointmentDate: apt.appointmentDate,
+                  appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
+                  service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
+                  status: apt.status,
+                  queueNumber: qNum,
+                  rawAppointment: apt
+                });
+                setPendingCheckInPatient(null);
+                showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+                scanningRef.current = false;
+                return;
+              }
 
               // Set pending state for manual confirmation instead of auto check-in
+              setAlreadyCheckedInPatient(null);
               setPendingCheckInPatient({
                 aptId: apt.id,
                 name: patientName,
+                patientId: apt.patientId || (apt.patient && apt.patient.id),
                 appointmentCode: appointmentCodeFromQR,
                 appointmentDate: apt.appointmentDate,
                 appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
                 service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
-                status: apt.status
+                status: apt.status,
+                rawAppointment: apt
               });
               showInfo(`Đã tìm thấy lịch hẹn của "${patientName}". Vui lòng xác nhận check-in.`);
+              scanningRef.current = false;
             } catch (e) {
               scanningRef.current = false;
               showError(`❌ Lỗi khi xử lý quét QR: ${e.message || 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.'}`);
@@ -567,25 +715,48 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         let patientName = cleanPatientName(rawName, apt.patientId);
 
         const rawFileStatus = (apt.status || '').toString();
-        const normFileStatus = rawFileStatus.toLowerCase().replace(/[_-]/g, '');
 
-        if (normFileStatus === 'completed' || normFileStatus === '4' || normFileStatus === 'cancelled' || normFileStatus === '5') {
+        if (isTerminalStatus(rawFileStatus)) {
           scanningRef.current = false;
           showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawFileStatus}).`);
           return;
         }
 
+        if (isAlreadyCheckedIn(rawFileStatus)) {
+          const qNum = await resolveQueueNumber(apt, appointmentCodeFromQR);
+          setAlreadyCheckedInPatient({
+            aptId: apt.id,
+            name: patientName,
+            patientId: apt.patientId || (apt.patient && apt.patient.id),
+            appointmentCode: appointmentCodeFromQR || apt.appointmentCode || apt.code,
+            appointmentDate: apt.appointmentDate,
+            appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
+            service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
+            status: apt.status,
+            queueNumber: qNum,
+            rawAppointment: apt
+          });
+          setPendingCheckInPatient(null);
+          showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+          scanningRef.current = false;
+          return;
+        }
+
         // Set pending state for manual confirmation instead of auto check-in
+        setAlreadyCheckedInPatient(null);
         setPendingCheckInPatient({
           aptId: apt.id,
           name: patientName,
+          patientId: apt.patientId || (apt.patient && apt.patient.id),
           appointmentCode: appointmentCodeFromQR,
           appointmentDate: apt.appointmentDate,
           appointmentTime: apt.appointmentTime || apt.slotTime || '08:00',
           service: apt.packageName || apt.testPackageName || apt.service || 'Tổng phân tích tế bào máu ngoại vi (24 thông số)',
-          status: apt.status
+          status: apt.status,
+          rawAppointment: apt
         });
         showInfo(`Đã tìm thấy lịch hẹn của "${patientName}". Vui lòng xác nhận check-in.`);
+        scanningRef.current = false;
       }
     } catch (error) {
       showError('❌ Không thể đọc QR code từ file. Vui lòng thử lại.');
@@ -630,9 +801,97 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         </div>
       </Alert>
 
-      {/* Patient check-in success confirmation panel */}
+      {/* Patient already checked-in notification panel */}
+      {alreadyCheckedInPatient && !lastCheckedInPatient && (
+        <div className="mb-4 p-3 rounded-4 border shadow-sm" style={{ background: '#F0F9FF', borderColor: '#BAE6FD', animation: 'fadeIn 0.3s' }}>
+          <div className="d-flex align-items-start gap-3">
+            <div className="rounded-circle p-2 bg-info bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px', flexShrink: 0 }}>
+              <i className="fas fa-check-double fa-lg text-primary"></i>
+            </div>
+            <div className="flex-grow-1">
+              <div className="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+                <h6 className="mb-0 fw-bold text-dark">
+                  Lịch Hẹn Đã Được Tiếp Đón Trước Đó
+                </h6>
+                <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-bold fs-7">
+                  <i className="fas fa-check-circle me-1"></i> ĐÃ TIẾP ĐÓN HOÀN TẤT
+                </span>
+              </div>
+              <p className="small text-muted mb-3">
+                Bệnh nhân này đã hoàn tất thủ tục check-in tại quầy và đã được phân luồng vào phòng lấy mẫu. Bạn có thể in lại phiếu số thứ tự K80 hoặc xem chi tiết hồ sơ bệnh nhân.
+              </p>
 
-      {pendingCheckInPatient && !lastCheckedInPatient && (
+              <div className="p-3 bg-white rounded-3 border mb-3 shadow-none">
+                <div className="row g-2 text-dark small">
+                  <div className="col-md-6">
+                    <span className="text-muted d-block">Bệnh nhân:</span>
+                    <strong className="text-primary fs-6">{alreadyCheckedInPatient.name}</strong>
+                  </div>
+                  <div className="col-md-6">
+                    <span className="text-muted d-block">Mã lịch hẹn:</span>
+                    <code className="text-dark fw-bold fs-6">{alreadyCheckedInPatient.appointmentCode}</code>
+                  </div>
+                  <div className="col-md-6">
+                    <span className="text-muted d-block">Ngày &amp; Giờ hẹn:</span>
+                    <span className="fw-semibold">{formatDisplayDate(alreadyCheckedInPatient.appointmentDate)} - {formatDisplayTime(alreadyCheckedInPatient.appointmentTime)}</span>
+                  </div>
+                  <div className="col-md-6">
+                    <span className="text-muted d-block">Gói xét nghiệm:</span>
+                    <span className="fw-semibold text-truncate d-block">{alreadyCheckedInPatient.service}</span>
+                  </div>
+                  <div className="col-12 pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="text-muted fw-semibold">Số thứ tự lấy mẫu:</span>
+                      <span className="badge bg-primary fs-6 px-3 py-1 fw-bold">STT #{alreadyCheckedInPatient.queueNumber}</span>
+                    </div>
+                    <span className="text-success small fw-semibold">
+                      <i className="fas fa-door-open me-1"></i> Phòng Lấy Mẫu 101 • Chuẩn ISO 15189
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2 justify-content-end flex-wrap">
+                <Button 
+                  variant="outline-secondary" 
+                  size="sm" 
+                  className="rounded-pill px-3"
+                  onClick={() => {
+                    setAlreadyCheckedInPatient(null);
+                    setManualCode('');
+                  }}
+                >
+                  <i className="fas fa-redo me-1"></i> Quét / Nhập mã khác
+                </Button>
+                <Button 
+                  variant="outline-primary" 
+                  size="sm" 
+                  className="rounded-pill px-3 fw-semibold"
+                  onClick={() => handlePrintK80Slip(alreadyCheckedInPatient)}
+                >
+                  <i className="fas fa-print me-1"></i> In Lại Phiếu K80
+                </Button>
+                {onViewDetail && (
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    className="rounded-pill px-3 fw-semibold text-white shadow-sm"
+                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                    onClick={() => {
+                      onViewDetail(alreadyCheckedInPatient.rawAppointment || alreadyCheckedInPatient);
+                    }}
+                  >
+                    <i className="fas fa-eye me-1"></i> Xem Chi Tiết Lịch Hẹn
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Patient check-in pending confirmation panel */}
+      {pendingCheckInPatient && !lastCheckedInPatient && !alreadyCheckedInPatient && (
         <Alert variant="warning" className="mb-3" style={{ borderRadius: '10px', animation: 'fadeIn 0.5s' }}>
           <div className="d-flex align-items-start">
             <i className="fas fa-exclamation-circle me-2 mt-1" style={{ fontSize: '1.5rem', color: '#fd7e14' }}></i>
@@ -668,58 +927,75 @@ const QuickCheckInScan = ({ receptionistId, onSuccess, isModalOpen = true, initi
         </Alert>
       )}
 
+      {/* Patient check-in success confirmation panel */}
       {lastCheckedInPatient && (
-        <Alert variant="success" className="mb-3" style={{ borderRadius: '10px', animation: 'fadeIn 0.5s' }}>
-          <div className="d-flex align-items-start">
-            <i className="fas fa-check-circle me-2 mt-1" style={{ fontSize: '1.5rem' }}></i>
+        <Alert variant="success" className="mb-3 rounded-4 shadow-sm border-0" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', animation: 'fadeIn 0.5s' }}>
+          <div className="d-flex align-items-start gap-3">
+            <div className="rounded-circle p-2 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px', flexShrink: 0 }}>
+              <i className="fas fa-check-circle fa-lg text-success"></i>
+            </div>
             <div className="flex-grow-1">
-              <h6 className="mb-2 fw-bold">
-                <i className="fas fa-user-check me-2"></i>
-                Check-in thành công!
-              </h6>
-              <div className="row g-2">
+              <div className="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+                <h6 className="mb-0 fw-bold text-success">
+                  <i className="fas fa-user-check me-2"></i>
+                  Check-in Tiếp Đón Thành Công!
+                </h6>
+                {lastCheckedInPatient.queueNumber && (
+                  <span className="badge bg-success fs-6 px-3 py-1">
+                    STT #{lastCheckedInPatient.queueNumber}
+                  </span>
+                )}
+              </div>
+              <p className="small text-muted mb-2">
+                Đã tiếp đón bệnh nhân và phân luồng vào phòng lấy mẫu.
+              </p>
+              <div className="row g-2 text-dark bg-white p-3 rounded-3 border mb-3">
                 <div className="col-md-6">
-                  <strong>Bệnh nhân:</strong> {lastCheckedInPatient.name}
+                  <strong>Bệnh nhân:</strong> <span className="text-primary">{lastCheckedInPatient.name}</span>
                 </div>
                 <div className="col-md-6">
                   <strong>Mã lịch hẹn:</strong> <code>{lastCheckedInPatient.appointmentCode}</code>
                 </div>
                 <div className="col-md-6">
-                  <strong>Ngày hẹn:</strong> {(() => {
-                    const dateStr = lastCheckedInPatient.appointmentDate;
-                    if (dateStr) {
-                      try {
-                        const date = new Date(dateStr);
-                        if (!isNaN(date.getTime())) {
-                          // Date format: dd/MM/yyyy
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const year = date.getFullYear();
-                          return `${day}/${month}/${year}`;
-                        }
-                      } catch (err) {
-                      }
-                    }
-                    return 'N/A';
-                  })()}
+                  <strong>Ngày hẹn:</strong> {formatDisplayDate(lastCheckedInPatient.appointmentDate)}
                 </div>
                 <div className="col-md-6">
-                  <strong>Giờ hẹn:</strong> {lastCheckedInPatient.appointmentTime || 'N/A'}
+                  <strong>Giờ hẹn:</strong> {formatDisplayTime(lastCheckedInPatient.appointmentTime)}
                 </div>
                 <div className="col-12">
                   <strong>Dịch vụ:</strong> {lastCheckedInPatient.service}
                 </div>
                 {lastCheckedInPatient.queueNumber && (
-                  <div className="col-12 mt-2 pt-2 border-top">
-                    <strong className="text-primary" style={{ fontSize: '1.1rem' }}>Mã hàng chờ: </strong>
-                    <span className="badge bg-primary fs-5">{lastCheckedInPatient.queueNumber}</span>
+                  <div className="col-12 mt-1 pt-2 border-top d-flex align-items-center justify-content-between">
+                    <div>
+                      <strong className="text-primary">Mã hàng chờ (STT): </strong>
+                      <span className="badge bg-primary fs-6 px-3 py-1 ms-2">STT #{lastCheckedInPatient.queueNumber}</span>
+                    </div>
+                    <span className="small text-muted">Phòng Lấy Mẫu 101</span>
                   </div>
                 )}
               </div>
-              <small className="text-muted d-block mt-2">
-                <i className="fas fa-clock me-1"></i>
-                Có thể tiếp tục quét QR code cho bệnh nhân tiếp theo...
-              </small>
+              <div className="d-flex gap-2 justify-content-end flex-wrap">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="rounded-pill px-3"
+                  onClick={() => {
+                    setLastCheckedInPatient(null);
+                    setManualCode('');
+                  }}
+                >
+                  <i className="fas fa-plus me-1"></i> Tiếp tục quét bệnh nhân tiếp theo
+                </Button>
+                <Button
+                  variant="success"
+                  size="sm"
+                  className="rounded-pill px-3 fw-bold shadow-sm"
+                  onClick={() => handlePrintK80Slip(lastCheckedInPatient)}
+                >
+                  <i className="fas fa-print me-1"></i> In Phiếu Tiếp Đón K80
+                </Button>
+              </div>
             </div>
           </div>
         </Alert>

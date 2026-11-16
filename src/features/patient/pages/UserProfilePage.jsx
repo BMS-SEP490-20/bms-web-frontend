@@ -118,8 +118,41 @@ import {
 } from '../utils/clinicalProfileUtils';
 import './UserProfilePage.css';
 
+const safeFormatIsoDate = (dateVal) => {
+  if (!dateVal) return '';
+  try {
+    const s = String(dateVal).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      return s.split('T')[0];
+    }
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+      const parts = s.split('/');
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+};
+
+const safeFormatDisplayDate = (dateVal) => {
+  if (!dateVal) return '—';
+  try {
+    const s = String(dateVal).trim();
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return s;
+    return d.toLocaleDateString('vi-VN');
+  } catch {
+    return String(dateVal);
+  }
+};
+
 export const UserProfilePage = () => {
   const { user, userRole, userRoleName } = useAuth();
+  const isStaff = Boolean(userRole && userRole.toLowerCase() !== 'patient');
   const [profile, setProfile] = useState(null);
   const [patientRecord, setPatientRecord] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,9 +212,9 @@ export const UserProfilePage = () => {
             username: loadedPatient.patientCode || loadedPatient.id,
             patientCode: loadedPatient.patientCode || loadedPatient.id,
             role: 'Patient',
-            createdAt: loadedPatient.createdAt ? new Date(loadedPatient.createdAt).toLocaleDateString('vi-VN') : '—',
+            createdAt: safeFormatDisplayDate(loadedPatient.createdAt),
             identityCardNumberMasked: loadedPatient.identityNumber || '—',
-            dateOfBirth: loadedPatient.dateOfBirth ? new Date(loadedPatient.dateOfBirth).toISOString().split('T')[0] : '',
+            dateOfBirth: safeFormatIsoDate(loadedPatient.dateOfBirth),
             gender: loadedPatient.gender || 'Male',
             phoneNumber: loadedPatient.phoneNumber || '',
             email: loadedPatient.email || '',
@@ -202,7 +235,7 @@ export const UserProfilePage = () => {
       setFormData({
         fullName: loadedPatient?.fullName || loadedProfile?.fullName || '',
         identityNumber: loadedPatient?.identityNumber || loadedProfile?.identityCardNumber || '',
-        dateOfBirth: loadedPatient?.dateOfBirth ? new Date(loadedPatient.dateOfBirth).toISOString().split('T')[0] : '',
+        dateOfBirth: safeFormatIsoDate(loadedPatient?.dateOfBirth || loadedProfile?.dateOfBirth),
         gender: loadedPatient?.gender || loadedProfile?.gender || 'Male',
         phoneNumber: loadedPatient?.phoneNumber || loadedProfile?.phoneNumber || '',
         email: loadedPatient?.email || loadedProfile?.email || '',
@@ -219,7 +252,8 @@ export const UserProfilePage = () => {
         emergencyContactPhone: loadedPatient?.emergencyContactPhone || '',
         emergencyContactRelationship: loadedPatient?.emergencyContactRelationship || 'Vợ/Chồng'
       });
-    } catch {
+    } catch (err) {
+      console.error('[UserProfilePage] fetchProfile error:', err);
       setErrorMessage('Không thể kết nối đến hệ thống hồ sơ bệnh nhân BMS.');
     } finally {
       setIsLoading(false);
@@ -412,8 +446,6 @@ export const UserProfilePage = () => {
       </div>
     );
   }
-
-  const isStaff = userRole && userRole.toLowerCase() !== 'patient';
 
   if (isStaff) {
     const roleKey = userRole ? userRole.toLowerCase() : '';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaReceipt, FaSearch, FaTimes, FaPlus } from 'react-icons/fa';
 import {
   getInvoices,
   createInvoice,
@@ -233,35 +234,57 @@ export default function BillingInvoicesPage() {
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="bms-filter-bar">
-        <input
-          type="text"
-          placeholder="🔍 Tìm theo mã HĐ, tên bệnh nhân, số điện thoại..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-          />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '14px', backgroundColor: '#ffffff' }}
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="1">Đã thanh toán (Paid)</option>
-          <option value="0">Chưa thanh toán (Unpaid)</option>
-        </select>
-        <button
-          onClick={loadInvoices}
-          style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#f8fafc', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}
-        >
-          🔄 Làm mới
-        </button>
-      </div>
+      {/* Unified Invoices Card */}
+      <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+        <div className="card-header bg-white border-bottom py-3 px-4">
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
+            <div>
+              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                <FaReceipt style={{ color: '#1E60E6' }} />
+                Sổ Hóa Đơn &amp; Biên Lai Viện Phí ({filteredInvoices.length})
+              </h5>
+              <div className="text-muted small">
+                Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
+              </div>
+            </div>
 
-      {/* Invoices Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+            <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
+              <div className="bms-search-input-pill" style={{ minWidth: '280px' }}>
+                <FaSearch className="bms-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="bms-search-clear"
+                    onClick={() => setSearchTerm('')}
+                    title="Xóa tìm kiếm"
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                )}
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="form-select form-select-sm rounded-pill"
+                style={{ width: 'auto', paddingRight: '2rem' }}
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="1">Đã thanh toán (Paid)</option>
+                <option value="0">Chưa thanh toán (Unpaid)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
               <th style={{ padding: '12px 16px' }}>Mã Hóa Đơn</th>
@@ -393,6 +416,8 @@ export default function BillingInvoicesPage() {
             )}
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
 
       {/* Modal: Process Payment */}

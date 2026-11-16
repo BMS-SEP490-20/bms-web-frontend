@@ -61,6 +61,23 @@ const ReceptionistCheckIn = () => {
     }
   };
 
+  const formatAppointmentTime = (timeRaw, dateRaw) => {
+    const val = timeRaw || dateRaw;
+    if (!val) return 'N/A';
+    const s = String(val).trim();
+    if (/^\d{2}:\d{2}$/.test(s)) return s;
+    if (/^\d{2}:\d{2}:\d{2}/.test(s)) return s.substring(0, 5);
+    try {
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) {
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
+      }
+    } catch {}
+    return s;
+  };
+
   const KNOWN_DOCTORS = {
     '670560000000000000000002': { fullName: 'BS. CKI Nguyễn Văn Minh', specialty: 'Huyết học - Truyền máu', room: 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)', license: 'CCHN-008912/HCM' },
     '670560000000000000000003': { fullName: 'ThS. BS Lê Văn Thành', specialty: 'Nội tiết - Sinh hóa', room: 'Phòng khám Sinh hóa - Nội tiết (Phòng 102)', license: 'CCHN-009451/HCM' },
@@ -2054,44 +2071,46 @@ const ReceptionistCheckIn = () => {
           </Col>
         </Row>
 
-        {/* 3. Standalone Independent Table: Sổ Lịch Hẹn Chờ Check-in */}
-        <div className="bms-table-standalone-section mb-4">
-          <div className="bms-table-standalone-header">
-            <div>
-              <h5 className="bms-table-standalone-title">
-                <FaCalendarCheck style={{ color: '#1E60E6' }} />
-                Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
-              </h5>
-              <div className="bms-table-standalone-subtitle">
-                Hiển thị {filteredAppointments.length} / {confirmedList.length} lượt hẹn đã xác nhận sẵn sàng tiếp đón
+        {/* 3. Unified Card Section: Sổ Lịch Hẹn Chờ Check-in */}
+        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+          <Card.Header className="bg-white border-bottom py-3 px-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
+              <div>
+                <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                  <FaCalendarCheck style={{ color: '#1E60E6' }} />
+                  Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
+                </h5>
+                <div className="text-muted small">
+                  Hiển thị {filteredAppointments.length} / {confirmedList.length} lượt hẹn đã xác nhận sẵn sàng tiếp đón
+                </div>
               </div>
-            </div>
 
-            <div className="bms-filter-bar">
-              <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchTerm('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
+              <div className="d-flex align-items-center ms-auto">
+                <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
+                  <FaSearch className="bms-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      className="bms-search-clear"
+                      onClick={() => setSearchTerm('')}
+                      title="Xóa tìm kiếm"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </Card.Header>
 
           {/* Slot Filtering Toolbar Strip */}
-          <div className="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC', borderColor: 'rgba(241, 245, 249, 1)' }}>
+          <div className="px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC' }}>
             <div className="d-flex flex-wrap align-items-center gap-2">
               <span className="fw-semibold text-dark small">
                 <FaClock className="me-1" style={{ color: '#1E60E6' }} /> Phân bổ khung ca sáng:
@@ -2136,7 +2155,7 @@ const ReceptionistCheckIn = () => {
             </div>
           </div>
 
-          <div className="bms-table-standalone-body">
+          <Card.Body className="p-0">
             {filteredAppointments.length > 0 ? (
               <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <Table hover className="align-middle mb-0" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
@@ -2264,49 +2283,51 @@ const ReceptionistCheckIn = () => {
                 <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
               </div>
             )}
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
 
-        {/* 4. Standalone Independent Table: Danh Sách Bệnh Nhân Đã Check-in */}
-        <div className="bms-table-standalone-section mb-4">
-          <div className="bms-table-standalone-header">
-            <div>
-              <h5 className="bms-table-standalone-title">
-                <FaUserCheck style={{ color: '#16a34a' }} />
-                Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
-              </h5>
-              <div className="bms-table-standalone-subtitle">
-                Hồ sơ bệnh nhân đã hoàn tất cấp số thứ tự và phân luồng tiếp nhận
+        {/* 4. Unified Card Section: Danh Sách Bệnh Nhân Đã Check-in */}
+        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+          <Card.Header className="bg-white border-bottom py-3 px-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
+              <div>
+                <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                  <FaUserCheck style={{ color: '#16a34a' }} />
+                  Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
+                </h5>
+                <div className="text-muted small">
+                  Hồ sơ bệnh nhân đã hoàn tất cấp số thứ tự và phân luồng tiếp nhận
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                  onClick={handleExportCheckedIn}
+                  disabled={checkedInAppointments.length === 0}
+                  style={{ fontSize: '13px' }}
+                >
+                  <FaFileCsv />
+                  <span>Xuất CSV</span>
+                </Button>
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
+                  onClick={handlePrintCheckedIn}
+                  disabled={checkedInAppointments.length === 0}
+                  style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
+                >
+                  <FaPrint />
+                  <span>In danh sách</span>
+                </Button>
               </div>
             </div>
+          </Card.Header>
 
-            <div className="d-flex align-items-center gap-2">
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
-                onClick={handleExportCheckedIn}
-                disabled={checkedInAppointments.length === 0}
-                style={{ fontSize: '13px' }}
-              >
-                <FaFileCsv />
-                <span>Xuất CSV</span>
-              </Button>
-              <Button
-                variant="outline-primary"
-                size="sm"
-                className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
-                onClick={handlePrintCheckedIn}
-                disabled={checkedInAppointments.length === 0}
-                style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
-              >
-                <FaPrint />
-                <span>In danh sách</span>
-              </Button>
-            </div>
-          </div>
-
-          <div className="bms-table-standalone-body">
+          <Card.Body className="p-0">
             {checkedInAppointments.length > 0 ? (
               <div className="table-responsive" style={{ 
                 overflowX: 'auto', 
@@ -2365,7 +2386,9 @@ const ReceptionistCheckIn = () => {
                             })()}
                           </td>
                           <td className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', whiteSpace: 'nowrap' }}>
-                            {apt.appointmentTime || apt.appointment_time || apt.AppointmentTime || apt.time || apt.Time || 'N/A'}
+                            <span className="fw-semibold font-monospace text-dark">
+                              {formatAppointmentTime(apt.appointmentTime || apt.appointment_time || apt.AppointmentTime || apt.time || apt.Time, apt.appointmentDate || apt.appointment_date)}
+                            </span>
                           </td>
                           <td className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem' }}>
                             {getStatusBadge(apt.status || apt.Status)}
@@ -2398,8 +2421,8 @@ const ReceptionistCheckIn = () => {
                 <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
               </div>
             )}
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
       </div>
 
       {/* Quick QR Code Check-in Modal */}

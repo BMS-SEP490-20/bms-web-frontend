@@ -32,19 +32,19 @@
   border-radius: 16px !important;
 }
 
-/* The table sheet is the only box. */
+/* Standardized Unified Card Layout for all Data Tables */
 .bms-app-layout .bms-page-content .bms-table-standalone-section,
 .bms-app-layout .bms-page-content .card:has(table):not(:has(.bms-vat-table)),
 .bms-app-layout .bms-page-content .card:has(.table):not(:has(.bms-vat-table)),
 .bms-app-layout .bms-page-content .bms-table-card:has(table),
 .bms-app-layout .bms-page-content .bms-pay-table-wrapper,
 .bms-app-layout .bms-page-content .adm-table-wrap:has(table) {
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  overflow: visible !important;
-  margin: 16px 0 !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden !important;
+  margin: 20px 0 !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-section .table-responsive,
@@ -52,38 +52,38 @@
 .bms-app-layout .bms-page-content .card:has(table) .table-responsive,
 .bms-app-layout .bms-page-content .card:has(.table) .table-responsive {
   background: #ffffff !important;
-  border: 1px solid #e6eef8 !important;
-  border-radius: 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   overflow: hidden !important;
-  margin-top: 12px !important;
+  margin: 0 !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-body > .d-flex,
 .bms-app-layout .bms-page-content .bms-pagination-bar,
 .bms-app-layout .bms-page-content .card:has(table) > .card-footer,
 .bms-app-layout .bms-page-content .card:has(table) .pagination {
-  margin-top: 12px !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
+  margin-top: 0 !important;
+  padding: 12px 20px !important;
+  background: #ffffff !important;
+  border-top: 1px solid #f1f5f9 !important;
+  border-bottom: 0 !important;
 }
 
-/* A card wrapped around that sheet is not a second box. */
-.bms-app-layout .bms-page-content .card .card:has(table),
-.bms-app-layout .bms-page-content .card .card:has(.table),
-.bms-app-layout .bms-page-content .card:has(table) .card,
-.bms-app-layout .bms-page-content .card .bms-table-standalone-section,
-.bms-app-layout .bms-page-content .bms-dash-card .bms-table-standalone-section,
-.bms-app-layout .bms-page-content .bms-table-standalone-section .card,
-.bms-app-layout .bms-page-content .bms-table-standalone-section .bms-table-card,
-.bms-app-layout .bms-page-content .bms-table-standalone-section .bms-pay-table-wrapper {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+/* Card Header inside table cards */
+.bms-app-layout .bms-page-content .card:has(table) > .card-header,
+.bms-app-layout .bms-page-content .card:has(.table) > .card-header,
+.bms-app-layout .bms-page-content .bms-table-standalone-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
   margin: 0 !important;
-  overflow: visible !important;
+  padding: 16px 20px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  border-top: 0 !important;
 }
 
 .bms-app-layout .bms-page-content .card:has(table) > .card-body,
@@ -91,32 +91,27 @@
 .bms-app-layout .bms-page-content .bms-table-standalone-body,
 .bms-app-layout .bms-page-content .bms-table-card > .card-body {
   padding: 0 !important;
-  background: transparent !important;
-}
-
-.bms-app-layout .bms-page-content .bms-table-standalone-header {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-}
-
-.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar,
-.bms-app-layout .bms-page-content .card:has(table) > .card-header .bms-filter-bar {
-  width: 100% !important;
+  background: #ffffff !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-title,
-.bms-app-layout .bms-page-content .card:has(table) > .card-header {
+.bms-app-layout .bms-page-content .card:has(table) > .card-header h5,
+.bms-app-layout .bms-page-content .card:has(table) > .card-header .bms-card-title {
   color: #0f2744 !important;
-  font-size: 15px !important;
+  font-size: 16px !important;
   font-weight: 700 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.bms-app-layout .bms-page-content .bms-table-standalone-subtitle,
+.bms-app-layout .bms-page-content .card:has(table) > .card-header .text-muted {
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  margin-top: 2px !important;
 }
 
 .bms-app-layout .bms-page-content .table-responsive,
@@ -1047,14 +1042,23 @@
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-section .bms-filter-bar,
-.bms-app-layout .bms-page-content .card:has(table) > .bms-filter-bar,
-.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar {
+.bms-app-layout .bms-page-content .card:has(table) > .bms-filter-bar {
   width: 100% !important;
   margin: 0 0 12px !important;
   padding: 10px 12px !important;
   background: #ffffff !important;
   border: 1px solid #d5e3f5 !important;
   border-radius: 16px !important;
+}
+
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar,
+.bms-app-layout .bms-page-content .card:has(table) > .card-header .bms-filter-bar {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-tabs {

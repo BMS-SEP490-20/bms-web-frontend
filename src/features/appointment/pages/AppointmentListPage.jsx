@@ -354,19 +354,10 @@ export default function AppointmentListPage() {
         </div>
         <div className="d-flex align-items-center gap-2">
           {isPatient && (
-            <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3">
+            <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
               <FaCalendarAlt /> Đặt Lịch Khám Mới
             </Link>
           )}
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            className="d-flex align-items-center gap-2 px-3"
-            onClick={fetchAppointments}
-            disabled={loading}
-          >
-            <FaRedo className={loading ? 'fa-spin' : ''} /> Làm mới
-          </Button>
         </div>
       </header>
 

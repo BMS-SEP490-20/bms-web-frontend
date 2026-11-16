@@ -351,28 +351,18 @@ export function RegisterWalkInPage({ onSuccess }) {
                 <option value="HIGH">Ưu tiên (Người già &gt;75t, phụ nữ mang thai, trẻ sơ sinh)</option>
               </select>
             </div>
-            <div className="card-footer bg-white border-0 d-flex justify-content-between px-3 py-3">
+            <div className="card-footer bg-white border-0 d-flex justify-content-between align-items-center px-4 py-3">
               <span className="text-muted small">
                 <i className="fas fa-info-circle me-1"></i> Hồ sơ sau khi lưu sẽ sẵn sàng cấp STT lấy mẫu.
               </span>
-              <div className="d-flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  style={{ minHeight: 44 }}
-                  onClick={() => setForm(emptyForm)}
-                >
-                  Làm mới
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ minHeight: 44, backgroundColor: '#1e40af', borderColor: '#1e40af' }}
-                  disabled={loading}
-                >
-                  {loading ? 'Đang lưu hồ sơ…' : 'Xác Nhận Tiếp Nhận'}
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="btn btn-primary rounded-pill px-4 fw-semibold"
+                style={{ minHeight: 42, backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                disabled={loading}
+              >
+                {loading ? 'Đang lưu hồ sơ…' : 'Xác Nhận Tiếp Nhận'}
+              </button>
             </div>
           </form>
         </div>

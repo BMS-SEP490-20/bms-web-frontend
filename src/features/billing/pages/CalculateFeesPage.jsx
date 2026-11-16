@@ -230,27 +230,19 @@ export default function CalculateFeesPage() {
                 <FaCalculator />
               </div>
               <div>
-                <h1 className="bms-page-title">Tính phí</h1>
-                <div className="d-none">
-                  Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí điều dưỡng lấy mẫu tại nhà và mã giảm giá chuẩn Bộ Y Tế.
+                <h1 className="bms-page-title fs-4 mb-1">Tra Cứu Bảng Giá &amp; Dự Toán Chi Phí BHYT</h1>
+                <div className="text-muted small">
+                  Tự động chiết tính quyền lợi BHYT (80% - 100%), phụ phí điều dưỡng lấy mẫu và áp dụng mã ưu đãi chuẩn Bộ Y Tế.
                 </div>
               </div>
             </div>
 
             <div className="d-flex gap-2">
               <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={handleReset}
-                className="d-flex align-items-center gap-1 px-3 py-2 fw-semibold"
-              >
-                <FaRedo /> Làm mới
-              </Button>
-              <Button
                 variant="outline-primary"
                 size="sm"
                 onClick={() => window.print()}
-                className="d-flex align-items-center gap-1 px-3 py-2 fw-semibold"
+                className="d-flex align-items-center gap-1 px-3 py-2 fw-semibold rounded-pill"
               >
                 <FaPrint /> In Dự Toán
               </Button>

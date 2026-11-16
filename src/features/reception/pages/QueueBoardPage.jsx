@@ -173,7 +173,7 @@ export default function QueueBoardPage() {
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
           {data.counters?.length > 0 && (
-            <div className="d-flex align-items-center me-2">
+            <div className="d-flex align-items-center">
               <span className="small text-muted me-2 fw-semibold">Quầy:</span>
               <select
                 className="form-select form-select-sm rounded-pill"
@@ -189,12 +189,6 @@ export default function QueueBoardPage() {
               </select>
             </div>
           )}
-          <button
-            onClick={loadQueue}
-            className="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold"
-          >
-            <FaSyncAlt className={`me-1 ${loading ? "fa-spin" : ""}`} /> Làm mới
-          </button>
         </div>
       </div>
 
@@ -213,26 +207,28 @@ export default function QueueBoardPage() {
 
       {/* Main Grid: Left Queue Standalone Table, Right Issue Box */}
       <div className="row g-4">
-        {/* Left Column: Standalone Table Section (ZERO TABLE IN CARDS) */}
+        {/* Left Column: Unified Card Section */}
         <div className="col-12 col-xl-8">
-          <div className="bms-table-standalone-section mb-4">
-            <div className="bms-table-standalone-header">
-              <div>
-                <h5 className="bms-table-standalone-title">
-                  <FaListOl style={{ color: '#1E60E6' }} />
-                  Hàng Đợi Bệnh Nhân Tiếp Đón — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
-                </h5>
-                <div className="bms-table-standalone-subtitle">
-                  Theo dõi trạng thái lượt gọi số và phân bổ vào các phòng lấy mẫu y tế
+          <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+            <div className="card-header bg-white border-bottom py-3 px-4">
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
+                <div>
+                  <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                    <FaListOl style={{ color: '#1E60E6' }} />
+                    Hàng Đợi Bệnh Nhân Tiếp Đón — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  </h5>
+                  <div className="text-muted small">
+                    Theo dõi trạng thái lượt gọi số và phân bổ vào các phòng lấy mẫu y tế
+                  </div>
                 </div>
-              </div>
 
-              <span className="badge rounded-pill px-3 py-2 fw-semibold" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontSize: '12px' }}>
-                Tổng số: {data.currentQueue.length} bệnh nhân
-              </span>
+                <span className="badge rounded-pill px-3 py-2 fw-semibold" style={{ backgroundColor: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontSize: '12px' }}>
+                  Tổng số: {data.currentQueue.length} bệnh nhân
+                </span>
+              </div>
             </div>
 
-            <div className="bms-table-standalone-body">
+            <div className="card-body p-0">
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0">
                   <thead style={{ background: '#F8FAFC' }}>

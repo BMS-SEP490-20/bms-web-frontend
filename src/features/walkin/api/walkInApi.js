@@ -14,10 +14,19 @@ function authHeaders() {
 }
 
 async function handle(res) {
+  res = await res;
   if (!res.ok) {
     const err = await res.json().catch(() => null);
-    throw new Error(err?.message ?? `HTTP ${res.status}`);
+    let errMsg = err?.message || err?.Message || err?.title || err?.detail;
+    if (!errMsg && err?.errors) {
+      errMsg = Object.values(err.errors).flat().join(', ');
+    }
+    const error = new Error(errMsg || `HTTP ${res.status}`);
+    error.status = res.status;
+    error.code = err?.code;
+    throw error;
   }
+  if (res.status === 204) return null;
   return res.json();
 }
 

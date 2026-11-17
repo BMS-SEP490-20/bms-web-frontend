@@ -373,97 +373,95 @@ export function ViewShiftsPage() {
 
       )}
 
-      {/* 3. Unified Card Section for Shifts */}
-      <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-        <div className="card-header bg-white border-bottom py-3 px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-            <div>
-              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                <FaCalendarAlt style={{ color: '#1E60E6' }} />
-                {viewMode === 'timetable' ? 'Thời Khóa Biểu Ca Trực' : 'Danh Sách Ca Trực'}
-              </h5>
-              <div className="text-muted small">
-                {viewMode === 'timetable' ? 'Ma trận ca trực theo tuần (Slot & Thứ trong tuần)' : 'Xem dạng bảng chi tiết từng ca trực'}
-              </div>
+      {/* 3. Standalone Independent Table Section for Shifts (ZERO TABLE IN CARDS) */}
+      {viewMode === 'table' && (
+        <div className="bms-filter-bar mb-3">
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+            <div className="d-flex align-items-center gap-2 flex-nowrap">
+              <span className="small text-muted fw-semibold text-nowrap">Từ ngày:</span>
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                style={{ width: '140px', borderRadius: '9999px', height: '36px' }}
+              />
+              <span className="small text-muted fw-semibold text-nowrap">Đến ngày:</span>
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                style={{ width: '140px', borderRadius: '9999px', height: '36px' }}
+              />
             </div>
 
-            <div className="d-flex flex-wrap align-items-center gap-2">
-              {/* View Mode Toggle */}
-              <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${viewMode === 'timetable' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                  onClick={() => setViewMode('timetable')}
-                  style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                >
-                  <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                  onClick={() => setViewMode('table')}
-                  style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                >
-                  <FaThList className="me-1" /> Dạng Bảng
-                </button>
-              </div>
+            {/* Pill filter buttons on 1 line */}
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('all')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Tất cả ({sourceShifts.length})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('active')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Đang hiệu lực ({activeCount})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('unused')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Chưa tiếp nhận ({unassigned})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {viewMode === 'table' && (
-                <div className="d-flex flex-wrap align-items-center gap-2 ms-lg-2">
-                  {/* Date Filters */}
-                  <div className="d-flex align-items-center gap-2">
-                    <span className="small text-muted fw-semibold">Từ:</span>
-                    <input
-                      type="date"
-                      className="form-control form-control-sm"
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value)}
-                      style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-                    />
-                    <span className="small text-muted fw-semibold">Đến:</span>
-                    <input
-                      type="date"
-                      className="form-control form-control-sm"
-                      value={to}
-                      onChange={(e) => setTo(e.target.value)}
-                      style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-                    />
-                  </div>
+      <div className="bms-table-standalone-section mb-4">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              {viewMode === 'timetable' ? 'Thời Khóa Biểu Ca Trực' : 'Danh Sách Ca Trực'}
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              {viewMode === 'timetable' ? 'Ma trận ca trực theo tuần (Slot & Thứ trong tuần)' : 'Xem dạng bảng chi tiết từng ca trực'}
+            </div>
+          </div>
 
-                  {/* Pill filter buttons */}
-                  <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('all')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Tất cả ({sourceShifts.length})
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('active')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Đang hiệu lực ({activeCount})
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('unused')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Chưa tiếp nhận ({unassigned})
-                    </button>
-                  </div>
-                </div>
-              )}
+          <div className="d-flex align-items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === 'timetable' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('timetable')}
+                style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('table')}
+                style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaThList className="me-1" /> Dạng Bảng
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="bms-table-standalone-body">
           {viewMode === 'timetable' ? (
             <WeeklyShiftTimetable
               shifts={filtered}

@@ -437,61 +437,51 @@ export default function CalculateFeesPage() {
               <div>
                 <Row className="g-2 align-items-center">
                   <Col xs={12} md={8}>
-                    <InputGroup>
-                      <InputGroup.Text className="bg-white border-end-0">
-                        <FaSearch className="text-muted" />
-                      </InputGroup.Text>
-                      <Form.Control
-                        type="text"
-                        placeholder="Nhập Mã Lịch Hẹn (APT-xxxx), Mã BN (PAT-xxxx), hoặc số CCCD để nạp Y lệnh Bác sĩ..."
-                        value={orderSearchCode}
-                        onChange={(e) => setOrderSearchCode(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleLookupDoctorOrder(); }}
-                        className="border-start-0 py-2"
-                        style={{ fontSize: '14px' }}
-                      />
-                    </InputGroup>
+                    <Form.Control
+                      type="text"
+                      placeholder="Mã lịch hẹn (APT-xxxx), Mã BN hoặc CCCD..."
+                      value={orderSearchCode}
+                      onChange={(e) => setOrderSearchCode(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleLookupDoctorOrder(); }}
+                      style={{ height: '42px', fontSize: '14px', borderRadius: '10px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }}
+                    />
                   </Col>
                   <Col xs={12} md={4} className="d-flex gap-2">
                     <Button
                       variant="primary"
                       onClick={() => handleLookupDoctorOrder()}
                       disabled={searchingOrder}
-                      className="w-100 rounded-pill py-2 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                      className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                      style={{ height: '42px', borderRadius: '10px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     >
-                      {searchingOrder ? <Spinner animation="border" size="sm" /> : <FaNotesMedical />}
-                      <span>Nạp Y Lệnh Chỉ Định</span>
+                      {searchingOrder && <Spinner animation="border" size="sm" />}
+                      <span>Nạp Y Lệnh</span>
                     </Button>
                   </Col>
                 </Row>
 
                 <div className="d-flex flex-wrap align-items-center gap-2 mt-2 pt-1 text-muted small">
                   <span>Mẫu thử nhanh:</span>
-                  <Badge
-                    bg="light"
-                    text="primary"
-                    className="border cursor-pointer font-monospace py-1.5 px-2"
-                    style={{ cursor: "pointer" }}
+                  <span
+                    className="font-monospace"
+                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                     onClick={() => {
                       setOrderSearchCode("APT-261127-0001");
                       handleLookupDoctorOrder("APT-261127-0001");
                     }}
                   >
                     APT-261127-0001 (BN: Trần Văn An)
-                  </Badge>
-                  <Badge
-                    bg="light"
-                    text="primary"
-                    className="border cursor-pointer font-monospace py-1.5 px-2"
-                    style={{ cursor: "pointer" }}
+                  </span>
+                  <span
+                    className="font-monospace"
+                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                     onClick={() => {
                       setOrderSearchCode("APT-261113-0002");
                       handleLookupDoctorOrder("APT-261113-0002");
                     }}
                   >
                     APT-261113-0002 (Lấy mẫu máu)
-                  </Badge>
+                  </span>
                 </div>
               </div>
             )}
@@ -535,11 +525,11 @@ export default function CalculateFeesPage() {
               <Card.Body className="p-3">
                 {/* Search & Category Filter Strip */}
                 <div className="d-flex flex-wrap gap-2 mb-3">
-                  <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+                  <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px', height: '40px' }}>
                     <FaSearch className="bms-search-icon" />
                     <input
                       type="text"
-                      placeholder="Tìm theo mã hoặc tên xét nghiệm (Gan, CBC, Sinh hóa, Máu)..."
+                      placeholder="Tìm tên hoặc mã xét nghiệm (Gan, CBC, Máu)..."
                       value={catalogSearch}
                       onChange={(e) => setCatalogSearch(e.target.value)}
                     />
@@ -682,49 +672,39 @@ export default function CalculateFeesPage() {
               <Card.Body className="p-4">
                 <Form.Group className="mb-3">
                   <Form.Label className="small text-muted fw-bold text-uppercase">
-                    Mã Thẻ BHYT (15 Ký tự chuẩn Bảo Hiểm Xã Hội Việt Nam)
+                    Mã Thẻ BHYT (15 Ký tự)
                   </Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text className="bg-light text-muted">
-                      <FaShieldAlt />
-                    </InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ví dụ: DN4791234567890 hoặc TE1012345678901..."
-                      value={insuranceCard}
-                      onChange={(e) => setInsuranceCard(e.target.value.toUpperCase())}
-                      className="font-monospace text-uppercase"
-                    />
-                  </InputGroup>
+                  <Form.Control
+                    type="text"
+                    placeholder="Ví dụ: DN4791234567890 hoặc TE1012345678901..."
+                    value={insuranceCard}
+                    onChange={(e) => setInsuranceCard(e.target.value.toUpperCase())}
+                    className="font-monospace text-uppercase"
+                    style={{ height: '42px', fontSize: '14px', borderRadius: '10px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }}
+                  />
                   <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
                     <span className="text-muted small">Thử nhanh mã chuẩn:</span>
-                    <Badge
-                      bg="light"
-                      text="primary"
-                      className="border cursor-pointer py-1 px-2"
-                      style={{ cursor: "pointer" }}
+                    <span
+                      className="cursor-pointer"
+                      style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                       onClick={() => setInsuranceCard("TE1012345678901")}
                     >
                       TE (Trẻ em &lt;6t: 100%)
-                    </Badge>
-                    <Badge
-                      bg="light"
-                      text="primary"
-                      className="border cursor-pointer py-1 px-2"
-                      style={{ cursor: "pointer" }}
+                    </span>
+                    <span
+                      className="cursor-pointer"
+                      style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                       onClick={() => setInsuranceCard("DN4791234567890")}
                     >
                       DN (Người lao động: 80%)
-                    </Badge>
-                    <Badge
-                      bg="light"
-                      text="primary"
-                      className="border cursor-pointer py-1 px-2"
-                      style={{ cursor: "pointer" }}
+                    </span>
+                    <span
+                      className="cursor-pointer"
+                      style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                       onClick={() => setInsuranceCard("CN3012345678901")}
                     >
                       CN (Hộ cận nghèo: 95%)
-                    </Badge>
+                    </span>
                   </div>
                 </Form.Group>
 
@@ -761,19 +741,20 @@ export default function CalculateFeesPage() {
               </Card.Header>
               <Card.Body className="p-4">
                 <div className="d-flex gap-2 mb-2">
-                  <InputGroup>
-                    <InputGroup.Text className="bg-light text-muted">
-                      <FaTag />
-                    </InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      placeholder="Nhập mã khuyến mãi (BMS10, FREEHOME, VIP50...)"
-                      value={voucherInput}
-                      onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
-                      className="font-monospace text-uppercase"
-                    />
-                  </InputGroup>
-                  <Button variant="primary" onClick={handleApplyVoucher} className="px-3 fw-bold rounded-pill" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nhập mã khuyến mãi (BMS10, FREEHOME...)"
+                    value={voucherInput}
+                    onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                    className="font-monospace text-uppercase"
+                    style={{ height: '42px', fontSize: '14px', borderRadius: '10px', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }}
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={handleApplyVoucher}
+                    className="fw-bold text-nowrap"
+                    style={{ height: '42px', minWidth: '105px', borderRadius: '10px', backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                  >
                     Áp Dụng
                   </Button>
                 </div>
@@ -791,24 +772,20 @@ export default function CalculateFeesPage() {
 
                 <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
                   <span className="text-muted small">Mã gợi ý:</span>
-                  <Badge
-                    bg="light"
-                    text="primary"
-                    className="border cursor-pointer py-1 px-2"
-                    style={{ cursor: "pointer" }}
+                  <span
+                    className="cursor-pointer"
+                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                     onClick={() => setVoucherInput("BMS10")}
                   >
                     BMS10 (Giảm 10%)
-                  </Badge>
-                  <Badge
-                    bg="light"
-                    text="primary"
-                    className="border cursor-pointer py-1 px-2"
-                    style={{ cursor: "pointer" }}
+                  </span>
+                  <span
+                    className="cursor-pointer"
+                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
                     onClick={() => setVoucherInput("FREEHOME")}
                   >
                     FREEHOME (Miễn phụ phí tại nhà)
-                  </Badge>
+                  </span>
                 </div>
               </Card.Body>
             </Card>

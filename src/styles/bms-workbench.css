@@ -1120,3 +1120,24 @@ table .bms-table-action-btn {
   border-radius: 8px !important;
   font-weight: 500 !important;
 }
+
+/* Universal Single-Line Filter Bar Enforcement across ALL Roles & Pages */
+.bms-filter-bar .d-flex {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.bms-filter-bar select,
+.bms-filter-bar .form-select,
+.bms-filter-bar .bms-filter-select {
+  width: auto !important;
+  max-width: 260px !important;
+  flex: 0 1 auto !important;
+}
+
+.bms-filter-bar .bms-search-input-pill,
+.bms-filter-bar .bms-search-input-wrapper {
+  flex: 1 1 240px !important;
+  max-width: 440px !important;
+}

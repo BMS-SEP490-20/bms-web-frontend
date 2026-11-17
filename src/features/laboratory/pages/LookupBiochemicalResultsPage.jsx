@@ -159,32 +159,37 @@ export default function LookupBiochemicalResultsPage() {
   return (
     <div className="container-fluid px-3 py-2">
       {/* Page Header */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Kết quả sinh hóa</h1>
-        </div>
+      <div className="bms-page-header-card mb-4">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <h1 className="bms-page-title fs-4 m-0">Tra Cứu Kết Quả Xét Nghiệm Sinh Hóa</h1>
+            <p className="text-muted small m-0 mt-1">
+              Tra cứu chỉ số xét nghiệm, dải tham chiếu và báo cáo kết quả theo mã vạch mẫu.
+            </p>
+          </div>
 
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" className="rounded-pill px-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }} onClick={loadRecentResults} disabled={loadingRecent}>
-            <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} /> Làm mới
-          </Button>
-          {currentResult && (
-            <Button variant="outline-primary" size="sm" className="rounded-pill px-3" style={{ color: '#1E60E6', borderColor: '#1E60E6' }} onClick={handlePrint}>
-              <FaPrint className="me-1" /> In Kết Quả
+          <div className="d-flex gap-2">
+            <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 shadow-none" onClick={loadRecentResults} disabled={loadingRecent}>
+              <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} /> Làm mới
             </Button>
-          )}
-          {canNotify && (
-            <Button
-              size="sm"
-              className="rounded-pill px-3 fw-semibold shadow-sm"
-              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
-              onClick={() => navigate('/laboratory/notifications')}
-            >
-              <FaBell className="me-1" /> Thông báo
-            </Button>
-          )}
+            {currentResult && (
+              <Button variant="outline-primary" size="sm" className="rounded-pill px-3 shadow-none" style={{ color: '#1E60E6', borderColor: '#1E60E6' }} onClick={handlePrint}>
+                <FaPrint className="me-1" /> In Kết Quả
+              </Button>
+            )}
+            {canNotify && (
+              <Button
+                size="sm"
+                className="rounded-pill px-3 fw-semibold shadow-none text-white"
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                onClick={() => navigate('/laboratory/notifications')}
+              >
+                <FaBell className="me-1" /> Thông báo
+              </Button>
+            )}
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Search Bar Card */}
       <Card className="bms-filter-bar border-0">

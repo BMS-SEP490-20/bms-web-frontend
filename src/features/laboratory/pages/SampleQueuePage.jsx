@@ -656,28 +656,18 @@ const SampleQueuePage = () => {
               )}
             </div>
           ) : (
-            <div className="table-responsive" style={{ overflowX: 'hidden' }}>
-              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
-                <colgroup>
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '14%' }} />
-                  <col style={{ width: '18%' }} />
-                  <col style={{ width: '13%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '11%' }} />
-                  <col style={{ width: '14%' }} />
-                </colgroup>
+            <div className="table-responsive">
+              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'auto', minWidth: '1080px', width: '100%' }}>
                 <thead className="table-light">
                   <tr>
-                    <th className="ps-3">Barcode / Mã Mẫu</th>
-                    <th>Bệnh Nhân</th>
-                    <th>Chỉ Định / Ống Mẫu</th>
-                    <th>Thời Gian Lấy Mẫu</th>
-                    <th>Ưu Tiên</th>
-                    <th>Phòng Lab</th>
-                    <th>Trạng Thái</th>
-                    <th className="text-end pe-3">Thao Tác (Popup)</th>
+                    <th className="ps-3" style={{ width: '12%' }}>Barcode / Mã Mẫu</th>
+                    <th style={{ width: '13%' }}>Bệnh Nhân</th>
+                    <th style={{ width: '16%' }}>Chỉ Định / Ống Mẫu</th>
+                    <th style={{ width: '12%' }}>Thời Gian Lấy Mẫu</th>
+                    <th style={{ width: '8%' }}>Ưu Tiên</th>
+                    <th style={{ width: '9%' }}>Phòng Lab</th>
+                    <th style={{ width: '13%' }}>Trạng Thái</th>
+                    <th className="text-end pe-3" style={{ width: '17%', minWidth: '170px' }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>

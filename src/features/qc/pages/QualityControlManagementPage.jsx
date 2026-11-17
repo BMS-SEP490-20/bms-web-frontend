@@ -268,10 +268,12 @@ export default function QualityControlManagementPage() {
                 <div className="bms-page-header-content">
                     
                     <div className="bms-page-title-row">
-                        
-                        <h1 className="bms-page-title">
-                            Kiểm Chuẩn Chất Lượng (IQC)
+                        <h1 className="bms-page-title fs-4 m-0">
+                            Kiểm Chuẩn Chất Lượng Nội Bộ (IQC)
                         </h1>
+                        <p className="text-muted small m-0 mt-1">
+                            Biểu đồ Levey-Jennings, kiểm soát cảnh báo Westgard và quản lý lô kiểm chuẩn.
+                        </p>
                     </div>
                     
                 </div>

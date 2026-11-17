@@ -464,37 +464,44 @@ export default function DoctorConsolePage() {
   return (
     <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Top Banner & Room Switcher */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Bàn khám</h1>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <div className="d-flex align-items-center gap-2">
-            <label className="small fw-semibold text-secondary mb-0">Phòng khám:</label>
-            <Form.Select
-              size="sm"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              className="fw-bold text-primary"
-              style={{ width: '160px' }}
-            >
-              <option value="ROOM-101">Phòng khám 101</option>
-              <option value="ROOM-102">Phòng khám 102</option>
-              <option value="ROOM-103">Phòng khám 103</option>
-              <option value="LAB-201">Phòng lấy mẫu 201</option>
-            </Form.Select>
+      <div className="bms-page-header-card mb-4">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <h1 className="bms-page-title fs-4 m-0">Bàn Khám Bác Sĩ &amp; Gọi Số Tự Động</h1>
+            <p className="text-muted small m-0 mt-1">
+              Khám lâm sàng, chỉ định xét nghiệm và điều phối hàng đợi bệnh nhân.
+            </p>
           </div>
+          <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center gap-2">
+              <label className="small fw-semibold text-secondary mb-0 text-nowrap">Phòng khám:</label>
+              <Form.Select
+                size="sm"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="fw-bold text-primary"
+                style={{ width: '160px', borderRadius: '8px', borderColor: '#CBD5E1' }}
+              >
+                <option value="ROOM-101">Phòng khám 101</option>
+                <option value="ROOM-102">Phòng khám 102</option>
+                <option value="ROOM-103">Phòng khám 103</option>
+                <option value="LAB-201">Phòng lấy mẫu 201</option>
+              </Form.Select>
+            </div>
 
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={fetchQueue}
-            title="Tải lại danh sách hàng đợi"
-          >
-            <FaRedo className={loading ? 'fa-spin' : ''} />
-          </Button>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={fetchQueue}
+              title="Tải lại danh sách hàng đợi"
+              className="rounded-circle p-2 d-flex align-items-center justify-content-center shadow-none"
+              style={{ width: '34px', height: '34px' }}
+            >
+              <FaRedo className={loading ? 'fa-spin' : ''} size={12} />
+            </Button>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Alerts */}
       {verifiedAlert && (

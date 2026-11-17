@@ -173,34 +173,28 @@ export default function BillingInvoicesPage() {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
       {/* Header */}
-      <header className="bms-page-header mb-4">
-        <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
-          <h1 className="bms-page-title fs-4">Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử</h1>
-          <p className="text-muted small mb-0">
-            Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT theo Nghị định 123/2020/NĐ-CP.
-          </p>
-        </div>
+      <div className="bms-page-header-card mb-4">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <h1 className="bms-page-title fs-4 m-0">Quầy Thu Viện Phí &amp; Hóa Đơn</h1>
+            <p className="text-muted small m-0 mt-1">
+              Thu viện phí trực tiếp, in biên lai nhiệt K80 và phát hành hóa đơn điện tử.
+            </p>
+          </div>
 
-        <button
-          onClick={() => setShowCreateModal(true)}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '9999px',
-            border: 'none',
-            backgroundColor: '#1E60E6',
-            color: '#ffffff',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(30, 96, 230, 0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <span>+</span>
-          <span>Tạo Hóa Đơn Thu Viện Phí</span>
-        </button>
-      </header>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold shadow-none"
+            style={{
+              backgroundColor: '#1E60E6',
+              boxShadow: '0 4px 12px rgba(30, 96, 230, 0.25)',
+              fontSize: '13px'
+            }}
+          >
+            <span>+ Tạo Hóa Đơn Thu Viện Phí</span>
+          </button>
+        </div>
+      </div>
 
       {/* Notifications */}
       {error && (
@@ -240,48 +234,56 @@ export default function BillingInvoicesPage() {
         </div>
       </div>
 
+      {/* Standalone Filter Bar */}
+      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
+        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
+            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
+            <input
+              type="text"
+              className="bms-search-field border-0 bg-transparent flex-grow-1"
+              placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ outline: 'none', fontSize: '13px' }}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="bms-search-clear border-0 bg-transparent"
+                onClick={() => setSearchTerm('')}
+                title="Xóa tìm kiếm"
+              >
+                <FaTimes size={12} />
+              </button>
+            )}
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="form-select form-select-sm"
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="1">Đã thanh toán (Paid)</option>
+            <option value="0">Chưa thanh toán (Unpaid)</option>
+          </select>
+          <div className="ms-auto text-muted small fw-medium text-nowrap">
+            Hiển thị <strong>{filteredInvoices.length}</strong> / <strong>{invoices.length}</strong> hóa đơn
+          </div>
+        </div>
+      </div>
+
       {/* Standalone Invoices Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section mb-4">
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              Sổ Hóa Đơn &amp; Biên Lai Viện Phí ({filteredInvoices.length})
+              Sổ Hóa Đơn &amp; Biên Lai Viện Phí
             </h5>
             <div className="bms-table-standalone-subtitle">
               Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
             </div>
-          </div>
-
-          <div className="d-flex align-items-center gap-2 ms-auto flex-nowrap" style={{ minWidth: 0, flexShrink: 0 }}>
-            <div className="bms-search-input-pill" style={{ width: '280px', flex: '0 0 280px' }}>
-              <FaSearch className="bms-search-icon" />
-              <input
-                type="text"
-                placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="bms-search-clear"
-                  onClick={() => setSearchTerm('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <FaTimes size={12} />
-                </button>
-              )}
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-select form-select-sm rounded-pill"
-              style={{ width: '165px', flex: '0 0 165px', height: '36px' }}
-            >
-              <option value="">Tất cả trạng thái</option>
-              <option value="1">Đã thanh toán (Paid)</option>
-              <option value="0">Chưa thanh toán (Unpaid)</option>
-            </select>
           </div>
         </div>
 
@@ -364,12 +366,12 @@ export default function BillingInvoicesPage() {
                           <Button
                             variant="success"
                             size="sm"
-                            className="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
-                            style={{ fontSize: '12px' }}
+                            className="btn btn-sm btn-success rounded-pill px-3 py-0 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
+                            style={{ fontSize: '12px', height: '28px' }}
                             onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
                           >
                             <FaCreditCard size={12} />
-                            <span>Thu Tiền POS</span>
+                            <span>Thu Phí</span>
                           </Button>
                         )}
                         {isPaid && (
@@ -377,8 +379,8 @@ export default function BillingInvoicesPage() {
                             <Button
                               variant="outline-secondary"
                               size="sm"
-                              className="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
-                              style={{ fontSize: '12px' }}
+                              className="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
+                              style={{ fontSize: '12px', height: '28px' }}
                               onClick={() => handleOpenPrint(inv)}
                               title="In biên lai nhiệt K80"
                             >
@@ -388,8 +390,8 @@ export default function BillingInvoicesPage() {
                             <Button
                               variant="outline-primary"
                               size="sm"
-                              className="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
-                              style={{ fontSize: '12px' }}
+                              className="btn btn-sm btn-outline-primary rounded-pill px-2 py-0 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
+                              style={{ fontSize: '12px', height: '28px' }}
                               onClick={() => handleOpenVat(inv)}
                               title="Xuất hóa đơn VAT điện tử"
                             >

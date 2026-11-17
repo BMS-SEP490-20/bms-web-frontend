@@ -371,10 +371,10 @@ export default function CalculateFeesPage() {
               </div>
               <div>
                 <h1 className="bms-page-title fs-4 mb-1 text-dark fw-bold">
-                  Quầy Dự Toán Viện Phí &amp; Chiết Tính Đồng Chi Trả BHYT
+                  Quầy Dự Toán Viện Phí &amp; BHYT
                 </h1>
                 <div className="text-muted small">
-                  Bàn tính dự toán chuẩn Thông tư 22/2023/TT-BYT &amp; QĐ 3618/QĐ-BHXH. Hỗ trợ nạp Y lệnh Bác sĩ và xuất dự toán minh bạch.
+                  Dự toán chi phí xét nghiệm và tỷ lệ đồng chi trả BHYT.
                 </div>
               </div>
             </div>
@@ -386,7 +386,7 @@ export default function CalculateFeesPage() {
                 onClick={() => window.print()}
                 className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill shadow-sm"
               >
-                <FaPrint /> <span>In Bảng Dự Toán K80</span>
+                <FaPrint /> <span>In Bảng Dự Toán</span>
               </Button>
             </div>
           </Card.Body>
@@ -401,11 +401,11 @@ export default function CalculateFeesPage() {
                   1
                 </Badge>
                 <h5 className="mb-0 fw-bold text-dark fs-6">
-                  Nạp Y Lệnh Từ Bác Sĩ Chỉ Định Hoặc Tra Cứu Bệnh Nhân
+                  Nạp Y Lệnh Hoặc Tra Cứu Bệnh Nhân
                 </h5>
               </div>
               <span className="badge bg-light text-primary border rounded-pill px-3 py-1.5 fw-semibold small">
-                Tự động đồng bộ LIS / HIS
+                Đồng bộ LIS
               </span>
             </div>
           </Card.Header>
@@ -513,11 +513,11 @@ export default function CalculateFeesPage() {
                       2
                     </Badge>
                     <h5 className="mb-0 fw-bold text-dark fs-6">
-                      Danh Mục Chỉ Định &amp; Bảng Giá Xét Nghiệm Niêm Yết
+                      Danh Mục Gói Xét Nghiệm
                     </h5>
                   </div>
                   <span className="text-muted small">
-                    Đã chọn: <strong className="text-primary">{selectedPackageCodes.length}</strong> danh mục
+                    Đã chọn: <strong className="text-primary">{selectedPackageCodes.length}</strong>
                   </span>
                 </div>
               </Card.Header>
@@ -664,7 +664,7 @@ export default function CalculateFeesPage() {
                     3
                   </Badge>
                   <h5 className="mb-0 fw-bold text-dark fs-6">
-                    Bảo Hiểm Y Tế &amp; Chế Độ Ưu Tiên (Luật Khám Bệnh Chữa Bệnh 2023)
+                    Bảo Hiểm Y Tế &amp; Chế Độ Ưu Tiên
                   </h5>
                 </div>
               </Card.Header>

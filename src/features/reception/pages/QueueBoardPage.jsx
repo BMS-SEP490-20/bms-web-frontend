@@ -162,7 +162,7 @@ export default function QueueBoardPage() {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              Bảng Gọi Số &amp; Điều Phối Tiếp Đón
+              Bảng Gọi Số &amp; Hàng Đợi
             </h1>
           </div>
           

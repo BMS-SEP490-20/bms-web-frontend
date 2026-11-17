@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaSearch, FaPlus, FaSlidersH } from 'react-icons/fa';
 import testCriterionService from '../../../services/testCriterionService';
 import TestCriterionFormModal from '../components/TestCriterionFormModal';
 import DeactivateCriterionModal from '../components/DeactivateCriterionModal';
@@ -190,51 +191,57 @@ export default function TestCriteriaPage() {
 
   return (
     <div className="bms-criteria-container">
-      {/* Header Banner */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content"><h1 className="bms-page-title">Danh mục chỉ số</h1></div>
-
-        <div className="bms-criteria-actions" style={{ display: 'flex', gap: '10px' }}>
-          <button
-            type="button"
-            className="bms-btn"
-            onClick={() => navigate('/laboratory/reference-intervals')}
-            id="btn-goto-reference-intervals"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd', fontWeight: 600 }}
-          >
-            <span>&#9825;</span>
-            <span>Khoảng tham chiếu</span>
-          </button>
-          <button
-            type="button"
-            className="bms-btn bms-btn-primary"
-            onClick={handleOpenCreateModal}
-            id="btn-add-criterion"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <span>+</span>
-            <span>Thêm chỉ số</span>
-          </button>
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-3">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <h1 className="bms-page-title fs-4 m-0">Danh Mục Chỉ Số Xét Nghiệm</h1>
+            <p className="text-muted small m-0 mt-1">
+              Quản lý danh mục chỉ số, chuyên khoa và khoảng tham chiếu sinh học.
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold"
+              onClick={() => navigate('/laboratory/reference-intervals')}
+              id="btn-goto-reference-intervals"
+            >
+              <FaSlidersH size={13} />
+              <span>Khoảng tham chiếu</span>
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold shadow-none"
+              onClick={handleOpenCreateModal}
+              id="btn-add-criterion"
+            >
+              <FaPlus size={12} />
+              <span>Thêm chỉ số</span>
+            </button>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Toolbar / Filters */}
-      <div className="bms-filter-bar">
-        <div className="bms-criteria-filters">
-          <div className="bms-search-input-wrapper">
-            <span className="bms-search-icon" aria-hidden="true">⌕</span>
+      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
+        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
+            <FaSearch className="text-muted me-2" style={{ fontSize: '13px', flexShrink: 0 }} />
             <input
               type="text"
-              className="bms-search-field"
+              className="bms-search-field border-0 bg-transparent flex-grow-1"
               placeholder="Tìm theo mã (GLU, WBC) hoặc tên chỉ số..."
               value={searchQuery}
               onChange={handleSearchChange}
               id="input-criteria-search"
+              style={{ outline: 'none', fontSize: '13px' }}
             />
           </div>
 
           <select
-            className="bms-filter-select"
+            className="form-select form-select-sm"
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             id="select-category-filter"
@@ -248,7 +255,8 @@ export default function TestCriteriaPage() {
           </select>
 
           <select
-            className="bms-filter-select"
+            className="form-select form-select-sm"
+            style={{ width: 'auto', minWidth: '160px', maxWidth: '200px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             id="select-status-filter"
@@ -257,10 +265,10 @@ export default function TestCriteriaPage() {
             <option value="ACTIVE">Đang áp dụng</option>
             <option value="INACTIVE">Đã ngưng sử dụng</option>
           </select>
-        </div>
 
-        <div className="bms-filter-meta">
-          Hiển thị <strong>{criteria.length}</strong> / <strong>{pagination.totalCount}</strong> chỉ số xét nghiệm
+          <div className="ms-auto text-muted small fw-medium text-nowrap">
+            Hiển thị <strong>{criteria.length}</strong> / <strong>{pagination.totalCount}</strong> chỉ số
+          </div>
         </div>
       </div>
 
@@ -345,19 +353,20 @@ export default function TestCriteriaPage() {
                       )}
                     </td>
                     <td className="col-right">
-                      <div className="bms-action-btn-group">
+                      <div className="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
                         <button
                           type="button"
-                          className="bms-table-action-btn"
+                          className="btn btn-sm btn-outline-info rounded-pill px-2 py-0 fw-semibold shadow-none text-nowrap"
+                          style={{ fontSize: '12px', height: '28px' }}
                           title="Cấu hình khoảng tham chiếu sinh học"
                           onClick={() => navigate(`/laboratory/reference-intervals?criterion=${item.criterionCode}`)}
-                          style={{ color: '#0284c7', backgroundColor: '#f0f9ff' }}
                         >
                           Dải TC
                         </button>
                         <button
                           type="button"
-                          className="bms-table-action-btn"
+                          className="btn btn-sm btn-outline-primary rounded-pill px-2 py-0 fw-semibold shadow-none text-nowrap"
+                          style={{ fontSize: '12px', height: '28px' }}
                           title="Chỉnh sửa chỉ số"
                           onClick={() => handleOpenEditModal(item)}
                         >
@@ -366,7 +375,8 @@ export default function TestCriteriaPage() {
                         {item.isActive && (
                           <button
                             type="button"
-                            className="bms-table-action-btn danger"
+                            className="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 fw-semibold shadow-none text-nowrap"
+                            style={{ fontSize: '12px', height: '28px' }}
                             title="Ngưng áp dụng chỉ số"
                             onClick={() => handleOpenDeactivateModal(item)}
                           >
@@ -383,14 +393,14 @@ export default function TestCriteriaPage() {
         </div>
 
         {/* Pagination Bar */}
-        <div className="bms-pagination-bar">
-          <div className="bms-pagination-info">
+        <div className="bms-pagination-bar p-3 bg-white border-top d-flex align-items-center justify-content-between">
+          <div className="bms-pagination-info small text-muted">
             Trang <strong>{pagination.currentPage}</strong> / <strong>{pagination.totalPages}</strong>
           </div>
-          <div className="bms-pagination-buttons">
+          <div className="bms-pagination-buttons d-flex gap-2">
             <button
               type="button"
-              className="bms-page-btn"
+              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none"
               disabled={pagination.currentPage <= 1 || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage - 1)}
             >
@@ -398,7 +408,7 @@ export default function TestCriteriaPage() {
             </button>
             <button
               type="button"
-              className="bms-page-btn"
+              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none"
               disabled={pagination.currentPage >= pagination.totalPages || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage + 1)}
             >

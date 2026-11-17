@@ -1081,3 +1081,63 @@
   background: transparent !important;
   border: 0 !important;
 }
+
+/* Global Zero Box-in-Box Fallback across ALL Roles & Layouts */
+.bms-table-standalone-section .bms-filter-bar,
+.bms-table-standalone-body .bms-filter-bar,
+.card:has(table) .bms-filter-bar,
+.card:has(.table) .bms-filter-bar {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eef2f6 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Unified Action Column Styling: No Line Break, Neat Alignment */
+table td:last-child {
+  white-space: nowrap !important;
+}
+
+table .bms-action-btn-group,
+table .btn-group {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+}
+
+table .btn-sm,
+table .bms-table-action-btn {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+/* Universal Single-Line Filter Bar Enforcement across ALL Roles & Pages */
+.bms-filter-bar .d-flex {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.bms-filter-bar select,
+.bms-filter-bar .form-select,
+.bms-filter-bar .bms-filter-select {
+  width: auto !important;
+  max-width: 260px !important;
+  flex: 0 1 auto !important;
+}
+
+.bms-filter-bar .bms-search-input-pill,
+.bms-filter-bar .bms-search-input-wrapper {
+  flex: 1 1 240px !important;
+  max-width: 440px !important;
+}

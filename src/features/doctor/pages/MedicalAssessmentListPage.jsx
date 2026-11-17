@@ -165,70 +165,80 @@ export default function MedicalAssessmentListPage() {
   return (
     <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Header bar */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Đánh giá lâm sàng</h1>
-        </div>
-        <div className="d-flex gap-2">
-          <Button
-            variant="outline-secondary"
-            onClick={() => navigate('/doctor/console')}
-            className="d-flex align-items-center gap-2 rounded-3 shadow-sm"
-          >
-            <FaUserMd /> Bàn Khám Bác Sĩ
-          </Button>
-          {canManageAssessments && (
+      <div className="bms-page-header-card mb-4">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <h1 className="bms-page-title fs-4 m-0">Hồ Sơ Đánh Giá Lâm Sàng (ICD-10)</h1>
+            <p className="text-muted small m-0 mt-1">
+              Quản lý hồ sơ khám bệnh, chẩn đoán xác định và kết luận bệnh án EMR.
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
             <Button
-              variant="primary"
-              onClick={() => navigate('/medical-assessments/add')}
-              className="d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3 fw-semibold text-white"
-              style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => navigate('/doctor/console')}
+              className="d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-none"
+              style={{ fontSize: '13px' }}
             >
-              <FaPlus /> Thêm đánh giá
+              <FaUserMd /> <span>Bàn Khám Bác Sĩ</span>
             </Button>
-          )}
+            {canManageAssessments && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => navigate('/medical-assessments/add')}
+                className="d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-none text-white"
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px' }}
+              >
+                <FaPlus /> <span>Thêm đánh giá</span>
+              </Button>
+            )}
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Filter and Search Bar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-3 align-items-center">
-            <Col md={6}>
-              <InputGroup>
-                <InputGroup.Text className="bg-white border-end-0">
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10 hoặc kết luận chẩn đoán..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-start-0 ps-0"
-                />
-                {searchTerm && (
-                  <Button variant="outline-secondary" onClick={() => setSearchTerm('')}>
-                    <FaTimes />
-                  </Button>
-                )}
-              </InputGroup>
-            </Col>
-            <Col md={3}>
-              <Form.Select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
+        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '440px', minWidth: '240px', height: '40px' }}>
+            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
+            <input
+              type="text"
+              className="bms-search-field border-0 bg-transparent flex-grow-1"
+              placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ outline: 'none', fontSize: '13px' }}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="bms-search-clear border-0 bg-transparent"
+                onClick={() => setSearchTerm('')}
+                title="Xóa tìm kiếm"
               >
-                <option value="">Tất cả trạng thái</option>
-                <option value="Draft">Bản nháp</option>
-                <option value="Finalized">Đã hoàn tất (Đã khóa)</option>
-              </Form.Select>
-            </Col>
-            <Col md={3} className="text-md-end text-muted small">
-              Tổng số hồ sơ: <strong className="text-dark font-monospace">{totalCount}</strong>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+                <FaTimes size={12} />
+              </button>
+            )}
+          </div>
+
+          <Form.Select
+            size="sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="Draft">Bản nháp</option>
+            <option value="Finalized">Đã hoàn tất (Đã khóa)</option>
+          </Form.Select>
+
+          <div className="ms-auto text-muted small fw-medium text-nowrap">
+            Tổng số hồ sơ: <strong className="text-dark font-monospace">{totalCount}</strong>
+          </div>
+        </div>
+      </div>
 
       {/* Error alert */}
       {errorMsg && (

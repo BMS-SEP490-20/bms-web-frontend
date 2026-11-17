@@ -307,10 +307,12 @@ export default function UserManagementPage() {
         <div className="bms-page-header-content">
           
           <div className="bms-page-title-row">
-            
-            <h1 className="bms-page-title">
+            <h1 className="bms-page-title fs-4 m-0">
               Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
             </h1>
+            <p className="text-muted small m-0 mt-1">
+              Quản lý hồ sơ cán bộ y tế, phân quyền truy cập và kiểm soát tài khoản hệ thống.
+            </p>
           </div>
           
         </div>
@@ -389,60 +391,67 @@ export default function UserManagementPage() {
         </Col>
       </Row>
 
-      <div className="bms-filter-bar">
-        <Row className="g-2 align-items-center">
-            <Col xs={12} md={6}>
-              <div className="bms-search-input-pill">
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchTerm('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={selectedRole}
-                onChange={e => setSelectedRole(e.target.value)}
-                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
+      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
+        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
+            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
+            <input
+              type="text"
+              className="bms-search-field border-0 bg-transparent flex-grow-1"
+              placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc SĐT..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{ outline: 'none', fontSize: '13px' }}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="bms-search-clear border-0 bg-transparent"
+                onClick={() => setSearchTerm('')}
+                title="Xóa tìm kiếm"
               >
-                <option value="all">-- Tất cả vai trò --</option>
-                {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
-              </Form.Select>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.target.value)}
-                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
-              >
-                <option value="all">-- Tất cả trạng thái --</option>
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Đang bị khóa</option>
-              </Form.Select>
-            </Col>
-          </Row>
-        <Button
-          variant="outline-secondary"
-          size="sm"
-          onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
-        >
-          Xóa bộ lọc
-        </Button>
+                <FaTimes size={12} />
+              </button>
+            )}
+          </div>
+
+          <Form.Select
+            size="sm"
+            value={selectedRole}
+            onChange={e => setSelectedRole(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px', background: '#FFFFFF' }}
+          >
+            <option value="all">-- Tất cả vai trò --</option>
+            {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
+          </Form.Select>
+
+          <Form.Select
+            size="sm"
+            value={selectedStatus}
+            onChange={e => setSelectedStatus(e.target.value)}
+            style={{ width: 'auto', minWidth: '170px', maxWidth: '210px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px', background: '#FFFFFF' }}
+          >
+            <option value="all">-- Tất cả trạng thái --</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Đang bị khóa</option>
+          </Form.Select>
+
+          {(searchTerm || selectedRole !== 'all' || selectedStatus !== 'all') && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="rounded-pill px-3 py-1 fw-semibold text-nowrap shadow-none"
+              style={{ height: '36px', fontSize: '12px' }}
+              onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
+            >
+              Xóa bộ lọc
+            </Button>
+          )}
+
+          <div className="ms-auto text-muted small fw-medium text-nowrap">
+            Hiển thị <strong>{filteredUsers.length}</strong> / <strong>{safeUsers.length}</strong> tài khoản
+          </div>
+        </div>
       </div>
 
       <div className="bms-table-standalone-section">

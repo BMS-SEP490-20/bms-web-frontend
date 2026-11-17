@@ -125,10 +125,12 @@ export const RolesManagementPage = () => {
         <div className="bms-page-header-content">
           
           <div className="bms-page-title-row">
-            
-            <h1 className="bms-page-title">
+            <h1 className="bms-page-title fs-4 m-0">
               Phân Quyền Vai Trò Người Dùng
             </h1>
+            <p className="text-muted small m-0 mt-1">
+              Quản lý ma trận phân quyền và danh sách vai trò người dùng trong hệ thống.
+            </p>
           </div>
           
         </div>
@@ -211,34 +213,43 @@ export const RolesManagementPage = () => {
       </Row>
 
       {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
-      <section className="bms-filter-bar">
-        <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
-          <input
-            type="text"
-            placeholder="Tìm theo mã hoặc tên vai trò..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              className="bms-search-clear"
-              onClick={() => setSearchTerm('')}
-              title="Xóa tìm kiếm"
-            >
-              <FaTimes />
-            </button>
-          )}
+      <section className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
+        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
+            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
+            <input
+              type="text"
+              className="bms-search-field border-0 bg-transparent flex-grow-1"
+              placeholder="Tìm theo mã hoặc tên vai trò..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ outline: 'none', fontSize: '13px' }}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="bms-search-clear border-0 bg-transparent"
+                onClick={() => setSearchTerm('')}
+                title="Xóa tìm kiếm"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+          <Form.Select
+            className="form-select-sm"
+            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="true">Đang hoạt động</option>
+            <option value="false">Tạm khóa</option>
+          </Form.Select>
+          <div className="ms-auto text-muted small fw-medium text-nowrap">
+            Hiển thị <strong>{safeRoles.length}</strong> vai trò
+          </div>
         </div>
-        <Form.Select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="true">Đang hoạt động</option>
-          <option value="false">Tạm khóa</option>
-        </Form.Select>
       </section>
 
       <div className="bms-table-standalone-section">

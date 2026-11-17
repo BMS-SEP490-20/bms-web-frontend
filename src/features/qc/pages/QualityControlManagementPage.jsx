@@ -268,10 +268,12 @@ export default function QualityControlManagementPage() {
                 <div className="bms-page-header-content">
                     
                     <div className="bms-page-title-row">
-                        
-                        <h1 className="bms-page-title">
-                            Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đa Quy Tắc Westgard
+                        <h1 className="bms-page-title fs-4 m-0">
+                            Kiểm Chuẩn Chất Lượng Nội Bộ (IQC)
                         </h1>
+                        <p className="text-muted small m-0 mt-1">
+                            Biểu đồ Levey-Jennings, kiểm soát cảnh báo Westgard và quản lý lô kiểm chuẩn.
+                        </p>
                     </div>
                     
                 </div>
@@ -650,10 +652,10 @@ export default function QualityControlManagementPage() {
                         <div>
                             <h5 className="bms-table-standalone-title">
                                 <FaExclamationTriangle style={{ color: '#ef4444' }} />
-                                <span>Nhật Ký Cảnh Báo Vi Phạm Westgard &amp; Khóa Máy</span>
+                                <span>Nhật Ký Cảnh Báo Westgard</span>
                             </h5>
                             <div className="bms-table-standalone-subtitle">
-                                {flags.length} sự cố vi phạm Westgard ghi nhận theo chuẩn CLSI C24-A3
+                                {flags.length} sự cố vi phạm được ghi nhận
                             </div>
                         </div>
                     </div>

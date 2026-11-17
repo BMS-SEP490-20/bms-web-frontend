@@ -556,14 +556,14 @@ export const UserProfilePage = () => {
         <div className="container-xl">
           <div className="bms-page-header-card mb-4">
             <div className="bms-page-header-content">
-              <h1 className="bms-page-title mb-1">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h1>
+              <h1 className="bms-page-title mb-1">Hồ Sơ Nhân Sự Y Tế</h1>
               <p className="bms-page-subtitle mb-0">
-                Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ theo Đề án 06 Bộ Y Tế.
+                Quản lý thông tin cán bộ và phân công nghiệp vụ chuyên môn.
               </p>
             </div>
             <div className="bms-header-actions">
               <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
-                <FaCheckCircle className="me-1" /> Đang Trong Ca Trực (Active)
+                <FaCheckCircle className="me-1" /> Đang Trong Ca Trực
               </Badge>
             </div>
           </div>

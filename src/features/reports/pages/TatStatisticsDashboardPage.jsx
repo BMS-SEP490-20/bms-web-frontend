@@ -140,7 +140,7 @@ export default function TatStatisticsDashboardPage() {
                     <div className="bms-page-title-row">
                         
                         <h1 className="bms-page-title">
-                            Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)
+                            Thống Kê Thời Gian TAT
                         </h1>
                     </div>
                     
@@ -170,8 +170,8 @@ export default function TatStatisticsDashboardPage() {
             </div>
 
             {/* Filter Toolbar */}
-            <div className="card bms-filter-bar">
-                <div className="card-body p-3">
+            <div className="bms-filter-bar">
+                <div className="p-1">
                     <div className="row g-3 align-items-center">
                         {/* Timeframe Buttons */}
                         <div className="col-12 col-md-5 col-xl-4">

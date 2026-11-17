@@ -516,30 +516,34 @@ export default function CreateTestOrderPage() {
 
   return (
     <div className="container-fluid py-3 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      {/* Header Breadcrumbs */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div>
-          <h2 className="fs-4 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaStethoscope className="text-primary" />
-            Khám Sàng Lọc &amp; Ra Y Lệnh Xét Nghiệm Máu (Physician Workbench)
-          </h2>
-          <p className="text-muted small mb-0">
-            Khám lâm sàng, tư vấn bổ sung danh mục xét nghiệm theo ràng buộc mẫu máu (ISO 15189:2022) và điều phối y lệnh tới Lab.
-          </p>
-        </div>
-        <div className="d-flex gap-2">
-          <Link
-            to="/doctor/console"
-            className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-          >
-            <FaArrowLeft /> Bàn Khám Bác Sĩ
-          </Link>
-          <Link
-            to="/calculate-fees"
-            className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-          >
-            <FaFileInvoiceDollar /> Quầy Dự Toán Viện Phí
-          </Link>
+      {/* Header chuẩn hóa */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+              <h1 className="bms-page-title d-flex align-items-center gap-2">
+                <FaStethoscope className="text-primary" />
+                Ra Y Lệnh Xét Nghiệm
+              </h1>
+              <p className="bms-page-subtitle">
+                Chỉ định danh mục xét nghiệm và chuyển y lệnh tới phòng xét nghiệm
+              </p>
+            </div>
+            <div className="d-flex gap-2">
+              <Link
+                to="/doctor/console"
+                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+              >
+                <FaArrowLeft /> Bàn Khám Bác Sĩ
+              </Link>
+              <Link
+                to="/calculate-fees"
+                className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+              >
+                <FaFileInvoiceDollar /> Dự Toán Viện Phí
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 

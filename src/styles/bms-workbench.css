@@ -853,10 +853,12 @@
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters > .bms-search-input-wrapper,
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters > .input-group,
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group > .bms-search-input-pill,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group > .input-group {
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group > .input-group,
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-search-input-pill,
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-search-input-wrapper {
   flex: 1 1 240px !important;
   width: auto !important;
-  max-width: 420px !important;
+  max-width: 340px !important;
 }
 
 .bms-app-layout .bms-search-input-wrapper > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),

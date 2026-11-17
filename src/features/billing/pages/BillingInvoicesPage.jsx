@@ -252,8 +252,8 @@ export default function BillingInvoicesPage() {
             </div>
           </div>
 
-          <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            <div className="bms-search-input-pill" style={{ minWidth: '280px' }}>
+          <div className="d-flex align-items-center gap-2 ms-auto flex-nowrap" style={{ minWidth: 0, flexShrink: 0 }}>
+            <div className="bms-search-input-pill" style={{ width: '280px', flex: '0 0 280px' }}>
               <FaSearch className="bms-search-icon" />
               <input
                 type="text"
@@ -276,7 +276,7 @@ export default function BillingInvoicesPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="form-select form-select-sm rounded-pill"
-              style={{ width: 'auto', minWidth: '170px' }}
+              style={{ width: '165px', flex: '0 0 165px', height: '36px' }}
             >
               <option value="">Tất cả trạng thái</option>
               <option value="1">Đã thanh toán (Paid)</option>
@@ -359,13 +359,13 @@ export default function BillingInvoicesPage() {
                       {new Date(inv.createdAt).toLocaleString('vi-VN')}
                     </td>
                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <div className="d-flex align-items-center justify-content-center gap-1.5 flex-nowrap">
+                      <div className="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
                         {!isPaid && (
                           <Button
                             variant="success"
                             size="sm"
-                            className="d-inline-flex align-items-center gap-1.5 rounded-pill px-3 py-1 fw-semibold text-nowrap shadow-none"
-                            style={{ fontSize: '12.5px' }}
+                            className="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
+                            style={{ fontSize: '12px' }}
                             onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
                           >
                             <FaCreditCard size={12} />
@@ -375,9 +375,9 @@ export default function BillingInvoicesPage() {
                         {isPaid && (
                           <>
                             <Button
-                              variant="outline-primary"
+                              variant="outline-secondary"
                               size="sm"
-                              className="d-inline-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fw-semibold text-nowrap shadow-none"
+                              className="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
                               style={{ fontSize: '12px' }}
                               onClick={() => handleOpenPrint(inv)}
                               title="In biên lai nhiệt K80"
@@ -386,10 +386,10 @@ export default function BillingInvoicesPage() {
                               <span>K80</span>
                             </Button>
                             <Button
-                              variant="outline-secondary"
+                              variant="outline-primary"
                               size="sm"
-                              className="d-inline-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fw-semibold text-nowrap shadow-none"
-                              style={{ fontSize: '12px', borderColor: '#CBD5E1', color: '#0369a1', backgroundColor: '#F0F9FF' }}
+                              className="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-nowrap shadow-none"
+                              style={{ fontSize: '12px' }}
                               onClick={() => handleOpenVat(inv)}
                               title="Xuất hóa đơn VAT điện tử"
                             >

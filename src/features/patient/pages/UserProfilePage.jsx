@@ -557,9 +557,6 @@ export const UserProfilePage = () => {
         <div className="container-xl">
           <div className="bms-page-header-card mb-4">
             <div className="bms-page-header-content">
-              <div className="d-flex align-items-center gap-2 mb-1">
-                <span className="bms-header-kicker">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</span>
-              </div>
               <h1 className="bms-page-title mb-1">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h1>
               <p className="bms-page-subtitle mb-0">
                 Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ theo Đề án 06 Bộ Y Tế.

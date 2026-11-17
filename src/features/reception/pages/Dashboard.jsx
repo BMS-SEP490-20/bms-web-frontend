@@ -466,7 +466,6 @@ const ReceptionistDashboard = () => {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              <FaBarcode style={{ color: '#1E60E6' }} />
               Danh Sách Tiếp Nhận &amp; Mã Barcode (Lễ Tân)
             </h5>
             <div className="bms-table-standalone-subtitle">

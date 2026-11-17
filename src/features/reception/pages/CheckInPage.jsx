@@ -428,139 +428,135 @@ export default function CheckInPage() {
         </Col>
       </Row>
 
-      {/* 3. Unified Card Section: Danh Sách Bệnh Nhân */}
-      <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-        <Card.Header className="bg-white border-bottom py-3 px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-            <div>
-              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                <FaUserInjured style={{ color: '#1E60E6' }} />
-                Danh Sách Hồ Sơ Bệnh Nhân &amp; Khách Vãng Lai
-              </h5>
-              <div className="text-muted small">
-                Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân trong hệ thống
-              </div>
-            </div>
-
-            <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
-              <Form onSubmit={handleQuickLookupSubmit} className="d-flex align-items-center gap-2">
-                <div className="bms-search-input-pill" style={{ minWidth: 260 }}>
-                  <FaSearch className="bms-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Nhập Mã BN, ID hoặc CCCD..."
-                    value={quickLookupId}
-                    onChange={(e) => setQuickLookupId(e.target.value)}
-                  />
-                  {quickLookupId && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setQuickLookupId('')}
-                      title="Xóa"
-                    >
-                      <FaTimes size={12} />
-                    </button>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  disabled={lookupLoading || !quickLookupId.trim()}
-                  className="rounded-pill px-3 fw-semibold text-white d-flex align-items-center gap-1 shadow-sm"
-                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px' }}
+      {/* 3. Filter Bar (Standalone Independent Strip) */}
+      <div className="bms-filter-bar">
+        <Row className="g-2 align-items-center w-100 m-0">
+          <Col xs={12} md={5}>
+            <div className="bms-search-input-pill">
+              <FaSearch className="bms-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  className="bms-search-clear"
+                  onClick={() => setSearchInput('')}
+                  title="Xóa tìm kiếm"
                 >
-                  {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye size={12} /> <span>Xem Nhanh</span></>}
-                </Button>
-              </Form>
+                  <FaTimes size={12} />
+                </button>
+              )}
+            </div>
+          </Col>
+
+          <Col xs={6} md={3}>
+            <Form.Select
+              value={guestFilter}
+              className="rounded-pill"
+              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+              onChange={(e) => {
+                setGuestFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Tất cả loại hồ sơ</option>
+              <option value="true">Khách vãng lai (Guest)</option>
+              <option value="false">Bệnh nhân có tài khoản</option>
+            </Form.Select>
+          </Col>
+
+          <Col xs={6} md={2}>
+            <Form.Select
+              value={genderFilter}
+              className="rounded-pill"
+              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+              onChange={(e) => {
+                setGenderFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi giới tính</option>
+              <option value="Male">Nam (Male)</option>
+              <option value="Female">Nữ (Female)</option>
+              <option value="Other">Khác (Other)</option>
+            </Form.Select>
+          </Col>
+
+          <Col xs={12} md={2}>
+            <Form.Select
+              value={bloodTypeFilter}
+              className="rounded-pill"
+              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+              onChange={(e) => {
+                setBloodTypeFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi nhóm máu</option>
+              <option value="O+">Nhóm máu O+</option>
+              <option value="A+">Nhóm máu A+</option>
+              <option value="B+">Nhóm máu B+</option>
+              <option value="AB+">Nhóm máu AB+</option>
+              <option value="O-">Nhóm máu O-</option>
+              <option value="A-">Nhóm máu A-</option>
+              <option value="B-">Nhóm máu B-</option>
+              <option value="AB-">Nhóm máu AB-</option>
+            </Form.Select>
+          </Col>
+        </Row>
+      </div>
+
+      {/* 4. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section mb-4">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              Danh Sách Hồ Sơ Bệnh Nhân &amp; Khách Vãng Lai
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân trong hệ thống
             </div>
           </div>
-        </Card.Header>
 
-        <Card.Body className="p-0">
-
-        {/* Integrated Filter Control Strip */}
-        <div className="bms-filter-bar">
-          <Row className="g-2 align-items-center">
-            <Col xs={12} md={5}>
-              <div className="bms-search-input-pill">
+          <div className="d-flex align-items-center gap-2">
+            <Form onSubmit={handleQuickLookupSubmit} className="d-flex align-items-center gap-2">
+              <div className="bms-search-input-pill" style={{ width: 220 }}>
                 <FaSearch className="bms-search-icon" />
                 <input
                   type="text"
-                  placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Mã BN hoặc CCCD..."
+                  value={quickLookupId}
+                  onChange={(e) => setQuickLookupId(e.target.value)}
                 />
-                {searchInput && (
+                {quickLookupId && (
                   <button
                     type="button"
                     className="bms-search-clear"
-                    onClick={() => setSearchInput('')}
-                    title="Xóa tìm kiếm"
+                    onClick={() => setQuickLookupId('')}
+                    title="Xóa"
                   >
                     <FaTimes size={12} />
                   </button>
                 )}
               </div>
-            </Col>
-
-            <Col xs={6} md={3}>
-              <Form.Select
-                value={guestFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setGuestFilter(e.target.value);
-                  setPage(1);
-                }}
+              <Button
+                type="submit"
+                disabled={lookupLoading || !quickLookupId.trim()}
+                className="rounded-pill px-3 fw-semibold text-white d-flex align-items-center gap-1 shadow-sm text-nowrap"
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px', height: '36px' }}
               >
-                <option value="ALL">Tất cả loại hồ sơ</option>
-                <option value="true">Khách vãng lai (Guest Profile)</option>
-                <option value="false">Bệnh nhân có tài khoản</option>
-              </Form.Select>
-            </Col>
-
-            <Col xs={6} md={2}>
-              <Form.Select
-                value={genderFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setGenderFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="ALL">Mọi giới tính</option>
-                <option value="Male">Nam (Male)</option>
-                <option value="Female">Nữ (Female)</option>
-                <option value="Other">Khác (Other)</option>
-              </Form.Select>
-            </Col>
-
-            <Col xs={12} md={2}>
-              <Form.Select
-                value={bloodTypeFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setBloodTypeFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="ALL">Mọi nhóm máu</option>
-                <option value="O+">Nhóm máu O+</option>
-                <option value="A+">Nhóm máu A+</option>
-                <option value="B+">Nhóm máu B+</option>
-                <option value="AB+">Nhóm máu AB+</option>
-                <option value="O-">Nhóm máu O-</option>
-                <option value="A-">Nhóm máu A-</option>
-                <option value="B-">Nhóm máu B-</option>
-                <option value="AB-">Nhóm máu AB-</option>
-              </Form.Select>
-            </Col>
-          </Row>
+                {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye size={12} /> <span>Xem Nhanh</span></>}
+              </Button>
+            </Form>
+          </div>
         </div>
 
-        <div className="table-responsive">
+        <div className="bms-table-standalone-body">
+          <div className="table-responsive">
             <Table hover className="align-middle mb-0">
               <thead style={{ backgroundColor: '#F8FAFC' }}>
                 <tr>
@@ -656,8 +652,8 @@ export default function CheckInPage() {
               </Pagination>
             </div>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* =====================================================================
           POPUP 1: CREATE GUEST PROFILE MODAL (UC25 - POST /api/patients/guests)

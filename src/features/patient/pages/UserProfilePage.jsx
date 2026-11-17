@@ -555,19 +555,21 @@ export const UserProfilePage = () => {
     return (
       <div className="bms-profile-page py-2">
         <div className="container-xl">
-          <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
-            <div>
-              <div className="text-muted small">
-                BMS / <strong className="text-primary">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</strong>
+          <div className="bms-page-header-card mb-4">
+            <div className="bms-page-header-content">
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <span className="bms-header-kicker">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</span>
               </div>
-              <h3 className="fw-bold mb-1 text-dark">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h3>
-              <p className="text-muted small mb-0">
+              <h1 className="bms-page-title mb-1">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h1>
+              <p className="bms-page-subtitle mb-0">
                 Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ theo Đề án 06 Bộ Y Tế.
               </p>
             </div>
-            <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
-              <FaCheckCircle className="me-1" /> Đang Trong Ca Trực (Active)
-            </Badge>
+            <div className="bms-header-actions">
+              <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
+                <FaCheckCircle className="me-1" /> Đang Trong Ca Trực (Active)
+              </Badge>
+            </div>
           </div>
 
           <Row className="g-4">

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaReceipt, FaSearch, FaTimes, FaPlus } from 'react-icons/fa';
+import {
+  FaReceipt, FaSearch, FaTimes, FaPlus, FaPrint,
+  FaFileInvoice, FaCreditCard, FaExclamationTriangle, FaCheckCircle
+} from 'react-icons/fa';
+import { Button, Alert, Badge } from 'react-bootstrap';
 import {
   getInvoices,
   createInvoice,
@@ -200,14 +204,16 @@ export default function BillingInvoicesPage() {
 
       {/* Notifications */}
       {error && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', borderRadius: '8px', color: '#991b1b', marginBottom: '16px' }}>
-          ⚠️ {error}
-        </div>
+        <Alert variant="danger" dismissible onClose={() => setError(null)} className="d-flex align-items-center gap-2 mb-3 rounded-3 shadow-sm">
+          <FaExclamationTriangle className="flex-shrink-0" />
+          <span>{error}</span>
+        </Alert>
       )}
       {successMsg && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#ecfdf5', borderRadius: '8px', color: '#065f46', marginBottom: '16px' }}>
-          ✅ {successMsg}
-        </div>
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg(null)} className="d-flex align-items-center gap-2 mb-3 rounded-3 shadow-sm">
+          <FaCheckCircle className="flex-shrink-0" />
+          <span>{successMsg}</span>
+        </Alert>
       )}
 
       {/* Metrics Row */}
@@ -234,57 +240,54 @@ export default function BillingInvoicesPage() {
         </div>
       </div>
 
-      {/* Unified Invoices Card */}
-      <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-        <div className="card-header bg-white border-bottom py-3 px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-            <div>
-              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                <FaReceipt style={{ color: '#1E60E6' }} />
-                Sổ Hóa Đơn &amp; Biên Lai Viện Phí ({filteredInvoices.length})
-              </h5>
-              <div className="text-muted small">
-                Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
-              </div>
+      {/* Standalone Invoices Table Section (ZERO TABLE IN CARDS) */}
+      <div className="bms-table-standalone-section mb-4">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              Sổ Hóa Đơn &amp; Biên Lai Viện Phí ({filteredInvoices.length})
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
             </div>
+          </div>
 
-            <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
-              <div className="bms-search-input-pill" style={{ minWidth: '280px' }}>
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchTerm('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="form-select form-select-sm rounded-pill"
-                style={{ width: 'auto', paddingRight: '2rem' }}
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="1">Đã thanh toán (Paid)</option>
-                <option value="0">Chưa thanh toán (Unpaid)</option>
-              </select>
+          <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
+            <div className="bms-search-input-pill" style={{ minWidth: '280px' }}>
+              <FaSearch className="bms-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="bms-search-clear"
+                  onClick={() => setSearchTerm('')}
+                  title="Xóa tìm kiếm"
+                >
+                  <FaTimes size={12} />
+                </button>
+              )}
             </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="form-select form-select-sm rounded-pill"
+              style={{ width: 'auto', minWidth: '170px' }}
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="1">Đã thanh toán (Paid)</option>
+              <option value="0">Chưa thanh toán (Unpaid)</option>
+            </select>
           </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="bms-table-standalone-body">
           <div className="table-responsive">
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+            <table className="align-middle mb-0" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
               <th style={{ padding: '12px 16px' }}>Mã Hóa Đơn</th>
@@ -294,7 +297,7 @@ export default function BillingInvoicesPage() {
               <th style={{ padding: '12px 16px' }}>Trạng Thái</th>
               <th style={{ padding: '12px 16px' }}>Số Lần In</th>
               <th style={{ padding: '12px 16px' }}>Thời Gian</th>
-              <th style={{ padding: '12px 16px', textAlign: 'center' }}>Thao Tác</th>
+              <th style={{ padding: '12px 16px', textAlign: 'center', width: '200px' }}>Thao Tác</th>
             </tr>
           </thead>
           <tbody>
@@ -333,7 +336,7 @@ export default function BillingInvoicesPage() {
                         backgroundColor: isPaid ? '#dcfce7' : '#fef3c7',
                         color: isPaid ? '#166534' : '#92400e'
                       }}>
-                        {isPaid ? '✓ Đã Thanh Toán' : 'Chờ Thanh Toán'}
+                        {isPaid ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -356,57 +359,44 @@ export default function BillingInvoicesPage() {
                       {new Date(inv.createdAt).toLocaleString('vi-VN')}
                     </td>
                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                      <div className="d-flex align-items-center justify-content-center gap-1.5 flex-nowrap">
                         {!isPaid && (
-                          <button
+                          <Button
+                            variant="success"
+                            size="sm"
+                            className="d-inline-flex align-items-center gap-1.5 rounded-pill px-3 py-1 fw-semibold text-nowrap shadow-none"
+                            style={{ fontSize: '12.5px' }}
                             onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              backgroundColor: '#10b981',
-                              color: '#ffffff',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
                           >
-                            💳 Thu Tiền POS
-                          </button>
+                            <FaCreditCard size={12} />
+                            <span>Thu Tiền POS</span>
+                          </Button>
                         )}
                         {isPaid && (
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <button
-                              type="button"
+                          <>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              className="d-inline-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fw-semibold text-nowrap shadow-none"
+                              style={{ fontSize: '12px' }}
                               onClick={() => handleOpenPrint(inv)}
-                              style={{
-                                padding: '6px 12px',
-                                borderRadius: '6px',
-                                backgroundColor: '#ffffff',
-                                color: '#1E60E6',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                              }}
+                              title="In biên lai nhiệt K80"
                             >
-                              🖨️ K80
-                            </button>
-                            <button
-                              type="button"
+                              <FaPrint size={12} />
+                              <span>K80</span>
+                            </Button>
+                            <Button
+                              variant="outline-secondary"
+                              size="sm"
+                              className="d-inline-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fw-semibold text-nowrap shadow-none"
+                              style={{ fontSize: '12px', borderColor: '#CBD5E1', color: '#0369a1', backgroundColor: '#F0F9FF' }}
                               onClick={() => handleOpenVat(inv)}
-                              style={{
-                                padding: '6px 10px',
-                                borderRadius: '6px',
-                                backgroundColor: '#f0f9ff',
-                                color: '#0369a1',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                              }}
+                              title="Xuất hóa đơn VAT điện tử"
                             >
-                              🧾 HĐ VAT
-                            </button>
-                          </div>
+                              <FaFileInvoice size={12} />
+                              <span>HĐ VAT</span>
+                            </Button>
+                          </>
                         )}
                       </div>
                     </td>

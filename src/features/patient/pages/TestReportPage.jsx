@@ -15,7 +15,6 @@ import {
     FaCheckCircle,
     FaExclamationCircle,
     FaPrint,
-    FaShieldAlt,
     FaStethoscope,
     FaUserMd
 } from "react-icons/fa";
@@ -260,7 +259,7 @@ export default function TestReportPage() {
                                 <small className="text-muted d-block">Kỹ thuật viên thực hiện xét nghiệm</small>
                                 <strong className="text-dark d-block">{report.analysedBy || 'KTV. Xét Nghiệm'}</strong>
                                 <small className="text-success font-monospace d-flex align-items-center gap-1 mt-1">
-                                    <FaShieldAlt /> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
+                                    <FaCheckCircle /> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
                                 </small>
                             </div>
                             <div className="text-end">

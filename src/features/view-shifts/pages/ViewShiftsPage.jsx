@@ -18,7 +18,6 @@ import {
   FaDoorOpen,
   FaUsers,
   FaArrowRight,
-  FaShieldAlt,
   FaPlus,
   FaCalendarCheck,
   FaHospital,
@@ -729,7 +728,7 @@ export function ViewShiftsPage() {
                   </div>
                   <div className="p-2 border rounded-2 bg-light small text-muted">
                     <strong className="text-dark me-1">
-                      <FaShieldAlt className="text-success me-1" />
+                      <FaCheckCircle className="text-success me-1" />
                       Tiêu chuẩn ISO 15189:2022 &amp; Quy định Bộ Y tế:
                     </strong>
                     Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra đối soát QC hóa chất hoặc phôi phiếu tiếp đón và đồng bộ hệ thống trước khi bắt đầu tiếp nhận bệnh nhân.

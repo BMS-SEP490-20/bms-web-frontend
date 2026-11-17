@@ -17,7 +17,6 @@ import {
   FaMapMarkerAlt,
   FaUserInjured,
   FaSpinner,
-  FaShieldAlt,
   FaSyncAlt,
   FaLock
 } from 'react-icons/fa';
@@ -219,7 +218,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
             <div className="card border-0 shadow-sm rounded-3 bg-white">
               <div className="card-body p-2">
                 <h5 className="mb-3 fw-bold text-dark d-flex align-items-center gap-2">
-                  <FaShieldAlt className="text-primary" />
+                  <FaCheckCircle className="text-primary" />
                   <span>Biên Bản Tiếp Nhận &amp; Kiểm Chuẩn Tiền Phân Tích</span>
                 </h5>
 

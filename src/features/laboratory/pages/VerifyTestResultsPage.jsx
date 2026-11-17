@@ -17,7 +17,6 @@ import {
     FaClipboardCheck,
     FaTimes,
     FaCheck,
-    FaShieldAlt,
     FaSyncAlt,
     FaInfoCircle,
     FaUndo,

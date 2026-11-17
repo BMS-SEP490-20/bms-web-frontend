@@ -28,7 +28,6 @@ import {
   FaMoneyBillWave,
   FaArrowRight,
   FaSyncAlt,
-  FaShieldAlt,
   FaChartLine,
   FaHeartbeat,
   FaStethoscope,
@@ -56,7 +55,7 @@ const ROLES_LIST = [
   { id: 'Doctor', label: 'Bác Sĩ Lâm Sàng', icon: FaStethoscope, badgeColor: '#059669' },
   { id: 'LaboratoryUser', label: 'Kỹ Thuật Viên Lab', icon: FaFlask, badgeColor: '#D97706' },
   { id: 'Receptionist', label: 'Tiếp Đón & Lễ Tân', icon: FaQrcode, badgeColor: '#8B5CF6' },
-  { id: 'Admin', label: 'Quản Trị Hệ Thống', icon: FaShieldAlt, badgeColor: '#475569' }
+  { id: 'Admin', label: 'Quản Trị Hệ Thống', icon: FaUserCog, badgeColor: '#475569' }
 ];
 
 const VND = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
@@ -1427,7 +1426,7 @@ export default function RoleBasedDashboard() {
                 <div className="bms-dash-card-header">
                   <div>
                     <h5 className="bms-dash-card-title text-primary">
-                      <FaShieldAlt className="text-primary" />
+                      <FaCheckCircle className="text-primary" />
                       Nhật Ký Kiểm Toán (Audit Logs) &amp; Bảo Mật
                     </h5>
                     <div className="bms-dash-card-subtitle">
@@ -1452,7 +1451,7 @@ export default function RoleBasedDashboard() {
           <div className="bms-dash-card mb-4">
             <div className="bms-dash-card-header">
               <h5 className="bms-dash-card-title">
-                <FaShieldAlt className="text-primary" />
+                <FaCheckCircle className="text-primary" />
                 Trung Tâm Quản Trị Hệ Thống Toàn Viện
               </h5>
             </div>
@@ -1476,7 +1475,7 @@ export default function RoleBasedDashboard() {
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/roles" className="bms-quick-tile">
                     <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaShieldAlt /></div>
+                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
                       <div>
                         <h6 className="fw-bold mb-0">Phân Quyền Vai Trò (RBAC)</h6>
                         <small className="text-muted">Thiết lập ma trận quyền hạn</small>
@@ -1491,7 +1490,7 @@ export default function RoleBasedDashboard() {
                 <Col xs={12} sm={6} lg={3}>
                   <Link to="/admin/audit-logs" className="bms-quick-tile">
                     <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaShieldAlt /></div>
+                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaCheckCircle /></div>
                       <div>
                         <h6 className="fw-bold mb-0">Nhật Ký Audit Hệ Thống</h6>
                         <small className="text-muted">Lịch sử đăng nhập &amp; truy xuất</small>

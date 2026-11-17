@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Badge, Breadcrumb, Button, Col, Form, Offcanvas, Row, Table, Spinner } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaHistory, FaEye, FaShieldAlt, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes, FaUserMd, FaDownload, FaPhoneAlt } from 'react-icons/fa';
+import { FaHistory, FaEye, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes, FaUserMd, FaDownload, FaPhoneAlt } from 'react-icons/fa';
 import { getTestHistory, getTestHistoryDetail, testHistoryError } from '../api/testHistoryApi';
 import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 import './PatientPaymentHistoryPage.css';
@@ -86,7 +86,7 @@ function HistoryDetail({ id, onClose }) {
     >
       <Offcanvas.Header closeButton className="border-bottom px-3 py-3 bg-light">
         <Offcanvas.Title className="fs-6 fw-bold text-dark d-flex align-items-center gap-2">
-          <FaShieldAlt className="text-primary" /> Chi Tiết Kết Quả Xét Nghiệm
+          <FaCheckCircle className="text-primary" /> Chi Tiết Kết Quả Xét Nghiệm
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body className="p-2">

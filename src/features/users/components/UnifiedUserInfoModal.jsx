@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Tabs, Tab, Alert } from 'react-bootstrap';
-import { FaEdit, FaSave, FaTimes, FaLock, FaUserShield, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaSave, FaTimes, FaLock, FaInfoCircle } from 'react-icons/fa';
 
 /**
  * Unified multi-tab user detail and credential modification dialog.
@@ -136,7 +136,7 @@ const UnifiedUserInfoModal = ({
     <Modal show={show} onHide={onHide} centered size="lg" backdrop="static">
       <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
         <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-          <FaUserShield style={{ color: '#1E60E6' }} />
+          <FaUserCheck style={{ color: '#1E60E6' }} />
           Chi Tiết Tài Khoản Nhân Sự: <span style={{ color: '#1E60E6' }}>{user.fullName || user.username}</span>
         </Modal.Title>
       </Modal.Header>

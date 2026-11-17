@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { Card, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
-import { FaUserEdit, FaSave, FaCheckCircle, FaTimesCircle, FaShieldAlt } from 'react-icons/fa';
+import { FaUserEdit, FaSave, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import api from '../../../../config/api';
 
 export default function PatientProfileEdit({ profile, onUpdated }) {

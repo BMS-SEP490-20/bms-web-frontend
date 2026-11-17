@@ -24,7 +24,6 @@ import {
     FaRedo,
     FaEye,
     FaCheckDouble,
-    FaShieldAlt,
     FaVolumeUp,
     FaBolt,
     FaUser,
@@ -842,7 +841,7 @@ export default function PushNotificationCenterPage() {
                                 {/* Rate limit compliance badge */}
                                 <div className="p-2 mb-3 rounded bg-light border small text-muted d-flex align-items-center justify-content-between">
                                     <span className="d-flex align-items-center gap-1">
-                                        <FaShieldAlt className="text-success" />
+                                        <FaCheckCircle className="text-success" />
                                         BR-NOTIF-01: Max 5 msg/min/user
                                     </span>
                                     <span className="badge bg-success-subtle text-success">Compliant</span>

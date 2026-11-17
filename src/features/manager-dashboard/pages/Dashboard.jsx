@@ -740,7 +740,7 @@ const ManagerDashboard = () => {
               </h5>
             </div>
             <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-semibold">
-              <i className="fas fa-user-shield me-1"></i> Quản lý / Trưởng Lab
+              <i className="fas fa-user-check me-1"></i> Quản lý / Trưởng Lab
             </span>
           </div>
 

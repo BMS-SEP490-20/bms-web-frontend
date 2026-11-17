@@ -25,7 +25,6 @@ import {
     FaArrowDown,
     FaBuilding,
     FaUserMd,
-    FaShieldAlt,
     FaTimes
 } from "react-icons/fa";
 import {

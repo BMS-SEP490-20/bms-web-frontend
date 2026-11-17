@@ -9,7 +9,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
     FaDatabase,
-    FaShieldAlt,
     FaUndo,
     FaDownload,
     FaCheckCircle,
@@ -32,8 +31,7 @@ import {
     fetchRestoreHistory,
     getBackupDownloadUrl,
     downloadBackupArchive,
-    deleteBackup,
-} from "../api/backupApi";
+    deleteBackup } from "../api/backupApi";
 import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
 import CreateBackupModal from "../components/CreateBackupModal";
 import RestoreConfirmationModal from "../components/RestoreConfirmationModal";
@@ -350,7 +348,7 @@ export default function BackupManagementPage() {
                                     <h3 className="fw-bold mb-0" style={{ color: '#2E7D32', fontVariantNumeric: 'tabular-nums' }}>{stats.integritySuccessRate}%</h3>
                                 </div>
                                 <div className="p-3 rounded-circle" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
-                                    <FaShieldAlt className="fs-4" />
+                                    <FaCheckCircle className="fs-4" />
                                 </div>
                             </div>
                             <small className="text-secondary mt-2 d-block">
@@ -588,7 +586,7 @@ export default function BackupManagementPage() {
                                                             {verifyingId === item.backupId ? (
                                                                 <div className="spinner-border spinner-border-sm" role="status"></div>
                                                             ) : (
-                                                                <FaShieldAlt size={12} />
+                                                                <FaCheckCircle size={12} />
                                                             )}
                                                         </button>
                                                         <button

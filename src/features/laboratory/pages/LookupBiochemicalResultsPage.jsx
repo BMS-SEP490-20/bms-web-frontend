@@ -13,7 +13,7 @@ import {
 import {
   FaFlask, FaSearch, FaBarcode, FaUserInjured, FaCheckCircle,
   FaExclamationTriangle, FaPrint, FaHistory, FaBell,
-  FaSync, FaShieldAlt, FaVial, FaMicroscope, FaArrowLeft
+  FaSync, FaVial, FaMicroscope, FaArrowLeft
 } from 'react-icons/fa';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
@@ -337,7 +337,7 @@ export default function LookupBiochemicalResultsPage() {
                   {currentResult.digitalSignature && (
                     <div className="small text-muted mt-2 bg-light p-2 rounded border">
                       <div className="fw-semibold d-flex align-items-center gap-1 text-success">
-                        <FaShieldAlt /> Chữ ký số bảo mật SHA-256:
+                        <FaCheckCircle /> Chữ ký số bảo mật SHA-256:
                       </div>
                       <code className="text-break" style={{ fontSize: '0.75rem' }}>
                         {currentResult.digitalSignature}

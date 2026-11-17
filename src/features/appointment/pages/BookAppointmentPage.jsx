@@ -13,7 +13,6 @@ import {
   FaIdCard,
   FaPhoneAlt,
   FaFileMedical,
-  FaShieldAlt,
   FaMapMarkerAlt,
   FaNotesMedical,
   FaExclamationTriangle
@@ -84,8 +83,7 @@ function packageIconKey(pkg) {
 export function BookAppointmentPage({
   patientId: initialPatientId = '',
   initialPackageIds = [],
-  packages: propPackages = [],
-}) {
+  packages: propPackages = [] }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

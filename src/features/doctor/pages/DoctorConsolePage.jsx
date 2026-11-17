@@ -41,7 +41,6 @@ import {
   FaPrint,
   FaEnvelope,
   FaExclamationTriangle,
-  FaShieldAlt,
   FaUndo,
   FaThLarge,
   FaHeartbeat,
@@ -299,8 +298,7 @@ export default function DoctorConsolePage() {
     newAppointmentDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     newSlotTime: '07:00 - 08:30 (Khung giờ nhịn ăn vàng)',
     doctorAdvice: 'Nhịn ăn sau 21h tối hôm trước, chỉ uống nước lọc, đến phòng lấy mẫu trước 08h00 sáng.',
-    patientConsent: true,
-  });
+    patientConsent: true });
   const [rescheduleSuccess, setRescheduleSuccess] = useState(null);
 
   // Xử lý Dời Lịch Xét Nghiệm (Hoãn Lấy Mẫu)
@@ -315,8 +313,7 @@ export default function DoctorConsolePage() {
         slotTime: preAnalyticsForm.newSlotTime,
         reason: preAnalyticsForm.rescheduleReason,
         notes: `BS dặn: ${preAnalyticsForm.doctorAdvice} (Đồng thuận BN: ${preAnalyticsForm.patientConsent ? 'Đã xác nhận' : 'Chưa'})`,
-        doctorId: doctorId,
-      });
+        doctorId: doctorId });
 
       // Cập nhật lượt khám hiện tại hoàn tất trạng thái hoãn
       await receptionApi.completePatient(
@@ -1219,7 +1216,7 @@ export default function DoctorConsolePage() {
               <Col sm={6} className="text-sm-end">
                 <div className="small text-muted">Chữ ký số kỹ thuật Lab:</div>
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
-                  <FaShieldAlt /> BSCKII. Lê Lan Anh (Trưởng Khoa Xét Nghiệm)
+                  <FaCheckCircle /> BSCKII. Lê Lan Anh (Trưởng Khoa Xét Nghiệm)
                 </div>
                 <div className="small text-muted">Chứng thư số y tế hợp lệ · Tiêu chuẩn ISO 15189:2022</div>
               </Col>

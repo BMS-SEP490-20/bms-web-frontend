@@ -11,7 +11,6 @@ import {
   FaVial, 
   FaExclamationTriangle, 
   FaCheckCircle, 
-  FaShieldAlt, 
   FaSave, 
   FaTimes, 
   FaInfoCircle,
@@ -54,8 +53,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
     normalText: '',
     panicLow: '',
     panicHigh: '',
-    isActive: true,
-  });
+    isActive: true });
 
   const [validationError, setValidationError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,8 +72,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: criterion.normalText || '',
         panicLow: criterion.panicLow !== null && criterion.panicLow !== undefined ? criterion.panicLow : '',
         panicHigh: criterion.panicHigh !== null && criterion.panicHigh !== undefined ? criterion.panicHigh : '',
-        isActive: criterion.isActive !== undefined ? criterion.isActive : true,
-      });
+        isActive: criterion.isActive !== undefined ? criterion.isActive : true });
     } else {
       setFormData({
         criterionCode: '',
@@ -89,8 +86,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: '',
         panicLow: '',
         panicHigh: '',
-        isActive: true,
-      });
+        isActive: true });
     }
     setValidationError('');
   }, [criterion, mode, isOpen]);
@@ -99,8 +95,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+      [name]: type === 'checkbox' ? checked : value }));
     if (validationError) setValidationError('');
   };
 
@@ -153,8 +148,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: formData.valueType === 'Qualitative' ? formData.normalText.trim() : null,
         panicLow: formData.valueType === 'Numeric' && formData.panicLow !== '' ? parseFloat(formData.panicLow) : null,
         panicHigh: formData.valueType === 'Numeric' && formData.panicHigh !== '' ? parseFloat(formData.panicHigh) : null,
-        isActive: formData.isActive,
-      };
+        isActive: formData.isActive };
 
       await onSave(payload);
     } catch (err) {

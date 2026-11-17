@@ -13,9 +13,9 @@ import {
   Form, InputGroup, Modal, Spinner
 } from 'react-bootstrap';
 import {
-  FaShieldAlt, FaSearch, FaSyncAlt, FaFileExport,
+  FaSearch, FaSyncAlt, FaFileExport,
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
-  FaInfoCircle, FaLock, FaUserShield, FaEye, FaTimes
+  FaInfoCircle, FaLock, FaEye, FaTimes
 } from 'react-icons/fa';
 import { auditLogService } from '../../../services/auditLogService';
 
@@ -193,7 +193,7 @@ const AuditLogPage = () => {
                     <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalLogs ?? safeLogs.length}</h3>
                   </div>
                   <div className="rounded-circle p-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                    <FaShieldAlt className="fs-4" />
+                    <FaCheckCircle className="fs-4" />
                   </div>
                 </div>
               </Card.Body>
@@ -350,7 +350,7 @@ const AuditLogPage = () => {
                       <td>
                         <div className="fw-semibold text-dark small">{item.userName || 'Hệ thống'}</div>
                         <div className="d-flex align-items-center gap-1 text-muted" style={{ fontSize: '0.75rem' }}>
-                          <FaUserShield className="text-primary" />
+                          <FaUserCheck className="text-primary" />
                           <span>{item.userRole || 'Admin'}</span>
                         </div>
                       </td>
@@ -403,7 +403,7 @@ const AuditLogPage = () => {
             </div>
           ) : (
             <div className="text-center py-3">
-              <FaShieldAlt className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
+              <FaCheckCircle className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
               <h5 className="text-dark fw-bold">Không tìm thấy bản ghi kiểm toán nào</h5>
               <p className="text-muted small">Thử thay đổi bộ lọc phân loại hoặc từ khóa tìm kiếm.</p>
             </div>
@@ -415,7 +415,7 @@ const AuditLogPage = () => {
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0 bg-light">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2 fs-5">
-            <FaShieldAlt className="text-primary" />
+            <FaCheckCircle className="text-primary" />
             Chi Tiết Bản Ghi Kiểm Toán An Ninh
           </Modal.Title>
         </Modal.Header>

@@ -115,8 +115,7 @@ const PushNotificationCenterPage = lazy(() => import("./features/notifications/p
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import api from "./config/api";
 import {
-  FaVial, FaPhoneAlt, FaClock, FaCheckCircle, FaSearch, FaArrowRight, FaShieldAlt,
-  FaFileMedicalAlt, FaMicroscope, FaCalendarCheck, FaHospital, FaLock, FaUserMd,
+  FaVial, FaPhoneAlt, FaClock, FaCheckCircle, FaSearch, FaArrowRight, FaFileMedicalAlt, FaMicroscope, FaCalendarCheck, FaHospital, FaLock, FaUserMd,
   FaUserCircle, FaSignOutAlt, FaFileInvoiceDollar, FaHistory, FaTimes
 } from "react-icons/fa";
 import "./app.css";

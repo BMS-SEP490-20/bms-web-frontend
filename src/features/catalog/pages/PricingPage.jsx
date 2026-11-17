@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaVial, FaClock, FaCheckCircle, FaShieldAlt, FaPrint, FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
+import { FaSearch, FaVial, FaClock, FaCheckCircle, FaPrint, FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';

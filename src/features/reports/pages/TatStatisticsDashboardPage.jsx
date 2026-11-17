@@ -21,7 +21,6 @@ import {
     FaLayerGroup,
     FaBolt,
     FaCalendarAlt,
-    FaShieldAlt,
     FaSearch,
     FaArrowUp,
     FaArrowDown,

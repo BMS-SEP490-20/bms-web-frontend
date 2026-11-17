@@ -18,7 +18,6 @@ import {
   FaSearch,
   FaFilter,
   FaCalendarAlt,
-  FaShieldAlt,
   FaReceipt,
   FaArrowRight,
   FaTimes,
@@ -105,8 +104,7 @@ export default function PatientPaymentHistoryPage() {
         page,
         pageSize,
         fromDate: fromDate || undefined,
-        toDate: toDate || undefined,
-      };
+        toDate: toDate || undefined };
 
       if (filterStatus === 'PAID') {
         params.status = 1; // InvoiceStatus.Paid

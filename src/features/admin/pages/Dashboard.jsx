@@ -525,7 +525,7 @@ const AdminDashboard = () => {
               </h5>
             </div>
             <span className="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-semibold">
-              <i className="fas fa-user-shield me-1"></i> Quản trị viên cao cấp
+              <i className="fas fa-user-check me-1"></i> Quản trị viên cao cấp
             </span>
           </div>
 

@@ -7,7 +7,7 @@ import {
   FaIdCard, FaUser, FaPhone, FaCalendarAlt, FaCheckCircle, FaSearch,
   FaUserCheck, FaTicketAlt, FaPrint, FaDesktop, FaCashRegister,
   FaClipboardCheck, FaExclamationTriangle, FaHospital, FaArrowRight,
-  FaFileInvoiceDollar, FaShieldAlt, FaClock, FaDoorOpen, FaUndo
+  FaFileInvoiceDollar, FaClock, FaDoorOpen, FaUndo
 } from 'react-icons/fa';
 import { useRegisterWalkIn } from '../hooks/useRegisterWalkIn';
 import { walkInApi } from '../api/walkInApi';
@@ -23,8 +23,7 @@ const emptyForm = {
   address: '',
   bloodType: '',
   medicalHistory: '',
-  priority: 'NORMAL',
-};
+  priority: 'NORMAL' };
 
 /**
  * UC26 – Tiếp nhận khách vãng lai & Đăng ký hồ sơ tại quầy (ISO 15189:2022 & Đề án 06 BYT).
@@ -42,8 +41,7 @@ export function RegisterWalkInPage({ onSuccess }) {
     identity: true,
     fasting: true,
     meds: true,
-    consent: true,
-  });
+    consent: true });
   const [receptionNotes, setReceptionNotes] = useState('');
   const [issuedTicket, setIssuedTicket] = useState(null);
   const [isIssuingTicket, setIsIssuingTicket] = useState(false);
@@ -89,8 +87,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           identityNumber: res.identityNumber || res.IdentityNumber || cccd,
           phone: res.phone || res.Phone,
           dateOfBirth: res.dateOfBirth || res.DateOfBirth,
-          gender: res.gender || res.Gender || 'Male',
-        };
+          gender: res.gender || res.Gender || 'Male' };
         setExistingPatient(found);
         setLookupStatus('found');
         setLookupMsg(`Người bệnh đã có hồ sơ y tế tại BMS MedLab (Mã: ${found.patientId}).`);
@@ -122,8 +119,7 @@ export function RegisterWalkInPage({ onSuccess }) {
       phone: existingPatient.phone || prev.phone,
       identityNumber: existingPatient.identityNumber || prev.identityNumber,
       gender: existingPatient.gender || prev.gender,
-      dateOfBirth: formattedDob || prev.dateOfBirth,
-    }));
+      dateOfBirth: formattedDob || prev.dateOfBirth }));
   };
 
   // Cấp STT trực tiếp cho bệnh nhân đã có hồ sơ cũ (không cần tạo mới)
@@ -137,8 +133,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         patientCode: existingPatient.patientId,
         packageName: 'Xét nghiệm máu vãng lai',
         isWalkIn: true,
-        priority: form.priority === 'HIGH' ? 2 : 1,
-      });
+        priority: form.priority === 'HIGH' ? 2 : 1 });
 
       const ticket = res?.data || res;
       setIssuedTicket(ticket);
@@ -150,8 +145,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         gender: existingPatient.gender,
         dateOfBirth: existingPatient.dateOfBirth,
         priority: form.priority,
-        isExisting: true,
-      });
+        isExisting: true });
       setShowK80Modal(true);
     } catch (err) {
       alert('Lỗi cấp STT: ' + (err?.message || 'Không thể kết nối máy cấp số'));
@@ -178,8 +172,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         receptionNotes ? `Ghi chú: ${receptionNotes}` : '',
       ]
         .filter(Boolean)
-        .join('; '),
-    };
+        .join('; ') };
 
     try {
       const res = await register(payload);
@@ -191,8 +184,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         gender: res.gender || payload.gender,
         dateOfBirth: res.dateOfBirth || payload.dateOfBirth,
         priority: res.priority || payload.priority,
-        isExisting: false,
-      });
+        isExisting: false });
       onSuccess?.(res.patientId);
     } catch {
       /* handled by useRegisterWalkIn */
@@ -211,8 +203,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         patientCode: pt.patientId,
         packageName: 'Xét nghiệm máu vãng lai',
         isWalkIn: true,
-        priority: pt.priority === 'HIGH' ? 2 : 1,
-      });
+        priority: pt.priority === 'HIGH' ? 2 : 1 });
       const ticket = res?.data || res;
       setIssuedTicket(ticket);
       setShowK80Modal(true);
@@ -451,8 +442,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 background: '#ffffff',
                 border: '1px dashed #94a3b8',
                 borderRadius: '12px',
-                padding: '20px',
-              }}
+                padding: '20px' }}
             >
               <div
                 style={{
@@ -460,8 +450,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   color: '#1e293b',
                   fontWeight: '700',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
+                  letterSpacing: '0.5px' }}
               >
                 HỆ THỐNG XÉT NGHIỆM BMS MEDLAB
               </div>
@@ -481,8 +470,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   padding: '12px',
                   background: '#f0fdf4',
                   borderRadius: '10px',
-                  border: '2px solid #86efac',
-                }}
+                  border: '2px solid #86efac' }}
               >
                 <div style={{ fontSize: '0.8rem', color: '#047857', fontWeight: '600' }}>SỐ THỨ TỰ LẤY MẪU</div>
                 <div
@@ -491,8 +479,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                     fontWeight: '900',
                     color: '#059669',
                     lineHeight: '1.1',
-                    margin: '4px 0',
-                  }}
+                    margin: '4px 0' }}
                 >
                   {issuedTicket?.ticketNumber || 'B01'}
                 </div>
@@ -519,8 +506,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   fontSize: '0.85rem',
                   lineHeight: '1.7',
                   color: '#334155',
-                  marginTop: '12px',
-                }}
+                  marginTop: '12px' }}
               >
                 <div>
                   <strong>Bệnh nhân:</strong> {pt?.fullName}
@@ -552,8 +538,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               background: '#f8fafc',
               borderTop: '1px solid #e2e8f0',
               display: 'flex',
-              justifyContent: 'space-between',
-            }}
+              justifyContent: 'space-between' }}
           >
             <Button variant="outline-secondary" onClick={() => setShowK80Modal(false)}>
               Đóng
@@ -811,7 +796,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* 2. SÀNG LỌC TIỀN PHÂN TÍCH (ISO 15189:2022) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                    <FaShieldAlt /> 2. Tiêu Chuẩn Tiền Phân Tích &amp; An Toàn Xét Nghiệm (ISO 15189:2022)
+                    <FaCheckCircle /> 2. Tiêu Chuẩn Tiền Phân Tích &amp; An Toàn Xét Nghiệm (ISO 15189:2022)
                   </h6>
                   <div className="bg-light p-3 rounded-3 mb-3">
                     {[
@@ -909,7 +894,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                <FaShieldAlt className="text-success" />
+                <FaCheckCircle className="text-success" />
                 Quy Chuẩn Tiền Phân Tích (ISO 15189)
               </h6>
               <p className="small text-muted mb-2">

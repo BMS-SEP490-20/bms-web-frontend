@@ -15,7 +15,6 @@ import {
   FaUser,
   FaMapMarkerAlt,
   FaLock,
-  FaShieldAlt,
   FaEye,
   FaEyeSlash,
   FaCheckCircle,
@@ -103,7 +102,7 @@ const WIZARD_STEPS = [
   { step: 1, title: 'Thông tin cá nhân', desc: 'Định danh & CCCD', icon: FaUser },
   { step: 2, title: 'Địa chỉ thường trú', desc: 'Phân cấp hành chính', icon: FaMapMarkerAlt },
   { step: 3, title: 'Mật khẩu bảo mật', desc: 'Quy chuẩn BR-IAM-01', icon: FaLock },
-  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: FaShieldAlt }
+  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: FaCheckCircle }
 ];
 
 export default function Register() {
@@ -697,7 +696,7 @@ export default function Register() {
                 style={{ fontSize: '11px', opacity: 0.9 }}
               >
                 <span>
-                  <FaShieldAlt className="text-warning me-1" /> Bảo mật thông tin bệnh án (HIPAA)
+                  <FaCheckCircle className="text-warning me-1" /> Bảo mật thông tin bệnh án (HIPAA)
                 </span>
                 <span>
                   <FaCheckCircle className="text-success me-1" /> Định danh chính xác theo CCCD 12 số
@@ -1333,7 +1332,7 @@ export default function Register() {
                         className="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3"
                         style={{ width: 68, height: 68 }}
                       >
-                        <FaShieldAlt className="fs-2" />
+                        <FaCheckCircle className="fs-2" />
                       </div>
                       <h4 className="fw-bold mb-1 text-dark">Bước 4: Xác Thực Tài Khoản (Mã OTP)</h4>
                       <p className="text-muted small mb-0">

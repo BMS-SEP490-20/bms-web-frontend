@@ -15,7 +15,6 @@ import {
   FaCheckCircle,
   FaExclamationTriangle,
   FaPrint,
-  FaShieldAlt,
   FaStethoscope,
   FaUserMd,
   FaBarcode,
@@ -364,7 +363,7 @@ export default function ExportTestResultPdfPage() {
 
                   <div className="text-end">
                     <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 fw-bold mb-1 d-inline-block" style={{ fontSize: '11.5px' }}>
-                      <FaShieldAlt className="me-1" /> ĐÃ KÝ SỐ ĐIỆN TỬ HỢP CHUẨN
+                      <FaCheckCircle className="me-1" /> ĐÃ KÝ SỐ ĐIỆN TỬ HỢP CHUẨN
                     </span>
                     <div className="text-muted font-monospace small">
                       Mã phiếu: <b>{result.OrderCode || result.OrderId || activeOrderId}</b>
@@ -573,7 +572,7 @@ export default function ExportTestResultPdfPage() {
                     <div className="text-muted small mb-1">TRƯỞNG KHOA XÉT NGHIỆM (KÝ SỐ)</div>
                     <div style={{ height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                        <FaShieldAlt className="me-1" /> KÝ SỐ BỞI: {labHeadDisplay}
+                        <FaCheckCircle className="me-1" /> KÝ SỐ BỞI: {labHeadDisplay}
                       </span>
                       <small className="text-muted font-monospace mt-1" style={{ fontSize: '10px' }}>
                         Thời gian ký: {releasedDateDisplay}
@@ -587,7 +586,7 @@ export default function ExportTestResultPdfPage() {
                 {/* Digital Integrity SHA-256 Footer */}
                 <div className="text-center text-muted mt-4 pt-3 border-top" style={{ fontSize: '11px' }}>
                   <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
-                    <FaShieldAlt className="text-success" />
+                    <FaCheckCircle className="text-success" />
                     <span>Chứng thư số điện tử được cấp bởi Ban Cơ yếu Chính phủ / Viettel-CA • Tiêu chuẩn ISO 15189:2022</span>
                   </div>
                   <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>
@@ -624,7 +623,7 @@ export default function ExportTestResultPdfPage() {
             <div className="modal-content" style={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
               <div className="modal-header border-0 pb-0">
                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>
-                  <FaShieldAlt className="text-primary" /> Chia Sẻ Kết Quả Cho Bác Sĩ Điều Trị
+                  <FaCheckCircle className="text-primary" /> Chia Sẻ Kết Quả Cho Bác Sĩ Điều Trị
                 </h5>
                 <button type="button" className="btn-close" onClick={() => setShowShareModal(false)}></button>
               </div>

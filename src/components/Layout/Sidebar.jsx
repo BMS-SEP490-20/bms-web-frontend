@@ -9,11 +9,10 @@ import { OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaTachometerAlt, FaVial, FaUserMd, FaStethoscope, FaUsersCog,
-  FaShieldAlt, FaBoxOpen, FaNotesMedical, FaChevronLeft, FaChevronRight,
+  FaBoxOpen, FaNotesMedical, FaChevronLeft, FaChevronRight,
   FaHeartbeat, FaDatabase, FaBell, FaHistory, FaQrcode, FaUserPlus, FaCheckCircle,
   FaDoorOpen, FaFlask, FaStar, FaReceipt, FaChartBar, FaClock, FaUsers, FaUserCog, FaTimes, FaCalendarAlt, FaSearch,
-  FaSignOutAlt
-} from 'react-icons/fa';
+  FaSignOutAlt, FaKey } from 'react-icons/fa';
 
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../constants/roles';
 
@@ -31,8 +30,8 @@ const MENU_SECTIONS = [
     items: [
       { id: 'admin-dash', path: '/dashboard', label: 'Bảng Điều Khiển Admin', icon: FaTachometerAlt, roles: [ADMIN] },
       { id: 'admin-users', path: '/admin/user-management', label: 'Quản Lý Tài Khoản (IAM)', icon: FaUserCog, roles: [ADMIN] },
-      { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: FaShieldAlt, roles: [ADMIN] },
-      { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: FaShieldAlt, roles: [ADMIN] },
+      { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: FaUserCog, roles: [ADMIN] },
+      { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: FaHistory, roles: [ADMIN] },
       { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: FaDatabase, roles: [ADMIN] },
       { id: 'admin-packages', path: '/admin/packages', label: 'Danh Mục Gói Dịch Vụ', icon: FaBoxOpen, roles: [ADMIN] },
       { id: 'admin-shifts', path: '/manage/schedule', label: 'Phân Bổ Ca Trực', icon: FaClock, roles: [ADMIN] },
@@ -191,7 +190,7 @@ const MENU_SECTIONS = [
     roles: ALL_ROLES,
     items: [
       { id: 'common-profile', path: '/profile', label: 'Thông Tin Tài Khoản', icon: FaUserMd, roles: ALL_ROLES },
-      { id: 'common-pwd', path: '/change-password', label: 'Thay Đổi Mật Khẩu', icon: FaShieldAlt, roles: ALL_ROLES }
+      { id: 'common-pwd', path: '/change-password', label: 'Thay Đổi Mật Khẩu', icon: FaKey, roles: ALL_ROLES }
     ]
   }
 ];

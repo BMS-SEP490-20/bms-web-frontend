@@ -9,7 +9,6 @@ import {
   FaTimes,
   FaCheckCircle,
   FaCopy,
-  FaShieldAlt,
   FaHospital,
   FaRegCheckCircle
 } from 'react-icons/fa';
@@ -223,7 +222,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
             <div className="fw-bold text-white d-flex align-items-center gap-2">
               Hóa Đơn Giá Trị Gia Tăng Điện Tử (VAT)
               <span className="badge bg-success text-white py-1 px-2" style={{ fontSize: '11px' }}>
-                <FaShieldAlt className="me-1" /> TT 78/2021/TT-BTC
+                <FaCheckCircle className="me-1" /> TT 78/2021/TT-BTC
               </span>
             </div>
             <div className="text-secondary small font-monospace">

@@ -25,7 +25,6 @@ import {
 import {
   FaCalculator,
   FaFileInvoiceDollar,
-  FaShieldAlt,
   FaHome,
   FaClinicMedical,
   FaTag,
@@ -853,7 +852,7 @@ export default function CalculateFeesPage() {
 
                       <div className="d-flex justify-content-between py-1.5 text-success fw-semibold border-top pt-2">
                         <span className="d-flex align-items-center gap-1">
-                          <FaShieldAlt /> Quỹ BHYT chi trả ({calculation?.insuranceCoveragePercent || 0}%):
+                          <FaCheckCircle /> Quỹ BHYT chi trả ({calculation?.insuranceCoveragePercent || 0}%):
                         </span>
                         <span>-{formatVnd(calculation?.insuranceDeduction || 0)}</span>
                       </div>

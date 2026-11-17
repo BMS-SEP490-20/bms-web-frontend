@@ -18,8 +18,7 @@ import {
     FaCheckCircle,
     FaFileAlt,
     FaArrowRight,
-    FaWarehouse,
-    FaShieldAlt
+    FaWarehouse
 } from "react-icons/fa";
 import {
     fetchSpecimenHistories,

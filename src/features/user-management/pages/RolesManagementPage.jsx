@@ -11,7 +11,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Table, Button, Form, Badge, Spinner, Alert, Pagination, Row, Col } from 'react-bootstrap';
 import {
-  FaShieldAlt,
   FaPlus,
   FaSearch,
   FaLock,
@@ -63,8 +62,7 @@ export const RolesManagementPage = () => {
         page: currentPage,
         pageSize,
         search: searchTerm,
-        isActive: statusFilter,
-      });
+        isActive: statusFilter });
 
       if (res && res.isSuccess && res.data) {
         const rawItems = Array.isArray(res.data)
@@ -170,7 +168,7 @@ export const RolesManagementPage = () => {
               <div className="bms-kpi-sub text-muted">Toàn hệ sinh thái BMS</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-              <FaShieldAlt />
+              <FaCheckCircle />
             </div>
           </div>
         </Col>

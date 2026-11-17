@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Modal, Button, Alert } from 'react-bootstrap';
-import { FaIdCard, FaExclamationTriangle, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
+import { FaIdCard, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
 
 export default function PatientProfileRequiredModal({ show, onHide, onNavigateToProfile }) {
   return (

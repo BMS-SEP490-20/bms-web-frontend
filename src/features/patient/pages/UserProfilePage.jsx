@@ -28,7 +28,6 @@ import {
   FaExclamationTriangle,
   FaCalendarAlt,
   FaNotesMedical,
-  FaShieldAlt,
   FaFileInvoiceDollar,
   FaClipboardList
 } from 'react-icons/fa';
@@ -679,7 +678,7 @@ export const UserProfilePage = () => {
               <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3">
                   <h5 className="mb-0 fw-bold text-dark">
-                    <FaShieldAlt className="text-primary me-2" />
+                    <FaCheckCircle className="text-primary me-2" />
                     Phạm Vi Phân Công Nghiệp Vụ &amp; Quyền Hạn Hệ Thống
                   </h5>
                 </Card.Header>

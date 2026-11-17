@@ -14,7 +14,7 @@ import {
   Alert, Badge, Spinner, InputGroup
 } from 'react-bootstrap';
 import {
-  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaShieldAlt, FaTimes
+  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaTimes
 } from 'react-icons/fa';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService } from '../../../services/userManagementService';
@@ -27,8 +27,7 @@ const VIETNAMESE_ROLES = Object.freeze({
   [ROLES.LAB]: 'Kỹ Thuật Viên Xét Nghiệm',
   [ROLES.DOCTOR]: 'Bác Sĩ Lâm Sàng',
   [ROLES.RECEPTIONIST]: 'Lễ Tân Tiếp Đón',
-  [ROLES.PATIENT]: 'Bệnh Nhân',
-});
+  [ROLES.PATIENT]: 'Bệnh Nhân' });
 
 const ROLE_BADGE_BG = Object.freeze({
   [ROLES.ADMIN]: 'danger',
@@ -36,8 +35,7 @@ const ROLE_BADGE_BG = Object.freeze({
   [ROLES.LAB]: 'info',
   [ROLES.DOCTOR]: 'success',
   [ROLES.RECEPTIONIST]: 'warning',
-  [ROLES.PATIENT]: 'secondary',
-});
+  [ROLES.PATIENT]: 'secondary' });
 
 /**
  * Unified administrative user and employee account management view.
@@ -75,8 +73,7 @@ export default function UserManagementPage() {
     roleId: ROLES.DOCTOR,
     password: '',
     confirmPassword: '',
-    isActive: true,
-  });
+    isActive: true });
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -246,8 +243,7 @@ export default function UserManagementPage() {
           roleId: ROLES.DOCTOR,
           password: '',
           confirmPassword: '',
-          isActive: true,
-        });
+          isActive: true });
         loadData();
       } else {
         setCreateError(res.message || 'Không thể tạo tài khoản.');

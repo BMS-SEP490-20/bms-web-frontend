@@ -44,8 +44,7 @@ export const ForgotPasswordPage = () => {
       const result = await sendOtp({
         destination: destination.trim(),
         channel,
-        purpose: 'PasswordReset',
-      });
+        purpose: 'PasswordReset' });
 
       if (result.isSuccess) {
         setShowOtpModal(true);
@@ -113,7 +112,7 @@ export const ForgotPasswordPage = () => {
         {/* Card Header */}
         <div className="bms-auth-card-header">
           <div className="bms-step-badge">
-            <i className="bi bi-shield-lock"></i>
+            <i className="bi bi-lock"></i>
             {step === 1 && 'Step 1: Request Security OTP'}
             {step === 3 && 'Step 2: Create New Password'}
             {step === 4 && 'Complete'}
@@ -233,8 +232,7 @@ export const ForgotPasswordPage = () => {
                         className="bms-password-strength-fill"
                         style={{
                           width: `${(strength / 4) * 100}%`,
-                          backgroundColor: strengthColors[strength],
-                        }}
+                          backgroundColor: strengthColors[strength] }}
                       />
                     </div>
                   </div>
@@ -244,7 +242,7 @@ export const ForgotPasswordPage = () => {
               <Form.Group className="mb-4">
                 <Form.Label className="fw-semibold small text-secondary">Confirm Password <span className="text-danger">*</span></Form.Label>
                 <div className="bms-input-icon-group">
-                  <i className="bi bi-shield-check bms-icon-addon"></i>
+                  <i className="bi bi-check-circle bms-icon-addon"></i>
                   <Form.Control
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Re-enter your new password"

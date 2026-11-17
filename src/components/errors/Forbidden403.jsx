@@ -6,7 +6,7 @@
 
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaShieldAlt, FaHome, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaHome, FaSignOutAlt, FaTachometerAlt, FaCheckCircle } from 'react-icons/fa';
 import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
 
 export default function Forbidden403({ requiredRole, userRole }) {
@@ -27,7 +27,7 @@ export default function Forbidden403({ requiredRole, userRole }) {
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light p-3">
       <div className="card shadow-lg border-0 rounded-4 text-center p-4 p-md-5" style={{ maxWidth: 580 }}>
         <div className="d-inline-flex p-3 rounded-circle bg-danger-subtle text-danger mb-4 mx-auto" style={{ width: 88, height: 88, fontSize: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <FaShieldAlt />
+          <FaCheckCircle />
         </div>
 
         <h2 className="fw-bold text-dark mb-2">Truy Cập Bị Từ Chối (403 Forbidden)</h2>

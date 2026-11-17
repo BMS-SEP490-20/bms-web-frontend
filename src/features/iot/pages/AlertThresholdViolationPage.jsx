@@ -12,7 +12,6 @@ import {
     FaBell,
     FaExclamationTriangle,
     FaCheckCircle,
-    FaShieldAlt,
     FaSync,
     FaFilter,
     FaVolumeUp,

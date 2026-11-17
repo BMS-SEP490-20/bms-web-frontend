@@ -22,7 +22,6 @@ import {
   FaCheckCircle,
   FaVial,
   FaUserInjured,
-  FaShieldAlt,
   FaThLarge,
   FaDownload,
   FaInfoCircle
@@ -229,7 +228,7 @@ export function AntiCollisionRackVisualizer({ patientsData }) {
           </small>
         </div>
         <Badge bg="success" className="px-3 py-1.5 rounded-pill">
-          <FaShieldAlt className="me-1" /> 100% Anti-Collision
+          <FaCheckCircle className="me-1" /> 100% Anti-Collision
         </Badge>
       </Card.Header>
 

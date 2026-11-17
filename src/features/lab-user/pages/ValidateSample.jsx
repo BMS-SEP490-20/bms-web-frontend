@@ -28,7 +28,6 @@ import {
   FaLock,
   FaSearch,
   FaRedoAlt,
-  FaShieldAlt,
   FaFlask,
   FaEye
 } from 'react-icons/fa';
@@ -470,7 +469,7 @@ const ValidateSample = () => {
         <Form onSubmit={handleSubmitAssessment}>
           <Modal.Header closeButton={!submitting} className="bg-light">
             <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-              <FaShieldAlt className="text-primary" />
+              <FaCheckCircle className="text-primary" />
               <span>Kiểm Chuẩn Chất Lượng Tiền Phân Tích (ISO 15189:2022)</span>
             </Modal.Title>
           </Modal.Header>

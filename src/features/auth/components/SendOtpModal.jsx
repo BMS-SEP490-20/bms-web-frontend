@@ -30,8 +30,7 @@ export const SendOtpModal = ({
   destination,
   purpose = 'PasswordReset',
   channel = 'Email',
-  onVerified,
-}) => {
+  onVerified }) => {
   const [otpValue, setOtpValue] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -44,8 +43,7 @@ export const SendOtpModal = ({
     formattedTime: resendFormattedTime,
     isActive: isCountdownActive,
     start: startCountdown,
-    reset: resetCountdown,
-  } = useCountdown(60);
+    reset: resetCountdown } = useCountdown(60);
 
   // Reset form state and start countdown when modal opens
   useEffect(() => {
@@ -74,8 +72,7 @@ export const SendOtpModal = ({
       const result = await verifyOtp({
         destination,
         otp: finalOtp,
-        purpose,
-      });
+        purpose });
 
       if (result.isSuccess) {
         setSuccessMessage('Identity verified successfully!');
@@ -105,8 +102,7 @@ export const SendOtpModal = ({
       const result = await sendOtp({
         destination,
         channel,
-        purpose,
-      });
+        purpose });
 
       if (result.isSuccess) {
         setSuccessMessage(result.message || 'A new verification code has been dispatched!');
@@ -133,7 +129,7 @@ export const SendOtpModal = ({
     >
       <Modal.Header closeButton className="bms-otp-modal-header">
         <Modal.Title id="bms-otp-modal-title" className="h5 fw-bold m-0 d-flex align-items-center">
-          <i className="bi bi-shield-lock-fill me-2 fs-5"></i>
+          <i className="bi bi-lock-fill me-2 fs-5"></i>
           Verify Security Code (OTP)
         </Modal.Title>
       </Modal.Header>
@@ -141,7 +137,7 @@ export const SendOtpModal = ({
       <Modal.Body className="p-4 text-center">
         {/* Shield icon */}
         <div className="bms-otp-shield-icon">
-          <i className="bi bi-shield-check"></i>
+          <i className="bi bi-check-circle"></i>
         </div>
 
         <h5 className="fw-bold text-dark mb-1">Enter 6-Digit Verification Code</h5>

@@ -9,9 +9,7 @@ import {
   FaExclamationCircle,
   FaPlusCircle,
   FaClinicMedical,
-  FaShieldAlt,
-  FaListOl,
-} from "react-icons/fa";
+  FaListOl } from "react-icons/fa";
 import { queueApi } from "../api/queueApi";
 
 export default function QueueBoardPage() {
@@ -25,10 +23,8 @@ export default function QueueBoardPage() {
       avgWaitMinutes: 0,
       longestWaitMinutes: 0,
       servedToday: 0,
-      countersActive: "0 / 0",
-    },
-    counters: [],
-  });
+      countersActive: "0 / 0" },
+    counters: [] });
 
   const [issuing, setIssuing] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
@@ -349,8 +345,7 @@ export default function QueueBoardPage() {
                   color: "#1E60E6",
                   fontFamily: "monospace",
                   lineHeight: 1,
-                  letterSpacing: "-2px",
-                }}
+                  letterSpacing: "-2px" }}
               >
                 {data.nextNumber || "—"}
               </div>

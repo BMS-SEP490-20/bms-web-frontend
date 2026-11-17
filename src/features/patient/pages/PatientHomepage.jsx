@@ -219,7 +219,7 @@ export default function PatientHomepage() {
           )) || (
             <>
               <div className="ph-kpi">
-                <div className="ph-kpi-label">Tiêu Chuẩn Phòng Lab <Icon>shield-check</Icon></div>
+                <div className="ph-kpi-label">Tiêu Chuẩn Phòng Lab <Icon>award</Icon></div>
                 <strong className="verified">ISO 15189</strong>
                 <small>Chứng nhận Quốc tế</small>
               </div>
@@ -267,7 +267,7 @@ export default function PatientHomepage() {
                         </div>
                         <div className="ph-details">
                           <span><Icon>calendar3</Icon><b>{apt.appointmentTime}</b></span>
-                          <span className="green"><Icon>shield-check</Icon>Đã lên lịch</span>
+                          <span className="green"><Icon>check-circle</Icon>Đã lên lịch</span>
                         </div>
                       </div>
                     </div>
@@ -381,7 +381,7 @@ export default function PatientHomepage() {
                 <ActionButton icon="telephone" onClick={() => { window.location.href = "tel:19006868"; }}>
                   Tổng Đài 1900 6868
                 </ActionButton>
-                <ActionButton icon="shield-check" onClick={() => { window.location.href = "/profile"; }}>
+                <ActionButton icon="person" onClick={() => { window.location.href = "/profile"; }}>
                   Thông Tin Cá Nhân
                 </ActionButton>
               </div>

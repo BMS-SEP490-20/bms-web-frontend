@@ -22,8 +22,7 @@ import {
     FaSearch,
     FaHistory,
     FaMicroscope,
-    FaInfoCircle,
-    FaShieldAlt
+    FaInfoCircle
 } from "react-icons/fa";
 import {
     fetchQcLots,

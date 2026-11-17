@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Alert, Spinner } from "react-bootstrap";
-import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft, FaShieldAlt, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
 import { sendPasswordRecoveryOtp } from "../api/authApi";
 import api from "../../../config/api";
 import OtpInputGroup from "../../../components/common/OtpInputGroup";
@@ -17,8 +17,7 @@ import "../styles/ForgotPassword.css";
 export default function ForgotPassword({
   onBackToLogin,
   onRegister,
-  onOtpSent,
-}) {
+  onOtpSent }) {
   const [step, setStep] = useState(1); // 1: Send OTP, 2: Verify & Reset Password
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -148,7 +147,7 @@ export default function ForgotPassword({
 
             <div className="bms-feature-list">
               <div className="bms-feature">
-                <i className="bi bi-shield-check" aria-hidden="true" />
+                <i className="bi bi-check-circle" aria-hidden="true" />
                 <span>Bảo mật chuẩn Y Tế Quốc Tế</span>
               </div>
               <div className="bms-feature">

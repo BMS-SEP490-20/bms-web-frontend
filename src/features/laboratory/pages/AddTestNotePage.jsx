@@ -20,7 +20,6 @@ import {
   FaListUl,
   FaClock,
   FaSearch,
-  FaShieldAlt,
   FaUserMd,
   FaSpinner
 } from "react-icons/fa";

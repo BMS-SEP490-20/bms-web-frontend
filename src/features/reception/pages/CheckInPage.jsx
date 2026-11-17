@@ -15,8 +15,8 @@ import {
 import {
   FaUserPlus, FaSearch, FaIdCard, FaUserInjured, FaPhoneAlt,
   FaTint, FaHeartbeat, FaNotesMedical, FaCalendarCheck,
-  FaExclamationTriangle, FaCheckCircle, FaEye, FaSyncAlt, FaUserShield,
-  FaShieldAlt, FaUsers, FaUserCheck, FaTimes
+  FaExclamationTriangle, FaCheckCircle, FaEye, FaSyncAlt,
+  FaUsers, FaUserCheck, FaTimes
 } from 'react-icons/fa';
 import {
   searchPatients,
@@ -87,10 +87,6 @@ export default function CheckInPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Quick lookup by exact ID / PatientCode / CCCD
-  const [quickLookupId, setQuickLookupId] = useState('');
-  const [lookupLoading, setLookupLoading] = useState(false);
-
   // View Patient Information Modal state (UC30)
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -141,8 +137,7 @@ export default function CheckInPage() {
         gender: genderFilter !== 'ALL' ? genderFilter : undefined,
         bloodType: bloodTypeFilter !== 'ALL' ? bloodTypeFilter : undefined,
         page,
-        pageSize,
-      });
+        pageSize });
 
       const items = res?.items || res?.data || [];
       setPatients(items);
@@ -185,25 +180,6 @@ export default function CheckInPage() {
       setDetailError(err.message || 'Không thể tải thông tin chi tiết bệnh nhân.');
     } finally {
       setDetailLoading(false);
-    }
-  };
-
-  // Handle Quick Lookup form submit
-  const handleQuickLookupSubmit = async (e) => {
-    e.preventDefault();
-    if (!quickLookupId.trim()) return;
-    setLookupLoading(true);
-    setErrorMsg('');
-    try {
-      const found = await getPatientById(quickLookupId.trim());
-      setSelectedPatient(found);
-      setActiveDetailTab('summary');
-      setDetailError('');
-      setShowViewModal(true);
-    } catch (err) {
-      setErrorMsg(`Tra cứu "${quickLookupId.trim()}": ${err.message}`);
-    } finally {
-      setLookupLoading(false);
     }
   };
 
@@ -312,10 +288,8 @@ export default function CheckInPage() {
             bloodPressure: guestForm.bloodPressure.trim() || null,
             heartRateBpm: guestForm.heartRateBpm !== '' ? Number(guestForm.heartRateBpm) : null,
             temperatureC: guestForm.temperatureC !== '' ? Number(guestForm.temperatureC) : null,
-            spo2Percent: guestForm.spo2Percent !== '' ? Number(guestForm.spo2Percent) : null,
-          }
-        : null,
-    };
+            spo2Percent: guestForm.spo2Percent !== '' ? Number(guestForm.spo2Percent) : null }
+        : null };
 
     setCreateLoading(true);
     try {
@@ -346,9 +320,8 @@ export default function CheckInPage() {
         <div className="bms-page-header-content">
           
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
-              Quản Lý Hồ Sơ Bệnh Nhân &amp; Tiếp Nhận Khách Vãng Lai
+              Quản Lý Hồ Sơ Bệnh Nhân
             </h1>
           </div>
           
@@ -421,93 +394,85 @@ export default function CheckInPage() {
             <div>
               <h6 className="bms-kpi-label">Đồng Bộ Hồ Sơ LIS</h6>
               <div className="bms-kpi-value">100%</div>
-              <div className="bms-kpi-sub text-success">Bảo mật NĐ 13/2023</div>
+              <div className="bms-kpi-sub text-success">Chuẩn kết nối LIS</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaShieldAlt /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaSyncAlt /></div>
           </div>
         </Col>
       </Row>
 
       {/* 3. Filter Bar (Standalone Independent Strip) */}
-      <div className="bms-filter-bar">
-        <Row className="g-2 align-items-center w-100 m-0">
-          <Col xs={12} md={5}>
-            <div className="bms-search-input-pill">
-              <FaSearch className="bms-search-icon" />
-              <input
-                type="text"
-                placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-              {searchInput && (
-                <button
-                  type="button"
-                  className="bms-search-clear"
-                  onClick={() => setSearchInput('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <FaTimes size={12} />
-                </button>
-              )}
-            </div>
-          </Col>
+      <div className="bms-filter-bar mb-3">
+        <div className="d-flex flex-wrap align-items-center gap-2 w-100">
+          <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '220px', maxWidth: '380px' }}>
+            <FaSearch className="bms-search-icon" />
+            <input
+              type="text"
+              placeholder="Tìm tên, mã BN, SĐT, CCCD..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            {searchInput && (
+              <button
+                type="button"
+                className="bms-search-clear"
+                onClick={() => setSearchInput('')}
+                title="Xóa tìm kiếm"
+              >
+                <FaTimes size={12} />
+              </button>
+            )}
+          </div>
 
-          <Col xs={6} md={3}>
-            <Form.Select
-              value={guestFilter}
-              className="rounded-pill"
-              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-              onChange={(e) => {
-                setGuestFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="ALL">Tất cả loại hồ sơ</option>
-              <option value="true">Khách vãng lai (Guest)</option>
-              <option value="false">Bệnh nhân có tài khoản</option>
-            </Form.Select>
-          </Col>
+          <Form.Select
+            value={guestFilter}
+            className="rounded-pill"
+            style={{ width: 'auto', minWidth: '150px', flex: '0 0 auto', backgroundColor: '#FFFFFF', fontSize: '13px' }}
+            onChange={(e) => {
+              setGuestFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="ALL">Tất cả phân loại</option>
+            <option value="true">Khách vãng lai</option>
+            <option value="false">Có tài khoản</option>
+          </Form.Select>
 
-          <Col xs={6} md={2}>
-            <Form.Select
-              value={genderFilter}
-              className="rounded-pill"
-              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-              onChange={(e) => {
-                setGenderFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="ALL">Mọi giới tính</option>
-              <option value="Male">Nam (Male)</option>
-              <option value="Female">Nữ (Female)</option>
-              <option value="Other">Khác (Other)</option>
-            </Form.Select>
-          </Col>
+          <Form.Select
+            value={genderFilter}
+            className="rounded-pill"
+            style={{ width: 'auto', minWidth: '120px', flex: '0 0 auto', backgroundColor: '#FFFFFF', fontSize: '13px' }}
+            onChange={(e) => {
+              setGenderFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="ALL">Mọi giới tính</option>
+            <option value="Male">Nam</option>
+            <option value="Female">Nữ</option>
+            <option value="Other">Khác</option>
+          </Form.Select>
 
-          <Col xs={12} md={2}>
-            <Form.Select
-              value={bloodTypeFilter}
-              className="rounded-pill"
-              style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-              onChange={(e) => {
-                setBloodTypeFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="ALL">Mọi nhóm máu</option>
-              <option value="O+">Nhóm máu O+</option>
-              <option value="A+">Nhóm máu A+</option>
-              <option value="B+">Nhóm máu B+</option>
-              <option value="AB+">Nhóm máu AB+</option>
-              <option value="O-">Nhóm máu O-</option>
-              <option value="A-">Nhóm máu A-</option>
-              <option value="B-">Nhóm máu B-</option>
-              <option value="AB-">Nhóm máu AB-</option>
-            </Form.Select>
-          </Col>
-        </Row>
+          <Form.Select
+            value={bloodTypeFilter}
+            className="rounded-pill"
+            style={{ width: 'auto', minWidth: '120px', flex: '0 0 auto', backgroundColor: '#FFFFFF', fontSize: '13px' }}
+            onChange={(e) => {
+              setBloodTypeFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="ALL">Mọi nhóm máu</option>
+            <option value="O+">O+</option>
+            <option value="A+">A+</option>
+            <option value="B+">B+</option>
+            <option value="AB+">AB+</option>
+            <option value="O-">O-</option>
+            <option value="A-">A-</option>
+            <option value="B-">B-</option>
+            <option value="AB-">AB-</option>
+          </Form.Select>
+        </div>
       </div>
 
       {/* 4. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
@@ -515,43 +480,11 @@ export default function CheckInPage() {
         <div className="bms-table-standalone-header">
           <div>
             <h5 className="bms-table-standalone-title">
-              Danh Sách Hồ Sơ Bệnh Nhân &amp; Khách Vãng Lai
+              Danh Sách Bệnh Nhân
             </h5>
             <div className="bms-table-standalone-subtitle">
-              Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân trong hệ thống
+              Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân
             </div>
-          </div>
-
-          <div className="d-flex align-items-center gap-2">
-            <Form onSubmit={handleQuickLookupSubmit} className="d-flex align-items-center gap-2">
-              <div className="bms-search-input-pill" style={{ width: 220 }}>
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Mã BN hoặc CCCD..."
-                  value={quickLookupId}
-                  onChange={(e) => setQuickLookupId(e.target.value)}
-                />
-                {quickLookupId && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setQuickLookupId('')}
-                    title="Xóa"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-              <Button
-                type="submit"
-                disabled={lookupLoading || !quickLookupId.trim()}
-                className="rounded-pill px-3 fw-semibold text-white d-flex align-items-center gap-1 shadow-sm text-nowrap"
-                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px', height: '36px' }}
-              >
-                {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye size={12} /> <span>Xem Nhanh</span></>}
-              </Button>
-            </Form>
           </div>
         </div>
 

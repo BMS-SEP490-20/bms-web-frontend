@@ -13,7 +13,6 @@ import {
     FaArrowRight,
     FaArrowDown,
     FaDownload,
-    FaShieldAlt,
     FaClock,
     FaCheckCircle,
     FaExclamationTriangle,
@@ -344,7 +343,7 @@ export default function TraceSampleOriginPage() {
                     <div className="card shadow-sm border-0 h-100">
                         <div className="card-header bg-white py-3 border-bottom">
                             <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                <FaShieldAlt className="text-primary" />
+                                <FaCheckCircle className="text-primary" />
                                 Chain of custody
                             </h5>
                         </div>

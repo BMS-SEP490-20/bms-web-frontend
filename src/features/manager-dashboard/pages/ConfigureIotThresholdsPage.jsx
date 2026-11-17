@@ -9,7 +9,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
-    FaShieldAlt,
     FaCogs,
     FaSave,
     FaUndo,

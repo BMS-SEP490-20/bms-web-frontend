@@ -9,7 +9,6 @@ import {
     FaUndo,
     FaExclamationTriangle,
     FaCheckCircle,
-    FaShieldAlt,
     FaTimes,
     FaDatabase
 } from "react-icons/fa";
@@ -136,7 +135,7 @@ export default function RestoreConfirmationModal({
                         {step === 1 && (
                             <div>
                                 <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-                                    <FaShieldAlt className="text-primary" />
+                                    <FaCheckCircle className="text-primary" />
                                     Bước 1: Kiểm Tra Toàn Vẹn Trước Khôi Phục (Pre-flight Validation)
                                 </h6>
 

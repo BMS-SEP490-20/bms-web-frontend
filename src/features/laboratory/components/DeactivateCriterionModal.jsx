@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Modal, Button, Alert, Badge, Card, Spinner } from 'react-bootstrap';
-import { FaExclamationTriangle, FaTimes, FaShieldAlt } from 'react-icons/fa';
+import { FaExclamationTriangle, FaTimes, FaCheckCircle } from 'react-icons/fa';
 
 export default function DeactivateCriterionModal({ isOpen, criterion, onClose, onConfirm }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +71,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
         </Card>
 
         <Alert variant="warning" className="small mb-0 d-flex align-items-start gap-2">
-          <FaShieldAlt className="mt-1 flex-shrink-0 text-warning" />
+          <FaCheckCircle className="mt-1 flex-shrink-0 text-warning" />
           <div>
             <strong>Lưu ý bảo mật y tế:</strong> Chỉ số sẽ chuyển sang trạng thái <em>Ngưng Hoạt Động (Inactive)</em> và không xuất hiện khi chỉ định mới. Toàn bộ kết quả xét nghiệm lịch sử của bệnh nhân vẫn được bảo toàn nguyên vẹn 100%.
           </div>

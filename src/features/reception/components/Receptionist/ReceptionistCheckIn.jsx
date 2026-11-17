@@ -9,7 +9,7 @@ import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Ro
 import { QRCodeSVG } from 'qrcode.react';
 import {
   FaQrcode, FaCalendarCheck, FaUserCheck, FaSearch, FaTimes,
-  FaFileCsv, FaPrint, FaShieldAlt, FaClock, FaUsers,
+  FaFileCsv, FaPrint, FaClock, FaUsers,
   FaTicketAlt, FaEye, FaCheckCircle, FaUserFriends, FaCalendarTimes, FaUserTimes
 } from 'react-icons/fa';
 import { appointmentService } from '../../../../services/appointmentService';
@@ -1951,8 +1951,7 @@ const ReceptionistCheckIn = () => {
     ALL: confirmedList.length,
     SLOT_1: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_1').length,
     SLOT_2: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_2').length,
-    SLOT_3: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_3').length,
-  };
+    SLOT_3: confirmedList.filter(a => getSlotForAppointment(a) === 'SLOT_3').length };
 
   if (loading) {
     return (
@@ -2641,7 +2640,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Quy trình chuyên môn:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-shield-alt text-primary me-1"></i>
+                                <i className="fas fa-check-circle text-primary me-1"></i>
                                 Quản lý chất lượng ISO 15189:2022
                               </strong>
                             </div>

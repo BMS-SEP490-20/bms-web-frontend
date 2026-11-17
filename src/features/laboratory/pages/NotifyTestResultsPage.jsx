@@ -19,8 +19,7 @@ import {
     FaEye,
     FaRedo,
     FaCheck,
-    FaUser,
-    FaShieldAlt
+    FaUser
 } from "react-icons/fa";
 import {
     fetchNotifications,

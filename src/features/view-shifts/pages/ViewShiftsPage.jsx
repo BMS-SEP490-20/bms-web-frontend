@@ -247,7 +247,7 @@ export function ViewShiftsPage() {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : `Lịch Ca Trực Của Tôi - ${currentUserName || 'Cá Nhân'}`}
+              {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : 'Lịch Ca Trực Của Tôi'}
             </h1>
           </div>
           

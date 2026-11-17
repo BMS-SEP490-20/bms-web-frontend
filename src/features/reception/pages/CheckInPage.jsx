@@ -599,16 +599,16 @@ export default function CheckInPage() {
         backdrop="static"
       >
         <Form onSubmit={handleCreateGuestSubmit}>
-          <Modal.Header closeButton={!createLoading} style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+          <Modal.Header closeButton={!createLoading} style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)', padding: '16px 24px' }}>
             <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
               <FaUserPlus style={{ color: '#1E60E6' }} />
               <span>Tạo Hồ Sơ Bệnh Nhân Khách Vãng Lai</span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
-            <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
-              <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
+          <Modal.Body style={{ padding: '24px 28px', maxHeight: '78vh', overflowY: 'auto' }}>
+            <Alert variant="info" className="py-2 px-3 small mb-3 border-0 bg-primary-subtle text-primary-emphasis" style={{ borderRadius: '10px' }}>
+              <span>Dành cho người bệnh tiếp nhận trực tiếp tại quầy, có thể liên kết tài khoản sau.</span>
             </Alert>
 
             {createError && (
@@ -885,13 +885,13 @@ export default function CheckInPage() {
             </Row>
           </Modal.Body>
 
-          <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>
+          <Modal.Footer style={{ backgroundColor: '#F8FAFC', borderTop: '1px solid rgba(15, 23, 42, 0.05)', padding: '14px 28px' }}>
             <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)} disabled={createLoading} style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               Hủy bỏ
             </Button>
             <Button type="submit" disabled={createLoading} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
               {createLoading ? (
-                <><Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...</>
+                <><Spinner animation="border" size="sm" className="me-2" /> Đang lưu...</>
               ) : (
                 <><FaUserPlus className="me-1" /> Lưu Hồ Sơ Khách Vãng Lai</>
               )}
@@ -909,14 +909,14 @@ export default function CheckInPage() {
         centered
         size="xl"
       >
-        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)', padding: '16px 24px' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
             <FaIdCard style={{ color: '#1E60E6' }} />
             <span>Hồ Sơ Chi Tiết Bệnh Nhân</span>
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="p-2" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+        <Modal.Body style={{ padding: '24px 28px', maxHeight: '80vh', overflowY: 'auto' }}>
           {detailError && (
             <Alert variant="danger" className="mb-3" style={{ borderRadius: '12px' }}>
               <FaExclamationTriangle className="me-2" />

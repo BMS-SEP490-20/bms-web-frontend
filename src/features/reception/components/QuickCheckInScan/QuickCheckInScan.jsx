@@ -783,21 +783,10 @@ const QuickCheckInScan = ({
 
   return (
     <div>
-      <Alert variant="info" className="mb-3" style={{ borderRadius: '10px' }}>
-        <div className="d-flex align-items-start">
-          <i className="fas fa-info-circle me-2 mt-1" style={{ fontSize: '1.2rem' }}></i>
-          <div>
-            <strong className="d-block mb-2">Hướng dẫn check-in nhanh:</strong>
-            <ul className="mb-2" style={{ paddingLeft: '1.2rem' }}>
-              <li>Quét QR code từ lịch hẹn của bệnh nhân</li>
-              <li>Hệ thống tự động tìm và check-in lịch hẹn tương ứng</li>
-              <li>Không cần tìm kiếm hay nhập thông tin thủ công</li>
-            </ul>
-            <small className="text-muted">
-              <i className="fas fa-lightbulb me-1"></i>
-              Bạn có thể quét nhiều QR code liên tiếp để check-in nhiều bệnh nhân.
-            </small>
-          </div>
+      <Alert variant="info" className="mb-3 py-2 px-3 border-0 bg-primary-subtle text-primary-emphasis" style={{ borderRadius: '10px' }}>
+        <div className="d-flex align-items-center small">
+          <i className="fas fa-qrcode me-2"></i>
+          <span>Quét mã QR từ lịch hẹn hoặc nhập mã để hệ thống tự động tìm và tiếp đón.</span>
         </div>
       </Alert>
 
@@ -1232,50 +1221,66 @@ const QuickCheckInScan = ({
       )}
 
       {scanMode === 'manual' && (
-        <Card className="mb-3">
-          <Card.Body>
-            <Form onSubmit={handleManualSubmit}>
-              <Form.Group>
-                <Form.Label className="fw-bold text-primary">
-                  <i className="fas fa-keyboard me-2"></i>
-                  Nhập mã lịch hẹn
-                </Form.Label>
-                <InputGroup size="lg">
-                  <Form.Control
-                    type="text"
-                    placeholder="Ví dụ: APP123456"
-                    value={manualCode}
-                    onChange={(e) => setManualCode(e.target.value)}
-                    autoFocus
-                  />
-                  <Button variant="primary" type="submit" disabled={!manualCode.trim() || scanningRef.current}>
-                    {scanningRef.current ? <Spinner size="sm" /> : <span><i className="fas fa-search me-1"></i> Tìm & Check-in</span>}
-                  </Button>
-                </InputGroup>
-              </Form.Group>
-            </Form>
-          </Card.Body>
-        </Card>
+        <div className="mb-3 p-3 rounded-3 bg-light border">
+          <Form onSubmit={handleManualSubmit}>
+            <Form.Group>
+              <Form.Label className="fw-semibold text-secondary small mb-2">
+                Nhập mã lịch hẹn
+              </Form.Label>
+              <div className="d-flex gap-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Ví dụ: APP123456"
+                  value={manualCode}
+                  onChange={(e) => setManualCode(e.target.value)}
+                  autoFocus
+                  style={{
+                    height: '42px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '14px'
+                  }}
+                />
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={!manualCode.trim() || scanningRef.current}
+                  className="d-flex align-items-center justify-content-center px-4"
+                  style={{
+                    height: '42px',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {scanningRef.current ? <Spinner size="sm" /> : <span><i className="fas fa-search me-1"></i> Tìm & Check-in</span>}
+                </Button>
+              </div>
+            </Form.Group>
+          </Form>
+        </div>
       )}
 
       {scanMode === 'file' && (
-        <Card className="mb-3">
-          <Card.Body>
-            <Form.Group>
-              <Form.Label>
-                <i className="fas fa-upload me-2"></i>
-                Chọn file ảnh chứa QR code
-              </Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileScan}
-              />
-            </Form.Group>
-            <div id="file-reader" style={{ display: 'none' }}></div>
-          </Card.Body>
-        </Card>
+        <div className="mb-3 p-3 rounded-3 bg-light border">
+          <Form.Group>
+            <Form.Label className="fw-semibold text-secondary small mb-2">
+              Chọn file ảnh chứa QR code
+            </Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleFileScan}
+              style={{
+                borderRadius: '8px',
+                border: '1px solid #CBD5E1',
+                fontSize: '14px'
+              }}
+            />
+          </Form.Group>
+          <div id="file-reader" style={{ display: 'none' }}></div>
+        </div>
       )}
 
       {scanningRef.current && (

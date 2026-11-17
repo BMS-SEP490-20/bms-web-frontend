@@ -175,9 +175,9 @@ export default function BillingInvoicesPage() {
       {/* Header */}
       <header className="bms-page-header mb-4">
         <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
-          <h1 className="bms-page-title fs-4">Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử</h1>
+          <h1 className="bms-page-title fs-4">Quầy Thu Viện Phí &amp; Hóa Đơn</h1>
           <p className="text-muted small mb-0">
-            Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT theo Nghị định 123/2020/NĐ-CP.
+            Thu viện phí trực tiếp, in biên lai K80 và phát hành hóa đơn điện tử.
           </p>
         </div>
 

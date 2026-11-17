@@ -1995,13 +1995,14 @@ const ReceptionistCheckIn = () => {
             <div className="bms-page-title-row">
 
               <h1 className="bms-page-title">
-                Quầy Tiếp Đón Lễ Tân &amp; Điều Phối Lấy Mẫu
+                Quầy Tiếp Đón &amp; Check-in QR
               </h1>
             </div>
 
           </div>
           <div className="bms-page-actions">
             <Button
+              id="btn-open-qr-modal"
               size="lg"
               onClick={() => handleOpenQuickQRModal('camera')}
               className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2"
@@ -2438,7 +2439,7 @@ const ReceptionistCheckIn = () => {
             {isMobile ? 'Check-in QR' : 'Check-in nhanh bằng QR Code'}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ padding: isMobile ? '0.5rem' : '1rem' }}>
+        <Modal.Body style={{ padding: isMobile ? '0.75rem' : '1.5rem 1.75rem' }}>
           <QuickCheckInScan
             receptionistId={user?.id}
             onSuccess={handleQuickCheckInSuccess}

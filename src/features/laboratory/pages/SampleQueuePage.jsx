@@ -522,9 +522,8 @@ const SampleQueuePage = () => {
       {/* Page Header */}
       <PageHeader
         icon={<FaFlask size={20} />}
-        title="Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm"
-        lead="Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm."
-        meta={['Tiêu chuẩn ISO 15189:2022', 'Mã hóa Barcode 1D/2D tự động']}
+        title="Hàng Đợi Mẫu Bệnh Phẩm"
+        lead="Quản lý tiếp nhận và xử lý mẫu bệnh phẩm tại phòng xét nghiệm."
         actions={
           <div className="d-flex gap-2">
             <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3">

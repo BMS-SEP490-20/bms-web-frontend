@@ -557,24 +557,28 @@ export function RegisterWalkInPage({ onSuccess }) {
   // =========================================================================
   return (
     <div className="container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header chuẩn hóa chung dashboard lễ tân */}
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-          <h2 className="fs-4 fw-bold text-dark mb-1">
-            <FaIdCard className="text-primary me-2" />
-            Quầy Tiếp Nhận &amp; Đăng Ký Hồ Sơ Khách Vãng Lai (Walk-in)
-          </h2>
-          <p className="text-muted mb-0 small">
-            Tiếp đón người bệnh chưa đặt lịch, xác thực CCCD gắn chip (Đề án 06 Bộ Y Tế), sàng lọc tiêu chuẩn tiền phân tích (ISO 15189:2022) và cấp số thứ tự vào phòng lấy mẫu.
-          </p>
-        </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" className="rounded-pill" onClick={() => navigate('/reception/queue')}>
-            <FaDesktop className="me-1" /> Bảng Gọi Số
-          </Button>
-          <Button variant="outline-primary" size="sm" className="rounded-pill" onClick={() => navigate('/calculate-fees')}>
-            <FaFileInvoiceDollar className="me-1" /> Quầy Dự Toán
-          </Button>
+      {/* Header chuẩn hóa chung dashboard */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+              <h1 className="bms-page-title d-flex align-items-center gap-2">
+                <FaIdCard className="text-primary" />
+                Tiếp Nhận Khách Vãng Lai
+              </h1>
+              <p className="bms-page-subtitle">
+                Đăng ký hồ sơ, tiếp đón người bệnh tại quầy và cấp số thứ tự lấy mẫu
+              </p>
+            </div>
+            <div className="d-flex gap-2">
+              <Button variant="outline-secondary" size="sm" className="rounded-pill" onClick={() => navigate('/reception/queue')}>
+                <FaDesktop className="me-1" /> Bảng Gọi Số
+              </Button>
+              <Button variant="outline-primary" size="sm" className="rounded-pill" onClick={() => navigate('/calculate-fees')}>
+                <FaFileInvoiceDollar className="me-1" /> Dự Toán Viện Phí
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -585,7 +589,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             <Card.Header className="bg-white border-bottom py-3 px-4">
               <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                 <FaClipboardCheck className="text-primary" />
-                Hồ Sơ Tiếp Đón Khách Vãng Lai Tại Quầy
+                Hồ Sơ Tiếp Đón Tại Quầy
               </h5>
             </Card.Header>
 
@@ -888,71 +892,65 @@ export function RegisterWalkInPage({ onSuccess }) {
           </Card>
         </Col>
 
-        {/* Cột phải: Hướng dẫn nghiệp vụ & Quy chuẩn y tế */}
+        {/* Cột phải: Hướng dẫn nghiệp vụ */}
         <Col lg={4}>
-          {/* Card 1: An toàn phòng xét nghiệm */}
+          {/* Card 1: Lưu ý tiền phân tích */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                 <FaCheckCircle className="text-success" />
-                Quy Chuẩn Tiền Phân Tích (ISO 15189)
+                Lưu Ý Tiền Phân Tích
               </h6>
-              <p className="small text-muted mb-2">
-                70% sai sót kết quả xét nghiệm bắt nguồn từ khâu tiền phân tích:
-              </p>
               <ul className="small text-muted ps-3 mb-0">
                 <li className="mb-1">Đối chiếu thông tin người bệnh với CCCD trước khi lấy mẫu.</li>
                 <li className="mb-1">Khách vãng lai cần nhịn ăn ít nhất 8 tiếng với xét nghiệm sinh hóa đường/mỡ máu.</li>
-                <li>Nếu người bệnh đang dùng kháng đông máu (Heparin, Warfarin), cần cảnh báo KTV lấy mẫu để ép băng kỹ.</li>
+                <li>Cảnh báo KTV nếu người bệnh dùng thuốc chống đông máu.</li>
               </ul>
             </Card.Body>
           </Card>
 
-          {/* Card 2: Chính sách viện phí */}
+          {/* Card 2: Viện phí & Hóa đơn */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
             <Card.Body className="p-3">
               <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
                 <FaFileInvoiceDollar />
-                Chính Sách Viện Phí &amp; Hóa Đơn Điện Tử
+                Viện Phí &amp; Hóa Đơn
               </h6>
-              <p className="small text-muted mb-2">
-                Tuân thủ Nghị định 123/2020/NĐ-CP &amp; Thông tư 22/2023/TT-BYT:
-              </p>
               <ul className="small text-muted ps-3 mb-0">
-                <li className="mb-1">Khách vãng lai thanh toán tại quầy thu ngân hoặc ứng dụng trước/sau khi lấy mẫu theo luồng tiếp đón.</li>
-                <li className="mb-1">Hỗ trợ đối soát quyền lợi BHYT 80% – 100% tại quầy dự toán viện phí.</li>
-                <li>Tự động xuất biên lai nhiệt K80 và hóa đơn VAT điện tử.</li>
+                <li className="mb-1">Thanh toán tại quầy thu ngân hoặc ứng dụng theo luồng tiếp đón.</li>
+                <li className="mb-1">Hỗ trợ đối soát quyền lợi BHYT 80% – 100% tại quầy dự toán.</li>
+                <li>Tự động xuất biên lai nhiệt K80 và hóa đơn VAT.</li>
               </ul>
             </Card.Body>
           </Card>
 
-          {/* Card 3: Quy trình 5 bước */}
+          {/* Card 3: Quy trình tiếp đón */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                 <FaHospital className="text-secondary" />
-                Luồng Tiếp Đón Khách Vãng Lai
+                Quy Trình Tiếp Đón
               </h6>
               <div className="small text-muted">
                 <div className="d-flex align-items-start gap-2 mb-2">
                   <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>1</Badge>
-                  <span>Nhập CCCD &rarr; Đối soát trùng lặp hồ sơ cũ.</span>
+                  <span>Nhập CCCD đối soát hồ sơ.</span>
                 </div>
                 <div className="d-flex align-items-start gap-2 mb-2">
                   <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>2</Badge>
-                  <span>Khai báo thông tin lâm sàng &amp; tiền phân tích.</span>
+                  <span>Khai báo thông tin lâm sàng.</span>
                 </div>
                 <div className="d-flex align-items-start gap-2 mb-2">
                   <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>3</Badge>
-                  <span>Cấp mã bệnh nhân <code>PAT-xxxx</code> và STT lấy mẫu.</span>
+                  <span>Cấp mã bệnh nhân và STT lấy mẫu.</span>
                 </div>
                 <div className="d-flex align-items-start gap-2 mb-2">
                   <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>4</Badge>
-                  <span>In Phiếu Tiếp Đón K80 &rarr; Hướng dẫn vào Phòng 101.</span>
+                  <span>In Phiếu K80 và hướng dẫn phòng lấy mẫu.</span>
                 </div>
                 <div className="d-flex align-items-start gap-2">
                   <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>5</Badge>
-                  <span>Chuyển Quầy Dự Toán &amp; Thu Ngân thu viện phí.</span>
+                  <span>Chuyển quầy thu viện phí.</span>
                 </div>
               </div>
             </Card.Body>

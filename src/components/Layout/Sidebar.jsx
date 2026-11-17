@@ -148,19 +148,20 @@ const MENU_SECTIONS = [
     category: 'Tiếp Đón & Điều Phối Bệnh Nhân',
     roles: [RECEPTIONIST],
     items: [
+      { id: 'rec-dash', path: '/dashboard', label: 'Bảng Điều Khiển Lễ Tân', icon: FaTachometerAlt, roles: [RECEPTIONIST] },
       { id: 'rec-checkin', path: '/receptionist/check-in', label: 'Quầy Tiếp Đón & Check-in QR', icon: FaQrcode, roles: [RECEPTIONIST], badge: { text: 'QR', bg: 'success' } },
-      { id: 'rec-queue', path: '/reception/queue', label: 'Bảng Gọi Số & Điều Phối Hàng Đợi', icon: FaClock, roles: [RECEPTIONIST] },
-      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: 'Tiếp Nhận & Đăng Ký Khách Vãng Lai', icon: FaUserPlus, roles: [RECEPTIONIST] },
-      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn & Khung Giờ Khám', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
-      { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân (Đề án 06)', icon: FaUsers, roles: [RECEPTIONIST] }
+      { id: 'rec-queue', path: '/reception/queue', label: 'Bảng Gọi Số & Hàng Đợi', icon: FaClock, roles: [RECEPTIONIST] },
+      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: 'Tiếp Nhận Khách Vãng Lai', icon: FaUserPlus, roles: [RECEPTIONIST] },
+      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
+      { id: 'rec-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] }
     ]
   },
   {
     category: 'Viện Phí & Thu Ngân',
     roles: [RECEPTIONIST],
     items: [
-      { id: 'rec-invoices', path: '/invoices', label: 'Quầy Thu Viện Phí & Hóa Đơn VAT', icon: FaReceipt, roles: [RECEPTIONIST] },
-      { id: 'rec-fees', path: '/calculate-fees', label: 'Tra Cứu Bảng Giá & Dự Toán BHYT', icon: FaReceipt, roles: [RECEPTIONIST] }
+      { id: 'rec-invoices', path: '/invoices', label: 'Quầy Thu Viện Phí', icon: FaReceipt, roles: [RECEPTIONIST] },
+      { id: 'rec-fees', path: '/calculate-fees', label: 'Tra Cứu Bảng Giá & BHYT', icon: FaReceipt, roles: [RECEPTIONIST] }
     ]
   },
   {

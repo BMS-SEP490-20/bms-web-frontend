@@ -223,7 +223,7 @@ export default function RevenueReportPage() {
                     <div className="bms-page-title-row">
                         
                         <h1 className="bms-page-title">
-                            Báo Cáo Doanh Thu &amp; Tài Chính Xét Nghiệm
+                            Báo Cáo Doanh Thu Viện Phí
                         </h1>
                     </div>
                     
@@ -237,7 +237,7 @@ export default function RevenueReportPage() {
                         id="btn-export-revenue-csv"
                     >
                         <FaDownload size={13} />
-                        <span>Xuất CSV Kế Toán</span>
+                        <span>Xuất CSV</span>
                     </button>
                     <button
                         className="btn btn-sm d-flex align-items-center gap-2 shadow-sm text-white px-3.5 py-2 fw-semibold"

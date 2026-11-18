@@ -13,7 +13,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Row, Col, Modal, Spinner, Alert, Badge } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FaVial, FaClock, FaList, FaThLarge } from 'react-icons/fa';
+import { FaVial, FaClock, FaList, FaThLarge, FaTimes, FaCheckCircle } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
@@ -585,10 +585,10 @@ export default function ServiceCatalogPage() {
                     <button
                       type="button"
                       className="btn position-absolute top-50 end-0 translate-middle-y me-1 p-1 text-muted"
-                      style={{ border: 'none', background: 'transparent', fontSize: '13px' }}
+                      style={{ border: 'none', background: 'transparent', fontSize: '12px' }}
                       onClick={() => setSearchInput('')}
                     >
-                      ✕
+                      <FaTimes />
                     </button>
                   )}
                 </div>
@@ -1178,8 +1178,8 @@ export default function ServiceCatalogPage() {
 
               {/* Quality & Insurance Trust Callout */}
               <div className="mt-3 p-2.5 rounded-3 d-flex align-items-center gap-2" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', fontSize: '11.5px', color: '#475569' }}>
-                <span style={{ color: '#10B981', fontWeight: 700 }}>✓ Cam kết BMS:</span>
-                <span>Kết quả chuẩn ISO 15189:2022, thẩm định chuyên môn 2 cấp, hỗ trợ chiết khấu BHYT và có Bác sĩ liên hệ tư vấn.</span>
+                <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><FaCheckCircle /> Cam kết BMS:</span>
+                <span>Thẩm định chuyên môn 2 cấp, hỗ trợ BHYT và Bác sĩ chuyên khoa tư vấn kết quả.</span>
               </div>
             </div>
           ) : null}

@@ -50,10 +50,10 @@ import userManagementService from "../../../services/userManagementService";
 
 // Predefined Template Categories
 const CATEGORIES = [
-    { key: "RESULT_READY", label: "Kết quả XN sẵn sàng", defaultPriority: "High", defaultAction: "/patient/test-reports" },
-    { key: "CRITICAL_PANIC", label: "Báo động Nguy kịch (Critical Panic)", defaultPriority: "Critical_Panic", defaultAction: "/doctor/medical-records" },
-    { key: "APPOINTMENT_REMINDER", label: "Nhắc nhở lịch hẹn", defaultPriority: "Normal", defaultAction: "/patient/appointments" },
-    { key: "PAYMENT_REMINDER", label: "Nhắc thanh toán viện phí", defaultPriority: "Normal", defaultAction: "/billing/calculate-fee" },
+    { key: "RESULT_READY", label: "Kết quả XN sẵn sàng", defaultPriority: "High", defaultAction: "/patient/test-history" },
+    { key: "CRITICAL_PANIC", label: "Báo động Nguy kịch (Critical Panic)", defaultPriority: "Critical_Panic", defaultAction: "/doctor/emr" },
+    { key: "APPOINTMENT_REMINDER", label: "Nhắc nhở lịch hẹn", defaultPriority: "Normal", defaultAction: "/appointments" },
+    { key: "PAYMENT_REMINDER", label: "Nhắc thanh toán viện phí", defaultPriority: "Normal", defaultAction: "/patient/payment-history" },
     { key: "SYSTEM_ALERT", label: "Thông báo bảo trì hệ thống", defaultPriority: "Normal", defaultAction: "/dashboard" }
 ];
 
@@ -84,9 +84,9 @@ export default function PushNotificationCenterPage() {
     const [formChannel, setFormChannel] = useState("Push");
     const [formPriority, setFormPriority] = useState("High");
     const [formCategory, setFormCategory] = useState("RESULT_READY");
-    const [formTitle, setFormTitle] = useState("Kết quả xét nghiệm Tổng phân tích máu đã sẵn sàng");
-    const [formBody, setFormBody] = useState("Phiếu kết quả xét nghiệm mã số #ORD-2026-9901 đã được bác sĩ Trưởng khoa phê duyệt. Vui lòng bấm để xem chi tiết.");
-    const [formActionUrl, setFormActionUrl] = useState("/patient/test-reports/ORD-2026-9901");
+    const [formTitle, setFormTitle] = useState("Kết quả xét nghiệm đã sẵn sàng");
+    const [formBody, setFormBody] = useState("Phiếu kết quả xét nghiệm của quý khách đã được phê duyệt và ký số. Vui lòng bấm để xem chi tiết.");
+    const [formActionUrl, setFormActionUrl] = useState("/patient/test-history");
     const [formPlatform, setFormPlatform] = useState("Android");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formAlert, setFormAlert] = useState(null); // { type: 'success' | 'danger', message: string }
@@ -373,49 +373,43 @@ export default function PushNotificationCenterPage() {
         });
 
         return (
-            <div className="container-fluid py-4" style={{ maxWidth: "1050px" }}>
+            <div className="container-fluid py-3" style={{ maxWidth: "1050px" }}>
                 {/* Header Card */}
-                <div className="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div>
-                            <div className="d-flex align-items-center gap-2 mb-2">
-                                <span className="badge bg-primary-subtle text-primary fw-semibold px-2.5 py-1.5 rounded-pill">
-                                    <FaBell className="me-1" /> Hộp thư thông báo y khoa
-                                </span>
-                                {unreadCount > 0 && (
-                                    <span className="badge bg-danger text-white rounded-pill">
-                                        {unreadCount} chưa đọc
-                                    </span>
-                                )}
-                            </div>
-                            <h2 className="fw-bold mb-1" style={{ color: "#0f2743" }}>Thông Báo &amp; Lời Nhắc Y Khoa</h2>
-                            <p className="text-muted small mb-0">
-                                Xin chào <strong>{user?.fullName || user?.username || "Quý khách"}</strong> ({user?.patientCode || "Bệnh nhân"}) • Cập nhật kết quả xét nghiệm, lịch hẹn và hướng dẫn lâm sàng
-                            </p>
-                        </div>
+                <div className="bms-page-header-card mb-4">
+                    <div className="bms-page-header-content">
                         <div className="d-flex align-items-center gap-2">
-                            <button
-                                className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-                                onClick={() => navigate("/")}
-                            >
-                                <FaArrowLeft /> Trang chủ
-                            </button>
-                            <button
-                                className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-                                onClick={fetchUserNotifs}
-                                title="Tải lại thông báo"
-                            >
-                                <FaSync /> Làm mới
-                            </button>
+                            <h1 className="bms-page-title">Thông Báo &amp; Lời Nhắc Y Khoa</h1>
                             {unreadCount > 0 && (
-                                <button
-                                    className="btn btn-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-                                    onClick={handleMarkAllRead}
-                                >
-                                    <FaCheckDouble /> Đã đọc tất cả
-                                </button>
+                                <span className="badge bg-danger-subtle text-danger rounded-pill px-2.5 py-1">
+                                    {unreadCount} chưa đọc
+                                </span>
                             )}
                         </div>
+                        <p className="bms-page-subtitle">
+                            Cập nhật kết quả xét nghiệm, lịch hẹn khám và thông báo viện phí
+                        </p>
+                    </div>
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <button
+                            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
+                            onClick={() => navigate("/")}
+                        >
+                            <FaArrowLeft /> Trang chủ
+                        </button>
+                        <button
+                            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
+                            onClick={fetchUserNotifs}
+                        >
+                            <FaSync /> Làm mới
+                        </button>
+                        {unreadCount > 0 && (
+                            <button
+                                className="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
+                                onClick={handleMarkAllRead}
+                            >
+                                <FaCheckDouble /> Đã đọc tất cả
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -469,10 +463,8 @@ export default function PushNotificationCenterPage() {
                             return (
                                 <div
                                     key={notif.id || notif._id || idx}
-                                    className={`card border-0 shadow-sm rounded-4 p-3.5 ${isUnread ? "bg-white" : "bg-light bg-opacity-75"}`}
-                                    style={{
-                                        borderLeft: isPanic ? "5px solid #dc3545" : isUnread ? "5px solid #0d6efd" : "5px solid #dee2e6"
-                                    }}
+                                    className={`card border rounded-4 p-3.5 shadow-none ${isUnread ? "bg-white" : "bg-light bg-opacity-75"}`}
+                                    style={{ borderColor: isPanic ? "#FECACA" : isUnread ? "#BFDBFE" : "#EAEEF4" }}
                                 >
                                     <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
                                         <div className="d-flex align-items-start gap-3 flex-grow-1">
@@ -607,70 +599,62 @@ export default function PushNotificationCenterPage() {
             {/* Metrics Ribbon */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
-                        <div className="d-flex justify-content-between align-items-center">
+                    <div className="bms-kpi-quad-card h-100">
+                        <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Tổng Thông Báo</div>
-                                <div className="fs-3 fw-bold text-dark mt-1">{metrics.total}</div>
+                                <div className="bms-kpi-label">Tổng thông báo</div>
+                                <div className="bms-kpi-value">{metrics.total}</div>
                             </div>
-                            <div className="rounded-circle bg-primary-subtle p-3 text-primary">
-                                <FaPaperPlane className="fs-4" />
+                            <div className="bms-kpi-icon-box" style={{ background: "#EFF6FF", color: "#1E60E6" }}>
+                                <FaPaperPlane />
                             </div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            <span className="text-success fw-bold">100%</span> nhật ký lưu trữ audit trail
-                        </div>
+                        <div className="small text-muted mt-2">Lưu trữ nhật ký chuyển phát</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-danger border-4">
-                        <div className="d-flex justify-content-between align-items-center">
+                    <div className="bms-kpi-quad-card h-100">
+                        <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Báo Động Nguy Kịch</div>
-                                <div className="fs-3 fw-bold text-danger mt-1">{metrics.criticalCount}</div>
+                                <div className="bms-kpi-label">Báo động nguy kịch</div>
+                                <div className="bms-kpi-value text-danger">{metrics.criticalCount}</div>
                             </div>
-                            <div className="rounded-circle bg-danger-subtle p-3 text-danger">
-                                <FaExclamationTriangle className="fs-4" />
+                            <div className="bms-kpi-icon-box" style={{ background: "#FEF2F2", color: "#DC2626" }}>
+                                <FaExclamationTriangle />
                             </div>
                         </div>
-                        <div className="small text-danger mt-2 fw-semibold">
-                            Ưu tiên cao nhất (Bypass Rate-Limit)
-                        </div>
+                        <div className="small text-danger mt-2 fw-medium">Ưu tiên khẩn cấp</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-success border-4">
-                        <div className="d-flex justify-content-between align-items-center">
+                    <div className="bms-kpi-quad-card h-100">
+                        <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Chuyển Giao</div>
-                                <div className="fs-3 fw-bold text-success mt-1">{metrics.successRate}%</div>
+                                <div className="bms-kpi-label">Tỷ lệ chuyển giao</div>
+                                <div className="bms-kpi-value text-success">{metrics.successRate}%</div>
                             </div>
-                            <div className="rounded-circle bg-success-subtle p-3 text-success">
-                                <FaCheckCircle className="fs-4" />
+                            <div className="bms-kpi-icon-box" style={{ background: "#ECFDF5", color: "#059669" }}>
+                                <FaCheckCircle />
                             </div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            {metrics.deliveredCount} tin đã gửi thành công
-                        </div>
+                        <div className="small text-muted mt-2">{metrics.deliveredCount} tin gửi thành công</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-warning border-4">
-                        <div className="d-flex justify-content-between align-items-center">
+                    <div className="bms-kpi-quad-card h-100">
+                        <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Lỗi / Chờ Thử Lại</div>
-                                <div className="fs-3 fw-bold text-warning mt-1">{metrics.failedCount}</div>
+                                <div className="bms-kpi-label">Lỗi / Chờ thử lại</div>
+                                <div className="bms-kpi-value text-warning">{metrics.failedCount}</div>
                             </div>
-                            <div className="rounded-circle bg-warning-subtle p-3 text-warning">
-                                <FaClock className="fs-4" />
+                            <div className="bms-kpi-icon-box" style={{ background: "#FFFBEB", color: "#D97706" }}>
+                                <FaClock />
                             </div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            Tự động thử lại tối đa 3 lần
-                        </div>
+                        <div className="small text-muted mt-2">Tự động thử lại tối đa 3 lần</div>
                     </div>
                 </div>
             </div>
@@ -872,113 +856,100 @@ export default function PushNotificationCenterPage() {
 
                 {/* Right Column: Audit Logs & Filtering */}
                 <div className="col-12 col-lg-7 col-xl-8">
-                    <div className="card border-0 shadow-sm rounded-3">
-                        {/* Table Header & Controls */}
-                        <div className="card-header bg-white py-3 border-bottom">
-                            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                <div>
-                                    <h5 className="card-title mb-0 fw-bold text-dark">Nhật Ký Chuyển Phát & Audit Trail</h5>
-                                    <span className="text-muted small">Lịch sử giám sát trạng thái chuyển giao thông báo đa kênh</span>
-                                </div>
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div className="d-flex flex-wrap gap-1.5">
+                            {[
+                                { key: "ALL", label: "Tất cả" },
+                                { key: "CRITICAL", label: "Nguy kịch" },
+                                { key: "PUSH", label: "Push (FCM)" },
+                                { key: "INAPP", label: "In-App" },
+                                { key: "FAILED", label: "Thất bại" }
+                            ].map(tab => (
                                 <button
-                                    className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                                    onClick={fetchLogs}
-                                    disabled={isLoading}
+                                    key={tab.key}
+                                    type="button"
+                                    className={`btn btn-sm rounded-pill px-3 fw-semibold ${activeTab === tab.key ? 'btn-primary text-white' : 'btn-light text-secondary border'}`}
+                                    onClick={() => {
+                                        setActiveTab(tab.key);
+                                        setCurrentPage(1);
+                                    }}
                                 >
-                                    <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
+                                    {tab.label}
                                 </button>
-                            </div>
-
-                            {/* Filter Tabs */}
-                            <ul className="nav nav-pills mt-3 gap-2">
-                                {[
-                                    { key: "ALL", label: "Tất cả" },
-                                    { key: "CRITICAL", label: "Nguy Kịch (Critical)", badge: "bg-danger text-white" },
-                                    { key: "PUSH", label: "Push (FCM)" },
-                                    { key: "INAPP", label: "In-App" },
-                                    { key: "FAILED", label: "Thất bại / Dead-Letter", badge: "bg-warning text-dark" }
-                                ].map(tab => (
-                                    <li className="nav-item" key={tab.key}>
-                                        <button
-                                            className={`nav-link py-1 px-3 small ${activeTab === tab.key ? 'active' : ''}`}
-                                            onClick={() => {
-                                                setActiveTab(tab.key);
-                                                setCurrentPage(1);
-                                            }}
-                                        >
-                                            {tab.label}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-
-                            {/* Search & Channel Filters */}
-                            <div className="bms-filter-bar">
-                                <div className="col-12 col-sm-6">
-                                    <div className="bms-search-input-pill">
-                                        <FaSearch className="bms-search-icon" />
-                                        <input
-                                            type="text"
-                                            placeholder="Tìm theo tiêu đề, người nhận, mã..."
-                                            value={searchTerm}
-                                            onChange={e => {
-                                                setSearchTerm(e.target.value);
-                                                setCurrentPage(1);
-                                            }}
-                                        />
-                                        {searchTerm && (
-                                            <button
-                                                type="button"
-                                                className="bms-search-clear"
-                                                onClick={() => {
-                                                    setSearchTerm('');
-                                                    setCurrentPage(1);
-                                                }}
-                                                title="Xóa tìm kiếm"
-                                            >
-                                                <FaTimes size={12} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-3">
-                                    <select
-                                        className="form-select form-select-sm"
-                                        value={channelFilter}
-                                        onChange={e => {
-                                            setChannelFilter(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
-                                    >
-                                        <option value="ALL">Mọi kênh</option>
-                                        <option value="Push">Push (FCM)</option>
-                                        <option value="InApp">In-App</option>
-                                        <option value="SMS">SMS</option>
-                                        <option value="Email">Email</option>
-                                    </select>
-                                </div>
-                                <div className="col-6 col-sm-3">
-                                    <select
-                                        className="form-select form-select-sm"
-                                        value={priorityFilter}
-                                        onChange={e => {
-                                            setPriorityFilter(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
-                                    >
-                                        <option value="ALL">Mọi ưu tiên</option>
-                                        <option value="Normal">Normal</option>
-                                        <option value="High">High</option>
-                                        <option value="Critical_Panic">Critical Panic</option>
-                                    </select>
-                                </div>
-                            </div>
+                            ))}
                         </div>
+                        <button
+                            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
+                            onClick={fetchLogs}
+                            disabled={isLoading}
+                        >
+                            <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
+                        </button>
+                    </div>
 
+                    {/* Search & Channel Filters */}
+                    <div className="bms-filter-bar mb-3">
+                        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 200 }}>
+                            <FaSearch className="text-muted" size={13} />
+                            <input
+                                type="text"
+                                placeholder="Tìm theo tiêu đề, người nhận, mã..."
+                                value={searchTerm}
+                                onChange={e => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    className="bms-search-clear"
+                                    onClick={() => {
+                                        setSearchTerm('');
+                                        setCurrentPage(1);
+                                    }}
+                                    title="Xóa tìm kiếm"
+                                >
+                                    <FaTimes size={12} />
+                                </button>
+                            )}
+                        </div>
+                        <select
+                            className="form-select form-select-sm"
+                            style={{ width: 150 }}
+                            value={channelFilter}
+                            onChange={e => {
+                                setChannelFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <option value="ALL">Mọi kênh</option>
+                            <option value="Push">Push (FCM)</option>
+                            <option value="InApp">In-App</option>
+                            <option value="SMS">SMS</option>
+                            <option value="Email">Email</option>
+                        </select>
+                        <select
+                            className="form-select form-select-sm"
+                            style={{ width: 155 }}
+                            value={priorityFilter}
+                            onChange={e => {
+                                setPriorityFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <option value="ALL">Mọi ưu tiên</option>
+                            <option value="Normal">Thông thường</option>
+                            <option value="High">Ưu tiên cao</option>
+                            <option value="Critical_Panic">Nguy kịch</option>
+                        </select>
+                    </div>
+
+                    <div className="bms-table-standalone-section">
                         {/* Audit Table */}
                         <div className="table-responsive">
-                            <table className="bms-dash-table">
-                                <thead className="table-light small text-muted text-uppercase">
+                            <table className="table align-middle mb-0">
+                                <thead>
                                     <tr>
                                         <th style={{ width: "120px" }}>Thời Gian</th>
                                         <th style={{ width: "130px" }}>Người Nhận</th>

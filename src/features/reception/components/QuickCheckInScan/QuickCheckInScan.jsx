@@ -216,7 +216,7 @@ const QuickCheckInScan = ({
         const rawStatus = (apt.status || '').toString();
 
         if (isTerminalStatus(rawStatus)) {
-          showError(`❌ Lịch hẹn không ở trạng thái cho phép check-in (${rawStatus}).`);
+          showError(`Lịch hẹn không ở trạng thái cho phép check-in (${rawStatus}).`);
           scanningRef.current = false;
           return;
         }
@@ -236,7 +236,7 @@ const QuickCheckInScan = ({
             rawAppointment: apt
           });
           setPendingCheckInPatient(null);
-          showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+          showInfo(`Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
           scanningRef.current = false;
           return;
         }
@@ -257,11 +257,11 @@ const QuickCheckInScan = ({
         scanningRef.current = false;
       } else {
         scanningRef.current = false;
-        showError(`❌ Không tìm thấy lịch hẹn với mã ${manualCode.trim()}`);
+        showError(`Không tìm thấy lịch hẹn với mã ${manualCode.trim()}`);
       }
     } catch (error) {
       scanningRef.current = false;
-      showError(`❌ Lỗi: ${error.message}`);
+      showError(`Lỗi: ${error.message}`);
     }
   };
 
@@ -296,16 +296,16 @@ const QuickCheckInScan = ({
           service: pendingCheckInPatient.service,
           queueNumber: issuedQueueNum
         });
-        showSuccess(`✅ Check-in thành công cho "${pendingCheckInPatient.name}"! STT: ${issuedQueueNum || 'Tiếp theo'}`, 5000);
+        showSuccess(`Check-in thành công cho "${pendingCheckInPatient.name}"! STT: ${issuedQueueNum || 'Tiếp theo'}`, 5000);
         setPendingCheckInPatient(null);
         if (onSuccess) onSuccess();
         scanningRef.current = false;
       } else {
-        showError(`❌ Không thể check-in. ${respUpdate.message || 'Vui lòng thử lại.'}`);
+        showError(`Không thể check-in. ${respUpdate.message || 'Vui lòng thử lại.'}`);
         scanningRef.current = false;
       }
     } catch (e) {
-      showError(`❌ Lỗi: ${e.message}`);
+      showError(`Lỗi: ${e.message}`);
       scanningRef.current = false;
     } finally {
       setIsConfirming(false);
@@ -426,7 +426,7 @@ const QuickCheckInScan = ({
 
               if (!appointmentCodeFromQR) {
                 scanningRef.current = false;
-                showError('❌ Không tìm thấy mã lịch hẹn trong QR code. Vui lòng quét lại.');
+                showError('Không tìm thấy mã lịch hẹn trong QR code. Vui lòng quét lại.');
                 return;
               }
 
@@ -436,7 +436,7 @@ const QuickCheckInScan = ({
               const respGet = await appointmentService.getAppointmentByCode(appointmentCodeFromQR);
               if (!respGet.success || !respGet.data) {
                 scanningRef.current = false;
-                showError(`❌ Không tìm thấy lịch hẹn với mã "${appointmentCodeFromQR}" trong hệ thống. Vui lòng kiểm tra lại mã QR.`);
+                showError(`Không tìm thấy lịch hẹn với mã "${appointmentCodeFromQR}" trong hệ thống. Vui lòng kiểm tra lại mã QR.`);
                 return;
               }
 
@@ -487,7 +487,7 @@ const QuickCheckInScan = ({
 
               if (isTerminalStatus(rawAptStatus)) {
                 scanningRef.current = false;
-                showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawAptStatus}).`);
+                showError(`Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawAptStatus}).`);
                 return;
               }
 
@@ -506,7 +506,7 @@ const QuickCheckInScan = ({
                   rawAppointment: apt
                 });
                 setPendingCheckInPatient(null);
-                showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+                showInfo(`Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
                 scanningRef.current = false;
                 return;
               }
@@ -528,7 +528,7 @@ const QuickCheckInScan = ({
               scanningRef.current = false;
             } catch (e) {
               scanningRef.current = false;
-              showError(`❌ Lỗi khi xử lý quét QR: ${e.message || 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.'}`);
+              showError(`Lỗi khi xử lý quét QR: ${e.message || 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.'}`);
             }
           },
           (errorMessage) => {
@@ -556,13 +556,13 @@ const QuickCheckInScan = ({
 
               if (errorMsg.includes('notallowed') || errorMsg.includes('permission denied')) {
                 setCameraError('permission_denied');
-                showWarning('⚠️ Chưa cấp quyền camera. Vui lòng cấp quyền camera để sử dụng chức năng quét QR code.');
+                showWarning('Chưa cấp quyền camera. Vui lòng cấp quyền camera để sử dụng chức năng quét QR code.');
               } else if (errorMsg.includes('notfound') || errorMsg.includes('no camera')) {
                 setCameraError('no_camera');
-                showError('❌ Không tìm thấy camera. Vui lòng kiểm tra thiết bị của bạn.');
+                showError('Không tìm thấy camera. Vui lòng kiểm tra thiết bị của bạn.');
               } else {
                 setCameraError('unknown');
-                showError(`❌ Lỗi camera: ${errorMessage}. Vui lòng kiểm tra quyền truy cập camera.`);
+                showError(`Lỗi camera: ${errorMessage}. Vui lòng kiểm tra quyền truy cập camera.`);
               }
             }
           }
@@ -574,7 +574,7 @@ const QuickCheckInScan = ({
         if (!errorShownRef.current) {
           errorShownRef.current = true;
           setCameraError('unknown');
-          showError('❌ Không thể khởi tạo camera. Vui lòng kiểm tra quyền truy cập camera.');
+          showError('Không thể khởi tạo camera. Vui lòng kiểm tra quyền truy cập camera.');
         }
       }
     };
@@ -593,14 +593,14 @@ const QuickCheckInScan = ({
 
         if (!isSecureContext) {
           setCameraError('not_supported');
-          showError('❌ Camera chỉ hoạt động trên HTTPS hoặc localhost. Vui lòng truy cập qua HTTPS hoặc localhost.');
+          showError('Camera chỉ hoạt động trên HTTPS hoặc localhost. Vui lòng truy cập qua HTTPS hoặc localhost.');
           return;
         }
 
         // Verify browser mediaDevices support
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           setCameraError('not_supported');
-          showError('❌ Trình duyệt không hỗ trợ camera. Vui lòng sử dụng trình duyệt hiện đại như Chrome, Firefox, Safari hoặc Edge.');
+          showError('Trình duyệt không hỗ trợ camera. Vui lòng sử dụng trình duyệt hiện đại như Chrome, Firefox, Safari hoặc Edge.');
           return;
         }
 
@@ -628,18 +628,18 @@ const QuickCheckInScan = ({
 
           if (errorMsg.includes('NotAllowedError') || errorMsg.includes('Permission denied')) {
             setCameraError('permission_denied');
-            showWarning('⚠️ Chưa cấp quyền camera. Vui lòng cấp quyền camera để sử dụng chức năng quét QR code.');
+            showWarning('Chưa cấp quyền camera. Vui lòng cấp quyền camera để sử dụng chức năng quét QR code.');
           } else if (errorMsg.includes('NotFoundError') || errorMsg.includes('No camera')) {
             setCameraError('no_camera');
-            showError('❌ Không tìm thấy camera. Vui lòng kiểm tra thiết bị của bạn.');
+            showError('Không tìm thấy camera. Vui lòng kiểm tra thiết bị của bạn.');
           } else {
             setCameraError('unknown');
-            showError('❌ Không thể truy cập camera. Vui lòng kiểm tra cài đặt trình duyệt.');
+            showError('Không thể truy cập camera. Vui lòng kiểm tra cài đặt trình duyệt.');
           }
         }
       } catch (error) {
         setCameraError('unknown');
-        showError('❌ Lỗi khi kiểm tra quyền camera. Vui lòng thử lại.');
+        showError('Lỗi khi kiểm tra quyền camera. Vui lòng thử lại.');
       }
     };
 
@@ -699,14 +699,14 @@ const QuickCheckInScan = ({
 
         if (!appointmentCodeFromQR) {
           scanningRef.current = false;
-          showError('❌ Không tìm thấy mã lịch hẹn trong QR code. Vui lòng thử lại.');
+          showError('Không tìm thấy mã lịch hẹn trong QR code. Vui lòng thử lại.');
           return;
         }
 
         const respGet = await appointmentService.getAppointmentByCode(appointmentCodeFromQR);
         if (!respGet.success || !respGet.data) {
           scanningRef.current = false;
-          showError(`❌ Không tìm thấy lịch hẹn với mã "${appointmentCodeFromQR}" trong hệ thống.`);
+          showError(`Không tìm thấy lịch hẹn với mã "${appointmentCodeFromQR}" trong hệ thống.`);
           return;
         }
 
@@ -718,7 +718,7 @@ const QuickCheckInScan = ({
 
         if (isTerminalStatus(rawFileStatus)) {
           scanningRef.current = false;
-          showError(`❌ Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawFileStatus}).`);
+          showError(`Lịch hẹn của "${patientName}" không ở trạng thái cho phép check-in (${rawFileStatus}).`);
           return;
         }
 
@@ -737,7 +737,7 @@ const QuickCheckInScan = ({
             rawAppointment: apt
           });
           setPendingCheckInPatient(null);
-          showInfo(`ℹ️ Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
+          showInfo(`Lịch hẹn của "${patientName}" đã được tiếp đón hoàn tất trước đó.`);
           scanningRef.current = false;
           return;
         }
@@ -759,7 +759,7 @@ const QuickCheckInScan = ({
         scanningRef.current = false;
       }
     } catch (error) {
-      showError('❌ Không thể đọc QR code từ file. Vui lòng thử lại.');
+      showError('Không thể đọc QR code từ file. Vui lòng thử lại.');
       scanningRef.current = false;
     }
 
@@ -1094,8 +1094,8 @@ const QuickCheckInScan = ({
               <div className="mb-3">
                 <p className="mb-2"><strong>Cách cấp quyền camera:</strong></p>
                 <ul className="mb-2">
-                  <li><strong>Chrome/Edge:</strong> Nhấp vào biểu tượng <strong>🔒 khóa</strong> hoặc <strong>i</strong> trên thanh địa chỉ → Chọn <strong>"Camera"</strong> → Chọn <strong>"Cho phép"</strong></li>
-                  <li><strong>Firefox:</strong> Nhấp vào biểu tượng <strong>🔒 khóa</strong> → Chọn <strong>"Cho phép"</strong> cho Camera</li>
+                  <li><strong>Chrome/Edge:</strong> Nhấp vào biểu tượng <strong>khóa</strong> hoặc <strong>i</strong> trên thanh địa chỉ → Chọn <strong>"Camera"</strong> → Chọn <strong>"Cho phép"</strong></li>
+                  <li><strong>Firefox:</strong> Nhấp vào biểu tượng <strong>khóa</strong> → Chọn <strong>"Cho phép"</strong> cho Camera</li>
                   <li><strong>Safari:</strong> Vào <strong>Safari → Preferences → Websites → Camera</strong> → Chọn <strong>"Allow"</strong></li>
                 </ul>
                 <p className="mb-0 text-muted small">

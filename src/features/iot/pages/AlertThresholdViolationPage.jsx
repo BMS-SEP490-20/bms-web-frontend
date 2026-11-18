@@ -7,7 +7,9 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Alert } from "react-bootstrap";
 import IotNavigationTabs from "../components/IotNavigationTabs";
+import { getStoredUser } from "../../../constants/roles";
 import {
     FaBell,
     FaExclamationTriangle,
@@ -59,9 +61,13 @@ export default function AlertThresholdViolationPage() {
     // Modal states
     const [selectedAlertForAction, setSelectedAlertForAction] = useState(null);
     const [actionType, setActionType] = useState(null); // 'ACKNOWLEDGE' | 'RESOLVE' | 'SIMULATE'
-    const [operatorName, setOperatorName] = useState("Nguyễn Tấn Phát (KTV Lab)");
+    const [operatorName, setOperatorName] = useState(() => {
+        const u = getStoredUser();
+        return u?.fullName || u?.name || u?.username || "";
+    });
     const [actionNotes, setActionNotes] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [actionFeedback, setActionFeedback] = useState(null);
 
     // Simulation states
     const [simDeviceId, setSimDeviceId] = useState("TEMP-001");
@@ -140,6 +146,7 @@ export default function AlertThresholdViolationPage() {
     const handleAcknowledge = async () => {
         if (!selectedAlertForAction) return;
         setIsSubmitting(true);
+        setActionFeedback(null);
         try {
             await acknowledgeAlert(selectedAlertForAction.id, {
                 operatorName,
@@ -148,9 +155,10 @@ export default function AlertThresholdViolationPage() {
             setSelectedAlertForAction(null);
             setActionType(null);
             setActionNotes("");
+            setActionFeedback({ variant: "success", text: "Đã tiếp nhận xử lý cảnh báo môi trường thành công." });
             await loadData();
         } catch (err) {
-            alert(err.message);
+            setActionFeedback({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể tiếp nhận cảnh báo." });
         } finally {
             setIsSubmitting(false);
         }
@@ -160,10 +168,11 @@ export default function AlertThresholdViolationPage() {
     const handleResolve = async () => {
         if (!selectedAlertForAction) return;
         if (!actionNotes.trim()) {
-            alert("Vui lòng ghi rõ biện pháp khắc phục sự cố (Resolution notes).");
+            setActionFeedback({ variant: "warning", text: "Vui lòng ghi rõ biện pháp khắc phục sự cố trước khi xác nhận." });
             return;
         }
         setIsSubmitting(true);
+        setActionFeedback(null);
         try {
             await resolveAlert(selectedAlertForAction.id, {
                 operatorName,
@@ -172,9 +181,10 @@ export default function AlertThresholdViolationPage() {
             setSelectedAlertForAction(null);
             setActionType(null);
             setActionNotes("");
+            setActionFeedback({ variant: "success", text: "Đã ghi nhận biện pháp khắc phục sự cố thành công." });
             await loadData();
         } catch (err) {
-            alert(err.message);
+            setActionFeedback({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể cập nhật trạng thái khắc phục." });
         } finally {
             setIsSubmitting(false);
         }
@@ -183,6 +193,7 @@ export default function AlertThresholdViolationPage() {
     // Handle Simulation submit
     const handleSimulate = async () => {
         setIsSubmitting(true);
+        setActionFeedback(null);
         try {
             await simulateAlert({
                 deviceId: simDeviceId,
@@ -190,9 +201,10 @@ export default function AlertThresholdViolationPage() {
                 simulatedValue: parseFloat(simValue)
             });
             setActionType(null);
+            setActionFeedback({ variant: "info", text: `Đã kích hoạt diễn tập cảnh báo cho thiết bị ${simDeviceId}.` });
             await loadData();
         } catch (err) {
-            alert(err.message);
+            setActionFeedback({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể kích hoạt diễn tập cảnh báo." });
         } finally {
             setIsSubmitting(false);
         }
@@ -200,27 +212,26 @@ export default function AlertThresholdViolationPage() {
 
     const isCriticalHealth = summary.systemHealthStatus === "CRITICAL";
     const isWarningHealth = summary.systemHealthStatus === "WARNING";
+    const hasActiveFilters = selectedStatus !== "All" || selectedSeverity !== "All" || searchQuery.trim() !== "";
 
     return (
         <div className="w-100 py-1">
-            <IotNavigationTabs />
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card FIRST, then IotNavigationTabs below */}
+            <div className="bms-page-header-card mb-3">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
                             Giám Sát &amp; Xử Lý Cảnh Báo Vượt Ngưỡng Môi Trường IoT
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Tiếp nhận cảnh báo vượt ngưỡng nhiệt độ, độ ẩm và ghi nhận biên bản khắc phục sự cố
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
-                        className={`btn btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3 py-2 fw-semibold ${soundEnabled ? 'btn-danger' : 'btn-outline-secondary'}`}
-                        style={{ borderRadius: '9999px', borderColor: soundEnabled ? undefined : 'rgba(15, 23, 42, 0.05)' }}
+                        className={`btn btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill ${soundEnabled ? 'btn-danger' : 'btn-outline-secondary'}`}
                         onClick={() => setSoundEnabled(!soundEnabled)}
                         title="Bật/Tắt chuông báo động âm thanh"
                     >
@@ -228,17 +239,20 @@ export default function AlertThresholdViolationPage() {
                         <span>{soundEnabled ? "Chuông: BẬT" : "Chuông: TẮT"}</span>
                     </button>
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
-                        onClick={() => setActionType("SIMULATE")}
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
+                        style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
+                        onClick={() => {
+                            setActionFeedback(null);
+                            setActionType("SIMULATE");
+                        }}
                         id="btn-simulate-iot-alert"
                     >
                         <FaPlay size={12} />
                         <span>Diễn Tập Ngưỡng</span>
                     </button>
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadData}
                         disabled={isLoading}
                     >
@@ -248,16 +262,29 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
+            <IotNavigationTabs />
+
+            {actionFeedback && !actionType && (
+                <Alert
+                    variant={actionFeedback.variant}
+                    dismissible
+                    onClose={() => setActionFeedback(null)}
+                    className="rounded-4 mb-3"
+                >
+                    {actionFeedback.text}
+                </Alert>
+            )}
+
             {/* System Health Status Banner */}
             <div
-                className="d-flex align-items-center justify-content-between shadow-sm rounded-4 mb-4 p-3 border"
+                className="d-flex align-items-center justify-content-between rounded-4 mb-4 p-3 border"
                 style={{
-                    backgroundColor: isCriticalHealth ? 'rgba(239, 68, 68, 0.08)' : isWarningHealth ? 'rgba(231, 188, 76, 0.12)' : 'rgba(145, 222, 131, 0.15)',
-                    borderColor: isCriticalHealth ? 'rgba(239, 68, 68, 0.3)' : isWarningHealth ? 'rgba(231, 188, 76, 0.35)' : 'rgba(145, 222, 131, 0.4)'
+                    backgroundColor: isCriticalHealth ? '#FEF2F2' : isWarningHealth ? '#FFFBEB' : '#F0FDF4',
+                    borderColor: isCriticalHealth ? '#FECACA' : isWarningHealth ? '#FDE68A' : '#BBF7D0'
                 }}
             >
                 <div className="d-flex align-items-center gap-3">
-                    <div className="fs-2">
+                    <div className="fs-3">
                         {isCriticalHealth ? (
                             <FaExclamationTriangle style={{ color: '#ef4444' }} />
                         ) : isWarningHealth ? (
@@ -267,157 +294,152 @@ export default function AlertThresholdViolationPage() {
                         )}
                     </div>
                     <div>
-                        <h5 className="mb-0 fw-bold" style={{ color: isCriticalHealth ? '#b91c1c' : isWarningHealth ? '#92400e' : '#166534' }}>
+                        <h6 className="mb-0 fw-bold" style={{ color: isCriticalHealth ? '#b91c1c' : isWarningHealth ? '#92400e' : '#166534' }}>
                             {isCriticalHealth
-                                ? "BÁO ĐỘNG ĐỎ KHẨN CẤP: PHÁT HIỆN SỰ CỐ VƯỢT NGƯỠNG NGUY HIỂM"
+                                ? "Phát hiện sự cố vượt ngưỡng môi trường khẩn cấp"
                                 : isWarningHealth
-                                ? "CẢNH BÁO: CÓ THIẾT BỊ ĐANG CẦN KIỂM TRA MÔI TRƯỜNG"
-                                : "HỆ THỐNG MÔI TRƯỜNG KHO LẠNH & PHÒNG LAB HOẠT ĐỘNG AN TOÀN"}
-                        </h5>
-                        <p className="mb-0 small text-muted">
+                                ? "Có thiết bị cảm biến đang cần kiểm tra môi trường"
+                                : "Hệ thống môi trường kho lạnh và phòng xét nghiệm hoạt động an toàn"}
+                        </h6>
+                        <p className="mb-0 small text-muted mt-1">
                             {isCriticalHealth
-                                ? "Nhiệt độ hoặc độ ẩm vượt quá giới hạn an toàn ISO 15189. Cần nhân viên tiếp nhận và xử lý ngay để bảo vệ mẫu máu!"
-                                : "Tất cả các thông số bảo quản mẫu máu và thuốc thử đang nằm trong dải nhiệt độ tối ưu."}
+                                ? "Nhiệt độ hoặc độ ẩm vượt giới hạn an toàn. Nhân viên trực cần tiếp nhận và xử lý ngay."
+                                : "Tất cả thông số bảo quản mẫu bệnh phẩm và thuốc thử đang nằm trong dải nhiệt độ an toàn."}
                         </p>
                     </div>
                 </div>
 
                 <div className="text-end d-none d-md-block">
-                    <span className="badge px-3 py-2 fs-6 shadow-sm" style={{ backgroundColor: '#ffffff', color: isCriticalHealth ? '#ef4444' : '#475569', borderRadius: '9999px' }}>
+                    <span className="badge px-3 py-2" style={{ backgroundColor: '#ffffff', color: isCriticalHealth ? '#ef4444' : '#475569', borderRadius: '9999px', border: '1px solid #e2e8f0' }}>
                         {summary.activeAlertsCount} cảnh báo chưa xử lý
                     </span>
                 </div>
             </div>
 
-            {/* KPI Metric Ribbon */}
+            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
-                {/* Active Alerts */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Cảnh Báo Kích Hoạt</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>Active</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Cảnh Báo Kích Hoạt</h6>
+                            <div className="bms-kpi-value text-danger">{summary.activeAlertsCount}</div>
+                            <div className="bms-kpi-sub text-muted">Đang chờ nhân viên tiếp nhận</div>
                         </div>
-                        <div className="fs-2 fw-bold text-danger mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.activeAlertsCount}</div>
-                        <div className="small text-muted mt-1">Đang cần nhân viên tiếp nhận</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                            <FaBell />
+                        </div>
                     </div>
                 </div>
 
-                {/* Critical / Emergency */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Mức Nguy Cấp (Critical)</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>Khẩn cấp</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Mức Nguy Cấp (Critical)</h6>
+                            <div className="bms-kpi-value" style={{ color: '#B45309' }}>{summary.criticalEmergencyCount}</div>
+                            <div className="bms-kpi-sub text-muted">Vượt xa ngưỡng bảo quản an toàn</div>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{summary.criticalEmergencyCount}</div>
-                        <div className="small text-muted mt-1">Đã gửi tin SMS &amp; Email khẩn</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                            <FaBolt />
+                        </div>
                     </div>
                 </div>
 
-                {/* Acknowledged */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Đang Xử Lý (In Progress)</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(30, 96, 230, 0.12)', color: '#1E60E6', borderRadius: '9999px' }}>Acknowledged</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Đang Xử Lý</h6>
+                            <div className="bms-kpi-value text-primary">{summary.acknowledgedCount}</div>
+                            <div className="bms-kpi-sub text-muted">Kỹ thuật viên đã tiếp nhận</div>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.acknowledgedCount}</div>
-                        <div className="small text-muted mt-1">Kỹ thuật viên đã tiếp nhận</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <FaUserCheck />
+                        </div>
                     </div>
                 </div>
 
-                {/* Resolved Today */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Đã Khắc Phục (Resolved)</span>
-                            <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>Hoàn tất</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Đã Khắc Phục Hôm Nay</h6>
+                            <div className="bms-kpi-value text-success">{summary.resolvedTodayCount}</div>
+                            <div className="bms-kpi-sub text-muted">Thời gian xử lý TB: {summary.averageResolutionMinutes} phút</div>
                         </div>
-                        <div className="fs-2 fw-bold mt-1" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{summary.resolvedTodayCount}</div>
-                        <div className="small text-muted mt-1">
-                            Thời gian xử lý TB: <strong>{summary.averageResolutionMinutes} phút</strong>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <FaCheckCircle />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Filter Toolbar */}
-            <div className="card bms-filter-bar">
-                <div className="card-body p-3">
-                    <div className="row g-3 align-items-center">
-                        {/* Status Filter Tabs */}
-                        <div className="col-12 col-md-5">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                Trạng thái sự cố:
-                            </label>
-                            <div className="d-flex flex-wrap gap-1" role="group">
-                                {[
-                                    { key: "All", label: "Tất cả" },
-                                    { key: "Active", label: "Kích hoạt (Active)" },
-                                    { key: "Acknowledged", label: "Đã tiếp nhận" },
-                                    { key: "Resolved", label: "Đã khắc phục" }
-                                ].map(st => (
-                                    <button
-                                        key={st.key}
-                                        type="button"
-                                        className="btn btn-sm"
-                                        style={{
-                                            borderRadius: '9999px',
-                                            padding: '4px 14px',
-                                            backgroundColor: selectedStatus === st.key ? '#1E60E6' : '#EEF2F6',
-                                            color: selectedStatus === st.key ? '#ffffff' : '#475569',
-                                            border: '1px solid',
-                                            borderColor: selectedStatus === st.key ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                                            fontWeight: '600'
-                                        }}
-                                        onClick={() => setSelectedStatus(st.key)}
-                                    >
-                                        {st.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Severity Filter */}
-                        <div className="col-12 col-sm-6 col-md-3">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                Mức độ cảnh báo:
-                            </label>
-                            <select
-                                className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6' }}
-                                value={selectedSeverity}
-                                onChange={e => setSelectedSeverity(e.target.value)}
-                            >
-                                <option value="All">Tất cả mức độ</option>
-                                <option value="Warning">Cảnh báo nhẹ (Warning)</option>
-                                <option value="Critical">Nguy kịch (Critical)</option>
-                                <option value="Danger_Emergency">Khẩn cấp tối cao (Emergency)</option>
-                            </select>
-                        </div>
-
-                        {/* Search Input */}
-                        <div className="col-12 col-sm-6 col-md-4">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                Tìm kiếm thiết bị / vị trí:
-                            </label>
-                            <div className="input-group input-group-sm">
-                                <span className="input-group-text border-end-0" style={{ backgroundColor: '#EEF2F6', borderRadius: '12px 0 0 12px' }}>
-                                    <FaSearch className="text-muted" />
-                                </span>
-                                <input
-                                    type="text"
-                                    className="form-control border-start-0"
-                                    style={{ backgroundColor: '#EEF2F6', borderRadius: '0 12px 12px 0' }}
-                                    placeholder="Nhập mã TEMP-001, tủ lưu trữ..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
+            {/* Single-Line Flat Filter Bar */}
+            <div className="bms-filter-bar mb-3">
+                <div className="bms-search-input-pill">
+                    <FaSearch className="bms-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Tìm mã thiết bị, vị trí tủ lưu trữ hoặc ghi chú xử lý..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            className="bms-search-clear"
+                            onClick={() => setSearchQuery("")}
+                            title="Xóa tìm kiếm"
+                        >
+                            <FaTimes size={12} />
+                        </button>
+                    )}
                 </div>
+
+                <div className="btn-group" role="group">
+                    {[
+                        { key: "All", label: "Tất cả" },
+                        { key: "Active", label: "Kích hoạt" },
+                        { key: "Acknowledged", label: "Đã tiếp nhận" },
+                        { key: "Resolved", label: "Đã khắc phục" }
+                    ].map(st => (
+                        <button
+                            key={st.key}
+                            type="button"
+                            className={`btn btn-sm ${selectedStatus === st.key ? "btn-primary text-white" : "btn-outline-secondary"}`}
+                            onClick={() => setSelectedStatus(st.key)}
+                        >
+                            {st.label}
+                        </button>
+                    ))}
+                </div>
+
+                <select
+                    className="form-select form-select-sm"
+                    style={{ width: "auto" }}
+                    value={selectedSeverity}
+                    onChange={e => setSelectedSeverity(e.target.value)}
+                >
+                    <option value="All">Tất cả mức độ</option>
+                    <option value="Warning">Cảnh báo nhẹ (Warning)</option>
+                    <option value="Critical">Nguy kịch (Critical)</option>
+                    <option value="Danger_Emergency">Khẩn cấp (Emergency)</option>
+                </select>
+
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
+                        onClick={() => {
+                            setSelectedStatus("All");
+                            setSelectedSeverity("All");
+                            setSearchQuery("");
+                        }}
+                    >
+                        Đặt lại
+                    </button>
+                )}
+
+                <span className="bms-filter-meta">
+                    Hiển thị <strong>{filteredAlerts.length}</strong> cảnh báo
+                </span>
             </div>
 
             {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
@@ -533,9 +555,10 @@ export default function AlertThresholdViolationPage() {
                                                     <div className="d-flex justify-content-end gap-1">
                                                         {isAct && (
                                                             <button
-                                                                className="btn btn-sm d-flex align-items-center gap-1 shadow-sm"
-                                                                style={{ borderRadius: '9999px', backgroundColor: '#B45309', borderColor: '#B45309', color: '#1E293B', fontWeight: '600', padding: '4px 12px' }}
+                                                                className="btn btn-sm d-flex align-items-center gap-1 text-white rounded-pill text-nowrap"
+                                                                style={{ backgroundColor: '#B45309', borderColor: '#B45309', fontWeight: 600, padding: '4px 12px' }}
                                                                 onClick={() => {
+                                                                    setActionFeedback(null);
                                                                     setSelectedAlertForAction(alert);
                                                                     setActionType("ACKNOWLEDGE");
                                                                     setActionNotes("");
@@ -546,9 +569,10 @@ export default function AlertThresholdViolationPage() {
                                                         )}
                                                         {(isAct || isAck) && (
                                                             <button
-                                                                className="btn btn-sm d-flex align-items-center gap-1 shadow-sm text-white"
-                                                                style={{ borderRadius: '9999px', backgroundColor: '#2b8a3e', borderColor: '#2b8a3e', fontWeight: '600', padding: '4px 12px' }}
+                                                                className="btn btn-sm d-flex align-items-center gap-1 text-white rounded-pill text-nowrap"
+                                                                style={{ backgroundColor: '#10B981', borderColor: '#10B981', fontWeight: 600, padding: '4px 12px' }}
                                                                 onClick={() => {
+                                                                    setActionFeedback(null);
                                                                     setSelectedAlertForAction(alert);
                                                                     setActionType("RESOLVE");
                                                                     setActionNotes("");
@@ -593,7 +617,12 @@ export default function AlertThresholdViolationPage() {
                                 ></button>
                             </div>
 
-                            <div className="modal-body p-2">
+                            <div className="modal-body p-3">
+                                {actionFeedback && (
+                                    <Alert variant={actionFeedback.variant} dismissible onClose={() => setActionFeedback(null)} className="rounded-3 mb-3">
+                                        {actionFeedback.text}
+                                    </Alert>
+                                )}
                                 <div className="mb-3 p-3 rounded-4 border" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                     <div className="fw-bold text-dark">{selectedAlertForAction.deviceName} ({selectedAlertForAction.deviceId})</div>
                                     <div className="small text-muted">{selectedAlertForAction.location}</div>
@@ -679,7 +708,12 @@ export default function AlertThresholdViolationPage() {
                                 ></button>
                             </div>
 
-                            <div className="modal-body p-2">
+                            <div className="modal-body p-3">
+                                {actionFeedback && (
+                                    <Alert variant={actionFeedback.variant} dismissible onClose={() => setActionFeedback(null)} className="rounded-3 mb-3">
+                                        {actionFeedback.text}
+                                    </Alert>
+                                )}
                                 <p className="small text-muted mb-3">
                                     Công cụ diễn tập mô phỏng cảm biến IoT gửi giá trị bất thường vượt qua ngưỡng Low/High để kiểm tra phản ứng hệ thống, kích hoạt âm thanh cảnh báo và ghi nhận log audit.
                                 </p>

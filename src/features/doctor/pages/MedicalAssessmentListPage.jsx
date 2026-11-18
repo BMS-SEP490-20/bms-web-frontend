@@ -163,81 +163,89 @@ export default function MedicalAssessmentListPage() {
   };
 
   return (
-    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="w-100 py-1">
       {/* Header bar */}
       <div className="bms-page-header-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <h1 className="bms-page-title fs-4 m-0">Hồ Sơ Đánh Giá Lâm Sàng (ICD-10)</h1>
-            <p className="text-muted small m-0 mt-1">
-              Quản lý hồ sơ khám bệnh, chẩn đoán xác định và kết luận bệnh án EMR.
-            </p>
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Hồ sơ đánh giá lâm sàng (ICD-10)</h1>
           </div>
-          <div className="d-flex align-items-center gap-2">
+          <p className="text-muted small m-0 mt-1">
+            Quản lý hồ sơ khám bệnh, chẩn đoán xác định và kết luận bệnh án điện tử.
+          </p>
+        </div>
+        <div className="bms-page-actions">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => navigate('/doctor/console')}
+            className="d-inline-flex align-items-center gap-2 rounded-pill px-3 fw-semibold text-nowrap"
+          >
+            <FaUserMd /> <span>Bàn khám bác sĩ</span>
+          </Button>
+          {canManageAssessments && (
             <Button
-              variant="outline-secondary"
+              variant="primary"
               size="sm"
-              onClick={() => navigate('/doctor/console')}
-              className="d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-none"
-              style={{ fontSize: '13px' }}
+              onClick={() => navigate('/medical-assessments/add')}
+              className="d-inline-flex align-items-center gap-2 rounded-pill px-3 fw-semibold text-white text-nowrap"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <FaUserMd /> <span>Bàn Khám Bác Sĩ</span>
+              <FaPlus /> <span>Thêm đánh giá</span>
             </Button>
-            {canManageAssessments && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => navigate('/medical-assessments/add')}
-                className="d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-none text-white"
-                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px' }}
-              >
-                <FaPlus /> <span>Thêm đánh giá</span>
-              </Button>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
-        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
-          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '440px', minWidth: '240px', height: '40px' }}>
-            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
-            <input
-              type="text"
-              className="bms-search-field border-0 bg-transparent flex-grow-1"
-              placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ outline: 'none', fontSize: '13px' }}
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                className="bms-search-clear border-0 bg-transparent"
-                onClick={() => setSearchTerm('')}
-                title="Xóa tìm kiếm"
-              >
-                <FaTimes size={12} />
-              </button>
-            )}
-          </div>
-
-          <Form.Select
-            size="sm"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
-          >
-            <option value="">Tất cả trạng thái</option>
-            <option value="Draft">Bản nháp</option>
-            <option value="Finalized">Đã hoàn tất (Đã khóa)</option>
-          </Form.Select>
-
-          <div className="ms-auto text-muted small fw-medium text-nowrap">
-            Tổng số hồ sơ: <strong className="text-dark font-monospace">{totalCount}</strong>
-          </div>
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm"
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
         </div>
+
+        <Form.Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="Draft">Bản nháp</option>
+          <option value="Finalized">Đã hoàn tất (Đã khóa)</option>
+        </Form.Select>
+
+        {(searchTerm || statusFilter) && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('');
+            }}
+          >
+            Đặt lại
+          </Button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{assessments.length}</strong> / {totalCount} hồ sơ
+        </span>
       </div>
 
       {/* Error alert */}
@@ -247,29 +255,35 @@ export default function MedicalAssessmentListPage() {
         </Alert>
       )}
 
-      {/* Data Table */}
-      <Card className="border-0 shadow-sm rounded-3 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-        <Card.Body className="p-0">
+      {/* Standalone Data Table */}
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">Danh sách đánh giá y khoa</h2>
+            <p className="bms-table-standalone-subtitle">Hồ sơ khám lâm sàng, phân loại mức độ bệnh và mã ICD-10</p>
+          </div>
+        </div>
+        <div className="bms-table-standalone-body">
           {loading ? (
-            <div className="text-center py-3">
-              <Spinner animation="border" variant="primary" />
-              <p className="mt-2 text-muted">Đang tải dữ liệu đánh giá y khoa...</p>
+            <div className="text-center py-4">
+              <Spinner animation="border" size="sm" variant="primary" />
+              <p className="mt-2 mb-0 text-muted small">Đang tải dữ liệu đánh giá y khoa...</p>
             </div>
           ) : !Array.isArray(assessments) || assessments.length === 0 ? (
-            <div className="text-center py-3">
-              <FaStethoscope className="text-muted display-4 mb-3" />
-              <h5 className="text-secondary">Chưa có bản ghi đánh giá y khoa nào</h5>
-              <p className="text-muted small">
-                Bác sĩ bấm &quot;Thêm Đánh Giá Y Khoa&quot; để ghi nhận bệnh án và chẩn đoán ICD-10.
+            <div className="text-center py-5">
+              <FaStethoscope className="text-muted fs-1 opacity-50 mb-3" />
+              <h6 className="text-secondary fw-bold">Chưa có bản ghi đánh giá y khoa nào</h6>
+              <p className="text-muted small mb-3">
+                Nhấn &quot;Thêm đánh giá&quot; để ghi nhận bệnh án và chẩn đoán ICD-10.
               </p>
               {canManageAssessments && (
                 <Button
                   variant="outline-primary"
+                  size="sm"
                   onClick={() => navigate('/medical-assessments/add')}
-                  className="mt-2"
-                  style={{ color: '#0284c7', borderColor: '#0284c7' }}
+                  className="rounded-pill px-3 text-nowrap"
                 >
-                  <FaPlus className="me-2" /> Tạo đánh giá ngay
+                  <FaPlus className="me-1" /> Tạo đánh giá ngay
                 </Button>
               )}
             </div>
@@ -277,21 +291,21 @@ export default function MedicalAssessmentListPage() {
             <Table responsive hover className="align-middle mb-0">
               <thead className="table-light">
                 <tr className="small text-muted text-uppercase">
-                  <th className="ps-4 text-start">Mã Đánh Giá</th>
-                  <th className="text-start">Bệnh Nhân</th>
-                  <th className="text-start">Lượt Khám / Bác Sĩ</th>
-                  <th className="text-start">Chẩn Đoán (ICD-10)</th>
-                  <th className="text-center">Đánh Giá Nguy Cơ</th>
-                  <th className="text-center">Trạng Thái</th>
-                  <th className="text-end">Thời Gian Khám</th>
-                  <th className="text-center pe-4">Thao Tác</th>
+                  <th className="ps-4 text-start">Mã đánh giá</th>
+                  <th className="text-start">Bệnh nhân</th>
+                  <th className="text-start">Lượt khám / Bác sĩ</th>
+                  <th className="text-start">Chẩn đoán (ICD-10)</th>
+                  <th className="text-center">Đánh giá nguy cơ</th>
+                  <th className="text-center">Trạng thái</th>
+                  <th className="text-end">Thời gian khám</th>
+                  <th className="text-center pe-4">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {assessments.map((item) => (
                   <tr key={item.id}>
                     <td className="ps-4 text-start">
-                      <span className="fw-bold font-monospace" style={{ color: '#0284c7' }}>
+                      <span className="fw-bold font-monospace" style={{ color: '#1E60E6' }}>
                         {item.assessmentCode || item.id}
                       </span>
                     </td>
@@ -303,7 +317,7 @@ export default function MedicalAssessmentListPage() {
                     </td>
                     <td className="text-start">
                       <div>
-                        <Badge bg="secondary" className="me-1">
+                        <Badge bg="secondary-subtle" text="secondary" className="me-1 border rounded-pill">
                           {item.encounterType === 'ClinicVisit' ? 'Khám ngoại trú' : (item.encounterType || 'Khám bệnh')}
                         </Badge>
                         <small className="text-muted font-monospace">{item.encounterId}</small>
@@ -312,7 +326,7 @@ export default function MedicalAssessmentListPage() {
                     </td>
                     <td className="text-start">
                       <div className="d-flex align-items-center gap-1">
-                        <Badge bg="primary" className="font-monospace">{item.icd10Code}</Badge>
+                        <Badge bg="primary-subtle" text="primary" className="font-monospace border border-primary-subtle rounded-pill">{item.icd10Code}</Badge>
                         <span className="text-truncate" style={{ maxWidth: '240px' }}>
                           {item.finalDiagnosis || item.icd10Name}
                         </span>
@@ -329,12 +343,12 @@ export default function MedicalAssessmentListPage() {
                     </td>
                     <td className="text-center">
                       {item.status === 'Finalized' ? (
-                        <Badge bg="success" className="px-2 py-1 d-inline-flex align-items-center gap-1" style={{ backgroundColor: '#059669' }}>
-                          <FaLock size={11} /> Đã Khóa
+                        <Badge bg="success-subtle" text="success" className="px-2.5 py-1 rounded-pill border border-success-subtle d-inline-flex align-items-center gap-1">
+                          <FaLock size={10} /> Đã khóa
                         </Badge>
                       ) : (
-                        <Badge bg="warning" text="dark" className="px-2 py-1 d-inline-flex align-items-center gap-1">
-                          <FaClock size={11} /> Bản Nháp
+                        <Badge bg="warning-subtle" text="warning-emphasis" className="px-2.5 py-1 rounded-pill border border-warning-subtle d-inline-flex align-items-center gap-1">
+                          <FaClock size={10} /> Bản nháp
                         </Badge>
                       )}
                     </td>
@@ -349,8 +363,9 @@ export default function MedicalAssessmentListPage() {
                     <td className="text-center pe-4">
                       <div className="d-flex justify-content-center gap-1">
                         <Button
-                          variant="outline-info"
+                          variant="outline-primary"
                           size="sm"
+                          className="rounded-pill px-2.5 text-nowrap"
                           onClick={() => handleOpenDetail(item)}
                           title="Xem chi tiết"
                         >
@@ -358,8 +373,9 @@ export default function MedicalAssessmentListPage() {
                         </Button>
                         {canManageAssessments && item.canEdit && (
                           <Button
-                            variant="outline-primary"
+                            variant="outline-secondary"
                             size="sm"
+                            className="rounded-pill px-2.5 text-nowrap"
                             onClick={() => navigate(`/medical-assessments/${item.id}/edit`)}
                             title="Chỉnh sửa"
                           >
@@ -370,6 +386,7 @@ export default function MedicalAssessmentListPage() {
                           <Button
                             variant="outline-danger"
                             size="sm"
+                            className="rounded-pill px-2.5 text-nowrap"
                             onClick={() => handleOpenDelete(item)}
                             title="Xóa mềm"
                           >
@@ -383,16 +400,16 @@ export default function MedicalAssessmentListPage() {
               </tbody>
             </Table>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </section>
 
       {/* DETAIL INSPECTION MODAL */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         {selectedAssessment && (
           <>
-            <Modal.Header closeButton className="text-white" style={{ backgroundColor: '#0284c7' }}>
-              <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-                <FaStethoscope /> Phiếu Đánh Giá Y Khoa Lâm Sàng: {selectedAssessment.assessmentCode}
+            <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+              <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
+                <FaStethoscope className="text-primary" /> Phiếu đánh giá y khoa lâm sàng: {selectedAssessment.assessmentCode}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body className="p-2" id="printable-assessment">
@@ -558,14 +575,14 @@ export default function MedicalAssessmentListPage() {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)} disabled={deleting}>
-            Hủy Bỏ
+          <Button variant="outline-secondary" className="rounded-pill px-3" onClick={() => setShowDeleteModal(false)} disabled={deleting}>
+            Hủy bỏ
           </Button>
-          <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting} style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}>
-            {deleting ? <Spinner size="sm" animation="border" /> : 'Xác Nhận Xóa'}
+          <Button variant="danger" className="rounded-pill px-3" onClick={handleConfirmDelete} disabled={deleting} style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}>
+            {deleting ? <Spinner size="sm" animation="border" /> : 'Xác nhận xóa'}
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }

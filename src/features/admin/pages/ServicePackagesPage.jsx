@@ -9,6 +9,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from "react-bootstrap";
+import { FaExternalLinkAlt, FaSearch, FaTimes } from "react-icons/fa";
 import {
     getPackages,
     getTestCriteria,
@@ -235,17 +236,17 @@ export default function ServicePackagesPage({ onBack }) {
 
     return (
         <div className="bms-roles-page">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
                             Quản Lý Danh Mục Gói Dịch Vụ &amp; Bảng Giá Viện Phí
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Thiết lập danh mục gói xét nghiệm, chỉ số cấu thành và đơn giá niêm yết
+                    </p>
                 </div>
                 <div className="bms-page-actions">
                     <Button
@@ -253,20 +254,19 @@ export default function ServicePackagesPage({ onBack }) {
                         href="/services"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="fw-semibold shadow-sm d-flex align-items-center gap-1"
+                        className="fw-semibold d-flex align-items-center gap-2 rounded-pill px-3"
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
-                        style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
                     >
-                        <i className="bi bi-eye-fill me-1" style={{ color: '#1E60E6' }}></i>
-                        Xem Cổng Bệnh Nhân ↗
+                        <span>Xem Cổng Bệnh Nhân</span>
+                        <FaExternalLinkAlt size={11} />
                     </Button>
 
                     {canManage && (
                         <Button
                             variant="primary"
                             onClick={openCreate}
-                            className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                            className="text-white fw-semibold d-flex align-items-center gap-2 rounded-pill px-3"
+                            style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
                         >
                             <i className="bi bi-plus-circle-fill"></i>
                             Thêm Gói Mới
@@ -280,7 +280,7 @@ export default function ServicePackagesPage({ onBack }) {
                     variant="danger"
                     dismissible
                     onClose={() => setError("")}
-                    className="mb-4 shadow-sm"
+                    className="mb-4"
                     style={{ borderRadius: 14 }}
                 >
                     <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -288,45 +288,55 @@ export default function ServicePackagesPage({ onBack }) {
                 </Alert>
             )}
 
-            {/* Standalone Table Section (Zero table in card) */}
-            <div className="bms-filter-bar">
-                        <div className="bms-search-input-pill" style={{ maxWidth: '340px' }}>
-                            <i className="bi bi-search bms-search-icon"></i>
-                            <input
-                                type="text"
-                                placeholder="Tìm theo mã, tên gói, chỉ số..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                            {search && (
-                                <button
-                                    type="button"
-                                    className="bms-search-clear"
-                                    onClick={() => setSearch('')}
-                                    title="Xóa tìm kiếm"
-                                >
-                                    <i className="bi bi-x"></i>
-                                </button>
-                            )}
-                        </div>
-
-                        <Form.Select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            style={{
-                                width: 'auto',
-                                minWidth: '170px',
-                                height: '40px',
-                                borderRadius: '9999px',
-                                padding: '0 16px',
-                                fontSize: '13px',
-                                background: '#FFFFFF'
-                            }}
+            {/* Single-Line Filter Bar */}
+            <div className="bms-filter-bar mb-3">
+                <div className="bms-search-input-pill">
+                    <FaSearch className="bms-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Tìm theo mã, tên gói, chỉ số..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    {search && (
+                        <button
+                            type="button"
+                            className="bms-search-clear"
+                            onClick={() => setSearch('')}
+                            title="Xóa tìm kiếm"
                         >
-                            <option value="ALL">-- Tất Cả Trạng Thái --</option>
-                            <option value="ACTIVE">Đang Hoạt Động</option>
-                            <option value="DRAFT">Tạm Khóa / Bản Nháp</option>
-                        </Form.Select>
+                            <FaTimes size={12} />
+                        </button>
+                    )}
+                </div>
+
+                <Form.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{ width: 'auto' }}
+                >
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="ACTIVE">Đang hoạt động</option>
+                    <option value="DRAFT">Tạm khóa / Bản nháp</option>
+                </Form.Select>
+
+                {(search !== "" || statusFilter !== "ALL") && (
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="rounded-pill px-3 text-nowrap"
+                        onClick={() => {
+                            setSearch("");
+                            setStatusFilter("ALL");
+                        }}
+                    >
+                        Đặt lại
+                    </Button>
+                )}
+
+                <span className="bms-filter-meta">
+                    Hiển thị <strong>{visible.length}</strong> gói dịch vụ
+                </span>
             </div>
 
             <div className="bms-table-standalone-section">

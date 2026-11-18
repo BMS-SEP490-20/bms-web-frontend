@@ -19,7 +19,8 @@ import {
     FaEye,
     FaRedo,
     FaCheck,
-    FaUser
+    FaUser,
+    FaTimes
 } from "react-icons/fa";
 import {
     fetchNotifications,
@@ -232,38 +233,38 @@ export default function NotifyTestResultsPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
-                            Quản Lý &amp; Phát Thông Báo Kết Quả Xét Nghiệm
+                            Quản lý &amp; Phát thông báo kết quả xét nghiệm
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Theo dõi trạng thái gửi kết quả xét nghiệm và cảnh báo giá trị nguy kịch đa kênh.
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
-                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
+                        className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold text-nowrap"
+                        style={{ color: "#1E60E6", borderColor: "#1E60E6" }}
                         onClick={loadData}
                     >
                         <FaSync size={13} className={loading ? "fa-spin" : ""} />
-                        <span>Làm Mới</span>
+                        <span>Làm mới</span>
                     </button>
                     {canDispatch && (
                         <button
                             type="button"
-                            className="btn btn-sm d-flex align-items-center gap-2 shadow-sm rounded-pill px-3 py-2 fw-semibold text-white"
-                            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                            className="btn btn-sm d-inline-flex align-items-center gap-2 rounded-pill px-3 fw-semibold text-white text-nowrap"
+                            style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                             onClick={() => setShowDispatchModal(true)}
                         >
                             <FaPaperPlane size={13} />
-                            <span>Phát Thông Báo Mới</span>
+                            <span>Phát thông báo mới</span>
                         </button>
                     )}
                 </div>
@@ -272,7 +273,7 @@ export default function NotifyTestResultsPage() {
             {/* Notification Toast */}
             {toastMessage && (
                 <div
-                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4`}
+                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4 rounded-3`}
                     role="alert"
                 >
                     <div className="d-flex align-items-center">
@@ -287,171 +288,171 @@ export default function NotifyTestResultsPage() {
                 </div>
             )}
 
-            {/* 4 Stat KPI Cards */}
+            {/* 4 KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="card-body p-3 d-flex align-items-center justify-content-between">
-                            <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tổng Số Thông Báo</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>{stats.totalNotifications}</h3>
-                                <small className="text-muted">Đã phát hành toàn viện</small>
-                            </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
-                                <FaBell className="fs-4" />
+                    <div className="bms-kpi-quad-card">
+                        <div className="bms-kpi-quad-top">
+                            <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                                <FaBell size={18} />
                             </div>
                         </div>
+                        <div className="bms-kpi-quad-value">{stats.totalNotifications}</div>
+                        <div className="bms-kpi-quad-title">Tổng số thông báo đã phát hành</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="card-body p-3 d-flex align-items-center justify-content-between">
-                            <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Tỷ Lệ Tiếp Nhận</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#16a34a', fontVariantNumeric: 'tabular-nums' }}>{stats.deliverySuccessRate}%</h3>
-                                <small className="text-success">{stats.deliveredSuccessfully} thông báo thành công</small>
+                    <div className="bms-kpi-quad-card">
+                        <div className="bms-kpi-quad-top">
+                            <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                                <FaCheckCircle size={18} />
                             </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#16a34a' }}>
-                                <FaCheckCircle className="fs-4" />
-                            </div>
+                            <span className="bms-kpi-trend-pill">{stats.deliveredSuccessfully} thành công</span>
                         </div>
+                        <div className="bms-kpi-quad-value">{stats.deliverySuccessRate}%</div>
+                        <div className="bms-kpi-quad-title">Tỷ lệ tiếp nhận thông báo</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="card-body p-3 d-flex align-items-center justify-content-between">
-                            <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Báo Động Nguy Kịch</span>
-                                <h3 className="fw-bold text-danger mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{stats.criticalPanicAlerts}</h3>
-                                <small className="text-danger fw-semibold">Chỉ số hoảng loạn cần can thiệp</small>
-                            </div>
-                            <div className="p-3 bg-danger-subtle text-danger rounded-circle">
-                                <FaExclamationTriangle className="fs-4" />
+                    <div className="bms-kpi-quad-card">
+                        <div className="bms-kpi-quad-top">
+                            <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                                <FaExclamationTriangle size={18} />
                             </div>
                         </div>
+                        <div className="bms-kpi-quad-value">{stats.criticalPanicAlerts}</div>
+                        <div className="bms-kpi-quad-title">Báo động giá trị nguy kịch</div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm h-100 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="card-body p-3 d-flex align-items-center justify-content-between">
-                            <div>
-                                <span className="text-muted small fw-bold text-uppercase d-block mb-1">Chờ Xử Lý / Thất Bại</span>
-                                <h3 className="fw-bold mb-0" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{stats.pendingCount + stats.failedCount}</h3>
-                                <small className="text-muted">{stats.failedCount} tin nhắn cần gửi lại</small>
-                            </div>
-                            <div className="p-3 rounded-circle" style={{ backgroundColor: 'rgba(231,188,76,0.15)', color: '#B45309' }}>
-                                <FaRedo className="fs-4" />
+                    <div className="bms-kpi-quad-card">
+                        <div className="bms-kpi-quad-top">
+                            <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                                <FaRedo size={18} />
                             </div>
                         </div>
+                        <div className="bms-kpi-quad-value">{stats.pendingCount + stats.failedCount}</div>
+                        <div className="bms-kpi-quad-title">Chờ xử lý / Cần gửi lại ({stats.failedCount})</div>
                     </div>
                 </div>
             </div>
 
-            {/* Filter Tabs & Search Bar */}
-            <div className="card bms-filter-bar">
-                <div className="bms-notify-tools">
-                            <div className="btn-group btn-group-sm">
-                                {TABS.map((tab) => {
-                                    const isActive = activeTab === tab.key;
-                                    const TabIcon = tab.icon;
-                                    return (
-                                        <button
-                                            key={tab.key}
-                                            type="button"
-                                            className={`btn ${isActive ? "btn-primary" : "btn-outline-secondary"} d-flex align-items-center gap-1`}
-                                            onClick={() => {
-                                                setActiveTab(tab.key);
-                                                setCurrentPage(1);
-                                            }}
-                                        >
-                                            {TabIcon && <TabIcon className="me-1" />}
-                                            <span>{tab.label}</span>
-                                            {tab.key === "PANIC" && stats.criticalPanicAlerts > 0 && (
-                                                <span className="badge bg-danger ms-1">{stats.criticalPanicAlerts}</span>
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        <div className="bms-notify-fields">
-                            <div className="input-group input-group-sm">
-                                <span className="input-group-text bg-light text-muted border-end-0">
-                                    <FaSearch />
-                                </span>
-                                <input
-                                    type="text"
-                                    className="form-control border-start-0"
-                                    placeholder="Tìm theo BN, SĐT, Mã đơn..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-
-                            <select
-                                className="form-select form-select-sm"
-                                value={selectedChannel}
-                                onChange={(e) => setSelectedChannel(e.target.value)}
-                            >
-                                <option value="">Tất cả kênh</option>
-                                <option value="InApp">In-App</option>
-                                <option value="Sms">SMS</option>
-                                <option value="Email">Email</option>
-                                <option value="Push">Push App</option>
-                            </select>
-
-                            <select
-                                className="form-select form-select-sm"
-                                value={selectedPriority}
-                                onChange={(e) => setSelectedPriority(e.target.value)}
-                            >
-                                <option value="">Tất cả ưu tiên</option>
-                                <option value="Normal">Bình thường</option>
-                                <option value="High">Ưu tiên cao</option>
-                                <option value="Urgent">Khẩn cấp</option>
-                                <option value="Critical">Nguy kịch</option>
-                            </select>
-                        </div>
+            {/* Single-Line Flat Filter Bar */}
+            <div className="bms-filter-bar mb-3">
+                <div className="bms-search-input-pill">
+                    <FaSearch className="bms-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Tìm theo tên bệnh nhân, SĐT, mã đơn hoặc mã thông báo..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                        <button type="button" className="bms-search-clear" onClick={() => setSearchTerm("")}>
+                            <FaTimes size={12} />
+                        </button>
+                    )}
                 </div>
+
+                <select
+                    className="form-select"
+                    style={{ width: "auto" }}
+                    value={activeTab}
+                    onChange={(e) => {
+                        setActiveTab(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                >
+                    <option value="ALL">Tất cả thông báo</option>
+                    <option value="PANIC">Báo động nguy kịch ({stats.criticalPanicAlerts})</option>
+                    <option value="UNREAD">Chưa đọc</option>
+                    <option value="DELIVERED">Đã chuyển giao</option>
+                </select>
+
+                <select
+                    className="form-select"
+                    style={{ width: "auto" }}
+                    value={selectedChannel}
+                    onChange={(e) => setSelectedChannel(e.target.value)}
+                >
+                    <option value="">Tất cả kênh</option>
+                    <option value="InApp">Trong ứng dụng</option>
+                    <option value="Sms">Tin nhắn SMS</option>
+                    <option value="Email">Email</option>
+                    <option value="Push">Thông báo đẩy</option>
+                </select>
+
+                <select
+                    className="form-select"
+                    style={{ width: "auto" }}
+                    value={selectedPriority}
+                    onChange={(e) => setSelectedPriority(e.target.value)}
+                >
+                    <option value="">Tất cả mức ưu tiên</option>
+                    <option value="Normal">Bình thường</option>
+                    <option value="High">Ưu tiên cao</option>
+                    <option value="Urgent">Khẩn cấp</option>
+                    <option value="Critical">Nguy kịch</option>
+                </select>
+
+                {(searchTerm || activeTab !== "ALL" || selectedChannel || selectedPriority) && (
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary rounded-pill px-3 text-nowrap"
+                        onClick={() => {
+                            setSearchTerm("");
+                            setActiveTab("ALL");
+                            setSelectedChannel("");
+                            setSelectedPriority("");
+                            setCurrentPage(1);
+                        }}
+                    >
+                        Đặt lại
+                    </button>
+                )}
+
+                <span className="bms-filter-meta">
+                    Hiển thị <strong>{notifications.length}</strong> / {totalCount} thông báo
+                </span>
             </div>
 
-            {/* Notification Directory Table */}
-            <div className="card shadow-sm border-0">
-                <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <FaBell className="text-primary" />
-                        Danh Sách Thông Báo Kết Quả Xét Nghiệm
-                    </h6>
-                    <small className="text-muted">Tổng cộng {notifications.length} bản ghi hiển thị</small>
+            {/* Standalone Notification Directory Table */}
+            <section className="bms-table-standalone-section">
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h2 className="bms-table-standalone-title">Danh sách thông báo kết quả xét nghiệm</h2>
+                        <p className="bms-table-standalone-subtitle">Lịch sử gửi thông báo đa kênh và cảnh báo chỉ số nguy kịch</p>
+                    </div>
                 </div>
 
-                <div className="table-responsive">
+                <div className="bms-table-standalone-body">
                     <table className="table table-hover align-middle mb-0">
                         <thead className="table-light text-secondary small text-uppercase">
                             <tr>
-                                <th style={{ minWidth: "150px" }}>Mã Thông Báo</th>
-                                <th style={{ minWidth: "130px" }}>Đơn Xét Nghiệm</th>
-                                <th style={{ minWidth: "180px" }}>Bệnh Nhân</th>
-                                <th style={{ minWidth: "120px" }}>Kênh Gửi</th>
-                                <th style={{ minWidth: "140px" }}>Mức Độ Ưu Tiên</th>
-                                <th style={{ minWidth: "120px" }}>Trạng Thái</th>
-                                <th style={{ minWidth: "140px" }}>Thời Gian Phát</th>
-                                <th style={{ minWidth: "130px" }} className="text-end">Thao Tác</th>
+                                <th className="ps-3" style={{ minWidth: "150px" }}>Mã thông báo</th>
+                                <th style={{ minWidth: "130px" }}>Đơn xét nghiệm</th>
+                                <th style={{ minWidth: "180px" }}>Bệnh nhân</th>
+                                <th style={{ minWidth: "120px" }}>Kênh gửi</th>
+                                <th style={{ minWidth: "140px" }}>Mức độ ưu tiên</th>
+                                <th style={{ minWidth: "120px" }}>Trạng thái</th>
+                                <th style={{ minWidth: "140px" }}>Thời gian phát</th>
+                                <th style={{ minWidth: "130px" }} className="text-end pe-3">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-3 text-muted">
+                                    <td colSpan="8" className="text-center py-4 text-muted">
                                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                         Đang tải thông báo kết quả...
                                     </td>
                                 </tr>
                             ) : notifications.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-3 text-muted">
+                                    <td colSpan="8" className="text-center py-4 text-muted">
                                         Không tìm thấy thông báo kết quả nào phù hợp.
                                     </td>
                                 </tr>
@@ -461,7 +462,7 @@ export default function NotifyTestResultsPage() {
                                         key={notif.id || notif.notificationId}
                                         className={notif.isCriticalPanicValue ? "table-danger" : ""}
                                     >
-                                        <td>
+                                        <td className="ps-3">
                                             <span className="font-monospace text-primary fw-bold">
                                                 {notif.notificationId}
                                             </span>
@@ -496,11 +497,11 @@ export default function NotifyTestResultsPage() {
                                                 minute: "2-digit"
                                             }) : "--"}
                                         </td>
-                                        <td className="text-end">
+                                        <td className="text-end pe-3">
                                             <div className="d-inline-flex gap-1">
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-xs"
+                                                    className="btn btn-sm btn-outline-primary rounded-pill px-2.5 d-inline-flex align-items-center gap-1 text-nowrap"
                                                     onClick={() => handleViewDetail(notif.notificationId || notif.id)}
                                                     title="Xem chi tiết"
                                                 >
@@ -510,7 +511,7 @@ export default function NotifyTestResultsPage() {
                                                 {canDispatch && (
                                                     <button
                                                         type="button"
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center shadow-xs"
+                                                        className="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-inline-flex align-items-center text-nowrap"
                                                         onClick={() => handleResend(notif.notificationId || notif.id)}
                                                         title="Gửi lại"
                                                     >
@@ -525,7 +526,7 @@ export default function NotifyTestResultsPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
             {/* Modals */}
             {canDispatch && (

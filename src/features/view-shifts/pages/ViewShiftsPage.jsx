@@ -91,41 +91,7 @@ export function ViewShiftsPage() {
     };
   }, [from, to]);
 
-  // Default realistic shifts for receptionist/staff if backend returns empty
-  const defaultStaffShifts = [
-    {
-      shiftId: 'SHF-MY-01',
-      shiftType: isLab ? 'Ca Sáng Xét Nghiệm' : isReceptionist ? 'Ca Sáng Lễ Tân' : 'Ca Sáng Khám Bệnh',
-      shiftDate: toIsoDateStr(currentWeekMonday),
-      employeeId: currentUserId || 'EMP-ME',
-      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
-      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
-      shiftStart: '07:00',
-      shiftEnd: '11:30',
-      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
-      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
-      currentPatientsCount: 12,
-      maxPatients: 30,
-      status: 'Approved'
-    },
-    {
-      shiftId: 'SHF-MY-02',
-      shiftType: isLab ? 'Ca Chiều Xét Nghiệm' : isReceptionist ? 'Ca Chiều Lễ Tân' : 'Ca Chiều Khám Bệnh',
-      shiftDate: toIsoDateStr(addDays(currentWeekMonday, 2)),
-      employeeId: currentUserId || 'EMP-ME',
-      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
-      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
-      shiftStart: '13:00',
-      shiftEnd: '17:00',
-      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
-      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
-      currentPatientsCount: 6,
-      maxPatients: 25,
-      status: 'Approved'
-    }
-  ];
-
-  const sourceShifts = shifts.length > 0 ? shifts : defaultStaffShifts;
+  const sourceShifts = useMemo(() => (Array.isArray(shifts) ? shifts : []), [shifts]);
 
   const doctorShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'doctor'), [sourceShifts]);
   const labShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'lab'), [sourceShifts]);
@@ -240,29 +206,26 @@ export function ViewShiftsPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
-        <div className="bms-page-header-content">
-          
+      {/* 1. Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
               {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : 'Lịch Ca Trực Của Tôi'}
             </h1>
           </div>
-          
+          <p className="text-muted small m-0 mt-1">
+            Tra cứu thời khóa biểu phân ca theo tuần và danh sách ca trực chi tiết
+          </p>
         </div>
         <div className="bms-page-actions">
           {canManageShifts && (
             <button
               type="button"
-              className="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2 text-white"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-2 fw-semibold px-3 py-2 text-white rounded-pill"
               style={{
-                borderRadius: 9999,
                 background: '#1E60E6',
-                borderColor: '#1E60E6',
-                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
-                fontSize: '14px'
+                borderColor: '#1E60E6'
               }}
               onClick={() => navigate('/manage/schedule')}
               title="Quản lý và phân bổ ca trực"
@@ -523,11 +486,12 @@ export function ViewShiftsPage() {
                         <td className="text-end pe-4">
                           <button
                             type="button"
-                            className="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill fw-semibold shadow-sm"
+                            className="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center gap-1"
                             onClick={() => handleOpenShiftDetail(s)}
                             style={{ fontSize: '12px' }}
                           >
-                            Chi tiết ca →
+                            <span>Chi tiết ca</span>
+                            <FaArrowRight size={10} />
                           </button>
                         </td>
                       </tr>
@@ -565,7 +529,7 @@ export function ViewShiftsPage() {
                 Thông Tin Chi Tiết Ca Trực Y Tế
               </Modal.Title>
               <div className="text-muted small">
-                Tiêu chuẩn phân công lịch trực ISO 15189 &amp; Quản trị bệnh viện BMS
+                Thông tin phân công lịch trực và phạm vi tiếp nhận
               </div>
             </div>
           </div>
@@ -612,7 +576,7 @@ export function ViewShiftsPage() {
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center justify-content-between">
                         <span className="d-flex align-items-center gap-2">
                           <FaUserMd className="text-primary" />
-                          Hồ Sơ Cán Bộ Trực (Đề Án 06 Bộ Y Tế)
+                          Hồ Sơ Cán Bộ Trực
                         </span>
                         <Badge bg="success-subtle" className="text-success border border-success-subtle">
                           Đã xác thực CCCD

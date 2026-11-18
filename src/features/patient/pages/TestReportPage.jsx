@@ -102,42 +102,42 @@ export default function TestReportPage() {
     const parameters = Array.isArray(report.parameters) ? report.parameters : [];
 
     return (
-        <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+        <div className="container-fluid py-2 px-md-4">
             {/* Action Bar & Breadcrumbs (Hidden on print) */}
-            <div className="d-print-none d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-                <div>
-                    <h2 className="h4 fw-bold text-dark mb-0">
+            <div className="bms-page-header-card mb-4 d-print-none">
+                <div className="bms-page-header-content">
+                    <h1 className="bms-page-title">
                         Phiếu Kết Quả Xét Nghiệm — {report.packageName}
-                    </h2>
+                    </h1>
+                    <p className="bms-page-subtitle">
+                        Mã phiếu: <strong>{report.reportId}</strong> · Bệnh nhân: <strong>{report.patientName}</strong>
+                    </p>
                 </div>
 
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                    {/* Direct Clinical Action: Mở form tư vấn / Đánh giá ICD-10 chỉ dành cho Bác sĩ */}
                     {isDoctor && (
                         <Link
                             to={`/medical-assessments/add?patientId=${encodeURIComponent(report.patientId || '')}&encounterId=${encodeURIComponent(report.orderId || '')}&patientName=${encodeURIComponent(report.patientName || '')}`}
-                            className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm text-white fw-semibold"
-                            style={{ backgroundColor: "#059669", borderColor: "#059669" }}
+                            className="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5 fw-semibold"
                         >
-                            <FaStethoscope /> Tư Vấn & Lập Đánh Giá Y Khoa (ICD-10)
+                            <FaStethoscope /> Lập đánh giá ICD-10
                         </Link>
                     )}
 
                     <button
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
                         onClick={() => navigate(-1)}
                     >
                         <FaArrowLeft /> Quay lại
                     </button>
                     <button
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5"
                         onClick={handleShare}
                     >
-                        <FaShareAlt /> {copied ? "Đã sao chép liên kết!" : "Chia sẻ"}
+                        <FaShareAlt /> {copied ? "Đã sao chép!" : "Chia sẻ"}
                     </button>
                     <button
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm fw-semibold"
-                        style={{ backgroundColor: "#0284c7", borderColor: "#0284c7" }}
+                        className="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5 fw-semibold"
                         onClick={handleDownloadPdf}
                     >
                         <FaDownload /> In / Tải PDF
@@ -246,10 +246,10 @@ export default function TestReportPage() {
                         </div>
 
                         {/* Clinical Notes */}
-                        <div className="mb-4 p-3 rounded-2 border" style={{ backgroundColor: "#f8fafc", borderLeft: "4px solid #0284c7", borderColor: "#e2e8f0" }}>
-                            <h6 className="fw-bold text-dark mb-2 small text-uppercase">Ghi Chú Của Kỹ Thuật Viên / Bác Sĩ Xét Nghiệm</h6>
+                        <div className="mb-4 p-3 rounded-3 border" style={{ backgroundColor: "#f8fafc", borderColor: "#e2e8f0" }}>
+                            <h6 className="fw-bold text-dark mb-2 small text-uppercase">Ghi Chú Chuyên Môn</h6>
                             <p className="mb-0 text-dark small" style={{ lineHeight: "1.6" }}>
-                                {report.clinicalNotes || "Mẫu máu đạt tiêu chuẩn phân tích, không có hiện tượng vỡ hồng cầu (tán huyết). Kết quả được đối chiếu và kiểm chuẩn chất lượng (IQC) hợp lệ trước khi ký phát hành."}
+                                {report.clinicalNotes || "Mẫu máu đạt tiêu chuẩn phân tích, kết quả đã được kiểm chuẩn chất lượng nội bộ (IQC) trước khi phát hành."}
                             </p>
                         </div>
 
@@ -259,24 +259,26 @@ export default function TestReportPage() {
                                 <small className="text-muted d-block">Kỹ thuật viên thực hiện xét nghiệm</small>
                                 <strong className="text-dark d-block">{report.analysedBy || 'KTV. Xét Nghiệm'}</strong>
                                 <small className="text-success font-monospace d-flex align-items-center gap-1 mt-1">
-                                    <FaCheckCircle /> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
+                                    <FaCheckCircle /> {report.analysedAt ? new Date(report.analysedAt).toLocaleDateString("vi-VN") : "—"} · Đã xác thực kỹ thuật
                                 </small>
                             </div>
                             <div className="text-end">
                                 <small className="text-muted d-block">Bác sĩ trưởng khoa phê duyệt</small>
-                                <strong className="text-dark d-block">{report.approvedBy || 'BS. CKII. Trưởng Khoa Xét Nghiệm'}</strong>
+                                <strong className="text-dark d-block">{report.approvedBy || 'Trưởng Khoa Xét Nghiệm'}</strong>
                                 <small className="text-primary font-monospace d-flex align-items-center justify-content-end gap-1 mt-1">
-                                    <FaCheckCircle /> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Chữ ký số y tế hợp chuẩn (MD)
+                                    <FaCheckCircle /> {report.approvedAt ? new Date(report.approvedAt).toLocaleDateString("vi-VN") : "—"} · Đã ký số y tế
                                 </small>
                             </div>
                         </div>
 
-                        {/* Legal Disclaimer & ISO 15189 Notice */}
-                        <div className="mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: "11px", fontStyle: "italic", borderColor: "#e2e8f0" }}>
-                            Phiếu kết quả xét nghiệm được kiểm soát và bảo chứng theo tiêu chuẩn phòng xét nghiệm y khoa ISO 15189:2022. Mọi sửa đổi hay tẩy xóa đều làm mất giá trị pháp lý của tài liệu. Bệnh nhân vui lòng mang phiếu này đến bác sĩ điều trị để được tư vấn và kết luận chẩn đoán.
-                            <div className="mt-1 font-monospace text-secondary">
-                                Mã băm toàn vẹn dữ liệu (Verification Hash): {report.verificationHash || "SHA256:BMS-ISO15189-VALIDATED"}
-                            </div>
+                        {/* Digital Integrity Footer */}
+                        <div className="mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: "11px", borderColor: "#e2e8f0" }}>
+                            Phiếu kết quả xét nghiệm có giá trị chuyên môn với chữ ký số toàn vẹn dữ liệu.
+                            {report.verificationHash && (
+                                <div className="mt-1 font-monospace text-secondary">
+                                    Mã băm toàn vẹn (SHA-256): {report.verificationHash}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

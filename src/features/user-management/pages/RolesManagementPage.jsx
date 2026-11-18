@@ -121,18 +121,14 @@ export const RolesManagementPage = () => {
   return (
     <div className="w-100 py-1">
       {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          
-          <div className="bms-page-title-row">
-            <h1 className="bms-page-title fs-4 m-0">
-              Phân Quyền Vai Trò Người Dùng
-            </h1>
-            <p className="text-muted small m-0 mt-1">
-              Quản lý ma trận phân quyền và danh sách vai trò người dùng trong hệ thống.
-            </p>
-          </div>
-          
+          <h1 className="bms-page-title">
+            Phân Quyền Vai Trò Người Dùng
+          </h1>
+          <p className="bms-page-subtitle">
+            Quản lý ma trận phân quyền và danh sách vai trò trong hệ thống
+          </p>
         </div>
         <div className="bms-page-actions">
           <Button

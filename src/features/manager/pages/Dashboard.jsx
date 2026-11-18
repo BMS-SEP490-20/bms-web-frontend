@@ -117,7 +117,7 @@ const ManagerDashboard = () => {
 
       const res = await labTestService.approveTestResult(selectedTestResult.testResultId, payload);
       if (res.success) {
-        showSuccess('✅ Duyệt kết quả xét nghiệm thành công (Đã xuất bản cho bệnh nhân)');
+        showSuccess('Duyệt kết quả xét nghiệm thành công (Đã xuất bản cho bệnh nhân)');
         handleCloseApproveModal();
         loadDashboardData(true);
       } else {

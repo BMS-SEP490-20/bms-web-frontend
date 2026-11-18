@@ -691,9 +691,9 @@ const AdminDashboard = () => {
         {/* Recent Appointments */}
         <Col lg={6} className="mb-4">
           <Card className="h-100">
-            <Card.Header className="bg-primary text-white">
-              <h5 className="mb-0">
-                <FaCalendarAlt className="me-2" />
+            <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+              <h5 className="mb-0 text-dark fs-6 fw-bold">
+                <FaCalendarAlt className="me-2 text-primary" />
                 Lịch hẹn gần đây
               </h5>
             </Card.Header>
@@ -763,9 +763,9 @@ const AdminDashboard = () => {
         {/* Recent Lab Tests */}
         <Col lg={6} className="mb-4">
           <Card className="h-100">
-            <Card.Header className="bg-success text-white">
-              <h5 className="mb-0">
-                <FaFlask className="me-2" />
+            <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+              <h5 className="mb-0 text-dark fs-6 fw-bold">
+                <FaFlask className="me-2 text-success" />
                 Xét nghiệm gần đây
               </h5>
             </Card.Header>

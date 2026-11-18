@@ -89,14 +89,14 @@ export default function UpdateStorageModal({ show, onHide, barcode, currentStora
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content shadow border-0">
-                    <div className="modal-header bg-primary text-white">
-                        <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
-                            <FaWarehouse />
-                            Cập Nhật Vị Trí Lưu Trữ Lạnh
+                    <div className="modal-header border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
+                        <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2 fs-6">
+                            <FaWarehouse className="text-primary" />
+                            Cập nhật vị trí lưu trữ lạnh
                         </h5>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                             disabled={submitting}
                         ></button>

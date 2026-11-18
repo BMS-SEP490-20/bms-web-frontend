@@ -266,96 +266,112 @@ const ValidateSample = () => {
     return QUALITY_ASSESSMENT_OPTIONS.find(o => o.id === assessmentType) || QUALITY_ASSESSMENT_OPTIONS[0];
   }, [assessmentType]);
 
+  const hasActiveFilters = searchTerm !== '' || statusFilter !== 'ALL';
+
   return (
-    <Container fluid className="py-2 px-md-4">
-      {/* Tiêu đề trang chuẩn y khoa */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
+    <div className="w-100 py-1">
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Kiểm Chuẩn Chất Lượng Mẫu Tiền Phân Tích</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Đánh giá chất lượng mẫu bệnh phẩm, sàng lọc mẫu tán huyết, đông dây hoặc thiếu thể tích trước khi chạy máy
+          </p>
         </div>
 
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-1 shadow-sm">
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold">
+            <FaSyncAlt className={loading ? 'fa-spin' : ''} size={13} />
             <span>Làm mới</span>
           </Button>
         </div>
-      </header>
+      </div>
 
       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
+        <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3">
           <FaExclamationTriangle className="me-2" />
           {error}
         </Alert>
       )}
 
-      {/* Thanh lọc và tìm kiếm */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-2 align-items-center">
-            <Col xs={12} md={6}>
-              <InputGroup size="sm">
-                <InputGroup.Text className="bg-light border-end-0">
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  className="bg-light border-start-0"
-                  placeholder="Tìm theo Mã mẫu, Barcode, Mã bệnh nhân hoặc Họ tên..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ kiểm chuẩn (Collected / Received)</option>
-                <option value="validated">Đã kiểm chuẩn đạt (Validated)</option>
-                <option value="rejected">Bị từ chối / Khóa (Rejected)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} md={3} className="text-end">
-              <span className="small text-muted">
-                Hiển thị: <strong className="text-primary">{filteredSamples.length}</strong> / {safeSamples.length} ống mẫu
-              </span>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      {/* Single-Line Flat Filter Bar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã mẫu, Barcode, mã bệnh nhân hoặc họ tên..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button type="button" className="bms-search-clear" onClick={() => setSearchTerm('')} title="Xóa tìm kiếm">
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
 
-      {/* Bảng danh sách mẫu kiểm chuẩn */}
-      <Card className="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
-        <Card.Body className="p-0">
+        <Form.Select
+          size="sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ kiểm chuẩn (Collected / Received)</option>
+          <option value="validated">Đã kiểm chuẩn đạt (Validated)</option>
+          <option value="rejected">Bị từ chối / Khóa (Rejected)</option>
+        </Form.Select>
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('ALL');
+            }}
+          >
+            Đặt lại
+          </Button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{filteredSamples.length}</strong> / {safeSamples.length} ống mẫu
+        </span>
+      </div>
+
+      {/* Standalone Table Section (Zero Box-in-Box) */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-body">
           <div className="table-responsive">
-            <Table hover align="middle" className="mb-0 table-sm">
-              <thead className="table-light text-muted small text-uppercase">
+            <Table hover align="middle" className="mb-0">
+              <thead>
                 <tr>
-                  <th className="py-3 px-3">Mã Mẫu / Barcode</th>
-                  <th className="py-3">Bệnh Nhân</th>
-                  <th className="py-3">Chỉ Định / Loại Mẫu</th>
-                  <th className="py-3">Thể Tích</th>
-                  <th className="py-3">Trạng Thái</th>
-                  <th className="py-3" style={{ width: '22%' }}>Ghi Chú Đánh Giá Tiền Phân Tích</th>
-                  <th className="py-3 px-3 text-end">Thao Tác Kiểm Chuẩn</th>
+                  <th className="px-3">Mã Mẫu / Barcode</th>
+                  <th>Bệnh Nhân</th>
+                  <th>Chỉ Định / Loại Mẫu</th>
+                  <th>Thể Tích</th>
+                  <th>Trạng Thái</th>
+                  <th style={{ width: '22%' }}>Ghi Chú Đánh Giá Tiền Phân Tích</th>
+                  <th className="px-3 text-end">Thao Tác Kiểm Chuẩn</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && safeSamples.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-3">
+                    <td colSpan="7" className="text-center py-4">
                       <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                       <span className="text-muted">Đang tải danh sách mẫu xét nghiệm...</span>
                     </td>
                   </tr>
                 ) : filteredSamples.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-3 text-muted">
-                      <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
+                    <td colSpan="7" className="text-center py-4 text-muted">
+                      <FaVial className="fs-2 text-secondary opacity-50 mb-2" />
                       <div className="fw-semibold">Không tìm thấy mẫu xét nghiệm nào cần kiểm chuẩn</div>
                     </td>
                   </tr>
@@ -363,7 +379,6 @@ const ValidateSample = () => {
                   filteredSamples.map((sample) => {
                     const sampleId = sample.id || sample.sampleId || sample.sampleCode;
                     const isLocked = sample.status?.toLowerCase() === 'rejected';
-                    const isValidated = sample.status?.toLowerCase() === 'validated';
                     return (
                       <tr key={sampleId}>
                         <td className="px-3">
@@ -386,7 +401,7 @@ const ValidateSample = () => {
                           <div className="fw-medium text-dark" style={{ fontSize: '0.82rem' }}>
                             {sample.testPackageName || 'Xét nghiệm lâm sàng'}
                           </div>
-                          <div className="small text-muted mt-0.5">
+                          <div className="small text-muted mt-1">
                             <span className="badge bg-light text-dark border me-1">{sample.sampleType || 'Máu toàn phần'}</span>
                             <span className="badge bg-secondary-subtle text-secondary">{sample.tubeColor || 'Purple'}</span>
                           </div>
@@ -410,13 +425,11 @@ const ValidateSample = () => {
                           </div>
                         </td>
                         <td className="px-3 text-end">
-                          <div className="d-flex justify-content-end gap-1 flex-wrap">
-                            {/* Nút Đạt chuẩn */}
+                          <div className="bms-action-btn-group">
                             <Button
                               variant="outline-success"
                               size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1"
-                              style={{ fontSize: '0.75rem' }}
+                              className="rounded-pill text-nowrap d-inline-flex align-items-center gap-1"
                               disabled={isLocked}
                               onClick={() => openAssessmentModal(sample, 'PASSED')}
                               title="Xác nhận mẫu đạt chuẩn đưa vào phân tích"
@@ -425,12 +438,10 @@ const ValidateSample = () => {
                               <span>Đạt chuẩn</span>
                             </Button>
 
-                            {/* Nút Tán huyết */}
                             <Button
                               variant="outline-danger"
                               size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1"
-                              style={{ fontSize: '0.75rem' }}
+                              className="rounded-pill text-nowrap d-inline-flex align-items-center gap-1"
                               disabled={isLocked}
                               onClick={() => openAssessmentModal(sample, 'HEMOLYSIS')}
                               title="Báo mẫu tán huyết: Khóa phân tích & Lấy lại mẫu"
@@ -439,12 +450,10 @@ const ValidateSample = () => {
                               <span>Tán huyết</span>
                             </Button>
 
-                            {/* Nút Đông dây */}
                             <Button
                               variant="outline-warning"
                               size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                              style={{ fontSize: '0.75rem' }}
+                              className="rounded-pill text-nowrap d-inline-flex align-items-center gap-1 text-dark"
                               disabled={isLocked}
                               onClick={() => openAssessmentModal(sample, 'CLOTTED')}
                               title="Báo mẫu đông dây / vón cục"
@@ -461,16 +470,16 @@ const ValidateSample = () => {
               </tbody>
             </Table>
           </div>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
-      {/* Modal Kiểm chuẩn Chất Lượng Chi Tiết ISO 15189 */}
+      {/* Modal Kiểm chuẩn Chất Lượng Chi Tiết */}
       <Modal show={showModal} onHide={() => !submitting && setShowModal(false)} size="lg" centered backdrop="static">
         <Form onSubmit={handleSubmitAssessment}>
-          <Modal.Header closeButton={!submitting} className="bg-light">
-            <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <Modal.Header closeButton={!submitting} style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
               <FaCheckCircle className="text-primary" />
-              <span>Kiểm Chuẩn Chất Lượng Tiền Phân Tích (ISO 15189:2022)</span>
+              <span>Kiểm Chuẩn Chất Lượng Tiền Phân Tích</span>
             </Modal.Title>
           </Modal.Header>
 
@@ -616,7 +625,7 @@ const ValidateSample = () => {
           </Modal.Footer>
         </Form>
       </Modal>
-    </Container>
+    </div>
   );
 };
 

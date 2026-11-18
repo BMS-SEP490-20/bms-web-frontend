@@ -252,7 +252,7 @@ const ReceptionistDashboard = () => {
 
       const res = await invoiceService.generateReceipt(payload);
       if (res.success && res.data) {
-        showSuccess('✅ Tạo biên lai thanh toán thành công!');
+        showSuccess('Tạo biên lai thanh toán thành công!');
         setGeneratedReceipt(res.data);
         setShowReceiptModal(false);
         setShowGeneratedReceiptModal(true);

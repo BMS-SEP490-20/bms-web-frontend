@@ -75,9 +75,9 @@ export default function QueueBoardPage() {
       });
 
       const issuedCode = res?.data?.ticketNumber || nextNum;
-      setActionMessage({ type: 'success', text: `✅ Đã cấp số thứ tự vãng lai ${issuedCode} thành công!` });
+      setActionMessage({ type: 'success', text: `Đã cấp số thứ tự vãng lai ${issuedCode} thành công.` });
     } catch (err) {
-      setActionMessage({ type: 'danger', text: `❌ Lỗi cấp số: ${err?.message || "Không thể cấp số lúc này"}` });
+      setActionMessage({ type: 'danger', text: `Lỗi cấp số: ${err?.message || "Không thể cấp số lúc này"}` });
     } finally {
       await loadQueue();
       setIssuing(false);
@@ -93,9 +93,9 @@ export default function QueueBoardPage() {
     const counterToUse = selectedCounter;
     try {
       await queueApi.callQueueTicket(ticket.id, counterToUse);
-      setActionMessage({ type: "success", text: `📢 Đã gọi số ${ticket.ticketNumber} vào ${counterToUse}` });
+      setActionMessage({ type: "success", text: `Đã gọi số ${ticket.ticketNumber} vào ${counterToUse}.` });
     } catch (err) {
-      setActionMessage({ type: "danger", text: `❌ Lỗi gọi số: ${err?.message || "Không thể gọi số"}` });
+      setActionMessage({ type: "danger", text: `Lỗi gọi số: ${err?.message || "Không thể gọi số"}` });
     } finally {
       await loadQueue();
       setTimeout(() => setActionMessage(null), 4000);
@@ -110,9 +110,9 @@ export default function QueueBoardPage() {
     const counterToUse = selectedCounter;
     try {
       await queueApi.updateQueueTicketStatus(ticket.id, 3, counterToUse); // 3 = Collecting
-      setActionMessage({ type: "success", text: `✅ Bệnh nhân ${ticket.ticketNumber} đang tiến hành lấy mẫu` });
+      setActionMessage({ type: "success", text: `Bệnh nhân ${ticket.ticketNumber} đang tiến hành lấy mẫu.` });
     } catch (err) {
-      setActionMessage({ type: "danger", text: `❌ Lỗi cập nhật: ${err?.message || "Không thể cập nhật"}` });
+      setActionMessage({ type: "danger", text: `Lỗi cập nhật: ${err?.message || "Không thể cập nhật"}` });
     } finally {
       await loadQueue();
       setTimeout(() => setActionMessage(null), 4000);
@@ -298,8 +298,8 @@ export default function QueueBoardPage() {
                               onClick={() => handleStartCollecting(ticket)}
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi cập nhật" : ""}
-                              className="btn btn-success btn-sm px-3 py-1 rounded-pill shadow-sm"
-                              style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
+                              className="btn btn-success btn-sm px-3 py-1 rounded-pill text-white"
+                              style={{ backgroundColor: '#10B981', borderColor: '#10B981' }}
                             >
                               Vào lấy mẫu
                             </button>

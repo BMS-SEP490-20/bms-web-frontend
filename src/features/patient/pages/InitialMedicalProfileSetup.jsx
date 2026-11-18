@@ -479,10 +479,10 @@ export default function InitialMedicalProfileSetup() {
           <p>Phiếu khai báo trước khi lấy mẫu. Mục có dấu * là bắt buộc.</p>
         </header>
 
-        <div className="alert alert-info border-0 rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6' }}>
-          <FaCheckCircle className="text-primary fs-4 flex-shrink-0" />
+        <div className="alert alert-info border rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
+          <FaCheckCircle className="text-primary fs-5 flex-shrink-0" />
           <div className="small text-dark" style={{ lineHeight: 1.5 }}>
-            <strong>Cam kết bảo mật y tế:</strong> Mọi thông tin sức khỏe cá nhân được mã hóa an toàn theo tiêu chuẩn ISO 15189:2022 và Nghị định 13/2023/NĐ-CP. Dữ liệu chỉ phục vụ Bác sĩ đối chiếu khoảng tham chiếu sinh học và đảm bảo an toàn tuyệt đối khi lấy mẫu xét nghiệm máu.
+            <strong>Bảo mật hồ sơ sức khỏe:</strong> Thông tin sức khỏe cá nhân chỉ phục vụ Bác sĩ đối chiếu khoảng tham chiếu sinh học và đảm bảo an toàn khi lấy mẫu máu.
           </div>
         </div>
 

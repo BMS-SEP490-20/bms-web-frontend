@@ -15,7 +15,7 @@ import {
 import {
   FaSearch, FaSyncAlt, FaFileExport,
   FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
-  FaInfoCircle, FaLock, FaEye, FaTimes
+  FaInfoCircle, FaLock, FaEye, FaTimes, FaUserCheck
 } from 'react-icons/fa';
 import { auditLogService } from '../../../services/auditLogService';
 
@@ -141,19 +141,28 @@ const AuditLogPage = () => {
     }
   };
 
+  const hasActiveFilters = searchTerm !== '' || categoryFilter !== 'ALL' || severityFilter !== 'ALL' || statusFilter !== 'ALL';
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setCategoryFilter('ALL');
+    setSeverityFilter('ALL');
+    setStatusFilter('ALL');
+  };
+
   return (
     <div className="w-100 py-2">
-      {/* Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
-        <div className="bms-page-header-content">
-          
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
               Nhật Ký Kiểm Toán An Ninh Hệ Thống
             </h1>
           </div>
-          
+          <p className="text-muted small m-0 mt-1">
+            Theo dõi nhật ký truy cập, thao tác vận hành và biến động dữ liệu toàn hệ thống
+          </p>
         </div>
 
         <div className="bms-page-actions">
@@ -162,7 +171,7 @@ const AuditLogPage = () => {
             size="sm"
             onClick={handleExportCSV}
             disabled={safeLogs.length === 0}
-            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm fw-semibold"
+            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
           >
             <FaFileExport size={13} />
             <span>Xuất Báo Cáo CSV</span>
@@ -172,8 +181,8 @@ const AuditLogPage = () => {
             size="sm"
             onClick={fetchLogs}
             disabled={loading}
-            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm fw-semibold"
-            style={{ background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+            className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
+            style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
           >
             <FaSyncAlt size={13} className={loading ? 'fa-spin' : ''} />
             <span>Làm Mới</span>
@@ -181,134 +190,130 @@ const AuditLogPage = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* KPI Quad Cards */}
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Tổng số sự kiện</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalLogs ?? safeLogs.length}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                    <FaCheckCircle className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Tổng Số Sự Kiện</h6>
+                <div className="bms-kpi-value">{statistics.totalLogs ?? safeLogs.length}</div>
+                <div className="bms-kpi-sub text-muted">Tổng bản ghi nhật ký hệ thống</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                <FaCheckCircle />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Sự kiện an ninh</span>
-                    <h3 className="fw-bold mb-0 text-danger mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.securityEvents ?? 0}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
-                    <FaLock className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Sự Kiện An Ninh</h6>
+                <div className="bms-kpi-value text-danger">{statistics.securityEvents ?? 0}</div>
+                <div className="bms-kpi-sub text-muted">Truy cập &amp; phân quyền bảo mật</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                <FaLock />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Cảnh báo nghiêm trọng</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>{statistics.criticalAlerts ?? 0}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ background: 'rgba(231, 188, 76, 0.2)', color: '#b45309' }}>
-                    <FaExclamationTriangle className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Cảnh Báo Nghiêm Trọng</h6>
+                <div className="bms-kpi-value" style={{ color: '#b45309' }}>{statistics.criticalAlerts ?? 0}</div>
+                <div className="bms-kpi-sub text-muted">Sự kiện mức cảnh báo cao</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                <FaExclamationTriangle />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Thất bại / Lỗi truy cập</span>
-                    <h3 className="fw-bold mb-0 text-secondary mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.failedActions ?? 0}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ background: '#EEF2F6', color: '#64748b' }}>
-                    <FaTimesCircle className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Thất Bại / Lỗi Truy Cập</h6>
+                <div className="bms-kpi-value text-secondary">{statistics.failedActions ?? 0}</div>
+                <div className="bms-kpi-sub text-muted">Thao tác bị từ chối hoặc lỗi</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
+                <FaTimesCircle />
+              </div>
+            </div>
           </Col>
         </Row>
       )}
 
-      {/* Filter Bar */}
-      <section className="bms-filter-bar">
-          <Row className="g-3">
-            <Col xs={12} md={4}>
-              <div className="bms-search-input-pill">
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo người dùng, hành động, đối tượng tác động..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchTerm('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-            </Col>
-            <Col xs={6} sm={4} md={2}>
-              <Form.Select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}
-              >
-                <option value="ALL">-- Tất cả danh mục --</option>
-                <option value="SECURITY">An ninh & Bảo mật</option>
-                <option value="ACCESS">Xác thực & Truy cập</option>
-                <option value="OPERATIONAL">Vận hành hệ thống</option>
-                <option value="DATA_CHANGE">Biến động dữ liệu</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} sm={4} md={3}>
-              <Form.Select
-                value={severityFilter}
-                onChange={(e) => setSeverityFilter(e.target.value)}
-                style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}
-              >
-                <option value="ALL">-- Tất cả mức độ --</option>
-                <option value="CRITICAL">Mức nghiêm trọng</option>
-                <option value="ERROR">Mức lỗi hệ thống</option>
-                <option value="WARNING">Mức cảnh báo</option>
-                <option value="INFO">Mức thông tin thường</option>
-              </Form.Select>
-            </Col>
-            <Col xs={12} sm={4} md={3}>
-              <Form.Select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: 10 }}
-              >
-                <option value="ALL">-- Tất cả trạng thái --</option>
-                <option value="SUCCESS">Thực hiện thành công</option>
-                <option value="FAILED">Thực hiện thất bại</option>
-              </Form.Select>
-            </Col>
-          </Row>
+      {/* Single-Line Flat Filter Bar */}
+      <section className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo người dùng, hành động, đối tượng tác động..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm"
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+
+        <Form.Select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả danh mục</option>
+          <option value="SECURITY">An ninh &amp; Bảo mật</option>
+          <option value="ACCESS">Xác thực &amp; Truy cập</option>
+          <option value="OPERATIONAL">Vận hành hệ thống</option>
+          <option value="DATA_CHANGE">Biến động dữ liệu</option>
+        </Form.Select>
+
+        <Form.Select
+          value={severityFilter}
+          onChange={(e) => setSeverityFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả mức độ</option>
+          <option value="CRITICAL">Mức nghiêm trọng</option>
+          <option value="ERROR">Mức lỗi hệ thống</option>
+          <option value="WARNING">Mức cảnh báo</option>
+          <option value="INFO">Mức thông tin thường</option>
+        </Form.Select>
+
+        <Form.Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="SUCCESS">Thực hiện thành công</option>
+          <option value="FAILED">Thực hiện thất bại</option>
+        </Form.Select>
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={handleResetFilters}
+          >
+            Đặt lại
+          </Button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{safeLogs.length}</strong> bản ghi
+        </span>
       </section>
 
       {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}

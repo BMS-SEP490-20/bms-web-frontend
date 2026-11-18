@@ -66,33 +66,38 @@ export default function AddMedicalAssessmentPage() {
   };
 
   return (
-    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Top Header & Breadcrumb */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">
-            {id ? 'Sửa đánh giá y khoa' : 'Thêm đánh giá y khoa'}
-          </h1>
+    <div className="w-100 py-1">
+      {/* Top Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">
+              {id ? 'Sửa đánh giá y khoa' : 'Thêm đánh giá y khoa'}
+            </h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Ghi nhận triệu chứng lâm sàng, dấu hiệu sinh tồn, chẩn đoán ICD-10 và hướng điều trị.
+          </p>
         </div>
-        <div className="mt-2 mt-sm-0 d-flex gap-2">
+        <div className="bms-page-actions">
           <Button
             variant="outline-secondary"
+            size="sm"
             onClick={() => navigate('/medical-assessments')}
-            className="d-flex align-items-center gap-2 shadow-sm"
-            style={{ borderRadius: '9999px' }}
+            className="d-inline-flex align-items-center gap-2 rounded-pill px-3 text-nowrap"
           >
-            <FaClipboardList /> Danh Sách Đánh Giá
+            <FaClipboardList /> Danh sách đánh giá
           </Button>
           <Button
             variant="outline-primary"
+            size="sm"
             onClick={() => navigate('/doctor/console')}
-            className="d-flex align-items-center gap-2 shadow-sm"
-            style={{ borderRadius: '9999px' }}
+            className="d-inline-flex align-items-center gap-2 rounded-pill px-3 text-nowrap"
           >
-            <FaUserMd /> Bàn Khám Bác Sĩ
+            <FaUserMd /> Bàn khám bác sĩ
           </Button>
         </div>
-      </header>
+      </div>
 
       {loading ? (
         <div className="text-center py-3">
@@ -115,6 +120,6 @@ export default function AddMedicalAssessmentPage() {
           onCancel={handleCancel}
         />
       )}
-    </Container>
+    </div>
   );
 }

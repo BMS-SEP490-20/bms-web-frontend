@@ -13,7 +13,7 @@ import {
 import {
   FaFlask, FaSearch, FaBarcode, FaUserInjured, FaCheckCircle,
   FaExclamationTriangle, FaPrint, FaHistory, FaBell,
-  FaSync, FaVial, FaMicroscope, FaArrowLeft
+  FaSync, FaVial, FaMicroscope, FaArrowLeft, FaTimes
 } from 'react-icons/fa';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
@@ -157,88 +157,88 @@ export default function LookupBiochemicalResultsPage() {
   ) || currentResult?.conclusionNotes?.toLowerCase().includes('cảnh báo');
 
   return (
-    <div className="container-fluid px-3 py-2">
-      {/* Page Header */}
+    <div className="w-100 py-1">
+      {/* Page Header Card */}
       <div className="bms-page-header-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <h1 className="bms-page-title fs-4 m-0">Tra Cứu Kết Quả Xét Nghiệm Sinh Hóa</h1>
-            <p className="text-muted small m-0 mt-1">
-              Tra cứu chỉ số xét nghiệm, dải tham chiếu và báo cáo kết quả theo mã vạch mẫu.
-            </p>
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Tra cứu kết quả xét nghiệm sinh hóa</h1>
           </div>
+          <p className="text-muted small m-0 mt-1">
+            Tra cứu chỉ số xét nghiệm, dải tham chiếu và báo cáo kết quả theo mã vạch mẫu.
+          </p>
+        </div>
 
-          <div className="d-flex gap-2">
-            <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 shadow-none" onClick={loadRecentResults} disabled={loadingRecent}>
-              <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} /> Làm mới
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 text-nowrap" onClick={loadRecentResults} disabled={loadingRecent}>
+            <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+          </Button>
+          {currentResult && (
+            <Button variant="outline-primary" size="sm" className="rounded-pill px-3 text-nowrap" style={{ color: '#1E60E6', borderColor: '#1E60E6' }} onClick={handlePrint}>
+              <FaPrint className="me-1" /> In kết quả
             </Button>
-            {currentResult && (
-              <Button variant="outline-primary" size="sm" className="rounded-pill px-3 shadow-none" style={{ color: '#1E60E6', borderColor: '#1E60E6' }} onClick={handlePrint}>
-                <FaPrint className="me-1" /> In Kết Quả
-              </Button>
-            )}
-            {canNotify && (
-              <Button
-                size="sm"
-                className="rounded-pill px-3 fw-semibold shadow-none text-white"
-                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                onClick={() => navigate('/laboratory/notifications')}
-              >
-                <FaBell className="me-1" /> Thông báo
-              </Button>
-            )}
-          </div>
+          )}
+          {canNotify && (
+            <Button
+              size="sm"
+              className="rounded-pill px-3 fw-semibold text-white text-nowrap"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+              onClick={() => navigate('/laboratory/notifications')}
+            >
+              <FaBell className="me-1" /> Thông báo
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Search Bar Card */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-2">
-          <Form onSubmit={handleSearchSubmit}>
-            <Row className="g-3 align-items-center">
-              <Col xs={12} md={7} lg={8}>
-                <InputGroup>
-                  <InputGroup.Text className="border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <FaBarcode />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="text"
-                    placeholder="Nhập Mã Vạch Ống Máu (BC-xxx), Mã Mẫu (SMP-xxx), Mã Bệnh Nhân (PAT-xxx) hoặc Họ Tên..."
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    className="border-start-0 py-2 font-monospace"
-                    style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                  />
-                  <Button type="submit" disabled={loading} className="px-3 fw-semibold rounded-end-pill" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}>
-                    {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-1" /> Tra Cứu</>}
-                  </Button>
-                </InputGroup>
-              </Col>
+      {/* Single-Line Search Filter Bar */}
+      <Form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaBarcode className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Nhập mã vạch ống máu (BC-xxx), mã mẫu, mã bệnh nhân hoặc họ tên..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+          {searchKeyword && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => {
+                setSearchKeyword('');
+                setSearchParams({});
+              }}
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
 
-              {recentResults.length > 0 && (
-                <Col xs={12} md={5} lg={4}>
-                  <div className="d-flex flex-wrap gap-1 align-items-center">
-                    <span className="small text-muted me-1">Mẫu gần đây:</span>
-                    {recentResults.slice(0, 3).map((item, idx) => (
-                      <Badge
-                        key={item.id || idx}
-                        pill
-                        bg="light"
-                        text="dark"
-                        className="border cursor-pointer hover-shadow px-2.5 py-1.5"
-                        style={{ cursor: 'pointer', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                        onClick={() => handleQuickSelect(item)}
-                      >
-                        {item.barcode || item.sampleId || item.id}
-                      </Badge>
-                    ))}
-                  </div>
-                </Col>
-              )}
-            </Row>
-          </Form>
-        </Card.Body>
-      </Card>
+        <Button type="submit" size="sm" disabled={loading} className="px-3 fw-semibold rounded-pill text-nowrap" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}>
+          {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-1" /> Tra cứu</>}
+        </Button>
+
+        {recentResults.length > 0 && (
+          <div className="d-flex flex-wrap gap-1 align-items-center">
+            <span className="small text-muted me-1">Mẫu gần đây:</span>
+            {recentResults.slice(0, 3).map((item, idx) => (
+              <button
+                key={item.id || idx}
+                type="button"
+                className="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2.5 font-monospace"
+                onClick={() => handleQuickSelect(item)}
+              >
+                {item.barcode || item.sampleId || item.id}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <span className="bms-filter-meta">
+          Gần đây: <strong>{recentResults.length}</strong> hồ sơ
+        </span>
+      </Form>
 
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="mb-4">
@@ -354,20 +354,20 @@ export default function LookupBiochemicalResultsPage() {
             </Card>
           </Col>
 
-          {/* Right Column: Biochemical Parameters Table & Conclusion */}
+          {/* Right Column: Biochemical Parameters Standalone Table & Conclusion */}
           <Col xs={12} lg={8}>
-            <Card className="border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-              <Card.Header className="bg-light py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h6 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                  <FaMicroscope className="text-primary" />
-                  <span>Bảng Chỉ Số Xét Nghiệm Sinh Hóa (Biochemical Parameters)</span>
-                </h6>
-                <span className="badge bg-primary">
-                  {currentResult.parameters?.length || 0} Chỉ Số Đo
+            <section className="bms-table-standalone-section m-0 h-100 d-flex flex-column">
+              <div className="bms-table-standalone-header">
+                <div>
+                  <h2 className="bms-table-standalone-title">Bảng chỉ số xét nghiệm sinh hóa</h2>
+                  <p className="bms-table-standalone-subtitle">Đối chiếu kết quả đo với dải tham chiếu sinh học</p>
+                </div>
+                <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                  {currentResult.parameters?.length || 0} chỉ số đo
                 </span>
-              </Card.Header>
+              </div>
 
-              <div className="table-responsive">
+              <div className="bms-table-standalone-body flex-grow-1">
                 <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <colgroup>
                     <col style={{ width: '12%' }} />
@@ -380,11 +380,11 @@ export default function LookupBiochemicalResultsPage() {
                   <thead className="table-light">
                     <tr>
                       <th className="ps-3">Mã</th>
-                      <th>Tên Chỉ Số Xét Nghiệm</th>
-                      <th>Kết Quả</th>
-                      <th>Đơn Vị</th>
-                      <th>Dải Tham Chiếu</th>
-                      <th className="text-center pe-3">Đánh Giá</th>
+                      <th>Tên chỉ số xét nghiệm</th>
+                      <th>Kết quả</th>
+                      <th>Đơn vị</th>
+                      <th>Dải tham chiếu</th>
+                      <th className="text-center pe-3">Đánh giá</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -426,7 +426,7 @@ export default function LookupBiochemicalResultsPage() {
                       })
                     ) : (
                       <tr>
-                        <td colSpan={6} className="text-center py-2 text-muted">
+                        <td colSpan={6} className="text-center py-4 text-muted">
                           Chưa có chỉ số chi tiết cho mẫu xét nghiệm này.
                         </td>
                       </tr>
@@ -436,38 +436,38 @@ export default function LookupBiochemicalResultsPage() {
               </div>
 
               {/* Conclusion Section */}
-              <Card.Footer className="bg-light p-3 border-top">
-                <div className="small text-muted fw-bold mb-1">KẾT LUẬN Y KHOA CỦA BÁC SĨ / TRƯỞNG KHOA:</div>
-                <div className="p-3 bg-white rounded border text-dark fw-medium" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
+              <div className="p-3 border-top" style={{ backgroundColor: '#F8FAFC' }}>
+                <div className="small text-muted fw-bold mb-1">Kết luận y khoa của bác sĩ / Trưởng khoa:</div>
+                <div className="p-3 bg-white rounded-3 border text-dark fw-medium" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
                   {currentResult.conclusionNotes || 'Tất cả các thông số sinh hóa và tế bào nằm trong giới hạn tham chiếu bình thường. Không ghi nhận dấu hiệu bất thường.'}
                 </div>
-              </Card.Footer>
-            </Card>
+              </div>
+            </section>
           </Col>
         </Row>
       ) : (
         !loading && (
-          <Card className="border-0 shadow-sm rounded-4 text-center py-3 mb-4 text-muted">
+          <Card className="shadow-sm rounded-4 text-center py-4 mb-4 text-muted" style={{ border: '1px solid #E2E8F0' }}>
             <Card.Body>
               <FaVial className="fs-1 text-secondary opacity-50 mb-3" />
-              <div className="fw-semibold fs-5 text-dark">Chưa chọn kết quả xét nghiệm sinh hóa nào</div>
-              <p className="small text-muted">Vui lòng nhập Barcode, Mã mẫu hoặc chọn một kết quả trong danh sách gần đây để tra cứu chi tiết.</p>
+              <div className="fw-semibold fs-6 text-dark">Chưa chọn kết quả xét nghiệm sinh hóa nào</div>
+              <p className="small text-muted mb-0">Vui lòng nhập mã vạch, mã mẫu hoặc chọn một kết quả trong danh sách gần đây để tra cứu chi tiết.</p>
             </Card.Body>
           </Card>
         )
       )}
 
-      {/* Recent Biochemical Test Results Table */}
-      <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-        <Card.Header className="bg-light py-3 border-bottom d-flex justify-content-between align-items-center">
-          <h6 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaHistory className="text-primary" />
-            <span>Danh Sách Kết Quả Xét Nghiệm Gần Đây (Recent Database Records)</span>
-          </h6>
-          <span className="badge bg-secondary">{recentResults.length} Hồ Sơ</span>
-        </Card.Header>
+      {/* Recent Biochemical Test Results Standalone Table */}
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">Danh sách kết quả xét nghiệm gần đây</h2>
+            <p className="bms-table-standalone-subtitle">Các hồ sơ kết quả vừa hoàn tất phân tích trong cơ sở dữ liệu</p>
+          </div>
+          <span className="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1">{recentResults.length} hồ sơ</span>
+        </div>
 
-        <div className="table-responsive">
+        <div className="bms-table-standalone-body">
           <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
             <colgroup>
               <col style={{ width: '15%' }} />
@@ -479,12 +479,12 @@ export default function LookupBiochemicalResultsPage() {
             </colgroup>
             <thead className="table-light">
               <tr>
-                <th className="ps-3">Mã Kết Quả / Mẫu</th>
-                <th>Bệnh Nhân</th>
-                <th>Gói Xét Nghiệm</th>
-                <th>Ngày Duyệt</th>
-                <th>Kết Luận</th>
-                <th className="text-end pe-3">Thao Tác</th>
+                <th className="ps-3">Mã kết quả / Mẫu</th>
+                <th>Bệnh nhân</th>
+                <th>Gói xét nghiệm</th>
+                <th>Ngày duyệt</th>
+                <th>Kết luận</th>
+                <th className="text-end pe-3">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -501,7 +501,7 @@ export default function LookupBiochemicalResultsPage() {
                     </td>
                     <td>
                       <div className="fw-medium text-dark text-truncate" style={{ fontSize: '0.82rem' }}>{r.packageName || r.packageId}</div>
-                      <Badge bg={r.status === 'Approved' ? 'success' : 'warning'} className="mt-1">
+                      <Badge bg={r.status === 'Approved' ? 'success' : 'warning'} className="mt-1 rounded-pill">
                         {r.status || 'Approved'}
                       </Badge>
                     </td>
@@ -517,17 +517,17 @@ export default function LookupBiochemicalResultsPage() {
                       <Button
                         variant="outline-primary"
                         size="sm"
-                        className="px-2 py-1 small"
+                        className="rounded-pill px-3 py-1 small text-nowrap"
                         onClick={() => handleQuickSelect(r)}
                       >
-                        <FaSearch className="me-1" /> Chi Tiết
+                        <FaSearch className="me-1" /> Chi tiết
                       </Button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="text-center py-2 text-muted">
+                  <td colSpan={6} className="text-center py-4 text-muted">
                     {loadingRecent ? 'Đang tải danh sách kết quả gần đây...' : 'Chưa có hồ sơ kết quả xét nghiệm nào trong cơ sở dữ liệu.'}
                   </td>
                 </tr>
@@ -535,7 +535,7 @@ export default function LookupBiochemicalResultsPage() {
             </tbody>
           </Table>
         </div>
-      </Card>
+      </section>
     </div>
   );
 }

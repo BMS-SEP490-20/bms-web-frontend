@@ -572,14 +572,17 @@ export default function DoctorConsolePage() {
       const resolvedEmail = patDetail?.email || pt.patientEmail || '';
       const consultKey = String(pt.specimenId || best?.sampleId || best?.testResultId || '').trim();
       const existingSaved = consultKey ? savedConsultations[consultKey] : null;
+      const hasPersistedDiagnosis = Boolean(
+        best?.finalDiagnosis || best?.icd10Code || best?.doctorConclusion || best?.treatmentAdvice || best?.followUpDate
+      );
 
-      if (existingSaved) {
-        setClinicalIcdCode(existingSaved.icdCode || 'Z00.0');
-        setClinicalDiagnosis(existingSaved.diagnosis || '');
-        setClinicalConclusion(existingSaved.conclusion || '');
-        setTreatmentAdvice(existingSaved.treatmentAdvice || '');
-        setFollowUpDate(existingSaved.followUpDate || '');
-        setPatientEmail(existingSaved.patientEmail || resolvedEmail);
+      if (hasPersistedDiagnosis || existingSaved) {
+        setClinicalIcdCode(best?.icd10Code || existingSaved?.icdCode || 'Z00.0');
+        setClinicalDiagnosis(best?.finalDiagnosis || existingSaved?.diagnosis || '');
+        setClinicalConclusion(best?.doctorConclusion || existingSaved?.conclusion || '');
+        setTreatmentAdvice(best?.treatmentAdvice || existingSaved?.treatmentAdvice || '');
+        setFollowUpDate(best?.followUpDate || existingSaved?.followUpDate || '');
+        setPatientEmail(existingSaved?.patientEmail || resolvedEmail);
       } else {
         setPatientEmail(resolvedEmail);
         const abnormal = enriched.filter((x) => String(x.flag).toLowerCase() !== 'normal');
@@ -673,28 +676,42 @@ export default function DoctorConsolePage() {
     setActionLoading(true);
     try {
       const resultsToProcess = liveTestResults.length > 0 ? liveTestResults : (consultationResult ? [consultationResult] : []);
-      const unsignedResults = resultsToProcess.filter((tr) => {
+      const consultationPayload = {
+        icd10Code: clinicalIcdCode?.trim() || null,
+        finalDiagnosis: clinicalDiagnosis?.trim() || null,
+        doctorConclusion: clinicalConclusion?.trim() || null,
+        treatmentAdvice: treatmentAdvice?.trim() || null,
+        followUpDate: followUpDate?.trim() || null,
+      };
+      const isUnsigned = (tr) => {
         const st = String(tr.status || '').toUpperCase();
         const vs = String(tr.validationStatus || '');
         return st !== 'APPROVED' && vs !== 'DoctorApproved' && vs !== '3';
-      });
+      };
 
-      for (const tr of unsignedResults) {
+      for (const tr of resultsToProcess) {
         const resultId = tr.testResultId || tr.id;
         if (!resultId) continue;
-        await api.post(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/approve`, {
-          approverId: doctorId || doctorDisplayName,
-          approverName: doctorDisplayName,
-          approverRole: 'Doctor',
-          notes: `Bác sĩ kết luận: ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). ${clinicalConclusion}`
-        });
+        if (isUnsigned(tr)) {
+          await api.post(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/approve`, {
+            approverId: doctorId || doctorDisplayName,
+            approverName: doctorDisplayName,
+            approverRole: 'Doctor',
+            ...consultationPayload,
+            notes: `Bác sĩ kết luận: ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). ${clinicalConclusion}`
+          });
+        } else {
+          await api.put(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/clinical-consultation`, consultationPayload);
+        }
       }
 
       const targetApptId = consultationData?.appointmentId || currentServing?.appointmentId;
       if (targetApptId && currentServing?.appointmentId && targetApptId === currentServing.appointmentId) {
+        const advicePart = treatmentAdvice?.trim() ? ` Lời dặn: ${treatmentAdvice.trim()}.` : '';
+        const followUpPart = followUpDate?.trim() ? ` Hẹn tái khám: ${followUpDate.trim()}.` : '';
         await receptionApi.completePatient(
           currentServing.appointmentId,
-          `[TƯ VẤN XÉT NGHIỆM HOÀN TẤT — ${doctorDisplayName}]: Chẩn đoán ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). Kết luận: ${clinicalConclusion}`
+          `[TƯ VẤN XÉT NGHIỆM HOÀN TẤT — ${doctorDisplayName}]: Chẩn đoán ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). Kết luận: ${clinicalConclusion}${advicePart}${followUpPart}`
         ).catch(() => null);
       }
 

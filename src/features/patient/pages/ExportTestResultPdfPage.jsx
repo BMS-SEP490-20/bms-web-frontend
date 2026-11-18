@@ -239,14 +239,19 @@ export default function ExportTestResultPdfPage() {
   const patientIdDisplay = result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || '—';
   const dobAgeSexDisplay = result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')}${patientProfile.gender ? ` · ${patientProfile.gender}` : ''}` : (patientProfile?.gender || 'Chưa ghi nhận'));
   const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : '—');
-  const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || 'Chưa chỉ định';
+  const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || result?.ApprovedByDoctor || result?.approvingDoctorName || 'Chưa chỉ định';
   const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm';
-  const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'Bác sĩ điều trị';
+  const labHeadDisplay = result?.ApprovedByDoctor || result?.approvingDoctorName || result?.labHead || 'Bác sĩ điều trị';
   const verificationHashDisplay = result?.VerificationHash || result?.digitalSignature || '';
   const collectionTimeDisplay = result?.CollectionTime ? new Date(result.CollectionTime).toLocaleString('vi-VN') : '—';
   const releasedDateDisplay = result?.ReleasedDate ? new Date(result.ReleasedDate).toLocaleString('vi-VN') : (result?.approvedAt ? new Date(result.approvedAt).toLocaleString('vi-VN') : '—');
   const packageNameDisplay = result?.PackageName || result?.packageName || 'Phiếu Kết Quả Xét Nghiệm';
   const parametersList = Array.isArray(result?.Parameters) ? result.Parameters : Array.isArray(result?.parameters) ? result.parameters : [];
+  const icd10Display = result?.Icd10Code || result?.icd10Code || '';
+  const finalDiagnosisDisplay = result?.FinalDiagnosis || result?.finalDiagnosis || '';
+  const doctorConclusionDisplay = result?.DoctorAssessment || result?.doctorConclusion || result?.conclusionNotes || '';
+  const treatmentAdviceDisplay = result?.TreatmentAdvice || result?.treatmentAdvice || '';
+  const followUpDateDisplay = result?.FollowUpDate || result?.followUpDate || '';
 
   return (
     <div className="bms-patient-portal-page" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
@@ -541,18 +546,53 @@ export default function ExportTestResultPdfPage() {
                 </div>
               </div>
 
-              {/* 3. DOCTOR'S CLINICAL ASSESSMENT & ADVICE */}
+              {/* 3. DOCTOR'S CLINICAL ASSESSMENT & FINAL DIAGNOSIS */}
               <div className="p-3 border-top bg-light">
-                <div className="d-flex align-items-center gap-2 mb-2">
-                  <FaStethoscope className="text-primary" />
-                  <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: '700', color: '#0f172a' }}>
-                    Nhận Định Lâm Sàng &amp; Tư Vấn Của Bác Sĩ Chuyên Khoa
-                  </h4>
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <FaStethoscope className="text-primary" />
+                    <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: '700', color: '#0f172a' }}>
+                      Chẩn Đoán Cuối Cùng &amp; Nhận Định Lâm Sàng Của Bác Sĩ
+                    </h4>
+                  </div>
+                  {icd10Display && (
+                    <span className="badge bg-primary text-white font-monospace px-2 py-1" style={{ fontSize: '11.5px' }}>
+                      ICD-10: {icd10Display}
+                    </span>
+                  )}
                 </div>
-                <div className="p-3 bg-white border rounded" style={{ fontSize: '13.5px', lineHeight: '1.65', color: '#1e293b' }}>
-                  {result.DoctorAssessment || result.conclusionNotes || 'Các chỉ số xét nghiệm huyết học và sinh hóa đã được phân tích hoàn tất. Khuyến nghị tái khám định kỳ và tham vấn bác sĩ điều trị để được hướng dẫn phác đồ phù hợp.'}
+                <div className="p-3 bg-white border rounded" style={{ fontSize: '13.5px', lineHeight: '1.65', color: '#1e293b', borderLeft: '4px solid #0284c7' }}>
+                  {finalDiagnosisDisplay && (
+                    <div className="mb-2 pb-2 border-bottom">
+                      <span className="text-muted small d-block text-uppercase fw-semibold" style={{ fontSize: '11px' }}>
+                        Chẩn đoán cuối cùng
+                      </span>
+                      <strong className="text-dark" style={{ fontSize: '14.5px' }}>
+                        {finalDiagnosisDisplay}
+                      </strong>
+                    </div>
+                  )}
+                  <div className="mb-2">
+                    <span className="text-muted small d-block text-uppercase fw-semibold" style={{ fontSize: '11px' }}>
+                      Kết luận chuyên môn của bác sĩ
+                    </span>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>
+                      {doctorConclusionDisplay || 'Các chỉ số xét nghiệm huyết học và sinh hóa đã được phân tích hoàn tất. Khuyến nghị tái khám định kỳ và tham vấn bác sĩ điều trị để được hướng dẫn phác đồ phù hợp.'}
+                    </div>
+                  </div>
+                  {treatmentAdviceDisplay && (
+                    <div className="mt-2 pt-2 border-top">
+                      <span className="text-primary small fw-bold d-block mb-1">Lời dặn điều trị, dinh dưỡng &amp; lối sống:</span>
+                      <div style={{ whiteSpace: 'pre-wrap' }}>{treatmentAdviceDisplay}</div>
+                    </div>
+                  )}
+                  {followUpDateDisplay && (
+                    <div className="mt-2 pt-2 border-top small text-dark">
+                      <span className="text-muted">Hẹn tái khám:</span> <b>{followUpDateDisplay}</b>
+                    </div>
+                  )}
                   <div className="text-secondary small mt-2 pt-2 border-top">
-                    — <b>{orderingDoctorDisplay}</b> • Chuyên khoa Nội tổng quát • BMS Medical Center
+                    — <b>{labHeadDisplay !== 'Bác sĩ điều trị' ? labHeadDisplay : orderingDoctorDisplay}</b> • Chuyên khoa Nội tổng quát • BMS Medical Center
                   </div>
                 </div>
               </div>

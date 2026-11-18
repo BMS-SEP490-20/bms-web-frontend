@@ -113,7 +113,7 @@ export default function TrackTestProgressPage() {
         setTrackingData(null);
         setErrorMessage("");
         setHasSearched(false);
-        navigate(isEmbeddedInPortal ? "/patient/tracking" : "/tracking", { replace: true });
+        navigate(isEmbedded ? "/patient/tracking" : "/tracking", { replace: true });
     };
 
     const formatDateTime = (dateStr) => {

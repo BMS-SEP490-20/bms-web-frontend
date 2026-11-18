@@ -49,11 +49,67 @@ export function RegisterWalkInPage({ onSuccess }) {
   const [isIssuingTicket, setIsIssuingTicket] = useState(false);
   const [showK80Modal, setShowK80Modal] = useState(false);
   const [activePatientData, setActivePatientData] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const validateField = (key, value) => {
+    const val = (value || '').toString().trim();
+    if (key === 'fullName') {
+      if (!val) return 'Họ và tên bệnh nhân không được để trống.';
+    }
+    if (key === 'identityNumber') {
+      if (!val) return 'Số CCCD không được để trống (12 chữ số theo Đề án 06 BYT).';
+      if (val.length !== 12) return 'Số CCCD phải gồm đúng 12 chữ số theo Đề án 06 Bộ Y Tế.';
+    }
+    if (key === 'dateOfBirth') {
+      if (!val) return 'Ngày sinh không được để trống.';
+      const selectedDate = new Date(val);
+      const today = new Date();
+      if (selectedDate > today) return 'Ngày sinh không được ở thời điểm tương lai.';
+      if (selectedDate.getFullYear() < 1900) return 'Ngày sinh không hợp lệ (từ năm 1900 trở đi).';
+    }
+    if (key === 'phone') {
+      if (!val) return 'Số điện thoại liên hệ không được để trống.';
+      if (!/^0[35789]\d{8}$/.test(val)) return 'Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09.';
+    }
+    if (key === 'email') {
+      if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Email không đúng định dạng (VD: email@example.com).';
+    }
+    return null;
+  };
+
+  const validateForm = () => {
+    const errs = {};
+    const fnErr = validateField('fullName', form.fullName);
+    if (fnErr) errs.fullName = fnErr;
+
+    const idErr = validateField('identityNumber', form.identityNumber);
+    if (idErr) errs.identityNumber = idErr;
+
+    const dobErr = validateField('dateOfBirth', form.dateOfBirth);
+    if (dobErr) errs.dateOfBirth = dobErr;
+
+    const phErr = validateField('phone', form.phone);
+    if (phErr) errs.phone = phErr;
+
+    const emErr = validateField('email', form.email);
+    if (emErr) errs.email = emErr;
+
+    return errs;
+  };
+
+  const handleBlur = (key, value) => {
+    const err = validateField(key, value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      [key]: err,
+    }));
+  };
 
   const todayStr = new Date().toISOString().split('T')[0];
 
   const set = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setFieldErrors((prev) => (prev && prev[key] ? { ...prev, [key]: null } : prev));
     // Reset lookup state if identityNumber changes
     if (key === 'identityNumber') {
       setLookupStatus('idle');
@@ -164,7 +220,17 @@ export function RegisterWalkInPage({ onSuccess }) {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // Chuẩn hóa họ tên in hoa theo chuẩn y tế
+    // 1. Kiểm tra tính hợp lệ dữ liệu ngay tại Client
+    const errs = validateForm();
+    const activeErrKeys = Object.keys(errs).filter((k) => !!errs[k]);
+    if (activeErrKeys.length > 0) {
+      setFieldErrors(errs);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setFieldErrors({});
+
+    // 2. Chuẩn hóa họ tên in hoa theo chuẩn y tế
     const payload = {
       ...form,
       fullName: form.fullName.trim().toUpperCase(),
@@ -187,15 +253,32 @@ export function RegisterWalkInPage({ onSuccess }) {
         patientId: res.patientId,
         fullName: res.fullName || payload.fullName,
         phone: res.phone || payload.phone,
+        email: res.email || payload.email || '',
         identityNumber: res.identityNumber || payload.identityNumber,
         gender: res.gender || payload.gender,
         dateOfBirth: res.dateOfBirth || payload.dateOfBirth,
         priority: res.priority || payload.priority,
+        portalUsername: res.portalUsername || '',
+        temporaryPassword: res.temporaryPassword || '',
+        accountAutoCreated: Boolean(res.accountAutoCreated),
         isExisting: false,
       });
       onSuccess?.(res.patientId);
-    } catch {
+    } catch (err) {
       /* handled by useRegisterWalkIn */
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (err?.errors && typeof err.errors === 'object') {
+        const beErrors = {};
+        Object.entries(err.errors).forEach(([k, v]) => {
+          const fieldKey = k.charAt(0).toLowerCase() + k.slice(1);
+          beErrors[fieldKey] = Array.isArray(v) ? v[0] : v;
+        });
+        setFieldErrors(beErrors);
+      }
+      const errMsg = err?.message || '';
+      if (errMsg.includes('CCCD') || errMsg.includes('MSG-ERR-REC-01')) {
+        onLookupCccd();
+      }
     }
   };
 
@@ -284,7 +367,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   if (activePatientData || result) {
     const pt = activePatientData || result;
     return (
-      <div className="container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
+      <div className="walkin-page container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
         <div className="container" style={{ maxWidth: 860 }}>
           <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
             <div
@@ -338,6 +421,40 @@ export function RegisterWalkInPage({ onSuccess }) {
                   </Col>
                 </Row>
               </div>
+
+              {/* Tài khoản Cổng Bệnh Nhân tự động cấp cho khách vãng lai */}
+              {pt.portalUsername && (
+                <div
+                  className="p-3 rounded-4 mb-4"
+                  style={{ background: '#eff6ff', border: '1px solid #93c5fd' }}
+                >
+                  <div className="fw-bold text-primary small mb-2">
+                    🔐 Tài Khoản Cổng Bệnh Nhân Tra Cứu Kết Quả Trực Tuyến
+                  </div>
+                  <Row className="g-2 align-items-center">
+                    <Col md={6}>
+                      <div className="text-muted small">Tên đăng nhập (hoặc Email):</div>
+                      <div className="fw-bold font-monospace text-dark">
+                        {pt.portalUsername}
+                        {pt.email ? <span className="text-muted fw-normal"> / {pt.email}</span> : null}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <div className="text-muted small">Mật khẩu tạm thời:</div>
+                      <div className="fw-bold font-monospace text-primary fs-6">
+                        {pt.temporaryPassword || '(Dùng tài khoản hiện có)'}
+                      </div>
+                    </Col>
+                  </Row>
+                  <div className="text-muted small mt-2">
+                    {pt.accountAutoCreated
+                      ? (pt.email
+                          ? 'Hệ thống đã tự động gửi thông tin đăng nhập về email của người bệnh. Lễ tân có thể ghi/in kèm phiếu K80 để bệnh nhân tra cứu kết quả sau khi có.'
+                          : 'Lễ tân vui lòng cung cấp thông tin đăng nhập trên (hoặc in phiếu K80) để bệnh nhân đăng nhập xem kết quả xét nghiệm.')
+                      : 'Hồ sơ đã được liên kết với tài khoản bệnh nhân hiện có theo email đăng ký.'}
+                  </div>
+                </div>
+              )}
 
               {/* Box Cấp STT Lấy Mẫu */}
               {issuedTicket ? (
@@ -414,7 +531,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                 <Button variant="outline-secondary" className="rounded-pill px-3" onClick={handleResetAll}>
                   <FaUndo className="me-1" /> Tiếp nhận người bệnh tiếp theo
                 </Button>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
+                  <Button
+                    variant="success"
+                    className="rounded-pill px-3 fw-semibold"
+                    onClick={() => navigate(`/appointments/book?patientId=${encodeURIComponent(pt.patientId)}`)}
+                  >
+                    <FaCalendarAlt className="me-1" /> Tạo Lịch Hẹn &amp; Chọn Gói XN
+                  </Button>
                   <Button
                     variant="outline-primary"
                     className="rounded-pill px-3 fw-semibold"
@@ -571,7 +695,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   // MÀN HÌNH CHÍNH: BIỂU MẪU TIẾP ĐÓN & ĐĂNG KÝ KHÁCH VÃNG LAI
   // =========================================================================
   return (
-    <div className="container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
+    <div className="walkin-page container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
       {/* Header chuẩn hóa chung dashboard lễ tân */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
@@ -605,7 +729,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             </Card.Header>
 
             <Card.Body className="p-4">
-              {/* Alert lỗi từ hệ thống nếu có */}
+              {/* Alert lỗi trực quan ngay cạnh nút bấm */}
               {error && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
                   <FaExclamationTriangle className="text-danger flex-shrink-0" />
@@ -688,7 +812,22 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </Alert>
               )}
 
-              <Form onSubmit={onSubmit}>
+              {/* Alert lỗi bỏ trống thông tin bắt buộc */}
+              {Object.values(fieldErrors).some(Boolean) && (
+                <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-start gap-2">
+                  <FaExclamationTriangle className="text-danger mt-1 flex-shrink-0" />
+                  <div>
+                    <strong>Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc:</strong>
+                    <ul className="mb-0 ps-3 small mt-1">
+                      {Object.values(fieldErrors).filter(Boolean).map((msg, idx) => (
+                        <li key={idx}>{msg}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </Alert>
+              )}
+
+              <Form onSubmit={onSubmit} noValidate>
                 {/* 1. THÔNG TIN ĐỊNH DANH (ĐỀ ÁN 06 BYT) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
@@ -704,8 +843,13 @@ export function RegisterWalkInPage({ onSuccess }) {
                         placeholder="VD: NGUYỄN TẤN PHÁT"
                         value={form.fullName}
                         onChange={(e) => set('fullName', e.target.value.toUpperCase())}
+                        onBlur={(e) => handleBlur('fullName', e.target.value)}
+                        isInvalid={!!fieldErrors.fullName}
                         style={{ minHeight: 44 }}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {fieldErrors.fullName}
+                      </Form.Control.Feedback>
                     </Col>
                     <Col md={5}>
                       <Form.Label className="text-muted small mb-1">
@@ -726,21 +870,30 @@ export function RegisterWalkInPage({ onSuccess }) {
                       <Form.Label className="text-muted small mb-1">
                         Số CCCD / Định danh cá nhân (12 số) <span className="text-danger">*</span>
                       </Form.Label>
-                      <InputGroup>
+                      <div className="d-flex gap-2 align-items-stretch">
                         <Form.Control
                           required
                           placeholder="Nhập 12 chữ số CCCD gắn chip"
                           maxLength={12}
                           value={form.identityNumber}
                           onChange={(e) => set('identityNumber', e.target.value.replace(/\D/g, ''))}
-                          style={{ minHeight: 44, fontFamily: 'monospace' }}
+                          onBlur={(e) => handleBlur('identityNumber', e.target.value)}
+                          isInvalid={!!fieldErrors.identityNumber}
+                          className={`rounded-3 ${fieldErrors.identityNumber ? 'is-invalid' : ''}`}
+                          style={{
+                            minHeight: 44,
+                            fontFamily: 'monospace',
+                            border: fieldErrors.identityNumber ? '1.5px solid #dc2626 !important' : '1.5px solid #cbd5e1 !important',
+                            backgroundColor: fieldErrors.identityNumber ? '#fef2f2 !important' : '#ffffff !important'
+                          }}
                         />
                         <Button
                           variant="outline-primary"
                           type="button"
-                          className="px-3 fw-semibold"
+                          className="px-3 fw-semibold text-nowrap rounded-3 d-flex align-items-center"
                           onClick={onLookupCccd}
                           disabled={lookupStatus === 'checking'}
+                          style={{ minHeight: 44, border: '1px solid #1E60E6' }}
                         >
                           {lookupStatus === 'checking' ? (
                             <>
@@ -752,7 +905,12 @@ export function RegisterWalkInPage({ onSuccess }) {
                             </>
                           )}
                         </Button>
-                      </InputGroup>
+                      </div>
+                      {fieldErrors.identityNumber && (
+                        <div className="text-danger small mt-1">
+                          {fieldErrors.identityNumber}
+                        </div>
+                      )}
                     </Col>
 
                     <Col md={5}>
@@ -765,8 +923,13 @@ export function RegisterWalkInPage({ onSuccess }) {
                         max={todayStr}
                         value={form.dateOfBirth}
                         onChange={(e) => set('dateOfBirth', e.target.value)}
+                        onBlur={(e) => handleBlur('dateOfBirth', e.target.value)}
+                        isInvalid={!!fieldErrors.dateOfBirth}
                         style={{ minHeight: 44 }}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {fieldErrors.dateOfBirth}
+                      </Form.Control.Feedback>
                     </Col>
 
                     <Col md={6}>
@@ -779,8 +942,13 @@ export function RegisterWalkInPage({ onSuccess }) {
                         maxLength={10}
                         value={form.phone}
                         onChange={(e) => set('phone', e.target.value.replace(/\D/g, ''))}
+                        onBlur={(e) => handleBlur('phone', e.target.value)}
+                        isInvalid={!!fieldErrors.phone}
                         style={{ minHeight: 44 }}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {fieldErrors.phone}
+                      </Form.Control.Feedback>
                     </Col>
 
                     <Col md={6}>
@@ -790,8 +958,13 @@ export function RegisterWalkInPage({ onSuccess }) {
                         placeholder="email@example.com"
                         value={form.email}
                         onChange={(e) => set('email', e.target.value)}
+                        onBlur={(e) => handleBlur('email', e.target.value)}
+                        isInvalid={!!fieldErrors.email}
                         style={{ minHeight: 44 }}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {fieldErrors.email}
+                      </Form.Control.Feedback>
                     </Col>
 
                     <Col md={12}>
@@ -874,6 +1047,16 @@ export function RegisterWalkInPage({ onSuccess }) {
                     </Col>
                   </Row>
                 </div>
+
+                                {/* Alert lỗi trực quan ngay cạnh nút bấm */}
+                {error && (
+                  <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
+                    <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                    <div>
+                      <strong>Lỗi:</strong> {error}
+                    </div>
+                  </Alert>
+                )}
 
                 {/* Footer form buttons */}
                 <div className="d-flex justify-content-between align-items-center pt-3 border-top">

@@ -11,7 +11,7 @@
  * - POST /api/laboratory/samples/{id}/rerun            (Request Sample Rerun)
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card, Table, Badge, Button, Form, Row, Col,
   Modal, Spinner, InputGroup, Alert
@@ -94,12 +94,31 @@ function extractApiError(err, fallback = 'Không thể thực hiện thao tác t
   return data.detail || data.message || data.title || fallback;
 }
 
+function findStaffMatch(list, { idOrCode, name } = {}) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  if (idOrCode) {
+    const needle = String(idOrCode).trim().toLowerCase();
+    const byKey = list.find((s) =>
+      String(s.id || '').toLowerCase() === needle ||
+      String(s.employeeCode || '').toLowerCase() === needle ||
+      String(s.username || '').toLowerCase() === needle
+    );
+    if (byKey) return byKey;
+  }
+  if (name) {
+    const nNeedle = String(name).trim().toLowerCase();
+    const byName = list.find((s) => String(s.fullName || '').trim().toLowerCase() === nNeedle);
+    if (byName) return byName;
+  }
+  return null;
+}
+
 const SampleQueuePage = () => {
-  const currentUser = getStoredUser();
+  const currentUser = useMemo(() => getStoredUser(), []);
   const canRecordSampleTime = hasRole(currentUser, ROLES.LAB);
   const canUpdateSampleStatus = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
-  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'CN.XN Phạm Minh Tuấn';
-  const defaultOperatorId = currentUser?.id || currentUser?.username || 'LAB-001';
+  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || '';
+  const defaultOperatorId = currentUser?.employeeCode || currentUser?.id || currentUser?.username || '';
 
   const [samples, setSamples] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -117,6 +136,8 @@ const SampleQueuePage = () => {
   const [patientOptions, setPatientOptions] = useState([]);
   const [appointmentOptions, setAppointmentOptions] = useState([]);
   const [labRooms, setLabRooms] = useState(['LAB-ROOM-01', 'LAB-ROOM-02', 'LAB-BIOCHEM-01', 'LAB-HEMATOLOGY-01']);
+  const [staffOptions, setStaffOptions] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   // =========================================================================
   // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
@@ -217,9 +238,25 @@ const SampleQueuePage = () => {
 
     try {
       if (appointmentOptions.length === 0) {
-        const aptRes = await api.get('/appointments');
-        const aptList = Array.isArray(aptRes.data?.data) ? aptRes.data.data : (Array.isArray(aptRes.data) ? aptRes.data : []);
-        if (aptList.length > 0) setAppointmentOptions(aptList.slice(0, 30));
+        let ordList = [];
+        try {
+          const ordRes = await api.get('/testorders');
+          const rawOrders = Array.isArray(ordRes.data?.data) ? ordRes.data.data : (Array.isArray(ordRes.data) ? ordRes.data : []);
+          ordList = rawOrders.map((o) => ({
+            id: o.orderNumber || o.id,
+            appointmentId: o.orderNumber || o.id,
+            patientId: o.patientId,
+            patientName: o.patientName,
+            status: o.status
+          }));
+        } catch {
+          // Fallback to /appointments for roles with AppointmentReaders permission
+        }
+        if (ordList.length === 0) {
+          const aptRes = await api.get('/appointments');
+          ordList = Array.isArray(aptRes.data?.data) ? aptRes.data.data : (Array.isArray(aptRes.data) ? aptRes.data : []);
+        }
+        if (ordList.length > 0) setAppointmentOptions(ordList.slice(0, 30));
       }
     } catch {
       // Non-blocking
@@ -232,7 +269,59 @@ const SampleQueuePage = () => {
     } catch {
       // Non-blocking
     }
+
+    try {
+      setStaffLoading(true);
+      const staffRes = await api.get('/laboratory/samples/staff');
+      const sList = Array.isArray(staffRes.data?.data) ? staffRes.data.data : (Array.isArray(staffRes.data) ? staffRes.data : []);
+      if (sList.length > 0) setStaffOptions(sList);
+    } catch {
+      // Non-blocking
+    } finally {
+      setStaffLoading(false);
+    }
   }, [patientOptions.length, appointmentOptions.length]);
+
+  // Sync collector and technician fields with MongoDB staff directory once loaded.
+  useEffect(() => {
+    if (staffOptions.length === 0) return;
+
+    if (showCollectionModal) {
+      setCollectionForm((prev) => {
+        const matched =
+          findStaffMatch(staffOptions, { idOrCode: prev.collectedBy, name: prev.collectorName }) ||
+          findStaffMatch(staffOptions, { idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username, name: defaultOperatorName }) ||
+          staffOptions[0];
+        if (!matched) return prev;
+        const nextCode = matched.employeeCode || matched.id;
+        if (prev.collectorName === matched.fullName && prev.collectedBy === nextCode) return prev;
+        return { ...prev, collectorName: matched.fullName, collectedBy: nextCode };
+      });
+    }
+
+    if (showStatusModal) {
+      setStatusForm((prev) => {
+        const matched =
+          findStaffMatch(staffOptions, { idOrCode: prev.technicianId, name: prev.technicianName }) ||
+          findStaffMatch(staffOptions, { idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username, name: defaultOperatorName }) ||
+          staffOptions[0];
+        if (!matched) return prev;
+        const nextCode = matched.employeeCode || matched.id;
+        if (prev.technicianName === matched.fullName && prev.technicianId === nextCode) return prev;
+        return { ...prev, technicianName: matched.fullName, technicianId: nextCode };
+      });
+    }
+  }, [staffOptions, showCollectionModal, showStatusModal, currentUser, defaultOperatorName]);
+
+  const matchedCollectionStaff = useMemo(
+    () => findStaffMatch(staffOptions, { idOrCode: collectionForm.collectedBy, name: collectionForm.collectorName }),
+    [staffOptions, collectionForm.collectedBy, collectionForm.collectorName]
+  );
+
+  const matchedStatusStaff = useMemo(
+    () => findStaffMatch(staffOptions, { idOrCode: statusForm.technicianId, name: statusForm.technicianName }),
+    [staffOptions, statusForm.technicianId, statusForm.technicianName]
+  );
 
   useEffect(() => {
     loadLookups();
@@ -251,7 +340,16 @@ const SampleQueuePage = () => {
     setCollectionTargetSample(sample);
     setCollectionError('');
 
+    const fallbackStaff =
+      findStaffMatch(staffOptions, {
+        idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username,
+        name: defaultOperatorName
+      }) || staffOptions[0] || null;
+
     if (sample) {
+      const matchedSampleStaff =
+        findStaffMatch(staffOptions, { idOrCode: sample.collectedBy, name: sample.collectorName }) ||
+        fallbackStaff;
       setCollectionForm({
         sampleId: sample.id || '',
         barcode: sample.barcode || '',
@@ -259,8 +357,8 @@ const SampleQueuePage = () => {
         patientId: sample.patientId || '',
         appointmentId: sample.appointmentId || sample.testOrderId || '',
         collectedAt: toLocalDateTimeInput(sample.collectedAt || new Date()),
-        collectorName: sample.collectorName || defaultOperatorName,
-        collectedBy: sample.collectedBy || defaultOperatorId,
+        collectorName: matchedSampleStaff?.fullName || sample.collectorName || defaultOperatorName,
+        collectedBy: matchedSampleStaff?.employeeCode || matchedSampleStaff?.id || sample.collectedBy || defaultOperatorId,
         sampleType: sample.sampleType || 'Blood',
         tubeColor: sample.tubeColor || 'Purple',
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
@@ -278,8 +376,8 @@ const SampleQueuePage = () => {
         patientId: '',
         appointmentId: '',
         collectedAt: toLocalDateTimeInput(new Date()),
-        collectorName: defaultOperatorName,
-        collectedBy: defaultOperatorId,
+        collectorName: fallbackStaff?.fullName || defaultOperatorName,
+        collectedBy: fallbackStaff?.employeeCode || fallbackStaff?.id || defaultOperatorId,
         sampleType: 'Blood',
         tubeColor: 'Purple',
         anticoagulant: 'K2-EDTA',
@@ -381,10 +479,15 @@ const SampleQueuePage = () => {
 
     setStatusTargetSample(sample);
     setStatusError('');
+    const matchedTech =
+      findStaffMatch(staffOptions, { idOrCode: sample.assignedTechnicianId, name: sample.assignedTechnicianName }) ||
+      findStaffMatch(staffOptions, { idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username, name: defaultOperatorName }) ||
+      staffOptions[0] || null;
+
     setStatusForm({
       status: defaultNext,
-      technicianName: sample.assignedTechnicianName || defaultOperatorName,
-      technicianId: sample.assignedTechnicianId || defaultOperatorId,
+      technicianName: matchedTech?.fullName || sample.assignedTechnicianName || defaultOperatorName,
+      technicianId: matchedTech?.employeeCode || matchedTech?.id || sample.assignedTechnicianId || defaultOperatorId,
       labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
       timestamp: toLocalDateTimeInput(new Date()),
       rejectionReason: sample.rejectionReason || '',
@@ -943,23 +1046,83 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col md={3}>
-                <Form.Label className="small fw-semibold">Người Lấy Mẫu</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Họ tên ĐD/KTV"
-                  value={collectionForm.collectorName}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, collectorName: e.target.value }))}
-                />
+                <Form.Label className="small fw-semibold">Người Lấy Mẫu (CSDL)</Form.Label>
+                {staffOptions.length > 0 ? (
+                  <Form.Select
+                    value={matchedCollectionStaff?.id || (collectionForm.collectorName ? `__custom__:${collectionForm.collectorName}` : '')}
+                    onChange={(e) => {
+                      const selected = staffOptions.find((s) => s.id === e.target.value);
+                      if (selected) {
+                        setCollectionForm((prev) => ({
+                          ...prev,
+                          collectorName: selected.fullName,
+                          collectedBy: selected.employeeCode || selected.id
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="">-- Chọn người lấy mẫu --</option>
+                    {!matchedCollectionStaff && collectionForm.collectorName && (
+                      <option value={`__custom__:${collectionForm.collectorName}`}>
+                        {collectionForm.collectorName}
+                      </option>
+                    )}
+                    {staffOptions.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.fullName}{s.department ? ` — ${s.department}` : ''}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    placeholder={staffLoading ? 'Đang tải nhân sự từ CSDL...' : 'Họ tên ĐD/KTV'}
+                    value={collectionForm.collectorName}
+                    onChange={(e) => setCollectionForm((prev) => ({ ...prev, collectorName: e.target.value }))}
+                  />
+                )}
               </Col>
 
               <Col md={3}>
-                <Form.Label className="small fw-semibold">Mã Nhân Viên Lấy Mẫu</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: NURSE-01"
-                  value={collectionForm.collectedBy}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, collectedBy: e.target.value }))}
-                />
+                <Form.Label className="small fw-semibold">Mã Nhân Viên Lấy Mẫu (CSDL)</Form.Label>
+                {staffOptions.length > 0 ? (
+                  <Form.Select
+                    value={matchedCollectionStaff?.employeeCode || matchedCollectionStaff?.id || collectionForm.collectedBy}
+                    onChange={(e) => {
+                      const code = e.target.value;
+                      const selected = staffOptions.find((s) => (s.employeeCode || s.id) === code || s.id === code);
+                      if (selected) {
+                        setCollectionForm((prev) => ({
+                          ...prev,
+                          collectedBy: selected.employeeCode || selected.id,
+                          collectorName: selected.fullName
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="">-- Chọn mã nhân viên --</option>
+                    {!matchedCollectionStaff && collectionForm.collectedBy && (
+                      <option value={collectionForm.collectedBy}>
+                        {collectionForm.collectedBy}
+                      </option>
+                    )}
+                    {staffOptions.map((s) => {
+                      const code = s.employeeCode || s.id;
+                      return (
+                        <option key={s.id} value={code}>
+                          {code} — {s.fullName}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    placeholder={staffLoading ? 'Đang tải mã nhân viên...' : 'VD: KTV-004'}
+                    value={collectionForm.collectedBy}
+                    onChange={(e) => setCollectionForm((prev) => ({ ...prev, collectedBy: e.target.value }))}
+                  />
+                )}
               </Col>
 
               <Col md={4}>
@@ -1028,11 +1191,15 @@ const SampleQueuePage = () => {
                     value={collectionForm.labRoom}
                     onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
                   >
-                    {labRooms.map(r => (
-                      <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
-                        {r.name ? `${r.id || r.roomNumber} — ${r.name}` : (r.id || r.roomNumber)}
-                      </option>
-                    ))}
+                    {labRooms.map(r => {
+                      const roomCode = typeof r === 'string' ? r : (r.id || r.roomNumber);
+                      const roomLabel = typeof r === 'string' ? r : (r.name ? `${roomCode} — ${r.name}` : roomCode);
+                      return (
+                        <option key={roomCode} value={roomCode}>
+                          {roomLabel}
+                        </option>
+                      );
+                    })}
                   </Form.Select>
                 ) : (
                   <Form.Control
@@ -1188,23 +1355,83 @@ const SampleQueuePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <Form.Label className="small fw-semibold">Kỹ Thuật Viên Thực Hiện</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Họ và tên KTV"
-                      value={statusForm.technicianName}
-                      onChange={(e) => setStatusForm(prev => ({ ...prev, technicianName: e.target.value }))}
-                    />
+                    <Form.Label className="small fw-semibold">Kỹ Thuật Viên Thực Hiện (CSDL)</Form.Label>
+                    {staffOptions.length > 0 ? (
+                      <Form.Select
+                        value={matchedStatusStaff?.id || (statusForm.technicianName ? `__custom__:${statusForm.technicianName}` : '')}
+                        onChange={(e) => {
+                          const selected = staffOptions.find((s) => s.id === e.target.value);
+                          if (selected) {
+                            setStatusForm((prev) => ({
+                              ...prev,
+                              technicianName: selected.fullName,
+                              technicianId: selected.employeeCode || selected.id
+                            }));
+                          }
+                        }}
+                      >
+                        <option value="">-- Chọn kỹ thuật viên --</option>
+                        {!matchedStatusStaff && statusForm.technicianName && (
+                          <option value={`__custom__:${statusForm.technicianName}`}>
+                            {statusForm.technicianName}
+                          </option>
+                        )}
+                        {staffOptions.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.fullName}{s.department ? ` — ${s.department}` : ''}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    ) : (
+                      <Form.Control
+                        type="text"
+                        placeholder="Họ và tên KTV"
+                        value={statusForm.technicianName}
+                        onChange={(e) => setStatusForm((prev) => ({ ...prev, technicianName: e.target.value }))}
+                      />
+                    )}
                   </Col>
 
                   <Col md={6}>
-                    <Form.Label className="small fw-semibold">Mã Kỹ Thuật Viên</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="VD: LAB-001"
-                      value={statusForm.technicianId}
-                      onChange={(e) => setStatusForm(prev => ({ ...prev, technicianId: e.target.value }))}
-                    />
+                    <Form.Label className="small fw-semibold">Mã Kỹ Thuật Viên (CSDL)</Form.Label>
+                    {staffOptions.length > 0 ? (
+                      <Form.Select
+                        value={matchedStatusStaff?.employeeCode || matchedStatusStaff?.id || statusForm.technicianId}
+                        onChange={(e) => {
+                          const code = e.target.value;
+                          const selected = staffOptions.find((s) => (s.employeeCode || s.id) === code || s.id === code);
+                          if (selected) {
+                            setStatusForm((prev) => ({
+                              ...prev,
+                              technicianId: selected.employeeCode || selected.id,
+                              technicianName: selected.fullName
+                            }));
+                          }
+                        }}
+                      >
+                        <option value="">-- Chọn mã KTV --</option>
+                        {!matchedStatusStaff && statusForm.technicianId && (
+                          <option value={statusForm.technicianId}>
+                            {statusForm.technicianId}
+                          </option>
+                        )}
+                        {staffOptions.map((s) => {
+                          const code = s.employeeCode || s.id;
+                          return (
+                            <option key={s.id} value={code}>
+                              {code} — {s.fullName}
+                            </option>
+                          );
+                        })}
+                      </Form.Select>
+                    ) : (
+                      <Form.Control
+                        type="text"
+                        placeholder="VD: KTV-004"
+                        value={statusForm.technicianId}
+                        onChange={(e) => setStatusForm((prev) => ({ ...prev, technicianId: e.target.value }))}
+                      />
+                    )}
                   </Col>
 
                   {statusForm.status === 'Rejected' && (

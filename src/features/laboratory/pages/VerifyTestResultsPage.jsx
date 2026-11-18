@@ -6,25 +6,16 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
     FaCheckCircle,
     FaExclamationTriangle,
-    FaArrowLeft,
-    FaSearch,
     FaVial,
-    FaUserCheck,
-    FaClipboardCheck,
-    FaTimes,
-    FaCheck,
-    FaShieldAlt,
     FaSyncAlt,
-    FaInfoCircle,
     FaUndo,
     FaFileSignature,
     FaAward,
-    FaUserMd,
-    FaBell
+    FaClipboardCheck
 } from "react-icons/fa";
 import {
     fetchVerificationQueue,
@@ -35,11 +26,10 @@ import {
 import { dispatchNotification } from "../api/testResultNotificationApi";
 
 export default function VerifyTestResultsPage() {
-    const navigate = useNavigate();
     const { specimenId: routeSpecimenId } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const activeSpecimenId = routeSpecimenId || searchParams.get("specimenId") || "SPC-261006-A1-0089";
+    const initialSpecimenId = routeSpecimenId || searchParams.get("specimenId") || "";
 
     // Người dùng đăng nhập hiện tại
     const currentUser = useMemo(() => {
@@ -53,9 +43,10 @@ export default function VerifyTestResultsPage() {
 
     // State
     const [queue, setQueue] = useState([]);
-    const [selectedSpecimenId, setSelectedSpecimenId] = useState(activeSpecimenId);
+    const [queueLoading, setQueueLoading] = useState(true);
+    const [selectedSpecimenId, setSelectedSpecimenId] = useState(initialSpecimenId);
     const [verificationData, setVerificationData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [alertMessage, setAlertMessage] = useState(null);
 
@@ -69,21 +60,32 @@ export default function VerifyTestResultsPage() {
     const [returnReason, setReturnReason] = useState("");
     const [returnError, setReturnError] = useState("");
 
-    // Tải danh sách hàng đợi chờ thẩm định
+    // Tải danh sách hàng đợi chờ thẩm định từ CSDL thực (test_results trạng thái waiting_review)
     const loadQueue = useCallback(async () => {
+        setQueueLoading(true);
         try {
             const items = await fetchVerificationQueue();
-            const safeItems = Array.isArray(items) ? items : (items?.data && Array.isArray(items.data) ? items.data : []);
+            const safeItems = Array.isArray(items)
+                ? items
+                : (items?.data && Array.isArray(items.data) ? items.data : []);
             setQueue(safeItems);
+            return safeItems;
         } catch (err) {
             console.error("Lỗi khi tải hàng đợi thẩm định:", err);
             setQueue([]);
+            return [];
+        } finally {
+            setQueueLoading(false);
         }
     }, []);
 
     // Tải chi tiết gói thẩm định theo mã mẫu
     const loadVerificationDetails = useCallback(async (specimenId) => {
-        if (!specimenId) return;
+        if (!specimenId) {
+            setVerificationData(null);
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
             const data = await fetchVerificationDetails(specimenId);
@@ -93,6 +95,7 @@ export default function VerifyTestResultsPage() {
             }
         } catch (err) {
             console.error("Lỗi khi tải chi tiết thẩm định:", err);
+            setVerificationData(null);
             setAlertMessage({ type: "danger", text: "Không thể tải danh mục kiểm tra thẩm định xét nghiệm." });
         } finally {
             setLoading(false);
@@ -100,20 +103,53 @@ export default function VerifyTestResultsPage() {
     }, []);
 
     useEffect(() => {
-        loadQueue();
+        let mounted = true;
+        loadQueue().then((items) => {
+            if (!mounted) return;
+            setSelectedSpecimenId((prev) => {
+                if (prev) return prev;
+                if (items.length > 0 && items[0]?.specimenId) {
+                    return items[0].specimenId;
+                }
+                return "";
+            });
+        });
+        return () => {
+            mounted = false;
+        };
     }, [loadQueue]);
 
     useEffect(() => {
-        loadVerificationDetails(selectedSpecimenId);
+        if (selectedSpecimenId) {
+            loadVerificationDetails(selectedSpecimenId);
+        } else {
+            setVerificationData(null);
+            setLoading(false);
+        }
     }, [selectedSpecimenId, loadVerificationDetails]);
 
     const handleSelectSpecimen = (id) => {
+        setAlertMessage(null);
         setSelectedSpecimenId(id);
-        setSearchParams({ specimenId: id });
+        if (id) {
+            setSearchParams({ specimenId: id });
+        } else {
+            setSearchParams({});
+        }
+    };
+
+    const handleRefreshAll = async () => {
+        const items = await loadQueue();
+        if (selectedSpecimenId) {
+            await loadVerificationDetails(selectedSpecimenId);
+        } else if (items.length > 0 && items[0]?.specimenId) {
+            handleSelectSpecimen(items[0].specimenId);
+        }
     };
 
     // Xử lý Ký số điện tử & Duyệt kết quả -> Chuyển bác sĩ điều trị và phát thông báo
     const handleVerify = async () => {
+        if (!selectedSpecimenId) return;
         if (!verifierComment || verifierComment.trim().length < 10) {
             setAlertMessage({
                 type: "warning",
@@ -133,17 +169,17 @@ export default function VerifyTestResultsPage() {
             // 2. Phát thông báo đồng bộ đến Bàn khám Bác sĩ (/doctor/console) và Cổng Bệnh nhân
             try {
                 await dispatchNotification({
-                    testOrderId: verificationData?.orderId || "ORD-261006-0187",
+                    testOrderId: verificationData?.orderId || selectedSpecimenId,
                     specimenBarcode: selectedSpecimenId,
-                    patientId: verificationData?.patientId || "PT-2026-004523",
-                    patientName: verificationData?.patientName || "Nguyễn Văn An",
-                    patientPhone: "0912345678",
+                    patientId: verificationData?.patientId || "",
+                    patientName: verificationData?.patientName || "Bệnh nhân",
+                    patientPhone: "",
                     title: `Kết quả xét nghiệm ${selectedSpecimenId} đã được Trưởng Khoa phê duyệt`,
-                    message: `Kết quả xét nghiệm bộ chỉ số [${verificationData?.packageName || "Xét nghiệm huyết học / sinh hóa"}] của bệnh nhân ${verificationData?.patientName || "Nguyễn Văn An"} đã hoàn tất thẩm định và ký số điện tử. Sẵn sàng hội chẩn lâm sàng.`,
+                    message: `Kết quả xét nghiệm bộ chỉ số [${verificationData?.packageName || "Xét nghiệm lâm sàng"}] của bệnh nhân ${verificationData?.patientName || ""} đã hoàn tất thẩm định và ký số điện tử. Sẵn sàng hội chẩn lâm sàng.`,
                     channel: "IN_APP",
-                    priority: "HIGH",
+                    priority: verificationData?.isPanic ? "CRITICAL" : "HIGH",
                     testPackageName: verificationData?.packageName || "Xét nghiệm tổng quát",
-                    requiresImmediateAction: false,
+                    requiresImmediateAction: Boolean(verificationData?.isPanic),
                     clinicalRecommendation: verifierComment.trim()
                 });
             } catch (notifyErr) {
@@ -154,9 +190,9 @@ export default function VerifyTestResultsPage() {
             if (typeof window !== "undefined") {
                 const eventPayload = {
                     specimenId: selectedSpecimenId,
-                    orderId: verificationData?.orderId || "ORD-261006-0187",
-                    patientName: verificationData?.patientName || "Nguyễn Văn An",
-                    patientId: verificationData?.patientId || "PT-2026-004523",
+                    orderId: verificationData?.orderId || selectedSpecimenId,
+                    patientName: verificationData?.patientName || "",
+                    patientId: verificationData?.patientId || "",
                     status: "verified",
                     timestamp: new Date().toISOString()
                 };
@@ -168,13 +204,13 @@ export default function VerifyTestResultsPage() {
                 ...(prev || {}),
                 ...(res.data || {}),
                 status: "Verified",
-                verifiedBy: currentUser?.fullName || currentUser?.name || "BSCKII. Lê Lan Anh (Trưởng Khoa)",
+                verifiedBy: currentUser?.fullName || currentUser?.name || "Trưởng Khoa Xét Nghiệm",
                 verifiedAt: new Date().toISOString()
             }));
 
             setAlertMessage({
                 type: "success",
-                text: "Ký số điện tử thành công! Kết quả xét nghiệm đã được thẩm định và phát thông báo tức thì tới Bàn khám Bác sĩ & Cổng Bệnh nhân."
+                text: `Ký số điện tử thành công cho mẫu ${selectedSpecimenId}! Kết quả xét nghiệm đã được phê duyệt và thông báo tới Bác sĩ & Bệnh nhân.`
             });
             await loadQueue();
         } catch (err) {
@@ -191,6 +227,7 @@ export default function VerifyTestResultsPage() {
     // Xử lý Trả mẫu yêu cầu KTV hiệu chỉnh
     const handleReturnSubmit = async (e) => {
         e.preventDefault();
+        if (!selectedSpecimenId) return;
         if (!returnReason || returnReason.trim().length < 10) {
             setReturnError("Vui lòng nêu rõ lý do yêu cầu hiệu chỉnh (tối thiểu 10 ký tự).");
             return;
@@ -255,8 +292,22 @@ export default function VerifyTestResultsPage() {
         );
     };
 
-    const isVerified = verificationData?.status === "Verified" || verificationData?.status === "verified";
-    const isReturned = verificationData?.status === "ReturnedForCorrection";
+    const renderResultFlagBadge = (flag) => {
+        const f = String(flag || "Normal").toLowerCase();
+        if (f === "critical" || f === "panic") {
+            return <span className="badge bg-danger px-2 py-1 fw-bold">NGUY HIỂM (CRITICAL)</span>;
+        }
+        if (f === "high") {
+            return <span className="badge bg-warning text-dark px-2 py-1 fw-bold">&uarr; CAO (HIGH)</span>;
+        }
+        if (f === "low") {
+            return <span className="badge bg-info text-dark px-2 py-1 fw-bold">&darr; THẤP (LOW)</span>;
+        }
+        return <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Bình thường</span>;
+    };
+
+    const isVerified = verificationData?.status === "Verified" || verificationData?.status === "verified" || verificationData?.status === "Approved";
+    const isReturned = verificationData?.status === "ReturnedForCorrection" || verificationData?.status === "Rerun";
 
     const checklistItems = useMemo(() => {
         if (!verificationData || !Array.isArray(verificationData.checklist)) {
@@ -264,6 +315,27 @@ export default function VerifyTestResultsPage() {
         }
         return verificationData.checklist;
     }, [verificationData]);
+
+    const resultItems = useMemo(() => {
+        if (!verificationData || !Array.isArray(verificationData.testResultItems)) {
+            return [];
+        }
+        return verificationData.testResultItems;
+    }, [verificationData]);
+
+    // Danh sách dropdown bao gồm hàng đợi hiện tại + mẫu đang xem (nếu vừa ký duyệt xong không còn trong queue chờ)
+    const selectableOptions = useMemo(() => {
+        const list = Array.isArray(queue) ? [...queue] : [];
+        if (selectedSpecimenId && !list.some((q) => q?.specimenId === selectedSpecimenId)) {
+            list.unshift({
+                specimenId: selectedSpecimenId,
+                packageName: verificationData?.packageName || "Đang xem",
+                patientName: verificationData?.patientName || "",
+                status: verificationData?.status || ""
+            });
+        }
+        return list;
+    }, [queue, selectedSpecimenId, verificationData]);
 
     return (
         <div className="container-fluid py-2 px-md-5" style={{ maxWidth: 1400 }}>
@@ -274,33 +346,84 @@ export default function VerifyTestResultsPage() {
                 </div>
                 <div className="bms-page-actions">
                     <div className="d-inline-flex align-items-center gap-2 bg-white p-2 rounded-4 border shadow-sm" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                        <label className="text-muted small fw-semibold mb-0">Chọn mẫu:</label>
+                        <label className="text-muted small fw-semibold mb-0">
+                            Chọn mẫu chờ duyệt ({queue.length}):
+                        </label>
                         <select
                             className="form-select form-select-sm border-0 bg-light rounded-pill"
-                            style={{ width: "auto", minWidth: 220 }}
+                            style={{ width: "auto", minWidth: 280 }}
                             value={selectedSpecimenId}
                             onChange={(e) => handleSelectSpecimen(e.target.value)}
+                            disabled={selectableOptions.length === 0}
                         >
-                            <option value="SPC-261006-A1-0089">SPC-261006-A1-0089 (Bộ mỡ máu Lipid)</option>
-                            {Array.isArray(queue) && queue
-                                .filter((q) => q?.specimenId && q.specimenId !== "SPC-261006-A1-0089")
-                                .map((q) => (
+                            {selectableOptions.length === 0 ? (
+                                <option value="">-- Không có mẫu nào đang chờ duyệt --</option>
+                            ) : (
+                                selectableOptions.map((q) => (
                                     <option key={q.specimenId} value={q.specimenId}>
                                         {q.specimenId} — {q.packageName || "Xét nghiệm"} ({q.patientName || "Bệnh nhân"})
                                     </option>
-                                ))}
+                                ))
+                            )}
                         </select>
                         <button
+                            type="button"
                             className="btn btn-sm btn-outline-secondary"
                             style={{ borderRadius: '9999px' }}
-                            title="Tải lại dữ liệu"
-                            onClick={() => loadVerificationDetails(selectedSpecimenId)}
+                            title="Tải lại danh sách chờ duyệt"
+                            onClick={handleRefreshAll}
                         >
                             <FaSyncAlt />
                         </button>
                     </div>
                 </div>
             </header>
+
+            {/* Hàng đợi các mẫu đang chờ thẩm định (click chọn nhanh) */}
+            {queue.length > 0 && (
+                <div className="card border-0 shadow-sm mb-4 rounded-4 bg-white">
+                    <div className="card-body p-3">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <span className="fw-bold text-dark small d-flex align-items-center gap-2">
+                                <FaClipboardCheck className="text-primary" />
+                                Hàng đợi kết quả KTV gửi lên chờ Trưởng Khoa thẩm định ({queue.length} mẫu)
+                            </span>
+                            <span className="text-muted small">Nhấp vào một mẫu để xem chỉ số đo và ký duyệt</span>
+                        </div>
+                        <div className="d-flex flex-wrap gap-2">
+                            {queue.map((item) => {
+                                const isActive = item.specimenId === selectedSpecimenId;
+                                return (
+                                    <button
+                                        key={item.specimenId}
+                                        type="button"
+                                        onClick={() => handleSelectSpecimen(item.specimenId)}
+                                        className={`btn btn-sm text-start rounded-3 px-3 py-2 border ${
+                                            isActive
+                                                ? "btn-primary text-white border-primary shadow-sm"
+                                                : "btn-light text-dark border-secondary-subtle"
+                                        }`}
+                                    >
+                                        <div className="d-flex align-items-center gap-2">
+                                            <FaVial className={isActive ? "text-white" : "text-primary"} />
+                                            <span className="font-monospace fw-bold">{item.specimenId}</span>
+                                            {item.priority === "Urgent" && (
+                                                <span className="badge bg-danger">PANIC</span>
+                                            )}
+                                            {item.flagCount > 0 && item.priority !== "Urgent" && (
+                                                <span className="badge bg-warning text-dark">{item.flagCount} cảnh báo</span>
+                                            )}
+                                        </div>
+                                        <div className={`small mt-1 ${isActive ? "text-white-50" : "text-muted"}`}>
+                                            {item.patientName || "Bệnh nhân"} · {item.packageName || "Xét nghiệm"}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Thông báo Alert */}
             {alertMessage && (
@@ -311,158 +434,242 @@ export default function VerifyTestResultsPage() {
                 </div>
             )}
 
-            {/* Banner Thông Tin Mẫu Bệnh Phẩm */}
-            <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6' }}>
-                <div className="card-body p-3">
-                    <div className="row g-3 align-items-center">
-                        <div className="col-md-3 border-end" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                            <span className="text-muted small d-block">Mã Barcode Mẫu (Specimen ID)</span>
-                            <span className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>{verificationData?.specimenId || selectedSpecimenId}</span>
-                        </div>
-                        <div className="col-md-3 border-end">
-                            <span className="text-muted small d-block">Phiếu chỉ định &amp; Gói xét nghiệm</span>
-                            <span className="fw-semibold text-dark">{verificationData?.orderId || "ORD-261006-0187"} · {verificationData?.packageName || "Bộ mỡ máu Lipid Profile"}</span>
-                        </div>
-                        <div className="col-md-3 border-end">
-                            <span className="text-muted small d-block">Bệnh nhân</span>
-                            <span className="fw-semibold text-dark">{verificationData?.patientName || "Nguyễn Văn An"}</span>
-                            <span className="text-muted small ms-1">({verificationData?.patientId || "PT-2026-004523"})</span>
-                        </div>
-                        <div className="col-md-3">
-                            <span className="text-muted small d-block">Trạng thái phê duyệt</span>
-                            {isVerified ? (
-                                <span className="badge bg-success px-3 py-2 fs-6">
-                                    <FaCheckCircle className="me-1" /> Đã Ký Số &amp; Thẩm Định
-                                </span>
-                            ) : isReturned ? (
-                                <span className="badge bg-warning text-dark px-3 py-2 fs-6">
-                                    <FaExclamationTriangle className="me-1" /> Yêu Cầu KTV Hiệu Chỉnh
-                                </span>
-                            ) : (
-                                <span className="badge bg-info text-dark px-3 py-2 fs-6">
-                                    <FaFileSignature className="me-1" /> Chờ Trưởng Khoa Thẩm Định
-                                </span>
-                            )}
-                        </div>
+            {/* Trạng thái trống khi chưa có kết quả nào chờ duyệt */}
+            {!queueLoading && !selectedSpecimenId && (
+                <div className="card border-0 shadow-sm rounded-4 bg-white text-center py-5 px-3">
+                    <FaCheckCircle className="fs-1 text-success opacity-75 mx-auto mb-3" />
+                    <h5 className="fw-bold text-dark">Hiện chưa có kết quả xét nghiệm nào đang chờ duyệt</h5>
+                    <p className="text-muted small mb-3">
+                        Khi Kỹ thuật viên nhập và gửi kết quả xét nghiệm (trạng thái <code>waiting_review</code>), mẫu sẽ tự động xuất hiện tại đây để Trưởng Khoa thẩm định và ký số.
+                    </p>
+                    <div>
+                        <button type="button" className="btn btn-outline-primary btn-sm rounded-pill px-3" onClick={handleRefreshAll}>
+                            <FaSyncAlt className="me-1" /> Làm mới hàng đợi
+                        </button>
                     </div>
                 </div>
-            </div>
+            )}
 
-            <div className="bms-table-standalone-section mb-3">
-                <div className="bms-table-standalone-header">
-                    <h2 className="bms-table-standalone-title">
-                        Bảng kiểm — {verificationData?.specimenId || selectedSpecimenId}
-                    </h2>
-                    {verificationData?.flagCount > 0 && (
-                        <span className="small text-warning">
-                            {verificationData.flagCount} chỉ số cần xem
-                        </span>
-                    )}
-                </div>
-                <div className="bms-table-standalone-body">
-                    {loading ? (
-                        <div className="text-center py-3 text-muted">
-                            <div className="spinner-border text-primary mb-2" role="status"></div>
-                            <div>Đang nạp bảng kiểm thẩm định kết quả...</div>
-                        </div>
-                    ) : (
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th style={{ width: "32%" }} className="ps-4">Hạng mục thẩm định kỹ thuật</th>
-                                        <th style={{ width: "18%" }}>Đánh giá</th>
-                                        <th className="pe-4">Chi tiết kiểm chuẩn &amp; Ghi chú lâm sàng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {checklistItems.length > 0 ? (
-                                        checklistItems.map((item, idx) => (
-                                            <tr key={idx} className={item.status === "Flag" ? "table-warning bg-opacity-25" : ""}>
-                                                <td className="ps-4 fw-medium text-dark">{item.checkName}</td>
-                                                <td>{renderStatusBadge(item.status, item.statusType)}</td>
-                                                <td className="pe-4 text-muted small">{item.details}</td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={3} className="text-center py-2 text-muted">
-                                                Tất cả các tiêu chí tiền phân tích và phân tích trên máy đạt chuẩn kiểm định.
-                                            </td>
-                                        </tr>
+            {selectedSpecimenId && (
+                <>
+                    {/* Banner Thông Tin Mẫu Bệnh Phẩm */}
+                    <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6' }}>
+                        <div className="card-body p-3">
+                            <div className="row g-3 align-items-center">
+                                <div className="col-md-3 border-end" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                                    <span className="text-muted small d-block">Mã Barcode Mẫu (Specimen ID)</span>
+                                    <span className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
+                                        {verificationData?.specimenId || selectedSpecimenId}
+                                    </span>
+                                    {verificationData?.testResultId && (
+                                        <span className="text-muted small d-block font-monospace">Phiếu KQ: {verificationData.testResultId}</span>
                                     )}
-                                </tbody>
-                            </table>
+                                </div>
+                                <div className="col-md-3 border-end">
+                                    <span className="text-muted small d-block">Phiếu chỉ định &amp; Gói xét nghiệm</span>
+                                    <span className="fw-semibold text-dark">
+                                        {verificationData?.orderId || "—"} · {verificationData?.packageName || "Xét nghiệm lâm sàng"}
+                                    </span>
+                                </div>
+                                <div className="col-md-3 border-end">
+                                    <span className="text-muted small d-block">Bệnh nhân</span>
+                                    <span className="fw-semibold text-dark">{verificationData?.patientName || "—"}</span>
+                                    {verificationData?.patientId && (
+                                        <span className="text-muted small ms-1">({verificationData.patientId})</span>
+                                    )}
+                                </div>
+                                <div className="col-md-3">
+                                    <span className="text-muted small d-block">Trạng thái phê duyệt</span>
+                                    {isVerified ? (
+                                        <span className="badge bg-success px-3 py-2 fs-6">
+                                            <FaCheckCircle className="me-1" /> Đã Ký Số &amp; Thẩm Định
+                                        </span>
+                                    ) : isReturned ? (
+                                        <span className="badge bg-warning text-dark px-3 py-2 fs-6">
+                                            <FaExclamationTriangle className="me-1" /> Yêu Cầu KTV Hiệu Chỉnh
+                                        </span>
+                                    ) : (
+                                        <span className="badge bg-info text-dark px-3 py-2 fs-6">
+                                            <FaFileSignature className="me-1" /> Chờ Trưởng Khoa Thẩm Định
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    )}
-                </div>
-            </div>
+                    </div>
 
-            <div className="bms-page-header" style={{ alignItems: 'stretch' }}>
-                <div className="w-100">
-                    {isVerified && (
-                        <div className="alert alert-success d-flex align-items-center gap-3 mb-4 shadow-sm">
-                            <FaAward className="fs-1 text-success flex-shrink-0" />
-                            <div>
-                                <h6 className="fw-bold mb-1">CHỨNG THƯ KÝ SỐ Y TẾ ĐIỆN TỬ HỢP LỆ</h6>
-                                <div className="small text-muted">
-                                    Người ký: <strong>{verificationData?.verifiedBy || currentUser?.fullName || "BSCKII. Lê Lan Anh (Trưởng Khoa)"}</strong> · 
-                                    Thời gian ký: <strong>{verificationData?.verifiedAt ? new Date(verificationData.verifiedAt).toLocaleString("vi-VN") : new Date().toLocaleString("vi-VN")}</strong> · 
-                                    Mã băm toàn vẹn: <span className="font-monospace text-primary">{verificationData?.digitalSignature || "SHA256:7f9a88c2...e9014f"}</span>
+                    {/* Bảng kết quả đo thực tế do KTV nhập */}
+                    {resultItems.length > 0 && (
+                        <div className="bms-table-standalone-section mb-4">
+                            <div className="bms-table-standalone-header">
+                                <h2 className="bms-table-standalone-title">
+                                    Kết quả đo thực tế KTV đã gửi ({resultItems.length} chỉ số)
+                                </h2>
+                                {verificationData?.deviceId && (
+                                    <span className="small text-muted">Thiết bị: {verificationData.deviceId}</span>
+                                )}
+                            </div>
+                            <div className="bms-table-standalone-body">
+                                <div className="table-responsive">
+                                    <table className="table table-hover align-middle mb-0">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th className="ps-4">Chỉ số xét nghiệm</th>
+                                                <th className="text-end">Giá trị đo</th>
+                                                <th>Đơn vị</th>
+                                                <th>Khoảng tham chiếu</th>
+                                                <th className="text-end pe-4">Đánh giá cờ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {resultItems.map((item, idx) => (
+                                                <tr
+                                                    key={`${item.criterionCode}-${idx}`}
+                                                    className={
+                                                        String(item.flag).toLowerCase() === "critical"
+                                                            ? "table-danger"
+                                                            : String(item.flag).toLowerCase() !== "normal"
+                                                                ? "table-warning bg-opacity-25"
+                                                                : undefined
+                                                    }
+                                                >
+                                                    <td className="ps-4">
+                                                        <strong className="text-dark">{item.criterionName || item.criterionCode}</strong>
+                                                        <span className="badge bg-light text-secondary border font-monospace ms-2">
+                                                            {item.criterionCode}
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-end fw-bold font-monospace">{item.measuredValue}</td>
+                                                    <td className="text-secondary small">{item.unit || "—"}</td>
+                                                    <td className="text-muted small font-monospace">{item.referenceInterval || "—"}</td>
+                                                    <td className="text-end pe-4">{renderResultFlagBadge(item.flag)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="row g-4 align-items-end">
-                        <div className="col-lg-8">
-                            <label className="form-label fw-bold text-dark d-flex align-items-center justify-content-between">
-                                <span>Ý kiến kết luận &amp; Ghi chú thẩm định của Trưởng Khoa</span>
-                                <span className="text-muted small fw-normal">Tối thiểu 10 ký tự · Lưu vết kiểm toán y tế (Audit Log)</span>
-                            </label>
-                            <textarea
-                                className="form-control"
-                                rows="3"
-                                placeholder="Nhập kết luận chuyên môn, xác nhận tính hợp lệ của mẫu, kiểm tra quy tắc Westgard hoặc ghi chú cho Bác sĩ điều trị..."
-                                value={verifierComment}
-                                onChange={(e) => setVerifierComment(e.target.value)}
-                                disabled={submitting || isVerified}
-                            ></textarea>
-                            <small className="text-muted mt-1 d-block">
-                                Ghi nhận tính toàn vẹn của kết quả phân tích, xác nhận xu hướng Levey-Jennings QC hoặc ghi chú Delta check so với lần xét nghiệm trước.
-                            </small>
+                    {/* Bảng kiểm thẩm định kỹ thuật */}
+                    <div className="bms-table-standalone-section mb-3">
+                        <div className="bms-table-standalone-header">
+                            <h2 className="bms-table-standalone-title">
+                                Bảng kiểm — {verificationData?.specimenId || selectedSpecimenId}
+                            </h2>
+                            {verificationData?.flagCount > 0 && (
+                                <span className="small text-warning">
+                                    {verificationData.flagCount} chỉ số cần xem
+                                </span>
+                            )}
                         </div>
-
-                        <div className="col-lg-4 d-flex flex-column gap-2 justify-content-end">
-                            <button
-                                type="button"
-                                className="btn btn-lg d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold text-white"
-                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                                onClick={handleVerify}
-                                disabled={submitting || isVerified}
-                            >
-                                <FaFileSignature />
-                                {isVerified ? "Đã Ký Số & Chuyển Bác Sĩ" : "Ký Số Điện Tử & Duyệt Kết Quả"}
-                            </button>
-
-                            <button
-                                type="button"
-                                className="btn btn-outline-warning text-dark d-flex align-items-center justify-content-center gap-2"
-                                style={{ borderRadius: '9999px' }}
-                                onClick={() => {
-                                    setReturnReason("");
-                                    setReturnError("");
-                                    setShowReturnModal(true);
-                                }}
-                                disabled={submitting || isVerified}
-                            >
-                                <FaUndo className="text-warning" />
-                                Trả về KTV yêu cầu chạy lại / hiệu chỉnh
-                            </button>
+                        <div className="bms-table-standalone-body">
+                            {loading ? (
+                                <div className="text-center py-3 text-muted">
+                                    <div className="spinner-border text-primary mb-2" role="status"></div>
+                                    <div>Đang nạp bảng kiểm thẩm định kết quả...</div>
+                                </div>
+                            ) : (
+                                <div className="table-responsive">
+                                    <table className="table table-hover align-middle mb-0">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th style={{ width: "32%" }} className="ps-4">Hạng mục thẩm định kỹ thuật</th>
+                                                <th style={{ width: "18%" }}>Đánh giá</th>
+                                                <th className="pe-4">Chi tiết kiểm chuẩn &amp; Ghi chú lâm sàng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {checklistItems.length > 0 ? (
+                                                checklistItems.map((item, idx) => (
+                                                    <tr key={idx} className={item.status === "Flag" ? "table-warning bg-opacity-25" : ""}>
+                                                        <td className="ps-4 fw-medium text-dark">{item.checkName}</td>
+                                                        <td>{renderStatusBadge(item.status, item.statusType)}</td>
+                                                        <td className="pe-4 text-muted small">{item.details}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={3} className="text-center py-2 text-muted">
+                                                        Tất cả các tiêu chí tiền phân tích và phân tích trên máy đạt chuẩn kiểm định.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            </div>
+
+                    <div className="bms-page-header" style={{ alignItems: 'stretch' }}>
+                        <div className="w-100">
+                            {isVerified && (
+                                <div className="alert alert-success d-flex align-items-center gap-3 mb-4 shadow-sm">
+                                    <FaAward className="fs-1 text-success flex-shrink-0" />
+                                    <div>
+                                        <h6 className="fw-bold mb-1">CHỨNG THƯ KÝ SỐ Y TẾ ĐIỆN TỬ HỢP LỆ</h6>
+                                        <div className="small text-muted">
+                                            Người ký: <strong>{verificationData?.verifiedBy || currentUser?.fullName || "Trưởng Khoa Xét Nghiệm"}</strong> ·{" "}
+                                            Thời gian ký: <strong>{verificationData?.verifiedAt ? new Date(verificationData.verifiedAt).toLocaleString("vi-VN") : new Date().toLocaleString("vi-VN")}</strong> ·{" "}
+                                            Mã băm toàn vẹn: <span className="font-monospace text-primary">{verificationData?.digitalSignature || "—"}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="row g-4 align-items-end">
+                                <div className="col-lg-8">
+                                    <label className="form-label fw-bold text-dark d-flex align-items-center justify-content-between">
+                                        <span>Ý kiến kết luận &amp; Ghi chú thẩm định của Trưởng Khoa</span>
+                                        <span className="text-muted small fw-normal">Tối thiểu 10 ký tự · Lưu vết kiểm toán y tế (Audit Log)</span>
+                                    </label>
+                                    <textarea
+                                        className="form-control"
+                                        rows="3"
+                                        placeholder="Nhập kết luận chuyên môn, xác nhận tính hợp lệ của mẫu, kiểm tra quy tắc Westgard hoặc ghi chú cho Bác sĩ điều trị..."
+                                        value={verifierComment}
+                                        onChange={(e) => setVerifierComment(e.target.value)}
+                                        disabled={submitting || isVerified}
+                                    ></textarea>
+                                    <small className="text-muted mt-1 d-block">
+                                        Ghi nhận tính toàn vẹn của kết quả phân tích, xác nhận xu hướng Levey-Jennings QC hoặc ghi chú Delta check so với lần xét nghiệm trước.
+                                    </small>
+                                </div>
+
+                                <div className="col-lg-4 d-flex flex-column gap-2 justify-content-end">
+                                    <button
+                                        type="button"
+                                        className="btn btn-lg d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold text-white"
+                                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
+                                        onClick={handleVerify}
+                                        disabled={submitting || isVerified}
+                                    >
+                                        <FaFileSignature />
+                                        {isVerified ? "Đã Ký Số & Chuyển Bác Sĩ" : "Ký Số Điện Tử & Duyệt Kết Quả"}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-warning text-dark d-flex align-items-center justify-content-center gap-2"
+                                        style={{ borderRadius: '9999px' }}
+                                        onClick={() => {
+                                            setReturnReason("");
+                                            setReturnError("");
+                                            setShowReturnModal(true);
+                                        }}
+                                        disabled={submitting || isVerified}
+                                    >
+                                        <FaUndo className="text-warning" />
+                                        Trả về KTV yêu cầu chạy lại / hiệu chỉnh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Modal: Trả mẫu về KTV */}
             {showReturnModal && (

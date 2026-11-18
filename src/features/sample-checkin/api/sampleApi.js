@@ -10,10 +10,24 @@ export const sampleApi = {
   /**
    * Cập nhật tiếp nhận hoặc từ chối ống mẫu tại bàn giao Lab
    */
-  async checkIn({ code, labRoomId, rejectionCode, rejectionNote, notes }) {
+  async checkIn({
+    code,
+    labRoomId,
+    rejectionCode,
+    rejectionNote,
+    notes,
+    technicianId,
+    technicianName,
+    handoverBy,
+    handoverById
+  }) {
     const isReject = Boolean(rejectionCode);
     const payload = {
       status: isReject ? 'Rejected' : 'Received',
+      technicianId: technicianId || undefined,
+      technicianName: technicianName || undefined,
+      handoverBy: handoverBy || undefined,
+      handoverById: handoverById || undefined,
       rejectionReason: isReject ? `${rejectionCode}: ${rejectionNote || ''}`.trim() : undefined,
       labRoom: labRoomId || 'LAB-ROOM-01',
       notes: notes || (isReject ? 'Mẫu bị từ chối tiếp nhận tại Lab' : 'Tiếp nhận ống mẫu thành công vào phòng xét nghiệm'),
@@ -80,6 +94,32 @@ export const sampleApi = {
       if (!Array.isArray(list)) return [];
       // Filter samples awaiting reception
       return list.filter(s => s.status === 'Collected' || s.status === 'InTransit' || s.status === 'PendingCollection');
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * Lấy danh sách nhân sự lâm sàng & KTV xét nghiệm từ cơ sở dữ liệu (Người bàn giao / KTV tiếp nhận)
+   */
+  async getStaff() {
+    try {
+      const res = await api.get('/laboratory/samples/staff');
+      const list = res.data?.data || res.data || [];
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * Lấy danh sách phòng xét nghiệm từ cơ sở dữ liệu
+   */
+  async getLabRooms() {
+    try {
+      const res = await api.get('/laboratory/rooms');
+      const list = res.data?.data || res.data || [];
+      return Array.isArray(list) ? list : [];
     } catch {
       return [];
     }

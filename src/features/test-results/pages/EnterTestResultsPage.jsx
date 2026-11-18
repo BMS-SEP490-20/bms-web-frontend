@@ -47,26 +47,54 @@ import {
 } from 'react-icons/fa';
 import { resultApi } from '../api/resultApi';
 import api from '../../../config/api';
+import { getStoredUser } from '../../../constants/roles';
 
-const DEFAULT_PARAMS = [
-  { code: 'WBC', name: 'WBC · Số lượng bạch cầu', value: 0, unit: '10⁹/L', refLow: 4.0, refHigh: 10.0, criticalLow: 1.5, criticalHigh: 30.0 },
-  { code: 'RBC', name: 'RBC · Số lượng hồng cầu', value: 0, unit: '10¹²/L', refLow: 3.8, refHigh: 5.2, criticalLow: 2.0, criticalHigh: 7.0 },
-  { code: 'HGB', name: 'HGB · Nồng độ Hemoglobin', value: 0, unit: 'g/dL', refLow: 12.0, refHigh: 16.0, criticalLow: 7.0, criticalHigh: 20.0 },
-  { code: 'HCT', name: 'HCT · Dung tích hồng cầu (Hematocrit)', value: 0, unit: '%', refLow: 36.0, refHigh: 46.0, criticalLow: 20.0, criticalHigh: 60.0 },
-  { code: 'MCV', name: 'MCV · Thể tích trung bình hồng cầu', value: 0, unit: 'fL', refLow: 80.0, refHigh: 100.0, criticalLow: 60.0, criticalHigh: 120.0 },
-  { code: 'PLT', name: 'PLT · Số lượng tiểu cầu', value: 0, unit: '10⁹/L', refLow: 150, refHigh: 400, criticalLow: 20, criticalHigh: 1000 },
-  { code: 'GLU', name: 'GLU · Đường huyết đói (Glucose)', value: 0, unit: 'mmol/L', refLow: 3.9, refHigh: 6.4, criticalLow: 2.2, criticalHigh: 25.0 },
-  { code: 'K', name: 'K⁺ · Kali máu (Potassium)', value: 0, unit: 'mmol/L', refLow: 3.5, refHigh: 5.0, criticalLow: 2.5, criticalHigh: 6.5 },
-  { code: 'NA', name: 'Na⁺ · Natri máu (Sodium)', value: 0, unit: 'mmol/L', refLow: 135.0, refHigh: 145.0, criticalLow: 120.0, criticalHigh: 160.0 }
-];
+function isQualitativeParam(p) {
+  return String(p?.valueType || '').toLowerCase() === 'qualitative';
+}
+
+function formatCleanNum(val) {
+  const num = Number(val);
+  if (Number.isNaN(num)) return String(val);
+  return String(Number(num.toFixed(4)));
+}
+
+function formatReferenceRange(p) {
+  if (isQualitativeParam(p)) {
+    return p.normalText || 'Âm tính (Negative)';
+  }
+  const hasMin = p.refLow !== null && p.refLow !== undefined && p.refLow !== '';
+  const hasMax = p.refHigh !== null && p.refHigh !== undefined && p.refHigh !== '';
+  const unitSuffix = p.unit ? ` ${p.unit}` : '';
+  if (hasMin && hasMax) return `${formatCleanNum(p.refLow)} – ${formatCleanNum(p.refHigh)}${unitSuffix}`;
+  if (hasMin) return `≥ ${formatCleanNum(p.refLow)}${unitSuffix}`;
+  if (hasMax) return `≤ ${formatCleanNum(p.refHigh)}${unitSuffix}`;
+  return p.normalText || '—';
+}
+
+function formatPanicBadge(p) {
+  const hasLow = p.criticalLow !== null && p.criticalLow !== undefined && p.criticalLow !== '';
+  const hasHigh = p.criticalHigh !== null && p.criticalHigh !== undefined && p.criticalHigh !== '';
+  if (!hasLow && !hasHigh) return null;
+  if (hasLow && hasHigh) return `Panic: <${formatCleanNum(p.criticalLow)} hoặc >${formatCleanNum(p.criticalHigh)}`;
+  if (hasLow) return `Panic: <${formatCleanNum(p.criticalLow)}`;
+  return `Panic: >${formatCleanNum(p.criticalHigh)}`;
+}
 
 function evaluateMedicalFlag(code, value, p) {
-  if (value === 0 || value === '' || Number.isNaN(Number(value))) return 'NORMAL';
+  if (value === null || value === undefined || value === '' || value === 0) return 'NORMAL';
+  if (isQualitativeParam(p)) {
+    const text = String(value).trim().toLowerCase();
+    if (!text) return 'NORMAL';
+    if (text.includes('dương') || text.includes('positive') || text.includes('reactive')) return 'HIGH';
+    return 'NORMAL';
+  }
+  if (Number.isNaN(Number(value))) return 'NORMAL';
   const num = Number(value);
 
-  // Critical / Panic thresholds (ISO 15189:2022)
-  if (p.criticalLow != null && num <= p.criticalLow) return 'CRITICAL';
-  if (p.criticalHigh != null && num >= p.criticalHigh) return 'CRITICAL';
+  // Critical / Panic thresholds (ISO 15189:2022 — strict < / > matching TestResultService.ValidatedItemsAsync)
+  if (p.criticalLow != null && num < p.criticalLow) return 'CRITICAL';
+  if (p.criticalHigh != null && num > p.criticalHigh) return 'CRITICAL';
 
   // Reference range thresholds
   if (p.refLow != null && num < p.refLow) return 'LOW';
@@ -107,10 +135,16 @@ function playWebAudioAlert880Hz() {
 }
 
 export function EnterTestResultsPage() {
+  const currentUser = useMemo(() => getStoredUser(), []);
+  const operatorDisplayName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'KTV Xét nghiệm';
+
   const [sampleId, setSampleId] = useState('');
   const [batchId, setBatchId] = useState('BAT-20261104-01');
   const [device, setDevice] = useState('Sysmex XN-1000 (Huyết học tự động)');
-  const [params, setParams] = useState(DEFAULT_PARAMS.map(p => ({ ...p })));
+  // Chỉ số lấy hoàn toàn từ CSDL (không gán cứng); ban đầu trống chờ tra cứu mã SMP
+  const [dbCatalogParams, setDbCatalogParams] = useState([]);
+  const [params, setParams] = useState([]);
+  const [isPackageFiltered, setIsPackageFiltered] = useState(false);
   const [notes, setNotes] = useState('Kết quả đo ổn định, không có cảnh báo quang học từ thiết bị.');
   const [entrySource, setEntrySource] = useState('device');
 
@@ -145,8 +179,8 @@ export function EnterTestResultsPage() {
   const handleCancelAndRerun = () => {
     if (!rerunReason) return;
     const targetSample = sampleId.trim() || 'Mẫu hiện tại';
-    // Reset toàn bộ chỉ số để KTV nhập lại
-    setParams(DEFAULT_PARAMS.map(p => ({ ...p, value: 0 })));
+    // Reset giá trị đã nhập nhưng vẫn giữ nguyên danh sách chỉ số của gói hiện tại
+    setParams((prev) => prev.map((p) => ({ ...p, value: '' })));
     setShowRerunModal(false);
     setCancellationSuccess(
       `Đã hủy thành công kết quả mẫu ${targetSample}. Lý do y khoa: "${rerunReason}". ${
@@ -165,21 +199,57 @@ export function EnterTestResultsPage() {
     reviewedAbnormal: true
   });
 
+  // Tải danh mục chỉ tiêu xét nghiệm chuẩn từ CSDL (test_criteria) làm fallback khi mẫu không gắn gói
+  useEffect(() => {
+    let isMounted = true;
+    api.get('/laboratory/criteria', { params: { page: 1, pageSize: 100, isActive: true } })
+      .then((res) => {
+        if (!isMounted) return;
+        const raw = res.data?.data?.items || res.data?.items || res.data?.data || [];
+        if (!Array.isArray(raw) || raw.length === 0) return;
+        const mapped = [];
+        const seen = new Set();
+        raw.forEach((c) => {
+          const code = String(c.criterionCode || c.code || '').trim().toUpperCase();
+          if (!code || seen.has(code)) return;
+          seen.add(code);
+          const displayName = c.criterionName || c.name || code;
+          mapped.push({
+            code,
+            name: displayName.toUpperCase().startsWith(code) ? displayName : `${code} · ${displayName}`,
+            value: '',
+            unit: c.unit || '',
+            refLow: c.normalMin ?? null,
+            refHigh: c.normalMax ?? null,
+            normalText: c.normalText || null,
+            criticalLow: c.panicLow ?? null,
+            criticalHigh: c.panicHigh ?? null,
+            valueType: c.valueType || 'Numeric'
+          });
+        });
+        setDbCatalogParams(mapped);
+      })
+      .catch(() => {
+        // Non-fatal; sample lookup still populates packageParameters directly from BE
+      });
+    return () => { isMounted = false; };
+  }, []);
+
   // Tự động đánh giá cờ cho từng chỉ số
   const flags = useMemo(() => {
     const list = Array.isArray(params) ? params : [];
     return list.map((p) => {
-      const val = Number(p.value);
-      const flag = evaluateMedicalFlag(p.code, val, p);
+      const hasVal = p.value !== '' && p.value !== null && p.value !== undefined && p.value !== 0;
+      const flag = hasVal ? evaluateMedicalFlag(p.code, p.value, p) : 'NORMAL';
       return {
         ...p,
-        flag: val !== 0 ? flag : 'NORMAL'
+        flag
       };
     });
   }, [params]);
 
   const criticalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && p.value !== '' && p.value !== 0);
   }, [flags]);
 
   const hasCritical = useMemo(() => {
@@ -187,7 +257,7 @@ export function EnterTestResultsPage() {
   }, [criticalAnalytes]);
 
   const abnormalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && p.value !== '' && p.value !== 0);
   }, [flags]);
 
   // Kích hoạt còi Web Audio 880Hz và quản lý đồng hồ đếm ngược 15 phút
@@ -234,17 +304,44 @@ export function EnterTestResultsPage() {
     );
   };
 
-  // Tra cứu thông tin mẫu khi nhập mã Barcode
+  // Tra cứu thông tin mẫu khi nhập mã Barcode / SMP và tự lọc đúng chỉ số có trong gói dịch vụ
   const handleLookupSample = async () => {
     const target = sampleId.trim();
     if (!target) return;
+    setError(null);
     try {
       const res = await api.get(`/laboratory/samples/${encodeURIComponent(target)}`);
-      if (res.data?.data) {
-        setSampleDetails(res.data.data);
+      const detail = res.data?.data;
+      if (detail) {
+        setSampleDetails(detail);
+        const pkgParams = Array.isArray(detail.packageParameters) ? detail.packageParameters : [];
+        if (pkgParams.length > 0) {
+          setParams(
+            pkgParams.map((p) => ({
+              code: p.code,
+              name: p.name ? `${p.code} · ${p.name}` : p.code,
+              value: '',
+              unit: p.unit || '',
+              refLow: p.normalMin ?? null,
+              refHigh: p.normalMax ?? null,
+              normalText: p.normalText || null,
+              criticalLow: p.panicLow ?? null,
+              criticalHigh: p.panicHigh ?? null,
+              valueType: p.valueType || 'Numeric'
+            }))
+          );
+          setIsPackageFiltered(true);
+        } else {
+          setParams(dbCatalogParams.map((p) => ({ ...p, value: '' })));
+          setIsPackageFiltered(false);
+        }
+      } else {
+        setSampleDetails(null);
       }
-    } catch {
+    } catch (err) {
       setSampleDetails(null);
+      setIsPackageFiltered(false);
+      setError(err?.response?.data?.message || `Không tìm thấy mẫu xét nghiệm "${target}".`);
     }
   };
 
@@ -264,7 +361,7 @@ export function EnterTestResultsPage() {
       return;
     }
 
-    const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== 0 && p.value !== '');
+    const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== '' && p.value !== null && p.value !== undefined && String(p.value).trim() !== '' && p.value !== 0);
     if (validParams.length === 0) {
       setError('Vui lòng nhập ít nhất một kết quả đo chỉ số xét nghiệm.');
       return;
@@ -283,7 +380,7 @@ export function EnterTestResultsPage() {
         confirmRerunChecked: confirmRerun,
         doctorNotifiedName: doctorName,
         notifiedAt: new Date().toISOString(),
-        reviewedBy: 'KTV. Lê Minh Tuấn'
+        reviewedBy: operatorDisplayName
       });
 
       setResult(res);
@@ -351,7 +448,13 @@ export function EnterTestResultsPage() {
                     required
                     value={sampleId}
                     onChange={(e) => setSampleId(e.target.value)}
-                    onBlur={handleLookupSample}
+                    onBlur={() => handleLookupSample()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleLookupSample();
+                      }
+                    }}
                     placeholder="Quét Barcode hoặc nhập mã SMP-..."
                   />
                   <Button variant="outline-primary" type="button" onClick={handleLookupSample}>
@@ -439,11 +542,13 @@ export function EnterTestResultsPage() {
                     <div>
                       <h5 className="mb-0 fw-bold text-dark">Bảng Nhập Chỉ Số Đo Bệnh Phẩm</h5>
                       <small className="text-muted">
-                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu cấu hình chuẩn ISO 15189
+                        {flags.length} thông số
+                        {isPackageFiltered && sampleDetails?.testPackageName ? ` theo gói "${sampleDetails.testPackageName}"` : ''}
+                        {' '}&bull; Đơn vị tính và khoảng tham chiếu cấu hình chuẩn ISO 15189
                       </small>
                     </div>
                     <span className="badge bg-light text-dark border">
-                      KTV nhập: Lê Minh Tuấn
+                      KTV nhập: {operatorDisplayName}
                     </span>
                   </div>
 
@@ -459,7 +564,19 @@ export function EnterTestResultsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(Array.isArray(flags) ? flags : []).map((p, idx) => (
+                        {flags.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="text-center py-5 text-muted">
+                              <FaSearch className="fs-3 mb-2 opacity-50 d-block mx-auto" />
+                              <div className="fw-semibold text-dark mb-1">Chưa chọn ống mẫu xét nghiệm</div>
+                              <div className="small">
+                                Vui lòng nhập hoặc quét <strong>Mã Barcode ống mẫu (SMP-...)</strong> ở phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số xét nghiệm theo gói từ CSDL.
+                              </div>
+                            </td>
+                          </tr>
+                        ) : (Array.isArray(flags) ? flags : []).map((p, idx) => {
+                          const panicText = formatPanicBadge(p);
+                          return (
                           <tr
                             key={p.code}
                             className={p.flag === 'CRITICAL' ? 'table-danger' : p.flag !== 'NORMAL' && p.value !== 0 ? 'table-warning' : undefined}
@@ -467,30 +584,44 @@ export function EnterTestResultsPage() {
                             <td className="ps-3">
                               <strong className="text-dark">{p.name}</strong>
                               <span className="badge bg-light text-secondary border font-monospace ms-2">{p.code}</span>
-                              {(p.code === 'K' || p.code === 'NA') && (
+                              {panicText && (
                                 <Badge bg="danger-subtle" text="danger" className="ms-1 border border-danger-subtle small">
-                                  {p.code === 'K' ? 'Panic: <2.5 hoặc >6.5' : 'Panic: <120 hoặc >160'}
+                                  {panicText}
                                 </Badge>
                               )}
                             </td>
                             <td className="text-end">
-                              <Form.Control
-                                type="number"
-                                step="any"
-                                size="sm"
-                                className="text-end fw-bold font-monospace"
-                                value={p.value || ''}
-                                onChange={(e) => setValue(idx, e.target.value)}
-                                placeholder="0.0"
-                              />
+                              {isQualitativeParam(p) ? (
+                                <Form.Select
+                                  size="sm"
+                                  className="fw-semibold"
+                                  value={p.value || ''}
+                                  onChange={(e) => setValue(idx, e.target.value)}
+                                >
+                                  <option value="">-- Chọn kết quả --</option>
+                                  <option value="Âm tính (Negative)">Âm tính (Negative)</option>
+                                  <option value="Dương tính (Positive)">Dương tính (Positive)</option>
+                                </Form.Select>
+                              ) : (
+                                <Form.Control
+                                  type="number"
+                                  step="any"
+                                  size="sm"
+                                  className="text-end fw-bold font-monospace"
+                                  value={p.value || ''}
+                                  onChange={(e) => setValue(idx, e.target.value)}
+                                  placeholder="0.0"
+                                />
+                              )}
                             </td>
-                            <td className="text-secondary small">{p.unit}</td>
+                            <td className="text-secondary small">{p.unit || '—'}</td>
                             <td className="small text-muted font-monospace">
-                              {p.refLow} &ndash; {p.refHigh} {p.unit}
+                              {formatReferenceRange(p)}
                             </td>
                             <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </Table>
                   </div>
@@ -676,7 +807,7 @@ export function EnterTestResultsPage() {
                     <Button
                       variant="outline-secondary"
                       type="button"
-                      onClick={() => setParams(DEFAULT_PARAMS.map(p => ({ ...p })))}
+                      onClick={() => setParams((prev) => prev.map((p) => ({ ...p, value: '' })))}
                     >
                       Nhập lại giá trị
                     </Button>

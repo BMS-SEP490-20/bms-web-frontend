@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
@@ -72,6 +73,7 @@ function formatGenderLabel(g) {
 export default function CheckInPage() {
   // List & filter state
   const [patients, setPatients] = useState([]);
+  const navigate = useNavigate();
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -114,12 +116,12 @@ export default function CheckInPage() {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get('action') === 'create-guest' && canCreateGuest) {
-        setShowCreateModal(true);
+        navigate('/receptionist/create-patient', { replace: true });
       }
     } catch {
       // Ignore query parse error
     }
-  }, [canCreateGuest]);
+  }, [canCreateGuest, navigate]);
 
   // Debounce search input
   useEffect(() => {
@@ -234,11 +236,8 @@ export default function CheckInPage() {
       setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
       return;
     }
-    setGuestForm(INITIAL_GUEST_FORM);
-    setCreateError('');
-    setDuplicateMatches([]);
-    setIgnoreDuplicate(false);
-    setShowCreateModal(true);
+    // Unified walk-in reception workflow (UC26): redirect straight to /receptionist/create-patient
+    navigate('/receptionist/create-patient');
   };
 
   const handleGuestFieldChange = (field, value) => {
@@ -348,7 +347,7 @@ export default function CheckInPage() {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              Quản Lý Hồ Sơ Bệnh Nhân &amp; Tiếp Nhận Khách Vãng Lai
+              Tra Cứu &amp; Quản Lý Hồ Sơ Bệnh Nhân
             </h1>
           </div>
           

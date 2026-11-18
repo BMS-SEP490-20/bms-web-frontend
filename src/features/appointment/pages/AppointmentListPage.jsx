@@ -122,7 +122,9 @@ export default function AppointmentListPage() {
   const [pageSize] = useState(10);
   const navigate = useNavigate();
   const user = useMemo(() => getStoredUser(), []);
-  const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
+  const roleId = useMemo(() => resolveRoleId(user), [user]);
+  const isPatient = roleId === ROLES.PATIENT;
+  const canBookAppointment = roleId === ROLES.PATIENT || roleId === ROLES.RECEPTIONIST;
 
   // Data & UI states
   const [appointments, setAppointments] = useState([]);
@@ -353,9 +355,9 @@ export default function AppointmentListPage() {
           </h1>
         </div>
         <div className="d-flex align-items-center gap-2">
-          {isPatient && (
+          {canBookAppointment && (
             <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
-              <FaCalendarAlt /> Đặt Lịch Khám Mới
+              <FaCalendarAlt /> {isPatient ? 'Đặt Lịch Khám Mới' : 'Tạo Lịch Hẹn Mới'}
             </Link>
           )}
         </div>

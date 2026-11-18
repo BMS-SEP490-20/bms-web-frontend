@@ -22,10 +22,10 @@ import '../appointment.css';
 import { useBookAppointment } from '../hooks/useBookAppointment';
 import { getAvailableSlots, getAvailableDoctors } from '../api/appointmentApi';
 import { fetchServiceCatalog } from '../../catalog/api/catalogApi';
-import { getStoredUser } from '../../../constants/roles';
+import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
-import { getMyPatientInformation } from '../../../services/patientService';
+import { getMyPatientInformation, searchPatients, getPatientById } from '../../../services/patientService';
 
 const SHIFT_DEFINITIONS = [
   {
@@ -90,6 +90,8 @@ export function BookAppointmentPage({
   const [searchParams] = useSearchParams();
 
   const storedUser = useMemo(() => getStoredUser(), []);
+  const isReceptionist = useMemo(() => resolveRoleId(storedUser) === ROLES.RECEPTIONIST, [storedUser]);
+  const preselectedPatientId = searchParams.get('patientId') || initialPatientId || '';
   const preselectedPkgId = searchParams.get('packageId') || searchParams.get('id') || '';
   const preselectedName = searchParams.get('packageName') || '';
 
@@ -115,22 +117,29 @@ export function BookAppointmentPage({
     return '';
   });
 
-  const [patientInfo, setPatientInfo] = useState({
-    name: storedUser?.fullName || '',
-    phone: storedUser?.phone || storedUser?.phoneNumber || '',
-    identityCard: storedUser?.identityCard || storedUser?.identityNumber || storedUser?.idCard || '',
-    patientId: storedUser?.patientId || storedUser?.id || initialPatientId || '',
-    insuranceNumber: storedUser?.healthInsuranceNumber || ''
-  });
+  const [patientInfo, setPatientInfo] = useState(() => (
+    isReceptionist
+      ? { name: '', phone: '', identityCard: '', patientId: preselectedPatientId, insuranceNumber: '' }
+      : {
+          name: storedUser?.fullName || '',
+          phone: storedUser?.phone || storedUser?.phoneNumber || '',
+          identityCard: storedUser?.identityCard || storedUser?.identityNumber || storedUser?.idCard || '',
+          patientId: storedUser?.patientId || storedUser?.id || initialPatientId || '',
+          insuranceNumber: storedUser?.healthInsuranceNumber || ''
+        }
+  ));
+  const [patientOptions, setPatientOptions] = useState([]);
+  const [patientSearch, setPatientSearch] = useState('');
+  const [patientsLoading, setPatientsLoading] = useState(false);
 
   const [date, setDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 1);
+    if (!isReceptionist) d.setDate(d.getDate() + 1);
     return toDateKey(d);
   });
   const [calendarCursor, setCalendarCursor] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 1);
+    if (!isReceptionist) d.setDate(d.getDate() + 1);
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
 
@@ -145,9 +154,59 @@ export function BookAppointmentPage({
   const [patientProfile, setPatientProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
-  // Check mandatory medical profile for blood testing
+  // Load patient profile (Patient role) or searchable patient directory from DB (Receptionist role).
   useEffect(() => {
     let isMounted = true;
+
+    if (isReceptionist) {
+      setPatientsLoading(true);
+      const loadForReceptionist = async () => {
+        try {
+          const res = await searchPatients({ page: 1, pageSize: 100 });
+          const list = Array.isArray(res?.items) ? res.items : (Array.isArray(res?.Items) ? res.Items : []);
+          if (!isMounted) return;
+          setPatientOptions(list);
+
+          if (preselectedPatientId) {
+            const needle = preselectedPatientId.trim().toLowerCase();
+            let matched = list.find((p) =>
+              String(p.id || '').toLowerCase() === needle ||
+              String(p.patientCode || '').toLowerCase() === needle
+            );
+            if (!matched) {
+              try {
+                matched = await getPatientById(preselectedPatientId);
+                if (matched && isMounted) {
+                  setPatientOptions((prev) => [matched, ...prev.filter((x) => x.id !== matched.id)]);
+                }
+              } catch {
+                // Keep manual selection available if preselected patient is not found
+              }
+            }
+            if (matched && isMounted) {
+              setPatientProfile(matched);
+              setPatientInfo({
+                name: matched.fullName || '',
+                phone: matched.phoneNumber || matched.phone || '',
+                identityCard: matched.identityNumber || matched.identityCardNumber || '',
+                patientId: matched.id || matched.patientCode || '',
+                insuranceNumber: matched.healthInsuranceNumber || ''
+              });
+            }
+          }
+        } catch {
+          if (isMounted) setPatientOptions([]);
+        } finally {
+          if (isMounted) {
+            setPatientsLoading(false);
+            setProfileLoading(false);
+          }
+        }
+      };
+      void loadForReceptionist();
+      return () => { isMounted = false; };
+    }
+
     getMyPatientInformation()
       .then((res) => {
         if (!isMounted) return;
@@ -170,7 +229,36 @@ export function BookAppointmentPage({
       });
 
     return () => { isMounted = false; };
-  }, []);
+  }, [isReceptionist, preselectedPatientId]);
+
+  const filteredPatientOptions = useMemo(() => {
+    const kw = patientSearch.trim().toLowerCase();
+    if (!kw) return patientOptions;
+    return patientOptions.filter((p) =>
+      String(p.fullName || '').toLowerCase().includes(kw) ||
+      String(p.patientCode || '').toLowerCase().includes(kw) ||
+      String(p.id || '').toLowerCase().includes(kw) ||
+      String(p.phoneNumber || p.phone || '').toLowerCase().includes(kw) ||
+      String(p.identityNumber || p.identityCardNumber || '').toLowerCase().includes(kw)
+    );
+  }, [patientOptions, patientSearch]);
+
+  const handleSelectPatient = (selectedId) => {
+    const matched = patientOptions.find((p) => (p.id || p.patientCode) === selectedId);
+    if (!matched) {
+      setPatientProfile(null);
+      setPatientInfo({ name: '', phone: '', identityCard: '', patientId: '', insuranceNumber: '' });
+      return;
+    }
+    setPatientProfile(matched);
+    setPatientInfo({
+      name: matched.fullName || '',
+      phone: matched.phoneNumber || matched.phone || '',
+      identityCard: matched.identityNumber || matched.identityCardNumber || '',
+      patientId: matched.id || matched.patientCode || '',
+      insuranceNumber: matched.healthInsuranceNumber || ''
+    });
+  };
 
   const [validationError, setValidationError] = useState('');
 
@@ -190,12 +278,15 @@ export function BookAppointmentPage({
     return list;
   }, [date]);
 
-  // Patient identity validation: Họ tên & SĐT là đủ để xác lập cuộc hẹn y tế (không ép buộc biết trước nhóm máu!)
+  // Patient identity validation: Receptionist must pick a target patient; Patient uses own profile.
   const isProfileComplete = useMemo(() => {
+    if (isReceptionist) {
+      return Boolean(patientInfo.patientId && patientInfo.name.trim());
+    }
     const name = patientProfile?.fullName || patientInfo.name || storedUser?.fullName || '';
     const phone = patientProfile?.phoneNumber || patientInfo.phone || storedUser?.phone || '';
     return Boolean(name.trim() && phone.trim());
-  }, [patientProfile, patientInfo, storedUser]);
+  }, [isReceptionist, patientProfile, patientInfo, storedUser]);
 
   const { book, loading, error, result, reset } = useBookAppointment();
 
@@ -215,7 +306,8 @@ export function BookAppointmentPage({
             category: p.category || '',
             price: p.price ?? 0,
             description: p.description || '',
-            fastingRule: p.fastingRule || ''
+            fastingRule: p.fastingRule || '',
+            criteria: Array.isArray(p.criteria) ? p.criteria : []
           }));
           setPackages(mapped);
           setSelectedPackageId((current) => {
@@ -313,7 +405,17 @@ export function BookAppointmentPage({
       });
       if (generalMatched.length > 0) return generalMatched;
 
-      // Tuyệt đối không fallback sang bác sĩ chuyên khoa khác để bảo đảm an toàn lâm sàng
+      // 3. Các gói dịch vụ đa chuyên khoa / tổng quát do Admin tạo (General Checkup, Chronic Disease, Specialized...)
+      const isBroadPackage =
+        pkgCat.includes('general') ||
+        pkgCat.includes('tổng quát') ||
+        pkgCat.includes('chronic') ||
+        pkgCat.includes('specialized') ||
+        pkgCat.includes('checkup') ||
+        pkgCat.includes('biochemistry');
+      if (isBroadPackage) return inShift;
+
+      // Tuyệt đối không fallback sang bác sĩ chuyên khoa khác cho gói chuyên khoa hẹp
       return [];
     }
 
@@ -397,7 +499,11 @@ export function BookAppointmentPage({
     setValidationError('');
 
     if (!isProfileComplete) {
-      setValidationError('MSG-ERR-PROFILE-01: Quý khách vui lòng hoàn thiện Họ tên và Số điện thoại liên hệ để nhân viên y tế xác nhận lịch hẹn.');
+      setValidationError(
+        isReceptionist
+          ? 'MSG-ERR-PROFILE-01: Vui lòng chọn hồ sơ bệnh nhân từ cơ sở dữ liệu trước khi tạo lịch hẹn.'
+          : 'MSG-ERR-PROFILE-01: Quý khách vui lòng hoàn thiện Họ tên và Số điện thoại liên hệ để nhân viên y tế xác nhận lịch hẹn.'
+      );
       return;
     }
     if (!selectedPackageId) {
@@ -448,6 +554,12 @@ export function BookAppointmentPage({
         </header>
 
         <dl>
+          {patientInfo.name && (
+            <div>
+              <dt>Bệnh nhân</dt>
+              <dd>{patientInfo.name} ({patientInfo.patientId})</dd>
+            </div>
+          )}
           <div>
             <dt>Gói xét nghiệm</dt>
             <dd>{pkgName}</dd>
@@ -478,7 +590,9 @@ export function BookAppointmentPage({
 
         <button type="button" className="bms-pay-submit" onClick={pay}>Thanh toán chuyển khoản</button>
         <div className="bms-pay-links">
-          <button type="button" onClick={() => navigate('/appointments')}>Xem lịch của tôi</button>
+          <button type="button" onClick={() => navigate('/appointments')}>
+            {isReceptionist ? 'Xem sổ lịch hẹn' : 'Xem lịch của tôi'}
+          </button>
           <button type="button" onClick={reset}>Đặt lịch khác</button>
         </div>
       </div>
@@ -505,7 +619,44 @@ export function BookAppointmentPage({
 
               {/* SECTION 1: Patient Information */}
               <section className="bms-book-patient">
-                <h2>Thông tin bệnh nhân</h2>
+                <h2>{isReceptionist ? '1. Chọn Bệnh Nhân Tạo Lịch Hẹn (CSDL)' : 'Thông tin bệnh nhân'}</h2>
+                {isReceptionist && (
+                  <div className="mb-3">
+                    <div className="row g-2 mb-2">
+                      <div className="col-md-5">
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          placeholder="Tìm theo tên, mã BN, SĐT, CCCD..."
+                          value={patientSearch}
+                          onChange={(e) => setPatientSearch(e.target.value)}
+                        />
+                      </div>
+                      <div className="col-md-7">
+                        <select
+                          className="form-select form-select-sm"
+                          value={patientInfo.patientId}
+                          onChange={(e) => handleSelectPatient(e.target.value)}
+                          disabled={patientsLoading}
+                        >
+                          <option value="">
+                            {patientsLoading
+                              ? '-- Đang tải danh sách bệnh nhân từ CSDL... --'
+                              : '-- Chọn bệnh nhân để đặt lịch hẹn --'}
+                          </option>
+                          {filteredPatientOptions.map((p) => {
+                            const key = p.id || p.patientCode;
+                            return (
+                              <option key={key} value={key}>
+                                [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phoneNumber || p.phone || '—'}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <dl>
                   <div><dt>Họ tên</dt><dd>{patientInfo.name || '—'}</dd></div>
                   <div><dt>Điện thoại</dt><dd>{patientInfo.phone || '—'}</dd></div>
@@ -539,7 +690,13 @@ export function BookAppointmentPage({
                           </span>
                           <span className="bms-pkg-copy">
                             <span className="bms-pkg-name">{pkg.packageName}</span>
-                            {pkg.fastingRule ? <span className="bms-pkg-note">{pkg.fastingRule}</span> : null}
+                            {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
+                              <span className="bms-pkg-note">
+                                {pkg.criteria.length} chỉ số: {pkg.criteria.map((c) => c.code || c.name).filter(Boolean).join(', ')}
+                              </span>
+                            ) : pkg.fastingRule ? (
+                              <span className="bms-pkg-note">{pkg.fastingRule}</span>
+                            ) : null}
                           </span>
                           <span className="bms-pkg-price">
                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
@@ -736,8 +893,8 @@ export function BookAppointmentPage({
               )}
 
               <div className="bms-book-actions">
-                <button type="button" onClick={() => navigate('/services')}>Quay lại</button>
-                <button type="submit" disabled={loading || !slotTime || !selectedPackageId}>
+                <button type="button" onClick={() => navigate(isReceptionist ? '/appointments' : '/services')}>Quay lại</button>
+                <button type="submit" disabled={loading || !slotTime || !selectedPackageId || (isReceptionist && !patientInfo.patientId)}>
                   {loading ? 'Đang xử lý...' : 'Xác nhận đặt lịch'}
                 </button>
               </div>
@@ -756,6 +913,11 @@ export function BookAppointmentPage({
                     <div className="mb-3 pb-3 border-bottom">
                       <div className="small text-muted">Gói xét nghiệm chỉ định:</div>
                       <div className="fw-bold text-dark mt-1">{selectedPackage.packageName}</div>
+                      {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
+                        <div className="small text-muted mt-1">
+                          Chỉ số trong gói: <strong>{selectedPackage.criteria.map((c) => c.code || c.name).filter(Boolean).join(', ')}</strong>
+                        </div>
+                      )}
                       <div className="fw-bold text-primary mt-1 fs-5">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.price)}
                       </div>

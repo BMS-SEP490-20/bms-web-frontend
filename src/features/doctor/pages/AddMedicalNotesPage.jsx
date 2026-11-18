@@ -175,7 +175,7 @@ export default function AddMedicalNotesPage() {
                   <dd className="col-8 text-break font-monospace" style={{ color: '#1E60E6' }}>{record.patientId}</dd>
 
                   <dt className="col-4 text-muted small">Bác sĩ phụ trách</dt>
-                  <dd className="col-8">{record.doctorName || 'BS. Chuyên Khoa'}</dd>
+                  <dd className="col-8">{record.doctorName || '—'}</dd>
 
                   <dt className="col-4 text-muted small">Ngày lập</dt>
                   <dd className="col-8">{formatDate(record.createdAt)}</dd>

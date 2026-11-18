@@ -63,7 +63,8 @@ export default function DoctorConsolePage() {
     }
   });
 
-  const [roomId, setRoomId] = useState('ROOM-101');
+  // Empty = all rooms for this doctor (default ROOM-101 hid InProgress patients in ROOM-102).
+  const [roomId, setRoomId] = useState('');
   const [doctorId] = useState(() => currentUser?.doctorId || currentUser?.id || currentUser?._id || 'dr_nguyenminh');
 
   // Queue state
@@ -75,7 +76,7 @@ export default function DoctorConsolePage() {
   const [message, setMessage] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  // Lắng nghe sự kiện thông báo kết quả xét nghiệm được phê duyệt từ Trưởng Khoa (Lab Manager)
+  // Lab/tech verify event — clinical publish still requires Doctor approve + signature
   const [verifiedAlert, setVerifiedAlert] = useState(() => {
     try {
       const raw = localStorage.getItem('bms_last_verified_specimen');
@@ -131,7 +132,8 @@ export default function DoctorConsolePage() {
     try {
       const res = await receptionApi.getQueueStatus(roomId, doctorId);
       if (res) {
-        setCurrentServing(res.currentServing || null);
+        const serving = res.currentServing ?? res.data?.currentServing ?? null;
+        setCurrentServing(serving);
 
         // Multi-tiered defensive check for waiting list
         const rawList = res.waitingList ?? res.data?.waitingList ?? res.data ?? [];
@@ -157,11 +159,16 @@ export default function DoctorConsolePage() {
         setWaitingCount(
           Number.isFinite(res.waitingCount)
             ? res.waitingCount
-            : validWaitingList.length
+            : Number.isFinite(res.data?.waitingCount)
+              ? res.data.waitingCount
+              : validWaitingList.length
         );
       }
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu hàng đợi:', err);
+      setWaitingList([]);
+      setWaitingCount(0);
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Không thể tải hàng đợi phòng khám. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -196,17 +203,23 @@ export default function DoctorConsolePage() {
   // Call Next Patient (Only checked-in patients)
   const handleCallNext = useCallback(async () => {
     if (actionLoading) return;
+    const targetRoom = roomId || currentServing?.roomId;
+    if (!targetRoom) {
+      setErrorMsg('Chọn phòng khám trước khi gọi số tiếp theo.');
+      return;
+    }
     setActionLoading(true);
     setErrorMsg(null);
     setMessage(null);
 
     try {
-      const res = await receptionApi.callNextPatient(roomId, doctorId);
+      const res = await receptionApi.callNextPatient(targetRoom, doctorId);
       if (res && res.data) {
         setCurrentServing(res.data);
+        if (!roomId && res.data.roomId) setRoomId(res.data.roomId);
         setMessage(res.message || `Đang gọi bệnh nhân ${res.data.patientName}.`);
         // Voice announcement
-        const voiceText = `Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${roomId}`;
+        const voiceText = `Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${targetRoom}`;
         speakAnnouncement(voiceText);
       } else {
         setMessage(res?.message || 'Hàng đợi phòng khám hiện không có bệnh nhân chờ.');
@@ -218,21 +231,22 @@ export default function DoctorConsolePage() {
     } finally {
       setActionLoading(false);
     }
-  }, [actionLoading, roomId, doctorId, speakAnnouncement, fetchQueue]);
+  }, [actionLoading, roomId, doctorId, currentServing, speakAnnouncement, fetchQueue]);
 
   // Recall Current Patient
   const handleRecall = useCallback(async () => {
     if (!currentServing || actionLoading) return;
+    const targetRoom = roomId || currentServing.roomId || '';
     setActionLoading(true);
     setErrorMsg(null);
     setMessage(null);
 
     try {
-      const res = await receptionApi.recallPatient(currentServing.appointmentId, roomId);
+      const res = await receptionApi.recallPatient(currentServing.appointmentId, targetRoom);
       if (res && res.data) {
         setCurrentServing(res.data);
         setMessage(res.message || `Đã gọi lại bệnh nhân ${res.data.patientName}.`);
-        const voiceText = `Nhắc lại: Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${roomId}`;
+        const voiceText = `Nhắc lại: Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${targetRoom}`;
         speakAnnouncement(voiceText);
       }
       await fetchQueue();
@@ -332,7 +346,7 @@ export default function DoctorConsolePage() {
         newDate: preAnalyticsForm.newAppointmentDate,
         newSlotTime: preAnalyticsForm.newSlotTime,
         doctorAdvice: preAnalyticsForm.doctorAdvice,
-        doctorName: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
+        doctorName: currentUser?.fullName || 'Bác sĩ đang đăng nhập',
         doctorCchn: 'CCHN-008912/HCM'
       };
 
@@ -364,20 +378,37 @@ export default function DoctorConsolePage() {
   const [isDeliverySuccess, setIsDeliverySuccess] = useState(false);
   const [showReturnRerunModal, setShowReturnRerunModal] = useState(false);
   const [returnReason, setReturnReason] = useState('Chỉ số Kali 6.8 mmol/L không phù hợp với lâm sàng và điện tim bình thường, nghi ngờ vỡ hồng cầu in vitro');
+  const [liveTestResults, setLiveTestResults] = useState([]);
+  const [loadingLiveResults, setLoadingLiveResults] = useState(false);
 
   // Mở modal thẩm định kết quả
-  const handleOpenConsultationModal = (customAlert = null) => {
-    const pt = customAlert || currentServing || {
-      patientName: 'Trần Văn An',
-      patientId: 'PT-2026-004523',
-      appointmentId: 'APT-261113-0001',
-      specimenId: 'BC-PT001-A01-1-EDTA',
-      orderId: 'ORD-261116-A01'
-    };
+  const handleOpenConsultationModal = async (customAlert = null) => {
+    const pt = customAlert || currentServing;
+    if (!pt) {
+      setErrorMsg("Hiện chưa có bệnh nhân nào trong phòng khám để thẩm định kết quả. Vui lòng gọi bệnh nhân từ hàng đợi trước.");
+      return;
+    }
     setConsultationData(pt);
     setConsultationStep('review');
     setIsDeliverySuccess(false);
     setShowConsultationModal(true);
+
+    if (pt.appointmentId) {
+      setLoadingLiveResults(true);
+      try {
+        const res = await api.get(`/TestOrder/TestResult/by-appointment/${encodeURIComponent(pt.appointmentId)}`);
+        const data = res?.data?.data || res?.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setLiveTestResults(data);
+        } else {
+          setLiveTestResults([]);
+        }
+      } catch {
+        setLiveTestResults([]);
+      } finally {
+        setLoadingLiveResults(false);
+      }
+    }
   };
 
   // Bác sĩ gọi bệnh nhân vào bàn tư vấn
@@ -388,45 +419,92 @@ export default function DoctorConsolePage() {
     setConsultationStep('consult');
   };
 
-  // Bác sĩ yêu cầu Lab chạy lại (Clinical Discordance)
-  const handleDoctorRequestRerun = () => {
+  // Bác sĩ yêu cầu Lab chạy lại — gọi API thật (không localStorage)
+  const handleDoctorRequestRerun = async () => {
     if (!returnReason.trim()) return;
-    const rerunPayload = {
-      specimenId: consultationData?.specimenId || 'SPC-001',
-      orderId: consultationData?.orderId || 'ORD-001',
-      patientName: consultationData?.patientName || 'Bệnh nhân',
-      reason: returnReason.trim(),
-      requestedBy: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
-      timestamp: new Date().toISOString()
-    };
-
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('bms:doctor-request-rerun', { detail: rerunPayload }));
-      localStorage.setItem('bms_last_rerun_request', JSON.stringify(rerunPayload));
+    const specimenId =
+      consultationData?.specimenId ||
+      consultationData?.barcode ||
+      consultationData?.sampleId ||
+      liveTestResults?.[0]?.barcode ||
+      liveTestResults?.[0]?.sampleId ||
+      '';
+    if (!specimenId) {
+      setErrorMsg('Không tìm thấy mã ống mẫu để yêu cầu Lab chạy lại.');
+      return;
     }
-
-    setShowReturnRerunModal(false);
-    setShowConsultationModal(false);
-    setMessage(`Đã gửi yêu cầu trả kết quả về Lab chạy lại cho bệnh nhân ${consultationData?.patientName}. Lý do: ${returnReason}`);
+    setActionLoading(true);
+    try {
+      await api.post(`/laboratory/samples/${encodeURIComponent(specimenId)}/rerun`, {
+        reason: returnReason.trim(),
+        requestedBy: currentUser?.fullName || currentUser?.name || 'Bác sĩ',
+        notes: `Clinical discordance · BN ${consultationData?.patientName || ''} · ORD ${consultationData?.orderId || ''}`
+      });
+      setShowReturnRerunModal(false);
+      setShowConsultationModal(false);
+      setMessage(
+        `Đã gửi yêu cầu chạy lại tới Lab cho mẫu ${specimenId} (BN ${consultationData?.patientName || ''}). Lý do: ${returnReason}`
+      );
+    } catch (err) {
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Không gửi được yêu cầu chạy lại tới Lab.');
+    } finally {
+      setActionLoading(false);
+    }
   };
+
+  // GATE (step 4→5): ICD + kết luận lâm sàng ≥10 ký tự + có KQ Lab; chỉ khi đủ mới publish Cổng BN.
+  const canDoctorApproveResults =
+    Boolean(clinicalIcdCode?.trim()) &&
+    (clinicalConclusion?.trim()?.length || 0) >= 10 &&
+    liveTestResults.length > 0 &&
+    !isDeliverySuccess;
 
   // Bác sĩ ký duyệt và trả kết quả cho người bệnh (Email / Portal / PDF)
   const handleApproveAndDeliverToPatient = async () => {
+    if (!clinicalIcdCode?.trim()) {
+      setErrorMsg('Thiếu mã ICD-10 trước khi ký duyệt kết quả cho bệnh nhân.');
+      return;
+    }
+    if ((clinicalConclusion?.trim()?.length || 0) < 10) {
+      setErrorMsg('Kết luận lâm sàng phải tối thiểu 10 ký tự trước khi ký số trả kết quả.');
+      return;
+    }
+    if (liveTestResults.length === 0) {
+      setErrorMsg('Chưa có kết quả Lab (waiting_review). Lab phải nhập KQ trước khi bác sĩ duyệt.');
+      return;
+    }
+
     setActionLoading(true);
     try {
+      let approvedCount = 0;
+      for (const tr of liveTestResults) {
+        const resultId = tr.testResultId || tr.id;
+        if (!resultId) continue;
+        await api.post(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/approve`, {
+          approverId: doctorId,
+          approverName: currentUser?.fullName || currentUser?.name || 'Doctor',
+          approverRole: 'Doctor',
+          notes: `Bác sĩ kết luận: ICD-10 ${clinicalIcdCode}. ${clinicalConclusion}`
+        });
+        approvedCount += 1;
+      }
+      if (approvedCount === 0) {
+        throw new Error('Không tìm thấy mã kết quả hợp lệ để ký duyệt.');
+      }
+
       if (currentServing?.appointmentId) {
         await receptionApi.completePatient(
           currentServing.appointmentId,
           `[TƯ VẤN XÉT NGHIỆM HOÀN TẤT]: Chẩn đoán ICD-10 ${clinicalIcdCode}. Bác sĩ đã tư vấn kết quả và dặn dò người bệnh. Kết quả đã gửi qua Email: ${patientEmail}.`
-        );
+        ).catch(() => null);
       }
       setIsDeliverySuccess(true);
       setConsultationStep('delivered');
-      setMessage(`Đã ký số và trả kết quả thành công cho bệnh nhân ${consultationData?.patientName}! Email thông báo đã gửi tới ${patientEmail}.`);
+      setMessage(`Đã ký số và trả kết quả thành công cho bệnh nhân ${consultationData?.patientName}! BN xem tại /patient/test-history. Email: ${patientEmail}.`);
       await fetchQueue();
     } catch (err) {
       console.error('Lỗi khi ký duyệt và trả kết quả:', err);
-      setErrorMsg(err.message || 'Lỗi khi ký số trả kết quả.');
+      setErrorMsg(err.response?.data?.message || err.message || 'Lỗi khi ký số trả kết quả.');
     } finally {
       setActionLoading(false);
     }
@@ -466,38 +544,62 @@ export default function DoctorConsolePage() {
 
   return (
     <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Top Banner & Room Switcher */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Bàn khám</h1>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <div className="d-flex align-items-center gap-2">
-            <label className="small fw-semibold text-secondary mb-0">Phòng khám:</label>
-            <Form.Select
-              size="sm"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              className="fw-bold text-primary"
-              style={{ width: '160px' }}
+      {/* Master Top Banner & Room Switcher (BMS Luxury Clinician Console) */}
+      <div className="card border-0 shadow-sm rounded-4 p-3.5 mb-3 bg-white">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div className="d-flex align-items-center gap-3">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm flex-shrink-0"
+              style={{ width: "50px", height: "50px", backgroundColor: "#1E60E6", fontSize: '22px' }}
             >
-              <option value="ROOM-101">Phòng khám 101</option>
-              <option value="ROOM-102">Phòng khám 102</option>
-              <option value="ROOM-103">Phòng khám 103</option>
-              <option value="LAB-201">Phòng lấy mẫu 201</option>
-            </Form.Select>
+              <FaUserMd />
+            </div>
+            <div>
+              <h1 className="h4 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                Bàn Khám Lâm Sàng &amp; Gọi Số Bệnh Nhân
+                <Badge bg="primary-subtle" className="text-primary border border-primary-subtle rounded-pill fw-semibold fs-6">
+                  {roomId || 'Tất cả phòng'}
+                </Badge>
+              </h1>
+              <div className="text-muted small mb-0 d-flex align-items-center gap-2 flex-wrap">
+                <span><strong>Bác sĩ phụ trách:</strong> {currentUser?.fullName || "Bác sĩ đang đăng nhập"} ({doctorId || "—"})</span>
+                <span>•</span>
+                <span><strong>Phân công ca trực:</strong> Ca Sáng (07:00 - 15:00)</span>
+                <span>•</span>
+                <span className="text-success fw-semibold">● Trực tuyến (Sẵn sàng tiếp nhận)</span>
+              </div>
+            </div>
           </div>
+          <div className="d-flex align-items-center gap-2.5">
+            <div className="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border">
+              <label className="small fw-semibold text-secondary mb-0 text-nowrap">Đổi phòng khám:</label>
+              <Form.Select
+                size="sm"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="fw-bold text-primary border-0 bg-transparent py-0 shadow-none"
+                style={{ width: '180px', cursor: 'pointer' }}
+              >
+                <option value="">Tất cả phòng hôm nay</option>
+                <option value="ROOM-101">Phòng khám 101</option>
+                <option value="ROOM-102">Phòng khám 102</option>
+                <option value="ROOM-103">Phòng khám 103</option>
+              </Form.Select>
+            </div>
 
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={fetchQueue}
-            title="Tải lại danh sách hàng đợi"
-          >
-            <FaRedo className={loading ? 'fa-spin' : ''} />
-          </Button>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="rounded-pill p-2 px-3 d-flex align-items-center gap-1.5 shadow-xs"
+              onClick={fetchQueue}
+              title="Tải lại danh sách hàng đợi"
+            >
+              <FaRedo className={loading ? 'fa-spin' : ''} />
+              <span className="small d-none d-md-inline">Làm mới</span>
+            </Button>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Alerts */}
       {verifiedAlert && (
@@ -511,11 +613,11 @@ export default function DoctorConsolePage() {
             <FaCheckCircle className="fs-3 text-success flex-shrink-0" />
             <div className="flex-grow-1">
               <div className="fw-bold text-success d-flex align-items-center gap-2">
-                <span>KẾT QUẢ XÉT NGHIỆM ĐÃ ĐƯỢC TRƯỞNG KHOA PHÊ DUYỆT</span>
-                <Badge bg="success">Sẵn sàng hội chẩn</Badge>
+                <span>KẾT QUẢ LAB SẴN SÀNG — CHỜ BÁC SĨ THẨM ĐỊNH</span>
+                <Badge bg="success">Chờ ký duyệt lâm sàng</Badge>
               </div>
               <div className="small text-dark mt-1">
-                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã hoàn tất thẩm định và ký số điện tử. Bác sĩ có thể mở hồ sơ để kết luận lâm sàng.
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (ISO 15189 / QĐ 2429).
               </div>
             </div>
           </div>
@@ -591,10 +693,10 @@ export default function DoctorConsolePage() {
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
             <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
               <span className="fw-bold text-uppercase small tracking-wide">
-                Bệnh Nhân Đang Khám / Lấy Mẫu
+                Bệnh Nhân Đang Khám
               </span>
               <Badge bg="light" text="dark" className="fw-bold px-3 py-1.5 rounded-pill">
-                <FaDoorOpen className="me-1" /> {roomId}
+                <FaDoorOpen className="me-1" /> {roomId || 'Tất cả phòng'}
               </Badge>
             </Card.Header>
 
@@ -686,7 +788,7 @@ export default function DoctorConsolePage() {
 
                       <Button
                         as={Link}
-                        to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId)}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}`}
+                        to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId || '')}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}&packageId=${encodeURIComponent(currentServing.packageId || '')}&phone=${encodeURIComponent(currentServing.patientPhone || '')}`}
                         variant="primary"
                         size="sm"
                         className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-sm"
@@ -769,30 +871,23 @@ export default function DoctorConsolePage() {
                   </p>
                   <div className="d-flex justify-content-center gap-2 flex-wrap mt-2">
                     <Button
-                      variant="outline-primary"
+                      variant="primary"
                       size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
-                      onClick={() => setCurrentServing({
-                        appointmentId: 'APT-261127-0001',
-                        appointmentCode: 'APT-261127-0001',
-                        patientId: 'PAT-079201009988',
-                        patientName: 'Trần Văn An',
-                        patientPhone: '0909123456',
-                        queueNumberFormatted: '001',
-                        consultationStartTime: new Date().toISOString()
-                      })}
+                      className="rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
+                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                      onClick={handleCallNext}
+                      disabled={actionLoading || waitingList.length === 0}
                     >
-                      <FaUserInjured /> Tiếp Nhận Bệnh Nhân Khám (Trần Văn An)
+                      <FaBullhorn /> {actionLoading ? 'Đang gọi...' : 'Gọi Bệnh Nhân Kế Tiếp (F2)'}
                     </Button>
                     <Button
                       as={Link}
                       to="/doctor/orders/create"
-                      variant="primary"
+                      variant="outline-primary"
                       size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                      className="rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
                     >
-                      <FaVial /> Tạo Y Lệnh Xét Nghiệm Máu
+                      <FaStethoscope /> Mở Bàn Chỉ Định Xét Nghiệm
                     </Button>
                   </div>
                 </div>
@@ -984,7 +1079,7 @@ export default function DoctorConsolePage() {
               <Col sm={6} className="text-sm-end">
                 <div className="small text-muted">Bác sĩ khám:</div>
                 <div className="fw-bold text-dark fs-6">
-                  {currentUser?.fullName || "BS. CKI Nguyễn Văn Minh"}
+                  {currentUser?.fullName || "Bác sĩ đang đăng nhập"}
                 </div>
                 <div className="small text-muted font-monospace">Số CCHN: CCHN-008912/HCM</div>
               </Col>
@@ -1217,11 +1312,11 @@ export default function DoctorConsolePage() {
                 </div>
               </Col>
               <Col sm={6} className="text-sm-end">
-                <div className="small text-muted">Chữ ký số kỹ thuật Lab:</div>
+                <div className="small text-muted">Xác nhận kỹ thuật Lab (không thay duyệt lâm sàng):</div>
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
-                  <FaShieldAlt /> BSCKII. Lê Lan Anh (Trưởng Khoa Xét Nghiệm)
+                  <FaShieldAlt /> {consultationData?.technicianName || consultationData?.verifiedByName || 'KTV đã xác nhận kỹ thuật'}
                 </div>
-                <div className="small text-muted">Chứng thư số y tế hợp lệ · Tiêu chuẩn ISO 15189:2022</div>
+                <div className="small text-muted">Chờ bác sĩ duyệt + ký số mới trả BN · ISO 15189:2022</div>
               </Col>
             </Row>
           </div>
@@ -1249,110 +1344,146 @@ export default function DoctorConsolePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Nhóm 1: Ống Tím EDTA */}
-                    <tr className="table-light fw-bold" style={{ backgroundColor: "#f3e8ff" }}>
-                      <td colSpan={5} className="ps-3 text-purple" style={{ color: "#7c3aed" }}>
-                        <FaVial className="me-1" /> Ống 1 · Nắp Tím (K2-EDTA): Tổng phân tích tế bào máu CBC (Laser Sysmex XN-1000)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">WBC (Số lượng bạch cầu)</td>
-                      <td className="text-end font-monospace fw-bold">6.80</td>
-                      <td className="small text-secondary">10⁹/L</td>
-                      <td className="small text-muted font-monospace">4.0 &ndash; 10.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">RBC (Số lượng hồng cầu)</td>
-                      <td className="text-end font-monospace fw-bold">4.52</td>
-                      <td className="small text-secondary">10¹²/L</td>
-                      <td className="small text-muted font-monospace">3.8 &ndash; 5.2</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">HGB (Hemoglobin)</td>
-                      <td className="text-end font-monospace fw-bold">13.8</td>
-                      <td className="small text-secondary">g/dL</td>
-                      <td className="small text-muted font-monospace">12.0 &ndash; 16.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">PLT (Số lượng tiểu cầu)</td>
-                      <td className="text-end font-monospace fw-bold">245</td>
-                      <td className="small text-secondary">10⁹/L</td>
-                      <td className="small text-muted font-monospace">150 &ndash; 400</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
+                    {/* Trường hợp có kết quả thực tế từ CSDL do KTV Lab vừa nhập */}
+                    {liveTestResults.length > 0 && liveTestResults[0]?.items?.length > 0 ? (
+                      <>
+                        <tr className="table-light fw-bold" style={{ backgroundColor: "#eff6ff" }}>
+                          <td colSpan={5} className="ps-3 text-primary">
+                            <FaFlask className="me-1" /> Kết Quả Xét Nghiệm Do Kỹ Thuật Viên Phòng Lab Nhập Trực Tiếp (Mã KQ: {liveTestResults[0].testResultId || liveTestResults[0].id})
+                          </td>
+                        </tr>
+                        {liveTestResults[0].items.map((item, idx) => {
+                          const isHigh = item.flag === 'High' || item.flag === 'CriticalPanic';
+                          const isLow = item.flag === 'Low';
+                          return (
+                            <tr key={idx} className={isHigh || isLow ? 'table-warning' : ''}>
+                              <td className="ps-4 fw-semibold text-dark">{item.paramName || item.criteriaId}</td>
+                              <td className={`text-end font-monospace fw-bold ${isHigh ? 'text-danger' : isLow ? 'text-warning' : 'text-dark'}`}>
+                                {item.value}
+                              </td>
+                              <td className="small text-secondary">{item.unit || '—'}</td>
+                              <td className="small text-muted font-monospace">{item.normalRange || 'Theo chuẩn'}</td>
+                              <td className="text-center">
+                                {isHigh ? (
+                                  <Badge bg="danger">&uarr; TĂNG CAO</Badge>
+                                ) : isLow ? (
+                                  <Badge bg="warning" text="dark">&darr; HẠ THẤP</Badge>
+                                ) : (
+                                  <Badge bg="success-subtle" text="success" className="border">Bình thường</Badge>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        {/* Nhóm 1: Ống Tím EDTA */}
+                        <tr className="table-light fw-bold" style={{ backgroundColor: "#f3e8ff" }}>
+                          <td colSpan={5} className="ps-3 text-purple" style={{ color: "#7c3aed" }}>
+                            <FaVial className="me-1" /> Ống 1 · Nắp Tím (K2-EDTA): Tổng phân tích tế bào máu CBC
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">WBC (Số lượng bạch cầu)</td>
+                          <td className="text-end font-monospace fw-bold">6.80</td>
+                          <td className="small text-secondary">10⁹/L</td>
+                          <td className="small text-muted font-monospace">4.0 &ndash; 10.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">RBC (Số lượng hồng cầu)</td>
+                          <td className="text-end font-monospace fw-bold">4.52</td>
+                          <td className="small text-secondary">10¹²/L</td>
+                          <td className="small text-muted font-monospace">3.8 &ndash; 5.2</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">HGB (Hemoglobin)</td>
+                          <td className="text-end font-monospace fw-bold">13.8</td>
+                          <td className="small text-secondary">g/dL</td>
+                          <td className="small text-muted font-monospace">12.0 &ndash; 16.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">PLT (Số lượng tiểu cầu)</td>
+                          <td className="text-end font-monospace fw-bold">245</td>
+                          <td className="small text-secondary">10⁹/L</td>
+                          <td className="small text-muted font-monospace">150 &ndash; 400</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
 
-                    {/* Nhóm 2: Ống Vàng SST Gel */}
-                    <tr className="table-light fw-bold" style={{ backgroundColor: "#fef9c3" }}>
-                      <td colSpan={5} className="ps-3" style={{ color: "#ca8a04" }}>
-                        <FaVial className="me-1" /> Ống 2 · Nắp Vàng (SST Gel): Hóa sinh &amp; Miễn dịch (Roche Cobas 6000)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">GLU (Đường huyết đói Glucose)</td>
-                      <td className="text-end font-monospace fw-bold">5.80</td>
-                      <td className="small text-secondary">mmol/L</td>
-                      <td className="small text-muted font-monospace">3.9 &ndash; 6.4</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">AST (Men gan GOT)</td>
-                      <td className="text-end font-monospace fw-bold">28.0</td>
-                      <td className="small text-secondary">U/L</td>
-                      <td className="small text-muted font-monospace">&lt; 37.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">ALT (Men gan GPT)</td>
-                      <td className="text-end font-monospace fw-bold">32.0</td>
-                      <td className="small text-secondary">U/L</td>
-                      <td className="small text-muted font-monospace">&lt; 40.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr className="table-warning">
-                      <td className="ps-4 fw-semibold text-danger">CHOL (Cholesterol toàn phần)</td>
-                      <td className="text-end font-monospace fw-bold text-danger">5.42</td>
-                      <td className="small text-secondary">mmol/L</td>
-                      <td className="small text-muted font-monospace">&lt; 5.20</td>
-                      <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
-                    </tr>
-                    <tr className="table-warning">
-                      <td className="ps-4 fw-semibold text-danger">TRIG (Triglyceride máu)</td>
-                      <td className="text-end font-monospace fw-bold text-danger">1.95</td>
-                      <td className="small text-secondary">mmol/L</td>
-                      <td className="small text-muted font-monospace">&lt; 1.70</td>
-                      <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">K+ (Kali máu)</td>
-                      <td className="text-end font-monospace fw-bold">4.10</td>
-                      <td className="small text-secondary">mmol/L</td>
-                      <td className="small text-muted font-monospace">3.5 &ndash; 5.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
+                        {/* Nhóm 2: Ống Vàng SST Gel */}
+                        <tr className="table-light fw-bold" style={{ backgroundColor: "#fef9c3" }}>
+                          <td colSpan={5} className="ps-3" style={{ color: "#ca8a04" }}>
+                            <FaVial className="me-1" /> Ống 2 · Nắp Vàng (SST Gel): Hóa sinh máu &amp; Miễn dịch
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">GLU (Đường huyết đói Glucose)</td>
+                          <td className="text-end font-monospace fw-bold">5.80</td>
+                          <td className="small text-secondary">mmol/L</td>
+                          <td className="small text-muted font-monospace">3.9 &ndash; 6.4</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">AST (Men gan GOT)</td>
+                          <td className="text-end font-monospace fw-bold">28.0</td>
+                          <td className="small text-secondary">U/L</td>
+                          <td className="small text-muted font-monospace">&lt; 37.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">ALT (Men gan GPT)</td>
+                          <td className="text-end font-monospace fw-bold">32.0</td>
+                          <td className="small text-secondary">U/L</td>
+                          <td className="small text-muted font-monospace">&lt; 40.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr className="table-warning">
+                          <td className="ps-4 fw-semibold text-danger">CHOL (Cholesterol toàn phần)</td>
+                          <td className="text-end font-monospace fw-bold text-danger">5.42</td>
+                          <td className="small text-secondary">mmol/L</td>
+                          <td className="small text-muted font-monospace">&lt; 5.20</td>
+                          <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
+                        </tr>
+                        <tr className="table-warning">
+                          <td className="ps-4 fw-semibold text-danger">TRIG (Triglyceride máu)</td>
+                          <td className="text-end font-monospace fw-bold text-danger">1.95</td>
+                          <td className="small text-secondary">mmol/L</td>
+                          <td className="small text-muted font-monospace">&lt; 1.70</td>
+                          <td className="text-center"><Badge bg="warning" text="dark">&uarr; TĂNG CAO</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">K+ (Kali máu)</td>
+                          <td className="text-end font-monospace fw-bold">4.10</td>
+                          <td className="small text-secondary">mmol/L</td>
+                          <td className="small text-muted font-monospace">3.5 &ndash; 5.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
 
-                    {/* Nhóm 3: Ống Xanh Dương Citrate */}
-                    <tr className="table-light fw-bold" style={{ backgroundColor: "#e0f2fe" }}>
-                      <td colSpan={5} className="ps-3" style={{ color: "#0284c7" }}>
-                        <FaVial className="me-1" /> Ống 3 · Nắp Xanh (Sodium Citrate 3.2%): Đông máu (Stago Compact Max)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">PT (Thời gian Prothrombin)</td>
-                      <td className="text-end font-monospace fw-bold">12.4</td>
-                      <td className="small text-secondary">Giây</td>
-                      <td className="small text-muted font-monospace">11.0 &ndash; 14.0</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4">INR (Chỉ số bình thường hóa quốc tế)</td>
-                      <td className="text-end font-monospace fw-bold">1.02</td>
-                      <td className="small text-secondary">—</td>
-                      <td className="small text-muted font-monospace">0.80 &ndash; 1.20</td>
-                      <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
-                    </tr>
+                        {/* Nhóm 3: Ống Xanh Dương Citrate */}
+                        <tr className="table-light fw-bold" style={{ backgroundColor: "#e0f2fe" }}>
+                          <td colSpan={5} className="ps-3" style={{ color: "#0284c7" }}>
+                            <FaVial className="me-1" /> Ống 3 · Nắp Xanh (Sodium Citrate 3.2%): Đông máu cơ bản
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">PT (Thời gian Prothrombin)</td>
+                          <td className="text-end font-monospace fw-bold">12.4</td>
+                          <td className="small text-secondary">Giây</td>
+                          <td className="small text-muted font-monospace">11.0 &ndash; 14.0</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                        <tr>
+                          <td className="ps-4">INR (Chỉ số bình thường hóa quốc tế)</td>
+                          <td className="text-end font-monospace fw-bold">1.02</td>
+                          <td className="small text-secondary">—</td>
+                          <td className="small text-muted font-monospace">0.80 &ndash; 1.20</td>
+                          <td className="text-center"><Badge bg="success-subtle" text="success" className="border">Bình thường</Badge></td>
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </Table>
               </div>
@@ -1464,13 +1595,15 @@ export default function DoctorConsolePage() {
 
         <Modal.Footer className="bg-light d-flex justify-content-between">
           <div>
-            <Button
-              variant="outline-danger"
-              className="d-flex align-items-center gap-1.5 fw-semibold"
-              onClick={() => setShowReturnRerunModal(true)}
-            >
-              <FaUndo /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
-            </Button>
+            {!isDeliverySuccess && (
+              <Button
+                variant="outline-danger"
+                className="d-flex align-items-center gap-1.5 fw-semibold"
+                onClick={() => setShowReturnRerunModal(true)}
+              >
+                <FaUndo /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
+              </Button>
+            )}
           </div>
 
           <div className="d-flex gap-2">
@@ -1480,7 +1613,18 @@ export default function DoctorConsolePage() {
             <Button
               variant="success"
               onClick={handleApproveAndDeliverToPatient}
-              disabled={actionLoading || isDeliverySuccess}
+              disabled={actionLoading || !canDoctorApproveResults}
+              title={
+                isDeliverySuccess
+                  ? 'Đã trả kết quả'
+                  : liveTestResults.length === 0
+                    ? 'Chưa có KQ Lab — Lab phải nhập trước'
+                    : !clinicalIcdCode?.trim()
+                      ? 'Nhập ICD-10'
+                      : (clinicalConclusion?.trim()?.length || 0) < 10
+                        ? 'Kết luận lâm sàng ≥ 10 ký tự'
+                        : 'Ký duyệt và mở Cổng BN'
+              }
               className="d-flex align-items-center gap-2 fw-bold text-white px-3 shadow-sm"
               style={{ backgroundColor: '#059669', borderColor: '#059669' }}
             >

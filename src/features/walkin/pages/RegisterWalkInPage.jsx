@@ -39,11 +39,12 @@ export function RegisterWalkInPage({ onSuccess }) {
   const [existingPatient, setExistingPatient] = useState(null);
 
   const [checks, setChecks] = useState({
-    identity: true,
-    fasting: true,
-    meds: true,
-    consent: true,
+    identity: false,
+    fasting: false,
+    meds: false,
+    consent: false,
   });
+  const [checkError, setCheckError] = useState(null);
   const [receptionNotes, setReceptionNotes] = useState('');
   const [issuedTicket, setIssuedTicket] = useState(null);
   const [isIssuingTicket, setIsIssuingTicket] = useState(false);
@@ -163,6 +164,11 @@ export function RegisterWalkInPage({ onSuccess }) {
   // Lưu hồ sơ khách vãng lai mới
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (!checks.identity || !checks.consent) {
+      setCheckError('Bắt buộc xác nhận đối chiếu CCCD và đồng thuận lấy mẫu (ISO 15189) trước khi đăng ký.');
+      return;
+    }
+    setCheckError(null);
 
     // Chuẩn hóa họ tên in hoa theo chuẩn y tế
     const payload = {
@@ -825,11 +831,17 @@ export function RegisterWalkInPage({ onSuccess }) {
                         type="checkbox"
                         id={`check-${key}`}
                         className="mb-2"
-                        label={<span className="small text-dark">{label}</span>}
+                        label={<span className="small text-dark">{label}{(key === 'identity' || key === 'consent') ? ' *' : ''}</span>}
                         checked={checks[key]}
-                        onChange={(e) => setChecks((c) => ({ ...c, [key]: e.target.checked }))}
+                        onChange={(e) => {
+                          setChecks((c) => ({ ...c, [key]: e.target.checked }));
+                          setCheckError(null);
+                        }}
                       />
                     ))}
+                    {checkError && (
+                      <div className="small text-danger mt-2">{checkError}</div>
+                    )}
                   </div>
 
                   <Row className="g-3">

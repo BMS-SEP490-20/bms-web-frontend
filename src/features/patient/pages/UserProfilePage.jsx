@@ -709,12 +709,12 @@ export const UserProfilePage = () => {
                           <li className="mb-1">Tiếp nhận bệnh phẩm máu, kiểm tra tiêu chuẩn thể tích và chất lượng ống nghiệm (ISO 15189).</li>
                           <li className="mb-1">Vận hành, hiệu chuẩn và kiểm soát chất lượng nội kiểm (IQC) trên hệ thống máy phân tích tự động.</li>
                           <li className="mb-1">Theo dõi cảnh báo bất thường, thực hiện chạy lại mẫu kiểm tra chéo khi phát hiện sai lệch.</li>
-                          <li>Ký duyệt kết quả phân tích kỹ thuật sơ bộ trên hệ thống LIS BMS trước khi chuyển Bác sĩ/Trưởng khoa.</li>
+                          <li>Nhập kết quả phân tích kỹ thuật trên LIS BMS và chuyển Bác sĩ điều trị thẩm định (không công bố Cổng BN).</li>
                         </>
                       )}
                       {isManager && (
                         <>
-                          <li className="mb-1">Phê duyệt kết quả xét nghiệm chính thức và ký số số hóa y tế (Digital Signature).</li>
+                          <li className="mb-1">Thẩm định kỹ thuật tùy chọn (QC/Westgard); công bố kết quả cho BN chỉ do Bác sĩ ký duyệt.</li>
                           <li className="mb-1">Xây dựng và giám sát hệ thống quản lý chất lượng phòng xét nghiệm theo tiêu chuẩn ISO 15189:2022.</li>
                           <li className="mb-1">Phân công ca trực, phê duyệt đề xuất đổi ca của Bác sĩ và Kỹ thuật viên.</li>
                           <li>Giám sát an toàn sinh học phòng lab và giải quyết các khiếu nại chuyên môn.</li>

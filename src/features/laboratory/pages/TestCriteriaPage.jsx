@@ -9,10 +9,13 @@ import { useNavigate } from 'react-router-dom';
 import testCriterionService from '../../../services/testCriterionService';
 import TestCriterionFormModal from '../components/TestCriterionFormModal';
 import DeactivateCriterionModal from '../components/DeactivateCriterionModal';
+import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 import './TestCriteriaPage.css';
 
 export default function TestCriteriaPage() {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
+  const canManage = hasRole(currentUser, ROLES.MANAGER, ROLES.ADMIN);
   const [criteria, setCriteria] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -205,16 +208,18 @@ export default function TestCriteriaPage() {
             <span>&#9825;</span>
             <span>Khoảng tham chiếu</span>
           </button>
-          <button
-            type="button"
-            className="bms-btn bms-btn-primary"
-            onClick={handleOpenCreateModal}
-            id="btn-add-criterion"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <span>+</span>
-            <span>Thêm chỉ số</span>
-          </button>
+          {canManage && (
+            <button
+              type="button"
+              className="bms-btn bms-btn-primary"
+              onClick={handleOpenCreateModal}
+              id="btn-add-criterion"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <span>+</span>
+              <span>Thêm chỉ số</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -355,23 +360,27 @@ export default function TestCriteriaPage() {
                         >
                           Dải TC
                         </button>
-                        <button
-                          type="button"
-                          className="bms-table-action-btn"
-                          title="Chỉnh sửa chỉ số"
-                          onClick={() => handleOpenEditModal(item)}
-                        >
-                          Sửa
-                        </button>
-                        {item.isActive && (
-                          <button
-                            type="button"
-                            className="bms-table-action-btn danger"
-                            title="Ngưng áp dụng chỉ số"
-                            onClick={() => handleOpenDeactivateModal(item)}
-                          >
-                            Khóa
-                          </button>
+                        {canManage && (
+                          <>
+                            <button
+                              type="button"
+                              className="bms-table-action-btn"
+                              title="Chỉnh sửa chỉ số"
+                              onClick={() => handleOpenEditModal(item)}
+                            >
+                              Sửa
+                            </button>
+                            {item.isActive && (
+                              <button
+                                type="button"
+                                className="bms-table-action-btn danger"
+                                title="Ngưng áp dụng chỉ số"
+                                onClick={() => handleOpenDeactivateModal(item)}
+                              >
+                                Khóa
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>

@@ -69,8 +69,8 @@ export default function MedicalRecordPage() {
     } catch { return false; }
   }, []);
 
-  const [patientId, setPatientId] = useState(() => queryPatientId || 'PAT-261019-0005');
-  const [searchPatientInput, setSearchPatientInput] = useState(() => queryPatientId || 'PAT-261019-0005');
+  const [patientId, setPatientId] = useState(() => queryPatientId || '');
+  const [searchPatientInput, setSearchPatientInput] = useState(() => queryPatientId || '');
   const [records, setRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -838,7 +838,7 @@ export default function MedicalRecordPage() {
                     <div className="small text-muted">Bác sĩ khám</div>
                     <div className="fw-bold fs-6 text-dark">
                       <FaUserMd className="text-success me-2" />
-                      {selectedRecord.doctorName || 'BS. Chuyên Khoa'}
+                      {selectedRecord.doctorName || '—'}
                     </div>
                     <div className="small text-muted">
                       Thời điểm khám:{' '}

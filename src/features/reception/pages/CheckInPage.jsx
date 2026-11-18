@@ -108,7 +108,14 @@ export default function CheckInPage() {
 
   // WHY: UC25 guest profiles are Receptionist-only (matrix §1.3, decision 10: Admin has no clinical access).
   // No stored user => false (the old code returned true and also let Admin in).
-  const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
+  const currentUser = React.useMemo(() => getStoredUser(), []);
+  const canCreateGuest = React.useMemo(() => hasRole(currentUser, ROLES.RECEPTIONIST), [currentUser]);
+  const isDoctorViewer = React.useMemo(() => hasRole(currentUser, ROLES.DOCTOR), [currentUser]);
+  const pageTitle = isDoctorViewer
+    ? 'Hồ Sơ Bệnh Nhân Lâm Sàng'
+    : canCreateGuest
+      ? 'Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai'
+      : 'Danh Mục Hồ Sơ Bệnh Nhân';
 
   useEffect(() => {
     try {
@@ -348,7 +355,7 @@ export default function CheckInPage() {
           <div className="bms-page-title-row">
             
             <h1 className="bms-page-title">
-              Quản Lý Hồ Sơ Bệnh Nhân &amp; Tiếp Nhận Khách Vãng Lai
+              {pageTitle}
             </h1>
           </div>
           

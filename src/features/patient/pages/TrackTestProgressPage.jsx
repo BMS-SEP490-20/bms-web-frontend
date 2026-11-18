@@ -28,6 +28,7 @@ import { fetchTrackingByCode } from "../api/trackingApi";
 import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
 import usePageTransition from "../../../shared/hooks/usePageTransition";
+import { getStoredUser } from "../../../constants/roles";
 import "./TrackTestProgressPage.css";
 
 export default function TrackTestProgressPage() {
@@ -35,6 +36,8 @@ export default function TrackTestProgressPage() {
     const [searchParams] = useSearchParams();
     const { identifier: routeIdentifier } = useParams();
     const navigate = useNavigate();
+    // Trong MainLayout (đã login) bỏ navbar/footer marketing
+    const isEmbedded = Boolean(getStoredUser());
 
     const [searchInput, setSearchInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -163,7 +166,7 @@ export default function TrackTestProgressPage() {
 
     return (
         <div className="bms-tracking-page">
-            <PortalNavbar />
+            {!isEmbedded && <PortalNavbar />}
             
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
                 <div className="container" style={{ maxWidth: 1180 }}>
@@ -600,7 +603,7 @@ export default function TrackTestProgressPage() {
                 </div>
             </main>
 
-            <MegaFooter />
+            {!isEmbedded && <MegaFooter />}
         </div>
     );
 }

@@ -85,7 +85,9 @@ export default function RoleBasedDashboard() {
     return 'Manager';
   }, [currentUser]);
 
-  const [selectedRole, setSelectedRole] = useState(initialRole);
+  // SoD (decision 10 / Phase 6): never let Admin (or any role) preview another role's clinical dashboard.
+  // Cross-role tabs previously exposed Manager "Vào thẩm định kỹ thuật" CTAs to Admin.
+  const selectedRole = initialRole;
   const [stats, setStats] = useState(null);
   const [adminOps, setAdminOps] = useState(null);
   const [liveQueue, setLiveQueue] = useState([]);
@@ -112,34 +114,9 @@ export default function RoleBasedDashboard() {
       setLastRefreshed(new Date());
     } catch (err) {
       console.warn('[RoleDashboard] API notice:', err);
-      // Fallback clean structured model to preserve UI rendering stability
-      if (role === 'Admin') {
-        setAdminOps({
-          usersPerRole: { Admin: 4, Manager: 6, Doctor: 18, Lab: 22, Receptionist: 12, Patient: 86 },
-          lockedAccounts: 0,
-          logins: { distinctAccountsLast24h: 38, distinctAccountsLast7d: 112, accountsWithFailedAttempts: 2 },
-          backup: { lastStatus: 'Success', lastCompletedAtUtc: new Date().toISOString(), completedLast7d: 7, failedLast7d: 0 },
-          auditLogRows: 1420,
-          iotDevices: { online: 12, offline: 0 },
-          revenue: { totalCollected: 184500000, paidInvoiceCount: 94 },
-          generatedAtUtc: new Date().toISOString()
-        });
-      } else {
-        setStats({
-          userName: currentUser?.fullName || currentUser?.name || 'BSCKII. Lê Lan Anh',
-          role: role,
-          summaryCards: [
-            { key: 'total_orders', title: 'Tổng lượt khám & xét nghiệm', value: '0', icon: 'FaClipboardCheck', colorVariant: 'blue', subtitle: 'Dữ liệu thời gian thực hôm nay' },
-            { key: 'samples', title: 'Mẫu xét nghiệm tiếp nhận', value: '0', icon: 'FaVial', colorVariant: 'green', subtitle: 'Đang lưu hành toàn viện' },
-            { key: 'tat', title: 'Thời gian trả kết quả (TAT)', value: '—', icon: 'FaStopwatch', colorVariant: 'amber', subtitle: 'Đạt chuẩn ISO 15189' },
-            { key: 'iot_alert', title: 'Nhiệt độ tủ lạnh IoT', value: '—', icon: 'FaTemperatureHigh', colorVariant: 'cyan', subtitle: 'Dải an toàn bảo quản (2°C - 8°C)' }
-          ],
-          managerData: { totalOrdersToday: 0, revenueToday: 0, averageTatMinutes: 0, activeAlertsCount: 0, coldStorageTemperature: null },
-          doctorData: { todayAppointmentsCount: 0, pendingApprovalsCount: 0, reviewedTodayCount: 0, todaySchedule: [] },
-          labUserData: { queueWaitingCount: 0, inProgressCount: 0, completedTodayCount: 0, rerunRequestedCount: 0, prioritySamples: [] },
-          receptionistData: { checkInsToday: 0, waitingQueueCount: 0, totalWalkIns: 0, paymentsCollectedToday: 0 }
-        });
-      }
+      setAdminOps(null);
+      setStats(null);
+      setError(err?.response?.data?.message || err?.message || 'Không thể tải số liệu vận hành. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -149,8 +126,12 @@ export default function RoleBasedDashboard() {
     loadDashboardData(selectedRole);
   }, [selectedRole, loadDashboardData]);
 
-  // Load real Verification Queue for clinical roles
+  // Manager-only tech-verify queue (patient names). Skip for Admin/Doctor/Lab/Receptionist.
   useEffect(() => {
+    if (selectedRole !== 'Manager') {
+      setLiveQueue([]);
+      return;
+    }
     fetchVerificationQueue()
       .then(items => {
         const safeItems = Array.isArray(items) ? items : (items?.data && Array.isArray(items.data) ? items.data : []);
@@ -167,7 +148,7 @@ export default function RoleBasedDashboard() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [selectedRole]);
 
   const managerQueue = useMemo(() => {
     return liveQueue.slice(0, 5);
@@ -206,18 +187,18 @@ export default function RoleBasedDashboard() {
         </div>
       </div>
 
-      {/* 2. Master Role Switcher Navigation Capsule Bar */}
+      {/* Own-role badge only — no cross-role switcher (SoD / Phase 6 Admin audit). */}
       <div className="mb-4">
         <div className="bms-role-nav-capsule">
-          {ROLES_LIST.map((r) => {
+          {ROLES_LIST.filter((r) => r.id === selectedRole).map((r) => {
             const Icon = r.icon;
-            const isActive = selectedRole === r.id;
             return (
               <button
                 key={r.id}
                 type="button"
-                className={`bms-role-nav-tab ${isActive ? 'active' : ''}`}
-                onClick={() => setSelectedRole(r.id)}
+                className="bms-role-nav-tab active"
+                disabled
+                aria-current="page"
               >
                 <Icon size={14} />
                 <span>{r.label}</span>
@@ -252,7 +233,7 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Doanh Thu Viện Phí Hôm Nay</h6>
-                  <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday || 184500000)}</div>
+                  <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-primary">Đạt 94% chỉ tiêu ca trực</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaMoneyBillWave /></div>
@@ -307,8 +288,8 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Hồ Sơ Đã Hoàn Tất Khám</h6>
-                  <div className="bms-kpi-value">{stats?.doctorData?.reviewedTodayCount || 24}</div>
-                  <div className="bms-kpi-sub text-success">100% đã ký duyệt số hóa</div>
+                  <div className="bms-kpi-value">{stats?.doctorData?.reviewedTodayCount ?? 0}</div>
+                  <div className="bms-kpi-sub text-success">Đã thẩm định trong ca</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
               </div>
@@ -317,8 +298,8 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Ca Trực Hiện Tại</h6>
-                  <div className="bms-kpi-value fs-4">Ca Sáng</div>
-                  <div className="bms-kpi-sub text-muted">07:00 – 15:30 (Phòng Khám 102)</div>
+                  <div className="bms-kpi-value fs-4">{stats?.doctorData?.currentShiftName || '—'}</div>
+                  <div className="bms-kpi-sub text-muted">{stats?.doctorData?.currentShiftWindow || 'Theo lịch phân công'}</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
               </div>
@@ -407,7 +388,7 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Viện Phí Thu Tại Quầy</h6>
-                  <div className="bms-kpi-value">{VND.format(stats?.receptionistData?.paymentsCollectedToday || 38250000)}</div>
+                  <div className="bms-kpi-value">{VND.format(stats?.receptionistData?.paymentsCollectedToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Xuất hóa đơn điện tử 100%</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaReceipt /></div>
@@ -471,10 +452,10 @@ export default function RoleBasedDashboard() {
               <div>
                 <h5 className="bms-table-standalone-title">
                   <FaClipboardCheck style={{ color: '#1E60E6' }} />
-                  Hàng Đợi Thẩm Định &amp; Ký Số Điện Tử (PKI Signature Queue)
+                  Hàng Đợi Thẩm Định Kỹ Thuật (Tùy chọn — QC / Westgard)
                 </h5>
                 <div className="bms-table-standalone-subtitle">
-                  Mẫu đã hoàn tất đo lường phân tích, đang chờ Trưởng khoa phê duyệt ký số PKI (ISO 15189)
+                  Bước tùy chọn của Quản lý Lab. Công bố kết quả cho bệnh nhân chỉ sau khi Bác sĩ ký duyệt tại bàn khám.
                 </div>
               </div>
               <Link
@@ -482,7 +463,7 @@ export default function RoleBasedDashboard() {
                 className="btn btn-sm btn-primary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
-                <span>Vào thẩm định &amp; ký số</span>
+                <span>Vào thẩm định kỹ thuật</span>
                 <FaArrowRight size={11} />
               </Link>
             </div>
@@ -518,7 +499,7 @@ export default function RoleBasedDashboard() {
                             className="rounded-pill px-3 py-1 fw-semibold"
                             onClick={() => navigate(`/laboratory/verify-results?specimenId=${item.id}`)}
                           >
-                            Ký Duyệt
+                            Thẩm định KT
                           </Button>
                         </td>
                       </tr>
@@ -793,19 +774,29 @@ export default function RoleBasedDashboard() {
                   <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Ca trực hôm nay:</span>
-                      <strong className="text-primary fs-5">Ca Sáng (07:00 – 15:30)</strong>
+                      <strong className="text-primary fs-5">{stats?.doctorData?.currentShiftName || 'Chưa có ca'}</strong>
                     </div>
                     <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
                       <span>Bác sĩ phụ trách:</span>
-                      <strong className="text-dark">{currentUser?.fullName || 'BS. CKII Nguyễn Văn Minh'}</strong>
+                      <strong className="text-dark">{currentUser?.fullName || stats?.userName || '—'}</strong>
                     </div>
                   </div>
                   <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-primary small fw-semibold">Tiến độ khám bệnh:</span>
-                      <span className="bms-pill-badge bms-pill-success">18 / 24 bệnh nhân</span>
+                      <span className="bms-pill-badge bms-pill-success">
+                        {stats?.doctorData?.reviewedTodayCount ?? 0} / {stats?.doctorData?.todayAppointmentsCount ?? 0} bệnh nhân
+                      </span>
                     </div>
-                    <ProgressBar variant="primary" now={75} style={{ height: 8, borderRadius: 4, marginTop: 8 }} />
+                    <ProgressBar
+                      variant="primary"
+                      now={
+                        (stats?.doctorData?.todayAppointmentsCount || 0) > 0
+                          ? Math.min(100, Math.round(((stats?.doctorData?.reviewedTodayCount || 0) / stats.doctorData.todayAppointmentsCount) * 100))
+                          : 0
+                      }
+                      style={{ height: 8, borderRadius: 4, marginTop: 8 }}
+                    />
                   </div>
                   <Button variant="primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/doctor/console')}>
                     Mở Bàn Khám Điện Tử

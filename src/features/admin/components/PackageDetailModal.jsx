@@ -1,144 +1,279 @@
 /**
  * @file PackageDetailModal.jsx
  * @description View detail popup modal for laboratory service packages (UC15).
+ * Renders complete DIAG-Standard Medical Package Details:
+ * - Header banner with code, specialty category, pricing and discount savings
+ * - Key Clinical Value Propositions (Shield Highlight Cards)
+ * - Target Patient Group & Clinical Indications (Đối tượng cần làm xét nghiệm)
+ * - Clinical Pathology Overview (Tổng quan chuyên môn)
+ * - Detailed Biomarkers Table with Sample Types, Retail Prices & Diagnostic Role
+ * - Turnaround Time (TAT) Commitments & Sample Cut-off Times
+ * - ISO 15189 Pre-analytical Patient Preparation & Fasting Guidelines
  * Conforms to: Production Engineering Standards & AGENTS-DESIGN.md.
  * @module features/admin/components/PackageDetailModal
  */
 
 import React from "react";
-import { Modal, Button, Row, Col, Badge, Table } from "react-bootstrap";
+import { Modal, Button, Row, Col, Badge, Table, Alert } from "react-bootstrap";
+import {
+  FaShieldAlt, FaIdCard, FaClock, FaVial, FaCheckCircle,
+  FaUserInjured, FaNotesMedical, FaExclamationTriangle, FaEdit,
+  FaTint, FaCalendarCheck, FaInfoCircle
+} from "react-icons/fa";
 
 function formatMoney(value) {
-    if (value === null || value === undefined || value === "") return "—";
-    return Number(value).toLocaleString("vi-VN") + " đ";
+  if (value === null || value === undefined || value === "") return "—";
+  return Number(value).toLocaleString("vi-VN") + " đ";
 }
 
 export default function PackageDetailModal({ pkg, onClose, onEdit }) {
-    if (!pkg) return null;
+  if (!pkg) return null;
 
-    const tests = pkg.tests || [];
+  const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+  const highlights = Array.isArray(pkg.highlights) ? pkg.highlights : [];
 
-    return (
-        <Modal show={Boolean(pkg)} onHide={onClose} size="lg" centered>
-            <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
-                <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2" style={{ color: '#0f2743' }}>
-                    <i className="bi bi-box-seam-fill" style={{ color: '#1E60E6' }}></i>
-                    Chi Tiết Gói Dịch Vụ Xét Nghiệm: {pkg.name}
-                </Modal.Title>
-            </Modal.Header>
+  // Parse lines for target audience
+  const audienceLines = (pkg.targetAudience || "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-            <Modal.Body className="p-2" style={{ maxHeight: "72vh", overflowY: "auto" }}>
-                {/* General Info Card */}
-                <div className="p-3 mb-3" style={{ background: '#EEF2F6', borderRadius: 16 }}>
-                    <Row className="g-3">
-                        <Col md={4}>
-                            <div className="text-muted small fw-medium">Mã Gói Dịch Vụ</div>
-                            <div className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
-                                {pkg.code || "—"}
-                            </div>
-                        </Col>
-                        <Col md={5}>
-                            <div className="text-muted small fw-medium">Tên Gói Xét Nghiệm</div>
-                            <div className="fw-bold fs-6" style={{ color: '#0f2743' }}>
-                                {pkg.name || "—"}
-                            </div>
-                        </Col>
-                        <Col md={3}>
-                            <div className="text-muted small fw-medium">Trạng Thái</div>
-                            <div>
-                                <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 600, background: pkg.isActive ? 'rgba(145, 222, 131, 0.2)' : 'rgba(15, 23, 42, 0.05)', color: pkg.isActive ? '#2E7D32' : '#64748b' }}>
-                                    {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
-                                </span>
-                            </div>
-                        </Col>
+  // Calculate savings
+  const price = Number(pkg.price) || 0;
+  const discountPrice = pkg.discountPrice ? Number(pkg.discountPrice) : null;
+  const savings = discountPrice && price > discountPrice ? price - discountPrice : 0;
+  const savingsPercent = savings > 0 ? Math.round((savings / price) * 100) : 0;
 
-                        <Col md={4}>
-                            <div className="text-muted small fw-medium">Đơn Giá Niêm Yết</div>
-                            <div className="fw-bold fs-5" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
-                                {formatMoney(pkg.price)}
-                            </div>
-                        </Col>
-                        <Col md={4}>
-                            <div className="text-muted small fw-medium">Đơn Giá Ưu Đãi</div>
-                            <div className="fw-bold fs-5" style={{ color: '#2E7D32', fontVariantNumeric: 'tabular-nums' }}>
-                                {pkg.discountPrice ? formatMoney(pkg.discountPrice) : "Không áp dụng"}
-                            </div>
-                        </Col>
-                        <Col md={4}>
-                            <div className="text-muted small fw-medium">Số Lượng Chỉ Số</div>
-                            <div className="fw-bold text-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                {tests.length} xét nghiệm thành phần
-                            </div>
-                        </Col>
+  return (
+    <Modal show={Boolean(pkg)} onHide={onClose} size="xl" centered backdrop="static">
+      <Modal.Header closeButton style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
+        <div className="d-flex align-items-center gap-2">
+          <Badge bg="primary" className="px-2 py-1 font-monospace">
+            {pkg.code}
+          </Badge>
+          <Modal.Title className="fs-5 fw-bold text-dark mb-0">
+            {pkg.name}
+          </Modal.Title>
+        </div>
+      </Modal.Header>
 
-                        <Col md={12}>
-                            <div className="text-muted small fw-medium">Mô Tả & Hướng Dẫn Chỉ Định</div>
-                            <div className="text-dark small">
-                                {pkg.description || "Chưa có mô tả chi tiết cho gói xét nghiệm này."}
-                            </div>
-                        </Col>
-                    </Row>
-                </div>
+      <Modal.Body className="p-4" style={{ maxHeight: "80vh", overflowY: "auto", background: "#FAFBFD" }}>
+        {/* 1. MASTER HEADER CARD */}
+        <div className="p-4 rounded-4 mb-4 bg-white shadow-sm border">
+          <Row className="g-3 align-items-center">
+            <Col lg={8}>
+              <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold">
+                  Chuyên khoa: {pkg.category || "Xét nghiệm tổng quát"}
+                </span>
+                <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-semibold">
+                  {pkg.isActive ? "● Đang Hoạt Động (Công khai)" : "○ Tạm Khóa / Ẩn"}
+                </span>
+                {pkg.sampleTube && (
+                  <span className="badge bg-light text-dark border px-3 py-1 rounded-pill small">
+                    <FaVial className="me-1 text-danger" /> Ống: {pkg.sampleTube}
+                  </span>
+                )}
+                {pkg.sampleVolumeMl && (
+                  <span className="badge bg-light text-dark border px-3 py-1 rounded-pill small">
+                    <FaTint className="me-1 text-primary" /> {pkg.sampleVolumeMl} ml máu
+                  </span>
+                )}
+              </div>
+              <h4 className="fw-bold text-dark mb-2">{pkg.name}</h4>
+              <p className="text-muted small mb-0" style={{ maxWidth: 780 }}>
+                {pkg.description || "Gói xét nghiệm tầm soát tiêu chuẩn ISO 15189:2022 tại BMS Clinical Laboratory."}
+              </p>
+            </Col>
 
-                {/* Tests List */}
-                <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                    <i className="bi bi-list-check" style={{ color: '#1E60E6' }}></i>
-                    Danh Sách Xét Nghiệm Thành Phần Trong Gói ({tests.length})
-                </h6>
-
-                {tests.length === 0 ? (
-                    <div className="text-muted small text-center py-3 border rounded bg-light">
-                        Chưa gán xét nghiệm nào cho gói này.
+            {/* Price Box */}
+            <Col lg={4}>
+              <div
+                className="p-3 rounded-4 text-center text-lg-end"
+                style={{ background: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)", border: "1px solid #86EFAC" }}
+              >
+                <div className="text-muted small fw-semibold mb-1">CHI PHÍ XÉT NGHIỆM TRỌN GÓI</div>
+                {discountPrice ? (
+                  <div>
+                    <div className="text-muted text-decoration-line-through small">
+                      Giá gốc: {formatMoney(price)}
                     </div>
+                    <div className="fs-3 fw-bold text-success" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {formatMoney(discountPrice)}
+                    </div>
+                    <Badge bg="danger" className="rounded-pill px-2 py-1 small">
+                      Tiết kiệm {formatMoney(savings)} ({savingsPercent}%)
+                    </Badge>
+                  </div>
                 ) : (
-                    <div className="table-responsive" style={{ borderRadius: 14, overflow: 'hidden' }}>
-                        <Table hover size="sm" className="mb-0 align-middle">
-                            <thead style={{ background: '#EEF2F6' }}>
-                                <tr>
-                                    <th style={{ width: "80px", color: '#475569', fontSize: 12, padding: '10px 14px' }}>STT</th>
-                                    <th style={{ width: "160px", color: '#475569', fontSize: 12, padding: '10px 14px' }}>Mã Xét Nghiệm</th>
-                                    <th style={{ color: '#475569', fontSize: 12, padding: '10px 14px' }}>Tên Xét Nghiệm / Chỉ Số</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tests.map((t, idx) => {
-                                    const code = typeof t === "string" ? t : (t.code || t._id || t.id);
-                                    const name = typeof t === "string" ? t : (t.name || t.code);
-                                    return (
-                                        <tr key={idx} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                            <td className="text-muted small" style={{ padding: '10px 14px', fontVariantNumeric: 'tabular-nums' }}>{idx + 1}</td>
-                                            <td style={{ padding: '10px 14px' }}>
-                                                <code className="fw-bold" style={{ color: '#1E60E6' }}>{code}</code>
-                                            </td>
-                                            <td className="fw-semibold text-dark" style={{ padding: '10px 14px' }}>{name}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </Table>
-                    </div>
+                  <div className="fs-3 fw-bold text-primary" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {formatMoney(price)}
+                  </div>
                 )}
-            </Modal.Body>
+                <div className="small text-muted mt-2">
+                  Bao gồm <strong>{tests.length}</strong> chỉ số xét nghiệm &amp; miễn phí tư vấn Bác sĩ
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
 
-            <Modal.Footer className="py-2 px-3 d-flex justify-content-between" style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
-                <Button variant="outline-secondary" onClick={onClose} style={{ borderRadius: 9999 }}>
-                    Đóng
-                </Button>
-                {onEdit && (
-                    <Button
-                        variant="primary"
-                        onClick={() => {
-                            onClose();
-                            onEdit(pkg);
-                        }}
-                        className="d-flex align-items-center gap-1"
-                        style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6' }}
+        {/* 2. SHIELD HIGHLIGHTS (KEY VALUE PROPOSITIONS) */}
+        {highlights.length > 0 && (
+          <div className="mb-4">
+            <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <FaShieldAlt className="text-primary" /> Điểm Nổi Bật Của Gói Dịch Vụ
+            </h6>
+            <Row className="g-3">
+              {highlights.map((hl, idx) => (
+                <Col md={6} key={idx}>
+                  <div
+                    className="p-3 rounded-3 bg-white border d-flex align-items-start gap-3 h-100 shadow-sm"
+                    style={{ borderLeft: "4px solid #1E60E6" }}
+                  >
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                      style={{ width: 36, height: 36, background: "rgba(30, 96, 230, 0.1)", color: "#1E60E6" }}
                     >
-                        <i className="bi bi-pencil"></i>
-                        Chỉnh Sửa Gói Này
-                    </Button>
-                )}
-            </Modal.Footer>
-        </Modal>
-    );
+                      <FaShieldAlt size={16} />
+                    </div>
+                    <div className="small fw-semibold text-dark pt-1">
+                      {hl}
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        )}
+
+        {/* 3. TARGET AUDIENCE */}
+        {audienceLines.length > 0 && (
+          <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
+            <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <FaUserInjured className="text-primary" /> Đối Tượng Cần Làm Xét Nghiệm
+            </h6>
+            <div className="d-flex flex-column gap-2">
+              {audienceLines.map((line, idx) => (
+                <div key={idx} className="d-flex align-items-start gap-2 small text-dark">
+                  <FaCheckCircle className="text-success mt-1 flex-shrink-0" />
+                  <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. CLINICAL BIOMARKERS TABLE */}
+        <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h6 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                <FaVial className="text-primary" /> Danh Mục Các Chỉ Số Xét Nghiệm Thành Phần ({tests.length} chỉ số)
+              </h6>
+              <p className="text-muted small mb-0">
+                Được thực hiện trên hệ thống phân tích tự động thế hệ mới đạt chuẩn chất lượng ISO 15189:2022.
+              </p>
+            </div>
+          </div>
+
+          {tests.length === 0 ? (
+            <div className="text-muted small text-center py-4 border rounded bg-light">
+              Chưa gán xét nghiệm nào cho gói này.
+            </div>
+          ) : (
+            <div className="table-responsive rounded-3 border">
+              <Table hover size="sm" className="mb-0 align-middle">
+                <thead style={{ background: "#F8FAFC" }}>
+                  <tr>
+                    <th style={{ width: "45px" }} className="text-center py-2 text-muted small">#</th>
+                    <th style={{ width: "260px" }} className="py-2 text-muted small">Chỉ Số Xét Nghiệm</th>
+                    <th style={{ width: "160px" }} className="py-2 text-muted small">Loại Mẫu Bệnh Phẩm</th>
+                    <th style={{ width: "130px" }} className="py-2 text-muted small text-end">Đơn Giá Lẻ</th>
+                    <th className="py-2 text-muted small">Ý Nghĩa Y Khoa &amp; Định Hướng Chẩn Đoán</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tests.map((t, idx) => (
+                    <tr key={idx}>
+                      <td className="text-center text-muted small">{idx + 1}</td>
+                      <td>
+                        <div className="fw-bold text-dark small">{t.Name || t.name}</div>
+                        <code className="text-primary small">{t.Code || t.code}</code>
+                      </td>
+                      <td>
+                        <Badge bg="light" text="dark" className="border px-2 py-1 small">
+                          {t.SampleType || t.sampleType || "[Máu]"}
+                        </Badge>
+                      </td>
+                      <td className="text-end fw-semibold text-secondary small" style={{ fontVariantNumeric: "tabular-nums" }}>
+                        {t.Price || t.price ? formatMoney(t.Price || t.price) : "Theo gói"}
+                      </td>
+                      <td className="small text-muted" style={{ lineHeight: 1.5 }}>
+                        {t.ClinicalMeaning || t.clinicalMeaning || "Khảo sát và đánh giá chỉ số sinh học nhằm định hướng kế hoạch can thiệp y khoa phù hợp."}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        {/* 5. TURNAROUND TIME (TAT) */}
+        {pkg.tat && (
+          <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
+            <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
+              <FaClock className="text-primary" /> Thời Gian Có Kết Quả (TAT Cam Kết)
+            </h6>
+            <div
+              className="p-3 rounded-3 border"
+              style={{ background: "#EFF6FF", borderColor: "#BFDBFE" }}
+            >
+              <div className="d-flex align-items-start gap-2 text-primary fw-semibold small">
+                <FaClock className="mt-1 flex-shrink-0" />
+                <span>{pkg.tat}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. PRE-ANALYTICAL PREPARATION NOTES (ISO 15189) */}
+        {pkg.preparationNotes && (
+          <div className="mb-2 p-4 rounded-4 bg-white border shadow-sm">
+            <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <FaNotesMedical className="text-warning" /> Lưu Ý Trước Khi Lấy Mẫu Xét Nghiệm (Chuẩn ISO 15189:2022)
+            </h6>
+            <Alert variant="warning" className="rounded-3 py-3 px-4 mb-0 border-warning-subtle">
+              <div className="d-flex align-items-start gap-2 mb-2">
+                <FaExclamationTriangle className="text-warning fs-5 flex-shrink-0" />
+                <strong className="text-dark">Hướng dẫn chuẩn bị bệnh nhân tiền phân tích:</strong>
+              </div>
+              <div className="small text-dark" style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
+                {pkg.preparationNotes}
+              </div>
+            </Alert>
+          </div>
+        )}
+      </Modal.Body>
+
+      <Modal.Footer style={{ background: "#F8FAFC", borderTop: "1px solid #E2E8F0" }} className="d-flex justify-content-between">
+        <Button variant="outline-secondary" onClick={onClose} className="px-3">
+          Đóng
+        </Button>
+        {onEdit && (
+          <Button
+            variant="primary"
+            className="px-4 fw-semibold d-flex align-items-center gap-2 shadow-sm"
+            onClick={() => {
+              onClose();
+              onEdit(pkg);
+            }}
+          >
+            <FaEdit /> Chỉnh Sửa Gói Này
+          </Button>
+        )}
+      </Modal.Footer>
+    </Modal>
+  );
 }

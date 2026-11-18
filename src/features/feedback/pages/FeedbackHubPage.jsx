@@ -146,11 +146,15 @@ const FeedbackHubPage = () => {
   // Handle Create Feedback Submit
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
+    if (!user?.id) {
+      setAlertMsg({ type: 'danger', text: 'Không xác định tài khoản bệnh nhân. Vui lòng đăng nhập lại.' });
+      return;
+    }
     try {
       setSubmitting(true);
       const payload = {
         ...createForm,
-        patientId: user?.id || 'PAT-DEMO',
+        patientId: user.id,
         patientName: user?.fullName || user?.username || 'Bệnh nhân',
         patientEmail: user?.email || '',
         patientPhone: user?.phone || ''
@@ -387,9 +391,13 @@ const FeedbackHubPage = () => {
             <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
               <Card.Body className="p-2 d-flex flex-column justify-content-between">
                 <div>
-                  <div className="text-muted small fw-semibold text-uppercase mb-1">Đã phản hồi (Manager Reply)</div>
+                  <div className="text-muted small fw-semibold text-uppercase mb-1">
+                    {isManagerOrAdmin ? 'Đã phản hồi (CSKH / Quản lý)' : 'Đã có phản hồi từ trung tâm'}
+                  </div>
                   <h3 className="fw-bold text-success mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.respondedFeedbacks}</h3>
-                  <small className="text-muted">Ban Quản Lý đã giải đáp</small>
+                  <small className="text-muted">
+                    {isManagerOrAdmin ? 'Đã giải đáp ý kiến người bệnh' : 'Trung tâm đã phản hồi ý kiến của bạn'}
+                  </small>
                 </div>
                 <hr className="my-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }} />
                 <div>
@@ -458,7 +466,7 @@ const FeedbackHubPage = () => {
                 <option value="ALL">Tất cả trạng thái</option>
                 <option value="PENDING">Chờ phản hồi</option>
                 <option value="REVIEWED">Đã xem xét</option>
-                <option value="RESPONDED">Đã có lời đáp từ Quản lý</option>
+                <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi từ trung tâm'}</option>
               </Form.Select>
             </Col>
           </Row>

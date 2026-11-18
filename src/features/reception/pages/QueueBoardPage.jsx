@@ -33,28 +33,23 @@ export default function QueueBoardPage() {
   const [issuing, setIssuing] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
 
-  const defaultCounters = [
-    { counterName: "Quầy 01 (Tiếp Đón)", staffName: "Lễ tân Đỗ Lan Anh", status: "Active", description: "Bàn tiếp nhận & cấp STT" },
-    { counterName: "Quầy 02 (Lấy Mẫu)", staffName: "KTV Lấy Mẫu 101", status: "Available", description: "Phòng lấy mẫu máu tầng 1" }
-  ];
+  const [boardError, setBoardError] = useState(null);
 
   const loadQueue = useCallback(async () => {
     try {
+      setBoardError(null);
       const res = await queueApi.fetchLiveQueue();
       if (res?.data) {
         const boardData = { ...res.data };
         boardData.stats = boardData.stats || {};
-        if (!boardData.counters || boardData.counters.length === 0) {
-          boardData.counters = defaultCounters;
-        }
-        if (!boardData.stats.countersActive || boardData.stats.countersActive === "0" || boardData.stats.countersActive === "0 / 0") {
-          boardData.stats.countersActive = "1 / 2";
-        }
+        boardData.counters = Array.isArray(boardData.counters) ? boardData.counters : [];
         setData(boardData);
-        setSelectedCounter((prev) => prev || boardData.counters[0].counterName);
+        setSelectedCounter((prev) => prev || boardData.counters[0]?.counterName || '');
+      } else {
+        setData({ waiting: [], serving: [], counters: [], stats: {} });
       }
-    } catch {
-      // Retain existing state on network error
+    } catch (err) {
+      setBoardError(err?.response?.data?.message || err?.message || 'Không thể tải bảng hàng đợi tiếp đón.');
     } finally {
       setLoading(false);
     }
@@ -162,14 +157,17 @@ export default function QueueBoardPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          
+          <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
+            <FaClock size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 3: ĐIỀU PHỐI &amp; GỌI SỐ HÀNG ĐỢI
+          </span>
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
-              Bảng Gọi Số &amp; Điều Phối Tiếp Đón
+              Bảng Gọi Số &amp; Điều Phối Hàng Đợi (Realtime)
             </h1>
           </div>
-          
+          <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
+            Điều phối dòng bệnh nhân tại sảnh chờ, hiển thị số thứ tự đang gọi tại Quầy 01 (Tiếp đón) và Phòng Lấy Mẫu 101/102 theo chuẩn thời gian chờ ISO 15189:2022.
+          </p>
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
           {data.counters?.length > 0 && (
@@ -192,6 +190,13 @@ export default function QueueBoardPage() {
         </div>
       </div>
 
+      {boardError && (
+        <div className="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+          <span>{boardError}</span>
+          <button type="button" className="btn btn-sm btn-outline-danger ms-3" onClick={loadQueue}>Thử lại</button>
+          <button type="button" className="btn-close" aria-label="Close" onClick={() => setBoardError(null)} />
+        </div>
+      )}
       {actionMessage && (
         <div className={`alert alert-${actionMessage.type || 'success'} alert-dismissible fade show d-flex align-items-center justify-content-between rounded-4 shadow-sm mb-4`} role="alert">
           <div>
@@ -309,7 +314,9 @@ export default function QueueBoardPage() {
                             </button>
                           ) : ticket.status === "Collecting" ? (
                             <span className="text-muted small">Đang xử lý</span>
-                          ) : (
+                          ) : ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
+                            <span className="badge bg-secondary-subtle text-secondary border px-2 py-1">Đã xong</span>
+                          ) : ticket.status === "Waiting" || !ticket.status ? (
                             <button
                               onClick={() => handleCallNext(ticket)}
                               disabled={!selectedCounter}
@@ -319,6 +326,8 @@ export default function QueueBoardPage() {
                             >
                               <FaBullhorn className="me-1" /> Gọi số
                             </button>
+                          ) : (
+                            <span className="text-muted small">{ticket.status}</span>
                           )}
                         </td>
                       </tr>

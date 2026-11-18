@@ -104,9 +104,9 @@ function HistoryDetail({ id, onClose }) {
             <div className="mb-4 pb-3 border-bottom">
               <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                 <h5 className="fw-bold text-dark mb-0" style={{ letterSpacing: '-0.02em' }}>
-                  {data.summary.packageName || 'Chưa ghi nhận gói xét nghiệm'}
+                  {data.summary?.packageName || data.packageName || 'Kết quả xét nghiệm đã duyệt'}
                 </h5>
-                {data.summary.available ? (
+                {(data.summary?.available || data.summary?.approvedAt || data.approvedAt || data.digitalSignature) ? (
                   <span className="badge bg-success-subtle text-success border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
                     <FaCheckCircle className="me-1" /> Đã duyệt và ký số
                   </span>
@@ -117,7 +117,7 @@ function HistoryDetail({ id, onClose }) {
                 )}
               </div>
               <div className="font-monospace text-primary fw-bold small mb-3">
-                Mã KQ: {data.summary.resultCode || data.summary.id}
+                Mã KQ: {data.summary?.resultCode || data.summary?.id || data.id}
               </div>
 
               <Row className="g-2 text-muted small">
@@ -214,16 +214,25 @@ function HistoryDetail({ id, onClose }) {
                     <div className="d-flex align-items-center gap-2">
                       <FaUserMd className="text-success fs-5" />
                       <div>
-                        <div className="fw-bold text-dark small">BS. CKI Nguyễn Văn Minh</div>
+                        <div className="fw-bold text-dark small">
+                          {data.approvingDoctorName || data.reviewedBy || data.doctorName
+                            || (data.summary?.approvedAt || data.summary?.available ? 'Bác sĩ lâm sàng đã ký duyệt' : 'Chưa ghi nhận bác sĩ ký')}
+                        </div>
                         <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ Thẩm định &amp; Ký số Chuyên khoa</div>
                       </div>
                     </div>
-                    <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
-                      <FaCheckCircle className="me-1" /> Chữ ký số PKI hợp lệ
-                    </span>
+                    {(data.digitalSignature || data.signedAt || data.approvedAt || data.summary?.approvedAt || data.summary?.available) ? (
+                      <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
+                        <FaCheckCircle className="me-1" /> Đã ký duyệt
+                      </span>
+                    ) : (
+                      <span className="badge bg-secondary-subtle text-secondary border px-2 py-1 small fw-semibold">
+                        Chưa có chữ ký
+                      </span>
+                    )}
                   </div>
                   <div className="d-flex align-items-center justify-content-between text-muted" style={{ fontSize: 11.5 }}>
-                    <span>Chứng chỉ hành nghề: <strong>CCHN-008912/HCM</strong></span>
+                    <span>CCHN: <strong>{data.licenseNumber || data.doctorLicense || '—'}</strong></span>
                     <span>Quy chuẩn: <strong>ISO 15189:2022 · SHA-256</strong></span>
                   </div>
                 </div>

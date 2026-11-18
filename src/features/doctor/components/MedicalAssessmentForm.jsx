@@ -84,7 +84,7 @@ export default function MedicalAssessmentForm({
     encounterId: initialData?.encounterId || 'ENC-DEFAULT-01',
     encounterType: initialData?.encounterType || 'ClinicVisit',
     doctorId: initialData?.doctorId || currentUser?.id || 'USR-DOC-01',
-    doctorName: initialData?.doctorName || currentUser?.fullName || 'BS. Nguyễn Văn An',
+    doctorName: initialData?.doctorName || currentUser?.fullName || '',
     department: initialData?.department || 'Khoa Khám Bệnh',
     assessmentDate: initialData?.assessmentDate ? new Date(initialData.assessmentDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     chiefComplaint: initialData?.chiefComplaint || '',

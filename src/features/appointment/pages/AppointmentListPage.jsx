@@ -44,32 +44,28 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
-import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
+import { ROLES, resolveRoleId, getStoredUser, hasRole } from '../../../constants/roles';
 import '../appointment.css';
 
 const HOLD_DURATION_MS = 15 * 60 * 1000;
 
 const resolveDoctorDisplay = (apt) => {
-  if (!apt) return 'BS. CKI Nguyễn Văn Minh';
+  if (!apt) return 'Chưa phân công';
   const name = apt.doctorName || apt.DoctorName;
-  if (name && !name.startsWith('ID:') && !name.match(/^[0-9a-f]{24}$/i) && name !== 'N/A') return name;
-  const docId = String(apt.doctorId || apt.DoctorId || '');
-  if (docId === '670560000000000000000002') return 'BS. CKI Nguyễn Văn Minh';
-  if (docId === '670560000000000000000003') return 'ThS. BS Lê Văn Thành';
-  if (docId === '670560000000000000000021') return 'BS. CKI Hoàng Thị Thu Trang';
-  if (docId === '670560000000000000000022') return 'BS. CKI Trần Đức Huy';
-  if (docId === '670560000000000000000023') return 'BSCKII. Phạm Văn Phúc';
-  return 'BS. CKI Nguyễn Văn Minh';
+  if (name && !name.startsWith('ID:') && !/^[0-9a-f]{24}$/i.test(name) && name !== 'N/A') return name;
+  const docId = String(apt.doctorId || apt.DoctorId || '').trim();
+  if (docId) return `BS (mã ${docId.slice(-6)})`;
+  return 'Chưa phân công';
 };
 
+/** Paid/confirmed enough to unlock QR — excludes Completed/Cancelled so quầy không nhầm “còn chờ tiếp đón”. */
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
   const s = String(rawStatus).toUpperCase();
   return (
     s === 'CONFIRMED' || s === '1' ||
     s === 'CHECKEDIN' || s === 'CHECKED_IN' || s === '2' ||
-    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3' ||
-    s === 'COMPLETED' || s === '4'
+    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3'
   );
 };
 
@@ -123,6 +119,8 @@ export default function AppointmentListPage() {
   const navigate = useNavigate();
   const user = useMemo(() => getStoredUser(), []);
   const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
+  const isReceptionist = useMemo(() => hasRole(user, ROLES.RECEPTIONIST), [user]);
+  const checkInButtonLabel = isReceptionist ? 'Mã Check-in' : 'Chi tiết lịch hẹn';
 
   // Data & UI states
   const [appointments, setAppointments] = useState([]);
@@ -240,7 +238,7 @@ export default function AppointmentListPage() {
       }
     } catch (err) {
       console.error('Failed to load appointments:', err);
-      setErrorMsg(err.message || 'Không thể tải danh sách cuộc hẹn. Vui lòng thử lại.');
+      setErrorMsg(err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Không thể tải danh sách cuộc hẹn. Vui lòng thử lại.');
       setAppointments([]);
     } finally {
       setLoading(false);
@@ -542,9 +540,9 @@ export default function AppointmentListPage() {
                             size="sm"
                             className="px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
                             onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
-                            title="Bấm để xem Mã QR & Check-in Tiếp Đón"
+                            title={isReceptionist ? 'Bấm để xem Mã QR & Check-in Tiếp Đón' : 'Xem chi tiết lịch hẹn'}
                           >
-                            <FaQrcode className="text-success" /> Mã Check-in
+                            <FaQrcode className="text-success" /> {checkInButtonLabel}
                           </Button>
                         ) : isPending(apt.status) ? (
                           <div className="d-inline-flex flex-column align-items-center gap-1">

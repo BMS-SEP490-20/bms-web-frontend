@@ -917,7 +917,7 @@ export default function DoctorSchedulePage() {
                                   <FaUserMd />
                                 </div>
                                 <div>
-                                  <div className="fw-bold text-dark">{shift.employeeName || (shift.employeeRole === 'LabTech' ? 'KTV. Phạm Quốc Hưng' : shift.employeeRole === 'Receptionist' ? 'Lễ tân Đỗ Lan Anh' : 'BS. CKI Nguyễn Văn Minh')}</div>
+                                  <div className="fw-bold text-dark">{shift.employeeName || shift.doctorName || 'Chưa gán nhân sự'}</div>
                                   <div className="text-muted small d-flex align-items-center gap-2">
                                     <code>{String(shift.employeeId || shift.doctorId || '').match(/^[0-9a-f]{24}$/i) ? (shift.employeeRole === 'LabTech' ? 'KTV-004' : shift.employeeRole === 'Receptionist' ? 'NV-REC-007' : 'BS-002') : (shift.employeeId || shift.doctorId || 'NV-001')}</code>
                                     <Badge bg="light" text="dark" className="border fw-normal">

@@ -23,6 +23,8 @@ import {
 } from 'react-icons/fa';
 import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
+import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
+import { getStoredUser } from '../../../constants/roles';
 
 const REJECTION_CODES = [
   { code: 'REJ-01', label: 'Tán huyết (Hemolysis) — Khóa phân tích & Lấy lại mẫu', isHemolysis: true },
@@ -32,8 +34,15 @@ const REJECTION_CODES = [
   { code: 'REJ-05', label: 'Rò rỉ / Nứt vỡ ống bệnh phẩm (Leakage / Broken)', isHemolysis: false },
 ];
 
-export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 'KTV. Lê Minh Tuấn' }) {
-  const [selectedRoom, setSelectedRoom] = useState(labRoomId);
+export function CheckInSamplePage() {
+  const loggedIn = useMemo(() => {
+    try { return getStoredUser(); } catch { return null; }
+  }, []);
+  const [selectedRoom, setSelectedRoom] = useState('UNASSIGNED');
+  const [roomLabel, setRoomLabel] = useState('Đang tải phòng phân công…');
+  const [technicianName, setTechnicianName] = useState(
+    loggedIn?.fullName || loggedIn?.name || 'KTV đang đăng nhập'
+  );
   const [code, setCode] = useState('');
   const [pending, setPending] = useState([]);
   const [current, setCurrent] = useState(null);
@@ -46,26 +55,53 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
 
   // 4 tiêu chí kiểm chuẩn tiếp nhận tiền phân tích theo ISO 15189:2022
   const [checks, setChecks] = useState({
-    idMatch: true,     // Đúng định danh bệnh nhân và mã chỉ định
-    intact: true,      // Ống mẫu nguyên vẹn, không nứt vỡ
-    tubeOk: true,      // Đúng loại ống và đủ thể tích mẫu
-    labeled: true,     // Nhãn mã vạch rõ ràng, đủ thời gian lấy mẫu
+    idMatch: false,    // ISO: KTV phải tự xác nhận — không pre-check
+    intact: false,
+    tubeOk: false,
+    labeled: false,
   });
 
   const [handoverNote, setHandoverNote] = useState('Ống mẫu nguyên vẹn, vận chuyển đạt chuẩn nhiệt độ SOP.');
   const [receiveTime] = useState(() => new Date().toLocaleString('vi-VN'));
+  const [listFilter, setListFilter] = useState('');
+  const [pendingLoading, setPendingLoading] = useState(false);
 
   const loadPending = async () => {
+    setPendingLoading(true);
     try {
       const data = await sampleApi.pending();
       setPending(Array.isArray(data) ? data : []);
     } catch {
       setPending([]);
+    } finally {
+      setPendingLoading(false);
     }
+  };
+
+  const selectFromList = (p) => {
+    const key = p.barcode || p.sampleId || p.id || '';
+    setCode(key);
+    setCurrent(p);
+    setError(null);
+    setSuccess(null);
+    setRejectCode('');
+    setChecks({ idMatch: false, intact: false, tubeOk: false, labeled: false });
   };
 
   useEffect(() => {
     loadPending();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const duty = await resolveDutyAssignment();
+      if (cancelled) return;
+      setSelectedRoom(duty.roomId);
+      setRoomLabel(duty.roomName);
+      setTechnicianName(duty.technicianName);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const onLookup = async () => {
@@ -97,7 +133,14 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
   const onCheckIn = async (reject = false) => {
     setError(null);
     setSuccess(null);
-    const targetCode = code.trim() || current?.barcode || current?.sampleId || current?.id || '';
+    // PendingCollection → Collected rồi Received (không nhảy cóc BE)
+    // Prefer stable sample Id over barcode — barcodes can collide after reject/recollect.
+    const targetCode =
+      current?.id ||
+      current?.sampleId ||
+      code.trim() ||
+      current?.barcode ||
+      '';
 
     if (!targetCode) {
       setError('Không có mã mẫu bệnh phẩm để thực hiện thao tác.');
@@ -106,6 +149,17 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
 
     setLoading(true);
     try {
+      // Ống vừa in nhãn thường PendingCollection → Collected rồi mới Received
+      if (!reject && current?.status === 'PendingCollection') {
+        await api.put(`/laboratory/samples/${encodeURIComponent(targetCode)}/status`, {
+          status: 'Collected',
+          labRoom: selectedRoom,
+          technicianName,
+          timestamp: new Date().toISOString(),
+          notes: 'Ghi nhận lấy mẫu tại bàn trước khi tiếp nhận Lab'
+        });
+      }
+
       const res = await sampleApi.checkIn({
         code: targetCode,
         labRoomId: selectedRoom,
@@ -136,15 +190,26 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
     }
   };
 
+  // PendingCollection (sau in nhãn) / Collected / InTransit — tick đủ QC mới nhận
   const canReceive =
     Boolean(current) &&
-    (current.status === 'Collected' || current.status === 'InTransit' || current.status === 'PendingCollection' || !current.status) &&
+    ['PendingCollection', 'Collected', 'InTransit'].includes(current.status) &&
     checks.idMatch &&
     checks.intact &&
     checks.tubeOk &&
     checks.labeled;
 
   const safePending = Array.isArray(pending) ? pending : [];
+  const filteredPending = useMemo(() => {
+    const q = listFilter.trim().toLowerCase();
+    if (!q) return safePending;
+    return safePending.filter((p) => {
+      const blob = `${p.barcode || ''} ${p.patientName || ''} ${p.patientId || ''} ${p.tubeColor || ''} ${p.status || ''}`.toLowerCase();
+      return blob.includes(q);
+    });
+  }, [safePending, listFilter]);
+
+  const selectedKey = current?.barcode || current?.id || code;
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh' }} className="py-3">
@@ -213,6 +278,109 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
           </div>
         )}
 
+        {/* LIST ống chờ — Lab bấm chọn nhanh, không chỉ dựa vào quét */}
+        <div className="card border-0 shadow-sm mb-4 bg-white rounded-3">
+          <div className="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+              <FaVial className="text-primary" />
+              <span>Danh sách ống chờ tiếp nhận ({filteredPending.length}/{safePending.length})</span>
+            </h5>
+            <div className="d-flex gap-2 align-items-center">
+              <div className="input-group input-group-sm" style={{ width: 240 }}>
+                <span className="input-group-text bg-light"><FaSearch className="text-muted" /></span>
+                <input
+                  className="form-control"
+                  placeholder="Lọc mã / tên BN / ống..."
+                  value={listFilter}
+                  onChange={(e) => setListFilter(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                onClick={() => void loadPending()}
+                disabled={pendingLoading}
+              >
+                <FaSyncAlt className={pendingLoading ? 'fa-spin' : ''} /> Làm mới
+              </button>
+            </div>
+          </div>
+          <div className="table-responsive" style={{ maxHeight: 320, overflowY: 'auto' }}>
+            <table className="table table-hover table-sm align-middle mb-0">
+              <thead className="table-light sticky-top">
+                <tr className="small text-uppercase text-muted">
+                  <th className="ps-3">Barcode ống</th>
+                  <th>Bệnh nhân</th>
+                  <th>Loại ống</th>
+                  <th>Gói / ghi chú</th>
+                  <th>Trạng thái</th>
+                  <th className="text-end pe-3">Chọn</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingLoading && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-muted py-4">
+                      <FaSpinner className="fa-spin me-2" /> Đang tải danh sách ống…
+                    </td>
+                  </tr>
+                )}
+                {!pendingLoading && filteredPending.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-muted py-4">
+                      Không có ống chờ. Xác nhận đợt &amp; in nhãn ở bước 1, hoặc quét barcode phía trên.
+                    </td>
+                  </tr>
+                )}
+                {!pendingLoading && filteredPending.map((p) => {
+                  const key = p.barcode || p.sampleId || p.id;
+                  const active = selectedKey && (selectedKey === p.barcode || selectedKey === p.id || selectedKey === key);
+                  return (
+                    <tr
+                      key={key}
+                      className={active ? 'table-primary' : ''}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => selectFromList(p)}
+                    >
+                      <td className="ps-3">
+                        <code className="fw-semibold text-primary small">{p.barcode || key}</code>
+                      </td>
+                      <td>
+                        <div className="fw-semibold small text-dark">{p.patientName || '—'}</div>
+                        <div className="text-muted" style={{ fontSize: '0.7rem' }}>{p.patientId || ''}</div>
+                      </td>
+                      <td>
+                        <span className="badge bg-light text-dark border">{p.tubeColor || p.sampleType || '—'}</span>
+                      </td>
+                      <td className="small text-truncate" style={{ maxWidth: 180 }} title={p.testPackageName || p.notes}>
+                        {p.testPackageName || p.notes || '—'}
+                      </td>
+                      <td>
+                        <span className="badge bg-secondary-subtle text-secondary border">{p.status || '—'}</span>
+                      </td>
+                      <td className="text-end pe-3">
+                        <button
+                          type="button"
+                          className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline-primary'} rounded-pill px-3`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            selectFromList(p);
+                          }}
+                        >
+                          {active ? 'Đang chọn' : 'Chọn ống'}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="card-footer bg-white small text-muted py-2">
+            Bấm <strong>Chọn ống</strong> trên list → tick 4 checklist → <strong>Xác nhận tiếp nhận</strong>. Hoặc quét barcode máy quét vào ô phía trên.
+          </div>
+        </div>
+
         <div className="row g-4">
           {/* Cột trái: Kiểm chuẩn bàn giao tại bàn tiếp nhận */}
           <div className="col-lg-8">
@@ -222,15 +390,19 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                   <FaShieldAlt className="text-primary" />
                   <span>Biên Bản Tiếp Nhận &amp; Kiểm Chuẩn Tiền Phân Tích</span>
                 </h5>
+                {!current && (
+                  <div className="alert alert-info py-2 small mb-3">
+                    Chưa chọn ống — chọn trên <strong>danh sách</strong> hoặc quét barcode.
+                  </div>
+                )}
 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận *</label>
-                    <select className="form-select" value={selectedRoom} onChange={(event) => setSelectedRoom(event.target.value)}>
-                      <option value="LAB-ROOM-01">Bàn 01 &bull; Phòng Xét Nghiệm Huyết Học</option>
-                      <option value="LAB-ROOM-02">Bàn 02 &bull; Phòng Xét Nghiệm Hóa Sinh - Miễn Dịch</option>
-                      <option value="LAB-ROOM-03">Bàn 03 &bull; Phòng Xét Nghiệm Vi Sinh</option>
-                    </select>
+                    <label className="form-label small fw-semibold text-secondary">
+                      Vị Trí / Bàn Tiếp Nhận * <FaLock className="text-muted ms-1" title="Theo ca trực — không đổi tay" />
+                    </label>
+                    <input className="form-control bg-light" value={roomLabel} readOnly disabled />
+                    <div className="form-text">Theo lịch phân công ({selectedRoom}). Không chọn phòng lệch ca.</div>
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">Thời Điểm Tiếp Nhận *</label>
@@ -238,11 +410,11 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">Người Bàn Giao</label>
-                    <input className="form-control" defaultValue="ĐD. Hoàng Mai Lan (Khoa Khám Bệnh)" />
+                    <input className="form-control" placeholder="Ghi nhận người bàn giao (nếu có)" />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách</label>
-                    <input className="form-control" value={technicianName} readOnly />
+                    <input className="form-control bg-light" value={technicianName} readOnly disabled />
                   </div>
                 </div>
 
@@ -413,52 +585,16 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
               </div>
             </div>
 
-            {/* Hàng đợi mẫu chờ tiếp nhận */}
             <div className="card border-0 shadow-sm bg-white rounded-3">
-              <div className="card-header bg-white border-bottom py-2 d-flex justify-content-between align-items-center">
-                <h6 className="small fw-bold text-dark mb-0 d-flex align-items-center gap-1">
-                  <FaClock className="text-warning" />
-                  <span>Mẫu chờ tiếp nhận ({safePending.length})</span>
+              <div className="card-body p-3">
+                <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-1">
+                  <FaClock className="text-warning" /> Tóm tắt hàng đợi
                 </h6>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-link p-0 text-decoration-none"
-                  onClick={loadPending}
-                  title="Tải lại hàng đợi"
-                >
-                  <FaSyncAlt />
-                </button>
-              </div>
-              <div className="card-body p-2">
-                <ul className="list-unstyled mb-0">
-                  {safePending.slice(0, 6).map((p) => (
-                    <li key={p.sampleId || p.id || p.barcode} className="small py-2 border-bottom d-flex justify-content-between align-items-center">
-                      <div>
-                        <button
-                          type="button"
-                          className="btn btn-link btn-sm p-0 text-start font-monospace text-decoration-none fw-semibold"
-                          onClick={() => {
-                            setCode(p.barcode || p.sampleId || p.id);
-                            setCurrent(p);
-                          }}
-                        >
-                          {p.barcode || p.sampleId || p.id}
-                        </button>
-                        <div className="text-muted" style={{ fontSize: '0.72rem' }}>
-                          {p.patientName || p.patientId || 'Bệnh nhân'} &bull; {p.tubeColor || 'Purple'}
-                        </div>
-                      </div>
-                      <span className="badge bg-light text-dark border">
-                        {p.status || 'Collected'}
-                      </span>
-                    </li>
-                  ))}
-                  {safePending.length === 0 && (
-                    <li className="text-muted small text-center py-3">
-                      Hiện không có mẫu bệnh phẩm nào chờ tiếp nhận
-                    </li>
-                  )}
-                </ul>
+                <div className="display-6 fw-bold text-primary">{safePending.length}</div>
+                <div className="small text-muted">ống PendingCollection / Collected / InTransit</div>
+                <p className="small text-muted mb-0 mt-2">
+                  Dùng bảng danh sách phía trên để chọn nhanh từng ống — thuận tiện khi Lab đông buổi sáng.
+                </p>
               </div>
             </div>
           </div>

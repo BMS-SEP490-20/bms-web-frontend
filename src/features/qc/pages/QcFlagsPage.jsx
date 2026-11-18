@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, Alert 
@@ -18,18 +19,20 @@ import {
 import { 
   FaFlask, FaExclamationTriangle, FaCheckCircle, 
   FaPlus, FaTrashAlt, FaSyncAlt, FaSearch, 
-  FaVial, FaTools, FaCheck
+  FaVial, FaTools, FaCheck, FaInfoCircle
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';
 
 const QcFlagsPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Live state bound directly to MongoDB collection 'QcFlags' via backend service.
   const [flags, setFlags] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   // Filters are applied server-side by the MongoDB aggregation pipeline in Testorder-service.
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -75,6 +78,7 @@ const QcFlagsPage = () => {
   const fetchFlags = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const [flagsRes, statsRes] = await Promise.all([
         qcFlagService.getFlags({
           status: statusFilter,
@@ -85,14 +89,15 @@ const QcFlagsPage = () => {
         qcFlagService.getStatistics()
       ]);
 
-      if (flagsRes.success) {
-        setFlags(flagsRes.data);
-      }
-      if (statsRes.success) {
-        setStatistics(statsRes.data);
+      const list = flagsRes?.data ?? flagsRes?.items ?? flagsRes;
+      setFlags(Array.isArray(list) ? list : (Array.isArray(flagsRes?.data) ? flagsRes.data : []));
+      if (statsRes?.success || statsRes?.data) {
+        setStatistics(statsRes.data || statsRes);
       }
     } catch (e) {
       console.error(e);
+      setFlags([]);
+      setLoadError(e?.message || 'Không tải được danh sách cờ QC.');
     } finally {
       setLoading(false);
     }
@@ -222,17 +227,27 @@ const QcFlagsPage = () => {
       {/* Top Banner */}
       <header className="bms-page-header">
         <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Cờ kiểm chuẩn</h1>
+          <h1 className="bms-page-title">Cảnh báo vi phạm Westgard (IQC)</h1>
         </div>
         <div className="bms-page-actions">
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => navigate('/laboratory/qc')}
+                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2"
+              >
+                <FaFlask />
+                <span>Mở nội kiểm IQC</span>
+              </Button>
               <Button
                 size="sm"
                 onClick={() => setShowCreateModal(true)}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                title="Chỉ dùng khi ghi tay sự cố — bình thường cờ sinh từ trang IQC"
               >
                 <FaPlus />
-                <span>Tạo cờ QC mới</span>
+                <span>Ghi tay sự cố</span>
               </Button>
               <Button
                 variant="light"
@@ -247,6 +262,21 @@ const QcFlagsPage = () => {
               </Button>
         </div>
       </header>
+
+      <Alert variant="light" className="border rounded-3 shadow-sm mb-3 d-flex align-items-start gap-2">
+        <FaInfoCircle className="text-primary mt-1 flex-shrink-0" />
+        <div className="small mb-0">
+          <strong>Không thuộc luồng BN chính.</strong> Đây là bảng sự cố nội kiểm máy (IQC / Westgard) —
+          khi QC ngoài giới hạn thì xem/xử lý tại đây. Demo E2E: BN → lấy mẫu → nhập KQ → BS duyệt
+          <strong> không bắt buộc</strong> vào màn này.
+        </div>
+      </Alert>
+
+      {loadError && (
+        <Alert variant="danger" dismissible onClose={() => setLoadError(null)} className="rounded-3">
+          {loadError}
+        </Alert>
+      )}
 
       {alertMsg && (
         <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="rounded-4 shadow-sm">
@@ -510,11 +540,22 @@ const QcFlagsPage = () => {
           })}
         </div>
       ) : (
-        <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
+        <Card className="border-0 shadow-sm rounded-4 text-center py-4 bg-white">
           <Card.Body>
-            <FaCheckCircle className="text-success mb-3" style={{ fontSize: '3rem', opacity: 0.4 }} />
-            <h5 className="text-dark fw-bold">Hệ thống phòng Lab không có cờ QC nào trong mục này</h5>
-            <p className="text-muted small mb-0">Tất cả các máy phân tích huyết học và sinh hóa đang vận hành ổn định trong giới hạn cho phép.</p>
+            <FaCheckCircle className="text-secondary mb-3" style={{ fontSize: '2.5rem', opacity: 0.45 }} />
+            <h5 className="text-dark fw-bold">Chưa có cờ vi phạm Westgard</h5>
+            <p className="text-muted small mx-auto mb-3" style={{ maxWidth: 520 }}>
+              Danh sách trống = chưa ghi nhận sự cố IQC (hoặc đã lọc hết). Không đồng nghĩa mọi máy
+              đang chạy — chỉ nghĩa chưa có bản ghi cờ trong bộ lọc hiện tại.
+            </p>
+            <Button
+              variant="outline-primary"
+              size="sm"
+              className="rounded-pill px-3"
+              onClick={() => navigate('/laboratory/qc')}
+            >
+              Ghi nhận nội kiểm tại trang IQC
+            </Button>
           </Card.Body>
         </Card>
       )}

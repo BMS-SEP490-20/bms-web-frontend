@@ -48,7 +48,8 @@ const MENU_SECTIONS = [
       { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Thẩm Định Kỹ Thuật (Tùy chọn)', icon: FaCheckCircle, roles: [MANAGER], badge: { text: 'Tùy chọn', bg: 'secondary' } },
       { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: FaChartBar, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FaFlask, roles: [MANAGER] },
-      { id: 'mgr-westgard', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [MANAGER] }
+      { id: 'mgr-westgard', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [MANAGER] },
+      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [MANAGER] }
     ]
   },
   {
@@ -95,6 +96,7 @@ const MENU_SECTIONS = [
     roles: [LAB],
     items: [
       { id: 'lab-timeline', path: '/laboratory/sample-timeline', label: '7. Tra Cứu Tiến Trình Mẫu Máu', icon: FaHistory, roles: [LAB] },
+      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [LAB] },
       { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] }
     ]
   },

@@ -43,7 +43,7 @@ const TABS = [
 
 export default function NotifyTestResultsPage() {
     const currentUser = getStoredUser();
-    const canDispatch = hasRole(currentUser, ROLES.LAB);
+    const canDispatch = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
     const canMarkRead = hasRole(currentUser, ROLES.PATIENT);
 
     // States

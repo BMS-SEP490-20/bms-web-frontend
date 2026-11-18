@@ -4,7 +4,7 @@
  * Tuân thủ: Tiêu chuẩn ISO 15189:2022, Clean Medical Standard (Rule 19) & AGENTS-CODE.md.
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   FaBarcode,
   FaCheckCircle,
@@ -34,15 +34,58 @@ const REJECTION_CODES = [
   { code: 'REJ-05', label: 'Rò rỉ / Nứt vỡ ống bệnh phẩm (Leakage / Broken)', isHemolysis: false },
 ];
 
-export function CheckInSamplePage() {
-  const loggedIn = useMemo(() => {
+const FALLBACK_LAB_ROOMS = [
+  { id: 'LAB-ROOM-01', name: 'Bàn 01 • Phòng Xét Nghiệm Huyết Học' },
+  { id: 'LAB-ROOM-02', name: 'Bàn 02 • Phòng Xét Nghiệm Hóa Sinh - Miễn Dịch' },
+  { id: 'LAB-ROOM-03', name: 'Bàn 03 • Phòng Xét Nghiệm Vi Sinh' },
+];
+
+function findStaffMatch(list, { idOrCode, name } = {}) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  if (idOrCode) {
+    const needle = String(idOrCode).trim().toLowerCase();
+    const byKey = list.find((s) =>
+      String(s.id || '').toLowerCase() === needle ||
+      String(s.employeeCode || '').toLowerCase() === needle ||
+      String(s.username || '').toLowerCase() === needle
+    );
+    if (byKey) return byKey;
+  }
+  if (name) {
+    const cleanName = String(name).split('(')[0].trim().toLowerCase();
+    const fullNeedle = String(name).trim().toLowerCase();
+    const byName = list.find((s) => {
+      const fn = String(s.fullName || '').trim().toLowerCase();
+      return fn === fullNeedle || fn === cleanName;
+    });
+    if (byName) return byName;
+  }
+  return null;
+}
+
+function formatStaffOption(s) {
+  const code = s.employeeCode || s.username || s.id;
+  const parts = [s.fullName];
+  if (code) parts.push(`(${code})`);
+  if (s.department) parts.push(`— ${s.department}`);
+  return parts.join(' ');
+}
+
+export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechName = '' } = {}) {
+  const currentUser = useMemo(() => {
     try { return getStoredUser(); } catch { return null; }
   }, []);
-  const [selectedRoom, setSelectedRoom] = useState('UNASSIGNED');
+
+  const [labRooms, setLabRooms] = useState(FALLBACK_LAB_ROOMS);
+  const [selectedRoom, setSelectedRoom] = useState(labRoomId || FALLBACK_LAB_ROOMS[0].id);
   const [roomLabel, setRoomLabel] = useState('Đang tải phòng phân công…');
   const [technicianName, setTechnicianName] = useState(
-    loggedIn?.fullName || loggedIn?.name || 'KTV đang đăng nhập'
+    initialTechName || currentUser?.fullName || currentUser?.name || 'KTV đang đăng nhập'
   );
+  const [staffOptions, setStaffOptions] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [handoverStaffId, setHandoverStaffId] = useState('');
+  const [receiverTechId, setReceiverTechId] = useState('');
   const [code, setCode] = useState('');
   const [pending, setPending] = useState([]);
   const [current, setCurrent] = useState(null);
@@ -66,7 +109,13 @@ export function CheckInSamplePage() {
   const [listFilter, setListFilter] = useState('');
   const [pendingLoading, setPendingLoading] = useState(false);
 
-  const loadPending = async () => {
+  // Prioritize Lab/Manager staff for the receiving technician selector; fall back to full staff directory if empty.
+  const labTechOptions = useMemo(() => {
+    const labOnly = staffOptions.filter((s) => s.role === 'Lab' || s.role === 'Manager');
+    return labOnly.length > 0 ? labOnly : staffOptions;
+  }, [staffOptions]);
+
+  const loadPending = useCallback(async () => {
     setPendingLoading(true);
     try {
       const data = await sampleApi.pending();
@@ -76,7 +125,57 @@ export function CheckInSamplePage() {
     } finally {
       setPendingLoading(false);
     }
-  };
+  }, []);
+
+  const loadLookups = useCallback(async () => {
+    setStaffLoading(true);
+    try {
+      const [staffList, roomsList] = await Promise.all([
+        sampleApi.getStaff(),
+        sampleApi.getLabRooms()
+      ]);
+
+      if (Array.isArray(roomsList) && roomsList.length > 0) {
+        const normalizedRooms = roomsList.map((r) => ({
+          id: r.id || r.roomCode,
+          name: r.name ? `${r.roomCode || r.id} • ${r.name}` : (r.id || r.roomCode)
+        }));
+        setLabRooms(normalizedRooms);
+        setSelectedRoom((prev) => {
+          if (labRoomId && normalizedRooms.some((r) => r.id === labRoomId)) return labRoomId;
+          if (normalizedRooms.some((r) => r.id === prev)) return prev;
+          return normalizedRooms[0].id;
+        });
+      }
+
+      if (Array.isArray(staffList) && staffList.length > 0) {
+        setStaffOptions(staffList);
+
+        const labCandidates = staffList.filter((s) => s.role === 'Lab' || s.role === 'Manager');
+        const receiverPool = labCandidates.length > 0 ? labCandidates : staffList;
+
+        const defaultReceiver =
+          findStaffMatch(receiverPool, {
+            idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username,
+            name: technicianName || currentUser?.fullName || currentUser?.name
+          }) || receiverPool[0];
+
+        const defaultHandover =
+          staffList.find((s) => s.role === 'Receptionist') ||
+          staffList.find((s) => s.id !== defaultReceiver?.id) ||
+          staffList[0];
+
+        if (defaultReceiver) {
+          setReceiverTechId((prev) => prev || defaultReceiver.id);
+        }
+        if (defaultHandover) {
+          setHandoverStaffId((prev) => prev || defaultHandover.id);
+        }
+      }
+    } finally {
+      setStaffLoading(false);
+    }
+  }, [currentUser, labRoomId, technicianName]);
 
   const selectFromList = (p) => {
     const key = p.barcode || p.sampleId || p.id || '';
@@ -90,16 +189,49 @@ export function CheckInSamplePage() {
 
   useEffect(() => {
     loadPending();
-  }, []);
+    loadLookups();
+  }, [loadPending, loadLookups]);
+
+  // Auto-align Người Bàn Giao with the sample's collector/handover staff once a specimen is loaded.
+  useEffect(() => {
+    if (!current || staffOptions.length === 0) return;
+
+    const matchedHandover =
+      findStaffMatch(staffOptions, { idOrCode: current.handoverById, name: current.handoverBy }) ||
+      findStaffMatch(staffOptions, { idOrCode: current.collectedBy, name: current.collectorName });
+    if (matchedHandover) {
+      setHandoverStaffId(matchedHandover.id);
+    }
+
+    const matchedReceiver = findStaffMatch(labTechOptions, {
+      idOrCode: current.receivedBy || current.assignedTechnicianId,
+      name: current.assignedTechnicianName
+    });
+    if (matchedReceiver) {
+      setReceiverTechId(matchedReceiver.id);
+    }
+  }, [current, staffOptions, labTechOptions]);
+
+  const selectedHandoverStaff = useMemo(
+    () => staffOptions.find((s) => s.id === handoverStaffId) || null,
+    [staffOptions, handoverStaffId]
+  );
+
+  const selectedReceiverStaff = useMemo(
+    () => labTechOptions.find((s) => s.id === receiverTechId) || staffOptions.find((s) => s.id === receiverTechId) || null,
+    [labTechOptions, staffOptions, receiverTechId]
+  );
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const duty = await resolveDutyAssignment();
       if (cancelled) return;
-      setSelectedRoom(duty.roomId);
+      if (duty.roomId && duty.roomId !== 'UNASSIGNED') {
+        setSelectedRoom(duty.roomId);
+      }
       setRoomLabel(duty.roomName);
-      setTechnicianName(duty.technicianName);
+      if (duty.technicianName) setTechnicianName(duty.technicianName);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -147,6 +279,10 @@ export function CheckInSamplePage() {
       return;
     }
 
+    const handoverDisplay = selectedHandoverStaff
+      ? `${selectedHandoverStaff.fullName}${selectedHandoverStaff.department ? ` (${selectedHandoverStaff.department})` : ''}`
+      : undefined;
+
     setLoading(true);
     try {
       // Ống vừa in nhãn thường PendingCollection → Collected rồi mới Received
@@ -165,7 +301,11 @@ export function CheckInSamplePage() {
         labRoomId: selectedRoom,
         rejectionCode: reject ? rejectCode : undefined,
         rejectionNote: reject ? rejectNote : undefined,
-        notes: handoverNote
+        notes: handoverNote,
+        technicianId: selectedReceiverStaff?.employeeCode || selectedReceiverStaff?.id || currentUser?.employeeCode || currentUser?.id,
+        technicianName: selectedReceiverStaff?.fullName || technicianName || currentUser?.fullName || currentUser?.name,
+        handoverById: selectedHandoverStaff?.employeeCode || selectedHandoverStaff?.id,
+        handoverBy: handoverDisplay
       });
 
       if (reject) {
@@ -398,23 +538,58 @@ export function CheckInSamplePage() {
 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">
-                      Vị Trí / Bàn Tiếp Nhận * <FaLock className="text-muted ms-1" title="Theo ca trực — không đổi tay" />
-                    </label>
-                    <input className="form-control bg-light" value={roomLabel} readOnly disabled />
-                    <div className="form-text">Theo lịch phân công ({selectedRoom}). Không chọn phòng lệch ca.</div>
+                    <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận (CSDL) *</label>
+                    <select className="form-select" value={selectedRoom} onChange={(event) => setSelectedRoom(event.target.value)}>
+                      {!labRooms.some((r) => r.id === selectedRoom) && selectedRoom && (
+                        <option value={selectedRoom}>{roomLabel || selectedRoom}</option>
+                      )}
+                      {labRooms.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.name}
+                        </option>
+                      ))}
+                    </select>
+                    {roomLabel && <div className="form-text">Ca trực phân công: {roomLabel}</div>}
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">Thời Điểm Tiếp Nhận *</label>
                     <input className="form-control" value={receiveTime} readOnly />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Người Bàn Giao</label>
-                    <input className="form-control" placeholder="Ghi nhận người bàn giao (nếu có)" />
+                    <label className="form-label small fw-semibold text-secondary">Người Bàn Giao (CSDL)</label>
+                    <select
+                      className="form-select"
+                      value={handoverStaffId}
+                      onChange={(event) => setHandoverStaffId(event.target.value)}
+                      disabled={staffLoading && staffOptions.length === 0}
+                    >
+                      <option value="">
+                        {staffLoading ? '-- Đang tải danh sách nhân sự từ CSDL... --' : '-- Chọn người bàn giao mẫu --'}
+                      </option>
+                      {staffOptions.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {formatStaffOption(s)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách</label>
-                    <input className="form-control bg-light" value={technicianName} readOnly disabled />
+                    <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách (CSDL)</label>
+                    <select
+                      className="form-select"
+                      value={receiverTechId}
+                      onChange={(event) => setReceiverTechId(event.target.value)}
+                      disabled={staffLoading && labTechOptions.length === 0}
+                    >
+                      <option value="">
+                        {staffLoading ? '-- Đang tải danh sách KTV từ CSDL... --' : '-- Chọn KTV tiếp nhận phụ trách --'}
+                      </option>
+                      {labTechOptions.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {formatStaffOption(s)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -561,6 +736,21 @@ export function CheckInSamplePage() {
                     <div className="small text-secondary">
                       Thể tích: <strong>{current.volumeMl || 3.0} mL</strong> &bull; Loại: <strong>{current.sampleType || 'Máu toàn phần'}</strong>
                     </div>
+                    {(current.collectorName || current.collectedBy) && (
+                      <div className="small text-secondary mt-1">
+                        Người lấy mẫu: <strong>{current.collectorName || current.collectedBy}</strong>
+                      </div>
+                    )}
+                    {current.handoverBy && (
+                      <div className="small text-secondary">
+                        Người bàn giao: <strong>{current.handoverBy}</strong>
+                      </div>
+                    )}
+                    {current.assignedTechnicianName && (
+                      <div className="small text-secondary">
+                        KTV tiếp nhận: <strong>{current.assignedTechnicianName}</strong>
+                      </div>
+                    )}
                     <div className="small text-muted mt-2 border-top pt-2">
                       Mã Bệnh Nhân: <code>{current.patientId || 'Chưa liên kết'}</code>
                       {current.patientName && <div>Họ tên: <strong>{current.patientName}</strong></div>}

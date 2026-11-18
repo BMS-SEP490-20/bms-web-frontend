@@ -53,6 +53,38 @@ import { canEnterTestResults, normalizeSampleStatus } from '../../../shared/work
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { resolveParamsForSample } from '../../../shared/workflow/resolveOrderParams';
 
+function isQualitativeParam(p) {
+  return String(p?.valueType || '').toLowerCase() === 'qualitative';
+}
+
+function formatCleanNum(val) {
+  const num = Number(val);
+  if (Number.isNaN(num)) return String(val);
+  return String(Number(num.toFixed(4)));
+}
+
+function formatReferenceRange(p) {
+  if (isQualitativeParam(p)) {
+    return p.normalText || 'Âm tính (Negative)';
+  }
+  const hasMin = p.refLow !== null && p.refLow !== undefined && p.refLow !== '';
+  const hasMax = p.refHigh !== null && p.refHigh !== undefined && p.refHigh !== '';
+  const unitSuffix = p.unit && p.unit !== '—' ? ` ${p.unit}` : '';
+  if (hasMin && hasMax) return `${formatCleanNum(p.refLow)} – ${formatCleanNum(p.refHigh)}${unitSuffix}`;
+  if (hasMin) return `≥ ${formatCleanNum(p.refLow)}${unitSuffix}`;
+  if (hasMax) return `≤ ${formatCleanNum(p.refHigh)}${unitSuffix}`;
+  return p.normalText || '—';
+}
+
+function formatPanicBadge(p) {
+  const hasLow = p.criticalLow !== null && p.criticalLow !== undefined && p.criticalLow !== '';
+  const hasHigh = p.criticalHigh !== null && p.criticalHigh !== undefined && p.criticalHigh !== '';
+  if (!hasLow && !hasHigh) return null;
+  if (hasLow && hasHigh) return `Panic: <${formatCleanNum(p.criticalLow)} hoặc >${formatCleanNum(p.criticalHigh)}`;
+  if (hasLow) return `Panic: <${formatCleanNum(p.criticalLow)}`;
+  return `Panic: >${formatCleanNum(p.criticalHigh)}`;
+}
+
 const DEFAULT_PARAMS = [
   { code: 'WBC', name: 'WBC · Số lượng bạch cầu', value: 0, unit: '10⁹/L', refLow: 4.0, refHigh: 10.0, criticalLow: 1.5, criticalHigh: 30.0 },
   { code: 'RBC', name: 'RBC · Số lượng hồng cầu', value: 0, unit: '10¹²/L', refLow: 4.0, refHigh: 5.5, criticalLow: 2.0, criticalHigh: 7.0 },
@@ -142,12 +174,19 @@ function isOrderGuid(id) {
 }
 
 function evaluateMedicalFlag(code, value, p) {
-  if (value === 0 || value === '' || Number.isNaN(Number(value))) return 'NORMAL';
+  if (value === null || value === undefined || value === '' || value === 0) return 'NORMAL';
+  if (isQualitativeParam(p)) {
+    const text = String(value).trim().toLowerCase();
+    if (!text) return 'NORMAL';
+    if (text.includes('dương') || text.includes('positive') || text.includes('reactive')) return 'HIGH';
+    return 'NORMAL';
+  }
+  if (Number.isNaN(Number(value))) return 'NORMAL';
   const num = Number(value);
 
-  // Critical / Panic thresholds (ISO 15189:2022)
-  if (p.criticalLow != null && num <= p.criticalLow) return 'CRITICAL';
-  if (p.criticalHigh != null && num >= p.criticalHigh) return 'CRITICAL';
+  // Critical / Panic thresholds (ISO 15189:2022 — strict < / > matching TestResultService.ValidatedItemsAsync)
+  if (p.criticalLow != null && num < p.criticalLow) return 'CRITICAL';
+  if (p.criticalHigh != null && num > p.criticalHigh) return 'CRITICAL';
 
   // Reference range thresholds
   if (p.refLow != null && num < p.refLow) return 'LOW';
@@ -192,6 +231,8 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [searchParams] = useSearchParams();
   const initialSampleId = searchParams.get('sampleId') || searchParams.get('barcode') || '';
   const viewOnlyMode = String(searchParams.get('mode') || '').toLowerCase() === 'view';
+  const [dbCatalogParams, setDbCatalogParams] = useState([]);
+  const [isPackageFiltered, setIsPackageFiltered] = useState(false);
 
   const loggedInUser = useMemo(() => {
     try { return getStoredUser(); } catch { return null; }
@@ -376,8 +417,8 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const handleCancelAndRerun = () => {
     if (!rerunReason) return;
     const targetSample = sampleId.trim() || 'Mẫu hiện tại';
-    // Reset theo template y lệnh (không ép CBC mặc định)
-    setParams((orderParamTemplate || []).map((p) => ({ ...p, value: '' })));
+    // Reset giá trị đã nhập nhưng vẫn giữ nguyên danh sách chỉ số của y lệnh / gói hiện tại
+    setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })));
     setShowRerunModal(false);
     setCancellationSuccess(
       `Đã hủy thành công kết quả mẫu ${targetSample}. Lý do y khoa: "${rerunReason}". ${
@@ -396,21 +437,57 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     reviewedAbnormal: false
   });
 
+  // Tải danh mục chỉ tiêu xét nghiệm chuẩn từ CSDL (test_criteria) làm fallback khi mẫu không gắn gói
+  useEffect(() => {
+    let isMounted = true;
+    api.get('/laboratory/criteria', { params: { page: 1, pageSize: 100, isActive: true } })
+      .then((res) => {
+        if (!isMounted) return;
+        const raw = res.data?.data?.items || res.data?.items || res.data?.data || [];
+        if (!Array.isArray(raw) || raw.length === 0) return;
+        const mapped = [];
+        const seen = new Set();
+        raw.forEach((c) => {
+          const code = String(c.criterionCode || c.code || '').trim().toUpperCase();
+          if (!code || seen.has(code)) return;
+          seen.add(code);
+          const displayName = c.criterionName || c.name || code;
+          mapped.push({
+            code,
+            name: displayName.toUpperCase().startsWith(code) ? displayName : `${code} · ${displayName}`,
+            value: '',
+            unit: c.unit || '',
+            refLow: c.normalMin ?? null,
+            refHigh: c.normalMax ?? null,
+            normalText: c.normalText || null,
+            criticalLow: c.panicLow ?? null,
+            criticalHigh: c.panicHigh ?? null,
+            valueType: c.valueType || 'Numeric'
+          });
+        });
+        setDbCatalogParams(mapped);
+      })
+      .catch(() => {
+        // Non-fatal; sample lookup still populates packageParameters directly from BE
+      });
+    return () => { isMounted = false; };
+  }, []);
+
   // Tự động đánh giá cờ cho từng chỉ số
   const flags = useMemo(() => {
     const list = Array.isArray(params) ? params : [];
     return list.map((p) => {
-      const val = Number(p.value);
-      const flag = evaluateMedicalFlag(p.code, val, p);
+      const hasVal = p.value !== '' && p.value !== null && p.value !== undefined && p.value !== 0;
+      const flag = hasVal ? evaluateMedicalFlag(p.code, p.value, p) : 'NORMAL';
       return {
         ...p,
-        flag: val !== 0 ? flag : 'NORMAL'
+        flag
       };
     });
   }, [params]);
 
   const criticalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && p.value !== '' && p.value !== 0);
   }, [flags]);
 
   const hasCritical = useMemo(() => {
@@ -418,7 +495,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   }, [criticalAnalytes]);
 
   const abnormalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && p.value !== '' && p.value !== 0);
   }, [flags]);
 
   // Kích hoạt còi Web Audio 880Hz và quản lý đồng hồ đếm ngược 15 phút
@@ -465,7 +542,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     );
   };
 
-  // Tra cứu mẫu + nạp chỉ số ĐÚNG từ DB (criteria của gói) — không 1 dòng tên gói
+  // Tra cứu mẫu + nạp chỉ số ĐÚNG từ DB (ưu tiên sample.packageParameters từ BE, fallback resolveParamsForSample)
   const handleLookupSampleWithTarget = useCallback(async (code) => {
     const target = (code || sampleId).trim();
     if (!target) return;
@@ -476,87 +553,117 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       const sample = res.data?.data;
       if (!sample) {
         setSampleDetails(null);
+        setIsPackageFiltered(false);
         applyParamTemplate([], 'Không tìm thấy mẫu');
         return;
       }
       setSampleDetails(sample);
 
-      let { params: resolved, label } = await resolveParamsForSample(sample);
-
-      // 0–1 dòng mang tên gói → nạp criteria từ packageId / catalog (CBC mới fallback panel CBC)
       const pkgName = sample.testPackageName || sample.TestPackageName || '';
       const pkgId = sample.packageId || sample.PackageId || sample.packageCode || sample.PackageCode || '';
-      const looksCollapsed = resolved.length <= 1;
-      const isCbcName = /tế bào|te bao|24 thông|laser|cbc|huyết đồ|công thức máu/i.test(
-        `${pkgName} ${resolved[0]?.name || ''} ${resolved[0]?.code || ''}`
-      );
+      const bePkgParams = Array.isArray(sample.packageParameters) ? sample.packageParameters : [];
 
-      if (looksCollapsed && (pkgId || pkgName)) {
-        try {
-          const { fetchServiceById, searchTestPackages } = await import(
-            '../../catalog/api/catalogApi'
-          );
-          const mapCriteria = (criteria) =>
-            criteria.map((c) => ({
-              code: c.code || c.Code,
-              name: `${c.code || c.Code} · ${c.name || c.Name || ''}`,
-              value: '',
-              unit: c.unit || c.Unit || '—',
-              refLow: (() => {
-                const m = String(c.referenceRange || c.ReferenceRange || '').match(
-                  /(-?\d+(?:[.,]\d+)?)\s*[-–—]\s*(-?\d+(?:[.,]\d+)?)/
-                );
-                return m ? Number(String(m[1]).replace(',', '.')) : null;
-              })(),
-              refHigh: (() => {
-                const m = String(c.referenceRange || c.ReferenceRange || '').match(
-                  /(-?\d+(?:[.,]\d+)?)\s*[-–—]\s*(-?\d+(?:[.,]\d+)?)/
-                );
-                return m ? Number(String(m[2]).replace(',', '.')) : null;
-              })(),
-              criticalLow: null,
-              criticalHigh: null
-            }));
+      let resolved = [];
+      let label = '';
 
-          let criteria = [];
-          const tryIds = [
-            pkgId,
-            pkgId && !String(pkgId).startsWith('PKG-') ? `PKG-${pkgId}` : '',
-            ...(isCbcName ? ['PKG-CBC-01', 'CBC-01', 'CBC'] : [])
-          ].filter(Boolean);
+      if (bePkgParams.length > 0) {
+        resolved = bePkgParams.map((p) => ({
+          code: p.code,
+          name: p.name ? `${p.code} · ${p.name}` : p.code,
+          value: '',
+          unit: p.unit || '',
+          refLow: p.normalMin ?? null,
+          refHigh: p.normalMax ?? null,
+          normalText: p.normalText || null,
+          criticalLow: p.panicLow ?? null,
+          criticalHigh: p.panicHigh ?? null,
+          valueType: p.valueType || 'Numeric'
+        }));
+        label = pkgName ? `Gói "${pkgName}" · ${resolved.length} chỉ số` : `${resolved.length} chỉ số theo gói`;
+        setIsPackageFiltered(true);
+      } else {
+        const resObj = await resolveParamsForSample(sample);
+        resolved = resObj.params;
+        label = resObj.label;
 
-          for (const id of tryIds) {
-            if (String(id).length > 40 || /\s/.test(String(id))) continue;
-            const pkg = await fetchServiceById(id);
-            criteria = pkg?.criteria || pkg?.Criteria || pkg?.data?.criteria || [];
-            if (criteria.length > 1) break;
-          }
+        const looksCollapsed = resolved.length <= 1;
+        const isCbcName = /tế bào|te bao|24 thông|laser|cbc|huyết đồ|công thức máu/i.test(
+          `${pkgName} ${resolved[0]?.name || ''} ${resolved[0]?.code || ''}`
+        );
 
-          if (criteria.length <= 1 && pkgName) {
-            const kw = isCbcName ? 'CBC' : pkgName.split(/[()]/)[0].trim().split(/\s+/).slice(0, 3).join(' ');
-            const sr = await searchTestPackages({ keyword: kw || pkgName, pageSize: 8 });
-            const items = sr?.items || [];
-            const hit = items.find((p) => (p.criteria || []).length > 1) || items[0];
-            if (hit?.id) {
-              const detail = await fetchServiceById(hit.id);
-              criteria = detail?.criteria || hit.criteria || [];
+        if (looksCollapsed && (pkgId || pkgName)) {
+          try {
+            const { fetchServiceById, searchTestPackages } = await import(
+              '../../catalog/api/catalogApi'
+            );
+            const mapCriteria = (criteria) =>
+              criteria.map((c) => ({
+                code: c.code || c.Code,
+                name: `${c.code || c.Code} · ${c.name || c.Name || ''}`,
+                value: '',
+                unit: c.unit || c.Unit || '—',
+                refLow: (() => {
+                  const m = String(c.referenceRange || c.ReferenceRange || '').match(
+                    /(-?\d+(?:[.,]\d+)?)\s*[-–—]\s*(-?\d+(?:[.,]\d+)?)/
+                  );
+                  return m ? Number(String(m[1]).replace(',', '.')) : null;
+                })(),
+                refHigh: (() => {
+                  const m = String(c.referenceRange || c.ReferenceRange || '').match(
+                    /(-?\d+(?:[.,]\d+)?)\s*[-–—]\s*(-?\d+(?:[.,]\d+)?)/
+                  );
+                  return m ? Number(String(m[2]).replace(',', '.')) : null;
+                })(),
+                criticalLow: null,
+                criticalHigh: null
+              }));
+
+            let criteria = [];
+            const tryIds = [
+              pkgId,
+              pkgId && !String(pkgId).startsWith('PKG-') ? `PKG-${pkgId}` : '',
+              ...(isCbcName ? ['PKG-CBC-01', 'CBC-01', 'CBC'] : [])
+            ].filter(Boolean);
+
+            for (const id of tryIds) {
+              if (String(id).length > 40 || /\s/.test(String(id))) continue;
+              const pkg = await fetchServiceById(id);
+              criteria = pkg?.criteria || pkg?.Criteria || pkg?.data?.criteria || [];
+              if (criteria.length > 1) break;
+            }
+
+            if (criteria.length <= 1 && pkgName) {
+              const kw = isCbcName ? 'CBC' : pkgName.split(/[()]/)[0].trim().split(/\s+/).slice(0, 3).join(' ');
+              const sr = await searchTestPackages({ keyword: kw || pkgName, pageSize: 8 });
+              const items = sr?.items || [];
+              const hit = items.find((p) => (p.criteria || []).length > 1) || items[0];
+              if (hit?.id) {
+                const detail = await fetchServiceById(hit.id);
+                criteria = detail?.criteria || hit.criteria || [];
+              }
+            }
+
+            if (criteria.length > 1) {
+              resolved = mapCriteria(criteria);
+              label = `Gói DB · ${pkgName || pkgId} · ${resolved.length} chỉ số`;
+            } else if (isCbcName) {
+              resolved = DEFAULT_PARAMS.slice(0, 6).map((p) => ({ ...p, value: '' }));
+              label = `Gói CBC (fallback) · ${resolved.length} chỉ số`;
+            }
+          } catch (err) {
+            console.warn('Nạp criteria gói thất bại:', err);
+            if (isCbcName) {
+              resolved = DEFAULT_PARAMS.slice(0, 6).map((p) => ({ ...p, value: '' }));
+              label = `Gói CBC (fallback) · ${resolved.length} chỉ số`;
             }
           }
-
-          if (criteria.length > 1) {
-            resolved = mapCriteria(criteria);
-            label = `Gói DB · ${pkgName || pkgId} · ${resolved.length} chỉ số`;
-          } else if (isCbcName) {
-            resolved = DEFAULT_PARAMS.slice(0, 6).map((p) => ({ ...p, value: '' }));
-            label = `Gói CBC (fallback) · ${resolved.length} chỉ số`;
-          }
-        } catch (err) {
-          console.warn('Nạp criteria gói thất bại:', err);
-          if (isCbcName) {
-            resolved = DEFAULT_PARAMS.slice(0, 6).map((p) => ({ ...p, value: '' }));
-            label = `Gói CBC (fallback) · ${resolved.length} chỉ số`;
-          }
         }
+
+        if (resolved.length === 0 && dbCatalogParams.length > 0) {
+          resolved = dbCatalogParams.map((p) => ({ ...p, value: '' }));
+          label = `Danh mục chuẩn CSDL · ${resolved.length} chỉ số`;
+        }
+        setIsPackageFiltered(resolved.length > 0 && Boolean(pkgName || pkgId));
       }
 
       // Luôn cố nạp TRE đã lưu (view / Completed / đã duyệt) để không hiện 0.0 trống
@@ -572,11 +679,8 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       }
 
       const finalParams = merged?.length ? merged : resolved;
-      const hasValues = (finalParams || []).some(
-        (p) => p.value !== '' && p.value !== null && p.value !== undefined && Number(p.value) !== 0
-      );
       const viewLabel = saved
-        ? `${label || 'KQ đã lưu'} · ${saved.status || 'saved'}${hasValues ? '' : ''}`
+        ? `${label || 'KQ đã lưu'} · ${saved.status || 'saved'}`
         : label;
 
       if (finalParams.length > 0) {
@@ -588,12 +692,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     } catch (err) {
       console.error('Lookup mẫu / nạp KQ thất bại', err);
       setSampleDetails(null);
+      setIsPackageFiltered(false);
       setError(err?.response?.data?.message || err?.message || 'Không tải được mẫu / kết quả đã lưu.');
       applyParamTemplate([], '');
     } finally {
       setParamsLoading(false);
     }
-  }, [applyParamTemplate, mergeSavedResultValues]);
+  }, [applyParamTemplate, mergeSavedResultValues, dbCatalogParams, sampleId]);
 
   const handleLookupSample = () => handleLookupSampleWithTarget(sampleId);
 
@@ -630,7 +735,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       return;
     }
 
-    const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== 0 && p.value !== '');
+    const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== '' && p.value !== null && p.value !== undefined && String(p.value).trim() !== '' && p.value !== 0);
     if (validParams.length === 0) {
       setError('Vui lòng nhập ít nhất một kết quả đo chỉ số xét nghiệm.');
       return;
@@ -733,7 +838,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                     required
                     value={sampleId}
                     onChange={(e) => setSampleId(e.target.value)}
-                    onBlur={handleLookupSample}
+                    onBlur={() => handleLookupSample()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleLookupSample();
+                      }
+                    }}
                     placeholder="Quét Barcode hoặc nhập mã SMP-..."
                   />
                   <Button variant="outline-primary" type="button" onClick={handleLookupSample}>
@@ -850,7 +961,9 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         </div>
                       ) : null}
                       <small className="text-muted">
-                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu lâm sàng
+                        {flags.length} thông số
+                        {isPackageFiltered && sampleDetails?.testPackageName ? ` theo gói "${sampleDetails.testPackageName}"` : ''}
+                        {' '}&bull; Đơn vị tính và khoảng tham chiếu chuẩn ISO 15189
                       </small>
                     </div>
                     <span className="badge bg-light text-dark border">
@@ -879,12 +992,18 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         )}
                         {!paramsLoading && flags.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="text-center text-muted py-4">
-                              Chưa có chỉ số. Quét barcode mẫu đã gắn y lệnh (gói + chỉ số BS thêm) — form không dùng bảng cứng.
+                            <td colSpan={5} className="text-center py-5 text-muted">
+                              <FaSearch className="fs-3 mb-2 opacity-50 d-block mx-auto" />
+                              <div className="fw-semibold text-dark mb-1">Chưa chọn ống mẫu xét nghiệm</div>
+                              <div className="small">
+                                Vui lòng nhập hoặc quét <strong>Mã Barcode ống mẫu (SMP-...)</strong> ở phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số xét nghiệm theo gói/y lệnh từ CSDL.
+                              </div>
                             </td>
                           </tr>
                         )}
-                        {!paramsLoading && (Array.isArray(flags) ? flags : []).map((p, idx) => (
+                        {!paramsLoading && (Array.isArray(flags) ? flags : []).map((p, idx) => {
+                          const panicText = formatPanicBadge(p);
+                          return (
                           <tr
                             key={`${p.code}-${idx}`}
                             className={p.flag === 'CRITICAL' ? 'table-danger' : p.flag !== 'NORMAL' && p.value !== 0 && p.value !== '' ? 'table-warning' : undefined}
@@ -892,33 +1011,46 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                             <td className="ps-3">
                               <strong className="text-dark">{p.name}</strong>
                               <span className="badge bg-light text-secondary border font-monospace ms-2">{p.code}</span>
-                              {(p.code === 'K' || p.code === 'NA') && (
+                              {panicText && (
                                 <Badge bg="danger-subtle" text="danger" className="ms-1 border border-danger-subtle small">
-                                  {p.code === 'K' ? 'Panic: <2.5 hoặc >6.5' : 'Panic: <120 hoặc >160'}
+                                  {panicText}
                                 </Badge>
                               )}
                             </td>
                             <td className="text-end">
-                              <Form.Control
-                                type="number"
-                                step="any"
-                                size="sm"
-                                className="text-end fw-bold font-monospace"
-                                value={p.value === 0 || p.value === '0' ? '0' : (p.value ?? '')}
-                                onChange={(e) => setValue(idx, e.target.value)}
-                                readOnly={viewOnlyMode || !allowEnter}
-                                placeholder="0.0"
-                              />
+                              {isQualitativeParam(p) ? (
+                                <Form.Select
+                                  size="sm"
+                                  className="fw-semibold"
+                                  value={p.value || ''}
+                                  onChange={(e) => setValue(idx, e.target.value)}
+                                  disabled={viewOnlyMode || !allowEnter}
+                                >
+                                  <option value="">-- Chọn kết quả --</option>
+                                  <option value="Âm tính (Negative)">Âm tính (Negative)</option>
+                                  <option value="Dương tính (Positive)">Dương tính (Positive)</option>
+                                </Form.Select>
+                              ) : (
+                                <Form.Control
+                                  type="number"
+                                  step="any"
+                                  size="sm"
+                                  className="text-end fw-bold font-monospace"
+                                  value={p.value === 0 || p.value === '0' ? '0' : (p.value ?? '')}
+                                  onChange={(e) => setValue(idx, e.target.value)}
+                                  readOnly={viewOnlyMode || !allowEnter}
+                                  placeholder="0.0"
+                                />
+                              )}
                             </td>
-                            <td className="text-secondary small">{p.unit}</td>
+                            <td className="text-secondary small">{p.unit || '—'}</td>
                             <td className="small text-muted font-monospace">
-                              {p.refLow != null && p.refHigh != null
-                                ? `${p.refLow} – ${p.refHigh} ${p.unit !== '—' ? p.unit : ''}`
-                                : '—'}
+                              {formatReferenceRange(p)}
                             </td>
                             <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </Table>
                   </div>
@@ -1103,7 +1235,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                     <Button
                       variant="outline-secondary"
                       type="button"
-                      onClick={() => setParams((orderParamTemplate || []).map((p) => ({ ...p, value: '' })))}
+                      onClick={() => setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })))}
                     >
                       Nhập lại giá trị
                     </Button>

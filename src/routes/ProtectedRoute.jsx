@@ -27,7 +27,11 @@ export default function ProtectedRoute({ allowedRoles, children }) {
   const user = getStoredUser();
 
   if (!token || !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const returnTo = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+    const loginUrl = returnTo && returnTo !== "/" && !returnTo.startsWith("/login")
+      ? `/login?redirect=${encodeURIComponent(returnTo)}`
+      : "/login";
+    return <Navigate to={loginUrl} state={{ from: location }} replace />;
   }
 
   const roleId = resolveRoleId(user);

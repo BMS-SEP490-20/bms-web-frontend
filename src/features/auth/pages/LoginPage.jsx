@@ -65,7 +65,7 @@ const IS_DEV_OR_DEMO = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_L
 
 const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true" ? [
   { id: 'admin', name: 'Admin', title: 'Quản Trị Viên', username: 'admin_bms', password: 'Admin@123', desc: 'Quản trị hệ thống, danh mục, audit log' },
-  { id: 'manager', name: 'Manager', title: 'Quản Lý Lab', username: 'labhead_tranhoa', password: 'Admin@123', desc: 'Duyệt KQ, kiểm soát QC, thống kê TAT' },
+  { id: 'manager', name: 'Manager', title: 'Quản Lý Lab', username: 'manager_bms', password: 'Admin@123', desc: 'Duyệt KQ, kiểm soát QC, thống kê TAT' },
   { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ', username: 'dr_nguyenminh', password: 'Admin@123', desc: 'Chỉ định xét nghiệm, kết luận bệnh án' },
   { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên', username: 'tech_quochung', password: 'Admin@123', desc: 'Nhập kết quả, chạy mẫu xét nghiệm' },
   { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân', username: 'recep_lananh', password: 'Admin@123', desc: 'Tiếp đón, check-in, thu phí dịch vụ' },
@@ -91,6 +91,17 @@ const QUICK_LOGIN_ROLES = [
     color: "#2563EB",
     bg: "#EFF6FF",
     border: "#BFDBFE",
+    icon: FaCheckCircle },
+  {
+    id: "manager",
+    roleName: "Manager",
+    title: "Manager",
+    roleLabel: "Quản Lý Lab",
+    username: "manager_bms",
+    password: "Admin@123",
+    color: "#4F46E5",
+    bg: "#EEF2FF",
+    border: "#C7D2FE",
     icon: FaCheckCircle },
   {
     id: "doctor",
@@ -241,30 +252,52 @@ export default function LoginPage({
    * Redirects user to their role-specific workspace based on RoleId:
    * 1 = Admin, 2 = Doctor, 3 = Lab, 4 = Receptionist, 5 = Patient, 6 = Manager.
    */
+  const resolveSafeReturnUrl = () => {
+    const stateFrom = location.state?.from;
+    const fromStatePath = typeof stateFrom === "string"
+      ? stateFrom
+      : (stateFrom?.pathname ? `${stateFrom.pathname}${stateFrom.search || ""}${stateFrom.hash || ""}` : "");
+    const fromQueryPath = new URLSearchParams(location.search).get("redirect") || "";
+    const candidate = (fromStatePath || fromQueryPath || "").trim();
+
+    // Only allow safe internal paths (prevent open redirect) and ignore auth/error pages
+    if (!candidate.startsWith("/") || candidate.startsWith("//")) return "";
+    const blocked = ["/login", "/register", "/forgot-password", "/reset-password", "/403", "/404"];
+    if (blocked.some((b) => candidate === b || candidate.startsWith(`${b}?`) || candidate.startsWith(`${b}/`))) {
+      return "";
+    }
+    return candidate;
+  };
+
   const routeUserByRole = (user) => {
     const normalizedUser = typeof normalizeAuthenticatedUser === "function" ? normalizeAuthenticatedUser(user) : user;
     const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
+    const returnUrl = resolveSafeReturnUrl();
     let target = "/dashboard";
-    switch (roleId) {
-      case ROLES.ADMIN:
-      case ROLES.MANAGER:
-        target = "/dashboard";
-        break;
-      case ROLES.DOCTOR:
-        target = "/doctor/console";
-        break;
-      case ROLES.LAB:
-        target = "/lab/queue";
-        break;
-      case ROLES.RECEPTIONIST:
-        target = "/receptionist/check-in";
-        break;
-      case ROLES.PATIENT:
-        target = (normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted) ? "/home" : "/patient/medical-profile-setup";
-        break;
-      default:
-        target = "/dashboard";
-        break;
+    if (returnUrl) {
+      target = returnUrl;
+    } else {
+      switch (roleId) {
+        case ROLES.ADMIN:
+        case ROLES.MANAGER:
+          target = "/dashboard";
+          break;
+        case ROLES.DOCTOR:
+          target = "/doctor/console";
+          break;
+        case ROLES.LAB:
+          target = "/lab/queue";
+          break;
+        case ROLES.RECEPTIONIST:
+          target = "/receptionist/check-in";
+          break;
+        case ROLES.PATIENT:
+          target = (normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted) ? "/home" : "/patient/medical-profile-setup";
+          break;
+        default:
+          target = "/dashboard";
+          break;
+      }
     }
 
     try {

@@ -24,10 +24,10 @@ import {
     FaTimes, 
     FaCheck
 } from "react-icons/fa";
-import { fetchTrackingByCode } from "../api/trackingApi";
+import { fetchTrackingByCode, fetchPatientTrackings } from "../api/trackingApi";
+import { ROLES, resolveRoleId, getStoredUser } from "../../../constants/roles";
 import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
-import { getStoredUser } from "../../../constants/roles";
 import usePageTransition from "../../../shared/hooks/usePageTransition";
 import "./TrackTestProgressPage.css";
 
@@ -42,8 +42,29 @@ export default function TrackTestProgressPage() {
     const [searchInput, setSearchInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [trackingData, setTrackingData] = useState(null);
+    const [myTrackings, setMyTrackings] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [hasSearched, setHasSearched] = useState(false);
+
+    // Tự động nạp danh sách mẫu xét nghiệm của chính bệnh nhân đang đăng nhập
+    useEffect(() => {
+        const user = getStoredUser();
+        if (!user || resolveRoleId(user) !== ROLES.PATIENT) return;
+        const pid = user.patientCode || user.patientId || user.id || user._id;
+        if (!pid) return;
+
+        let active = true;
+        fetchPatientTrackings(pid).then((list) => {
+            if (!active || !Array.isArray(list) || list.length === 0) return;
+            setMyTrackings(list);
+            const hasUrlCode = Boolean(searchParams.get("code") || searchParams.get("barcode") || routeIdentifier);
+            if (!hasUrlCode) {
+                setTrackingData((prev) => prev || list[0]);
+                setSearchInput((prev) => prev || list[0].orderNumber || list[0].barcode || "");
+            }
+        });
+        return () => { active = false; };
+    }, []);
 
     // Initialize search from route param or query string
     useEffect(() => {
@@ -267,6 +288,52 @@ export default function TrackTestProgressPage() {
                         </div>
                     </div>
 
+                    {/* 1.5. DANH SÁCH MẪU CỦA BỆNH NHÂN ĐANG ĐĂNG NHẬP */}
+                    {myTrackings.length > 0 && (
+                        <div className="card border-0 shadow-sm rounded-4 bg-white mb-4">
+                            <div className="card-body p-3">
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <span className="fw-bold text-dark small">
+                                        <FaVial className="text-primary me-2" />
+                                        Mẫu xét nghiệm của tôi ({myTrackings.length})
+                                    </span>
+                                    <span className="text-muted small">Nhấp để xem tiến trình &amp; kết quả</span>
+                                </div>
+                                <div className="d-flex flex-wrap gap-2">
+                                    {myTrackings.map((item) => {
+                                        const isSelected = trackingData && (trackingData.orderNumber === item.orderNumber || trackingData.barcode === item.barcode);
+                                        return (
+                                            <button
+                                                key={`${item.orderNumber}-${item.barcode}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    setTrackingData(item);
+                                                    setSearchInput(item.orderNumber || item.barcode || "");
+                                                    setErrorMessage("");
+                                                }}
+                                                className={`btn btn-sm text-start rounded-3 px-3 py-2 border ${
+                                                    isSelected
+                                                        ? "btn-primary text-white border-primary shadow-sm"
+                                                        : "btn-light text-dark border-secondary-subtle"
+                                                }`}
+                                            >
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <span className="font-monospace fw-bold">{item.orderNumber || item.barcode}</span>
+                                                    <span className={`badge ${item.isCompleted ? "bg-success" : "bg-warning text-dark"}`}>
+                                                        {item.isCompleted ? "Đã có kết quả" : item.currentStepName}
+                                                    </span>
+                                                </div>
+                                                <div className={`small mt-1 ${isSelected ? "text-white-50" : "text-muted"}`}>
+                                                    {(item.testPackageNames && item.testPackageNames[0]) || "Xét nghiệm"}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* 2. ERROR NOTIFICATION */}
                     {errorMessage && (
                         <div className="alert alert-warning border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-3" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
@@ -438,7 +505,7 @@ export default function TrackTestProgressPage() {
                                         <li className="bms-specimen-detail-item">
                                             <span className="bms-specimen-detail-label">Thông tin sinh hiệu</span>
                                             <span className="bms-specimen-detail-val">
-                                                {trackingData.patientGender} • {trackingData.patientAge} tuổi
+                                                {trackingData.patientGender === "Male" ? "Nam" : trackingData.patientGender === "Female" ? "Nữ" : (trackingData.patientGender || "—")}{trackingData.patientAge > 0 ? ` • ${trackingData.patientAge} tuổi` : ""}
                                             </span>
                                         </li>
                                         <li className="bms-specimen-detail-item">
@@ -483,12 +550,20 @@ export default function TrackTestProgressPage() {
                                     {/* Action Buttons */}
                                     <div className="d-grid gap-2 mt-4 pt-3 border-top">
                                         {trackingData.isCompleted && (
-                                            <Link 
-                                                to={`/patient/results/export/${encodeURIComponent(trackingData.orderNumber)}`} 
-                                                className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
-                                            >
-                                                <FaFileMedicalAlt /> Xem & Tải phiếu kết quả (PDF)
-                                            </Link>
+                                            <>
+                                                <Link
+                                                    to="/patient/test-history"
+                                                    className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                                >
+                                                    <FaFileMedicalAlt /> Xem Chi Tiết Kết Quả Xét Nghiệm
+                                                </Link>
+                                                <Link
+                                                    to={`/patient/results/export/${encodeURIComponent(trackingData.orderNumber)}`}
+                                                    className="btn btn-success rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                                >
+                                                    <FaFileMedicalAlt /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
+                                                </Link>
+                                            </>
                                         )}
                                         <button 
                                             type="button" 

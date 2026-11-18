@@ -118,8 +118,10 @@ export default function AppointmentListPage() {
   const [pageSize] = useState(10);
   const navigate = useNavigate();
   const user = useMemo(() => getStoredUser(), []);
-  const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
+  const roleId = useMemo(() => resolveRoleId(user), [user]);
+  const isPatient = roleId === ROLES.PATIENT;
   const isReceptionist = useMemo(() => hasRole(user, ROLES.RECEPTIONIST), [user]);
+  const canBookAppointment = isPatient || isReceptionist;
   const checkInButtonLabel = isReceptionist ? 'Mã Check-in' : 'Chi tiết lịch hẹn';
 
   // Data & UI states
@@ -365,9 +367,9 @@ export default function AppointmentListPage() {
           >
             <FaRedo className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
-          {isPatient && (
+          {canBookAppointment && (
             <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
-              <FaCalendarAlt /> Đặt lịch mới
+              <FaCalendarAlt /> {isPatient ? 'Đặt lịch mới' : 'Tạo lịch hẹn mới'}
             </Link>
           )}
         </div>

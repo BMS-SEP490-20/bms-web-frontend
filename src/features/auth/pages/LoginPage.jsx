@@ -16,8 +16,8 @@ import {
   FaLock, 
   FaEye, 
   FaEyeSlash, 
-  FaShieldAlt, 
   FaCheckCircle,
+  FaExclamationCircle,
   FaUserMd,
   FaFlask,
   FaIdCard
@@ -35,8 +35,7 @@ const CANONICAL_ROLE_BY_ID = Object.freeze({
   [ROLES.LAB]: "Lab",
   [ROLES.RECEPTIONIST]: "Receptionist",
   [ROLES.PATIENT]: "Patient",
-  [ROLES.MANAGER]: "Manager",
-});
+  [ROLES.MANAGER]: "Manager" });
 
 /**
  * Normalizes the authenticated user payload so roleId, role, and roleName always match
@@ -55,8 +54,7 @@ function normalizeAuthenticatedUser(rawUser) {
     ...rawUser,
     roleId: roleId ?? rawUser.roleId,
     role: canonicalRole,
-    roleName: canonicalRole,
-  };
+    roleName: canonicalRole };
 }
 
 /**
@@ -93,8 +91,7 @@ const QUICK_LOGIN_ROLES = [
     color: "#2563EB",
     bg: "#EFF6FF",
     border: "#BFDBFE",
-    icon: FaShieldAlt,
-  },
+    icon: FaCheckCircle },
   {
     id: "doctor",
     roleName: "Doctor",
@@ -105,8 +102,7 @@ const QUICK_LOGIN_ROLES = [
     color: "#0D9488",
     bg: "#F0FDFA",
     border: "#99F6E4",
-    icon: FaUserMd,
-  },
+    icon: FaUserMd },
   {
     id: "lab",
     roleName: "Lab",
@@ -117,8 +113,7 @@ const QUICK_LOGIN_ROLES = [
     color: "#16A34A",
     bg: "#F0FDF4",
     border: "#BBF7D0",
-    icon: FaFlask,
-  },
+    icon: FaFlask },
   {
     id: "receptionist",
     roleName: "Receptionist",
@@ -129,8 +124,7 @@ const QUICK_LOGIN_ROLES = [
     color: "#D97706",
     bg: "#FFFBEB",
     border: "#FDE68A",
-    icon: FaIdCard,
-  },
+    icon: FaIdCard },
   {
     id: "patient",
     roleName: "Patient",
@@ -141,16 +135,14 @@ const QUICK_LOGIN_ROLES = [
     color: "#7C3AED",
     bg: "#F5F3FF",
     border: "#DDD6FE",
-    icon: FaUser,
-  },
+    icon: FaUser },
 ];
 
 export default function LoginPage({
   onBack,
   onLogin,
   onRegister,
-  onForgotPassword,
-}) {
+  onForgotPassword }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -311,16 +303,14 @@ export default function LoginPage({
         await onLogin({
           email: identifier.trim(),
           password,
-          rememberMe,
-        });
+          rememberMe });
         return;
       }
 
       try {
         const response = await api.post("/auth/login", {
           usernameOrEmail: identifier.trim(),
-          password,
-        });
+          password });
 
         const data = response.data?.data || response.data;
         const token = data?.accessToken || data?.token;
@@ -405,8 +395,7 @@ export default function LoginPage({
     try {
       const response = await api.post("/auth/login", {
         usernameOrEmail: defaultId,
-        password: defaultPwd,
-      });
+        password: defaultPwd });
 
       const data = response.data?.data || response.data;
       const token = data?.accessToken || data?.token;
@@ -456,8 +445,7 @@ export default function LoginPage({
 
     try {
       const response = await api.post("/auth/google", {
-        idToken: credentialResponse.credential,
-      });
+        idToken: credentialResponse.credential });
 
       const data = response.data?.data || response.data;
       const token = data?.accessToken || data?.token;
@@ -577,7 +565,7 @@ export default function LoginPage({
 
         {error && (
           <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
-            <FaShieldAlt className="flex-shrink-0" style={{ color: '#DC2626' }} />
+            <FaExclamationCircle className="flex-shrink-0" style={{ color: '#DC2626' }} />
             <span style={{ fontSize: '13px' }}>{error}</span>
           </Alert>
         )}
@@ -784,8 +772,7 @@ export default function LoginPage({
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '8px',
-            }}
+              gap: '8px' }}
           >
             {QUICK_LOGIN_ROLES.map((r, idx) => {
               const isFullWidth = idx === QUICK_LOGIN_ROLES.length - 1 && QUICK_LOGIN_ROLES.length % 2 !== 0;
@@ -808,8 +795,7 @@ export default function LoginPage({
                     transition: 'all 0.18s ease',
                     cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
                     opacity: loading && !isSelectedLoading ? 0.6 : 1,
-                    minHeight: '48px',
-                  }}
+                    minHeight: '48px' }}
                   onMouseEnter={(e) => {
                     if (!loading && !isLocked) {
                       e.currentTarget.style.transform = 'translateY(-1px)';

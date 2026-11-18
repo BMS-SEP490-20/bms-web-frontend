@@ -626,7 +626,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
     // RÀNG BUỘC NGHIỆP VỤ BẮT BUỘC: Nếu có cờ CRITICAL, BẮT BUỘC xác nhận đã thông báo cho Bác sĩ điều trị
     if (hasCritical && (!doctorNotified || !doctorName.trim() || !confirmRerun)) {
-      setError('RÀNG BUỘC BẮT BUỘC (ISO 15189): Phát hiện chỉ số ở ngưỡng BÁO ĐỘNG NGUY HIỂM (CRITICAL). Kỹ thuật viên bắt buộc phải kiểm tra màng ống, chạy kiểm chứng lần 2 và ghi log thông báo trực tiếp cho Bác sĩ điều trị!');
+      setError('Phát hiện chỉ số ở ngưỡng báo động nguy hiểm (CRITICAL). Kỹ thuật viên bắt buộc kiểm tra ống mẫu, chạy kiểm chứng lần 2 và ghi nhận thông báo trực tiếp cho bác sĩ điều trị.');
       return;
     }
 
@@ -649,7 +649,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         appointmentId: sampleDetails?.appointmentId || undefined,
         equipmentCode: 'Bàn xét nghiệm thủ công (Manual Bench Entry)',
         parameters: validParams,
-        notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG ĐỎ CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
+        notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
         isPanic: hasCritical,
         criticalNotified: doctorNotified || true,
         confirmRerunChecked: confirmRerun || true,
@@ -672,9 +672,9 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       case 'CRITICAL':
         return <Badge bg="danger" className="px-2 py-1 fw-bold"><FaExclamationTriangle className="me-1" />NGUY HIỂM (CRITICAL)</Badge>;
       case 'HIGH':
-        return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">&uarr; VƯỢT CAO</Badge>;
+        return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">VƯỢT CAO</Badge>;
       case 'LOW':
-        return <Badge bg="info" text="dark" className="px-2 py-1 fw-bold">&darr; DƯỚI THẤP</Badge>;
+        return <Badge bg="info" text="dark" className="px-2 py-1 fw-bold">DƯỚI THẤP</Badge>;
       default:
         return <Badge bg="success-subtle" text="success" className="border border-success-subtle px-2 py-1">Bình thường</Badge>;
     }
@@ -697,7 +697,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </Button>
       </header>
 
-      <div style={{ maxWidth: 1250 }} className="mx-auto">
+      <div>
         {/* Card thiết lập lượt chạy máy */}
         <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body className="p-3">
@@ -797,8 +797,8 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </div>
               <div>
                 <h5 className="mb-1 fw-bold text-danger d-flex align-items-center gap-2">
-                  <span>BÁO ĐỘNG ĐỎ: PHÁT HIỆN GIÁ TRỊ NGUY HIỂM (CRITICAL / PANIC)</span>
-                  <Badge bg="danger" className="px-2 py-1">ISO 15189 TAT &lt; 15 PHÚT</Badge>
+                  <span>BÁO ĐỘNG ĐỎ: PHÁT HIỆN GIÁ TRỊ NGUY HIỂM (CRITICAL)</span>
+                  <Badge bg="danger" className="px-2 py-1">TAT &lt; 15 PHÚT</Badge>
                 </h5>
                 <div className="small text-dark">
                   Chỉ số nguy hiểm: <strong>{criticalAnalytes.map(c => `${c.name} = ${c.value} ${c.unit}`).join('; ')}</strong>. Bắt buộc liên hệ Bác sĩ điều trị ngay!
@@ -850,7 +850,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         </div>
                       ) : null}
                       <small className="text-muted">
-                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu cấu hình chuẩn ISO 15189
+                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu lâm sàng
                       </small>
                     </div>
                     <span className="badge bg-light text-dark border">
@@ -938,7 +938,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       <div className="d-flex align-items-center gap-2 mb-2">
                         <FaExclamationTriangle className="fs-4 text-danger flex-shrink-0" />
                         <div>
-                          <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ (ISO 15189 §7.4)</strong>
+                          <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ</strong>
                           <div className="small">
                             Chỉ số vượt ngưỡng sinh tồn nguy hiểm. Yêu cầu kiểm tra ống mẫu, chạy lại kiểm chứng và bắt buộc hoàn tất biên bản ghi log thông báo.
                           </div>
@@ -1173,7 +1173,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
             <Card className="border-0 shadow-sm bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
-                <h6 className="fw-bold text-dark mb-2">Tiêu Chuẩn Kiểm Soát IQC (ISO 15189)</h6>
+                <h6 className="fw-bold text-dark mb-2">Tiêu Chuẩn Kiểm Soát Nội Kiểm (IQC)</h6>
                 <span className="badge bg-warning-subtle text-warning-emphasis border mb-3">
                   Bản nháp chờ duyệt
                 </span>
@@ -1206,10 +1206,10 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
       {/* Modal 1: Xem Trước Kết Quả (Preview Results Modal) */}
       <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="bg-light">
+        <Modal.Header closeButton style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <FaEye style={{ color: "#1E60E6" }} />
-            <span>Xem Trước Bảng Kết Quả Xét Nghiệm (Bản Kiểm Thảo Kỹ Thuật ISO 15189)</span>
+            <span>Xem Trước Bảng Kết Quả Xét Nghiệm</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
@@ -1310,15 +1310,15 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
       {/* Modal 2: Hủy Kết Quả & Yêu Cầu Chạy Lại (Re-run / Re-sample) */}
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
-        <Modal.Header closeButton className="bg-danger text-white">
-          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <FaUndo />
-            <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại (Re-run)</span>
+        <Modal.Header closeButton style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA" }}>
+          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2" style={{ color: "#991B1B" }}>
+            <FaUndo className="text-danger" />
+            <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3">
           <p className="text-secondary small mb-3">
-            Kỹ thuật viên phát hiện bất thường về mẫu bệnh phẩm hoặc chỉ số kỹ thuật vi phạm nội kiểm. Vui lòng ghi nhận lý do chuẩn y tế Bộ Y Tế để tiến hành chạy lại:
+            Kỹ thuật viên phát hiện bất thường về mẫu bệnh phẩm hoặc chỉ số kỹ thuật vi phạm nội kiểm. Vui lòng ghi nhận lý do chuyên môn để tiến hành chạy lại:
           </p>
 
           <Form.Group className="mb-3">
@@ -1386,7 +1386,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }
 

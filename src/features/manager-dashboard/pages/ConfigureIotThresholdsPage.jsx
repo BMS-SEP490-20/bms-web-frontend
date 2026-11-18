@@ -9,7 +9,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
-    FaShieldAlt,
     FaCogs,
     FaSave,
     FaUndo,
@@ -95,7 +94,7 @@ export default function ConfigureIotThresholdsPage() {
     };
 
     const handleResetDefaults = async () => {
-        if (!window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ ngưỡng cảm biến về giá trị chuẩn y tế ISO 15189 (2°C - 8°C cho tủ lạnh bảo quản)?')) {
+        if (!window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ ngưỡng cảm biến về giá trị mặc định (2°C - 8°C cho tủ lạnh bảo quản)?')) {
             return;
         }
 
@@ -108,7 +107,7 @@ export default function ConfigureIotThresholdsPage() {
                 const restored = result.thresholds || (Array.isArray(result) ? result : []);
                 setThresholds(Array.isArray(restored) ? restored : []);
                 window.dispatchEvent(new CustomEvent('bms-iot-status-changed'));
-                setSuccessMessage('Đã khôi phục toàn bộ ngưỡng về quy chuẩn chuỗi lạnh y tế (Cold-Chain Standard).');
+                setSuccessMessage('Đã khôi phục toàn bộ ngưỡng về giá trị mặc định chuỗi lạnh bảo quản.');
                 setTimeout(() => setSuccessMessage(''), 4000);
             }
         } catch (err) {
@@ -123,35 +122,33 @@ export default function ConfigureIotThresholdsPage() {
 
     return (
         <div className="w-100 py-1">
-            <IotNavigationTabs />
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card FIRST, then IotNavigationTabs below */}
+            <div className="bms-page-header-card mb-3">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
                             Cấu Hình Ngưỡng Cảm Biến Môi Trường IoT Tủ Trữ Mẫu
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Thiết lập giới hạn cảnh báo nhiệt độ, độ ẩm và chu kỳ cập nhật cho từng thiết bị cảm biến
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', borderColor: 'rgba(15, 23, 42, 0.05)' }}
+                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
                         onClick={handleResetDefaults}
                         disabled={resetting}
                     >
                         <FaUndo size={12} />
-                        <span>{resetting ? 'Đang khôi phục...' : 'Khôi Phục Chuẩn (2°C - 8°C)'}</span>
+                        <span>{resetting ? 'Đang khôi phục...' : 'Khôi Phục Mặc Định (2°C - 8°C)'}</span>
                     </button>
                     <button
                         type="button"
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={handleSaveAll}
                         disabled={saving}
                     >
@@ -160,6 +157,8 @@ export default function ConfigureIotThresholdsPage() {
                     </button>
                 </div>
             </div>
+
+            <IotNavigationTabs />
 
             {/* Thông báo Alert */}
             {errorMessage && (
@@ -175,7 +174,7 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
 
-            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+            {/* Standalone Independent Table Section */}
             <div className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>
@@ -184,7 +183,7 @@ export default function ConfigureIotThresholdsPage() {
                             <span>Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến</span>
                         </h5>
                         <div className="bms-table-standalone-subtitle">
-                            {safeThresholds.length} thiết bị giám sát chuỗi lạnh Cold-Chain theo chuẩn ISO 15189
+                            {safeThresholds.length} thiết bị cảm biến môi trường tủ trữ mẫu và kho bảo quản
                         </div>
                     </div>
                 </div>

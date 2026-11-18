@@ -14,7 +14,6 @@ import {
   FaCalendarAlt, 
   FaSearch, 
   FaAward,
-  FaShieldAlt,
   FaVial
 } from 'react-icons/fa';
 import PortalNavbar from '../components/PortalNavbar';
@@ -76,7 +75,7 @@ const ISO_METRICS = [
     label: 'Tiêu chuẩn vàng quốc tế về năng lực và chất lượng phòng xét nghiệm y khoa.',
     accent: '#1E60E6',
     bgAccent: 'rgba(30, 96, 230, 0.08)',
-    icon: FaShieldAlt
+    icon: FaCheckCircle
   },
   {
     badge: 'ĐỘ CHÍNH XÁC',

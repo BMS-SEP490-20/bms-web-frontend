@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaVial, FaClock } from 'react-icons/fa';
+import { FaVial, FaClock, FaTimes } from 'react-icons/fa';
 import { searchTestPackages } from '../catalog/api/catalogApi';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
@@ -180,8 +180,9 @@ const LANDING_SECTIONS = [
   }
 ];
 
-export default function GuestHomePage() {
+export default function GuestHomePage({ user: propUser }) {
   const pageTransitionClass = usePageTransition();
+  const signedInUser = propUser !== undefined ? propUser : getStoredUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
   const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
@@ -195,42 +196,8 @@ export default function GuestHomePage() {
           setPackages(list.slice(0, 4));
         }
       })
-      .catch((err) => {
-        console.warn('Could not load packages from searchTestPackages:', err);
-        setPackages([
-          {
-            id: 'PKG-CBC-01',
-            packageCode: 'CBC-01',
-            packageName: 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)',
-            description: 'Phát hiện sớm thiếu máu, nhiễm trùng, bệnh lý tủy xương và tiểu cầu',
-            price: 180000,
-            category: 'Huyết học'
-          },
-          {
-            id: 'PKG-HEPATITIS-01',
-            packageCode: 'HEPA-01',
-            packageName: 'Tầm soát Viêm gan B & C (HBsAg, Anti-HBs, Anti-HCV)',
-            description: 'Sàng lọc nhiễm virus viêm gan B và C mạn tính',
-            price: 320000,
-            category: 'Miễn dịch'
-          },
-          {
-            id: 'PKG-LIPID-01',
-            packageCode: 'LIPID-01',
-            packageName: 'Bộ mỡ máu toàn phần (Cholesterol, Triglyceride, HDL, LDL)',
-            description: 'Đánh giá nguy cơ xơ vữa động mạch và bệnh lý mạch vành',
-            price: 200000,
-            category: 'Sinh hóa'
-          },
-          {
-            id: 'PKG-PKG-DIAB-01',
-            packageCode: 'PKG-DIAB-01',
-            packageName: 'Gói Tầm Soát Đái Tháo Đường Chuyên Sâu',
-            description: 'Theo dõi chỉ số Glucose huyết tương và HbA1c đánh giá kiểm soát đường huyết 3 tháng.',
-            price: 380000,
-            category: 'Sinh hóa'
-          }
-        ]);
+      .catch(() => {
+        setPackages([]);
       });
   }, []);
 
@@ -248,8 +215,8 @@ export default function GuestHomePage() {
   };
 
   return (
-    <div className="bms-telehealth-page" style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
-      <PortalNavbar user={null} />
+    <div className="bms-telehealth-page" style={{ backgroundColor: '#F4F7FB', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+      <PortalNavbar user={signedInUser} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
@@ -678,13 +645,14 @@ export default function GuestHomePage() {
                 type="button"
                 className="bms-modal-close"
                 onClick={() => setShowRequireLoginModal(false)}
+                aria-label="Đóng"
               >
-                &times;
+                <FaTimes size={14} />
               </button>
             </div>
             <div className="bms-modal-body text-center py-3">
               <p className="small text-muted mb-4">
-                Tuân thủ quy chuẩn bảo mật hồ sơ bệnh án ISO 15189, quý khách vui lòng đăng nhập tài khoản bệnh nhân để tiếp tục đặt lịch.
+                Vui lòng đăng nhập tài khoản bệnh nhân để tiếp tục đặt lịch xét nghiệm trực tuyến.
               </p>
               <a
                 className="bms-btn-blue-cta w-100 mb-2 text-center"

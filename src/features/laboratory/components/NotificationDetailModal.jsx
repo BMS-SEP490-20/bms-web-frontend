@@ -70,21 +70,28 @@ export default function NotificationDetailModal({
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content shadow border-0">
-                    <div className={`modal-header ${isPanic ? "bg-danger text-white" : "bg-primary text-white"}`}>
+                    <div
+                        className="modal-header border-bottom"
+                        style={{
+                            backgroundColor: isPanic ? "#FEF2F2" : "#F8FAFC",
+                            borderColor: isPanic ? "#FECACA" : "#E2E8F0",
+                            color: isPanic ? "#991B1B" : "#0F172A"
+                        }}
+                    >
                         <div className="d-flex align-items-center gap-2">
-                            {isPanic ? <FaExclamationTriangle className="fs-5" /> : <FaBell className="fs-5" />}
-                            <h5 className="modal-title fw-bold mb-0">
-                                Chi Tiết Thông Báo Kết Quả Xét Nghiệm
+                            {isPanic ? <FaExclamationTriangle className="fs-5 text-danger" /> : <FaBell className="fs-5 text-primary" />}
+                            <h5 className="modal-title fw-bold mb-0 fs-6">
+                                Chi tiết thông báo kết quả xét nghiệm
                             </h5>
                         </div>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                         ></button>
                     </div>
 
-                    <div className="modal-body p-2">
+                    <div className="modal-body p-3">
                         {actionMessage && (
                             <div className={`alert alert-${actionMessage.type} py-2 small mb-3`}>
                                 {actionMessage.text}
@@ -93,12 +100,12 @@ export default function NotificationDetailModal({
 
                         {/* Critical Banner */}
                         {isPanic && (
-                            <div className="p-3 bg-danger text-white rounded mb-4 d-flex align-items-start gap-3 shadow-xs">
-                                <FaExclamationTriangle className="display-6 flex-shrink-0 mt-1" />
+                            <div className="p-3 rounded-3 mb-4 d-flex align-items-start gap-3 border" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}>
+                                <FaExclamationTriangle className="fs-2 text-danger flex-shrink-0 mt-1" />
                                 <div>
-                                    <h6 className="fw-bold mb-1">CẢNH BÁO: CHỈ SỐ XÉT NGHIỆM VƯỢT NGƯỠNG NGUY KỊCH (PANIC VALUE)</h6>
-                                    <p className="mb-0 small opacity-90">
-                                        Mẫu xét nghiệm chứa các giá trị sinh học đe dọa tính mạng hoặc cần can thiệp y tế khẩn cấp. Hệ thống đã kích hoạt cơ chế thông báo đa kênh đến bệnh nhân và bác sĩ điều trị.
+                                    <h6 className="fw-bold mb-1 text-danger">CẢNH BÁO: CHỈ SỐ XÉT NGHIỆM VƯỢT NGƯỠNG NGUY KỊCH</h6>
+                                    <p className="mb-0 small text-dark">
+                                        Mẫu xét nghiệm chứa các giá trị sinh học cần can thiệp y tế khẩn cấp. Hệ thống đã kích hoạt cơ chế thông báo đa kênh đến bệnh nhân và bác sĩ điều trị.
                                     </p>
                                 </div>
                             </div>

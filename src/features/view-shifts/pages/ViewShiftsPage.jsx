@@ -18,7 +18,6 @@ import {
   FaDoorOpen,
   FaUsers,
   FaArrowRight,
-  FaShieldAlt,
   FaPlus,
   FaCalendarCheck,
   FaHospital,
@@ -92,41 +91,7 @@ export function ViewShiftsPage() {
     };
   }, [from, to]);
 
-  // Default realistic shifts for receptionist/staff if backend returns empty
-  const defaultStaffShifts = [
-    {
-      shiftId: 'SHF-MY-01',
-      shiftType: isLab ? 'Ca Sáng Xét Nghiệm' : isReceptionist ? 'Ca Sáng Lễ Tân' : 'Ca Sáng Khám Bệnh',
-      shiftDate: toIsoDateStr(currentWeekMonday),
-      employeeId: currentUserId || 'EMP-ME',
-      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
-      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
-      shiftStart: '07:00',
-      shiftEnd: '11:30',
-      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
-      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
-      currentPatientsCount: 12,
-      maxPatients: 30,
-      status: 'Approved'
-    },
-    {
-      shiftId: 'SHF-MY-02',
-      shiftType: isLab ? 'Ca Chiều Xét Nghiệm' : isReceptionist ? 'Ca Chiều Lễ Tân' : 'Ca Chiều Khám Bệnh',
-      shiftDate: toIsoDateStr(addDays(currentWeekMonday, 2)),
-      employeeId: currentUserId || 'EMP-ME',
-      employeeName: currentUserName || user?.fullName || 'Nhân viên trực',
-      employeeRole: isLab ? 'LabTech' : isReceptionist ? 'Receptionist' : 'Doctor',
-      shiftStart: '13:00',
-      shiftEnd: '17:00',
-      department: isLab ? 'Khoa Xét Nghiệm' : isReceptionist ? 'Khoa Tiếp Nhận & Lấy Mẫu' : 'Khoa Khám Bệnh',
-      roomName: isLab ? 'Phòng Xét Nghiệm (Lab 01)' : isReceptionist ? 'Quầy 01 (Sảnh Tiếp Đón Tầng 1)' : 'Phòng Khám 101',
-      currentPatientsCount: 6,
-      maxPatients: 25,
-      status: 'Approved'
-    }
-  ];
-
-  const sourceShifts = shifts.length > 0 ? shifts : defaultStaffShifts;
+  const sourceShifts = useMemo(() => (Array.isArray(shifts) ? shifts : []), [shifts]);
 
   const doctorShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'doctor'), [sourceShifts]);
   const labShifts = useMemo(() => sourceShifts.filter(s => getShiftRoleCategory(s) === 'lab'), [sourceShifts]);
@@ -241,29 +206,26 @@ export function ViewShiftsPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
-        <div className="bms-page-header-content">
-          
+      {/* 1. Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
-              {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : `Lịch Ca Trực Của Tôi - ${currentUserName || 'Cá Nhân'}`}
+              {canManageShifts ? 'Lịch Ca Trực Toàn Viện' : 'Lịch Ca Trực Của Tôi'}
             </h1>
           </div>
-          
+          <p className="text-muted small m-0 mt-1">
+            Tra cứu thời khóa biểu phân ca theo tuần và danh sách ca trực chi tiết
+          </p>
         </div>
         <div className="bms-page-actions">
           {canManageShifts && (
             <button
               type="button"
-              className="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2 text-white"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-2 fw-semibold px-3 py-2 text-white rounded-pill"
               style={{
-                borderRadius: 9999,
                 background: '#1E60E6',
-                borderColor: '#1E60E6',
-                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
-                fontSize: '14px'
+                borderColor: '#1E60E6'
               }}
               onClick={() => navigate('/manage/schedule')}
               title="Quản lý và phân bổ ca trực"
@@ -373,97 +335,95 @@ export function ViewShiftsPage() {
 
       )}
 
-      {/* 3. Unified Card Section for Shifts */}
-      <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-        <div className="card-header bg-white border-bottom py-3 px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-            <div>
-              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                <FaCalendarAlt style={{ color: '#1E60E6' }} />
-                {viewMode === 'timetable' ? 'Thời Khóa Biểu Ca Trực' : 'Danh Sách Ca Trực'}
-              </h5>
-              <div className="text-muted small">
-                {viewMode === 'timetable' ? 'Ma trận ca trực theo tuần (Slot & Thứ trong tuần)' : 'Xem dạng bảng chi tiết từng ca trực'}
-              </div>
+      {/* 3. Standalone Independent Table Section for Shifts (ZERO TABLE IN CARDS) */}
+      {viewMode === 'table' && (
+        <div className="bms-filter-bar mb-3">
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+            <div className="d-flex align-items-center gap-2 flex-nowrap">
+              <span className="small text-muted fw-semibold text-nowrap">Từ ngày:</span>
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                style={{ width: '140px', borderRadius: '9999px', height: '36px' }}
+              />
+              <span className="small text-muted fw-semibold text-nowrap">Đến ngày:</span>
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                style={{ width: '140px', borderRadius: '9999px', height: '36px' }}
+              />
             </div>
 
-            <div className="d-flex flex-wrap align-items-center gap-2">
-              {/* View Mode Toggle */}
-              <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${viewMode === 'timetable' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                  onClick={() => setViewMode('timetable')}
-                  style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                >
-                  <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                  onClick={() => setViewMode('table')}
-                  style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                >
-                  <FaThList className="me-1" /> Dạng Bảng
-                </button>
-              </div>
+            {/* Pill filter buttons on 1 line */}
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('all')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Tất cả ({sourceShifts.length})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('active')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Đang hiệu lực ({activeCount})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setFilter('unused')}
+                style={{ padding: '6px 14px', fontWeight: 600, fontSize: '13px' }}
+              >
+                Chưa tiếp nhận ({unassigned})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {viewMode === 'table' && (
-                <div className="d-flex flex-wrap align-items-center gap-2 ms-lg-2">
-                  {/* Date Filters */}
-                  <div className="d-flex align-items-center gap-2">
-                    <span className="small text-muted fw-semibold">Từ:</span>
-                    <input
-                      type="date"
-                      className="form-control form-control-sm"
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value)}
-                      style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-                    />
-                    <span className="small text-muted fw-semibold">Đến:</span>
-                    <input
-                      type="date"
-                      className="form-control form-control-sm"
-                      value={to}
-                      onChange={(e) => setTo(e.target.value)}
-                      style={{ width: '140px', borderRadius: '9999px', height: '38px', padding: '0 12px' }}
-                    />
-                  </div>
+      <div className="bms-table-standalone-section mb-4">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h5 className="bms-table-standalone-title">
+              {viewMode === 'timetable' ? 'Thời Khóa Biểu Ca Trực' : 'Danh Sách Ca Trực'}
+            </h5>
+            <div className="bms-table-standalone-subtitle">
+              {viewMode === 'timetable' ? 'Ma trận ca trực theo tuần (Slot & Thứ trong tuần)' : 'Xem dạng bảng chi tiết từng ca trực'}
+            </div>
+          </div>
 
-                  {/* Pill filter buttons */}
-                  <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'all' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('all')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Tất cả ({sourceShifts.length})
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'active' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('active')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Đang hiệu lực ({activeCount})
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${filter === 'unused' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                      onClick={() => setFilter('unused')}
-                      style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
-                    >
-                      Chưa tiếp nhận ({unassigned})
-                    </button>
-                  </div>
-                </div>
-              )}
+          <div className="d-flex align-items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === 'timetable' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('timetable')}
+                style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === 'table' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('table')}
+                style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
+              >
+                <FaThList className="me-1" /> Dạng Bảng
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="bms-table-standalone-body">
           {viewMode === 'timetable' ? (
             <WeeklyShiftTimetable
               shifts={filtered}
@@ -526,11 +486,12 @@ export function ViewShiftsPage() {
                         <td className="text-end pe-4">
                           <button
                             type="button"
-                            className="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill fw-semibold shadow-sm"
+                            className="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center gap-1"
                             onClick={() => handleOpenShiftDetail(s)}
                             style={{ fontSize: '12px' }}
                           >
-                            Chi tiết ca →
+                            <span>Chi tiết ca</span>
+                            <FaArrowRight size={10} />
                           </button>
                         </td>
                       </tr>
@@ -568,7 +529,7 @@ export function ViewShiftsPage() {
                 Thông Tin Chi Tiết Ca Trực Y Tế
               </Modal.Title>
               <div className="text-muted small">
-                Tiêu chuẩn phân công lịch trực ISO 15189 &amp; Quản trị bệnh viện BMS
+                Thông tin phân công lịch trực và phạm vi tiếp nhận
               </div>
             </div>
           </div>
@@ -615,7 +576,7 @@ export function ViewShiftsPage() {
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center justify-content-between">
                         <span className="d-flex align-items-center gap-2">
                           <FaUserMd className="text-primary" />
-                          Hồ Sơ Cán Bộ Trực (Đề Án 06 Bộ Y Tế)
+                          Hồ Sơ Cán Bộ Trực
                         </span>
                         <Badge bg="success-subtle" className="text-success border border-success-subtle">
                           Đã xác thực CCCD
@@ -731,7 +692,7 @@ export function ViewShiftsPage() {
                   </div>
                   <div className="p-2 border rounded-2 bg-light small text-muted">
                     <strong className="text-dark me-1">
-                      <FaShieldAlt className="text-success me-1" />
+                      <FaCheckCircle className="text-success me-1" />
                       Tiêu chuẩn ISO 15189:2022 &amp; Quy định Bộ Y tế:
                     </strong>
                     Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra đối soát QC hóa chất hoặc phôi phiếu tiếp đón và đồng bộ hệ thống trước khi bắt đầu tiếp nhận bệnh nhân.

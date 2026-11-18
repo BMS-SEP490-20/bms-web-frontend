@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaHeartbeat, FaShieldAlt, FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHeartbeat, FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import testCriterionService from '../../../services/testCriterionService';
 
 const COMMON_CRITERIA_LIST = [
@@ -40,8 +40,7 @@ export default function ReferenceIntervalModal({
   interval = null,
   initialCriterionCode = '',
   onClose,
-  onSave,
-}) {
+  onSave }) {
   const [formData, setFormData] = useState({
     criterionCode: '',
     criterionName: '',
@@ -59,8 +58,7 @@ export default function ReferenceIntervalModal({
     condition: 'General',
     standardAuthority: 'Quyết định 2429/QĐ-BYT',
     notes: '',
-    isActive: true,
-  });
+    isActive: true });
 
   const [criteriaOptions, setCriteriaOptions] = useState(COMMON_CRITERIA_LIST);
   const [validationError, setValidationError] = useState('');
@@ -104,8 +102,7 @@ export default function ReferenceIntervalModal({
         condition: interval.condition || 'General',
         standardAuthority: interval.standardAuthority || 'Quyết định 2429/QĐ-BYT',
         notes: interval.notes || '',
-        isActive: interval.isActive !== undefined ? interval.isActive : true,
-      });
+        isActive: interval.isActive !== undefined ? interval.isActive : true });
     } else {
       const code = initialCriterionCode || 'HGB';
       const preset = criteriaOptions.find((c) => c.code === code) || criteriaOptions[0] || COMMON_CRITERIA_LIST[0];
@@ -126,8 +123,7 @@ export default function ReferenceIntervalModal({
         condition: 'General',
         standardAuthority: 'Quyết định 2429/QĐ-BYT',
         notes: '',
-        isActive: true,
-      });
+        isActive: true });
     }
     setValidationError('');
   }, [interval, mode, isOpen, initialCriterionCode]);
@@ -214,8 +210,7 @@ export default function ReferenceIntervalModal({
       condition: formData.condition,
       standardAuthority: formData.standardAuthority,
       notes: formData.notes.trim(),
-      isActive: formData.isActive,
-    };
+      isActive: formData.isActive };
 
     try {
       setSubmitting(true);

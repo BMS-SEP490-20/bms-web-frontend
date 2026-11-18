@@ -344,24 +344,38 @@ export default function AppointmentListPage() {
   return (
     <div className="bms-appt-list">
       {/* Header title */}
-      <header className="bms-page-header">
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">
-            {isPatient ? 'Lịch hẹn của tôi' : 'Lịch hẹn'}
+            {isPatient ? 'Lịch Hẹn Của Tôi' : 'Quản Lý Lịch Hẹn'}
           </h1>
+          <p className="bms-page-subtitle">
+            {isPatient
+              ? 'Theo dõi lịch lấy mẫu, mã QR check-in và trạng thái tiếp nhận'
+              : 'Tra cứu danh sách đặt lịch, trạng thái check-in và phân bổ bác sĩ theo ca'}
+          </p>
         </div>
         <div className="d-flex align-items-center gap-2">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 d-inline-flex align-items-center gap-1.5"
+            onClick={fetchAppointments}
+            disabled={loading}
+          >
+            <FaRedo className={loading ? 'fa-spin' : ''} /> Làm mới
+          </Button>
           {isPatient && (
             <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
-              <FaCalendarAlt /> Đặt Lịch Khám Mới
+              <FaCalendarAlt /> Đặt lịch mới
             </Link>
           )}
         </div>
-      </header>
+      </div>
 
       {/* Date Validation Alert */}
       {dateValidationWarning && (
-        <Alert variant="warning" className="d-flex align-items-center gap-2 py-2 mb-3 shadow-sm border-warning">
+        <Alert variant="warning" className="d-flex align-items-center gap-2 py-2 mb-3 border-0 rounded-3">
           <FaExclamationTriangle />
           <span>{dateValidationWarning}</span>
         </Alert>
@@ -369,74 +383,87 @@ export default function AppointmentListPage() {
 
       {/* Error Alert */}
       {errorMsg && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="py-2 mb-3 shadow-sm">
+        <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="py-2 mb-3 border-0 rounded-3">
           {errorMsg}
         </Alert>
       )}
 
-      {/* Filters Card */}
-      <section className="bms-appt-filter">
-        <div className="bms-appt-filter-grid">
-          <label>
-            Từ ngày
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => {
-                setFromDate(e.target.value);
-                setPage(1);
-              }}
-            />
-          </label>
-          <label>
-            Đến ngày
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => {
-                setToDate(e.target.value);
-                setPage(1);
-              }}
-            />
-          </label>
-          <label>
-            Trạng thái
-            <select
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">Tất cả trạng thái</option>
-              <option value="Pending">Chờ xác nhận</option>
-              <option value="Confirmed">Đã xác nhận</option>
-              <option value="CheckedIn">Đã tiếp nhận</option>
-              <option value="InProgress">Đang khám / Lấy mẫu</option>
-              <option value="Completed">Hoàn thành</option>
-              <option value="Cancelled">Đã hủy</option>
-              <option value="NoShow">Vắng mặt</option>
-            </select>
-          </label>
-          <label>
-            Tìm kiếm
-            <input
-              type="text"
-              placeholder="Mã hẹn, địa chỉ, ghi chú"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-          </label>
+      {/* Unified Single-Row Filter Bar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '220px' }}>
+          <FaSearch className="text-muted" size={13} />
+          <input
+            type="text"
+            placeholder="Tìm mã hẹn, địa chỉ, ghi chú..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
         </div>
-        <div className="bms-appt-filter-meta">
-          <span>Tìm thấy <strong>{totalCount}</strong> cuộc hẹn</span>
-          <button type="button" onClick={handleResetFilters}>Đặt lại bộ lọc</button>
-        </div>
-      </section>
 
-      <section className="bms-appt-table-wrap">
+        <Form.Select
+          size="sm"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+          style={{ width: 'auto', minWidth: '175px' }}
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="Pending">Chờ thanh toán</option>
+          <option value="Confirmed">Đã xác nhận</option>
+          <option value="CheckedIn">Đã tiếp nhận</option>
+          <option value="InProgress">Đang khám / Lấy mẫu</option>
+          <option value="Completed">Hoàn thành</option>
+          <option value="Cancelled">Đã hủy</option>
+          <option value="NoShow">Vắng mặt</option>
+        </Form.Select>
+
+        <div className="d-flex align-items-center gap-1.5">
+          <span className="small text-muted fw-semibold">Từ:</span>
+          <Form.Control
+            type="date"
+            size="sm"
+            value={fromDate}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              setPage(1);
+            }}
+            style={{ width: '142px' }}
+          />
+        </div>
+
+        <div className="d-flex align-items-center gap-1.5">
+          <span className="small text-muted fw-semibold">Đến:</span>
+          <Form.Control
+            type="date"
+            size="sm"
+            value={toDate}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              setPage(1);
+            }}
+            style={{ width: '142px' }}
+          />
+        </div>
+
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          className="rounded-pill px-3"
+          onClick={handleResetFilters}
+        >
+          Đặt lại
+        </Button>
+
+        <span className="small text-muted ms-auto d-none d-xl-inline">
+          Tổng: <strong className="text-dark">{totalCount}</strong> lịch hẹn
+        </span>
+      </div>
+
+      <section className="bms-table-standalone-section">
         <div className="table-responsive">
-          <table className="bms-appt-table">
+          <table className="table align-middle mb-0">
             <thead>
               <tr>
                 <th>Mã cuộc hẹn</th>
@@ -452,25 +479,25 @@ export default function AppointmentListPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-3">
-                    <Spinner animation="border" variant="primary" className="mb-2" />
-                    <div className="text-muted small">Đang tải dữ liệu cuộc hẹn...</div>
+                  <td colSpan={8} className="text-center py-4">
+                    <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                    <span className="text-muted small">Đang tải danh sách lịch hẹn...</span>
                   </td>
                 </tr>
               ) : appointments.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-3">
-                    <div className="fw-semibold text-secondary">
-                      {isPatient ? 'Bạn chưa có lịch hẹn khám nào trong khoảng thời gian này.' : 'Không tìm thấy cuộc hẹn nào'}
+                  <td colSpan={8} className="text-center py-5">
+                    <div className="fw-semibold text-secondary mb-1">
+                      {isPatient ? 'Chưa có lịch hẹn trong khoảng thời gian này' : 'Không tìm thấy lịch hẹn phù hợp'}
                     </div>
                     <div className="text-muted small mb-3">
-                      {isPatient 
-                        ? 'Bạn có thể đặt lịch lấy mẫu tại nhà hoặc đặt hẹn khám tại phòng khám ngay bây giờ.' 
-                        : 'Thử điều chỉnh khoảng ngày hoặc bộ lọc trạng thái để tìm kiếm.'}
+                      {isPatient
+                        ? 'Bạn có thể đặt lịch khám và lấy mẫu trực tuyến ngay bây giờ.'
+                        : 'Điều chỉnh khoảng ngày hoặc trạng thái để tra cứu thêm.'}
                     </div>
                     {isPatient && (
-                      <Link to="/appointments/book" className="btn btn-primary btn-sm px-3 shadow-sm">
-                        <FaCalendarAlt className="me-1" /> Đặt Lịch Lấy Mẫu Ngay
+                      <Link to="/appointments/book" className="btn btn-primary btn-sm px-3 rounded-pill">
+                        <FaCalendarAlt className="me-1" /> Đặt lịch lấy mẫu
                       </Link>
                     )}
                   </td>
@@ -479,17 +506,17 @@ export default function AppointmentListPage() {
                 appointments.map((apt) => {
                   const appointmentDateStr = apt.appointmentDate
                     ? new Date(apt.appointmentDate).toLocaleDateString('vi-VN')
-                    : 'N/A';
+                    : '—';
                   const isHome = String(apt.appointmentType || '').toLowerCase().includes('home');
 
                   return (
                     <tr key={apt.appointmentId || apt.id}>
                       <td className="px-3">
                         <div className="fw-bold text-primary font-monospace">
-                          {apt.appointmentCode || apt.id?.slice(-8) || 'N/A'}
+                          {apt.appointmentCode || apt.id?.slice(-8) || '—'}
                         </div>
                         {apt.queueNumber && (
-                          <span className="badge bg-light text-dark border small mt-1">
+                          <span className="badge bg-light text-dark rounded-pill small mt-1">
                             STT: Q-{String(apt.queueNumber).padStart(3, '0')}
                           </span>
                         )}
@@ -499,7 +526,7 @@ export default function AppointmentListPage() {
                           <FaCalendarAlt className="me-1 text-muted small" /> {appointmentDateStr}
                         </div>
                         <div className="small text-muted">
-                          <FaClock className="me-1 text-muted small" /> {apt.slotTime || '30 phút'}
+                          <FaClock className="me-1 text-muted small" /> {apt.slotTime || '—'}
                         </div>
                       </td>
                       <td>
@@ -507,18 +534,18 @@ export default function AppointmentListPage() {
                           <FaUserMd className="text-primary small" />
                           {resolveDoctorDisplay(apt)}
                         </div>
-                        <div className="small text-muted">{apt.specialty || 'Huyết học - Truyền máu'}</div>
+                        <div className="small text-muted">{apt.specialty || 'Xét nghiệm lâm sàng'}</div>
                       </td>
                       <td>
                         <Badge
                           bg={isHome ? 'secondary' : 'light'}
-                          text={isHome ? 'white' : 'dark'}
-                          className="border px-2 py-1"
+                          text="dark"
+                          className="rounded-pill px-2.5 py-1"
                         >
-                          {isHome ? 'Tại nhà (Home)' : 'Tại viện (Clinic)'}
+                          {isHome ? 'Tại nhà' : 'Tại phòng khám'}
                         </Badge>
                       </td>
-                      <td className="text-truncate" style={{ maxWidth: '240px' }}>
+                      <td className="text-truncate" style={{ maxWidth: '220px' }}>
                         {isHome ? (
                           <span className="small text-dark" title={apt.collectionAddress}>
                             <FaMapMarkerAlt className="text-danger me-1" />
@@ -526,7 +553,7 @@ export default function AppointmentListPage() {
                           </span>
                         ) : (
                           <span className="small text-muted">
-                            Phòng khám Đa khoa Quốc tế BMS
+                            {apt.roomName || 'Trung tâm Xét nghiệm BMS'}
                           </span>
                         )}
                       </td>
@@ -538,7 +565,7 @@ export default function AppointmentListPage() {
                           <Button
                             variant="outline-success"
                             size="sm"
-                            className="px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
+                            className="rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 fw-semibold"
                             onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
                             title={isReceptionist ? 'Bấm để xem Mã QR & Check-in Tiếp Đón' : 'Xem chi tiết lịch hẹn'}
                           >
@@ -546,23 +573,23 @@ export default function AppointmentListPage() {
                           </Button>
                         ) : isPending(apt.status) ? (
                           <div className="d-inline-flex flex-column align-items-center gap-1">
-                            <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 small fw-semibold">
-                              <FaLock className="me-1" /> Chưa thanh toán
+                            <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1 small fw-semibold">
+                              <FaLock className="me-1" /> Chờ thanh toán
                             </span>
                             {apt.createdAt && (
-                              <span className="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace px-1.5 py-0.5" style={{ fontSize: '0.75rem' }}>
+                              <span className="badge bg-danger-subtle text-danger rounded-pill font-monospace px-2 py-0.5" style={{ fontSize: '0.75rem' }}>
                                 <FaClock className="me-1" />
                                 {formatCountdown(getRemainingSeconds(apt.createdAt, now))}
                               </span>
                             )}
                           </div>
                         ) : isCancelled(apt.status) ? (
-                          <Badge bg="light" text="muted" className="px-2 py-1">
+                          <Badge bg="light" text="muted" className="rounded-pill px-2 py-1">
                             Đã hủy
                           </Badge>
                         ) : (
-                          <Badge bg="light" text="muted" className="border px-2 py-1">
-                            N/A
+                          <Badge bg="light" text="muted" className="rounded-pill px-2 py-1">
+                            —
                           </Badge>
                         )}
                       </td>
@@ -570,15 +597,13 @@ export default function AppointmentListPage() {
                         <div className="d-inline-flex align-items-center justify-content-center gap-1.5 flex-wrap">
                           {isPending(apt.status) && (
                             <Button
-                              variant="success"
+                              variant="primary"
                               size="sm"
-                              className="px-2.5 py-1 d-inline-flex align-items-center gap-1 fw-bold shadow-xs text-white"
-                              style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+                              className="rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 fw-semibold"
                               onClick={() => {
                                 const targetId = apt.appointmentId || apt.id;
                                 navigate(`/payments/checkout?appointmentId=${targetId}&code=${apt.appointmentCode || ''}`);
                               }}
-                              title="Thanh toán ngay để giữ chỗ và nhận Mã QR Check-in"
                             >
                               <FaMoneyBillWave /> Thanh toán
                             </Button>
@@ -586,9 +611,8 @@ export default function AppointmentListPage() {
                           <Button
                             variant="outline-primary"
                             size="sm"
-                            className="px-2 py-1 d-inline-flex align-items-center gap-1"
+                            className="rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1"
                             onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
-                            title="Xem chi tiết cuộc hẹn"
                           >
                             <FaEye /> Chi tiết
                           </Button>
@@ -642,12 +666,12 @@ export default function AppointmentListPage() {
         size="lg"
         centered
       >
-        <Modal.Header closeButton className="bg-light">
-          <Modal.Title className="h5 fw-bold text-primary d-flex align-items-center gap-2">
-            <FaNotesMedical /> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
+        <Modal.Header closeButton className="border-0 pb-0 px-4 pt-4">
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
+            <FaNotesMedical className="text-primary" /> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="px-4 py-3">
           {detailLoading ? (
             <div className="text-center py-3">
               <Spinner animation="border" variant="primary" />
@@ -660,7 +684,7 @@ export default function AppointmentListPage() {
                   <div className="p-3 bg-light rounded-3">
                     <div className="small text-muted fw-semibold text-uppercase mb-1">Mã Lịch Hẹn</div>
                     <div className="h5 fw-bold text-primary font-monospace mb-0">
-                      {selectedAppointment.appointmentCode || 'N/A'}
+                      {selectedAppointment.appointmentCode || '—'}
                     </div>
                   </div>
                 </Col>
@@ -672,19 +696,18 @@ export default function AppointmentListPage() {
                 </Col>
               </Row>
 
-              {/* Patient Information Section (MOH Đề án 06) */}
               <div className="border rounded-3 p-3 mb-3 bg-white">
                 <h6 className="fw-bold mb-2 text-secondary d-flex align-items-center gap-2">
-                  <FaUserInjured className="text-primary" /> Thông Tin Bệnh Nhân (Đề án 06 Bộ Y Tế)
+                  <FaUserInjured className="text-primary" /> Thông Tin Bệnh Nhân
                 </h6>
                 <div className="row g-2 small">
                   <div className="col-sm-6">
                     <span className="text-muted">Họ và tên:</span>{' '}
-                    <strong className="text-dark">{selectedAppointment.patientName || 'Trần Văn An'}</strong>
+                    <strong className="text-dark">{selectedAppointment.patientName || user?.fullName || '—'}</strong>
                   </div>
                   <div className="col-sm-6">
                     <span className="text-muted">Mã bệnh nhân:</span>{' '}
-                    <code className="text-primary fw-bold">{selectedAppointment.patientId || selectedAppointment.createdBy || 'PAT-079201009988'}</code>
+                    <code className="text-primary fw-bold">{selectedAppointment.patientId || selectedAppointment.createdBy || '—'}</code>
                   </div>
                 </div>
               </div>

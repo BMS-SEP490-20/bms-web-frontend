@@ -534,17 +534,17 @@ export default function DoctorSchedulePage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
-        <div className="bms-page-header-content">
-          
+      {/* 1. Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            
             <h1 className="bms-page-title">
               Quản Lý Ca Trực &amp; Điều Phối Lịch Làm Việc
             </h1>
           </div>
-          
+          <p className="text-muted small m-0 mt-1">
+            Điều phối ca làm việc, phân bổ phòng trực và chỉ tiêu tiếp nhận bệnh nhân
+          </p>
         </div>
 
         <div className="bms-page-actions">
@@ -553,8 +553,7 @@ export default function DoctorSchedulePage() {
             size="sm"
             onClick={loadShifts}
             disabled={loading}
-            className="d-flex align-items-center gap-1 px-3 py-2"
-            style={{ borderRadius: '9999px', height: '40px' }}
+            className="d-flex align-items-center gap-1 px-3 py-2 rounded-pill"
           >
             <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
           </Button>
@@ -563,14 +562,10 @@ export default function DoctorSchedulePage() {
               variant="primary"
               size="sm"
               onClick={handleOpenCreate}
-              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white"
+              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold text-white rounded-pill"
               style={{
                 backgroundColor: '#1E60E6',
-                borderColor: '#1E60E6',
-                borderRadius: '9999px',
-                height: '40px',
-                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
-                fontSize: '14px'
+                borderColor: '#1E60E6'
               }}
             >
               <FaPlus size={13} /> Tạo Ca Làm Việc Mới
@@ -696,6 +691,88 @@ export default function DoctorSchedulePage() {
 
       )}
 
+      {/* Single-Line Filter Bar (Extracted OUT above Standalone Table) */}
+      {viewMode === 'table' && (
+        <div className="bms-filter-bar mb-3">
+          <div className="bms-search-input-pill">
+            <FaSearch className="bms-search-icon" />
+            <input
+              type="text"
+              placeholder="Tìm tên nhân sự, mã nhân viên, phòng trực..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            {keyword && (
+              <button
+                type="button"
+                className="bms-search-clear"
+                onClick={() => setKeyword('')}
+                title="Xóa tìm kiếm"
+              >
+                <FaTimes size={12} />
+              </button>
+            )}
+          </div>
+
+          <Form.Select
+            size="sm"
+            value={shiftTypeFilter}
+            onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
+            style={{ width: 'auto' }}
+          >
+            <option value="">Tất cả ca trực</option>
+            <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
+            <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
+            <option value="Evening">Ca Tối (17:00 - 21:00)</option>
+            <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
+          </Form.Select>
+
+          <Form.Select
+            size="sm"
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            style={{ width: 'auto' }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="Approved">Đã duyệt</option>
+            <option value="Scheduled">Đã lên lịch</option>
+            <option value="Active">Đang trực</option>
+            <option value="Pending">Chờ duyệt</option>
+            <option value="Completed">Hoàn thành</option>
+            <option value="Cancelled">Đã huỷ</option>
+          </Form.Select>
+
+          <Form.Control
+            type="date"
+            size="sm"
+            value={fromDate}
+            onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+            style={{ width: 'auto' }}
+            title="Từ ngày"
+          />
+
+          <Form.Control
+            type="date"
+            size="sm"
+            value={toDate}
+            onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+            style={{ width: 'auto' }}
+            title="Đến ngày"
+          />
+
+          <Button variant="outline-primary" size="sm" className="rounded-pill px-3 text-nowrap" onClick={filterToday}>
+            Hôm nay
+          </Button>
+          <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 text-nowrap" onClick={resetFilters}>
+            Đặt lại
+          </Button>
+
+          <span className="bms-filter-meta">
+            <strong>{myRoleShifts.length}</strong> ca trực
+          </span>
+        </div>
+      )}
+
       {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
         {/* Header Toolbar */}
@@ -713,7 +790,7 @@ export default function DoctorSchedulePage() {
           </div>
 
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
+            <div className="btn-group" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <Button
                 variant={viewMode === 'timetable' ? 'primary' : 'outline-secondary'}
                 size="sm"
@@ -764,97 +841,6 @@ export default function DoctorSchedulePage() {
           </div>
         ) : (
           <>
-            <div className="p-3 bg-light border-bottom">
-              <div className="bms-filter-bar">
-                <Row className="g-2 align-items-center">
-                  <Col xs={12} md={4} lg={3}>
-                    <div className="bms-search-input-pill">
-                      <FaSearch className="bms-search-icon" />
-                      <input
-                        type="text"
-                        placeholder="Tên BS, mã NV, phòng..."
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                      />
-                      {keyword && (
-                        <button
-                          type="button"
-                          className="bms-search-clear"
-                          onClick={() => setKeyword('')}
-                          title="Xóa tìm kiếm"
-                        >
-                          <FaTimes />
-                        </button>
-                      )}
-                    </div>
-                  </Col>
-
-                  <Col xs={6} md={3} lg={2}>
-                    <Form.Select
-                      size="sm"
-                      value={shiftTypeFilter}
-                      onChange={(e) => { setShiftTypeFilter(e.target.value); setPage(1); }}
-                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                    >
-                      <option value="">Tất cả ca trực</option>
-                      <option value="Morning">Ca Sáng (07:00 - 11:30)</option>
-                      <option value="Afternoon">Ca Chiều (13:00 - 17:00)</option>
-                      <option value="Evening">Ca Tối (17:00 - 21:00)</option>
-                                            <option value="FullDay">Cả Ngày (07:00 - 17:00)</option>
-                    </Form.Select>
-                  </Col>
-
-                  <Col xs={6} md={3} lg={2}>
-                    <Form.Select
-                      size="sm"
-                      value={statusFilter}
-                      onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                    >
-                      <option value="">Tất cả trạng thái</option>
-                      <option value="Approved">Đã Duyệt (Approved)</option>
-                      <option value="Scheduled">Đã Lên Lịch (Scheduled)</option>
-                      <option value="Active">Đang Trực (Active)</option>
-                      <option value="Pending">Chờ Duyệt (Pending)</option>
-                      <option value="Completed">Hoàn Thành (Completed)</option>
-                      <option value="Cancelled">Đã Huỷ (Cancelled)</option>
-                    </Form.Select>
-                  </Col>
-
-                  <Col xs={6} md={3} lg={2}>
-                    <Form.Control
-                      type="date"
-                      size="sm"
-                      value={fromDate}
-                      onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
-                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                      title="Từ ngày"
-                    />
-                  </Col>
-
-                  <Col xs={6} md={3} lg={2}>
-                    <Form.Control
-                      type="date"
-                      size="sm"
-                      value={toDate}
-                      onChange={(e) => { setToDate(e.target.value); setPage(1); }}
-                      style={{ borderRadius: '9999px', height: '40px', padding: '0 14px' }}
-                      title="Đến ngày"
-                    />
-                  </Col>
-
-                  <Col xs={12} lg={1} className="d-flex gap-1 justify-content-end">
-                    <Button variant="outline-primary" size="sm" className="w-100" onClick={filterToday} title="Lọc ca hôm nay" style={{ borderRadius: '9999px', height: '40px' }}>
-                      Hôm nay
-                    </Button>
-                    <Button variant="outline-secondary" size="sm" onClick={resetFilters} title="Xoá bộ lọc" style={{ borderRadius: '9999px', height: '40px' }}>
-                      Xoá
-                    </Button>
-                  </Col>
-                </Row>
-              </div>
-            </div>
-
             {/* Data Table */}
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
@@ -919,7 +905,7 @@ export default function DoctorSchedulePage() {
                                 <div>
                                   <div className="fw-bold text-dark">{shift.employeeName || shift.doctorName || 'Chưa gán nhân sự'}</div>
                                   <div className="text-muted small d-flex align-items-center gap-2">
-                                    <code>{String(shift.employeeId || shift.doctorId || '').match(/^[0-9a-f]{24}$/i) ? (shift.employeeRole === 'LabTech' ? 'KTV-004' : shift.employeeRole === 'Receptionist' ? 'NV-REC-007' : 'BS-002') : (shift.employeeId || shift.doctorId || 'NV-001')}</code>
+                                    <code>{shift.employeeId || shift.doctorId || '—'}</code>
                                     <Badge bg="light" text="dark" className="border fw-normal">
                                       {shift.employeeRole === 'Doctor' ? 'Bác Sĩ' : shift.employeeRole === 'LabTech' ? 'KTV Xét Nghiệm' : shift.employeeRole === 'Receptionist' ? 'Lễ Tân' : (shift.employeeRole || 'Bác Sĩ')}
                                     </Badge>

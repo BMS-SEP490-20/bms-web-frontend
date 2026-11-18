@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { FaUser, FaKey, FaFlask, FaLock, FaSignOutAlt, FaTimes, FaArrowRight } from 'react-icons/fa';
 import './UserQuickViewDrawer.css';
 
 /**
@@ -40,9 +41,9 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
             type="button"
             className="bms-drawer-close-btn"
             onClick={onClose}
-            aria-label="Close"
+            aria-label="Đóng"
           >
-            &times;
+            <FaTimes size={14} />
           </button>
         </div>
 
@@ -50,7 +51,7 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
           <div className="bms-drawer-profile-card">
             <div className="bms-drawer-avatar">{initials}</div>
             <h4 className="bms-drawer-name">{user.fullName || 'Người dùng BMS'}</h4>
-            <div className="bms-drawer-email">{user.email || 'N/A'}</div>
+            <div className="bms-drawer-email">{user.email || '—'}</div>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span className="bms-role-badge" style={{ fontSize: '11px', padding: '3px 8px' }}>
@@ -74,8 +75,8 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/profile');
               }}
             >
-              <span>&#128100; Xem Hồ Sơ Chi Tiết</span>
-              <span>&rarr;</span>
+              <span className="d-inline-flex align-items-center gap-2"><FaUser className="text-primary" /> Xem hồ sơ chi tiết</span>
+              <FaArrowRight size={12} className="text-muted" />
             </div>
 
             <div
@@ -85,8 +86,8 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/change-password');
               }}
             >
-              <span>&#128273; Đổi Mật Khẩu Bảo Mật</span>
-              <span>&rarr;</span>
+              <span className="d-inline-flex align-items-center gap-2"><FaKey className="text-primary" /> Đổi mật khẩu</span>
+              <FaArrowRight size={12} className="text-muted" />
             </div>
 
             <div
@@ -96,8 +97,8 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/criteria');
               }}
             >
-              <span>&#129514; Danh Mục Chỉ Số Xét Nghiệm</span>
-              <span>&rarr;</span>
+              <span className="d-inline-flex align-items-center gap-2"><FaFlask className="text-primary" /> Danh mục chỉ số xét nghiệm</span>
+              <FaArrowRight size={12} className="text-muted" />
             </div>
 
             <div
@@ -107,8 +108,8 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
                 if (onNavigate) onNavigate('/roles');
               }}
             >
-              <span>&#128274; Quản Trị Phân Quyền Vai Trò</span>
-              <span>&rarr;</span>
+              <span className="d-inline-flex align-items-center gap-2"><FaLock className="text-primary" /> Phân quyền vai trò</span>
+              <FaArrowRight size={12} className="text-muted" />
             </div>
 
             <div
@@ -116,17 +117,22 @@ export default function UserQuickViewDrawer({ isOpen, user, onClose, onNavigate 
               style={{ marginTop: '12px' }}
               onClick={() => {
                 onClose();
-                alert('Đăng xuất thành công khỏi hệ thống BMS.');
+                localStorage.removeItem('bms_token');
+                localStorage.removeItem('bms_access_token');
+                localStorage.removeItem('bms_refresh_token');
+                localStorage.removeItem('bms_user');
+                sessionStorage.clear();
+                if (onNavigate) onNavigate('/login');
               }}
             >
-              <span style={{ color: '#dc2626' }}>&#128682; Đăng Xuất An Toàn</span>
-              <span>&rarr;</span>
+              <span className="d-inline-flex align-items-center gap-2" style={{ color: '#dc2626' }}><FaSignOutAlt /> Đăng xuất</span>
+              <FaArrowRight size={12} style={{ color: '#dc2626' }} />
             </div>
           </div>
         </div>
 
         <div className="bms-drawer-footer">
-          Hệ thống Quản lý Phòng Xét nghiệm Máu BMS &bull; v1.0.0
+          Hệ thống Quản lý Phòng Xét nghiệm Máu BMS · v1.0.0
         </div>
       </div>
     </div>

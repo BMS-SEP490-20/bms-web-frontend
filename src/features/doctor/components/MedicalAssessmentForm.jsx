@@ -423,18 +423,18 @@ export default function MedicalAssessmentForm({
   };
 
   return (
-    <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-      <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
+    <Card className="shadow-sm rounded-4 overflow-hidden mb-4" style={{ border: '1px solid #E2E8F0' }}>
+      <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
         <div>
-          <h5 className="mb-0 fw-bold d-flex align-items-center gap-2">
-            <FaStethoscope /> {isEditMode ? 'Cập Nhật Đánh Giá Y Khoa' : 'Thêm Mới Đánh Giá Y Khoa (Medical Assessment)'}
+          <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2 fs-6">
+            <FaStethoscope className="text-primary" /> {isEditMode ? 'Cập nhật đánh giá y khoa' : 'Biểu mẫu đánh giá y khoa lâm sàng'}
           </h5>
-          <small className="opacity-75">
-            Tiêu chuẩn EMR Bộ Y Tế & Chẩn đoán Quốc tế WHO ICD-10
+          <small className="text-muted">
+            Ghi nhận khám lâm sàng và mã chẩn đoán WHO ICD-10
           </small>
         </div>
         {initialData?.assessmentCode && (
-          <Badge bg="light" className="px-3 py-2 fs-6 rounded-pill" style={{ color: '#1E60E6' }}>
+          <Badge bg="primary-subtle" text="primary" className="px-3 py-1.5 rounded-pill border border-primary-subtle font-monospace">
             {initialData.assessmentCode}
           </Badge>
         )}
@@ -930,7 +930,7 @@ export default function MedicalAssessmentForm({
           {/* SECTION 5: Treatment Plan & Test Orders (DYNAMIC SERVICE PACKAGES FROM DB) */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-              <FaFilePrescription /> 5. Kế Hoạch Xử Trí & Đề Xuất Chỉ Định Xét Nghiệm (Plan & Orders)
+              <FaFilePrescription /> 5. Kế hoạch xử trí &amp; Đề xuất chỉ định xét nghiệm
             </h6>
 
             <div className="mb-3">

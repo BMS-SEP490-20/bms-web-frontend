@@ -117,7 +117,7 @@ const ManagerDashboard = () => {
 
       const res = await labTestService.approveTestResult(selectedTestResult.testResultId, payload);
       if (res.success) {
-        showSuccess('✅ Duyệt kết quả xét nghiệm thành công (Đã xuất bản cho bệnh nhân)');
+        showSuccess('Duyệt kết quả xét nghiệm thành công (Đã xuất bản cho bệnh nhân)');
         handleCloseApproveModal();
         loadDashboardData(true);
       } else {
@@ -701,7 +701,7 @@ const ManagerDashboard = () => {
               </h5>
             </div>
             <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-semibold">
-              <i className="fas fa-user-shield me-1"></i> Quản lý / Trưởng Lab
+              <i className="fas fa-user-check me-1"></i> Quản lý / Trưởng Lab
             </span>
           </div>
 

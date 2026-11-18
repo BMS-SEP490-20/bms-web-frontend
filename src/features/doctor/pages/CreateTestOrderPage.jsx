@@ -77,6 +77,8 @@ export default function CreateTestOrderPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchingPatients, setIsSearchingPatients] = useState(false);
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
+  const [patientResults, setPatientResults] = useState([]);
+  const [searchingPatients, setSearchingPatients] = useState(false);
   const [showPatientPicker, setShowPatientPicker] = useState(!queryPatientId);
   const [preRegisteredService, setPreRegisteredService] = useState(() =>
     queryPackageId
@@ -501,7 +503,7 @@ export default function CreateTestOrderPage() {
         specialInstructions: specialInstructions?.trim() || "",
         scheduledDate: scheduledDate,
         saveAsDraft: isDraft,
-        labShiftTarget: "LAB-201 (KTV. Phạm Quốc Hưng)",
+        labShiftTarget: "LAB-201",
         items: selectedTests.map((t) => ({
           testCode: t.code || t.testCode,
           testName: t.name || t.testName,
@@ -536,24 +538,23 @@ export default function CreateTestOrderPage() {
   }, [patientSearchTerm, searchResults, waitingQueuePatients]);
 
   return (
-    <div className="container-fluid py-3 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      {/* Header Breadcrumbs */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div>
-          <h2 className="fs-4 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-            <FaStethoscope className="text-primary" />
-            Khám Sàng Lọc &amp; Ra Y Lệnh Xét Nghiệm Máu (Physician Workbench)
-          </h2>
-          <p className="text-muted small mb-0">
-            Khám lâm sàng, tư vấn bổ sung danh mục xét nghiệm theo ràng buộc mẫu máu (ISO 15189:2022) và điều phối y lệnh tới Lab.
+    <div className="w-100 py-1">
+      {/* Header chuẩn hóa */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Ra y lệnh xét nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Chỉ định danh mục xét nghiệm cận lâm sàng, gán mã ICD-10 và chuyển y lệnh tới phòng xét nghiệm.
           </p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="bms-page-actions">
           <Link
             to="/doctor/console"
-            className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
+            className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
           >
-            <FaArrowLeft /> Bàn Khám Bác Sĩ
+            <FaArrowLeft /> Bàn khám bác sĩ
           </Link>
           <Link
             to="/laboratory/sample-timeline"
@@ -591,7 +592,7 @@ export default function CreateTestOrderPage() {
 
       {/* Success Banner */}
       {orderSuccess && (
-        <div className="alert alert-success border-0 shadow-sm p-4 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", borderLeft: "6px solid #10B981" }}>
+        <div className="alert alert-success shadow-sm p-4 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", border: "1px solid #BBF7D0" }}>
           <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div className="d-flex align-items-center gap-3">
               <FaCheckCircle className="fs-1 flex-shrink-0" style={{ color: "#16a34a" }} />
@@ -650,16 +651,16 @@ export default function CreateTestOrderPage() {
 
       {/* SECTION 1: CHỌN / ĐỔI BỆNH NHÂN (PATIENT SELECTOR BANNER) */}
       {showPatientPicker || !patient.id ? (
-        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden" style={{ borderLeft: "5px solid #1E60E6" }}>
-          <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-            <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+        <Card className="shadow-sm rounded-4 mb-4 bg-white overflow-hidden" style={{ border: "1px solid #E2E8F0" }}>
+          <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
+            <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2 fs-6">
               <FaUserInjured className="text-primary" />
-              1. Chọn Bệnh Nhân Khám &amp; Lập Chỉ Định Xét Nghiệm
+              1. Chọn bệnh nhân khám &amp; Lập chỉ định xét nghiệm
             </h5>
             {patient.id && (
               <button
                 type="button"
-                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                className="btn btn-sm btn-outline-secondary rounded-pill px-3 text-nowrap"
                 onClick={() => setShowPatientPicker(false)}
               >
                 Đóng tra cứu
@@ -667,20 +668,28 @@ export default function CreateTestOrderPage() {
             )}
           </Card.Header>
           <Card.Body className="p-4">
-            <div className="mb-3">
-              <div className="input-group">
-                <span className="input-group-text bg-light border-end-0">
-                  <FaSearch className="text-muted" />
-                </span>
+            <div className="bms-filter-bar mb-3">
+              <div className="bms-search-input-pill flex-grow-1">
+                <FaSearch className="bms-search-icon" />
                 <input
                   type="text"
-                  className="form-control bg-light border-start-0"
-                  style={{ minHeight: 44 }}
-                  placeholder="Nhập tên người bệnh, CCCD (12 số), mã BN (PAT-xxxx) hoặc mã lịch hẹn (APT-xxxx)..."
+                  placeholder="Nhập họ tên, số CCCD, số điện thoại hoặc mã bệnh nhân (PAT-...)..."
                   value={patientSearchTerm}
                   onChange={(e) => setPatientSearchTerm(e.target.value)}
                 />
+                {patientSearchTerm && (
+                  <button
+                    type="button"
+                    className="bms-search-clear"
+                    onClick={() => setPatientSearchTerm("")}
+                  >
+                    <FaTimes size={12} />
+                  </button>
+                )}
               </div>
+              <span className="bms-filter-meta">
+                Hiển thị <strong>{patientResults.length}</strong> hồ sơ bệnh nhân
+              </span>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -759,7 +768,7 @@ export default function CreateTestOrderPage() {
         </Card>
       ) : (
         /* Patient & Appointment Demographic Banner khi đã chọn bệnh nhân */
-        <Card className="border-0 shadow-sm mb-4 p-3 rounded-4 bg-white overflow-hidden" style={{ borderLeft: "5px solid #1E60E6" }}>
+        <Card className="shadow-sm mb-4 p-3 rounded-4 bg-white overflow-hidden" style={{ border: "1px solid #E2E8F0" }}>
           <div className="row align-items-center g-3">
             <div className="col-auto">
               <div
@@ -816,51 +825,71 @@ export default function CreateTestOrderPage() {
       <div className="row g-4">
         {/* Left Column: Test Catalog & Clinical ICD-10 Selection */}
         <div className="col-lg-8">
-          {/* Card 1: Select Tests from Catalog */}
-          <div className="card shadow-sm rounded-4 mb-4 border-0 bg-white overflow-hidden">
-            <div className="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <div>
-                <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                  <FaClipboardList style={{ color: "#1E60E6" }} /> 2. Danh Mục Gói &amp; Chỉ Số Xét Nghiệm Bổ Sung
-                </h5>
-                <small className="text-muted">
-                  Bác sĩ tư vấn &amp; tick chọn thêm các gói hoặc chỉ số xét nghiệm phù hợp với chẩn đoán lâm sàng
-                </small>
-              </div>
-              <div className="input-group input-group-sm" style={{ width: "240px" }}>
-                <span className="input-group-text bg-light border-end-0"><FaSearch className="text-muted" /></span>
-                <input
-                  type="text"
-                  className="form-control bg-light border-start-0"
-                  placeholder="Tìm tên hoặc mã..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Category filter pills */}
-            <div className="px-4 pt-3 pb-2 d-flex gap-2 border-bottom overflow-auto">
-              {["Tất cả", "Sinh hóa", "Huyết học", "Miễn dịch"].map((cat) => (
+          {/* Filter bar extracted above standalone catalog table */}
+          <div className="bms-filter-bar mb-3">
+            <div className="bms-search-input-pill">
+              <FaSearch className="bms-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm tên hoặc mã xét nghiệm..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
                 <button
-                  key={cat}
                   type="button"
-                  className={`btn btn-sm px-3 py-1 fw-semibold ${
-                    selectedCategory === cat ? "text-white" : "btn-light text-secondary border"
-                  }`}
-                  style={{
-                    borderRadius: "9999px",
-                    backgroundColor: selectedCategory === cat ? "#1E60E6" : undefined,
-                    borderColor: selectedCategory === cat ? "#1E60E6" : undefined
-                  }}
-                  onClick={() => setSelectedCategory(cat)}
+                  className="bms-search-clear"
+                  onClick={() => setSearchTerm("")}
                 >
-                  {cat}
+                  <FaTimes size={12} />
                 </button>
-              ))}
+              )}
+            </div>
+            <select
+              className="form-select"
+              style={{ width: "auto" }}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="Tất cả">Tất cả chuyên khoa</option>
+              <option value="Sinh hóa">Sinh hóa</option>
+              <option value="Huyết học">Huyết học</option>
+              <option value="Miễn dịch">Miễn dịch</option>
+            </select>
+            {(searchTerm || selectedCategory !== "Tất cả") && (
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("Tất cả");
+                }}
+              >
+                Đặt lại
+              </button>
+            )}
+            <span className="bms-filter-meta">
+              Hiển thị <strong>{filteredCatalog.length}</strong> dịch vụ
+            </span>
+          </div>
+
+          {/* Standalone Table: Select Tests from Catalog */}
+          <section className="bms-table-standalone-section mb-4">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h2 className="bms-table-standalone-title">
+                  2. Danh mục gói &amp; chỉ số xét nghiệm bổ sung
+                </h2>
+                <p className="bms-table-standalone-subtitle">
+                  Chọn các gói hoặc chỉ số cận lâm sàng phù hợp với chẩn đoán
+                </p>
+              </div>
+              <Badge bg="primary-subtle" text="primary" className="rounded-pill border border-primary-subtle px-3 py-1.5">
+                Đã chọn {selectedTests.length} mục
+              </Badge>
             </div>
 
-            <div className="table-responsive">
+            <div className="bms-table-standalone-body">
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light text-muted small text-uppercase">
                   <tr>
@@ -967,7 +996,7 @@ export default function CreateTestOrderPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
 
           {/* Card 2: Clinical Details & ICD-10 Coding */}
           <div className="card shadow-sm rounded-4 border-0 bg-white overflow-hidden mb-4">
@@ -1233,12 +1262,16 @@ export default function CreateTestOrderPage() {
               {/* ĐIỀU PHỐI LAB THEO CA TRỰC QUẢN LÝ */}
               <div className="p-3 rounded-4 mb-4 border" style={{ background: "#f0fdf4", borderColor: "#86efac" }}>
                 <div className="small fw-bold text-success text-uppercase mb-1 d-flex align-items-center gap-1">
-                  <FaDoorOpen /> ĐIỀU PHỐI Y LỆNH TỰ ĐỘNG THEO CA TRỰC
+                  <FaDoorOpen /> Điều phối y lệnh tự động theo ca trực
                 </div>
                 <div className="small text-dark" style={{ lineHeight: 1.6 }}>
                   <div>• <strong>Phòng Lab:</strong> LAB-201 (Trung tâm phân tích tự động)</div>
-                  <div>• <strong>KTV trực ca:</strong> KTV. Phạm Quốc Hưng (Ca sáng 07:00 - 15:00)</div>
-                  <div>• <strong>Luồng tiếp theo:</strong> Quầy Thu Ngân ➔ Phòng Lấy Mẫu 101</div>
+                  <div>• <strong>Ca trực tiếp nhận:</strong> KTV trực ca hiện tại</div>
+                  <div className="d-flex align-items-center flex-wrap gap-1">
+                    <span>• <strong>Luồng tiếp theo:</strong> Quầy Thu Ngân</span>
+                    <FaArrowRight size={10} className="text-muted" />
+                    <span>Phòng Lấy Mẫu 101</span>
+                  </div>
                 </div>
               </div>
 
@@ -1289,10 +1322,10 @@ export default function CreateTestOrderPage() {
 
       {/* Anti-Collision Rack 3x3 Modal */}
       <Modal show={showRackModal} onHide={() => setShowRackModal(false)} size="xl" centered>
-        <Modal.Header closeButton className="bg-light">
+        <Modal.Header closeButton style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <FaThLarge style={{ color: "#1E60E6" }} />
-            <span>Sơ Đồ Khay Mẫu Rack 3x3 Chống Trùng Lặp (ISO 15189:2022)</span>
+            <span>Sơ đồ khay mẫu Rack 3x3 chống trùng lặp</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>

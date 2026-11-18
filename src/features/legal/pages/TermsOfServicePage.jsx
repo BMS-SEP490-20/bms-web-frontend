@@ -7,7 +7,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaFileContract, FaShieldAlt, FaCalendarCheck, FaClock, FaPhoneAlt, FaCheckCircle } from 'react-icons/fa';
+import { FaFileContract, FaCalendarCheck, FaClock, FaPhoneAlt, FaCheckCircle } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';

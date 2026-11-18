@@ -114,8 +114,8 @@ const SampleQueuePage = () => {
   const currentUser = getStoredUser();
   const canRecordSampleTime = hasRole(currentUser, ROLES.LAB);
   const canUpdateSampleStatus = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
-  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'CN.XN Phạm Minh Tuấn';
-  const defaultOperatorId = currentUser?.id || currentUser?.username || 'LAB-001';
+  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'Kỹ thuật viên trực ca';
+  const defaultOperatorId = currentUser?.id || currentUser?.username || '';
 
   const [samples, setSamples] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -724,32 +724,33 @@ const SampleQueuePage = () => {
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header */}
-      {/* Page Header */}
-      <PageHeader
-        icon={<FaFlask size={20} />}
-        title="Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm"
-        lead="Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm."
-        meta={['Tiêu chuẩn ISO 15189:2022', 'Mã hóa Barcode 1D/2D tự động']}
-        actions={
-          <div className="d-flex gap-2">
-            <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3">
-              Làm mới
-            </Button>
-            {canRecordSampleTime && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => openRecordCollectionModal(null)}
-                className="rounded-pill px-3 fw-semibold text-white"
-                style={{ backgroundColor: '#1E60E6', border: 'none' }}
-              >
-                Ghi Nhận Lấy Mẫu Mới
-              </Button>
-            )}
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Hàng đợi mẫu bệnh phẩm</h1>
           </div>
-        }
-      />
+          <p className="text-muted small m-0 mt-1">
+            Quản lý tiếp nhận, ghi nhận giờ lấy mẫu và cập nhật trạng thái xử lý tại phòng xét nghiệm.
+          </p>
+        </div>
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3 text-nowrap">
+            <FaSyncAlt className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+          </Button>
+          {canRecordSampleTime && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => openRecordCollectionModal(null)}
+              className="rounded-pill px-3 fw-semibold text-white text-nowrap"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+            >
+              <FaClock className="me-1" /> Ghi nhận lấy mẫu mới
+            </Button>
+          )}
+        </div>
+      </div>
 
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3">
@@ -762,15 +763,45 @@ const SampleQueuePage = () => {
         </Alert>
       )}
 
-      {/* KPI Metrics StatRow */}
-      <StatRow
-        items={[
-          { label: 'Tổng mẫu trong hàng đợi', value: totalCount, primary: true },
-          { label: 'Đã lấy mẫu / Tiếp nhận', value: collectedCount },
-          { label: 'Đang xử lý / Chạy máy', value: processingCount },
-          { label: 'Đã hoàn thành kết quả', value: completedCount }
-        ]}
-      />
+      {/* KPI Quad Cards */}
+      <Row className="g-3 mb-4">
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{totalCount}</div>
+            <div className="bms-kpi-quad-title">Tổng mẫu trong hàng đợi</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaClock size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{collectedCount}</div>
+            <div className="bms-kpi-quad-title">Đã lấy mẫu / Tiếp nhận</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaFlask size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{processingCount}</div>
+            <div className="bms-kpi-quad-title">Đang xử lý / Chạy máy</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{completedCount}</div>
+            <div className="bms-kpi-quad-title">Đã hoàn thành kết quả</div>
+          </div>
+        </Col>
+      </Row>
 
       {/* Filter and Search Bar */}
       <section className="bms-inventory-filter">
@@ -844,7 +875,13 @@ const SampleQueuePage = () => {
       </section>
 
       {/* Samples Queue Table - Standalone Section */}
-      <div className="bms-table-standalone-section">
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">Danh sách mẫu bệnh phẩm trong hàng đợi</h2>
+            <p className="bms-table-standalone-subtitle">Theo dõi mã vạch, thời điểm lấy mẫu và vòng đời xử lý</p>
+          </div>
+        </div>
         <div className="bms-table-standalone-body">
           {loading ? (
             <div className="text-center py-3">
@@ -863,18 +900,8 @@ const SampleQueuePage = () => {
               )}
             </div>
           ) : (
-            <div className="table-responsive" style={{ overflowX: 'hidden' }}>
-              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
-                <colgroup>
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '14%' }} />
-                  <col style={{ width: '18%' }} />
-                  <col style={{ width: '13%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '11%' }} />
-                  <col style={{ width: '14%' }} />
-                </colgroup>
+            <div className="table-responsive">
+              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'auto', width: '100%' }}>
                 <thead className="table-light">
                   <tr>
                     <th className="ps-3">Barcode / Mã Mẫu</th>
@@ -884,7 +911,7 @@ const SampleQueuePage = () => {
                     <th>Ưu Tiên</th>
                     <th>Phòng Lab</th>
                     <th>Trạng Thái</th>
-                    <th className="text-end pe-3">Thao Tác (Popup)</th>
+                    <th className="text-end pe-3">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -941,7 +968,7 @@ const SampleQueuePage = () => {
                       <td>{getPriorityBadge(s.priority)}</td>
 
                       <td>
-                        <span className="badge bg-light text-dark border text-truncate d-inline-block" style={{ maxWidth: '100%', fontSize: '0.75rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
+                        <span className="badge bg-light text-dark text-truncate d-inline-block" style={{ maxWidth: '135px', fontSize: '0.74rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
                           {s.labRoom || 'LAB-ROOM-01'}
                         </span>
                       </td>
@@ -1047,7 +1074,7 @@ const SampleQueuePage = () => {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* =====================================================================
           MODAL 1: RECORD SAMPLE TIME POPUP (Ghi nhận thời gian lấy mẫu)
@@ -1060,13 +1087,13 @@ const SampleQueuePage = () => {
         backdrop="static"
       >
         <Form onSubmit={handleSubmitCollectionTime}>
-          <Modal.Header closeButton={!collectionSubmitting} className="bg-light">
-            <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <Modal.Header closeButton={!collectionSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
               <FaClock className="text-primary" />
               <span>
                 {collectionTargetSample
-                  ? `Ghi Nhận Thời Gian Lấy Mẫu — ${collectionTargetSample.barcode}`
-                  : 'Ghi Nhận Thời Gian Lấy Mẫu Mới (Record Sample Time)'}
+                  ? `Ghi nhận thời gian lấy mẫu — ${collectionTargetSample.barcode}`
+                  : 'Ghi nhận thời gian lấy mẫu mới'}
               </span>
             </Modal.Title>
           </Modal.Header>
@@ -1268,10 +1295,10 @@ const SampleQueuePage = () => {
         backdrop="static"
       >
         <Form onSubmit={handleSubmitStatusUpdate}>
-          <Modal.Header closeButton={!statusSubmitting} className="bg-light">
-            <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <Modal.Header closeButton={!statusSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
               <FaExchangeAlt className="text-primary" />
-              <span>Cập Nhật Trạng Thái Mẫu Bệnh Phẩm (ISO 15189)</span>
+              <span>Cập nhật trạng thái mẫu bệnh phẩm</span>
             </Modal.Title>
           </Modal.Header>
 
@@ -1424,7 +1451,7 @@ const SampleQueuePage = () => {
                         <div key={i} className="small py-1 border-bottom last-border-0 d-flex justify-content-between gap-2">
                           <div>
                             <Badge bg="secondary" className="me-1">{h.fromStatus || 'Khởi tạo'}</Badge>
-                            <span>→</span>
+                            <FaArrowRight size={10} className="mx-1 text-muted" />
                             <Badge bg="primary" className="ms-1 me-2">{h.toStatus}</Badge>
                             <span className="text-dark">{h.notes || ''}</span>
                           </div>

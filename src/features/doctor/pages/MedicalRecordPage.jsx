@@ -36,7 +36,9 @@ import {
   FaUserMd,
   FaCalendarAlt,
   FaPrescriptionBottleAlt,
-  FaVial
+  FaVial,
+  FaClipboardList,
+  FaTimes
 } from 'react-icons/fa';
 import { medicalRecordApi } from '../api/medicalRecordApi';
 
@@ -160,7 +162,11 @@ export default function MedicalRecordPage() {
 
   // Load medical records for current patient
   const fetchRecords = useCallback(async (pid) => {
-    if (!pid || !pid.trim()) return;
+    if (!pid || !pid.trim()) {
+      setRecords([]);
+      setSelectedRecord(null);
+      return;
+    }
     setLoading(true);
     setErrorMsg(null);
     try {
@@ -325,53 +331,83 @@ export default function MedicalRecordPage() {
   };
 
   return (
-    <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header bar */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Bệnh án điện tử</h1>
+    <div className="w-100 py-1">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Bệnh án điện tử</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Tra cứu lịch sử khám, dấu hiệu sinh tồn, chẩn đoán ICD-10 và phác đồ điều trị theo bệnh nhân.
+          </p>
         </div>
-
-        {/* Patient Code Search Bar & Create Button */}
-        <div className="d-flex align-items-center gap-2 flex-wrap">
-          <InputGroup size="sm" style={{ width: '280px' }}>
-            <InputGroup.Text className="bg-white"><FaUserInjured style={{ color: '#1E60E6' }} /></InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Nhập mã bệnh nhân (PAT-...)"
-              value={searchPatientInput}
-              onChange={(e) => setSearchPatientInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setPatientId(searchPatientInput.trim());
-                  setIsCreatingNew(false);
-                  setIsEditing(false);
-                }
-              }}
-            />
-            <Button
-              variant="primary"
-              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-              onClick={() => {
-                setPatientId(searchPatientInput.trim());
-                setIsCreatingNew(false);
-                setIsEditing(false);
-              }}
-            >
-              <FaSearch />
-            </Button>
-          </InputGroup>
-
+        <div className="bms-page-actions">
           <Button
             size="sm"
-            className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
-            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
+            className="d-inline-flex align-items-center gap-2 fw-semibold text-white px-3 rounded-pill text-nowrap shadow-sm"
+            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+            disabled={!patientId.trim()}
             onClick={handleStartCreate}
           >
             <FaPlus /> Tạo bệnh án
           </Button>
         </div>
-      </header>
+      </div>
+
+      {/* Patient Lookup Filter Bar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Nhập mã bệnh nhân (PAT-...) để tra cứu bệnh án..."
+            value={searchPatientInput}
+            onChange={(e) => setSearchPatientInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setPatientId(searchPatientInput.trim());
+                setIsCreatingNew(false);
+                setIsEditing(false);
+              }
+            }}
+          />
+          {searchPatientInput && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => {
+                setSearchPatientInput('');
+                setPatientId('');
+                setIsCreatingNew(false);
+                setIsEditing(false);
+              }}
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+        <Button
+          variant="primary"
+          size="sm"
+          className="rounded-pill px-3 text-nowrap"
+          style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+          onClick={() => {
+            setPatientId(searchPatientInput.trim());
+            setIsCreatingNew(false);
+            setIsEditing(false);
+          }}
+        >
+          Tra cứu hồ sơ
+        </Button>
+        <span className="bms-filter-meta">
+          {patientId ? (
+            <>Mã BN: <strong>{patientId}</strong> ({records.length} hồ sơ)</>
+          ) : (
+            'Chưa chọn mã bệnh nhân'
+          )}
+        </span>
+      </div>
 
       {/* Alerts */}
       {feedbackMsg && (
@@ -392,26 +428,32 @@ export default function MedicalRecordPage() {
         {/* Left Column: Patient Medical History Timeline */}
         <Col lg={4}>
           <Card className="shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Header className="bg-light py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+            <Card.Header className="py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
               <div>
-                <h6 className="fw-bold mb-0 text-dark">Lịch Sử Bệnh Án</h6>
-                <small className="text-muted">Bệnh nhân: <strong className="font-monospace" style={{ color: '#1E60E6' }}>{patientId}</strong></small>
+                <h6 className="fw-bold mb-0 text-dark">Lịch sử bệnh án</h6>
+                <small className="text-muted">Bệnh nhân: <strong className="font-monospace" style={{ color: '#1E60E6' }}>{patientId || 'Chưa chọn'}</strong></small>
               </div>
-              <Badge className="rounded-pill px-3 py-1.5" style={{ backgroundColor: '#1E60E6' }}>
-                {records.length} Hồ sơ
+              <Badge bg="primary-subtle" text="primary" className="rounded-pill px-3 py-1.5 border border-primary-subtle">
+                {records.length} hồ sơ
               </Badge>
             </Card.Header>
 
             <Card.Body className="p-2 overflow-auto" style={{ maxHeight: '720px' }}>
               {loading ? (
-                <div className="text-center py-3">
-                  <Spinner animation="border" style={{ color: '#1E60E6' }} />
+                <div className="text-center py-4">
+                  <Spinner animation="border" size="sm" style={{ color: '#1E60E6' }} />
                   <div className="small text-muted mt-2">Đang tải hồ sơ bệnh án...</div>
                 </div>
+              ) : !patientId.trim() ? (
+                <div className="text-center py-4 text-muted">
+                  <FaUserInjured className="fs-2 mb-2 text-muted opacity-50" />
+                  <div className="fw-semibold text-dark">Chưa chọn bệnh nhân</div>
+                  <div className="small">Nhập mã bệnh nhân ở thanh tra cứu phía trên để xem bệnh án.</div>
+                </div>
               ) : !Array.isArray(records) || records.length === 0 ? (
-                <div className="text-center py-3 text-muted">
-                  <div className="fs-3 mb-2">📋</div>
-                  <div className="fw-semibold">Chưa có hồ sơ bệnh án</div>
+                <div className="text-center py-4 text-muted">
+                  <FaClipboardList className="fs-2 mb-2 text-muted opacity-50" />
+                  <div className="fw-semibold text-dark">Chưa có hồ sơ bệnh án</div>
                   <div className="small">Bệnh nhân chưa có lịch sử khám nào tại cơ sở y tế.</div>
                 </div>
               ) : (
@@ -482,12 +524,12 @@ export default function MedicalRecordPage() {
         <Col lg={8}>
           {isCreatingNew || isEditing ? (
             /* CREATE / EDIT FORM */
-            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
-                <span className="fw-bold text-uppercase fs-6">
-                  {isCreatingNew ? 'Tạo Bệnh Án Điện Tử Mới' : `Chỉnh Sửa Bệnh Án #${selectedRecord?.recordCode}`}
+            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
+              <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                <span className="fw-bold text-uppercase fs-6 text-dark">
+                  {isCreatingNew ? 'Tạo bệnh án điện tử mới' : `Chỉnh sửa bệnh án #${selectedRecord?.recordCode}`}
                 </span>
-                <Button variant="light" size="sm" style={{ borderRadius: '9999px' }} onClick={handleCancelForm}>
+                <Button variant="outline-secondary" size="sm" className="rounded-pill px-3" onClick={handleCancelForm}>
                   Hủy bỏ
                 </Button>
               </Card.Header>
@@ -949,24 +991,30 @@ export default function MedicalRecordPage() {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="shadow-sm rounded-4 text-center py-3" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <div className="display-1 text-muted opacity-25 mb-3">
+            <Card className="shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid #E2E8F0' }}>
+              <div className="display-4 text-muted opacity-25 mb-3">
                 <FaNotesMedical />
               </div>
-              <h5 className="fw-bold text-secondary mb-2">Chưa chọn hồ sơ bệnh án</h5>
+              <h5 className="fw-bold text-secondary mb-2">
+                {patientId.trim() ? 'Chưa chọn hồ sơ bệnh án' : 'Tra cứu mã bệnh nhân để mở bệnh án'}
+              </h5>
               <p className="text-muted small mb-4">
-                Chọn một hồ sơ bệnh án từ danh sách bên trái hoặc nhấn &quot;Tạo Bệnh Án Mới&quot; để bắt đầu phiên khám bệnh.
+                {patientId.trim()
+                  ? 'Chọn một hồ sơ bệnh án từ danh sách bên trái hoặc nhấn "Tạo bệnh án mới" để bắt đầu ghi nhận lâm sàng.'
+                  : 'Nhập mã bệnh nhân ở thanh tra cứu phía trên hoặc mở trực tiếp từ bàn khám bác sĩ.'}
               </p>
-              <div>
-                <Button
-                  variant="primary"
-                  onClick={handleStartCreate}
-                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                  className="shadow-sm"
-                >
-                  <FaPlus className="me-2" /> Tạo Bệnh Án Mới
-                </Button>
-              </div>
+              {patientId.trim() && (
+                <div>
+                  <Button
+                    variant="primary"
+                    onClick={handleStartCreate}
+                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                    className="shadow-sm rounded-pill px-4"
+                  >
+                    <FaPlus className="me-2" /> Tạo bệnh án mới
+                  </Button>
+                </div>
+              )}
             </Card>
           )}
         </Col>

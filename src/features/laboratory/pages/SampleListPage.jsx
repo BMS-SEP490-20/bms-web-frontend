@@ -454,19 +454,52 @@ export default function SampleListPage() {
   };
 
   return (
-    <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      {/* Header & Điều hướng */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Danh sách lấy mẫu</h1>
+    <div className="w-100 py-1">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Danh sách lấy mẫu</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Tổng hợp bệnh nhân đã tiếp đón, tạo đợt gom mẫu bệnh phẩm và in nhãn mã vạch.
+          </p>
         </div>
-        <button
-          className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
-          onClick={() => navigate(-1)}
-        >
-          <FaArrowLeft /> Quay lại
-        </button>
-      </header>
+        <div className="bms-page-actions">
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
+            onClick={() => navigate(-1)}
+          >
+            <FaArrowLeft /> Quay lại
+          </button>
+        </div>
+      </div>
+
+      {/* Single-Line Filter Bar extracted above tables */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo họ tên bệnh nhân, mã lịch hẹn, gói xét nghiệm..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchTerm("")}
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+        <span className="bms-filter-meta">
+          Đã chọn <strong>{selectedAppointments.length}</strong> / {filteredAppointments.length} bệnh nhân
+        </span>
+      </div>
 
       {/* Thông báo Alert */}
       {successMessage && (
@@ -503,27 +536,18 @@ export default function SampleListPage() {
       <div className="row g-4">
         {/* Cột trái: Bệnh nhân đã tiếp đón */}
         <div className="col-lg-5">
-          <div className="card border-0 shadow-sm rounded-3 h-100 bg-white">
-            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                <FaUserCheck className="text-primary" />
-                <span>Bệnh nhân đã tiếp đón hôm nay</span>
-              </h5>
-              <div className="input-group input-group-sm" style={{ width: "190px" }}>
-                <span className="input-group-text bg-light border-end-0">
-                  <FaSearch className="text-muted" />
-                </span>
-                <input
-                  type="text"
-                  className="form-control bg-light border-start-0"
-                  placeholder="Lọc tên, mã..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <section className="bms-table-standalone-section m-0 h-100 d-flex flex-column">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h2 className="bms-table-standalone-title">Bệnh nhân đã tiếp đón hôm nay</h2>
+                <p className="bms-table-standalone-subtitle">Phụ trách lấy mẫu: {collectorName}</p>
               </div>
+              <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
+                {filteredAppointments.length} lượt
+              </span>
             </div>
 
-            <div className="table-responsive flex-grow-1">
+            <div className="bms-table-standalone-body flex-grow-1">
               <table className="table table-hover align-middle mb-0 table-sm">
                 <thead className="table-light text-muted small text-uppercase">
                   <tr>
@@ -535,16 +559,16 @@ export default function SampleListPage() {
                         onChange={handleToggleSelectAll}
                       />
                     </th>
-                    <th>Mã Lịch Hẹn</th>
-                    <th>Họ Tên Bệnh Nhân</th>
-                    <th>Gói Xét Nghiệm</th>
-                    <th className="text-end pe-3">Giờ Hẹn</th>
+                    <th>Mã lịch hẹn</th>
+                    <th>Họ tên bệnh nhân</th>
+                    <th>Gói xét nghiệm</th>
+                    <th className="text-end pe-3">Giờ hẹn</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-2 text-muted">
+                      <td colSpan="5" className="text-center py-4 text-muted">
                         <FaSpinner className="fa-spin me-2" /> Đang tải danh sách tiếp đón...
                       </td>
                     </tr>
@@ -600,47 +624,41 @@ export default function SampleListPage() {
                 </tbody>
               </table>
             </div>
-
-            <div className="card-footer bg-white border-top py-2 px-3 text-muted small d-flex justify-content-between align-items-center">
-              <span>
-                Đã chọn: <strong className="text-primary">{selectedAppointments.length}</strong> / {safeAppointments.length} bệnh nhân
-              </span>
-              <span className="small text-muted">KTV phụ trách: {collectorName}</span>
-            </div>
-          </div>
+          </section>
         </div>
 
         {/* Cột phải: Danh sách ống mẫu & Thiết lập đợt lấy */}
         <div className="col-lg-7">
-          {/* Card 1: Bảng danh sách ống mẫu được chọn */}
-          <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
-            <div className="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
-              <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                <FaVial className="text-primary" />
-                <span>Chi Tiết Ống Bệnh Phẩm — Đợt: </span>
-                <span className="font-monospace text-primary">{batchCode || "Chưa tạo mã"}</span>
-              </h5>
-              <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+          {/* Standalone Table 1: Bảng danh sách ống mẫu được chọn */}
+          <section className="bms-table-standalone-section mb-4">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h2 className="bms-table-standalone-title">
+                  Chi tiết ống bệnh phẩm — Đợt: <span className="font-monospace text-primary">{batchCode || "Chưa tạo mã"}</span>
+                </h2>
+                <p className="bms-table-standalone-subtitle">Các ống mẫu dự kiến tạo mã vạch cho đợt lấy mẫu</p>
+              </div>
+              <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
                 {selectedAppointments.length} ống mẫu
               </span>
             </div>
 
-            <div className="table-responsive">
+            <div className="bms-table-standalone-body">
               <table className="table table-hover align-middle mb-0 table-sm">
                 <thead className="table-light text-muted small text-uppercase">
                   <tr>
                     <th style={{ width: "36px" }} className="ps-3">#</th>
-                    <th>Mã Ống Mẫu (Dự Kiến)</th>
-                    <th>Bệnh Nhân</th>
-                    <th>Loại Ống / Chất Chống Đông</th>
-                    <th className="pe-3">Người Lấy Mẫu</th>
+                    <th>Mã ống mẫu (Dự kiến)</th>
+                    <th>Bệnh nhân</th>
+                    <th>Loại ống / Chất chống đông</th>
+                    <th className="pe-3">Người lấy mẫu</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedAppointments.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-2 text-muted">
-                        Chưa có bệnh nhân nào được chọn cho đợt này. Vui lòng tick chọn từ danh sách bên trái.
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        Chưa có bệnh nhân nào được chọn cho đợt này. Vui lòng chọn từ danh sách bên trái.
                       </td>
                     </tr>
                   ) : (
@@ -695,17 +713,17 @@ export default function SampleListPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
 
           {/* Card 2: Thiết lập thông tin đợt lấy mẫu */}
-          <div className="card border-0 shadow-sm rounded-3 bg-white">
-            <div className="card-header bg-white border-bottom py-3">
+          <div className="card shadow-sm rounded-4 bg-white" style={{ border: "1px solid #E2E8F0" }}>
+            <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
                 <FaMapMarkerAlt className="text-primary" />
-                <span>Thiết Lập Địa Điểm & Thời Gian Lấy Mẫu</span>
+                <span>Thiết lập địa điểm &amp; thời gian lấy mẫu</span>
               </h5>
             </div>
-            <div className="card-body p-2">
+            <div className="card-body p-4">
               <div className="row g-3 mb-4">
                 <div className="col-md-7">
                   <label className="form-label fw-semibold text-dark small">Địa Điểm / Bàn Lấy Mẫu *</label>
@@ -757,16 +775,16 @@ export default function SampleListPage() {
                   title={selectedAppointments.length === 0 ? "Chọn BN trước" : "In phiếu checklist lấy mẫu (không phải nhãn barcode)"}
                   onClick={handlePrintManifest}
                 >
-                  <FaPrint /> In Bảng Kê Mẫu
+                  <FaPrint /> In bảng kê mẫu
                 </button>
                 <button
                   type="button"
-                  className="btn btn-outline-primary d-flex align-items-center gap-2 fw-semibold shadow-sm"
+                  className="btn btn-outline-primary d-inline-flex align-items-center gap-2 fw-semibold rounded-pill px-3 text-nowrap"
                   onClick={handlePrintBarcodes}
                   disabled={!batchConfirmed || !batchCode || loadingBarcodes}
                   title={batchConfirmed ? "In lại nhãn Code 128" : "Xác nhận đợt trước — modal sẽ tự mở"}
                 >
-                  <FaBarcode /> In Nhãn Mã Vạch
+                  <FaBarcode /> In nhãn mã vạch
                 </button>
               </div>
             </div>

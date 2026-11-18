@@ -82,18 +82,19 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
   margin-bottom: 0;
 }
 
-/* ---- Status: text + dot, never a filled rainbow pill ---- */
+/* ---- Status: unified soft pastel pills across all components ---- */
 .badge[class*="bg-"]:not([style*="background"]),
 .badge[class*="text-bg-"]:not([style*="background"]) {
-  background: transparent !important;
-  padding: 0 !important;
+  background: #F1F5F9 !important;
+  padding: 4px 10px !important;
   font-size: var(--fs-xs) !important;
   font-weight: 600 !important;
   display: inline-flex !important;
   align-items: center;
   gap: 6px;
   color: #475569 !important;
-  border-radius: 0 !important;
+  border-radius: 9999px !important;
+  line-height: 1.25 !important;
 }
 .badge[class*="bg-"]:not([style*="background"])::before,
 .badge[class*="text-bg-"]:not([style*="background"])::before {
@@ -104,13 +105,12 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
   background: currentColor;
   flex: 0 0 auto;
 }
-.badge.bg-primary:not([style*="background"]), .badge.text-bg-primary { color: #1E60E6 !important; }
-.badge.bg-success:not([style*="background"]), .badge.text-bg-success { color: #047857 !important; }
-.badge.bg-warning:not([style*="background"]), .badge.text-bg-warning { color: #B45309 !important; }
-.badge.bg-danger:not([style*="background"]), .badge.text-bg-danger { color: #B91C1C !important; }
-.badge.bg-info:not([style*="background"]), .badge.text-bg-info { color: #0369A1 !important; }
-.badge.bg-secondary:not([style*="background"]), .badge.bg-light:not([style*="background"]), .badge.bg-dark:not([style*="background"]) { color: #475569 !important; }
-.badge.bg-primary-subtle, .badge.bg-success-subtle, .badge.bg-warning-subtle, .badge.bg-danger-subtle, .badge.bg-info-subtle, .badge.bg-secondary-subtle { background: transparent !important; padding: 0 !important; }
+.badge.bg-primary:not([style*="background"]), .badge.text-bg-primary, .badge.bg-primary-subtle { background: #EFF6FF !important; color: #1E60E6 !important; }
+.badge.bg-success:not([style*="background"]), .badge.text-bg-success, .badge.bg-success-subtle { background: #ECFDF5 !important; color: #047857 !important; }
+.badge.bg-warning:not([style*="background"]), .badge.text-bg-warning, .badge.bg-warning-subtle { background: #FFFBEB !important; color: #B45309 !important; }
+.badge.bg-danger:not([style*="background"]), .badge.text-bg-danger, .badge.bg-danger-subtle { background: #FEF2F2 !important; color: #B91C1C !important; }
+.badge.bg-info:not([style*="background"]), .badge.text-bg-info, .badge.bg-info-subtle { background: #F0F9FF !important; color: #0369A1 !important; }
+.badge.bg-secondary:not([style*="background"]), .badge.bg-light:not([style*="background"]), .badge.bg-dark:not([style*="background"]), .badge.bg-secondary-subtle { background: #F1F5F9 !important; color: #475569 !important; }
 
 /* ---- Alerts: calm inline note ---- */
 .alert {
@@ -130,27 +130,78 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 .bms-app-layout input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout select,
 .form-control, .form-select {
-  background: #FFFFFF !important;
-  border: 1px solid #CBD5E1 !important;
+  background: #F8FAFC !important;
+  border: 1px solid #DDE3EA !important;
   border-radius: var(--r-md) !important;
-  height: 34px !important;
+  height: 38px !important;
   font-size: var(--fs-sm) !important;
   color: #0F172A !important;
   box-shadow: none !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+.form-control:focus, .form-select:focus {
+  background: #FFFFFF !important;
+  border-color: #1E60E6 !important;
 }
 textarea.form-control { height: auto !important; }
+
+/* Universal Standalone Search Pill & Search Input Wrapper (Works Everywhere in System) */
+.bms-app-layout .bms-search-input-pill,
+.bms-app-layout .bms-search-input-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  gap: 8px !important;
+  background: #F8FBFF !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 9999px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+.bms-app-layout .bms-search-input-pill:focus-within,
+.bms-app-layout .bms-search-input-wrapper:focus-within {
+  border-color: #1E60E6 !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.15) !important;
+  background: #FFFFFF !important;
+}
+
+/* Universal InputGroup Container (Prevent transparent frame or lost border) */
+.bms-app-layout .input-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  overflow: hidden !important;
+}
+.bms-app-layout .input-group:focus-within {
+  border-color: #1E60E6 !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.15) !important;
+}
 
 /* One frame only. An input inside a search group must not draw a second rounded border. */
 .bms-app-layout .input-group > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-search-input-wrapper > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-search-input-pill > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   background-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
+  font-size: var(--fs-sm) !important;
+  color: #0F172A !important;
 }
 .bms-app-layout .input-group > input:focus,
 .bms-app-layout .bms-search-input-wrapper > input:focus,
@@ -160,6 +211,7 @@ textarea.form-control { height: auto !important; }
   border-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
+  background: transparent !important;
 }
 .form-control:focus, .form-select:focus {
   background: #FFFFFF !important;
@@ -195,10 +247,15 @@ textarea.form-control { height: auto !important; }
 .bms-app-layout .input-group > .input-group-text,
 .bms-app-layout .bms-filter-bar .input-group-text,
 .bms-app-layout .bms-search-icon {
+  flex-shrink: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  color: #64748B !important;
+  font-size: 14px !important;
+  margin-right: 4px !important;
+  padding: 0 4px 0 8px !important;
 }
 /* ---- Buttons: 100% Pure 2D Flat, Zero Hover Glow, Zero Blurry Shadows ---- */
 .btn, button, .bms-search-submit-btn, .bms-btn-mint-cta, .btn-primary, .btn-secondary, .btn-success {

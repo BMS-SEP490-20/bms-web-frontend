@@ -26,6 +26,7 @@ import {
   FaArrowLeft,
   FaVial,
   FaInfoCircle,
+  FaTimes,
 } from 'react-icons/fa';
 import referenceIntervalService from '../../../services/referenceIntervalService';
 import ReferenceIntervalModal from '../components/ReferenceIntervalModal';
@@ -179,7 +180,7 @@ export default function ConfigureReferenceIntervalsPage() {
   };
 
   return (
-    <div className="container-fluid py-2 px-md-4">
+    <div className="w-100 py-1">
       {/* Toast Notification */}
       {toast && (
         <Alert
@@ -198,35 +199,41 @@ export default function ConfigureReferenceIntervalsPage() {
         </Alert>
       )}
 
-      {/* Header Banner */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Khoảng tham chiếu</h1>
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Khoảng tham chiếu sinh học</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Cấu hình dải tham chiếu sinh học theo giới tính, độ tuổi và ngưỡng cảnh báo nguy kịch.
+          </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="bms-page-actions">
           <Button
-            variant={showSimulator ? 'outline-primary' : 'primary'}
+            variant={showSimulator ? 'outline-primary' : 'outline-secondary'}
             size="sm"
             onClick={() => setShowSimulator(!showSimulator)}
-            className="d-flex align-items-center gap-2 fw-semibold"
+            className="d-inline-flex align-items-center gap-1 fw-semibold rounded-pill px-3 text-nowrap"
           >
             <FaFlask />
-            {showSimulator ? 'Ẩn thử nghiệm' : 'Thử nghiệm'}
+            {showSimulator ? 'Ẩn thử nghiệm' : 'Thử nghiệm dải đo'}
           </Button>
 
           {canConfigureIntervals && (
             <Button
-              variant="success"
+              variant="primary"
               size="sm"
               onClick={handleOpenCreateModal}
-              className="d-flex align-items-center gap-2 fw-semibold shadow-sm"
+              className="d-inline-flex align-items-center gap-1 fw-semibold rounded-pill px-3 text-white text-nowrap"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <FaPlus /> Thêm khoảng
+              <FaPlus /> Thêm khoảng tham chiếu
             </Button>
           )}
         </div>
-      </header>
+      </div>
 
       {/* Interactive Clinical Range Simulator */}
       {showSimulator && (
@@ -237,203 +244,207 @@ export default function ConfigureReferenceIntervalsPage() {
         />
       )}
 
-      {/* Filter Toolbar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-3 align-items-center">
-            <Col md={4}>
-              <InputGroup size="sm">
-                <InputGroup.Text className="bg-light border-end-0">
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Tìm theo mã chỉ số (HGB, GLU, CRE...)"
-                  value={searchCode}
-                  onChange={(e) => setSearchCode(e.target.value)}
-                  className="border-start-0"
-                />
-              </InputGroup>
-            </Col>
+      {/* Single-Line Flat Filter Toolbar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã chỉ số (HGB, GLU, CRE...)"
+            value={searchCode}
+            onChange={(e) => setSearchCode(e.target.value)}
+          />
+          {searchCode && (
+            <button type="button" className="bms-search-clear" onClick={() => setSearchCode('')}>
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
 
-            <Col md={3}>
-              <div className="d-flex align-items-center gap-2">
-                <FaFilter className="text-muted small" />
-                <Form.Select
-                  size="sm"
-                  value={selectedGender}
-                  onChange={(e) => setSelectedGender(e.target.value)}
-                >
-                  <option value="ALL">Tất cả giới tính</option>
-                  <option value="Male">Nam (Male)</option>
-                  <option value="Female">Nữ (Female)</option>
-                  <option value="All">Chung cả 2 giới</option>
-                </Form.Select>
-              </div>
-            </Col>
+        <Form.Select
+          value={selectedGender}
+          onChange={(e) => setSelectedGender(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả giới tính</option>
+          <option value="Male">Nam</option>
+          <option value="Female">Nữ</option>
+          <option value="All">Chung cả 2 giới</option>
+        </Form.Select>
 
-            <Col md={3}>
-              <Form.Select
-                size="sm"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="ACTIVE">Đang áp dụng (Active)</option>
-                <option value="INACTIVE">Đã khóa (Inactive)</option>
-              </Form.Select>
-            </Col>
+        <Form.Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ width: 'auto' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="ACTIVE">Đang áp dụng</option>
+          <option value="INACTIVE">Đã khóa</option>
+        </Form.Select>
 
-            <Col md={2} className="text-end">
-              <span className="small text-muted fw-semibold">
-                Tổng: <strong className="text-primary">{pagination.totalCount}</strong> dải
-              </span>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+        {(searchCode || selectedGender !== 'ALL' || statusFilter !== 'ALL') && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={() => {
+              setSearchCode('');
+              setSelectedGender('ALL');
+              setStatusFilter('ALL');
+            }}
+          >
+            Đặt lại
+          </Button>
+        )}
 
-      {/* Reference Intervals Data Table */}
-      <Card className="shadow-sm border-0" style={{ borderRadius: '12px' }}>
-        <Card.Body className="p-0">
-          <div className="table-responsive">
-            <Table hover className="align-middle mb-0" style={{ fontSize: '13.5px' }}>
-              <thead className="table-light text-secondary border-bottom">
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{intervals.length}</strong> / {pagination.totalCount} dải
+        </span>
+      </div>
+
+      {/* Reference Intervals Standalone Data Table */}
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">Danh sách khoảng tham chiếu sinh học</h2>
+            <p className="bms-table-standalone-subtitle">Ngưỡng bình thường, ngưỡng nguy kịch và thẩm quyền y khoa áp dụng</p>
+          </div>
+        </div>
+        <div className="bms-table-standalone-body">
+          <Table hover className="align-middle mb-0" style={{ fontSize: '13.5px' }}>
+            <thead className="table-light text-secondary border-bottom">
+              <tr>
+                <th className="py-3 px-3">Chỉ số xét nghiệm</th>
+                <th className="py-3">Giới tính</th>
+                <th className="py-3">Nhóm tuổi &amp; Bối cảnh</th>
+                <th className="py-3 text-end">Khoảng bình thường</th>
+                <th className="py-3 text-end text-danger">Ngưỡng nguy kịch</th>
+                <th className="py-3">Nguồn</th>
+                <th className="py-3 text-center">Trạng thái</th>
+                {canConfigureIntervals && <th className="py-3 text-end px-3">Thao tác</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th className="py-3 px-3">Chỉ Số Xét Nghiệm</th>
-                  <th className="py-3">Giới Tính</th>
-                  <th className="py-3">Nhóm Tuổi & Bối Cảnh</th>
-                  <th className="py-3 text-end">Khoảng bình thường</th>
-                  <th className="py-3 text-end text-danger">Ngưỡng panic</th>
-                  <th className="py-3">Nguồn</th>
-                  <th className="py-3 text-center">Trạng Thái</th>
-                  {canConfigureIntervals && <th className="py-3 text-end px-3">Thao Tác</th>}
+                  <td colSpan="8" className="text-center py-4">
+                    <Spinner animation="border" size="sm" variant="primary" />
+                    <div className="mt-2 text-muted small">Đang tải khoảng tham chiếu sinh học...</div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="8" className="text-center py-3">
-                      <Spinner animation="border" variant="primary" />
-                      <div className="mt-2 text-muted small">Đang tải khoảng tham chiếu sinh học...</div>
+              ) : intervals.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-4 text-muted">
+                    <FaInfoCircle size={28} className="mb-2 text-secondary opacity-50 d-block mx-auto" />
+                    Không tìm thấy khoảng tham chiếu phù hợp với bộ lọc.
+                  </td>
+                </tr>
+              ) : (
+                intervals.map((item) => (
+                  <tr key={item.id} className={!item.isActive ? 'table-secondary opacity-75' : ''}>
+                    <td className="px-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="badge bg-primary bg-opacity-10 text-primary fw-bold font-monospace px-2 py-1">
+                          {item.criterionCode}
+                        </span>
+                        <div>
+                          <div className="fw-semibold text-dark">{item.criterionName}</div>
+                          <small className="text-muted">Đơn vị: {item.unit || 'N/A'}</small>
+                        </div>
+                      </div>
                     </td>
-                  </tr>
-                ) : intervals.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="text-center py-3 text-muted">
-                      <FaInfoCircle size={32} className="mb-2 text-secondary opacity-50 d-block mx-auto" />
-                      Không tìm thấy khoảng tham chiếu phù hợp với bộ lọc.
+
+                    <td>
+                      <Badge
+                        bg={
+                          item.gender === 'Male'
+                            ? 'info'
+                            : item.gender === 'Female'
+                            ? 'danger'
+                            : 'secondary'
+                        }
+                        className="px-2.5 py-1 rounded-pill"
+                      >
+                        {item.gender === 'Male'
+                          ? 'Nam'
+                          : item.gender === 'Female'
+                          ? 'Nữ'
+                          : 'Tất cả'}
+                      </Badge>
                     </td>
-                  </tr>
-                ) : (
-                  intervals.map((item) => (
-                    <tr key={item.id} className={!item.isActive ? 'table-secondary opacity-75' : ''}>
-                      <td className="px-3">
-                        <div className="d-flex align-items-center gap-2">
-                          <span className="badge bg-primary bg-opacity-10 text-primary fw-bold font-monospace px-2 py-1">
-                            {item.criterionCode}
-                          </span>
-                          <div>
-                            <div className="fw-semibold text-dark">{item.criterionName}</div>
-                            <small className="text-muted">Đơn vị: {item.unit || 'N/A'}</small>
-                          </div>
+
+                    <td>
+                      <div className="fw-medium text-dark">{item.demographicLabel}</div>
+                      <small className="text-muted">
+                        {item.ageMin} - {item.ageMax} {item.ageUnit === 'Years' ? 'tuổi' : item.ageUnit}
+                        {item.condition && item.condition !== 'General' ? ` · ${item.condition}` : ''}
+                      </small>
+                    </td>
+
+                    <td className="text-end fw-bold text-success font-monospace">
+                      {item.formattedNormalRange}
+                    </td>
+
+                    <td className="text-end font-monospace">
+                      {item.formattedPanicRange !== 'Không áp dụng' ? (
+                        <span className="badge bg-danger bg-opacity-10 text-danger fw-bold border border-danger border-opacity-25 px-2 py-1 rounded-pill">
+                          {item.formattedPanicRange}
+                        </span>
+                      ) : (
+                        <span className="text-muted small">N/A</span>
+                      )}
+                    </td>
+
+                    <td>
+                      <div className="small fw-semibold text-secondary">{item.standardAuthority}</div>
+                      {item.notes && (
+                        <small className="text-muted text-truncate d-block" style={{ maxWidth: '180px' }} title={item.notes}>
+                          {item.notes}
+                        </small>
+                      )}
+                    </td>
+
+                    <td className="text-center">
+                      <Badge bg={item.isActive ? 'success' : 'secondary'} className="px-2.5 py-1 rounded-pill">
+                        {item.isActive ? 'Hoạt động' : 'Đã khóa'}
+                      </Badge>
+                    </td>
+
+                    {canConfigureIntervals && (
+                      <td className="text-end px-3">
+                        <div className="d-flex justify-content-end gap-1">
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="rounded-pill px-2.5 py-1 text-nowrap"
+                            title="Chỉnh sửa khoảng tham chiếu"
+                            onClick={() => handleOpenEditModal(item)}
+                          >
+                            <FaEdit />
+                          </Button>
+
+                          <Button
+                            variant={item.isActive ? 'outline-danger' : 'outline-success'}
+                            size="sm"
+                            className="rounded-pill px-2.5 py-1 text-nowrap"
+                            title={item.isActive ? 'Khóa khoảng tham chiếu' : 'Kích hoạt lại'}
+                            onClick={() => handleToggleActive(item)}
+                          >
+                            {item.isActive ? <FaLock /> : <FaUnlock />}
+                          </Button>
                         </div>
                       </td>
-
-                      <td>
-                        <Badge
-                          bg={
-                            item.gender === 'Male'
-                              ? 'info'
-                              : item.gender === 'Female'
-                              ? 'danger'
-                              : 'secondary'
-                          }
-                          className="px-2 py-1"
-                        >
-                          {item.gender === 'Male'
-                            ? 'Nam'
-                            : item.gender === 'Female'
-                            ? 'Nữ'
-                            : 'Tất cả'}
-                        </Badge>
-                      </td>
-
-                      <td>
-                        <div className="fw-medium text-dark">{item.demographicLabel}</div>
-                        <small className="text-muted">
-                          {item.ageMin} - {item.ageMax} {item.ageUnit === 'Years' ? 'tuổi' : item.ageUnit}
-                          {item.condition && item.condition !== 'General' ? ` · ${item.condition}` : ''}
-                        </small>
-                      </td>
-
-                      {/* Right-aligned per AGENTS-DESIGN.md */}
-                      <td className="text-end fw-bold text-success font-monospace">
-                        {item.formattedNormalRange}
-                      </td>
-
-                      {/* Right-aligned panic critical value */}
-                      <td className="text-end font-monospace">
-                        {item.formattedPanicRange !== 'Không áp dụng' ? (
-                          <span className="badge bg-danger bg-opacity-10 text-danger fw-bold border border-danger border-opacity-25 px-2 py-1">
-                            {item.formattedPanicRange}
-                          </span>
-                        ) : (
-                          <span className="text-muted small">N/A</span>
-                        )}
-                      </td>
-
-                      <td>
-                        <div className="small fw-semibold text-secondary">{item.standardAuthority}</div>
-                        {item.notes && (
-                          <small className="text-muted text-truncate d-block" style={{ maxWidth: '180px' }} title={item.notes}>
-                            {item.notes}
-                          </small>
-                        )}
-                      </td>
-
-                      <td className="text-center">
-                        <Badge bg={item.isActive ? 'success' : 'secondary'} className="px-2 py-1">
-                          {item.isActive ? 'Hoạt động' : 'Đã khóa'}
-                        </Badge>
-                      </td>
-
-                      {canConfigureIntervals && (
-                        <td className="text-end px-3">
-                          <div className="d-flex justify-content-end gap-1">
-                            <Button
-                              variant="outline-primary"
-                              size="sm"
-                              className="p-1 px-2"
-                              title="Chỉnh sửa khoảng tham chiếu"
-                              onClick={() => handleOpenEditModal(item)}
-                            >
-                              <FaEdit />
-                            </Button>
-
-                            <Button
-                              variant={item.isActive ? 'outline-danger' : 'outline-success'}
-                              size="sm"
-                              className="p-1 px-2"
-                              title={item.isActive ? 'Khóa khoảng tham chiếu' : 'Kích hoạt lại'}
-                              onClick={() => handleToggleActive(item)}
-                            >
-                              {item.isActive ? <FaLock /> : <FaUnlock />}
-                            </Button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </Table>
-          </div>
-        </Card.Body>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        </div>
 
         {/* Pagination Bar */}
         {pagination.totalPages > 1 && (
-          <Card.Footer className="bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+          <div className="bg-white p-3 border-top d-flex justify-content-between align-items-center">
             <span className="small text-muted">
               Hiển thị trang <strong>{pagination.currentPage}</strong> / {pagination.totalPages}
             </span>
@@ -456,9 +467,9 @@ export default function ConfigureReferenceIntervalsPage() {
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
               />
             </Pagination>
-          </Card.Footer>
+          </div>
         )}
-      </Card>
+      </section>
 
       {/* Modal Configure Reference Interval */}
       <ReferenceIntervalModal

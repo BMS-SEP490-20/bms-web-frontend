@@ -11,7 +11,6 @@ import {
   FaVial, 
   FaExclamationTriangle, 
   FaCheckCircle, 
-  FaShieldAlt, 
   FaSave, 
   FaTimes, 
   FaInfoCircle,
@@ -54,8 +53,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
     normalText: '',
     panicLow: '',
     panicHigh: '',
-    isActive: true,
-  });
+    isActive: true });
 
   const [validationError, setValidationError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,8 +72,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: criterion.normalText || '',
         panicLow: criterion.panicLow !== null && criterion.panicLow !== undefined ? criterion.panicLow : '',
         panicHigh: criterion.panicHigh !== null && criterion.panicHigh !== undefined ? criterion.panicHigh : '',
-        isActive: criterion.isActive !== undefined ? criterion.isActive : true,
-      });
+        isActive: criterion.isActive !== undefined ? criterion.isActive : true });
     } else {
       setFormData({
         criterionCode: '',
@@ -89,8 +86,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: '',
         panicLow: '',
         panicHigh: '',
-        isActive: true,
-      });
+        isActive: true });
     }
     setValidationError('');
   }, [criterion, mode, isOpen]);
@@ -99,8 +95,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+      [name]: type === 'checkbox' ? checked : value }));
     if (validationError) setValidationError('');
   };
 
@@ -153,8 +148,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         normalText: formData.valueType === 'Qualitative' ? formData.normalText.trim() : null,
         panicLow: formData.valueType === 'Numeric' && formData.panicLow !== '' ? parseFloat(formData.panicLow) : null,
         panicHigh: formData.valueType === 'Numeric' && formData.panicHigh !== '' ? parseFloat(formData.panicHigh) : null,
-        isActive: formData.isActive,
-      };
+        isActive: formData.isActive };
 
       await onSave(payload);
     } catch (err) {
@@ -174,14 +168,14 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
       keyboard={false}
       className="bms-medical-modal"
     >
-      <Modal.Header closeButton className="bg-primary text-white py-3 px-3 border-0">
+      <Modal.Header closeButton className="py-3 px-4 border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
         <div>
-          <Modal.Title className="h5 fw-bold mb-1 text-white d-flex align-items-center gap-2">
-            <FaVial className="text-warning" />
-            {mode === 'create' ? 'Thêm Mới Chỉ Số Xét Nghiệm (ISO 15189)' : `Chỉnh Sửa Chỉ Số: ${formData.criterionCode}`}
+          <Modal.Title className="h5 fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+            <FaVial className="text-primary" />
+            {mode === 'create' ? 'Thêm mới chỉ số xét nghiệm' : `Chỉnh sửa chỉ số: ${formData.criterionCode}`}
           </Modal.Title>
-          <small className="text-white-50">
-            Định nghĩa mã danh pháp, đơn vị đo, dải tham chiếu sinh học WHO/ADA và ngưỡng báo động đỏ Panic Alert
+          <small className="text-muted">
+            Định nghĩa mã danh pháp, đơn vị đo, dải tham chiếu sinh học và ngưỡng cảnh báo nguy kịch
           </small>
         </div>
       </Modal.Header>

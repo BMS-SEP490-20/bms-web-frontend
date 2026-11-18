@@ -8,15 +8,14 @@
 
 import React, { useState } from 'react';
 import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
-import { FaShieldAlt, FaLock, FaUsers, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaLock, FaUsers, FaTrash, FaTimes, FaCheckCircle } from 'react-icons/fa';
 import { deleteRole } from '../../../services/roleService';
 
 export const DeleteRoleConfirmModal = ({
   show,
   onHide,
   roleToDelete,
-  onDeleted,
-}) => {
+  onDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -52,7 +51,7 @@ export const DeleteRoleConfirmModal = ({
     <Modal show={show} onHide={onHide} centered backdrop="static">
       <Modal.Header closeButton className="bg-danger text-white">
         <Modal.Title className="h5 fw-bold m-0 d-flex align-items-center gap-2">
-          <FaShieldAlt />
+          <FaCheckCircle />
           Xác Nhận Xóa Vai Trò Hệ Thống (RBAC)
         </Modal.Title>
       </Modal.Header>

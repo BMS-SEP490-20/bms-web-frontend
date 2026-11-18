@@ -96,7 +96,7 @@ export default function BillingInvoicesPage() {
 
   const handleOpenPrint = async (invoice) => {
     if (invoice.status !== 1 && invoice.status !== 'Paid') {
-      alert('Chỉ có thể in biên lai cho hóa đơn đã thanh toán thành công (Status: Paid). Vui lòng thanh toán trước.');
+      setError('Chỉ có thể in biên lai cho hóa đơn đã thanh toán.');
       return;
     }
 
@@ -109,7 +109,7 @@ export default function BillingInvoicesPage() {
         setPrintData(res);
       }
     } catch (err) {
-      alert(err.message || 'Không thể lấy dữ liệu in biên lai.');
+      setError(err.message || 'Không thể lấy dữ liệu in biên lai.');
     } finally {
       setLoading(false);
     }
@@ -144,11 +144,11 @@ export default function BillingInvoicesPage() {
         transactionReference: `POS-${Date.now()}`
       });
       setShowPayModal(false);
-      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công!`);
+      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công.`);
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadInvoices();
     } catch (err) {
-      alert(err.message || 'Lỗi xử lý thanh toán.');
+      setError(err.message || 'Lỗi xử lý thanh toán.');
     } finally {
       setLoading(false);
     }
@@ -421,7 +421,7 @@ export default function BillingInvoicesPage() {
           </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="bms-table-standalone-body">
           <div className="table-responsive">
             <Table hover className="align-middle mb-0" style={{ fontSize: '13.5px' }}>
               <thead className="table-light">

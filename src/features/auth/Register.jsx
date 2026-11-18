@@ -15,7 +15,6 @@ import {
   FaUser,
   FaMapMarkerAlt,
   FaLock,
-  FaShieldAlt,
   FaEye,
   FaEyeSlash,
   FaCheckCircle,
@@ -103,7 +102,7 @@ const WIZARD_STEPS = [
   { step: 1, title: 'Thông tin cá nhân', desc: 'Định danh & CCCD', icon: FaUser },
   { step: 2, title: 'Địa chỉ thường trú', desc: 'Phân cấp hành chính', icon: FaMapMarkerAlt },
   { step: 3, title: 'Mật khẩu bảo mật', desc: 'Quy chuẩn BR-IAM-01', icon: FaLock },
-  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: FaShieldAlt }
+  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: FaCheckCircle }
 ];
 
 export default function Register() {
@@ -673,12 +672,12 @@ export default function Register() {
           <Card className="shadow-sm border-0 rounded-4 overflow-hidden">
             {/* Header */}
             <Card.Header
-              className="text-white py-4 px-4 border-0 text-center"
-              style={{ background: 'linear-gradient(135deg, #1e40af 0%, #0f172a 100%)' }}
+              className="py-4 px-4 border-bottom text-center"
+              style={{ backgroundColor: '#F8FAFC', borderColor: '#EAEEF4' }}
             >
               <div
-                className="d-inline-flex align-items-center justify-content-center bg-white rounded-3 p-1 mb-2 shadow-sm"
-                style={{ width: 56, height: 56, border: '1px solid #e2e8f0', overflow: 'hidden' }}
+                className="d-inline-flex align-items-center justify-content-center bg-white rounded-3 p-1 mb-2 border"
+                style={{ width: 52, height: 52, borderColor: '#EAEEF4', overflow: 'hidden' }}
               >
                 <img
                   src="/assets/bms-logo.png"
@@ -686,26 +685,12 @@ export default function Register() {
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
               </div>
-              <h3 className="fw-bold mb-1" style={{ fontSize: '24px' }}>
+              <h3 className="fw-bold mb-1 text-dark" style={{ fontSize: '22px' }}>
                 Mở Hồ Sơ Sức Khỏe Điện Tử BMS
               </h3>
-              <p className="mb-2 text-white-50 small">
-                Đăng ký một lần để lưu trữ lịch sử xét nghiệm trọn đời, nhận kết quả online có chữ ký số và tư vấn 1-1 cùng Bác sĩ Chuyên khoa
+              <p className="mb-0 text-muted small">
+                Lưu trữ lịch sử xét nghiệm, nhận kết quả ký số trực tuyến và đặt lịch khám nhanh chóng
               </p>
-              <div
-                className="d-flex flex-wrap justify-content-center align-items-center gap-3 pt-2 text-white small"
-                style={{ fontSize: '11px', opacity: 0.9 }}
-              >
-                <span>
-                  <FaShieldAlt className="text-warning me-1" /> Bảo mật thông tin bệnh án (HIPAA)
-                </span>
-                <span>
-                  <FaCheckCircle className="text-success me-1" /> Định danh chính xác theo CCCD 12 số
-                </span>
-                <span>
-                  <FaMapMarkerAlt className="text-info me-1" /> Đồng bộ địa chỉ hành chính Việt Nam
-                </span>
-              </div>
             </Card.Header>
 
             <Card.Body className="p-4 p-md-5">
@@ -1225,31 +1210,31 @@ export default function Register() {
                     {/* Password Checklist indicator */}
                     <Col md={12}>
                       <div className="p-3 bg-light rounded-3 border small">
-                        <div className="fw-semibold text-muted mb-2">Quy chuẩn mật khẩu an toàn (BR-IAM-01):</div>
+                        <div className="fw-semibold text-muted mb-2">Quy chuẩn mật khẩu an toàn:</div>
                         <Row className="g-2">
                           <Col sm={6} md={4}>
-                            <span className={passwordRules.length ? 'text-success' : 'text-muted'}>
-                              {passwordRules.length ? '✓' : '•'} Tối thiểu 8 ký tự
+                            <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.length ? 'text-success fw-medium' : 'text-muted'}`}>
+                              <FaCheckCircle size={12} /> Tối thiểu 8 ký tự
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
-                            <span className={passwordRules.upper && passwordRules.lower ? 'text-success' : 'text-muted'}>
-                              {passwordRules.upper && passwordRules.lower ? '✓' : '•'} Chữ hoa &amp; chữ thường
+                            <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.upper && passwordRules.lower ? 'text-success fw-medium' : 'text-muted'}`}>
+                              <FaCheckCircle size={12} /> Chữ hoa &amp; chữ thường
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
-                            <span className={passwordRules.number ? 'text-success' : 'text-muted'}>
-                              {passwordRules.number ? '✓' : '•'} Ít nhất 1 chữ số (0-9)
+                            <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.number ? 'text-success fw-medium' : 'text-muted'}`}>
+                              <FaCheckCircle size={12} /> Ít nhất 1 chữ số (0-9)
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
-                            <span className={passwordRules.special ? 'text-success' : 'text-muted'}>
-                              {passwordRules.special ? '✓' : '•'} Ít nhất 1 ký tự đặc biệt
+                            <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.special ? 'text-success fw-medium' : 'text-muted'}`}>
+                              <FaCheckCircle size={12} /> Ít nhất 1 ký tự đặc biệt
                             </span>
                           </Col>
                           <Col sm={6} md={8}>
-                            <span className={passwordRules.match ? 'text-success' : 'text-muted'}>
-                              {passwordRules.match ? '✓' : '•'} Mật khẩu xác nhận trùng khớp
+                            <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.match ? 'text-success fw-medium' : 'text-muted'}`}>
+                              <FaCheckCircle size={12} /> Mật khẩu xác nhận trùng khớp
                             </span>
                           </Col>
                         </Row>
@@ -1333,7 +1318,7 @@ export default function Register() {
                         className="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3"
                         style={{ width: 68, height: 68 }}
                       >
-                        <FaShieldAlt className="fs-2" />
+                        <FaCheckCircle className="fs-2" />
                       </div>
                       <h4 className="fw-bold mb-1 text-dark">Bước 4: Xác Thực Tài Khoản (Mã OTP)</h4>
                       <p className="text-muted small mb-0">

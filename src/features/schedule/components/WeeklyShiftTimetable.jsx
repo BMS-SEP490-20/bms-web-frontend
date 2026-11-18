@@ -369,7 +369,7 @@ export function WeeklyShiftTimetable({
                             ? `${shift.shiftStart.replace(':', 'h')} - ${shift.shiftEnd.replace(':', 'h')}`
                             : slot.timeWindow;
                           const roomStr = shift.roomName || shift.roomId || 'Phòng P.101';
-                          const staffStr = shift.employeeName || shift.doctorName || 'BS. Trực ban';
+                          const staffStr = shift.employeeName || shift.doctorName || 'Chưa gán';
 
                           return (
                             <div

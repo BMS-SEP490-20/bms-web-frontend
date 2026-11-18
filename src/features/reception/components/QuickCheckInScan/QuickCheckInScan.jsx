@@ -101,7 +101,7 @@ const QuickCheckInScan = ({
 
   const isAlreadyCheckedIn = (status) => {
     const norm = String(status || '').toLowerCase().replace(/[_-]/g, '');
-    return ['checkedin', '2', 'inprogress', '3'].includes(norm);
+    return ['checkedin', 'arrived', 'serving', '2', 'inprogress', '3'].includes(norm);
   };
 
   const isTerminalStatus = (status) => {
@@ -301,7 +301,17 @@ const QuickCheckInScan = ({
         if (onSuccess) onSuccess();
         scanningRef.current = false;
       } else {
-        showError(`❌ Không thể check-in. ${respUpdate.message || 'Vui lòng thử lại.'}`);
+        if (respUpdate.message && respUpdate.message.includes('tiếp đón / check-in')) {
+          showInfo(`ℹ️ ${respUpdate.message}`);
+          const qNum = await resolveQueueNumber(pendingCheckInPatient.rawAppointment, pendingCheckInPatient.appointmentCode);
+          setAlreadyCheckedInPatient({
+            ...pendingCheckInPatient,
+            queueNumber: qNum
+          });
+          setPendingCheckInPatient(null);
+        } else {
+          showError(`❌ Không thể check-in. ${respUpdate.message || 'Vui lòng thử lại.'}`);
+        }
         scanningRef.current = false;
       }
     } catch (e) {
@@ -783,20 +793,16 @@ const QuickCheckInScan = ({
 
   return (
     <div>
-      <Alert variant="info" className="mb-3" style={{ borderRadius: '10px' }}>
-        <div className="d-flex align-items-start">
-          <i className="fas fa-info-circle me-2 mt-1" style={{ fontSize: '1.2rem' }}></i>
+      <Alert variant="info" className="mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', background: '#F0F9FF', border: '1px solid #BAE6FD' }}>
+        <div className="d-flex align-items-start gap-2">
+          <i className="fas fa-info-circle me-1 mt-1 text-primary" style={{ fontSize: '1.25rem' }}></i>
           <div>
-            <strong className="d-block mb-2">Hướng dẫn check-in nhanh:</strong>
-            <ul className="mb-2" style={{ paddingLeft: '1.2rem' }}>
-              <li>Quét QR code từ lịch hẹn của bệnh nhân</li>
-              <li>Hệ thống tự động tìm và check-in lịch hẹn tương ứng</li>
-              <li>Không cần tìm kiếm hay nhập thông tin thủ công</li>
-            </ul>
-            <small className="text-muted">
-              <i className="fas fa-lightbulb me-1"></i>
-              Bạn có thể quét nhiều QR code liên tiếp để check-in nhiều bệnh nhân.
-            </small>
+            <strong className="d-block mb-1 text-dark" style={{ fontSize: '0.92rem' }}>Quy trình tiếp đón nhanh tại quầy (ISO 15189:2022):</strong>
+            <div className="small text-muted mb-0">
+              <span className="me-3">1️⃣ <strong>Quét QR</strong> từ phiếu hẹn hoặc <strong>Nhập mã</strong> hẹn (VD: <code>APT-261127-0001</code>)</span>
+              <span className="me-3">2️⃣ <strong>Đối chiếu CCCD</strong> và y lệnh xét nghiệm</span>
+              <span>3️⃣ <strong>Cấp STT</strong> và hướng dẫn người bệnh vào Phòng Lấy Mẫu 101</span>
+            </div>
           </div>
         </div>
       </Alert>
@@ -1028,7 +1034,7 @@ const QuickCheckInScan = ({
             }}
           >
             <i className="fas fa-camera me-2"></i>
-            Quét bằng camera
+            Quét Camera (QR)
           </Button>
           <Button
             variant={scanMode === 'file' ? 'primary' : 'outline-primary'}
@@ -1057,7 +1063,7 @@ const QuickCheckInScan = ({
             }}
           >
             <i className="fas fa-file-image me-2"></i>
-            Quét từ file
+            Tải File Ảnh QR
           </Button>
           <Button
             variant={scanMode === 'manual' ? 'primary' : 'outline-primary'}
@@ -1086,7 +1092,7 @@ const QuickCheckInScan = ({
             }}
           >
             <i className="fas fa-keyboard me-2"></i>
-            Nhập mã
+            Nhập Mã Hẹn Thủ Công
           </Button>
         </div>
       </div>
@@ -1238,18 +1244,18 @@ const QuickCheckInScan = ({
               <Form.Group>
                 <Form.Label className="fw-bold text-primary">
                   <i className="fas fa-keyboard me-2"></i>
-                  Nhập mã lịch hẹn
+                  Nhập mã lịch hẹn khám / xét nghiệm
                 </Form.Label>
                 <InputGroup size="lg">
                   <Form.Control
                     type="text"
-                    placeholder="Ví dụ: APP123456"
+                    placeholder="Ví dụ: APT-261127-0001"
                     value={manualCode}
                     onChange={(e) => setManualCode(e.target.value)}
                     autoFocus
                   />
                   <Button variant="primary" type="submit" disabled={!manualCode.trim() || scanningRef.current}>
-                    {scanningRef.current ? <Spinner size="sm" /> : <span><i className="fas fa-search me-1"></i> Tìm & Check-in</span>}
+                    {scanningRef.current ? <Spinner size="sm" /> : <span><i className="fas fa-search me-1"></i> Tra cứu &amp; Tiếp đón</span>}
                   </Button>
                 </InputGroup>
               </Form.Group>

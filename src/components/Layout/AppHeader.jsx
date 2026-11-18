@@ -13,7 +13,6 @@ import {
   FaBars,
   FaBell,
   FaUserCircle,
-  FaShieldAlt,
   FaSignOutAlt,
   FaKey,
   FaCheckCircle,
@@ -48,8 +47,7 @@ const ROUTE_TITLE_MAP = {
 
 const ROLE_BADGE_CLASS = Object.freeze({
   [ROLES.ADMIN]: 'badge-admin', [ROLES.MANAGER]: 'badge-manager', [ROLES.LAB]: 'badge-labtech',
-  [ROLES.DOCTOR]: 'badge-doctor', [ROLES.RECEPTIONIST]: 'badge-receptionist', [ROLES.PATIENT]: 'badge-patient',
-});
+  [ROLES.DOCTOR]: 'badge-doctor', [ROLES.RECEPTIONIST]: 'badge-receptionist', [ROLES.PATIENT]: 'badge-patient' });
 
 /**
  * Returns role badge visual configuration from the shared 6-role table.

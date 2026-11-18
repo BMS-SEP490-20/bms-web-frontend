@@ -933,9 +933,9 @@ const PatientDashboard = () => {
       });
 
     const groups = {
-      morning: { label: '🌅 Ca Sáng (07:00 - 12:00)', shifts: [], color: '#1E60E6', bgColor: '#e7f1ff' },
-      afternoon: { label: '☀️ Ca Chiều (13:00 - 17:00)', shifts: [], color: '#fd7e14', bgColor: '#fff4e6' },
-      evening: { label: '🌙 Ca Tối (18:00 - 21:00)', shifts: [], color: '#6f42c1', bgColor: '#f3e8ff' }
+      morning: { label: 'Ca Sáng (07:00 - 12:00)', shifts: [], color: '#1E60E6', bgColor: '#e7f1ff' },
+      afternoon: { label: 'Ca Chiều (13:00 - 17:00)', shifts: [], color: '#fd7e14', bgColor: '#fff4e6' },
+      evening: { label: 'Ca Tối (18:00 - 21:00)', shifts: [], color: '#6f42c1', bgColor: '#f3e8ff' }
     };
 
     filteredShifts.forEach(shift => {

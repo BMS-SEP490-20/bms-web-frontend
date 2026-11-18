@@ -343,8 +343,6 @@ export default function App() {
                   <Route path="/lab-user/validate-sample" element={<ValidateSample />} />
                   <Route path="/laboratory/enter-test-results" element={<EnterTestResultsPage />} />
                   <Route path="/laboratory/batches" element={<TestBatchManagementPage />} />
-                  <Route path="/laboratory/verify-results" element={<VerifyTestResultsPage />} />
-                  <Route path="/laboratory/verify-results/:specimenId" element={<VerifyTestResultsPage />} />
                   <Route path="/laboratory/notifications" element={<NotifyTestResultsPage />} />
                   <Route path="/laboratory/qc-flags" element={<QcFlagsPage />} />
                   <Route path="/lab-user/qc-flags" element={<QcFlagsPage />} />
@@ -352,6 +350,11 @@ export default function App() {
                   <Route path="/qc/management" element={<QualityControlManagementPage />} />
                   <Route path="/laboratory/qc" element={<QualityControlManagementPage />} />
                   <Route path="/laboratory/quality-control" element={<QualityControlManagementPage />} />
+                </Route>
+                {/* Manager optional tech-verify only — Lab must not deep-link here; never patient-publishes. */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                  <Route path="/laboratory/verify-results" element={<VerifyTestResultsPage />} />
+                  <Route path="/laboratory/verify-results/:specimenId" element={<VerifyTestResultsPage />} />
                 </Route>
                 <Route element={<ProtectedRoute allowedRoles={[LAB]} />}>
                   <Route path="/laboratory/sample-list" element={<SampleListPage />} />
@@ -362,18 +365,26 @@ export default function App() {
                   <Route path="/laboratory/checkinsample" element={<CheckInSamplePage />} />
                 </Route>
 
-                {/* Lab chain views: Lab, Manager, Doctor (UC47 rerun view, UC52 notes, UC70, UC71, UC77, UC18/UC57 view) */}
-                <Route element={<ProtectedRoute allowedRoles={[LAB, MANAGER, DOCTOR]} />}>
+                {/* Clinical laboratory result inspection: Doctor, Manager, Lab Tech */}
+                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, LAB]} />}>
+                  <Route path="/laboratory/biochemical-results" element={<LookupBiochemicalResultsPage />} />
+                  <Route path="/laboratory/lookup-results" element={<LookupBiochemicalResultsPage />} />
+                </Route>
+
+                {/* Internal Laboratory Specimen Operations & Tracking: Lab Technician & Manager ONLY (Doctor denied) */}
+                <Route element={<ProtectedRoute allowedRoles={[LAB, MANAGER]} />}>
                   <Route path="/laboratory/rerun-requests" element={<SampleRerunPage />} />
                   <Route path="/laboratory/samples/:id/rerun" element={<SampleRerunPage />} />
                   <Route path="/laboratory/test-notes" element={<AddTestNotePage />} />
                   <Route path="/laboratory/specimens/:specimenId/notes" element={<AddTestNotePage />} />
                   <Route path="/laboratory/sample-timeline" element={<SampleTimelinePage />} />
                   <Route path="/laboratory/specimens/history" element={<SpecimenHistoryPage />} />
-                  <Route path="/laboratory/biochemical-results" element={<LookupBiochemicalResultsPage />} />
-                  <Route path="/laboratory/lookup-results" element={<LookupBiochemicalResultsPage />} />
                   <Route path="/laboratory/trace" element={<TraceSampleOriginPage />} />
                   <Route path="/laboratory/trace/:specimenId" element={<TraceSampleOriginPage />} />
+                </Route>
+
+                {/* UC18 criteria, UC57 reference intervals: Master laboratory technical catalog (Manager, Admin ONLY) */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER, ADMIN]} />}>
                   <Route path="/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/reference-intervals" element={<ConfigureReferenceIntervalsPage />} />

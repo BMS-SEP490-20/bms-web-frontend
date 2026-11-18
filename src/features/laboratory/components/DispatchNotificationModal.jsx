@@ -182,14 +182,21 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
         >
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content shadow border-0">
-                    <div className={`modal-header ${isCritical ? "bg-danger text-white" : "bg-primary text-white"}`}>
-                        <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
-                            {isCritical ? <FaExclamationTriangle /> : <FaPaperPlane />}
-                            <span>{isCritical ? "Phát Thông Báo Cảnh Báo Hoảng Loạn (Panic Value)" : "Phát Thông Báo Kết Quả Xét Nghiệm Mới"}</span>
+                    <div
+                        className="modal-header border-bottom"
+                        style={{
+                            backgroundColor: isCritical ? "#FEF2F2" : "#F8FAFC",
+                            borderColor: isCritical ? "#FECACA" : "#E2E8F0",
+                            color: isCritical ? "#991B1B" : "#0F172A"
+                        }}
+                    >
+                        <h5 className="modal-title fw-bold d-flex align-items-center gap-2 fs-6">
+                            {isCritical ? <FaExclamationTriangle className="text-danger" /> : <FaPaperPlane className="text-primary" />}
+                            <span>{isCritical ? "Phát cảnh báo giá trị nguy kịch" : "Phát thông báo kết quả xét nghiệm"}</span>
                         </h5>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                             disabled={submitting}
                         ></button>
@@ -228,7 +235,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                     ) : (
                                         completedPatients.map((item, idx) => (
                                             <option key={idx} value={item.specimenBarcode || item.testOrderId || item.patientId}>
-                                                [{item.patientId}] {item.patientName} • Đơn: {item.testOrderId} • Mẫu: {item.specimenBarcode || '—'} • {item.testPackageName || 'Xét nghiệm'} {item.isCritical ? '⚠️ (Nguy kịch)' : '✅ (Hoàn tất)'}
+                                                [{item.patientId}] {item.patientName} • Đơn: {item.testOrderId} • Mẫu: {item.specimenBarcode || '—'} • {item.testPackageName || 'Xét nghiệm'} {item.isCritical ? '(Nguy kịch)' : '(Hoàn tất)'}
                                             </option>
                                         ))
                                     )}

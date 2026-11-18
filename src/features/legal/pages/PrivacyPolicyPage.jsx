@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaShieldAlt, FaUserLock, FaLock, FaFileMedicalAlt, FaCheckCircle, FaHospitalUser, FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
+import { FaUserLock, FaLock, FaFileMedicalAlt, FaCheckCircle, FaHospitalUser, FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
               }}
             >
               <div className="d-flex align-items-center gap-2 mb-2.5" style={{ fontSize: '12px', color: '#10B981', fontWeight: 700, letterSpacing: '0.04em' }}>
-                <FaShieldAlt style={{ fontSize: '15px' }} />
+                <FaCheckCircle style={{ fontSize: '15px' }} />
                 <span>CHÍNH SÁCH BẢO MẬT &amp; DỮ LIỆU Y TẾ · NGHỊ ĐỊNH 13/2023/NĐ-CP</span>
               </div>
               <h1 className="fw-bold mb-3" style={{ fontSize: '30px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>

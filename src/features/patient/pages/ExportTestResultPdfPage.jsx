@@ -241,7 +241,7 @@ export default function ExportTestResultPdfPage() {
   const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : '—');
   const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || 'Chưa chỉ định';
   const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm';
-  const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'Trưởng Khoa Xét Nghiệm';
+  const labHeadDisplay = result?.ApprovedByDoctor || result?.labHead || 'Bác sĩ điều trị';
   const verificationHashDisplay = result?.VerificationHash || result?.digitalSignature || '';
   const collectionTimeDisplay = result?.CollectionTime ? new Date(result.CollectionTime).toLocaleString('vi-VN') : '—';
   const releasedDateDisplay = result?.ReleasedDate ? new Date(result.ReleasedDate).toLocaleString('vi-VN') : (result?.approvedAt ? new Date(result.approvedAt).toLocaleString('vi-VN') : '—');
@@ -570,7 +570,7 @@ export default function ExportTestResultPdfPage() {
                   </div>
 
                   <div className="col-6">
-                    <div className="text-muted small mb-1">TRƯỞNG KHOA XÉT NGHIỆM (KÝ SỐ)</div>
+                    <div className="text-muted small mb-1">BÁC SĨ ĐIỀU TRỊ (KÝ SỐ TRẢ KẾT QUẢ)</div>
                     <div style={{ height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
                         <FaShieldAlt className="me-1" /> KÝ SỐ BỞI: {labHeadDisplay}
@@ -580,7 +580,7 @@ export default function ExportTestResultPdfPage() {
                       </small>
                     </div>
                     <strong className="text-dark d-block">{labHeadDisplay}</strong>
-                    <small className="text-muted">Trưởng Khoa Xét Nghiệm BMS</small>
+                    <small className="text-muted">Bác sĩ điều trị — BMS Clinical Lab</small>
                   </div>
                 </div>
 
@@ -602,8 +602,8 @@ export default function ExportTestResultPdfPage() {
             <FaVial size={48} className="mx-auto mb-3 text-secondary opacity-50" />
             <h5 className="text-dark fw-bold">Chưa Có Phiếu Kết Quả Xét Nghiệm Đã Ký Số</h5>
             <p className="small text-secondary mx-auto" style={{ maxWidth: '480px' }}>
-              Hiện chưa có phiếu kết quả xét nghiệm nào đã hoàn tất phân tích và được Trưởng khoa ký số cho hồ sơ của bạn.
-              Khi phòng xét nghiệm hoàn tất, kết quả sẽ tự động hiển thị tại đây.
+              Hiện chưa có phiếu kết quả xét nghiệm nào đã được Bác sĩ điều trị ký duyệt và trả kết quả cho hồ sơ của bạn.
+              Khi Bác sĩ hoàn tất thẩm định lâm sàng, kết quả sẽ hiển thị tại đây.
             </p>
             <div className="mt-3 d-flex justify-content-center gap-2">
               <Link to="/patient/test-history" className="btn btn-outline-primary btn-sm px-3">

@@ -423,7 +423,7 @@ export default function CalculateFeesPage() {
                       <span className="badge bg-light text-dark border ms-2 font-monospace">Mã: {loadedOrderInfo.appointmentCode || loadedOrderInfo.id}</span>
                     </div>
                     <div className="text-muted small mt-1">
-                      <FaUserMd className="text-primary me-1" /> Bác sĩ chỉ định: <strong>{loadedOrderInfo.doctorName || "BS. CKI Lê Hoàng Nam (Phòng 101)"}</strong>
+                      <FaUserMd className="text-primary me-1" /> Bác sĩ chỉ định: <strong>{loadedOrderInfo.doctorName || "Chưa ghi nhận"}</strong>
                       <span className="mx-2">•</span>
                       <FaNotesMedical className="text-danger me-1" /> Gói chỉ định: <strong>{loadedOrderInfo.packageName || "Huyết học & Sinh hóa"}</strong>
                     </div>

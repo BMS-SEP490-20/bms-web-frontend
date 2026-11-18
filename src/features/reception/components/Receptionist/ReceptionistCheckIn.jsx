@@ -92,14 +92,15 @@ const ReceptionistCheckIn = () => {
   };
 
   const resolveDoctorInfo = (apt) => {
-    if (!apt) return { fullName: 'BS. CKI Nguyễn Văn Minh', specialty: 'Huyết học - Truyền máu', room: 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)', license: 'CCHN-008912/HCM' };
+    const empty = { fullName: 'Chưa phân công bác sĩ', specialty: '—', room: '—', license: '—' };
+    if (!apt) return empty;
 
     if (apt.resolvedDoctor && (apt.resolvedDoctor.fullName || apt.resolvedDoctor.name)) {
       return {
         fullName: apt.resolvedDoctor.fullName || apt.resolvedDoctor.name,
-        specialty: apt.resolvedDoctor.specialty || apt.specialty || 'Huyết học - Truyền máu',
-        room: apt.resolvedDoctor.room || apt.resolvedRoom || 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)',
-        license: apt.resolvedDoctor.license || 'CCHN-008912/HCM'
+        specialty: apt.resolvedDoctor.specialty || apt.specialty || '—',
+        room: apt.resolvedDoctor.room || apt.resolvedRoom || apt.roomName || '—',
+        license: apt.resolvedDoctor.license || '—'
       };
     }
 
@@ -119,17 +120,15 @@ const ReceptionistCheckIn = () => {
     if (dName && !dName.startsWith('ID:') && dName !== 'N/A') {
       return {
         fullName: dName,
-        specialty: apt.specialty || 'Huyết học - Truyền máu',
-        room: apt.resolvedRoom || apt.roomName || 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)',
-        license: 'CCHN-008912/HCM'
+        specialty: apt.specialty || '—',
+        room: apt.resolvedRoom || apt.roomName || '—',
+        license: '—'
       };
     }
 
     return {
-      fullName: 'BS. CKI Nguyễn Văn Minh',
-      specialty: 'Huyết học - Truyền máu',
-      room: apt.resolvedRoom || apt.roomName || 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)',
-      license: 'CCHN-008912/HCM'
+      ...empty,
+      room: apt.resolvedRoom || apt.roomName || '—'
     };
   };
 
@@ -1523,13 +1522,12 @@ const ReceptionistCheckIn = () => {
     if (!labAssignmentInfo) {
       const currentLabAssignmentId = detailAppointment.labAssignmentId || detailAppointment.LabAssignmentId;
       if (currentLabAssignmentId) {
-        showError('Vui lòng đợi hệ thống tải thông tin phân công...');
-        await loadLabAssignmentInfo();
-        // Brief wait for state propagation
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } else {
-        showError('Lịch hẹn này chưa được phân công lab user. Vui lòng kiểm tra hệ thống phân ca làm việc.');
-        return;
+        try {
+          await loadLabAssignmentInfo();
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (e) {
+          console.warn('Could not load lab assignment info:', e);
+        }
       }
     }
 
@@ -1991,15 +1989,18 @@ const ReceptionistCheckIn = () => {
       <div className="w-100 py-1">
         {/* 1. Master Luxury Page Header Card */}
         <div className="bms-page-header-card mb-4">
-          <div className="bms-page-header-content">
-
+          <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+            <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
+              <FaQrcode size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 1: TIẾP ĐÓN &amp; CẤP STT
+            </span>
             <div className="bms-page-title-row">
-
               <h1 className="bms-page-title">
                 Quầy Tiếp Đón Lễ Tân &amp; Điều Phối Lấy Mẫu
               </h1>
             </div>
-
+            <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
+              Dành cho bệnh nhân đã đặt hẹn online: Quét mã QR hoặc Nhập mã hẹn, đối chiếu CCCD (Đề án 06 BYT), xác nhận y lệnh và cấp số thứ tự K80 vào phòng lấy mẫu máu (ISO 15189:2022).
+            </p>
           </div>
           <div className="bms-page-actions">
             <Button
@@ -2015,7 +2016,7 @@ const ReceptionistCheckIn = () => {
               }}
             >
               <FaQrcode size={15} />
-              <span>Mở Máy Quét QR / Nhập Mã</span>
+              <span>Quét QR / Nhập Mã Tiếp Đón</span>
             </Button>
           </div>
         </div>
@@ -2436,7 +2437,7 @@ const ReceptionistCheckIn = () => {
         <Modal.Header closeButton className="bg-primary text-white" style={{ padding: isMobile ? '0.75rem' : '1rem' }}>
           <Modal.Title style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
             <i className="fas fa-qrcode me-2"></i>
-            {isMobile ? 'Check-in QR' : 'Check-in nhanh bằng QR Code'}
+            {isMobile ? 'Check-in QR/Mã' : 'Tiếp Đón Nhanh: Quét QR & Nhập Mã Hẹn'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: isMobile ? '0.5rem' : '1rem' }}>

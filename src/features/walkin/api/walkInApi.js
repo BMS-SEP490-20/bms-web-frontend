@@ -1,57 +1,64 @@
 /**
  * UC26 – Walk-in registration API.
+ * Uses centralized Axios client with automatic token injection and RFC 7807 error parsing.
  */
-const rawBase = import.meta.env.VITE_API_BASE_URL || '/api';
-const BASE = (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`) + '/walk-in';
-
-function authHeaders() {
-  const token = localStorage.getItem('bms_access_token') || localStorage.getItem('bms_token') || sessionStorage.getItem('bms_access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handle(res) {
-  res = await res;
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    let errMsg = err?.message || err?.Message || err?.title || err?.detail;
-    if (!errMsg && err?.errors) {
-      errMsg = Object.values(err.errors).flat().join(', ');
-    }
-    const error = new Error(errMsg || `HTTP ${res.status}`);
-    error.status = res.status;
-    error.code = err?.code;
-    throw error;
-  }
-  if (res.status === 204) return null;
-  return res.json();
-}
+import api from '../../../config/api';
 
 export const walkInApi = {
-  register(body) {
-    return handle(
-      fetch(`${BASE}/register`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify(body),
-      })
-    );
+  async register(body) {
+    try {
+      const response = await api.post('/walk-in/register', body);
+      return response.data;
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.title ||
+        err?.message ||
+        'Không thể đăng ký hồ sơ khách vãng lai.';
+      const error = new Error(errMsg);
+      error.status = err?.response?.status;
+      error.code = err?.response?.data?.code;
+      throw error;
+    }
   },
-  lookupByIdentity(identityNumber) {
-    return handle(
-      fetch(`${BASE}/lookup/identity/${encodeURIComponent(identityNumber)}`, {
-        headers: authHeaders(),
-      })
-    );
+
+  async lookupByIdentity(identityNumber) {
+    try {
+      const response = await api.get(`/walk-in/lookup/identity/${encodeURIComponent(identityNumber)}`);
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        return { exists: false };
+      }
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.title ||
+        err?.message ||
+        'Không thể đối soát thông tin CCCD lúc này.';
+      const error = new Error(errMsg);
+      error.status = err?.response?.status;
+      error.code = err?.response?.data?.code;
+      throw error;
+    }
   },
-  lookupByPhone(phone) {
-    return handle(
-      fetch(`${BASE}/lookup/phone/${encodeURIComponent(phone)}`, {
-        headers: authHeaders(),
-      })
-    );
+
+  async lookupByPhone(phone) {
+    try {
+      const response = await api.get(`/walk-in/lookup/phone/${encodeURIComponent(phone)}`);
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        return { exists: false };
+      }
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.title ||
+        err?.message ||
+        'Không thể tra cứu theo số điện thoại.';
+      const error = new Error(errMsg);
+      error.status = err?.response?.status;
+      error.code = err?.response?.data?.code;
+      throw error;
+    }
   },
 };

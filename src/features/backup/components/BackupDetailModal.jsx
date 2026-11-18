@@ -7,7 +7,6 @@
 import React, { useState } from "react";
 import {
     FaDatabase,
-    FaShieldAlt,
     FaDownload,
     FaCheckCircle,
     FaCopy,
@@ -121,7 +120,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                         <div className="p-3 bg-light rounded border mb-4">
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <span className="small fw-bold text-dark text-uppercase d-flex align-items-center gap-1">
-                                    <FaShieldAlt className="text-primary" /> Mã Băm Toàn Vẹn SHA-256 (Tamper-evident Hash)
+                                    <FaCheckCircle className="text-primary" /> Mã Băm Toàn Vẹn SHA-256 (Tamper-evident Hash)
                                 </span>
                                 <button
                                     type="button"

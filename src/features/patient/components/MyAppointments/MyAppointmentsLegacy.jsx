@@ -2246,8 +2246,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                     textShadow: '0 2px 10px rgba(255, 255, 255, 0.3)'
                   }}
                   animate={{
-                    rotate: [0, 5, -5, 0],
-                  }}
+                    rotate: [0, 5, -5, 0] }}
                   transition={{
                     duration: 2,
                     repeat: Infinity,
@@ -3907,7 +3906,7 @@ const MyAppointments = ({ hideHeader = false }) => {
                         </ol>
                         </div>
                       <div className="small text-muted mb-3">
-                        <i className="fas fa-shield-alt me-2"></i>
+                        <i className="fas fa-check-circle me-2"></i>
                         Thanh toán được bảo mật bởi VNPay
                       </div>
                       <Button 

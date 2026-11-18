@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect } from "react";
+import { FaTimes } from "react-icons/fa";
 
 /**
  * Generic administrative modal dialog wrapper.
@@ -67,7 +68,7 @@ export default function Modal({
                         onClick={onClose}
                         aria-label="Đóng"
                     >
-                        ✕
+                        <FaTimes size={14} />
                     </button>
                 </div>
 

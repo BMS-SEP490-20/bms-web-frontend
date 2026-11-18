@@ -147,13 +147,13 @@ export default function VerifyTestResultsPage() {
         }
     };
 
-    // Xử lý Ký số điện tử & Duyệt kết quả -> Chuyển bác sĩ điều trị và phát thông báo
+    // GATE: Manager tech-verify only → chuyển BS. Không công bố Cổng BN (chỉ BS duyệt mới mở KQ).
     const handleVerify = async () => {
         if (!selectedSpecimenId) return;
         if (!verifierComment || verifierComment.trim().length < 10) {
             setAlertMessage({
                 type: "warning",
-                text: "Ý kiến nhận xét của Trưởng Khoa phải đạt tối thiểu 10 ký tự trước khi ký số phê duyệt."
+                text: "Ý kiến nhận xét của Trưởng Khoa phải đạt tối thiểu 10 ký tự trước khi ký thẩm định kỹ thuật."
             });
             return;
         }
@@ -161,12 +161,11 @@ export default function VerifyTestResultsPage() {
         setSubmitting(true);
         setAlertMessage(null);
         try {
-            // 1. Gửi ký duyệt xác thực kỹ thuật lên máy chủ
             const res = await verifyTestResult(selectedSpecimenId, {
                 verifierComment: verifierComment.trim()
             });
 
-            // 2. Phát thông báo đồng bộ đến Bàn khám Bác sĩ (/doctor/console) và Cổng Bệnh nhân
+            // Chỉ báo bàn khám BS — không báo Cổng BN ở bước này.
             try {
                 await dispatchNotification({
                     testOrderId: verificationData?.orderId || selectedSpecimenId,
@@ -174,8 +173,8 @@ export default function VerifyTestResultsPage() {
                     patientId: verificationData?.patientId || "",
                     patientName: verificationData?.patientName || "Bệnh nhân",
                     patientPhone: "",
-                    title: `Kết quả xét nghiệm ${selectedSpecimenId} đã được Trưởng Khoa phê duyệt`,
-                    message: `Kết quả xét nghiệm bộ chỉ số [${verificationData?.packageName || "Xét nghiệm lâm sàng"}] của bệnh nhân ${verificationData?.patientName || ""} đã hoàn tất thẩm định và ký số điện tử. Sẵn sàng hội chẩn lâm sàng.`,
+                    title: `[CHỜ BS] Mẫu ${selectedSpecimenId} đã thẩm định kỹ thuật`,
+                    message: `Trưởng Khoa đã ký kỹ thuật [${verificationData?.packageName || "Xét nghiệm lâm sàng"}] của bệnh nhân ${verificationData?.patientName || ""}. Bác sĩ vào /doctor/console → Thẩm Định & Tư Vấn → Ký Số & Trả Kết Quả Cho Bệnh Nhân.`,
                     channel: "IN_APP",
                     priority: verificationData?.isPanic ? "CRITICAL" : "HIGH",
                     testPackageName: verificationData?.packageName || "Xét nghiệm tổng quát",
@@ -183,17 +182,16 @@ export default function VerifyTestResultsPage() {
                     clinicalRecommendation: verifierComment.trim()
                 });
             } catch (notifyErr) {
-                console.warn("Lỗi phát thông báo tự động (vẫn ghi nhận ký số):", notifyErr);
+                console.warn("Lỗi phát thông báo BS (vẫn ghi nhận thẩm định kỹ thuật):", notifyErr);
             }
 
-            // 3. Phát CustomEvent trên cửa sổ trình duyệt để bàn khám bác sĩ & cổng bệnh nhân cập nhật tức thời
             if (typeof window !== "undefined") {
                 const eventPayload = {
                     specimenId: selectedSpecimenId,
                     orderId: verificationData?.orderId || selectedSpecimenId,
                     patientName: verificationData?.patientName || "",
                     patientId: verificationData?.patientId || "",
-                    status: "verified",
+                    status: "waiting_doctor_review",
                     timestamp: new Date().toISOString()
                 };
                 window.dispatchEvent(new CustomEvent("bms:test-result-verified", { detail: eventPayload }));
@@ -210,14 +208,14 @@ export default function VerifyTestResultsPage() {
 
             setAlertMessage({
                 type: "success",
-                text: `Ký số điện tử thành công cho mẫu ${selectedSpecimenId}! Kết quả xét nghiệm đã được phê duyệt và thông báo tới Bác sĩ & Bệnh nhân.`
+                text: `Thẩm định kỹ thuật thành công cho mẫu ${selectedSpecimenId}. Đã chuyển Bác sĩ — bệnh nhân chưa xem được chỉ số cho đến khi BS ký duyệt.`
             });
             await loadQueue();
         } catch (err) {
             console.error("Lỗi thẩm định ký số:", err);
             setAlertMessage({
                 type: "danger",
-                text: err.response?.data?.message || "Ký số phê duyệt thất bại. Vui lòng kiểm tra lại kết nối và thử lại."
+                text: err.response?.data?.message || "Ký thẩm định kỹ thuật thất bại. Vui lòng kiểm tra lại kết nối và thử lại."
             });
         } finally {
             setSubmitting(false);
@@ -440,7 +438,7 @@ export default function VerifyTestResultsPage() {
                     <FaCheckCircle className="fs-1 text-success opacity-75 mx-auto mb-3" />
                     <h5 className="fw-bold text-dark">Hiện chưa có kết quả xét nghiệm nào đang chờ duyệt</h5>
                     <p className="text-muted small mb-3">
-                        Khi Kỹ thuật viên nhập và gửi kết quả xét nghiệm (trạng thái <code>waiting_review</code>), mẫu sẽ tự động xuất hiện tại đây để Trưởng Khoa thẩm định và ký số.
+                        Khi Kỹ thuật viên nhập và gửi kết quả xét nghiệm (trạng thái <code>waiting_review</code>), mẫu sẽ tự động xuất hiện tại đây để Trưởng Khoa thẩm định kỹ thuật và chuyển Bác sĩ.
                     </p>
                     <div>
                         <button type="button" className="btn btn-outline-primary btn-sm rounded-pill px-3" onClick={handleRefreshAll}>
@@ -490,7 +488,7 @@ export default function VerifyTestResultsPage() {
                                         </span>
                                     ) : (
                                         <span className="badge bg-info text-dark px-3 py-2 fs-6">
-                                            <FaFileSignature className="me-1" /> Chờ Trưởng Khoa Thẩm Định
+                                            <FaFileSignature className="me-1" /> Chờ thẩm định kỹ thuật (tùy chọn)
                                         </span>
                                     )}
                                 </div>
@@ -631,7 +629,7 @@ export default function VerifyTestResultsPage() {
                                         placeholder="Nhập kết luận chuyên môn, xác nhận tính hợp lệ của mẫu, kiểm tra quy tắc Westgard hoặc ghi chú cho Bác sĩ điều trị..."
                                         value={verifierComment}
                                         onChange={(e) => setVerifierComment(e.target.value)}
-                                        disabled={submitting || isVerified}
+                                        disabled={submitting || isVerified || isReturned}
                                     ></textarea>
                                     <small className="text-muted mt-1 d-block">
                                         Ghi nhận tính toàn vẹn của kết quả phân tích, xác nhận xu hướng Levey-Jennings QC hoặc ghi chú Delta check so với lần xét nghiệm trước.
@@ -644,10 +642,10 @@ export default function VerifyTestResultsPage() {
                                         className="btn btn-lg d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold text-white"
                                         style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                                         onClick={handleVerify}
-                                        disabled={submitting || isVerified}
+                                        disabled={submitting || isVerified || isReturned}
                                     >
                                         <FaFileSignature />
-                                        {isVerified ? "Đã Ký Số & Chuyển Bác Sĩ" : "Ký Số Điện Tử & Duyệt Kết Quả"}
+                                        {isVerified ? "Đã chuyển Bác sĩ thẩm định" : isReturned ? "Đã trả về KTV" : "Ký kỹ thuật & Chuyển Bác sĩ"}
                                     </button>
 
                                     <button
@@ -659,7 +657,7 @@ export default function VerifyTestResultsPage() {
                                             setReturnError("");
                                             setShowReturnModal(true);
                                         }}
-                                        disabled={submitting || isVerified}
+                                        disabled={submitting || isVerified || isReturned}
                                     >
                                         <FaUndo className="text-warning" />
                                         Trả về KTV yêu cầu chạy lại / hiệu chỉnh

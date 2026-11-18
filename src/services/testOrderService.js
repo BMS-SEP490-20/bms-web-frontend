@@ -1139,7 +1139,7 @@ const testOrderService = {
     }
   },
 
-  // ✅ NEW: Update Lab User Profile
+  // NEW: Update Lab User Profile
   // PUT /gateway/testorder/lab-user-profiles/{id}
   updateLabUserProfile: async (id, payload) => {
     try {
@@ -1153,7 +1153,7 @@ const testOrderService = {
     }
   },
 
-  // ✅ NEW: Update Lab User Profile by Email
+  // NEW: Update Lab User Profile by Email
   updateLabUserProfileByEmail: async (email, payload) => {
     try {
       if (!email) return { success: false, message: 'Missing email' };

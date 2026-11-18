@@ -136,23 +136,21 @@ export default function AppointmentConfirmationPage() {
   const qrCodeText = data?.qrCodeData || data?.appointmentCode || targetId || "";
 
   return (
-    <div className="container py-2" style={{ maxWidth: "880px" }}>
-      {/* Breadcrumb Navigation */}
-      {/* Page Title */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 fw-bold text-dark mb-1">Appointment confirmed</h1>
-          <p className="text-muted small mb-0">
+    <div className="container py-3" style={{ maxWidth: "880px" }}>
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Xác Nhận Đặt Lịch Khám</h1>
+          <p className="bms-page-subtitle">
             Mã xác nhận lịch hẹn đã được lưu vào hồ sơ y tế điện tử
           </p>
         </div>
-        <Link to="/appointments/book" className="btn btn-outline-secondary btn-sm">
-          <FaArrowLeft className="me-1" /> Đặt lịch khác
+        <Link to="/appointments/book" className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5">
+          <FaArrowLeft /> Đặt lịch khác
         </Link>
       </div>
 
       {resendStatus && (
-        <div className="alert alert-success alert-dismissible fade show" role="alert">
+        <div className="alert alert-success alert-dismissible fade show rounded-3 border-0" role="alert">
           <FaCheckCircle className="me-2" />
           {resendStatus}
           <button
@@ -164,75 +162,75 @@ export default function AppointmentConfirmationPage() {
       )}
 
       {/* Main Confirmation Card */}
-      <div className="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
-        <div className="card-body p-2 p-md-5 text-center">
+      <div className="card border mb-4 rounded-4 overflow-hidden shadow-none" style={{ borderColor: "#EAEEF4" }}>
+        <div className="card-body p-3 p-md-5 text-center">
           {/* Green Circle Checkmark */}
           <div
             className="d-inline-flex align-items-center justify-content-center mb-3"
             style={{
-              width: "76px",
-              height: "76px",
-              backgroundColor: "#d1fae5",
+              width: "72px",
+              height: "72px",
+              backgroundColor: "#ECFDF5",
               borderRadius: "50%",
             }}
           >
-            <FaCheckCircle style={{ fontSize: "40px", color: "#059669" }} />
+            <FaCheckCircle style={{ fontSize: "36px", color: "#059669" }} />
           </div>
 
           <h2 className="h4 fw-bold text-dark mb-2">
-            Your appointment has been booked
+            Đặt lịch khám thành công
           </h2>
           <p className="text-muted mb-4" style={{ fontSize: "14px" }}>
-            A confirmation has been sent to{" "}
-            <strong className="text-dark">{maskedEmail}</strong> and your mobile app.
+            Thông tin xác nhận đã được gửi tới{" "}
+            <strong className="text-dark">{maskedEmail}</strong> và ứng dụng di động BMS.
           </p>
 
           {/* Key-Value Details Grid */}
           <div
             className="p-3 p-md-4 rounded-3 mb-4 text-start"
-            style={{ backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}
+            style={{ backgroundColor: "#F8FAFC", border: "1px solid #EAEEF4" }}
           >
             <div className="row g-3">
               <div className="col-12 col-md-6 border-end-md">
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Appointment ID</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Mã lịch hẹn</span>
                   <span className="fw-bold font-monospace text-primary">
-                    {data?.appointmentCode}
+                    {data?.appointmentCode || "—"}
                   </span>
                 </div>
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Patient</span>
-                  <span className="fw-semibold text-dark">{data?.patientName}</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Bệnh nhân</span>
+                  <span className="fw-semibold text-dark">{data?.patientName || "—"}</span>
                 </div>
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Package</span>
-                  <span className="fw-semibold text-dark">{data?.packageName}</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Gói xét nghiệm</span>
+                  <span className="fw-semibold text-dark">{data?.packageName || "—"}</span>
                 </div>
-                <div className="d-flex justify-content-between py-1">
-                  <span className="text-muted small">Price</span>
+                <div className="d-flex justify-content-between py-1.5">
+                  <span className="text-muted small">Chi phí</span>
                   <span className="fw-bold text-dark font-monospace">
-                    {Number(data?.price || 0).toLocaleString("vi-VN")} ₫
+                    {Number(data?.price || 0).toLocaleString("vi-VN")} đ
                   </span>
                 </div>
               </div>
 
               <div className="col-12 col-md-6">
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Date</span>
-                  <span className="fw-bold text-dark">{data?.dateFormatted}</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Ngày khám</span>
+                  <span className="fw-bold text-dark">{data?.dateFormatted || "—"}</span>
                 </div>
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Time</span>
-                  <span className="fw-bold text-dark">{data?.timeFormatted}</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Khung giờ</span>
+                  <span className="fw-bold text-dark">{data?.timeFormatted || "—"}</span>
                 </div>
-                <div className="d-flex justify-content-between py-1 border-bottom">
-                  <span className="text-muted small">Location</span>
-                  <span className="fw-semibold text-dark">{data?.location}</span>
+                <div className="d-flex justify-content-between py-1.5 border-bottom">
+                  <span className="text-muted small">Địa điểm</span>
+                  <span className="fw-semibold text-dark">{data?.location || "—"}</span>
                 </div>
-                <div className="d-flex justify-content-between py-1">
-                  <span className="text-muted small">Payment</span>
-                  <span className="badge bg-success bg-opacity-10 text-success border border-success">
-                    {data?.paymentStatus}
+                <div className="d-flex justify-content-between py-1.5">
+                  <span className="text-muted small">Thanh toán</span>
+                  <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1">
+                    {data?.paymentStatus || "Chờ thanh toán"}
                   </span>
                 </div>
               </div>
@@ -242,21 +240,20 @@ export default function AppointmentConfirmationPage() {
           {/* Fasting Reminder Box */}
           {data?.fastingInstructions && (
             <div
-              className="alert d-flex align-items-start text-start mb-4 rounded-3"
+              className="alert d-flex align-items-start text-start mb-4 rounded-3 border-0"
               style={{
-                backgroundColor: "#fef3c7",
-                borderColor: "#fde68a",
-                color: "#92400e",
+                backgroundColor: "#FFFBEB",
+                color: "#92400E",
               }}
             >
-              <FaExclamationTriangle className="me-2 mt-1 flex-shrink-0 fs-5" />
-              <div style={{ fontSize: "14px" }}>
-                <strong>Fasting reminder:</strong> {data?.fastingInstructions}
+              <FaExclamationTriangle className="me-2 mt-1 flex-shrink-0 fs-5 text-warning" />
+              <div style={{ fontSize: "13.5px" }}>
+                <strong>Lưu ý nhịn ăn:</strong> {data?.fastingInstructions}
               </div>
             </div>
           )}
 
-          <hr className="my-4 text-muted" />
+          <hr className="my-4 text-muted opacity-25" />
 
           {/* Check-in QR code */}
           <div className="my-4">
@@ -266,8 +263,8 @@ export default function AppointmentConfirmationPage() {
                   <FaCheckCircle className="me-1" /> Phiếu Tiếp Đón & Mã Check-in QR
                 </div>
                 <div
-                  className="d-inline-flex p-3 bg-white rounded-3 border border-success shadow-sm align-items-center justify-content-center"
-                  style={{ width: "160px", height: "160px" }}
+                  className="d-inline-flex p-3 bg-white rounded-3 border align-items-center justify-content-center"
+                  style={{ width: "160px", height: "160px", borderColor: "#A7F3D0" }}
                 >
                   {qrCodeText ? (
                     <QRCodeSVG
@@ -277,7 +274,7 @@ export default function AppointmentConfirmationPage() {
                       includeMargin={false}
                     />
                   ) : (
-                    <div className="text-muted small">QR N/A</div>
+                    <div className="text-muted small">Chưa có QR</div>
                   )}
                 </div>
                 <div className="small font-monospace text-primary fw-bold mt-2">
@@ -285,22 +282,22 @@ export default function AppointmentConfirmationPage() {
                 </div>
               </>
             ) : (
-              <div className="p-2 bg-light border border-warning rounded-4 mx-auto text-center" style={{ maxWidth: "480px" }}>
-                <div className="text-warning mb-2" style={{ fontSize: "32px" }}>
+              <div className="p-4 rounded-4 mx-auto text-center" style={{ maxWidth: "480px", backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }}>
+                <div className="text-warning mb-2" style={{ fontSize: "28px" }}>
                   <FaLock />
                 </div>
-                <h6 className="fw-bold text-dark text-uppercase mb-1">
-                  Mã QR Check-in Đang Tạm Khóa (Chờ Thanh Toán)
+                <h6 className="fw-bold text-dark mb-1">
+                  Mã QR Check-in Đang Tạm Khóa
                 </h6>
                 <p className="text-muted small mb-3">
-                  Theo quy định an toàn xét nghiệm, <strong>Mã QR tiếp đón tại phòng Lab chỉ hiển thị sau khi đơn xét nghiệm hoàn tất thanh toán</strong>.
+                  Mã QR tiếp đón tại phòng Lab hiển thị sau khi đơn xét nghiệm hoàn tất thanh toán.
                 </p>
                 <button
                   type="button"
-                  className="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
+                  className="btn btn-primary fw-semibold px-4 py-2 rounded-pill d-inline-flex align-items-center gap-2"
                   onClick={() => navigate(`/payments/checkout?appointmentId=${data?.appointmentId || targetId}&code=${data?.appointmentCode || targetId}`)}
                 >
-                  <FaMoneyBillWave /> Tiến Hành Thanh Toán Giữ Chỗ VNPAY Ngay
+                  <FaMoneyBillWave /> Thanh toán giữ chỗ ngay
                 </button>
               </div>
             )}
@@ -310,23 +307,23 @@ export default function AppointmentConfirmationPage() {
           <div className="d-flex flex-wrap justify-content-center gap-2 mt-4">
             <button
               onClick={handleDownloadPdf}
-              className="btn btn-primary px-3 py-2 fw-semibold"
+              className="btn btn-primary rounded-pill px-4 py-2 fw-semibold"
             >
-              <FaDownload className="me-2" /> Download confirmation (PDF)
+              <FaDownload className="me-2" /> Tải phiếu hẹn (PDF)
             </button>
             <button
               onClick={handleAddToCalendar}
-              className="btn btn-outline-secondary px-3 py-2 fw-semibold"
+              className="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold"
             >
-              <FaCalendarPlus className="me-2 text-danger" /> Add to Google Calendar
+              <FaCalendarPlus className="me-2 text-primary" /> Thêm vào Google Calendar
             </button>
             <button
               onClick={handleResendNotification}
               disabled={resending}
-              className="btn btn-outline-secondary px-3 py-2 fw-semibold"
+              className="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold"
             >
               <FaSyncAlt className={`me-2 ${resending ? "fa-spin" : ""}`} />
-              {resending ? "Sending..." : "Resend Notification"}
+              {resending ? "Đang gửi..." : "Gửi lại thông báo"}
             </button>
           </div>
         </div>
@@ -334,55 +331,56 @@ export default function AppointmentConfirmationPage() {
         {/* Card Footer: Delivery Status */}
         <div
           className="card-footer py-3 text-center"
-          style={{ backgroundColor: "#f8fafc", borderTop: "1px solid #e2e8f0" }}
+          style={{ backgroundColor: "#F8FAFC", borderTop: "1px solid #EAEEF4" }}
         >
           <div className="d-flex flex-wrap justify-content-center gap-4 text-muted small">
             <span>
-              <FaEnvelope className="text-success me-1" /> Email sent ·{" "}
+              <FaEnvelope className="text-success me-1" /> Đã gửi Email ·{" "}
               {data?.deliveryStatus?.emailSentAt || "—"}
             </span>
             <span>
-              <FaMobileAlt className="text-success me-1" /> Push sent ·{" "}
+              <FaMobileAlt className="text-success me-1" /> Đã gửi thông báo ứng dụng ·{" "}
               {data?.deliveryStatus?.pushSentAt || "—"}
             </span>
             <span>
-              <FaCommentDots className="text-muted me-1" /> SMS not configured
+              <FaCommentDots className="text-muted me-1" /> SMS chưa kích hoạt
             </span>
           </div>
         </div>
       </div>
 
       {/* Reminder Schedule Timeline Card */}
-      <div className="card shadow-sm border-0 rounded-3">
-        <div className="card-header bg-white py-3 border-bottom">
-          <h3 className="h6 fw-bold mb-0 text-dark">Reminder schedule</h3>
-        </div>
-        <div className="card-body p-2">
-          <div className="position-relative ps-4 border-start border-2 border-primary border-opacity-25 ms-2">
-            {data?.reminderSchedule?.map((item, idx) => (
-              <div key={idx} className="position-relative mb-4">
-                <span
-                  className="position-absolute translate-middle rounded-circle"
-                  style={{
-                    left: "-17px",
-                    top: "8px",
-                    width: "14px",
-                    height: "14px",
-                    backgroundColor: item.isDone ? "#059669" : "#cbd5e1",
-                    border: "3px solid #ffffff",
-                    boxShadow: "0 0 0 1px #94a3b8",
-                  }}
-                ></span>
-                <div className="small text-muted fw-semibold">
-                  {item.scheduledTime}
+      {Array.isArray(data?.reminderSchedule) && data.reminderSchedule.length > 0 && (
+        <div className="card border rounded-4 shadow-none" style={{ borderColor: "#EAEEF4" }}>
+          <div className="card-header bg-white py-3 px-4 border-bottom">
+            <h3 className="h6 fw-bold mb-0 text-dark">Lịch nhắc tự động</h3>
+          </div>
+          <div className="card-body p-4">
+            <div className="position-relative ps-4 border-start border-2 border-primary border-opacity-25 ms-2">
+              {data.reminderSchedule.map((item, idx) => (
+                <div key={idx} className="position-relative mb-3">
+                  <span
+                    className="position-absolute translate-middle rounded-circle"
+                    style={{
+                      left: "-17px",
+                      top: "8px",
+                      width: "12px",
+                      height: "12px",
+                      backgroundColor: item.isDone ? "#059669" : "#CBD5E1",
+                      border: "2px solid #ffffff",
+                    }}
+                  ></span>
+                  <div className="small text-muted fw-semibold">
+                    {item.scheduledTime}
+                  </div>
+                  <div className="fw-bold text-dark">{item.title}</div>
+                  <div className="small text-muted">{item.description}</div>
                 </div>
-                <div className="fw-bold text-dark">{item.title}</div>
-                <div className="small text-muted">{item.description}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

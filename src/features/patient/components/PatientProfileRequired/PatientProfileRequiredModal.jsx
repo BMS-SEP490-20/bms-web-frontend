@@ -34,7 +34,7 @@ export default function PatientProfileRequiredModal({ show, onHide, onNavigateTo
         </p>
         <ul className="small text-muted ps-3 mb-0 mt-1">
           <li>Kết quả xét nghiệm được đồng bộ chính xác vào Hồ Sơ Sức Khỏe Điện Tử trọn đời.</li>
-          <li>Chữ ký số hợp lệ của Bác sĩ Trưởng Lab trên phiếu kết quả online.</li>
+          <li>Chữ ký số hợp lệ của Bác sĩ điều trị trên phiếu kết quả online.</li>
           <li>Tránh nhầm lẫn mẫu bệnh phẩm trong quá trình tiếp nhận và phân tích.</li>
         </ul>
       </Modal.Body>

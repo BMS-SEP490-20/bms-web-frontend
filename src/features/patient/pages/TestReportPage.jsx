@@ -264,8 +264,8 @@ export default function TestReportPage() {
                                 </small>
                             </div>
                             <div className="text-end">
-                                <small className="text-muted d-block">Bác sĩ trưởng khoa phê duyệt</small>
-                                <strong className="text-dark d-block">{report.approvedBy || 'BS. CKII. Trưởng Khoa Xét Nghiệm'}</strong>
+                                <small className="text-muted d-block">Bác sĩ điều trị phê duyệt</small>
+                                <strong className="text-dark d-block">{report.approvedBy || 'Bác sĩ điều trị'}</strong>
                                 <small className="text-primary font-monospace d-flex align-items-center justify-content-end gap-1 mt-1">
                                     <FaCheckCircle /> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Chữ ký số y tế hợp chuẩn (MD)
                                 </small>

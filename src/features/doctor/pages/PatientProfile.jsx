@@ -568,7 +568,7 @@ const DoctorPatientProfile = () => {
 
             const labRes = await labTestService.approveTestResult(testId, updatePayload);
             if (labRes.success) {
-                showSuccess('✅ Duyệt kết quả và tạo bệnh án thành công.');
+                showSuccess('Duyệt kết quả và tạo bệnh án thành công.');
                 setShowResultModal(false);
                 
                 // Dispatch events to notify MyResults to refresh
@@ -589,7 +589,7 @@ const DoctorPatientProfile = () => {
                 
                 loadData();
             } else {
-                showWarning('⚠️ Tạo bệnh án thành công nhưng lỗi cập nhật lab status.');
+                showWarning('Tạo bệnh án thành công nhưng lỗi cập nhật trạng thái phòng xét nghiệm.');
                 loadData();
             }
         } catch (e) {
@@ -603,53 +603,59 @@ const DoctorPatientProfile = () => {
     if (accessError) return <Container className="pt-5"><Alert variant="danger">{accessError}</Alert></Container>;
 
     return (
-        <Container fluid className="py-2 px-3 bg-light" style={{ 
-          minHeight: '100vh',
-          overflowX: 'hidden', 
-          maxWidth: '100%', 
-          width: '100%',
-          boxSizing: 'border-box'
-        }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <Button variant="link" className="text-decoration-none p-0 mb-2 text-muted" onClick={() => navigate('/doctor/dashboard')}>
-                        <i className="fas fa-arrow-left me-2"></i> Dashboard
+        <div className="w-100 py-1">
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
+                    <div className="bms-page-title-row">
+                        <h1 className="bms-page-title">Hồ sơ bệnh nhân</h1>
+                    </div>
+                    <p className="text-muted small m-0 mt-1">
+                        Thông tin nhân khẩu học, danh sách kết quả xét nghiệm và phê duyệt bệnh án.
+                    </p>
+                </div>
+                <div className="bms-page-actions">
+                    <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 text-nowrap" onClick={() => navigate('/doctor/dashboard')}>
+                        <i className="fas fa-arrow-left me-1"></i> Tổng quan bác sĩ
                     </Button>
-                    <h2 className="text-primary fw-bold mb-0"><i className="fas fa-user-injured me-2"></i>Hồ sơ Bệnh nhân</h2>
                 </div>
             </div>
 
             <Row className="g-4">
                 <Col lg={4}>
-                    <Card className="border-0 shadow-sm rounded-4 h-100">
-                        <Card.Body className="p-2 text-center">
-                            <div className="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '80px', height: '80px', fontSize: '2rem' }}>
+                    <Card className="shadow-sm rounded-4 h-100" style={{ border: '1px solid #E2E8F0' }}>
+                        <Card.Body className="p-4 text-center">
+                            <div className="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '72px', height: '72px', fontSize: '1.75rem' }}>
                                 {patientInfo?.fullName?.charAt(0) || 'BN'}
                             </div>
-                            <h4 className="fw-bold">{patientInfo?.fullName || `Patient ${patientId}`}</h4>
-                            <p className="text-muted small">Mã BN: {patientId}</p>
+                            <h5 className="fw-bold">{patientInfo?.fullName || `Bệnh nhân ${patientId}`}</h5>
+                            <p className="text-muted small font-monospace">Mã BN: {patientId}</p>
                             <hr />
-                            <div className="text-start px-3">
-                                <p className="mb-2"><strong>Giới tính:</strong> {formatGender(patientInfo?.gender)}</p>
-                                <p className="mb-2"><strong>Ngày sinh:</strong> {patientInfo?.dob || '---'}</p>
-                                <p className="mb-2"><strong>SĐT:</strong> {patientInfo?.phone || '---'}</p>
+                            <div className="text-start">
+                                <p className="mb-2 small"><strong>Giới tính:</strong> {formatGender(patientInfo?.gender)}</p>
+                                <p className="mb-2 small"><strong>Ngày sinh:</strong> {patientInfo?.dob || '---'}</p>
+                                <p className="mb-0 small"><strong>Số điện thoại:</strong> {patientInfo?.phone || '---'}</p>
                             </div>
                         </Card.Body>
                     </Card>
                 </Col>
 
                 <Col lg={8}>
-                    <Card className="border-0 shadow-sm rounded-4 h-100">
-                        <Card.Header className="bg-white py-3"><h5 className="mb-0 fw-bold text-primary">Kết quả Xét nghiệm</h5></Card.Header>
-                        <Card.Body className="p-0">
+                    <section className="bms-table-standalone-section m-0 h-100">
+                        <div className="bms-table-standalone-header">
+                            <div>
+                                <h2 className="bms-table-standalone-title">Kết quả xét nghiệm</h2>
+                                <p className="bms-table-standalone-subtitle">Các đợt xét nghiệm liên kết với lượt khám hiện tại</p>
+                            </div>
+                        </div>
+                        <div className="bms-table-standalone-body">
                             {labResults.length > 0 ? (
                                 <Table hover className="mb-0 align-middle">
                                     <thead className="bg-light">
                                         <tr>
-                                            <th className="ps-4">Mã KQ</th>
+                                            <th className="ps-4">Mã kết quả</th>
                                             <th>Ngày tạo</th>
                                             <th>Trạng thái</th>
-                                            <th className="text-end pe-4">Hành động</th>
+                                            <th className="text-end pe-4">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -659,17 +665,17 @@ const DoctorPatientProfile = () => {
                                                 <td>{test.createdAt ? new Date(test.createdAt).toLocaleDateString('vi-VN') : '-'}</td>
                                                 <td>{getStatusBadge(test.status)}</td>
                                                 <td className="text-end pe-4">
-                                                    <Button size="sm" variant="outline-primary" className="rounded-pill px-3" onClick={() => handleViewResultDetails(test)}>
-                                                        Xem <i className="fas fa-chevron-right ms-1"></i>
+                                                    <Button size="sm" variant="outline-primary" className="rounded-pill px-3 text-nowrap" onClick={() => handleViewResultDetails(test)}>
+                                                        Xem chi tiết <i className="fas fa-chevron-right ms-1"></i>
                                                     </Button>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </Table>
-                            ) : <div className="p-3 text-center text-muted">Chưa có kết quả nào.</div>}
-                        </Card.Body>
-                    </Card>
+                            ) : <div className="p-4 text-center text-muted small">Chưa có kết quả xét nghiệm nào.</div>}
+                        </div>
+                    </section>
                 </Col>
             </Row>
 
@@ -754,8 +760,8 @@ const DoctorPatientProfile = () => {
 
                                 {!['completed', 'approved'].includes(String(selectedResult.status).toLowerCase()) ? (
                                     <Col md={12}>
-                                        <Card className="border-primary shadow-sm">
-                                            <Card.Header className="bg-primary text-white fw-bold">Lập Bệnh Án</Card.Header>
+                                        <Card className="shadow-sm rounded-3" style={{ border: '1px solid #E2E8F0' }}>
+                                            <Card.Header className="fw-bold text-dark py-3" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>Lập bệnh án</Card.Header>
                                             <Card.Body>
                                                 <Form>
                                                     <Form.Group className="mb-3">
@@ -810,8 +816,8 @@ const DoctorPatientProfile = () => {
 
             {/* Modal Xác Nhận Duyệt */}
             <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered backdrop="static">
-                <Modal.Header className="bg-warning text-dark border-0">
-                    <Modal.Title className="fw-bold"><i className="fas fa-exclamation-triangle me-2"></i>XÁC NHẬN DUYỆT</Modal.Title>
+                <Modal.Header closeButton style={{ backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }}>
+                    <Modal.Title className="fw-bold fs-5 text-dark"><i className="fas fa-exclamation-triangle me-2 text-warning"></i>Xác nhận duyệt kết quả</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="p-2">
                     <div className="text-center mb-4">
@@ -855,11 +861,11 @@ const DoctorPatientProfile = () => {
                         onClick={onConfirmApprove}
                         disabled={!isConfirmedCheckbox}
                     >
-                        <i className="fas fa-check-circle me-2"></i>Xác nhận Duyệt
+                        <i className="fas fa-check-circle me-2"></i>Xác nhận duyệt
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </Container>
+        </div>
     );
 };
 

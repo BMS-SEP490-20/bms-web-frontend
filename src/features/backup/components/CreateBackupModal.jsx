@@ -8,7 +8,6 @@
 import React, { useState } from "react";
 import {
     FaDatabase,
-    FaShieldAlt,
     FaCheckCircle,
     FaTimes,
     FaVial,
@@ -262,7 +261,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
 
                             {/* Cryptographic Protection Notice */}
                             <div className="p-3 bg-info-subtle border border-info rounded mb-3 d-flex align-items-center gap-3">
-                                <FaShieldAlt className="text-primary fs-3 flex-shrink-0" />
+                                <FaCheckCircle className="text-primary fs-3 flex-shrink-0" />
                                 <div className="small text-dark">
                                     <strong>Cơ Chế Bảo Vệ & Tính Toàn Vẹn SHA-256:</strong>
                                     <p className="mb-0 text-secondary">

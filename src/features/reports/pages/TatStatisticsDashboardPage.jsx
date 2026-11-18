@@ -21,7 +21,6 @@ import {
     FaLayerGroup,
     FaBolt,
     FaCalendarAlt,
-    FaShieldAlt,
     FaSearch,
     FaArrowUp,
     FaArrowDown,
@@ -134,23 +133,23 @@ export default function TatStatisticsDashboardPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
-                            Báo Cáo Thống Kê Thời Gian Quay Vòng Xét Nghiệm (TAT)
+                            Thống Kê Thời Gian TAT
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Giám sát thời gian quay vòng mẫu xét nghiệm, tỷ lệ đạt chuẩn SLA và điểm nghẽn quy trình
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#10B981', borderColor: '#10B981' }}
                         onClick={handleExportCsv}
                         disabled={isExporting}
                         id="btn-export-tat-csv"
@@ -159,8 +158,8 @@ export default function TatStatisticsDashboardPage() {
                         <span>{isExporting ? "Đang xuất..." : "Xuất File CSV"}</span>
                     </button>
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadData}
                         disabled={isLoading}
                     >
@@ -170,427 +169,396 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             </div>
 
-            {/* Filter Toolbar */}
-            <div className="card bms-filter-bar">
-                <div className="card-body p-3">
-                    <div className="row g-3 align-items-center">
-                        {/* Timeframe Buttons */}
-                        <div className="col-12 col-md-5 col-xl-4">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaCalendarAlt className="me-1" style={{ color: '#1E60E6' }} /> Khung thời gian:
-                            </label>
-                            <div className="d-flex flex-wrap gap-1" role="group">
-                                {TIMEFRAMES.map(tf => (
-                                    <button
-                                        key={tf.key}
-                                        type="button"
-                                        className="btn btn-sm"
-                                        style={{
-                                            borderRadius: '9999px',
-                                            padding: '4px 14px',
-                                            backgroundColor: selectedTimeframe === tf.key ? '#1E60E6' : '#EEF2F6',
-                                            color: selectedTimeframe === tf.key ? '#ffffff' : '#475569',
-                                            border: '1px solid',
-                                            borderColor: selectedTimeframe === tf.key ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                                            fontWeight: '600'
-                                        }}
-                                        onClick={() => setSelectedTimeframe(tf.key)}
-                                    >
-                                        {tf.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Department Filter */}
-                        <div className="col-12 col-sm-6 col-md-4 col-xl-4">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaFlask className="me-1" style={{ color: '#1E60E6' }} /> Chuyên khoa xét nghiệm:
-                            </label>
-                            <select
-                                className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6' }}
-                                value={selectedDepartment}
-                                onChange={e => setSelectedDepartment(e.target.value)}
-                            >
-                                {DEPARTMENTS.map(d => (
-                                    <option key={d.key} value={d.key}>{d.label}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Priority Filter */}
-                        <div className="col-12 col-sm-6 col-md-3 col-xl-4">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaBolt className="me-1" style={{ color: '#B45309' }} /> Độ ưu tiên (Urgency):
-                            </label>
-                            <select
-                                className="form-select form-select-sm"
-                                style={{ borderRadius: '12px', backgroundColor: '#EEF2F6' }}
-                                value={selectedPriority}
-                                onChange={e => setSelectedPriority(e.target.value)}
-                            >
-                                <option value="ALL">Tất cả ưu tiên</option>
-                                <option value="Stat">Cấp cứu (STAT - Mục tiêu &le; 60m)</option>
-                                <option value="Urgent">Khẩn cấp (Urgent - Mục tiêu &le; 120m)</option>
-                                <option value="Normal">Thường quy (Normal - Mục tiêu &le; 120m)</option>
-                            </select>
-                        </div>
-                    </div>
+            {/* Single-Line Flat Filter Bar */}
+            <div className="bms-filter-bar mb-3">
+                <div className="btn-group" role="group">
+                    {TIMEFRAMES.map(tf => (
+                        <button
+                            key={tf.key}
+                            type="button"
+                            className={`btn btn-sm ${selectedTimeframe === tf.key ? "btn-primary text-white" : "btn-outline-secondary"}`}
+                            onClick={() => setSelectedTimeframe(tf.key)}
+                        >
+                            {tf.label}
+                        </button>
+                    ))}
                 </div>
+
+                <select
+                    className="form-select form-select-sm"
+                    style={{ width: "auto" }}
+                    value={selectedDepartment}
+                    onChange={e => setSelectedDepartment(e.target.value)}
+                >
+                    {DEPARTMENTS.map(d => (
+                        <option key={d.key} value={d.key}>{d.label}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="form-select form-select-sm"
+                    style={{ width: "auto" }}
+                    value={selectedPriority}
+                    onChange={e => setSelectedPriority(e.target.value)}
+                >
+                    <option value="ALL">Tất cả ưu tiên</option>
+                    <option value="Stat">Cấp cứu (STAT &le; 60m)</option>
+                    <option value="Urgent">Khẩn cấp (Urgent &le; 120m)</option>
+                    <option value="Normal">Thường quy (Normal &le; 120m)</option>
+                </select>
+
+                {(selectedDepartment !== "ALL" || selectedPriority !== "ALL" || selectedTimeframe !== "MONTH") && (
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
+                        onClick={() => {
+                            setSelectedTimeframe("MONTH");
+                            setSelectedDepartment("ALL");
+                            setSelectedPriority("ALL");
+                        }}
+                    >
+                        Đặt lại
+                    </button>
+                )}
+
+                <span className="bms-filter-meta">
+                    Hoàn tất <strong>{summary.totalCompletedTests || 0}</strong> mẫu
+                </span>
             </div>
 
-            {/* Executive KPI Ribbon */}
+            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
-                {/* Average TAT */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">TAT Trung Bình (Mean)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.averageTatFormatted || "0m"}</div>
-                        <div className="small text-muted mt-1 font-monospace" style={{ fontSize: "0.75rem" }}>
-                            {summary.averageTatMinutes} phút
+                <div className="col-12 col-sm-6 col-xl-3">
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">TAT Trung Bình (Mean)</h6>
+                            <div className="bms-kpi-value text-primary">{summary.averageTatFormatted || "0m"}</div>
+                            <div className="bms-kpi-sub text-muted">Trung vị P50: {summary.medianTatFormatted || "0m"} • P90: {summary.p90TatFormatted || "0m"}</div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <FaClock />
                         </div>
                     </div>
                 </div>
 
-                {/* Median TAT (P50) */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">Trung Vị (Median P50)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.medianTatFormatted || "0m"}</div>
-                        <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
-                            50% mẫu hoàn tất sớm hơn
+                <div className="col-12 col-sm-6 col-xl-3">
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tỷ Lệ Đạt Chuẩn SLA</h6>
+                            <div className="bms-kpi-value text-success">{summary.targetComplianceRate || 100}%</div>
+                            <div className="bms-kpi-sub text-muted">Hoàn tất trong thời gian mục tiêu</div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <FaCheckCircle />
                         </div>
                     </div>
                 </div>
 
-                {/* 90th Percentile (P90) */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">Phân Vị 90 (P90 SLA)</div>
-                        <div className="fs-3 fw-bold text-dark mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.p90TatFormatted || "0m"}</div>
-                        <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
-                            Chuẩn cam kết ISO SLA
+                <div className="col-12 col-sm-6 col-xl-3">
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tổng Mẫu Hoàn Tất</h6>
+                            <div className="bms-kpi-value">{summary.totalCompletedTests || 0}</div>
+                            <div className="bms-kpi-sub text-muted">Đã phê duyệt kết quả xét nghiệm</div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
+                            <FaVial />
                         </div>
                     </div>
                 </div>
 
-                {/* Target Compliance Rate */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#10B981', fontVariantNumeric: 'tabular-nums' }}>{summary.targetComplianceRate || 100}%</div>
-                        <div className="progress mt-2" style={{ height: "4px", borderRadius: '9999px' }}>
-                            <div
-                                className="progress-bar"
-                                role="progressbar"
-                                style={{ width: `${summary.targetComplianceRate || 100}%`, backgroundColor: '#10B981', borderRadius: '9999px' }}
-                            ></div>
+                <div className="col-12 col-sm-6 col-xl-3">
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Mẫu Vượt Ngưỡng (Trễ)</h6>
+                            <div className="bms-kpi-value" style={{ color: '#B45309' }}>{summary.violationCount || 0}</div>
+                            <div className="bms-kpi-sub text-muted">Cần rà soát điểm nghẽn xử lý</div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Total Processed */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">Tổng Mẫu Hoàn Tất</div>
-                        <div className="fs-3 fw-bold text-dark mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.totalCompletedTests || 0}</div>
-                        <div className="small text-muted mt-1" style={{ fontSize: "0.75rem" }}>
-                            Đã phê duyệt &amp; ký số
-                        </div>
-                    </div>
-                </div>
-
-                {/* Overdue Violations */}
-                <div className="col-12 col-sm-6 col-xl-2">
-                    <div className="card shadow-sm rounded-4 p-3 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="text-muted small fw-semibold text-uppercase">Mẫu Vượt Ngưỡng (Trễ)</div>
-                        <div className="fs-3 fw-bold mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{summary.violationCount || 0}</div>
-                        <div className="small fw-semibold mt-1" style={{ fontSize: "0.75rem", color: '#b48316' }}>
-                            Cần rà soát tắc nghẽn
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                            <FaExclamationTriangle />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="card shadow-sm rounded-4 mb-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                <div className="card-header border-bottom p-0" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <ul className="nav nav-tabs border-0 px-3 pt-2 gap-1">
-                        {[
-                            { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: FaBolt },
-                            { key: "PHASES", label: "Phân Rã 3 Giai Đoạn (ISO 15189)", icon: FaLayerGroup },
-                            { key: "DEPARTMENTS", label: "Theo Chuyên Khoa Lab", icon: FaFlask },
-                            { key: "TRENDS", label: "Biểu Đồ Xu Hướng Ngày", icon: FaChartLine },
-                            { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: FaExclamationTriangle }
-                        ].map(tab => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.key;
+            {/* Navigation Pill Tabs (No Outer Box-in-Box Card) */}
+            <div className="d-flex flex-wrap gap-2 mb-3 bg-white p-2 rounded-4" style={{ border: '1px solid #e2e8f0' }}>
+                {[
+                    { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: FaBolt },
+                    { key: "PHASES", label: "Phân Rã 3 Giai Đoạn", icon: FaLayerGroup },
+                    { key: "DEPARTMENTS", label: "Theo Chuyên Khoa Lab", icon: FaFlask },
+                    { key: "TRENDS", label: "Biểu Đồ Xu Hướng Ngày", icon: FaChartLine },
+                    { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: FaExclamationTriangle }
+                ].map(tab => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.key;
+                    return (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            className="btn btn-sm d-flex align-items-center gap-2"
+                            style={{
+                                borderRadius: '9999px',
+                                padding: '6px 16px',
+                                backgroundColor: isActive ? '#1E60E6' : 'transparent',
+                                color: isActive ? '#ffffff' : '#64748B',
+                                border: 'none',
+                                fontWeight: 600
+                            }}
+                            onClick={() => setActiveTab(tab.key)}
+                        >
+                            <Icon />
+                            <span>{tab.label}</span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* TAB 1: Priority Breakdown */}
+            {activeTab === "PRIORITY" && (
+                <div>
+                    <div className="bms-sla-grid">
+                        {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
+                            const isStat = p.priority.toLowerCase() === "stat";
+                            const isUrgent = p.priority.toLowerCase() === "urgent";
+                            const themeColor = isStat ? "#dc2626" : isUrgent ? "#B45309" : "#1E60E6";
+
                             return (
-                                <li className="nav-item" key={tab.key}>
-                                    <button
-                                        className="nav-link py-3 px-3 fw-semibold border-0 border-bottom border-3 d-flex align-items-center gap-2"
-                                        style={{
-                                            color: isActive ? '#1E60E6' : '#64748B',
-                                            borderBottomColor: isActive ? '#1E60E6' : 'transparent',
-                                            backgroundColor: 'transparent'
-                                        }}
-                                        onClick={() => setActiveTab(tab.key)}
-                                    >
-                                        <Icon style={{ color: isActive ? '#1E60E6' : '#94A3B8' }} />
-                                        <span>{tab.label}</span>
-                                    </button>
-                                </li>
+                                <article className="bms-sla-card" key={p.priority}>
+                                    <div className="bms-sla-card-head">
+                                        <span className="bms-sla-badge" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>
+                                            {isStat ? "CẤP CỨU (STAT)" : isUrgent ? "KHẨN CẤP" : "THƯỜNG QUY"}
+                                        </span>
+                                        <span className="bms-sla-target">Mục tiêu ≤ {p.targetMinutes} phút</span>
+                                    </div>
+                                    <div className="bms-sla-time" style={{ color: themeColor }}>{p.averageTatFormatted}</div>
+                                    <div className="bms-sla-minutes">{p.averageTatMinutes} phút trung bình</div>
+                                    <div className="bms-sla-rate">
+                                        <span>Tỷ lệ đạt chuẩn SLA</span>
+                                        <strong>{p.complianceRate}%</strong>
+                                    </div>
+                                    <div className="bms-sla-track">
+                                        <div style={{ width: `${p.complianceRate}%`, backgroundColor: themeColor }} />
+                                    </div>
+                                    <div className="bms-sla-foot">
+                                        <span>Tổng số mẫu <strong>{p.totalCount}</strong></span>
+                                        <span>Vi phạm <strong className={p.violationCount > 0 ? "text-danger" : "text-success"}>{p.violationCount}</strong></span>
+                                    </div>
+                                </article>
                             );
                         })}
-                    </ul>
+                    </div>
                 </div>
+            )}
 
-                <div className="card-body p-2">
-                    {/* TAB 1: Priority Breakdown */}
-                    {activeTab === "PRIORITY" && (
-                        <div>
-                            <h5 className="fw-bold mb-3 text-dark">Hiệu Suất Thời Gian Quay Vòng Theo Mức Độ Ưu Tiên Khám Chữa Bệnh</h5>
-                            <div className="bms-sla-grid">
-                                {(Array.isArray(report.priorityBreakdown) ? report.priorityBreakdown : []).map(p => {
-                                    const isStat = p.priority.toLowerCase() === "stat";
-                                    const isUrgent = p.priority.toLowerCase() === "urgent";
-                                    const themeColor = isStat ? "#dc2626" : isUrgent ? "#B45309" : "#1E60E6";
+            {/* TAB 2: Phase Breakdown */}
+            {activeTab === "PHASES" && (
+                <div className="bg-white p-4 rounded-4" style={{ border: '1px solid #e2e8f0' }}>
+                    <h5 className="fw-bold mb-1 text-dark">Phân Rã Thời Gian Theo 3 Giai Đoạn Quy Trình Xét Nghiệm</h5>
+                    <p className="text-muted small mb-4">
+                        Nhận diện giai đoạn phát sinh tắc nghẽn để tối ưu luồng chuyển mẫu và kết nối thiết bị phân tích.
+                    </p>
 
-                                    return (
-                                        <article className="bms-sla-card" key={p.priority}>
-                                            <div className="bms-sla-card-head">
-                                                <span className="bms-sla-badge" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>
-                                                    {isStat ? "CẤP CỨU (STAT)" : isUrgent ? "KHẨN CẤP" : "THƯỜNG QUY"}
-                                                </span>
-                                                <span className="bms-sla-target">Mục tiêu ≤ {p.targetMinutes} phút</span>
-                                            </div>
-                                            <div className="bms-sla-time" style={{ color: themeColor }}>{p.averageTatFormatted}</div>
-                                            <div className="bms-sla-minutes">{p.averageTatMinutes} phút trung bình</div>
-                                            <div className="bms-sla-rate">
-                                                <span>Tỷ lệ đạt chuẩn SLA</span>
-                                                <strong>{p.complianceRate}%</strong>
-                                            </div>
-                                            <div className="bms-sla-track">
-                                                <div style={{ width: `${p.complianceRate}%`, backgroundColor: themeColor }} />
-                                            </div>
-                                            <div className="bms-sla-foot">
-                                                <span>Tổng số mẫu <strong>{p.totalCount}</strong></span>
-                                                <span>Vi phạm <strong className={p.violationCount > 0 ? "text-danger" : "text-success"}>{p.violationCount}</strong></span>
-                                            </div>
-                                        </article>
-                                    );
-                                })}
-                            </div>
+                    <div className="mb-4">
+                        <label className="small text-muted fw-semibold d-block mb-2">Tỷ lệ đóng góp thời gian vào tổng quy trình TAT:</label>
+                        <div className="progress" style={{ height: "24px", borderRadius: 12 }}>
+                            {(Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : []).map((ph, idx) => {
+                                const colors = ["bg-info", "bg-primary", "bg-success"];
+                                return (
+                                    <div
+                                        key={ph.phaseName}
+                                        className={`progress-bar ${colors[idx % colors.length]} fw-semibold text-white small`}
+                                        role="progressbar"
+                                        style={{ width: `${ph.percentageOfTotal}%` }}
+                                        title={`${ph.phaseDescription}: ${ph.percentageOfTotal}%`}
+                                    >
+                                        {ph.percentageOfTotal}%
+                                    </div>
+                                );
+                            })}
                         </div>
-                    )}
+                    </div>
 
-                    {/* TAB 2: Phase Breakdown (ISO 15189) */}
-                    {activeTab === "PHASES" && (
-                        <div>
-                            <h5 className="fw-bold mb-2 text-dark">Phân Rã Thời Gian Theo 3 Giai Đoạn Quy Trình Xét Nghiệm (ISO 15189)</h5>
-                            <p className="text-muted small mb-4">
-                                Nhận diện chính xác giai đoạn phát sinh tắc nghẽn (Bottlenecks) để tối ưu luồng chuyển phát mẫu và tự động hóa kết nối thiết bị LIS.
-                            </p>
+                    <div className="row g-3">
+                        {((Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : [])).map((ph, idx) => {
+                            const badges = ["Giai đoạn 1", "Giai đoạn 2", "Giai đoạn 3"];
+                            return (
+                                <div className="col-12 col-md-4" key={ph.phaseName}>
+                                    <div className="p-3 rounded-4 h-100" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <span className="badge px-3 py-1" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>{badges[idx]}</span>
+                                            <span className="fs-5 fw-bold text-dark">{ph.percentageOfTotal}%</span>
+                                        </div>
+                                        <h6 className="fw-bold mt-2 mb-1">{ph.phaseDescription}</h6>
+                                        <div className="fs-3 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{ph.averageFormatted}</div>
+                                        <div className="small text-muted font-monospace">{ph.averageMinutes} phút trung bình</div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
-                            {/* Horizontal Stacked Bar */}
-                            <div className="mb-4">
-                                <label className="small text-muted fw-bold text-uppercase d-block mb-2">Tỷ lệ đóng góp thời gian vào tổng quy trình TAT:</label>
-                                <div className="progress" style={{ height: "28px" }}>
-                                    {(Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : []).map((ph, idx) => {
-                                        const colors = ["bg-info", "bg-primary", "bg-success"];
-                                        return (
-                                            <div
-                                                key={ph.phaseName}
-                                                className={`progress-bar ${colors[idx % colors.length]} fw-bold text-white small`}
-                                                role="progressbar"
-                                                style={{ width: `${ph.percentageOfTotal}%` }}
-                                                title={`${ph.phaseDescription}: ${ph.percentageOfTotal}%`}
-                                            >
-                                                {ph.percentageOfTotal}%
-                                            </div>
-                                        );
-                                    })}
+            {/* TAB 3: Department Breakdown (Standalone Table Section) */}
+            {activeTab === "DEPARTMENTS" && (
+                <div className="bms-table-standalone-section">
+                    <div className="bms-table-standalone-header">
+                        <h5 className="bms-table-standalone-title">Hiệu Suất Thời Gian Quay Vòng Theo Chuyên Khoa Phòng Lab</h5>
+                    </div>
+                    <div className="bms-table-standalone-body">
+                        <div className="table-responsive">
+                            <table className="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th className="ps-3">Chuyên Khoa / Phòng Lab</th>
+                                        <th className="text-center">Số Lượng Mẫu</th>
+                                        <th className="text-center">TAT Trung Bình</th>
+                                        <th>Tỷ Lệ Đạt Chuẩn SLA</th>
+                                        <th className="text-center">Số Mẫu Trễ</th>
+                                        <th className="text-end pe-3">Đánh Giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
+                                        <tr key={d.department}>
+                                            <td className="fw-bold text-dark ps-3">
+                                                <FaFlask className="me-2" style={{ color: '#1E60E6' }} />
+                                                {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
+                                                 d.department === "Hematology" ? "Huyết Học (Hematology)" :
+                                                 d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
+                                                 d.department === "Urinalysis" ? "Nước Tiểu (Urinalysis)" :
+                                                 d.department === "Microbiology" ? "Vi Sinh (Microbiology)" : d.department}
+                                            </td>
+                                            <td className="text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.totalCount}</td>
+                                            <td className="text-center fw-bold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
+                                                {d.averageTatFormatted} ({d.averageTatMinutes}m)
+                                            </td>
+                                            <td style={{ minWidth: "180px" }}>
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="progress flex-grow-1" style={{ height: "6px", borderRadius: '9999px' }}>
+                                                        <div
+                                                            className="progress-bar"
+                                                            role="progressbar"
+                                                            style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#10B981' : '#B45309', borderRadius: '9999px' }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="small fw-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.complianceRate}%</span>
+                                                </div>
+                                            </td>
+                                            <td className="text-center">
+                                                <span className="badge px-2 py-1" style={{ backgroundColor: d.violationCount > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(145, 222, 131, 0.2)', color: d.violationCount > 0 ? '#dc2626' : '#2b8a3e', borderRadius: '9999px' }}>
+                                                    {d.violationCount} mẫu
+                                                </span>
+                                            </td>
+                                            <td className="text-end pe-3">
+                                                {d.complianceRate >= 90 ? (
+                                                    <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
+                                                        <FaCheckCircle className="me-1" /> Đạt chuẩn SLA
+                                                    </span>
+                                                ) : (
+                                                    <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
+                                                        <FaExclamationTriangle className="me-1" /> Cần cải tiến
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 4: Daily Trends */}
+            {activeTab === "TRENDS" && (
+                <div>
+                    <div className="row g-3">
+                        {(Array.isArray(report.trends) ? report.trends : []).map(t => (
+                            <div className="col-12 col-sm-6 col-md-4 col-xl-3" key={t.dateLabel}>
+                                <div className="p-3 rounded-4 bg-white h-100" style={{ border: '1px solid #e2e8f0' }}>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="fw-bold text-dark">{t.dateLabel}</span>
+                                        <span className="badge px-2 py-1" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>{t.volume} mẫu</span>
+                                    </div>
+                                    <div className="fs-4 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
+                                        {Math.round(t.averageTatMinutes)} phút
+                                    </div>
+                                    <div className="d-flex justify-content-between small text-muted mt-2 pt-2 border-top" style={{ borderColor: '#EEF2F6' }}>
+                                        <span>Đạt SLA: <strong>{t.complianceRate}%</strong></span>
+                                        <span>Trễ: <strong className={t.violationCount > 0 ? 'text-danger' : 'text-success'}>{t.violationCount}</strong></span>
+                                    </div>
                                 </div>
                             </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
-                            <div className="row g-3">
-                                {((Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : [])).map((ph, idx) => {
-                                    const badges = ["Giai đoạn 1", "Giai đoạn 2", "Giai đoạn 3"];
-                                    return (
-                                        <div className="col-12 col-md-4" key={ph.phaseName}>
-                                            <div className="card shadow-sm rounded-4 p-2 bg-white h-100" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <span className="badge px-3 py-1" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>{badges[idx]}</span>
-                                                    <span className="fs-5 fw-bold text-dark">{ph.percentageOfTotal}%</span>
-                                                </div>
-                                                <h6 className="fw-bold mt-2 mb-1">{ph.phaseDescription}</h6>
-                                                <div className="fs-3 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{ph.averageFormatted}</div>
-                                                <div className="small text-muted font-monospace">{ph.averageMinutes} phút trung bình</div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+            {/* TAB 5: Violations (Standalone Table Section) */}
+            {activeTab === "VIOLATIONS" && (
+                <div className="bms-table-standalone-section">
+                    <div className="bms-table-standalone-header">
+                        <h5 className="bms-table-standalone-title">
+                            <FaExclamationTriangle className="text-danger" /> Danh Sách Mẫu Vượt Ngưỡng Thời Gian
+                        </h5>
+                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
+                            {(Array.isArray(report.recentViolations) ? report.recentViolations : []).length} trường hợp phát hiện
+                        </span>
+                    </div>
+
+                    <div className="bms-table-standalone-body">
+                        {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
+                            <div className="text-center py-4 text-muted">
+                                <FaCheckCircle className="fs-2 mb-2" style={{ color: '#10B981' }} />
+                                <p className="mb-0 fw-semibold">Không ghi nhận mẫu nào vượt ngưỡng thời gian cam kết.</p>
                             </div>
-                        </div>
-                    )}
-
-                    {/* TAB 3: Department Breakdown */}
-                    {activeTab === "DEPARTMENTS" && (
-                        <div>
-                            <h5 className="fw-bold mb-3 text-dark">Hiệu Suất Thời Gian Quay Vòng Theo Chuyên Khoa Phòng Lab</h5>
-                            <div className="table-responsive rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
+                        ) : (
+                            <div className="table-responsive">
                                 <table className="table table-hover align-middle mb-0">
-                                    <thead style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)', color: '#475569', fontSize: '12px' }} className="text-uppercase">
+                                    <thead>
                                         <tr>
-                                            <th className="ps-3 py-3">Chuyên Khoa / Phòng Lab</th>
-                                            <th className="text-center py-3">Số Lượng Mẫu</th>
-                                            <th className="text-center py-3">TAT Trung Bình</th>
-                                            <th className="py-3">Tỷ Lệ Đạt Chuẩn SLA</th>
-                                            <th className="text-center py-3">Số Mẫu Trễ</th>
-                                            <th className="text-end pe-3 py-3">Đánh Giá ISO</th>
+                                            <th className="ps-3">Mã Barcode</th>
+                                            <th>Bệnh Nhân</th>
+                                            <th>Gói Xét Nghiệm</th>
+                                            <th>Ưu Tiên</th>
+                                            <th className="text-center">TAT Thực Tế</th>
+                                            <th className="text-center">Mục Tiêu</th>
+                                            <th className="text-center">Thời Gian Trễ</th>
+                                            <th>Giai Đoạn Nghẽn</th>
+                                            <th className="text-end pe-3">KTV Phụ Trách</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
-                                            <tr key={d.department} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                                <td className="fw-bold text-dark ps-3 py-3">
-                                                    <FaFlask className="me-2" style={{ color: '#1E60E6' }} />
-                                                    {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
-                                                     d.department === "Hematology" ? "Huyết Học (Hematology)" :
-                                                     d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
-                                                     d.department === "Urinalysis" ? "Nước Tiểu (Urinalysis)" :
-                                                     d.department === "Microbiology" ? "Vi Sinh (Microbiology)" : d.department}
+                                        {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
+                                            <tr key={v.sampleId || v.barcode}>
+                                                <td className="font-monospace fw-bold ps-3" style={{ color: '#1E60E6' }}>{v.barcode}</td>
+                                                <td>{v.patientName}</td>
+                                                <td className="text-truncate" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
+                                                <td>
+                                                    <span className="badge px-2 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px' }}>{v.priority?.toLowerCase() === "stat" ? "Cấp cứu (STAT)" : v.priority?.toLowerCase() === "urgent" ? "Khẩn cấp" : "Thường quy"}</span>
                                                 </td>
-                                                <td className="text-center py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.totalCount}</td>
-                                                <td className="text-center fw-bold py-3" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
-                                                    {d.averageTatFormatted} ({d.averageTatMinutes}m)
-                                                </td>
-                                                <td style={{ minWidth: "180px" }} className="py-3">
-                                                    <div className="d-flex align-items-center gap-2">
-                                                        <div className="progress flex-grow-1" style={{ height: "6px", borderRadius: '9999px' }}>
-                                                            <div
-                                                                className="progress-bar"
-                                                                role="progressbar"
-                                                                style={{ width: `${d.complianceRate}%`, backgroundColor: d.complianceRate >= 90 ? '#10B981' : '#B45309', borderRadius: '9999px' }}
-                                                            ></div>
-                                                        </div>
-                                                        <span className="small fw-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{d.complianceRate}%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="text-center py-3">
-                                                    <span className="badge px-2.5 py-1" style={{ backgroundColor: d.violationCount > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(145, 222, 131, 0.2)', color: d.violationCount > 0 ? '#dc2626' : '#2b8a3e', borderRadius: '9999px' }}>
-                                                        {d.violationCount} mẫu
+                                                <td className="text-center fw-bold text-danger" style={{ fontVariantNumeric: 'tabular-nums' }}>{v.actualTatMinutes}m</td>
+                                                <td className="text-center text-muted" style={{ fontVariantNumeric: 'tabular-nums' }}>&le; {v.targetTatMinutes}m</td>
+                                                <td className="text-center fw-bold text-danger" style={{ fontVariantNumeric: 'tabular-nums' }}>+{v.delayMinutes}m</td>
+                                                <td>
+                                                    <span className="badge px-2 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
+                                                        {v.bottleneckPhase === "PreAnalytical" ? "Tiền phân tích (Lấy/Chuyển mẫu)" :
+                                                         v.bottleneckPhase === "Analytical" ? "Trong phân tích (Chạy máy)" :
+                                                         v.bottleneckPhase === "PostAnalytical" ? "Sau phân tích (Duyệt kết quả)" : v.bottleneckPhase}
                                                     </span>
                                                 </td>
-                                                <td className="text-end pe-3 py-3">
-                                                    {d.complianceRate >= 90 ? (
-                                                        <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
-                                                            <FaCheckCircle className="me-1" /> Đạt ISO 15189
-                                                        </span>
-                                                    ) : (
-                                                        <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
-                                                            <FaExclamationTriangle className="me-1" /> Cần cải tiến
-                                                        </span>
-                                                    )}
-                                                </td>
+                                                <td className="small text-muted text-end pe-3">{v.technicianName || "Chưa gán"}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                    )}
-
-                    {/* TAB 4: Daily Trends */}
-                    {activeTab === "TRENDS" && (
-                        <div>
-                            <h5 className="fw-bold mb-3 text-dark">Biến Thiên Xu Hướng TAT Theo Từng Ngày Vận Hành</h5>
-                            <div className="row g-3">
-                                {(Array.isArray(report.trends) ? report.trends : []).map(t => (
-                                    <div className="col-12 col-sm-6 col-md-4 col-xl-3" key={t.dateLabel}>
-                                        <div className="card shadow-sm rounded-4 p-3 bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <span className="fw-bold text-dark">{t.dateLabel}</span>
-                                                <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>{t.volume} mẫu</span>
-                                            </div>
-                                            <div className="fs-4 fw-bold mt-2" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
-                                                {Math.round(t.averageTatMinutes)} phút
-                                            </div>
-                                            <div className="d-flex justify-content-between small text-muted mt-2 pt-2 border-top" style={{ borderColor: '#EEF2F6' }}>
-                                                <span>Đạt SLA: <strong>{t.complianceRate}%</strong></span>
-                                                <span>Trễ: <strong className={t.violationCount > 0 ? 'text-danger' : 'text-success'}>{t.violationCount}</strong></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* TAB 5: Violations */}
-                    {activeTab === "VIOLATIONS" && (
-                        <div>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h5 className="fw-bold text-danger mb-0 d-flex align-items-center gap-2">
-                                    <FaExclamationTriangle /> Danh Sách Mẫu Vượt Ngưỡng Thời Gian (Outlier Violations)
-                                </h5>
-                                <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
-                                    {(Array.isArray(report.recentViolations) ? report.recentViolations : []).length} trường hợp phát hiện
-                                </span>
-                            </div>
-
-                            {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
-                                <div className="text-center py-3 text-muted">
-                                    <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
-                                    <p className="mb-0 fw-semibold">Tuyệt vời! Không ghi nhận trường hợp mẫu nào vượt ngưỡng thời gian cam kết.</p>
-                                </div>
-                            ) : (
-                                <div className="table-responsive rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                                    <table className="table table-hover align-middle mb-0">
-                                        <thead style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#b91c1c', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '12px' }} className="text-uppercase">
-                                            <tr>
-                                                <th className="ps-3 py-3">Mã Barcode</th>
-                                                <th className="py-3">Bệnh Nhân</th>
-                                                <th className="py-3">Gói Xét Nghiệm</th>
-                                                <th className="py-3">Ưu Tiên</th>
-                                                <th className="text-center py-3">TAT Thực Tế</th>
-                                                <th className="text-center py-3">Mục Tiêu</th>
-                                                <th className="text-center py-3">Thời Gian Trễ</th>
-                                                <th className="py-3">Giai Đoạn Nghẽn</th>
-                                                <th className="text-end pe-3 py-3">KTV Phụ Trách</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
-                                                <tr key={v.sampleId || v.barcode} style={{ borderBottom: '1px solid #EEF2F6' }}>
-                                                    <td className="font-monospace fw-bold ps-3 py-3" style={{ color: '#1E60E6' }}>{v.barcode}</td>
-                                                    <td className="py-3">{v.patientName}</td>
-                                                    <td className="text-truncate py-3" style={{ maxWidth: "200px" }}>{v.testPackage}</td>
-                                                    <td className="py-3">
-                                                        <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px' }}>{v.priority?.toLowerCase() === "stat" ? "Cấp cứu (STAT)" : v.priority?.toLowerCase() === "urgent" ? "Khẩn cấp" : "Thường quy"}</span>
-                                                    </td>
-                                                    <td className="text-center fw-bold text-danger py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{v.actualTatMinutes}m</td>
-                                                    <td className="text-center text-muted py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>&le; {v.targetTatMinutes}m</td>
-                                                    <td className="text-center fw-bold text-danger py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>+{v.delayMinutes}m</td>
-                                                    <td className="py-3">
-                                                        <span className="badge px-2.5 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
-                                                            {v.bottleneckPhase === "PreAnalytical" ? "Tiền phân tích (Lấy/Chuyển mẫu)" :
-                                                             v.bottleneckPhase === "Analytical" ? "Trong phân tích (Chạy máy)" :
-                                                             v.bottleneckPhase === "PostAnalytical" ? "Sau phân tích (Duyệt kết quả)" : v.bottleneckPhase}
-                                                        </span>
-                                                    </td>
-                                                    <td className="small text-muted text-end pe-3 py-3">{v.technicianName || "Chưa gán"}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

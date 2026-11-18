@@ -38,12 +38,12 @@ export default function HomePage() {
     }
   }
 
-  // If user is logged in as a Patient (Role 6)
+  // Patient đã hoàn tất hồ sơ → vào bàn làm việc (lịch/KQ), không kẹt landing marketing
   if (user && roleId === ROLES.PATIENT) {
     if (!user.medicalProfileCompleted) {
       return <Navigate to="/patient/medical-profile-setup" replace />;
     }
-    return <GuestHomePage />;
+    return <Navigate to="/appointments" replace />;
   }
 
   // If unauthenticated guest

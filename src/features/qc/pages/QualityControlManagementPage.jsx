@@ -36,11 +36,20 @@ import {
     fetchQcFlags
 } from "../api/qcApi";
 
+function formatApiError(err, fallback = "Không thể thực hiện thao tác QC.") {
+    return err?.response?.data?.detail
+        || err?.response?.data?.message
+        || err?.response?.data?.title
+        || err?.message
+        || fallback;
+}
+
 export default function QualityControlManagementPage() {
     // Top-level states
     const [lots, setLots] = useState([]);
     const [selectedLotId, setSelectedLotId] = useState("");
     const [ljData, setLjData] = useState(null);
+    const [qcError, setQcError] = useState("");
     const [summary, setSummary] = useState({
         activeLotsCount: 0,
         runsTodayCount: 0,
@@ -144,7 +153,7 @@ export default function QualityControlManagementPage() {
             await loadLeveyJennings(selectedLotId);
             await loadLotsAndSummary();
         } catch (err) {
-            alert(err.message);
+            setQcError(formatApiError(err, "Không thể ghi nhận lần chạy QC."));
         } finally {
             setIsRecording(false);
         }
@@ -170,8 +179,9 @@ export default function QualityControlManagementPage() {
             });
             await loadLotsAndSummary();
             setSelectedLotId(created.id);
+            setQcError("");
         } catch (err) {
-            alert(err.message);
+            setQcError(formatApiError(err, "Không thể tạo lô QC mới."));
         } finally {
             setIsCreatingLot(false);
         }
@@ -182,8 +192,9 @@ export default function QualityControlManagementPage() {
         try {
             await toggleQcLotStatus(lotId);
             await loadLotsAndSummary();
+            setQcError("");
         } catch (err) {
-            alert(err.message);
+            setQcError(formatApiError(err, "Không thể đổi trạng thái lô QC."));
         }
     };
 
@@ -203,8 +214,9 @@ export default function QualityControlManagementPage() {
             setCorrectiveActionNotes("");
             await loadLeveyJennings(selectedLotId);
             await loadLotsAndSummary();
+            setQcError("");
         } catch (err) {
-            alert(err.message);
+            setQcError(formatApiError(err, "Không thể ký xác nhận hành động khắc phục."));
         } finally {
             setIsSigningOff(false);
         }
@@ -308,6 +320,14 @@ export default function QualityControlManagementPage() {
                 </div>
             </div>
 
+            {qcError ? (
+                <div className="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-3" role="alert">
+                    <FaExclamationTriangle className="me-2" />
+                    <span>{qcError}</span>
+                    <button type="button" className="btn-close" aria-label="Close" onClick={() => setQcError("")} />
+                </div>
+            ) : null}
+
             {/* KPI Surveillance Ribbon */}
             <div className="row g-3 mb-4">
                 {/* In-Control Rate */}
@@ -378,7 +398,7 @@ export default function QualityControlManagementPage() {
                         style={activeTab === 'lots' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("lots")}
                     >
-                        <FaVial /> Quản Lý Lô Kiểm Chuẩn (QC Lots)
+                        <FaVial /> Lô Kiểm Chuẩn (QC Lots)
                     </button>
                 </li>
                 <li className="nav-item">
@@ -1005,7 +1025,7 @@ export default function QualityControlManagementPage() {
                                     </div>
 
                                     <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted text-uppercase">Người ký duyệt (KTV Trưởng / Bác sĩ phụ trách):</label>
+                                        <label className="form-label small fw-bold text-muted text-uppercase">Người mở khóa QC (Quản lý Lab / phụ trách chất lượng):</label>
                                         <input
                                             type="text"
                                             className="form-control"

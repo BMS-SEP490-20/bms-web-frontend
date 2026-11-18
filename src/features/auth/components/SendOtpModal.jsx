@@ -8,21 +8,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
+import { FaLock, FaCheckCircle, FaEnvelope, FaPhoneAlt, FaExclamationTriangle, FaClock } from 'react-icons/fa';
 import { OtpInputGroup } from '../../../components/common/OtpInputGroup';
 import { maskDestination } from '../../../utils/maskSensitive';
 import { useCountdown } from '../../../hooks/useCountdown';
 import { sendOtp, verifyOtp } from '../../../services/authService';
 import './SendOtpModal.css';
-
-/**
- * @typedef {object} SendOtpModalProps
- * @property {boolean} show - Controls modal visibility.
- * @property {Function} onHide - Invoked when closing or dismissing modal.
- * @property {string} destination - Recipient email or phone number.
- * @property {'Registration'|'PasswordReset'|'Login'|'Transaction'} [purpose='PasswordReset'] - Business purpose.
- * @property {'Email'|'Sms'} [channel='Email'] - Communication channel.
- * @property {Function} onVerified - Triggered upon successful verification `(verificationToken: string) => void`.
- */
 
 export const SendOtpModal = ({
   show,
@@ -30,8 +21,7 @@ export const SendOtpModal = ({
   destination,
   purpose = 'PasswordReset',
   channel = 'Email',
-  onVerified,
-}) => {
+  onVerified }) => {
   const [otpValue, setOtpValue] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -40,19 +30,16 @@ export const SendOtpModal = ({
 
   // 60-second resend cooldown timer
   const {
-    seconds: resendSeconds,
     formattedTime: resendFormattedTime,
     isActive: isCountdownActive,
-    start: startCountdown,
-    reset: resetCountdown,
-  } = useCountdown(60);
+    reset: resetCountdown } = useCountdown(60);
 
   // Reset form state and start countdown when modal opens
   useEffect(() => {
     if (show) {
       setOtpValue('');
       setErrorMessage('');
-      setSuccessMessage('A 6-digit verification code has been dispatched. Please check your inbox.');
+      setSuccessMessage('Mã xác thực gồm 6 chữ số đã được gửi đi. Vui lòng kiểm tra hộp thư của bạn.');
       resetCountdown(60, true);
     }
   }, [show, resetCountdown]);
@@ -63,7 +50,7 @@ export const SendOtpModal = ({
   const handleVerify = useCallback(async (codeToVerify = null) => {
     const finalOtp = codeToVerify || otpValue;
     if (finalOtp.length !== 6) {
-      setErrorMessage('Please enter all 6 digits of the verification code.');
+      setErrorMessage('Vui lòng nhập đầy đủ 6 chữ số của mã xác thực.');
       return;
     }
 
@@ -74,19 +61,18 @@ export const SendOtpModal = ({
       const result = await verifyOtp({
         destination,
         otp: finalOtp,
-        purpose,
-      });
+        purpose });
 
       if (result.isSuccess) {
-        setSuccessMessage('Identity verified successfully!');
+        setSuccessMessage('Xác thực danh tính thành công!');
         setTimeout(() => {
           onVerified?.(result.verificationToken);
         }, 600);
       } else {
-        setErrorMessage(result.message || 'Verification code is invalid or has expired.');
+        setErrorMessage(result.message || 'Mã xác thực không chính xác hoặc đã hết hạn.');
       }
-    } catch (err) {
-      setErrorMessage('A network error occurred. Please try again.');
+    } catch {
+      setErrorMessage('Không thể kết nối máy chủ xác thực. Vui lòng thử lại.');
     } finally {
       setIsVerifying(false);
     }
@@ -105,18 +91,17 @@ export const SendOtpModal = ({
       const result = await sendOtp({
         destination,
         channel,
-        purpose,
-      });
+        purpose });
 
       if (result.isSuccess) {
-        setSuccessMessage(result.message || 'A new verification code has been dispatched!');
+        setSuccessMessage(result.message || 'Mã xác thực mới đã được gửi lại!');
         setOtpValue('');
         resetCountdown(result.cooldownSeconds || 60, true);
       } else {
-        setErrorMessage(result.message || 'Unable to resend verification code.');
+        setErrorMessage(result.message || 'Không thể gửi lại mã xác thực.');
       }
-    } catch (err) {
-      setErrorMessage('Network connection error while resending code. Please retry.');
+    } catch {
+      setErrorMessage('Lỗi kết nối mạng khi gửi lại mã. Vui lòng thử lại.');
     } finally {
       setIsResending(false);
     }
@@ -131,48 +116,46 @@ export const SendOtpModal = ({
       className="bms-otp-modal"
       aria-labelledby="bms-otp-modal-title"
     >
-      <Modal.Header closeButton className="bms-otp-modal-header">
-        <Modal.Title id="bms-otp-modal-title" className="h5 fw-bold m-0 d-flex align-items-center">
-          <i className="bi bi-shield-lock-fill me-2 fs-5"></i>
-          Verify Security Code (OTP)
+      <Modal.Header closeButton className="border-0 pb-0 px-4 pt-4">
+        <Modal.Title id="bms-otp-modal-title" className="h5 fw-bold m-0 d-flex align-items-center gap-2 text-dark">
+          <FaLock className="text-primary" />
+          <span>Xác Thực Mã Bảo Mật (OTP)</span>
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="p-4 text-center">
-        {/* Shield icon */}
-        <div className="bms-otp-shield-icon">
-          <i className="bi bi-shield-check"></i>
+        <div className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: 56, height: 56, backgroundColor: '#EFF6FF', color: '#1E60E6' }}>
+          <FaCheckCircle size={26} />
         </div>
 
-        <h5 className="fw-bold text-dark mb-1">Enter 6-Digit Verification Code</h5>
+        <h5 className="fw-bold text-dark mb-1">Nhập Mã Xác Thực 6 Chữ Số</h5>
         <p className="text-muted small mb-2">
-          A secure code was sent to your {channel === 'Email' ? 'email inbox' : 'mobile phone'}:
+          Mã bảo mật đã được gửi đến {channel === 'Email' ? 'địa chỉ email' : 'số điện thoại'} của bạn:
         </p>
 
         {/* Masked destination badge */}
-        <div>
-          <span className="bms-otp-destination-badge">
-            <i className={`bi ${channel === 'Email' ? 'bi-envelope-at' : 'bi-phone'}`}></i>
+        <div className="mb-3">
+          <span className="bms-otp-destination-badge d-inline-flex align-items-center gap-1.5">
+            {channel === 'Email' ? <FaEnvelope /> : <FaPhoneAlt />}
             {maskDestination(destination)}
           </span>
         </div>
 
         {/* Feedback Messages */}
         {successMessage && !errorMessage && (
-          <Alert variant="success" className="py-2 px-3 small text-start mt-2 mb-3">
-            <i className="bi bi-check-circle-fill me-2"></i>
-            {successMessage}
+          <Alert variant="success" className="py-2 px-3 small text-start mt-2 mb-3 border-0 rounded-3 d-flex align-items-center gap-2">
+            <FaCheckCircle className="flex-shrink-0" />
+            <span>{successMessage}</span>
           </Alert>
         )}
 
         {errorMessage && (
-          <Alert variant="danger" className="py-2 px-3 small text-start mt-2 mb-3">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {errorMessage}
+          <Alert variant="danger" className="py-2 px-3 small text-start mt-2 mb-3 border-0 rounded-3 d-flex align-items-center gap-2">
+            <FaExclamationTriangle className="flex-shrink-0" />
+            <span>{errorMessage}</span>
           </Alert>
         )}
 
-        {/* 6-Digit PIN input group with auto-advance and shake animation */}
         <OtpInputGroup
           length={6}
           value={otpValue}
@@ -186,34 +169,32 @@ export const SendOtpModal = ({
           autoFocus={show}
         />
 
-        <div className="small text-muted mb-3">
-          <i className="bi bi-clock-history me-1"></i>
-          Code remains valid for <strong>5 minutes</strong>.
+        <div className="small text-muted mb-3 d-inline-flex align-items-center gap-1.5">
+          <FaClock />
+          <span>Mã có hiệu lực trong <strong>5 phút</strong>.</span>
         </div>
 
-        {/* Action Button */}
         <div className="d-grid gap-2">
           <Button
             variant="primary"
             size="lg"
-            className="bms-otp-submit-btn text-white"
+            className="rounded-pill fw-semibold text-white"
             onClick={() => handleVerify()}
             disabled={otpValue.length !== 6 || isVerifying}
           >
             {isVerifying ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
-                Verifying...
+                Đang xác thực...
               </>
             ) : (
-              'Verify & Continue'
+              'Xác Nhận & Tiếp Tục'
             )}
           </Button>
         </div>
 
-        {/* Resend Cooldown Section */}
-        <div className="bms-resend-wrapper">
-          <span>Didn't receive the code? </span>
+        <div className="bms-resend-wrapper mt-3">
+          <span>Chưa nhận được mã? </span>
           <button
             type="button"
             className="bms-resend-btn"
@@ -223,15 +204,14 @@ export const SendOtpModal = ({
             {isResending ? (
               <>
                 <Spinner animation="border" size="sm" className="me-1" />
-                Sending...
+                Đang gửi...
               </>
             ) : isCountdownActive ? (
               <>
-                Resend in
-                <span className="bms-resend-countdown">({resendFormattedTime})</span>
+                Gửi lại sau <span className="bms-resend-countdown">({resendFormattedTime})</span>
               </>
             ) : (
-              'Resend code now'
+              'Gửi lại mã ngay'
             )}
           </button>
         </div>

@@ -39,6 +39,18 @@ const ROLE_BADGE_BG = Object.freeze({
   [ROLES.PATIENT]: 'secondary',
 });
 
+/** Count Doctor + Lab from stats.byRole (any key casing) or fall back to user list. */
+function countClinicalStaff(byRole, users) {
+  const br = byRole || {};
+  const pick = (...keys) => keys.reduce((n, k) => n + Number(br[k] || 0), 0);
+  const fromStats = pick('doctor', 'Doctor', '2', 2) + pick('lab', 'Lab', 'LabTechnician', 'lab_user', '3', 3);
+  if (fromStats > 0) return fromStats;
+  return (Array.isArray(users) ? users : []).filter((u) => {
+    const id = resolveRoleId(u);
+    return id === ROLES.DOCTOR || id === ROLES.LAB;
+  }).length;
+}
+
 /**
  * Unified administrative user and employee account management view.
  *
@@ -385,7 +397,7 @@ export default function UserManagementPage() {
           <div className="bms-kpi-quad-card">
             <div>
               <h6 className="bms-kpi-label">Bác Sĩ &amp; Kỹ Thuật Viên Lab</h6>
-              <div className="bms-kpi-value">{(stats.byRole?.doctor || 0) + (stats.byRole?.lab || stats.byRole?.lab_user || 0)}</div>
+              <div className="bms-kpi-value">{countClinicalStaff(stats.byRole, safeUsers)}</div>
               <div className="bms-kpi-sub text-primary">Nhân lực chuyên môn y tế</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserCog /></div>

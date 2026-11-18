@@ -86,7 +86,7 @@ export default function PushNotificationCenterPage() {
     const [formPriority, setFormPriority] = useState("High");
     const [formCategory, setFormCategory] = useState("RESULT_READY");
     const [formTitle, setFormTitle] = useState("Kết quả xét nghiệm Tổng phân tích máu đã sẵn sàng");
-    const [formBody, setFormBody] = useState("Phiếu kết quả xét nghiệm mã số #ORD-2026-9901 đã được bác sĩ Trưởng khoa phê duyệt. Vui lòng bấm để xem chi tiết.");
+    const [formBody, setFormBody] = useState("Phiếu kết quả xét nghiệm mã số #ORD-2026-9901 đã được Bác sĩ điều trị phê duyệt. Vui lòng bấm để xem chi tiết.");
     const [formActionUrl, setFormActionUrl] = useState("/patient/test-reports/ORD-2026-9901");
     const [formPlatform, setFormPlatform] = useState("Android");
     const [isSubmitting, setIsSubmitting] = useState(false);

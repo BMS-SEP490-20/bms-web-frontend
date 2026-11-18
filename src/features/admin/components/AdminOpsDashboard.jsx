@@ -5,7 +5,8 @@
  * Never shows patients, results, panic values or samples.
  */
 import React, { useEffect, useState } from 'react';
-import { Alert, Card, Col, Row, Spinner, Table } from 'react-bootstrap';
+import { Alert, Col, Row, Spinner, Table } from 'react-bootstrap';
+import { FaExclamationTriangle, FaUsers, FaLock, FaUserCheck, FaCoins } from 'react-icons/fa';
 import { ROLES, ROLE_LABELS } from '../../../constants/roles';
 import { getAdminOps } from '../services/adminOpsService';
 
@@ -16,18 +17,19 @@ const DATE = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: '
 
 /**
  * One metric tile.
- * @param {{ label: string, value: React.ReactNode, hint?: string }} props
+ * @param {{ label: string, value: React.ReactNode, hint?: string, icon?: React.ReactNode, iconTone?: string }} props
  * @returns {JSX.Element}
  */
-function Metric({ label, value, hint }) {
+function Metric({ label, value, hint, icon, iconTone = 'bms-kpi-icon-blue' }) {
   return (
-    <Card className="h-100 shadow-sm rounded-4 border" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-      <Card.Body className="p-3.5">
-        <div className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '11.5px', letterSpacing: '0.03em' }}>{label}</div>
-        <div className="fs-4 fw-bold bms-num text-dark mt-1 tabular-nums" style={{ letterSpacing: '-0.02em' }}>{value}</div>
-        {hint && <div className="text-muted small mt-1" style={{ fontSize: '12px' }}>{hint}</div>}
-      </Card.Body>
-    </Card>
+    <div className="bms-kpi-quad-card">
+      <div>
+        <h6 className="bms-kpi-label">{label}</h6>
+        <div className="bms-kpi-value">{value}</div>
+        {hint && <div className="bms-kpi-sub text-muted">{hint}</div>}
+      </div>
+      {icon && <div className={`bms-kpi-icon-badge ${iconTone}`}>{icon}</div>}
+    </div>
   );
 }
 
@@ -66,43 +68,53 @@ export default function AdminOpsDashboard() {
 
   return (
     <section className="bms-scope" aria-labelledby="admin-ops-title">
-      <h1 id="admin-ops-title" className="h3 mb-1">Bảng điều khiển vận hành hệ thống</h1>
-      <p className="text-muted mb-4">Chỉ số vận hành cho Admin. Không hiển thị dữ liệu bệnh nhân hay kết quả xét nghiệm.</p>
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 id="admin-ops-title" className="bms-page-title">Bảng Điều Khiển Vận Hành Hệ Thống</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">Chỉ số vận hành cho quản trị viên hệ thống, không hiển thị dữ liệu bệnh nhân hay kết quả xét nghiệm</p>
+        </div>
+      </div>
 
       <Row className="g-3 mb-4">
-        <Col xs={12} sm={6} lg={3}><Metric label="Tổng tài khoản" value={NUM.format(totalUsers)} /></Col>
-        <Col xs={12} sm={6} lg={3}><Metric label="Tài khoản bị khóa" value={NUM.format(ops.lockedAccounts)} hint="Khóa hoặc đang tạm khóa do sai mật khẩu" /></Col>
-        <Col xs={12} sm={6} lg={3}><Metric label="Đăng nhập 24 giờ / 7 ngày" value={`${NUM.format(ops.logins.distinctAccountsLast24h)} / ${NUM.format(ops.logins.distinctAccountsLast7d)}`} hint={`${NUM.format(ops.logins.accountsWithFailedAttempts)} tài khoản có lần sai mật khẩu`} /></Col>
-        <Col xs={12} sm={6} lg={3}><Metric label="Tổng doanh thu đã thu" value={VND.format(ops.revenue.totalCollected)} hint={`${NUM.format(ops.revenue.paidInvoiceCount)} hóa đơn đã thanh toán`} /></Col>
+        <Col xs={12} sm={6} lg={3}><Metric label="Tổng tài khoản" value={NUM.format(totalUsers)} icon={<FaUsers />} iconTone="bms-kpi-icon-blue" /></Col>
+        <Col xs={12} sm={6} lg={3}><Metric label="Tài khoản bị khóa" value={NUM.format(ops.lockedAccounts)} hint="Khóa hoặc đang tạm khóa do sai mật khẩu" icon={<FaLock />} iconTone="bms-kpi-icon-rose" /></Col>
+        <Col xs={12} sm={6} lg={3}><Metric label="Đăng nhập 24 giờ / 7 ngày" value={`${NUM.format(ops.logins.distinctAccountsLast24h)} / ${NUM.format(ops.logins.distinctAccountsLast7d)}`} hint={`${NUM.format(ops.logins.accountsWithFailedAttempts)} tài khoản có lần sai mật khẩu`} icon={<FaUserCheck />} iconTone="bms-kpi-icon-green" /></Col>
+        <Col xs={12} sm={6} lg={3}><Metric label="Tổng doanh thu đã thu" value={VND.format(ops.revenue.totalCollected)} hint={`${NUM.format(ops.revenue.paidInvoiceCount)} hóa đơn đã thanh toán`} icon={<FaCoins />} iconTone="bms-kpi-icon-amber" /></Col>
       </Row>
 
       <Row className="g-3">
         <Col lg={5}>
-          <Card className="shadow-sm h-100 rounded-4 border" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-            <Card.Body>
-              <h2 className="h5 fw-bold mb-3 text-dark">Tài khoản theo vai trò</h2>
+          <div className="bms-table-standalone-section m-0 h-100">
+            <div className="bms-table-standalone-header">
+              <h2 className="bms-table-standalone-title">Tài khoản theo vai trò</h2>
+            </div>
+            <div className="bms-table-standalone-body">
               <Table size="sm" className="mb-0 align-middle">
-                <thead><tr><th scope="col" className="text-muted small text-uppercase">Vai trò</th><th scope="col" className="text-end text-muted small text-uppercase">Số tài khoản</th></tr></thead>
+                <thead><tr><th scope="col">Vai trò</th><th scope="col" className="text-end">Số tài khoản</th></tr></thead>
                 <tbody>
                   {Object.entries(ops.usersPerRole).map(([name, count]) => (
                     <tr key={name}><td>{ROLE_LABELS[ROLE_NAME_TO_ID[name]] || name}</td><td className="text-end bms-num fw-semibold">{NUM.format(count)}</td></tr>
                   ))}
                 </tbody>
               </Table>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </Col>
         <Col lg={7}>
-          <Card className="shadow-sm h-100 rounded-4 border" style={{ borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
-            <Card.Body>
-              <h2 className="h5 fw-bold mb-3 text-dark">Hệ thống</h2>
+          <div className="bms-table-standalone-section m-0 h-100">
+            <div className="bms-table-standalone-header">
+              <h2 className="bms-table-standalone-title">Hệ thống</h2>
+            </div>
+            <div className="bms-table-standalone-body">
               <Table size="sm" className="mb-0">
                 <tbody>
                   <tr>
                     <th scope="row">Sao lưu gần nhất</th>
                     <td>
-                      <span className={backupFailed ? 'text-danger fw-semibold' : ''}>
-                        {backupFailed && <span aria-hidden="true">⚠ </span>}{ops.backup.lastStatus || 'Chưa có bản sao lưu'}
+                      <span className={backupFailed ? 'text-danger fw-semibold d-inline-flex align-items-center gap-1' : ''}>
+                        {backupFailed && <FaExclamationTriangle aria-hidden="true" />}{ops.backup.lastStatus || 'Chưa có bản sao lưu'}
                       </span>
                       {ops.backup.lastCreatedAtUtc && <span className="text-muted"> · {DATE.format(new Date(ops.backup.lastCreatedAtUtc))}</span>}
                     </td>
@@ -112,8 +124,8 @@ export default function AdminOpsDashboard() {
                   <tr><th scope="row">Thiết bị IoT hoạt động / tổng</th><td className="bms-num">{ops.iotDevices.online} / {devicesTotal}<span className="text-muted"> (theo trạng thái cấu hình)</span></td></tr>
                 </tbody>
               </Table>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </Col>
       </Row>
       <p className="text-muted small mt-3">Cập nhật: {DATE.format(new Date(ops.generatedAtUtc))} (giờ Việt Nam)</p>

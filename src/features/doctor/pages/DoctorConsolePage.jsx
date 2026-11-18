@@ -67,10 +67,11 @@ export default function DoctorConsolePage() {
   const doctorDisplayName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'Bác sĩ phụ trách';
   const doctorLicenseLabel = currentUser?.licenseNumber || currentUser?.employeeCode || currentUser?.username || '—';
 
-  const [roomId, setRoomId] = useState('ROOM-101');
+  // Empty = all rooms for this doctor (default ROOM-101 hid InProgress patients in ROOM-102).
+  const [roomId, setRoomId] = useState('');
   const [doctorId] = useState(() => currentUser?.doctorId || currentUser?.id || currentUser?._id || currentUser?.username || '');
 
-  // Danh sách kết quả xét nghiệm đã duyệt từ CSDL để Bác sĩ luôn xem lại / thẩm định / chỉnh sửa kết luận bất cứ lúc nào
+  // Danh sách kết quả xét nghiệm từ CSDL (chờ duyệt & đã duyệt) để Bác sĩ luôn xem lại / thẩm định / ký duyệt
   const [approvedResultsList, setApprovedResultsList] = useState([]);
   const [approvedResultsLoading, setApprovedResultsLoading] = useState(false);
   const [approvedSearch, setApprovedSearch] = useState('');
@@ -92,7 +93,7 @@ export default function DoctorConsolePage() {
   const [message, setMessage] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  // Lắng nghe sự kiện thông báo kết quả xét nghiệm được phê duyệt từ Trưởng Khoa (Lab Manager)
+  // Lab/tech verify event — clinical publish still requires Doctor approve + signature
   const [verifiedAlert, setVerifiedAlert] = useState(() => {
     try {
       const raw = localStorage.getItem('bms_last_verified_specimen');
@@ -148,7 +149,8 @@ export default function DoctorConsolePage() {
     try {
       const res = await receptionApi.getQueueStatus(roomId, doctorId);
       if (res) {
-        setCurrentServing(res.currentServing || null);
+        const serving = res.currentServing ?? res.data?.currentServing ?? null;
+        setCurrentServing(serving);
 
         // Multi-tiered defensive check for waiting list
         const rawList = res.waitingList ?? res.data?.waitingList ?? res.data ?? [];
@@ -174,11 +176,16 @@ export default function DoctorConsolePage() {
         setWaitingCount(
           Number.isFinite(res.waitingCount)
             ? res.waitingCount
-            : validWaitingList.length
+            : Number.isFinite(res.data?.waitingCount)
+              ? res.data.waitingCount
+              : validWaitingList.length
         );
       }
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu hàng đợi:', err);
+      setWaitingList([]);
+      setWaitingCount(0);
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Không thể tải hàng đợi phòng khám. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -214,10 +221,13 @@ export default function DoctorConsolePage() {
         });
       }
 
-      // Lọc kết quả đã được Trưởng khoa duyệt (Approved) và khử trùng theo sampleId (lấy bản mới nhất)
+      // Lọc kết quả Lab sẵn sàng cho Bác sĩ thẩm định / đã ký duyệt và khử trùng theo sampleId (lấy bản mới nhất)
       const bySample = new Map();
       (Array.isArray(rawResults) ? rawResults : [])
-        .filter((r) => String(r.status || '').toLowerCase() === 'approved')
+        .filter((r) => {
+          const st = String(r.status || '').toLowerCase();
+          return st === 'waiting_review' || st === 'waiting_doctor_review' || st === 'approved' || st === 'completed';
+        })
         .forEach((r) => {
           const sKey = String(r.sampleId || r.testResultId || '').trim();
           if (!sKey) return;
@@ -285,17 +295,23 @@ export default function DoctorConsolePage() {
   // Call Next Patient (Only checked-in patients)
   const handleCallNext = useCallback(async () => {
     if (actionLoading) return;
+    const targetRoom = roomId || currentServing?.roomId;
+    if (!targetRoom) {
+      setErrorMsg('Chọn phòng khám trước khi gọi số tiếp theo.');
+      return;
+    }
     setActionLoading(true);
     setErrorMsg(null);
     setMessage(null);
 
     try {
-      const res = await receptionApi.callNextPatient(roomId, doctorId);
+      const res = await receptionApi.callNextPatient(targetRoom, doctorId);
       if (res && res.data) {
         setCurrentServing(res.data);
+        if (!roomId && res.data.roomId) setRoomId(res.data.roomId);
         setMessage(res.message || `Đang gọi bệnh nhân ${res.data.patientName}.`);
         // Voice announcement
-        const voiceText = `Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${roomId}`;
+        const voiceText = `Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${targetRoom}`;
         speakAnnouncement(voiceText);
       } else {
         setMessage(res?.message || 'Hàng đợi phòng khám hiện không có bệnh nhân chờ.');
@@ -307,21 +323,22 @@ export default function DoctorConsolePage() {
     } finally {
       setActionLoading(false);
     }
-  }, [actionLoading, roomId, doctorId, speakAnnouncement, fetchQueue]);
+  }, [actionLoading, roomId, doctorId, currentServing, speakAnnouncement, fetchQueue]);
 
   // Recall Current Patient
   const handleRecall = useCallback(async () => {
     if (!currentServing || actionLoading) return;
+    const targetRoom = roomId || currentServing.roomId || '';
     setActionLoading(true);
     setErrorMsg(null);
     setMessage(null);
 
     try {
-      const res = await receptionApi.recallPatient(currentServing.appointmentId, roomId);
+      const res = await receptionApi.recallPatient(currentServing.appointmentId, targetRoom);
       if (res && res.data) {
         setCurrentServing(res.data);
         setMessage(res.message || `Đã gọi lại bệnh nhân ${res.data.patientName}.`);
-        const voiceText = `Nhắc lại: Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${roomId}`;
+        const voiceText = `Nhắc lại: Xin mời bệnh nhân ${res.data.patientName}, số thứ tự ${res.data.queueNumberFormatted}, vào ${targetRoom}`;
         speakAnnouncement(voiceText);
       }
       await fetchQueue();
@@ -456,21 +473,29 @@ export default function DoctorConsolePage() {
   const [isDeliverySuccess, setIsDeliverySuccess] = useState(false);
   const [showReturnRerunModal, setShowReturnRerunModal] = useState(false);
   const [returnReason, setReturnReason] = useState('');
+  const [liveTestResults, setLiveTestResults] = useState([]);
 
   // Mở modal thẩm định kết quả và tải KẾT QUẢ THẬT từ CSDL (không dùng dữ liệu ảo)
   const handleOpenConsultationModal = async (customAlert = null) => {
     const pt = customAlert || currentServing;
-    if (!pt) return;
+    if (!pt) {
+      setErrorMsg("Hiện chưa có bệnh nhân nào trong phòng khám để thẩm định kết quả. Vui lòng gọi bệnh nhân từ hàng đợi trước.");
+      return;
+    }
     setConsultationData(pt);
     setConsultationResult(null);
     setConsultationParams([]);
     setConsultationStep('review');
     setIsDeliverySuccess(false);
     setShowConsultationModal(true);
+    setLiveTestResults([]);
     setConsultationLoading(true);
 
     try {
-      const [resultsRes, criteriaRes, patientRes] = await Promise.all([
+      const [byApptRes, resultsRes, criteriaRes, patientRes] = await Promise.all([
+        pt.appointmentId
+          ? api.get(`/TestOrder/TestResult/by-appointment/${encodeURIComponent(pt.appointmentId)}`).catch(() => null)
+          : Promise.resolve(null),
         api.get('/TestOrder/TestResult', { params: { page: 1, pageSize: 100 } }).catch(() => null),
         api.get('/laboratory/criteria', { params: { page: 1, pageSize: 100, isActive: true } }).catch(() => null),
         pt.patientId ? api.get(`/patients/${encodeURIComponent(pt.patientId)}`).catch(() => null) : Promise.resolve(null),
@@ -487,25 +512,41 @@ export default function DoctorConsolePage() {
         });
       }
 
+      const byApptRaw = byApptRes?.data?.data || byApptRes?.data;
+      const byApptList = Array.isArray(byApptRaw) ? byApptRaw : [];
+
       const rawList = resultsRes?.data?.data || [];
       const targetSample = String(pt.specimenId || pt.sampleId || '').trim().toLowerCase();
       const targetAppt = String(pt.appointmentId || pt.orderId || '').trim().toLowerCase();
 
-      const matching = (Array.isArray(rawList) ? rawList : []).filter((r) => {
+      const fromAll = (Array.isArray(rawList) ? rawList : []).filter((r) => {
         const sid = String(r.sampleId || '').trim().toLowerCase();
         const aid = String(r.appointmentId || '').trim().toLowerCase();
         return (targetSample && sid === targetSample) || (targetAppt && aid === targetAppt);
       });
 
-      const best = matching.find((r) => String(r.status || '').toLowerCase() === 'approved') || matching[0] || null;
+      const mergedById = new Map();
+      [...byApptList, ...fromAll].forEach((r) => {
+        const key = String(r.testResultId || r.id || '').trim();
+        if (key && !mergedById.has(key)) mergedById.set(key, r);
+      });
+      const matching = Array.from(mergedById.values());
+      setLiveTestResults(matching);
+
+      const best =
+        matching.find((r) => String(r.status || '').toLowerCase() === 'waiting_doctor_review') ||
+        matching.find((r) => String(r.status || '').toLowerCase() === 'waiting_review') ||
+        matching.find((r) => String(r.status || '').toLowerCase() === 'approved') ||
+        matching[0] ||
+        null;
       setConsultationResult(best);
 
-      const rawParams = Array.isArray(best?.parameters) ? best.parameters : [];
+      const rawParams = Array.isArray(best?.parameters) ? best.parameters : (Array.isArray(best?.items) ? best.items : []);
       const enriched = rawParams.map((p) => {
-        const code = String(p.abbreviation || '').trim().toUpperCase();
-        const meta = critByCode.get(code) || critById.get(String(p.criteriaId || '')) || null;
-        let refRange = '—';
-        if (meta) {
+        const code = String(p.abbreviation || p.code || p.criterionCode || '').trim().toUpperCase();
+        const meta = critByCode.get(code) || critById.get(String(p.criteriaId || p.criterionId || '')) || null;
+        let refRange = p.referenceInterval || p.referenceRange || '—';
+        if (refRange === '—' && meta) {
           if (meta.normalText) {
             refRange = meta.normalText;
           } else if (meta.normalMin != null && meta.normalMax != null) {
@@ -518,9 +559,9 @@ export default function DoctorConsolePage() {
         }
         return {
           code: code || p.criteriaId || '—',
-          name: p.paramName || meta?.criterionName || code || 'Chỉ số',
-          value: p.value ?? '—',
-          unit: meta?.unit || '—',
+          name: p.paramName || p.criterionName || p.name || meta?.criterionName || code || 'Chỉ số',
+          value: p.value ?? p.measuredValue ?? '—',
+          unit: p.unit || meta?.unit || '—',
           referenceRange: refRange,
           flag: p.flag || 'Normal',
         };
@@ -545,7 +586,7 @@ export default function DoctorConsolePage() {
         if (abnormal.length === 0 && enriched.length > 0) {
           setClinicalIcdCode('Z00.0');
           setClinicalDiagnosis('Khám sức khỏe — Các chỉ số xét nghiệm trong giới hạn bình thường');
-          setClinicalConclusion(`Toàn bộ ${enriched.length} chỉ số xét nghiệm đo trên mẫu ${pt.specimenId || ''} đều nằm trong khoảng tham chiếu bình thường.`);
+          setClinicalConclusion(`Toàn bộ ${enriched.length} chỉ số xét nghiệm đo trên mẫu ${pt.specimenId || best?.sampleId || ''} đều nằm trong khoảng tham chiếu bình thường.`);
         } else if (abnormal.length > 0) {
           setClinicalIcdCode('E78.5');
           setClinicalDiagnosis(`Theo dõi bất thường xét nghiệm (${abnormal.map((a) => a.code).join(', ')})`);
@@ -572,38 +613,89 @@ export default function DoctorConsolePage() {
     setConsultationStep('consult');
   };
 
-  // Bác sĩ yêu cầu Lab chạy lại (Clinical Discordance)
-  const handleDoctorRequestRerun = () => {
+  // Bác sĩ yêu cầu Lab chạy lại — gọi API thật (không localStorage)
+  const handleDoctorRequestRerun = async () => {
     if (!returnReason.trim()) return;
-    const rerunPayload = {
-      specimenId: consultationData?.specimenId || 'SPC-001',
-      orderId: consultationData?.orderId || 'ORD-001',
-      patientName: consultationData?.patientName || 'Bệnh nhân',
-      reason: returnReason.trim(),
-      requestedBy: doctorDisplayName,
-      timestamp: new Date().toISOString()
-    };
-
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('bms:doctor-request-rerun', { detail: rerunPayload }));
-      localStorage.setItem('bms_last_rerun_request', JSON.stringify(rerunPayload));
+    const specimenId =
+      consultationData?.specimenId ||
+      consultationData?.barcode ||
+      consultationData?.sampleId ||
+      consultationResult?.sampleId ||
+      liveTestResults?.[0]?.barcode ||
+      liveTestResults?.[0]?.sampleId ||
+      '';
+    if (!specimenId) {
+      setErrorMsg('Không tìm thấy mã ống mẫu để yêu cầu Lab chạy lại.');
+      return;
     }
-
-    setShowReturnRerunModal(false);
-    setShowConsultationModal(false);
-    setMessage(`Đã gửi yêu cầu trả kết quả về Lab chạy lại cho bệnh nhân ${consultationData?.patientName}. Lý do: ${returnReason}`);
-  };
-
-  // Bác sĩ lưu / cập nhật kết luận thẩm định lâm sàng (cho phép xem lại và chỉnh sửa bất kỳ lúc nào)
-  const handleApproveAndDeliverToPatient = async () => {
     setActionLoading(true);
     try {
+      await api.post(`/laboratory/samples/${encodeURIComponent(specimenId)}/rerun`, {
+        reason: returnReason.trim(),
+        requestedBy: doctorDisplayName,
+        notes: `Clinical discordance · BN ${consultationData?.patientName || ''} · ORD ${consultationData?.orderId || ''}`
+      });
+      setShowReturnRerunModal(false);
+      setShowConsultationModal(false);
+      setMessage(
+        `Đã gửi yêu cầu chạy lại tới Lab cho mẫu ${specimenId} (BN ${consultationData?.patientName || ''}). Lý do: ${returnReason}`
+      );
+      await fetchApprovedResults();
+    } catch (err) {
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Không gửi được yêu cầu chạy lại tới Lab.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // GATE (step 4→5): ICD + kết luận lâm sàng ≥10 ký tự + có KQ Lab; chỉ khi đủ mới publish Cổng BN.
+  const canDoctorApproveResults =
+    Boolean(clinicalIcdCode?.trim()) &&
+    (clinicalConclusion?.trim()?.length || 0) >= 10 &&
+    (liveTestResults.length > 0 || Boolean(consultationResult)) &&
+    !isDeliverySuccess;
+
+  // Bác sĩ ký duyệt và trả kết quả cho người bệnh (Email / Portal / PDF) hoặc cập nhật kết luận lâm sàng
+  const handleApproveAndDeliverToPatient = async () => {
+    if (!clinicalIcdCode?.trim()) {
+      setErrorMsg('Thiếu mã ICD-10 trước khi ký duyệt kết quả cho bệnh nhân.');
+      return;
+    }
+    if ((clinicalConclusion?.trim()?.length || 0) < 10) {
+      setErrorMsg('Kết luận lâm sàng phải tối thiểu 10 ký tự trước khi ký số trả kết quả.');
+      return;
+    }
+    if (liveTestResults.length === 0) {
+      setErrorMsg('Chưa có kết quả Lab (waiting_review). Lab phải nhập KQ trước khi bác sĩ duyệt.');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const resultsToProcess = liveTestResults.length > 0 ? liveTestResults : (consultationResult ? [consultationResult] : []);
+      const unsignedResults = resultsToProcess.filter((tr) => {
+        const st = String(tr.status || '').toUpperCase();
+        const vs = String(tr.validationStatus || '');
+        return st !== 'APPROVED' && vs !== 'DoctorApproved' && vs !== '3';
+      });
+
+      for (const tr of unsignedResults) {
+        const resultId = tr.testResultId || tr.id;
+        if (!resultId) continue;
+        await api.post(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/approve`, {
+          approverId: doctorId || doctorDisplayName,
+          approverName: doctorDisplayName,
+          approverRole: 'Doctor',
+          notes: `Bác sĩ kết luận: ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). ${clinicalConclusion}`
+        });
+      }
+
       const targetApptId = consultationData?.appointmentId || currentServing?.appointmentId;
       if (targetApptId && currentServing?.appointmentId && targetApptId === currentServing.appointmentId) {
         await receptionApi.completePatient(
           currentServing.appointmentId,
           `[TƯ VẤN XÉT NGHIỆM HOÀN TẤT — ${doctorDisplayName}]: Chẩn đoán ICD-10 ${clinicalIcdCode} (${clinicalDiagnosis}). Kết luận: ${clinicalConclusion}`
-        );
+        ).catch(() => null);
       }
 
       const consultKey = String(consultationData?.specimenId || consultationResult?.sampleId || consultationResult?.testResultId || '').trim();
@@ -632,11 +724,11 @@ export default function DoctorConsolePage() {
 
       setIsDeliverySuccess(true);
       setConsultationStep('delivered');
-      setMessage(`Bác sĩ ${doctorDisplayName} đã lưu kết luận lâm sàng (ICD-10: ${clinicalIcdCode}) cho mẫu ${consultKey || ''} — bệnh nhân ${consultationData?.patientName || ''}.`);
-      await fetchQueue();
+      setMessage(`Bác sĩ ${doctorDisplayName} đã ký duyệt & lưu kết luận lâm sàng (ICD-10: ${clinicalIcdCode}) cho bệnh nhân ${consultationData?.patientName || ''}! BN xem tại /patient/test-history.`);
+      await Promise.all([fetchQueue(), fetchApprovedResults()]);
     } catch (err) {
       console.error('Lỗi khi ký duyệt và trả kết quả:', err);
-      setErrorMsg(err.message || 'Lỗi khi ký số trả kết quả.');
+      setErrorMsg(err.response?.data?.message || err.message || 'Lỗi khi ký số trả kết quả.');
     } finally {
       setActionLoading(false);
     }
@@ -676,43 +768,62 @@ export default function DoctorConsolePage() {
 
   return (
     <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Top Banner & Room Switcher */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Bàn khám</h1>
-        </div>
-        <div className="d-flex align-items-center gap-3 flex-wrap">
-          <Badge bg="light" text="dark" className="border px-3 py-2 d-flex align-items-center gap-1.5 fw-semibold">
-            <FaUserMd className="text-primary" />
-            <span>{doctorDisplayName}</span>
-            {doctorLicenseLabel !== '—' && <span className="text-muted font-monospace small">({doctorLicenseLabel})</span>}
-          </Badge>
-          <div className="d-flex align-items-center gap-2">
-            <label className="small fw-semibold text-secondary mb-0">Phòng khám:</label>
-            <Form.Select
-              size="sm"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              className="fw-bold text-primary"
-              style={{ width: '160px' }}
+      {/* Master Top Banner & Room Switcher (BMS Luxury Clinician Console) */}
+      <div className="card border-0 shadow-sm rounded-4 p-3.5 mb-3 bg-white">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div className="d-flex align-items-center gap-3">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm flex-shrink-0"
+              style={{ width: "50px", height: "50px", backgroundColor: "#1E60E6", fontSize: '22px' }}
             >
-              <option value="ROOM-101">Phòng khám 101</option>
-              <option value="ROOM-102">Phòng khám 102</option>
-              <option value="ROOM-103">Phòng khám 103</option>
-              <option value="LAB-201">Phòng lấy mẫu 201</option>
-            </Form.Select>
+              <FaUserMd />
+            </div>
+            <div>
+              <h1 className="h4 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                Bàn Khám Lâm Sàng &amp; Gọi Số Bệnh Nhân
+                <Badge bg="primary-subtle" className="text-primary border border-primary-subtle rounded-pill fw-semibold fs-6">
+                  {roomId || 'Tất cả phòng'}
+                </Badge>
+              </h1>
+              <div className="text-muted small mb-0 d-flex align-items-center gap-2 flex-wrap">
+                <span><strong>Bác sĩ phụ trách:</strong> {currentUser?.fullName || "Bác sĩ đang đăng nhập"} ({doctorId || "—"})</span>
+                <span>•</span>
+                <span><strong>Phân công ca trực:</strong> Ca Sáng (07:00 - 15:00)</span>
+                <span>•</span>
+                <span className="text-success fw-semibold">● Trực tuyến (Sẵn sàng tiếp nhận)</span>
+              </div>
+            </div>
           </div>
+          <div className="d-flex align-items-center gap-2.5">
+            <div className="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border">
+              <label className="small fw-semibold text-secondary mb-0 text-nowrap">Đổi phòng khám:</label>
+              <Form.Select
+                size="sm"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="fw-bold text-primary border-0 bg-transparent py-0 shadow-none"
+                style={{ width: '180px', cursor: 'pointer' }}
+              >
+                <option value="">Tất cả phòng hôm nay</option>
+                <option value="ROOM-101">Phòng khám 101</option>
+                <option value="ROOM-102">Phòng khám 102</option>
+                <option value="ROOM-103">Phòng khám 103</option>
+              </Form.Select>
+            </div>
 
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={() => { fetchQueue(); fetchApprovedResults(); }}
-            title="Tải lại danh sách hàng đợi và kết quả chờ tư vấn"
-          >
-            <FaRedo className={loading ? 'fa-spin' : ''} />
-          </Button>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="rounded-pill p-2 px-3 d-flex align-items-center gap-1.5 shadow-xs"
+              onClick={() => { fetchQueue(); fetchApprovedResults(); }}
+              title="Tải lại danh sách hàng đợi và kết quả chờ tư vấn"
+            >
+              <FaRedo className={loading ? 'fa-spin' : ''} />
+              <span className="small d-none d-md-inline">Làm mới</span>
+            </Button>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Alerts */}
       {verifiedAlert && (
@@ -726,11 +837,11 @@ export default function DoctorConsolePage() {
             <FaCheckCircle className="fs-3 text-success flex-shrink-0" />
             <div className="flex-grow-1">
               <div className="fw-bold text-success d-flex align-items-center gap-2">
-                <span>KẾT QUẢ XÉT NGHIỆM ĐÃ ĐƯỢC TRƯỞNG KHOA PHÊ DUYỆT</span>
-                <Badge bg="success">Sẵn sàng hội chẩn</Badge>
+                <span>KẾT QUẢ LAB SẴN SÀNG — CHỜ BÁC SĨ THẨM ĐỊNH</span>
+                <Badge bg="success">Chờ ký duyệt lâm sàng</Badge>
               </div>
               <div className="small text-dark mt-1">
-                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã hoàn tất thẩm định và ký số điện tử. Bác sĩ có thể mở hồ sơ để kết luận lâm sàng.
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (ISO 15189 / QĐ 2429).
               </div>
             </div>
           </div>
@@ -806,10 +917,10 @@ export default function DoctorConsolePage() {
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
             <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
               <span className="fw-bold text-uppercase small tracking-wide">
-                Bệnh Nhân Đang Khám / Lấy Mẫu
+                Bệnh Nhân Đang Khám
               </span>
               <Badge bg="light" text="dark" className="fw-bold px-3 py-1.5 rounded-pill">
-                <FaDoorOpen className="me-1" /> {roomId}
+                <FaDoorOpen className="me-1" /> {roomId || 'Tất cả phòng'}
               </Badge>
             </Card.Header>
 
@@ -901,7 +1012,7 @@ export default function DoctorConsolePage() {
 
                       <Button
                         as={Link}
-                        to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId)}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}`}
+                        to={`/doctor/orders/create?appointmentId=${encodeURIComponent(currentServing.appointmentId || '')}&patientId=${encodeURIComponent(currentServing.patientId || '')}&patientName=${encodeURIComponent(currentServing.patientName || '')}&packageId=${encodeURIComponent(currentServing.packageId || '')}&phone=${encodeURIComponent(currentServing.patientPhone || '')}`}
                         variant="primary"
                         size="sm"
                         className="d-flex align-items-center gap-1.5 fw-semibold rounded-pill px-3 shadow-sm"
@@ -984,30 +1095,23 @@ export default function DoctorConsolePage() {
                   </p>
                   <div className="d-flex justify-content-center gap-2 flex-wrap mt-2">
                     <Button
-                      variant="outline-primary"
+                      variant="primary"
                       size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
-                      onClick={() => setCurrentServing({
-                        appointmentId: 'APT-261127-0001',
-                        appointmentCode: 'APT-261127-0001',
-                        patientId: 'PAT-079201009988',
-                        patientName: 'Trần Văn An',
-                        patientPhone: '0909123456',
-                        queueNumberFormatted: '001',
-                        consultationStartTime: new Date().toISOString()
-                      })}
+                      className="rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
+                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                      onClick={handleCallNext}
+                      disabled={actionLoading || waitingList.length === 0}
                     >
-                      <FaUserInjured /> Tiếp Nhận Bệnh Nhân Khám (Trần Văn An)
+                      <FaBullhorn /> {actionLoading ? 'Đang gọi...' : 'Gọi Bệnh Nhân Kế Tiếp (F2)'}
                     </Button>
                     <Button
                       as={Link}
                       to="/doctor/orders/create"
-                      variant="primary"
+                      variant="outline-primary"
                       size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                      className="rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
                     >
-                      <FaVial /> Tạo Y Lệnh Xét Nghiệm Máu
+                      <FaStethoscope /> Mở Bàn Chỉ Định Xét Nghiệm
                     </Button>
                   </div>
                 </div>
@@ -1565,11 +1669,11 @@ export default function DoctorConsolePage() {
                 </div>
               </Col>
               <Col sm={6} className="text-sm-end">
-                <div className="small text-muted">Chữ ký số kỹ thuật Lab:</div>
+                <div className="small text-muted">Xác nhận kỹ thuật Lab (không thay duyệt lâm sàng):</div>
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
-                  <FaShieldAlt /> {consultationResult?.reviewedBy || 'Trưởng Khoa Xét Nghiệm'}
+                  <FaShieldAlt /> {consultationResult?.reviewedBy || consultationData?.technicianName || consultationData?.verifiedByName || 'KTV đã xác nhận kỹ thuật'}
                 </div>
-                <div className="small text-muted">Chứng thư số y tế hợp lệ · Tiêu chuẩn ISO 15189:2022</div>
+                <div className="small text-muted">Chờ bác sĩ duyệt + ký số mới trả BN · ISO 15189:2022</div>
               </Col>
             </Row>
           </div>
@@ -1592,7 +1696,7 @@ export default function DoctorConsolePage() {
                 </div>
               ) : consultationParams.length === 0 ? (
                 <div className="text-center py-4 text-muted small">
-                  Chưa tìm thấy chỉ số kết quả đo nào gắn với mẫu <strong>{consultationData?.specimenId || '—'}</strong>.
+                  Chưa tìm thấy chỉ số kết quả đo nào gắn với mẫu <strong>{consultationData?.specimenId || consultationData?.appointmentCode || '—'}</strong>.
                 </div>
               ) : (
                 <div className="table-responsive">
@@ -1609,9 +1713,9 @@ export default function DoctorConsolePage() {
                     <tbody>
                       {consultationParams.map((p, idx) => {
                         const fl = String(p.flag || 'Normal').toLowerCase();
-                        const isCrit = fl === 'critical' || fl === 'panic';
-                        const isHigh = fl === 'high';
-                        const isLow = fl === 'low';
+                        const isCrit = fl === 'critical' || fl === 'panic' || fl === '3';
+                        const isHigh = fl === 'high' || fl === '2';
+                        const isLow = fl === 'low' || fl === '1';
                         return (
                           <tr
                             key={`${p.code}-${idx}`}
@@ -1752,13 +1856,15 @@ export default function DoctorConsolePage() {
 
         <Modal.Footer className="bg-light d-flex justify-content-between">
           <div>
-            <Button
-              variant="outline-danger"
-              className="d-flex align-items-center gap-1.5 fw-semibold"
-              onClick={() => setShowReturnRerunModal(true)}
-            >
-              <FaUndo /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
-            </Button>
+            {!isDeliverySuccess && (
+              <Button
+                variant="outline-danger"
+                className="d-flex align-items-center gap-1.5 fw-semibold"
+                onClick={() => setShowReturnRerunModal(true)}
+              >
+                <FaUndo /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
+              </Button>
+            )}
           </div>
 
           <div className="d-flex gap-2">
@@ -1768,7 +1874,18 @@ export default function DoctorConsolePage() {
             <Button
               variant="success"
               onClick={handleApproveAndDeliverToPatient}
-              disabled={actionLoading}
+              disabled={actionLoading || !canDoctorApproveResults}
+              title={
+                isDeliverySuccess
+                  ? 'Đã trả kết quả'
+                  : (liveTestResults.length === 0 && !consultationResult)
+                    ? 'Chưa có KQ Lab — Lab phải nhập trước'
+                    : !clinicalIcdCode?.trim()
+                      ? 'Nhập ICD-10'
+                      : (clinicalConclusion?.trim()?.length || 0) < 10
+                        ? 'Kết luận lâm sàng ≥ 10 ký tự'
+                        : 'Ký duyệt và mở Cổng BN'
+              }
               className="d-flex align-items-center gap-2 fw-bold text-white px-3 shadow-sm"
               style={{ backgroundColor: '#059669', borderColor: '#059669' }}
             >

@@ -13,7 +13,6 @@ import {
   FaIdCard,
   FaPhoneAlt,
   FaFileMedical,
-  FaShieldAlt,
   FaMapMarkerAlt,
   FaNotesMedical,
   FaExclamationTriangle
@@ -32,21 +31,18 @@ const SHIFT_DEFINITIONS = [
     id: 'Morning',
     name: 'Ca Sáng',
     timeRange: '07:00 – 11:30',
-    icon: '🌅',
     desc: 'Khung giờ lấy máu xét nghiệm chuẩn nhịn ăn sáng'
   },
   {
     id: 'Afternoon',
     name: 'Ca Chiều',
     timeRange: '13:00 – 17:00',
-    icon: '☀️',
     desc: 'Tư vấn chuyên sâu và xét nghiệm không cần nhịn ăn'
   },
   {
     id: 'Evening',
     name: 'Ca Tối',
     timeRange: '17:30 – 20:30',
-    icon: '🌙',
     desc: 'Lấy mẫu ngoài giờ thuận tiện cho người đi làm'
   }
 ];
@@ -603,9 +599,12 @@ export function BookAppointmentPage({
     <div className="bms-booking-page py-2" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       <div className="container" style={{ maxWidth: 1160 }}>
 
-        <header className="bms-page-header">
-          <h1 className="bms-page-title">Đặt lịch khám</h1>
-        </header>
+        <div className="bms-page-header-card mb-4">
+          <div className="bms-page-header-content">
+            <h1 className="bms-page-title">Đặt Lịch Xét Nghiệm</h1>
+            <p className="bms-page-subtitle">Chọn gói dịch vụ, ngày khám và khung giờ lấy mẫu phù hợp</p>
+          </div>
+        </div>
 
         <form onSubmit={onSubmit}>
           <div className="row g-4">
@@ -784,17 +783,17 @@ export function BookAppointmentPage({
                   )}
 
                   {(!activeShiftData || shiftSlots.length === 0) && (
-                    <div className="alert alert-warning border-0 rounded-3 p-3 my-3" style={{ backgroundColor: '#fffbeb', borderLeft: '4px solid #f59e0b' }}>
+                    <div className="alert alert-warning border rounded-3 p-3 my-3" style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
                       <div className="d-flex align-items-center gap-2 fw-bold text-dark small mb-1">
                         <FaExclamationTriangle className="text-warning flex-shrink-0" />
                         <span>
                           {!activeShiftData
-                            ? `[MSG-ERR-APPT-04] Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} hiện chưa có Bác sĩ chuyên khoa ${selectedPackage?.category || ''} trực tiếp nhận.`
-                            : `[MSG-ERR-APPT-04] Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} của ${activeShiftData.doctorName} đã kín lịch hẹn (hết khung giờ trống).`}
+                            ? `Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} hiện chưa có Bác sĩ chuyên khoa ${selectedPackage?.category || ''} trực tiếp nhận.`
+                            : `Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} của ${activeShiftData.doctorName} đã kín lịch hẹn.`}
                         </span>
                       </div>
                       <div className="small text-muted mb-2">
-                        Quý khách vui lòng chọn ca khác trong ngày hoặc chuyển nhanh sang các ngày tiếp theo có ca trực sẵn sàng:
+                        Vui lòng chọn ca khác hoặc chuyển sang các ngày kế tiếp:
                       </div>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         {quickDates.map((qd) => (
@@ -812,8 +811,8 @@ export function BookAppointmentPage({
                     </div>
                   )}
 
-                  {/* Thẻ Điều Phối Y Khoa Chuyên Biệt (Auto-Allocation - Khóa chặt theo Chuyên khoa Gói) */}
-                  <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`} style={{ borderLeft: '4px solid #16a34a' }}>
+                  {/* Auto-Allocated Clinical Doctor Card */}
+                  <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`}>
                     {loadingShifts ? (
                       <span className="text-muted small py-2 d-flex align-items-center gap-2">
                         <span className="spinner-border spinner-border-sm text-primary" role="status" />
@@ -886,7 +885,7 @@ export function BookAppointmentPage({
               </div>
 
               {(validationError || error) && (
-                <div className="alert alert-danger border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-2 text-dark small" style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444' }}>
+                <div className="alert alert-danger border rounded-3 p-3 mb-3 d-flex align-items-center gap-2 text-dark small" style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca' }}>
                   <FaExclamationTriangle className="text-danger flex-shrink-0" />
                   <span>{validationError || error}</span>
                 </div>

@@ -13,7 +13,8 @@ import {
   FaDatabase as Database,
   FaHeartbeat as Activity,
   FaEye as Eye,
-  FaHistory as History
+  FaHistory as History,
+  FaTimes
 } from 'react-icons/fa';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
@@ -817,69 +818,162 @@ export default function IotMonitorPage() {
   const cleanDisconnectionMsg = (connection.alertMessage || '').replace(/^MSG-[A-Z]+-\d+:\s*/i, '');
 
   return (
-    <div className="bms-page-wrap" style={{ padding: '24px', maxWidth: '1480px', margin: '0 auto' }}>
+    <div className="w-100 py-1">
+      {/* 1. PAGE HEADER CARD FIRST */}
+      <div className="bms-page-header-card mb-3">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row d-flex align-items-center gap-2 flex-wrap">
+            <h1 className="bms-page-title">
+              Giám Sát Nhiệt Độ &amp; Độ Ẩm Kho Bảo Quản
+            </h1>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '3px 10px',
+                borderRadius: '999px',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                background: connection.isConnected ? '#dcfce7' : '#fee2e2',
+                color: connection.isConnected ? '#15803d' : '#b91c1c'
+              }}
+            >
+              {connection.isConnected ? <Wifi size={13} /> : <WifiOff size={13} />}
+              {connection.isConnected ? 'ĐANG TRỰC TUYẾN' : 'MẤT KẾT NỐI'}
+            </span>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Theo dõi thời gian thực nhiệt độ, độ ẩm tủ bảo quản mẫu và lịch sử ghi nhận từ hệ thống cảm biến
+          </p>
+        </div>
+
+        {/* Device Selector & Quick Actions */}
+        <div className="bms-page-actions">
+          <select
+            value={selectedDeviceId}
+            onChange={(e) => {
+              const nextId = e.target.value;
+              setSelectedDeviceId(nextId);
+              setSelectedIotDeviceId(nextId);
+              setSelectedOutageId('');
+            }}
+            className="form-select form-select-sm rounded-pill"
+            style={{ width: 'auto', fontWeight: 600 }}
+          >
+            {deviceOptions.length === 0 ? (
+              <option value={selectedDeviceId || ''}>{selectedDeviceId || 'Đang tải thiết bị...'}</option>
+            ) : (
+              deviceOptions.map((dev) => (
+                <option key={dev.id} value={dev.id}>
+                  {dev.label}
+                </option>
+              ))
+            )}
+          </select>
+
+          <button
+            type="button"
+            onClick={() => openConfigModal('mqtt')}
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2 fw-semibold"
+          >
+            <Sliders size={12} />
+            <span>Cấu hình MQTT</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAutoRefresh((v) => !v)}
+            className={`btn btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2 fw-semibold ${autoRefresh ? 'btn-outline-primary' : 'btn-outline-secondary'}`}
+          >
+            <RefreshCw size={13} />
+            <span>{autoRefresh ? `Tự động (${pollIntervalSec}s)` : 'Tạm dừng'}</span>
+          </button>
+
+          <select
+            value={pollIntervalSec}
+            onChange={(e) => setPollIntervalSec(Number(e.target.value))}
+            title="Chu kỳ làm mới dữ liệu"
+            className="form-select form-select-sm rounded-pill"
+            style={{ width: 'auto', fontWeight: 600 }}
+          >
+            <option value={3}>3 giây</option>
+            <option value={5}>5 giây</option>
+            <option value={10}>10 giây</option>
+          </select>
+
+          <Link
+            to="/manager/iot-thresholds"
+            className="btn btn-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2 fw-semibold text-white"
+            style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
+          >
+            <Sliders size={13} />
+            <span>Cấu hình ngưỡng</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* 2. IOT NAVIGATION TABS BELOW HEADER */}
       <IotNavigationTabs connectionStatus={connection} />
 
-      {/* 1. DISCONNECTION WARNING BANNER */}
+      {/* 3. DISCONNECTION WARNING BANNER (Soft Pastel Surface, No Gradient) */}
       {!connection.isConnected && (
         <div
           role="alert"
           style={{
-            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-            border: '2px solid #ef4444',
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
             borderRadius: '14px',
-            padding: '16px 20px',
-            marginBottom: '18px',
+            padding: '14px 18px',
+            marginBottom: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '14px',
-            boxShadow: '0 6px 18px rgba(220, 38, 38, 0.14)'
+            gap: '14px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
             <div
               style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: '#dc2626',
-                color: '#ffffff',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: 'rgba(239, 68, 68, 0.12)',
+                color: '#DC2626',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}
             >
-              <WifiOff size={24} />
+              <WifiOff size={20} />
             </div>
             <div>
-              <strong style={{ fontSize: '15px', color: '#7f1d1d' }}>
-                CẢNH BÁO MẤT KẾT NỐI THIẾT BỊ CẢM BIẾN ({connection.deviceId})
+              <strong style={{ fontSize: '14px', color: '#991B1B' }}>
+                Cảnh báo mất kết nối thiết bị cảm biến ({connection.deviceId})
               </strong>
-              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#991b1b', lineHeight: 1.45 }}>
+              <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#7F1D1D', lineHeight: 1.45 }}>
                 {cleanDisconnectionMsg ||
-                  'Mất kết nối đến thiết bị cảm biến môi trường. Không thể nhận dữ liệu thời gian thực!'}{' '}
+                  'Mất kết nối đến thiết bị cảm biến môi trường. Không thể nhận dữ liệu thời gian thực.'}{' '}
                 Thời gian gián đoạn: <strong>{formatDurationVi(connection.secondsSinceLastSeen)}</strong> (Tín hiệu
                 cuối: <strong>{formatDateTimeVi(connection.lastSeenAt)}</strong>).
               </p>
-              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#b91c1c' }}>
-                Thiết bị đang tự động lưu trữ nhiệt độ và độ ẩm trong thời gian mất kết nối. Khi kết nối được khôi
-                phục, dữ liệu trong khoảng gián đoạn sẽ tự động đồng bộ và hiển thị lại trên biểu đồ.
+              <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#B91C1C' }}>
+                Thiết bị đang tự động lưu tạm dữ liệu và sẽ đồng bộ bù ngay khi kết nối được khôi phục.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 2. RECOVERED OUTAGE NOTIFICATION BANNER */}
+      {/* 4. RECOVERED OUTAGE NOTIFICATION BANNER */}
       {connection.isConnected && connection.lastRecoveredOutage && (
         <div
           style={{
-            background: '#f5f3ff',
-            border: '1px solid #c4b5fd',
-            borderRadius: '12px',
+            background: '#F5F3FF',
+            border: '1px solid #DDD6FE',
+            borderRadius: '14px',
             padding: '12px 18px',
             marginBottom: '16px',
             display: 'flex',
@@ -906,17 +1000,13 @@ export default function IotMonitorPage() {
                 prev === connection.lastRecoveredOutage.id ? '' : connection.lastRecoveredOutage.id
               )
             }
+            className="btn btn-sm rounded-pill px-3 fw-semibold"
             style={{
-              padding: '6px 12px',
-              borderRadius: '8px',
               border: '1px solid #7c3aed',
               background:
                 selectedOutageId === connection.lastRecoveredOutage.id ? '#7c3aed' : '#ffffff',
               color:
-                selectedOutageId === connection.lastRecoveredOutage.id ? '#ffffff' : '#6d28d9',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer'
+                selectedOutageId === connection.lastRecoveredOutage.id ? '#ffffff' : '#6d28d9'
             }}
           >
             {selectedOutageId === connection.lastRecoveredOutage.id
@@ -926,169 +1016,13 @@ export default function IotMonitorPage() {
         </div>
       )}
 
-      {/* 3. PAGE HEADER CARD */}
-      <div
-        className="bms-page-header-card"
-        style={{
-          background: '#ffffff',
-          borderRadius: '14px',
-          border: '1px solid #e2e8f0',
-          padding: '20px 24px',
-          marginBottom: '18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px'
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>
-              Giám Sát Nhiệt Độ &amp; Độ Ẩm Kho Bảo Quản
-            </h1>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: '999px',
-                fontSize: '12px',
-                fontWeight: 700,
-                background: connection.isConnected ? '#dcfce7' : '#fee2e2',
-                color: connection.isConnected ? '#15803d' : '#b91c1c'
-              }}
-            >
-              {connection.isConnected ? <Wifi size={14} /> : <WifiOff size={14} />}
-              {connection.isConnected ? 'ĐANG TRỰC TUYẾN' : 'MẤT KẾT NỐI'}
-            </span>
-          </div>
-          <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-            Theo dõi thời gian thực nhiệt độ, độ ẩm tủ bảo quản máu và lịch sử ghi nhận từ hệ thống cảm biến.
-          </p>
-        </div>
-
-        {/* Device Selector & Quick Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <select
-            value={selectedDeviceId}
-            onChange={(e) => {
-              const nextId = e.target.value;
-              setSelectedDeviceId(nextId);
-              setSelectedIotDeviceId(nextId);
-              setSelectedOutageId('');
-            }}
-            style={{
-              padding: '9px 12px',
-              borderRadius: '9px',
-              border: '1px solid #cbd5e1',
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#0f172a',
-              background: '#f8fafc'
-            }}
-          >
-            {deviceOptions.length === 0 ? (
-              <option value={selectedDeviceId || ''}>{selectedDeviceId || 'Đang tải thiết bị...'}</option>
-            ) : (
-              deviceOptions.map((dev) => (
-                <option key={dev.id} value={dev.id}>
-                  {dev.label}
-                </option>
-              ))
-            )}
-          </select>
-
-          <button
-            type="button"
-            onClick={() => openConfigModal('mqtt')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '9px 12px',
-              borderRadius: '9px',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
-              color: '#1e293b',
-              fontSize: '12.5px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            <Sliders size={12} />
-            Cấu hình MQTT / Thiết bị
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setAutoRefresh((v) => !v)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '9px 12px',
-              borderRadius: '9px',
-              border: '1px solid #cbd5e1',
-              background: autoRefresh ? '#eff6ff' : '#ffffff',
-              color: autoRefresh ? '#1e40af' : '#475569',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
-          >
-            <RefreshCw size={14} />
-            {autoRefresh ? `Tự động cập nhật (${pollIntervalSec}s)` : 'Đã tạm dừng cập nhật'}
-          </button>
-
-          <select
-            value={pollIntervalSec}
-            onChange={(e) => setPollIntervalSec(Number(e.target.value))}
-            title="Chu kỳ làm mới dữ liệu"
-            style={{
-              padding: '9px 10px',
-              borderRadius: '9px',
-              border: '1px solid #cbd5e1',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              color: '#1e40af',
-              background: '#ffffff'
-            }}
-          >
-            <option value={3}>Cập nhật: 3 giây</option>
-            <option value={5}>Cập nhật: 5 giây</option>
-            <option value={10}>Cập nhật: 10 giây</option>
-          </select>
-
-          <Link
-            to="/manager/iot-thresholds"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '9px 14px',
-              borderRadius: '9px',
-              background: '#1e40af',
-              color: '#ffffff',
-              textDecoration: 'none',
-              fontSize: '12.5px',
-              fontWeight: 600
-            }}
-          >
-            <Sliders size={14} />
-            Cấu hình ngưỡng
-          </Link>
-        </div>
-      </div>
-
       {/* Feedback Banner */}
       {feedbackMsg && (
         <div
           style={{
             marginBottom: '16px',
             padding: '11px 16px',
-            borderRadius: '10px',
+            borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -1119,9 +1053,10 @@ export default function IotMonitorPage() {
           <button
             type="button"
             onClick={() => setFeedbackMsg(null)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
+            aria-label="Đóng"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: 'inherit' }}
           >
-            ✕
+            <FaTimes size={13} />
           </button>
         </div>
       )}
@@ -1375,162 +1310,175 @@ export default function IotMonitorPage() {
 
       {/* 6. CONNECTION OUTAGE & BUFFER RECOVERY HISTORY TABLE */}
       {outages.length > 0 && (
-        <div
-          className="bms-table-standalone-section"
-          style={{
-            background: '#ffffff',
-            borderRadius: '14px',
-            border: '1px solid #e2e8f0',
-            padding: '18px 20px',
-            marginBottom: '20px'
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '12px',
-              flexWrap: 'wrap',
-              gap: '8px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <History size={18} color="#7c3aed" />
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
-                Lịch sử Khoảng Mất Kết Nối &amp; Đồng Bộ Dữ Liệu ({outages.length})
-              </h3>
-            </div>
+        <div className="bms-table-standalone-section">
+          <div className="bms-table-standalone-header">
+            <h3 className="bms-table-standalone-title">
+              <History size={16} color="#7c3aed" />
+              <span>Lịch Sử Khoảng Mất Kết Nối &amp; Đồng Bộ Dữ Liệu ({outages.length})</span>
+            </h3>
             {selectedOutageId && (
               <button
                 type="button"
                 onClick={() => setSelectedOutageId('')}
-                style={{
-                  padding: '5px 10px',
-                  borderRadius: '7px',
-                  border: '1px solid #cbd5e1',
-                  background: '#f8fafc',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
+                className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
               >
                 Hiển thị lại tất cả bản ghi
               </button>
             )}
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table className="bms-dash-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Thiết bị</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Thời điểm mất kết nối</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Thời điểm kết nối lại</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right' }}>Thời lượng gián đoạn</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right' }}>Dữ liệu đã đồng bộ bù</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center' }}>Trạng thái</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center' }}>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {outages.slice(0, 8).map((o) => {
-                  const isSelected = selectedOutageId === o.id;
-                  return (
-                    <tr
-                      key={o.id}
-                      style={{
-                        borderBottom: '1px solid #f1f5f9',
-                        background: isSelected ? '#f5f3ff' : 'transparent'
-                      }}
-                    >
-                      <td style={{ padding: '10px 12px', fontWeight: 600 }}>{o.deviceId}</td>
-                      <td style={{ padding: '10px 12px' }}>{formatDateTimeVi(o.disconnectedAt)}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        {o.reconnectedAt ? formatDateTimeVi(o.reconnectedAt) : 'Đang mất kết nối...'}
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'right', fontFamily: 'monospace' }}>
-                        {formatDurationVi(o.durationSeconds)}
-                      </td>
-                      <td
+          <div className="bms-table-standalone-body">
+            <div className="table-responsive">
+              <table className="bms-dash-table">
+                <thead>
+                  <tr>
+                    <th>Thiết bị</th>
+                    <th>Thời điểm mất kết nối</th>
+                    <th>Thời điểm kết nối lại</th>
+                    <th className="text-end">Thời lượng gián đoạn</th>
+                    <th className="text-end">Dữ liệu đã đồng bộ bù</th>
+                    <th className="text-center">Trạng thái</th>
+                    <th className="text-end pe-3">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {outages.slice(0, 8).map((o) => {
+                    const isSelected = selectedOutageId === o.id;
+                    return (
+                      <tr
+                        key={o.id}
                         style={{
-                          padding: '10px 12px',
-                          textAlign: 'right',
-                          fontWeight: 700,
-                          color: '#6d28d9'
+                          background: isSelected ? '#f5f3ff' : undefined
                         }}
                       >
-                        {o.bufferedRecordsSynced || 0} bản ghi
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '3px 9px',
-                            borderRadius: '999px',
-                            fontSize: '11.5px',
-                            fontWeight: 700,
-                            background: o.status === 'Ongoing' ? '#fee2e2' : '#dcfce7',
-                            color: o.status === 'Ongoing' ? '#b91c1c' : '#15803d'
-                          }}
-                        >
-                          {o.status === 'Ongoing' ? 'ĐANG MẤT KẾT NỐI' : 'ĐÃ KHÔI PHỤC'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedOutageId(isSelected ? '' : o.id)}
-                          style={{
-                            padding: '5px 10px',
-                            borderRadius: '7px',
-                            border: '1px solid #c4b5fd',
-                            background: isSelected ? '#7c3aed' : '#ffffff',
-                            color: isSelected ? '#ffffff' : '#6d28d9',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {isSelected ? 'Bỏ lọc' : 'Xem dữ liệu khoảng này'}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <td className="fw-semibold">{o.deviceId}</td>
+                        <td>{formatDateTimeVi(o.disconnectedAt)}</td>
+                        <td>
+                          {o.reconnectedAt ? formatDateTimeVi(o.reconnectedAt) : 'Đang mất kết nối...'}
+                        </td>
+                        <td className="text-end font-monospace">
+                          {formatDurationVi(o.durationSeconds)}
+                        </td>
+                        <td className="text-end fw-bold" style={{ color: '#6d28d9' }}>
+                          {o.bufferedRecordsSynced || 0} bản ghi
+                        </td>
+                        <td className="text-center">
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '3px 9px',
+                              borderRadius: '999px',
+                              fontSize: '11.5px',
+                              fontWeight: 700,
+                              background: o.status === 'Ongoing' ? '#fee2e2' : '#dcfce7',
+                              color: o.status === 'Ongoing' ? '#b91c1c' : '#15803d'
+                            }}
+                          >
+                            {o.status === 'Ongoing' ? 'ĐANG MẤT KẾT NỐI' : 'ĐÃ KHÔI PHỤC'}
+                          </span>
+                        </td>
+                        <td className="text-end pe-3">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedOutageId(isSelected ? '' : o.id)}
+                            className="btn btn-sm rounded-pill text-nowrap"
+                            style={{
+                              border: '1px solid #c4b5fd',
+                              background: isSelected ? '#7c3aed' : '#ffffff',
+                              color: isSelected ? '#ffffff' : '#6d28d9',
+                              fontSize: '12px',
+                              fontWeight: 600
+                            }}
+                          >
+                            {isSelected ? 'Bỏ lọc' : 'Xem dữ liệu khoảng này'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 7. TEMPERATURE & HUMIDITY LOGS TABLE */}
-      <div
-        className="bms-table-standalone-section"
-        style={{
-          background: '#ffffff',
-          borderRadius: '14px',
-          border: '1px solid #e2e8f0',
-          padding: '20px'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-            marginBottom: '16px'
-          }}
+      {/* 7. SINGLE-LINE FILTER BAR ABOVE TELEMETRY LOGS TABLE (ZERO BOX-IN-BOX) */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <Search className="bms-search-icon" size={14} />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Tìm theo thiết bị, vị trí kho, trạng thái..."
+          />
+          {searchInput && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchInput('')}
+              title="Xóa tìm kiếm"
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="form-select form-select-sm"
+          style={{ width: 'auto' }}
         >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="NORMAL">Bình thường</option>
+          <option value="VIOLATION">Vượt ngưỡng an toàn</option>
+          <option value="BUFFERED">Dữ liệu đồng bộ bù</option>
+        </select>
+
+        <input
+          type="datetime-local"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          className="form-control form-control-sm"
+          style={{ width: 'auto' }}
+          title="Từ thời điểm"
+        />
+
+        <input
+          type="datetime-local"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+          className="form-control form-control-sm"
+          style={{ width: 'auto' }}
+          title="Đến thời điểm"
+        />
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
+          >
+            Xóa bộ lọc
+          </button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{logs.length}</strong> bản ghi
+        </span>
+      </div>
+
+      {/* 8. TEMPERATURE & HUMIDITY LOGS TABLE (STANDALONE) */}
+      <div className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
           <div>
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+            <h2 className="bms-table-standalone-title">
               Nhật Ký Dữ Liệu Nhiệt Độ &amp; Độ Ẩm Theo Thời Gian
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12.5px', color: '#64748b' }}>
-              Hiển thị {logs.length} bản ghi gần nhất · Bao gồm cả dữ liệu trực tuyến và dữ liệu đồng bộ bù khi mất kết
-              nối.
+            <p className="bms-table-standalone-subtitle">
+              Bao gồm dữ liệu trực tuyến và dữ liệu đồng bộ bù khi mất kết nối
             </p>
           </div>
 
@@ -1538,128 +1486,15 @@ export default function IotMonitorPage() {
             type="button"
             onClick={handleExportCsv}
             disabled={!logs.length}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              borderRadius: '9px',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
-              color: '#0f172a',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              cursor: logs.length ? 'pointer' : 'not-allowed'
-            }}
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2 fw-semibold text-nowrap"
           >
-            <Download size={14} />
-            Xuất file CSV ({logs.length})
+            <Download size={13} />
+            <span>Xuất file CSV ({logs.length})</span>
           </button>
         </div>
 
-        {/* Filter Bar */}
-        <div
-          className="bms-filter-bar"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '10px',
-            padding: '12px',
-            background: '#f8fafc',
-            borderRadius: '10px',
-            marginBottom: '16px'
-          }}
-        >
-          <div style={{ position: 'relative', flex: '1 1 220px' }}>
-            <Search
-              size={15}
-              color="#64748b"
-              style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}
-            />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Tìm theo thiết bị, vị trí kho, trạng thái..."
-              style={{
-                width: '100%',
-                padding: '8px 10px 8px 32px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '13px'
-              }}
-            />
-          </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              fontSize: '13px',
-              background: '#ffffff'
-            }}
-          >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="NORMAL">Bình thường</option>
-            <option value="VIOLATION">Vượt ngưỡng an toàn</option>
-            <option value="BUFFERED">Dữ liệu đồng bộ bù khi mất kết nối</option>
-          </select>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#475569' }}>
-            <span>Từ:</span>
-            <input
-              type="datetime-local"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              style={{
-                padding: '7px 9px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '12.5px'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#475569' }}>
-            <span>Đến:</span>
-            <input
-              type="datetime-local"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              style={{
-                padding: '7px 9px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '12.5px'
-              }}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleClearFilters}
-            disabled={!hasActiveFilters}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: hasActiveFilters ? '#ffffff' : '#f1f5f9',
-              color: hasActiveFilters ? '#dc2626' : '#94a3b8',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              cursor: hasActiveFilters ? 'pointer' : 'not-allowed'
-            }}
-          >
-            Xóa bộ lọc
-          </button>
-        </div>
-
-        {/* Table Content */}
-        <div style={{ overflowX: 'auto' }}>
+        <div className="bms-table-standalone-body">
+          <div className="table-responsive">
           <table className="bms-dash-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e2e8f0', background: '#f8fafc', color: '#334155' }}>
@@ -1814,12 +1649,13 @@ export default function IotMonitorPage() {
                   );
                 })
               )}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* 8. DETAIL MODAL */}
+      {/* 9. DETAIL MODAL */}
       {showConfigModal && (
         <div
           onClick={() => setShowConfigModal(false)}
@@ -1852,9 +1688,10 @@ export default function IotMonitorPage() {
               <button
                 type="button"
                 onClick={() => setShowConfigModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+                aria-label="Đóng"
+                style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: '#475569' }}
               >
-                ✕
+                <FaTimes />
               </button>
             </div>
 
@@ -2051,9 +1888,10 @@ export default function IotMonitorPage() {
               <button
                 type="button"
                 onClick={() => setSelectedLogModal(null)}
-                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+                aria-label="Đóng"
+                style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: '#475569' }}
               >
-                ✕
+                <FaTimes />
               </button>
             </div>
 

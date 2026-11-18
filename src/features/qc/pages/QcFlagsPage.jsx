@@ -19,7 +19,7 @@ import {
 import { 
   FaFlask, FaExclamationTriangle, FaCheckCircle, 
   FaPlus, FaTrashAlt, FaSyncAlt, FaSearch, 
-  FaVial, FaTools, FaCheck, FaInfoCircle
+  FaVial, FaTools, FaCheck, FaInfoCircle, FaTimes
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';

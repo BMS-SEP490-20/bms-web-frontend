@@ -20,7 +20,7 @@ import {
 import {
   FaVial, FaClock, FaExchangeAlt, FaRedoAlt, FaSearch,
   FaSyncAlt, FaBarcode, FaCheckCircle, FaExclamationTriangle,
-  FaHistory, FaUserInjured, FaFlask, FaTimes, FaEye, FaSave, FaInfoCircle
+  FaHistory, FaUserInjured, FaFlask, FaTimes, FaEye, FaSave, FaInfoCircle, FaArrowRight
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import PageHeader from '../../../components/ui/PageHeader';

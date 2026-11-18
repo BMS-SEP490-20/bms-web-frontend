@@ -15,9 +15,11 @@ import {
   FaFileMedical,
   FaMapMarkerAlt,
   FaNotesMedical,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaSearch
 } from 'react-icons/fa';
 import '../appointment.css';
+import api from '../../../config/api';
 import { useBookAppointment } from '../hooks/useBookAppointment';
 import { getAvailableSlots, getAvailableDoctors } from '../api/appointmentApi';
 import { fetchServiceCatalog } from '../../catalog/api/catalogApi';
@@ -106,6 +108,9 @@ export function BookAppointmentPage({
     if (propPackages && propPackages.length > 0) return propPackages;
     return [];
   });
+  const [packagesLoading, setPackagesLoading] = useState(false);
+  const [packageSearch, setPackageSearch] = useState('');
+  const [packageCategoryFilter, setPackageCategoryFilter] = useState('ALL');
 
   const [selectedPackageId, setSelectedPackageId] = useState(() => {
     if (preselectedPkgId) return preselectedPkgId;
@@ -286,44 +291,164 @@ export function BookAppointmentPage({
 
   const { book, loading, error, result, reset } = useBookAppointment();
 
-  // Load live packages from backend catalog to enrich if available
+  // Load live packages from database:
+  // - Receptionist: load directly from Admin's Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí (/service-packages)
+  //   and hydrate legacy criteria/metadata from catalog so downstream Lab & Test Results get exact biomarkers.
+  // - Patient: load from unified catalog (/api/v1/catalog/services, synchronized with service_packages).
   useEffect(() => {
     let isMounted = true;
-    fetchServiceCatalog()
-      .then((res) => {
+    setPackagesLoading(true);
+
+    const normalizeCatalogList = (catalogRes) => {
+      const raw = catalogRes?.packages || catalogRes?.services || [];
+      return Array.isArray(raw) ? raw : [];
+    };
+
+    const normalizeServicePackagesList = (spRes) => {
+      const data = spRes?.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.items)) return data.items;
+      if (Array.isArray(data?.data)) return data.data;
+      return [];
+    };
+
+    const mapFromCatalog = (pkgs) =>
+      pkgs.map((p, idx) => {
+        const code = String(p.packageCode || p.code || '').trim().toUpperCase();
+        const sourceId = p.id || p.packageId || '';
+        return {
+          packageId: code || sourceId || `PKG-${idx}`,
+          packageCode: code || sourceId || '',
+          sourceId,
+          packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
+          category: p.category || '',
+          price: Number(p.price ?? 0),
+          originalPrice: null,
+          description: p.description || '',
+          fastingRule: p.fastingRule || '',
+          sampleTube: p.sampleTube || '',
+          criteria: Array.isArray(p.criteria) ? p.criteria : []
+        };
+      });
+
+    const mapFromAdminServicePackages = (spList, catalogList) => {
+      const catalogByKey = new Map();
+      catalogList.forEach((c) => {
+        const keys = [c.packageCode, c.code, c.id, c.packageId]
+          .filter(Boolean)
+          .map((k) => String(k).trim().toUpperCase());
+        keys.forEach((k) => {
+          if (!catalogByKey.has(k)) catalogByKey.set(k, c);
+        });
+      });
+
+      return spList
+        .filter((sp) => (sp.isActive ?? sp.IsActive) !== false && !(sp.isDeleted ?? sp.IsDeleted))
+        .map((sp, idx) => {
+          const sourceId = String(sp.id || sp._id || '').trim();
+          const code = String(sp.code || sp.Code || '').trim().toUpperCase();
+          const catalogMatch =
+            (code && catalogByKey.get(code)) ||
+            (sourceId && catalogByKey.get(sourceId.toUpperCase())) ||
+            null;
+
+          const rawTests = Array.isArray(sp.tests ?? sp.Tests) ? (sp.tests ?? sp.Tests) : [];
+          const catalogCriteria = Array.isArray(catalogMatch?.criteria) ? catalogMatch.criteria : [];
+          const catalogCritByCode = new Map(
+            catalogCriteria
+              .filter((c) => c?.code)
+              .map((c) => [String(c.code).trim().toUpperCase(), c])
+          );
+
+          const criteria =
+            rawTests.length > 0
+              ? rawTests
+                  .map((t) => {
+                    const tCode = String(typeof t === 'string' ? t : (t.code || t.Code || '')).trim().toUpperCase();
+                    if (!tCode) return null;
+                    const tName = typeof t === 'string' ? tCode : (t.name || t.Name || tCode);
+                    const metaCrit = catalogCritByCode.get(tCode);
+                    return {
+                      criterionId: metaCrit?.criterionId || tCode,
+                      code: tCode,
+                      name: tName,
+                      unit: metaCrit?.unit || '',
+                      referenceRange: metaCrit?.referenceRange || null,
+                      sampleType: typeof t === 'object' ? (t.sampleType || t.SampleType || '') : ''
+                    };
+                  })
+                  .filter(Boolean)
+              : catalogCriteria;
+
+          const basePrice = Number(sp.price ?? sp.Price ?? 0);
+          const discountRaw = sp.discountPrice ?? sp.DiscountPrice;
+          const hasDiscount =
+            discountRaw !== null &&
+            discountRaw !== undefined &&
+            Number(discountRaw) >= 0 &&
+            Number(discountRaw) < basePrice;
+          const effectivePrice = hasDiscount ? Number(discountRaw) : basePrice;
+
+          return {
+            packageId: code || sourceId || `PKG-${idx}`,
+            packageCode: code || sourceId || '',
+            sourceId,
+            packageName: sp.name || sp.Name || catalogMatch?.packageName || 'Gói xét nghiệm lâm sàng',
+            category: sp.category || sp.Category || catalogMatch?.category || 'Tổng quát',
+            price: effectivePrice,
+            originalPrice: hasDiscount ? basePrice : null,
+            description: sp.description || sp.Description || catalogMatch?.description || '',
+            fastingRule: sp.preparationNotes || sp.PreparationNotes || catalogMatch?.fastingRule || '',
+            sampleTube: sp.sampleTube || sp.SampleTube || catalogMatch?.sampleTube || '',
+            criteria
+          };
+        });
+    };
+
+    const loadPackages = async () => {
+      try {
+        let mapped = [];
+        if (isReceptionist) {
+          const [spSettled, catSettled] = await Promise.allSettled([
+            api.get('/service-packages', { params: { pageSize: 100 } }),
+            fetchServiceCatalog()
+          ]);
+          const catalogList = catSettled.status === 'fulfilled' ? normalizeCatalogList(catSettled.value) : [];
+          const spList = spSettled.status === 'fulfilled' ? normalizeServicePackagesList(spSettled.value) : [];
+          mapped = spList.length > 0 ? mapFromAdminServicePackages(spList, catalogList) : mapFromCatalog(catalogList);
+        } else {
+          const res = await fetchServiceCatalog();
+          mapped = mapFromCatalog(normalizeCatalogList(res));
+        }
+
         if (!isMounted) return;
-        const pkgs = res?.packages || res?.services || [];
-        if (pkgs.length > 0) {
-          const mapped = pkgs.map((p, idx) => ({
-            packageId: p.packageCode || p.code || p.id || p.packageId || `PKG-${idx}`,
-            packageCode: p.packageCode || p.code || '',
-            sourceId: p.id || p.packageId || '',
-            packageName: p.packageName || p.name || 'Gói xét nghiệm lâm sàng',
-            category: p.category || '',
-            price: p.price ?? 0,
-            description: p.description || '',
-            fastingRule: p.fastingRule || '',
-            criteria: Array.isArray(p.criteria) ? p.criteria : []
-          }));
+        if (mapped.length > 0) {
           setPackages(mapped);
           setSelectedPackageId((current) => {
-            if (current && mapped.some(p => p.packageId === current)) return current;
-            if (preselectedPkgId) {
-              const found = mapped.find(p => packageMatchesSelection(p, preselectedPkgId, preselectedName));
+            if (current && mapped.some((p) => packageMatchesSelection(p, current, ''))) {
+              const matchedCurrent = mapped.find((p) => packageMatchesSelection(p, current, ''));
+              return matchedCurrent ? matchedCurrent.packageId : current;
+            }
+            if (preselectedPkgId || preselectedName) {
+              const found = mapped.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
               if (found) return found.packageId;
             }
             return mapped[0]?.packageId || '';
           });
         }
-      })
-      .catch(() => {
-        // Fallback already handled
-      });
+      } catch {
+        // Keep current packages state if request fails
+      } finally {
+        if (isMounted) setPackagesLoading(false);
+      }
+    };
+
+    void loadPackages();
 
     return () => {
       isMounted = false;
     };
-  }, [preselectedPkgId, preselectedName]);
+  }, [isReceptionist, preselectedPkgId, preselectedName]);
 
   // Sync preselected package from URL whenever preselectedPkgId or packages changes
   useEffect(() => {
@@ -356,6 +481,34 @@ export function BookAppointmentPage({
     void loadDoctorShifts();
   }, [loadDoctorShifts]);
 
+  const packageCategories = useMemo(() => {
+    const set = new Set();
+    packages.forEach((p) => {
+      if (p.category && String(p.category).trim()) set.add(String(p.category).trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'vi'));
+  }, [packages]);
+
+  const filteredPackages = useMemo(() => {
+    const kw = packageSearch.trim().toLowerCase();
+    return packages.filter((p) => {
+      if (packageCategoryFilter !== 'ALL' && String(p.category || '').trim() !== packageCategoryFilter) {
+        return false;
+      }
+      if (!kw) return true;
+      const critMatch = Array.isArray(p.criteria) && p.criteria.some((c) =>
+        `${c.code || ''} ${c.name || ''}`.toLowerCase().includes(kw)
+      );
+      return (
+        String(p.packageCode || '').toLowerCase().includes(kw) ||
+        String(p.packageName || '').toLowerCase().includes(kw) ||
+        String(p.category || '').toLowerCase().includes(kw) ||
+        String(p.description || '').toLowerCase().includes(kw) ||
+        critMatch
+      );
+    });
+  }, [packages, packageSearch, packageCategoryFilter]);
+
   const selectedPackage = useMemo(() => {
     return (
       packages.find((p) => p.packageId === selectedPackageId || p.packageCode === selectedPackageId) ||
@@ -386,6 +539,7 @@ export function BookAppointmentPage({
           pkgCat.includes(spec) ||
           (pkgCat.includes('huyết học') && spec.includes('huyết học')) ||
           (pkgCat.includes('sinh hóa') && spec.includes('sinh hóa')) ||
+          ((pkgCat.includes('nội tiết') || pkgCat.includes('tuyến giáp')) && (spec.includes('nội tiết') || spec.includes('sinh hóa'))) ||
           (pkgCat.includes('miễn dịch') && spec.includes('miễn dịch')) ||
           (pkgCat.includes('đông máu') && spec.includes('đông máu'))
         );
@@ -408,7 +562,12 @@ export function BookAppointmentPage({
         pkgCat.includes('chronic') ||
         pkgCat.includes('specialized') ||
         pkgCat.includes('checkup') ||
-        pkgCat.includes('biochemistry');
+        pkgCat.includes('biochemistry') ||
+        pkgCat.includes('nội tiết') ||
+        pkgCat.includes('tuyến giáp') ||
+        pkgCat.includes('vi sinh') ||
+        pkgCat.includes('ký sinh') ||
+        pkgCat.includes('khác');
       if (isBroadPackage) return inShift;
 
       // Tuyệt đối không fallback sang bác sĩ chuyên khoa khác cho gói chuyên khoa hẹp
@@ -516,7 +675,7 @@ export function BookAppointmentPage({
       doctorId: activeShiftData.doctorId,
       appointmentDate: date,
       slotTime,
-      packageIds: [selectedPackage?.packageId || selectedPackageId],
+      packageIds: [selectedPackage?.packageCode || selectedPackage?.packageId || selectedPackageId],
       notes: notes
         ? `${notes} (Bác sĩ: ${activeShiftData.doctorName} - Phòng: ${activeShiftData.roomName})`
         : `Phòng khám: ${activeShiftData.roomName} (${activeShiftData.roomNumber})`,
@@ -666,44 +825,112 @@ export function BookAppointmentPage({
               {/* SECTION 2: Test Package Selection */}
               <div className="card border-0 shadow-sm rounded-3 mb-4">
                 <div className="card-header bg-white border-bottom py-3 px-3">
-                  <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaVial className="text-primary" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
-                  </h5>
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                      <FaVial className="text-primary" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
+                    </h5>
+                    {isReceptionist && (
+                      <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style={{ fontSize: '11px' }}>
+                        Danh mục gói dịch vụ &amp; bảng giá ({packages.length} gói)
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="card-body p-2">
-                  <div className="bms-pkg-list" role="listbox" aria-label="Chọn gói xét nghiệm">
-                    {packages.map((pkg) => {
-                      const isSelected = pkg.packageId === selectedPackageId;
-                      return (
-                        <button
-                          key={pkg.packageId}
-                          type="button"
-                          role="option"
-                          data-package-id={pkg.packageId}
-                          aria-selected={isSelected}
-                          className={`bms-pkg-item${isSelected ? ' is-selected' : ''}`}
-                          onClick={() => setSelectedPackageId(pkg.packageId)}
+                  {isReceptionist && (
+                    <div className="row g-2 px-1 pt-1 pb-2 mb-2 border-bottom">
+                      <div className="col-md-7">
+                        <div className="input-group input-group-sm">
+                          <span className="input-group-text bg-white text-muted border-end-0">
+                            <FaSearch size={12} />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm border-start-0"
+                            placeholder="Tìm theo mã gói, tên gói hoặc mã chỉ số (WBC, GLU, HBA1C...)"
+                            value={packageSearch}
+                            onChange={(e) => setPackageSearch(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-5">
+                        <select
+                          className="form-select form-select-sm"
+                          value={packageCategoryFilter}
+                          onChange={(e) => setPackageCategoryFilter(e.target.value)}
                         >
-                          <span className="bms-pkg-icon">
-                            <BmsPackageIcon name={packageIconKey(pkg)} size={40} />
-                          </span>
-                          <span className="bms-pkg-copy">
-                            <span className="bms-pkg-name">{pkg.packageName}</span>
-                            {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
-                              <span className="bms-pkg-note">
-                                {pkg.criteria.length} chỉ số: {pkg.criteria.map((c) => c.code || c.name).filter(Boolean).join(', ')}
+                          <option value="ALL">Tất cả chuyên khoa ({packages.length})</option>
+                          {packageCategories.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {packagesLoading ? (
+                    <div className="text-center text-muted small py-4">
+                      <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />
+                      Đang tải danh mục gói xét nghiệm &amp; bảng giá...
+                    </div>
+                  ) : filteredPackages.length === 0 ? (
+                    <div className="text-center text-muted small py-4">
+                      Không tìm thấy gói xét nghiệm nào phù hợp với bộ lọc.
+                    </div>
+                  ) : (
+                    <div className="bms-pkg-list" role="listbox" aria-label="Chọn gói xét nghiệm">
+                      {filteredPackages.map((pkg) => {
+                        const isSelected = pkg.packageId === selectedPackageId;
+                        return (
+                          <button
+                            key={pkg.packageId}
+                            type="button"
+                            role="option"
+                            data-package-id={pkg.packageId}
+                            aria-selected={isSelected}
+                            className={`bms-pkg-item${isSelected ? ' is-selected' : ''}`}
+                            onClick={() => setSelectedPackageId(pkg.packageId)}
+                          >
+                            <span className="bms-pkg-icon">
+                              <BmsPackageIcon name={packageIconKey(pkg)} size={40} />
+                            </span>
+                            <span className="bms-pkg-copy">
+                              <span className="bms-pkg-name d-flex align-items-center flex-wrap gap-1">
+                                {pkg.packageCode && (
+                                  <span
+                                    className="badge bg-light text-primary border font-monospace"
+                                    style={{ fontSize: '10.5px', fontWeight: 700 }}
+                                  >
+                                    {pkg.packageCode}
+                                  </span>
+                                )}
+                                <span>{pkg.packageName}</span>
                               </span>
-                            ) : pkg.fastingRule ? (
-                              <span className="bms-pkg-note">{pkg.fastingRule}</span>
-                            ) : null}
-                          </span>
-                          <span className="bms-pkg-price">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                              {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
+                                <span className="bms-pkg-note">
+                                  {pkg.criteria.length} chỉ số: {pkg.criteria.map((c) => c.code || c.name).filter(Boolean).join(', ')}
+                                </span>
+                              ) : pkg.fastingRule ? (
+                                <span className="bms-pkg-note">{pkg.fastingRule}</span>
+                              ) : pkg.description ? (
+                                <span className="bms-pkg-note">{pkg.description}</span>
+                              ) : null}
+                            </span>
+                            <span className="bms-pkg-price text-end">
+                              <span>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
+                              </span>
+                              {pkg.originalPrice && (
+                                <small className="d-block text-muted text-decoration-line-through fw-normal" style={{ fontSize: '11px' }}>
+                                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.originalPrice)}
+                                </small>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -911,14 +1138,40 @@ export function BookAppointmentPage({
                   {selectedPackage && (
                     <div className="mb-3 pb-3 border-bottom">
                       <div className="small text-muted">Gói xét nghiệm chỉ định:</div>
-                      <div className="fw-bold text-dark mt-1">{selectedPackage.packageName}</div>
+                      <div className="fw-bold text-dark mt-1 d-flex align-items-center flex-wrap gap-1">
+                        {selectedPackage.packageCode && (
+                          <span className="badge bg-primary-subtle text-primary font-monospace" style={{ fontSize: '11px' }}>
+                            {selectedPackage.packageCode}
+                          </span>
+                        )}
+                        <span>{selectedPackage.packageName}</span>
+                      </div>
                       {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
-                        <div className="small text-muted mt-1">
-                          Chỉ số trong gói: <strong>{selectedPackage.criteria.map((c) => c.code || c.name).filter(Boolean).join(', ')}</strong>
+                        <div className="mt-2">
+                          <div className="small text-muted mb-1">
+                            Chỉ số xét nghiệm ({selectedPackage.criteria.length}):
+                          </div>
+                          <div className="d-flex flex-wrap gap-1">
+                            {selectedPackage.criteria.map((c, idx) => (
+                              <span
+                                key={`${c.code || c.name}-${idx}`}
+                                className="badge bg-light text-dark border fw-medium"
+                                style={{ fontSize: '11px' }}
+                                title={c.name || c.code}
+                              >
+                                {c.code || c.name}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       )}
-                      <div className="fw-bold text-primary mt-1 fs-5">
+                      <div className="fw-bold text-primary mt-2 fs-5">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.price)}
+                        {selectedPackage.originalPrice && (
+                          <span className="ms-2 small text-muted text-decoration-line-through fw-normal">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.originalPrice)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}

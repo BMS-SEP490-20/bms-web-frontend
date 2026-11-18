@@ -115,20 +115,6 @@ export default function RoleBasedDashboard() {
   const activeRole = useMemo(() => resolveDashboardRoleKey(currentUser), [currentUser]);
   const meta = ROLE_META[activeRole] || ROLE_META.Manager;
 
-  // Determine initial role from logged in user claims
-  const initialRole = useMemo(() => {
-    if (!currentUser) return 'Manager';
-    const r = (currentUser.role || currentUser.roleName || '').toString().trim().toLowerCase();
-    if (r.includes('admin')) return 'Admin';
-    if (r.includes('doc')) return 'Doctor';
-    if (r.includes('lab') || r.includes('tech')) return 'LaboratoryUser';
-    if (r.includes('rec')) return 'Receptionist';
-    return 'Manager';
-  }, [currentUser]);
-
-  // SoD (decision 10 / Phase 6): never let Admin (or any role) preview another role's clinical dashboard.
-  // Cross-role tabs previously exposed Manager "Vào thẩm định kỹ thuật" CTAs to Admin.
-  const selectedRole = initialRole;
   const [stats, setStats] = useState(null);
   const [adminOps, setAdminOps] = useState(null);
   const [verificationQueue, setVerificationQueue] = useState([]);
@@ -209,33 +195,10 @@ export default function RoleBasedDashboard() {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  // Manager-only tech-verify queue (patient names). Skip for Admin/Doctor/Lab/Receptionist.
-  useEffect(() => {
-    if (selectedRole !== 'Manager') {
-      setLiveQueue([]);
-      return;
-    }
-    fetchVerificationQueue()
-      .then(items => {
-        const safeItems = Array.isArray(items) ? items : (items?.data && Array.isArray(items.data) ? items.data : []);
-        if (safeItems.length > 0) {
-          setLiveQueue(safeItems.map(q => ({
-            id: q.specimenId || q.id || 'SPC-001',
-            orderId: q.orderId || 'ORD-001',
-            patientName: q.patientName || 'Bệnh Nhân',
-            packageName: q.packageName || 'Bộ xét nghiệm máu',
-            priority: q.priority || 'Normal',
-            flagCount: q.flagCount || 0,
-            submittedAt: q.createdAt ? new Date(q.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'Sáng nay'
-          })));
-        }
-      })
-      .catch(() => {});
-  }, [selectedRole]);
-
-  const managerQueue = useMemo(() => {
-    return liveQueue.slice(0, 5);
-  }, [liveQueue]);
+  const totalAdminUsers = useMemo(() => {
+    if (!adminOps?.usersPerRole) return 0;
+    return Object.values(adminOps.usersPerRole).reduce((sum, n) => sum + (Number(n) || 0), 0);
+  }, [adminOps]);
 
   return (
     <div className="w-100 py-1">
@@ -261,27 +224,6 @@ export default function RoleBasedDashboard() {
               <span>{loading ? 'Đang tải...' : 'Làm mới'}</span>
             </Button>
           </div>
-        </div>
-      </div>
-
-      {/* Own-role badge only — no cross-role switcher (SoD / Phase 6 Admin audit). */}
-      <div className="mb-4">
-        <div className="bms-role-nav-capsule">
-          {ROLES_LIST.filter((r) => r.id === selectedRole).map((r) => {
-            const Icon = r.icon;
-            return (
-              <button
-                key={r.id}
-                type="button"
-                className="bms-role-nav-tab active"
-                disabled
-                aria-current="page"
-              >
-                <Icon size={14} />
-                <span>{r.label}</span>
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -311,7 +253,7 @@ export default function RoleBasedDashboard() {
                 <div>
                   <h6 className="bms-kpi-label">Doanh Thu Viện Phí Hôm Nay</h6>
                   <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday ?? 0)}</div>
-                  <div className="bms-kpi-sub text-primary">Đạt 94% chỉ tiêu ca trực</div>
+                  <div className="bms-kpi-sub text-success">Tổng hóa đơn đã thanh toán</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaMoneyBillWave /></div>
               </div>
@@ -565,7 +507,13 @@ export default function RoleBasedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {verificationQueue.length === 0 ? (
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang tải hàng đợi thẩm định...
+                        </td>
+                      </tr>
+                    ) : verificationQueue.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="text-center text-muted">
                           Hiện không có mẫu xét nghiệm nào đang chờ ký duyệt.
@@ -763,37 +711,9 @@ export default function RoleBasedDashboard() {
                     <small className="text-muted">Tạo phiếu y lệnh cận lâm sàng</small>
                   </div>
                 </div>
-                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-muted small">Ca trực hôm nay:</span>
-                      <strong className="text-primary fs-5">{stats?.doctorData?.currentShiftName || 'Chưa có ca'}</strong>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
-                      <span>Bác sĩ phụ trách:</span>
-                      <strong className="text-dark">{currentUser?.fullName || stats?.userName || '—'}</strong>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-primary small fw-semibold">Tiến độ khám bệnh:</span>
-                      <span className="bms-pill-badge bms-pill-success">
-                        {stats?.doctorData?.reviewedTodayCount ?? 0} / {stats?.doctorData?.todayAppointmentsCount ?? 0} bệnh nhân
-                      </span>
-                    </div>
-                    <ProgressBar
-                      variant="primary"
-                      now={
-                        (stats?.doctorData?.todayAppointmentsCount || 0) > 0
-                          ? Math.min(100, Math.round(((stats?.doctorData?.reviewedTodayCount || 0) / stats.doctorData.todayAppointmentsCount) * 100))
-                          : 0
-                      }
-                      style={{ height: 8, borderRadius: 4, marginTop: 8 }}
-                    />
-                  </div>
-                  <Button variant="primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/doctor/console')}>
-                    Mở Bàn Khám Điện Tử
-                  </Button>
+                <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
+                  <span>Lập y lệnh</span>
+                  <FaArrowRight size={11} />
                 </div>
               </Link>
             </Col>

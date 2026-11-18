@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Badge, Breadcrumb, Button, Col, Form, Offcanvas, Row, Table, Spinner } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaHistory, FaEye, FaShieldAlt, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes, FaUserMd, FaDownload, FaPhoneAlt } from 'react-icons/fa';
+import { FaHistory, FaEye, FaShieldAlt, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes, FaUserMd, FaDownload, FaPhoneAlt, FaStethoscope, FaCalendarCheck } from 'react-icons/fa';
 import { getTestHistory, getTestHistoryDetail, testHistoryError } from '../api/testHistoryApi';
 import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 import './PatientPaymentHistoryPage.css';
@@ -29,6 +29,11 @@ const date = (value) => {
   } catch {
     return '—';
   }
+};
+
+const isLabTechnicalNote = (text) => {
+  if (!text) return false;
+  return /thẩm định kỹ thuật|Westgard|Levey-Jennings|chuyển Bác sĩ điều trị hội chẩn/i.test(text);
 };
 
 const flag = (value) => {
@@ -235,28 +240,92 @@ function HistoryDetail({ id, onClose }) {
                   </div>
                 </div>
 
-                {/* 2. Khuyến nghị lâm sàng khi có chỉ số cảnh báo (Low / High) */}
-                {(data.items || []).some(it => {
+                {/* 2. Chẩn Đoán Cuối Cùng & Kết Luận Của Bác Sĩ */}
+                {(() => {
+                  const doctorNote = data.doctorConclusion || (!isLabTechnicalNote(data.conclusion) ? data.conclusion : '');
+                  const labNote = !doctorNote && isLabTechnicalNote(data.conclusion) ? data.conclusion : '';
+                  const hasDoctorDiagnosis = Boolean(data.finalDiagnosis || data.icd10Code || doctorNote || data.treatmentAdvice || data.followUpDate);
+                  return (
+                    <>
+                      {hasDoctorDiagnosis && (
+                        <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderLeft: '4px solid #0284c7' }}>
+                          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                            <div className="d-flex align-items-center gap-2 text-primary fw-bold" style={{ fontSize: 13.5 }}>
+                              <FaStethoscope /> Chẩn Đoán Cuối Cùng Của Bác Sĩ
+                            </div>
+                            {data.icd10Code && (
+                              <span className="badge bg-primary text-white font-monospace px-2 py-1" style={{ fontSize: 11 }}>
+                                ICD-10: {data.icd10Code}
+                              </span>
+                            )}
+                          </div>
+
+                          {data.finalDiagnosis && (
+                            <div className="mb-2">
+                              <div className="text-muted fw-semibold" style={{ fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                Chẩn đoán xác định của bác sĩ
+                              </div>
+                              <div className="fw-bold text-dark" style={{ fontSize: 14, lineHeight: 1.5 }}>
+                                {data.finalDiagnosis}
+                              </div>
+                            </div>
+                          )}
+
+                          {doctorNote && (
+                            <div className="mb-2">
+                              <div className="text-muted fw-semibold" style={{ fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                Kết luận chuyên môn của bác sĩ
+                              </div>
+                              <p className="mb-0 text-dark small" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                                {doctorNote}
+                              </p>
+                            </div>
+                          )}
+
+                          {data.treatmentAdvice && (
+                            <div className="p-2.5 bg-white rounded-2 border mt-2">
+                              <div className="fw-semibold text-primary mb-1" style={{ fontSize: 12 }}>
+                                Lời dặn điều trị, dinh dưỡng &amp; lối sống
+                              </div>
+                              <p className="mb-0 text-dark small" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                                {data.treatmentAdvice}
+                              </p>
+                            </div>
+                          )}
+
+                          {data.followUpDate && (
+                            <div className="d-flex align-items-center gap-2 mt-2 pt-2 border-top small text-dark">
+                              <FaCalendarCheck className="text-primary" />
+                              <span className="text-muted">Hẹn tái khám:</span>
+                              <strong>{data.followUpDate}</strong>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {labNote && (
+                        <div className="p-3 bg-light rounded-3 border mb-3">
+                          <h6 className="fw-bold text-secondary mb-1" style={{ fontSize: 12.5 }}>Ghi chú thẩm định kỹ thuật phòng xét nghiệm (Lab)</h6>
+                          <p className="mb-0 text-muted small" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                            {labNote}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+
+                {/* 3. Lưu ý khi có chỉ số cảnh báo (Low / High / Critical) nhưng bác sĩ chưa ghi lời khuyên riêng */}
+                {!data.treatmentAdvice && (data.items || []).some(it => {
                   const f = flag(it.flag);
                   return f === 'Thấp' || f === 'Cao' || f === 'Nguy hiểm';
                 }) && (
                   <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a' }}>
                     <div className="d-flex align-items-center gap-2 mb-1 text-warning-emphasis fw-bold small">
-                      <FaExclamationTriangle /> Lời Khuyên Lâm Sàng Từ Bác Sĩ Chuyên Khoa
+                      <FaExclamationTriangle /> Lưu Ý Chỉ Số Ngoài Khoảng Tham Chiếu
                     </div>
                     <p className="mb-0 text-dark small" style={{ lineHeight: 1.6, fontSize: 12.5 }}>
-                      Kết quả ghi nhận một số chỉ số tế bào máu ở mức thấp hơn khoảng tham chiếu chuẩn.
-                      Khuyến nghị bổ sung thực phẩm giàu vi chất và sắt (thịt đỏ nạc, rau bina lá xanh đậm, hạt ngũ cốc),
-                      kết hợp vitamin C tự nhiên giúp tối ưu hấp thu. Quý khách vui lòng liên hệ tổng đài y khoa hoặc đặt hẹn khám lại nếu có triệu chứng mệt mỏi kéo dài.
-                    </p>
-                  </div>
-                )}
-
-                {data.conclusion && (
-                  <div className="p-3 bg-light rounded-3 border mb-3">
-                    <h6 className="fw-bold text-dark mb-1" style={{ fontSize: 13 }}>Kết luận lâm sàng</h6>
-                    <p className="mb-0 text-dark small" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                      {data.conclusion}
+                      Kết quả có một số chỉ số nằm ngoài khoảng tham chiếu sinh học. Quý khách vui lòng trao đổi trực tiếp với bác sĩ điều trị hoặc liên hệ tổng đài y khoa để được tư vấn cụ thể theo tình trạng lâm sàng.
                     </p>
                   </div>
                 )}
@@ -264,7 +333,7 @@ function HistoryDetail({ id, onClose }) {
                 {/* 3. CTA Action Buttons */}
                 <div className="d-flex gap-2 flex-wrap mb-3">
                   <Link
-                    to={`/patient/export-pdf/${data.summary.id || data.summary.sampleId}`}
+                    to={`/patient/results/export/${encodeURIComponent(data.summary.id || data.summary.sampleId)}`}
                     className="btn btn-primary btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                     style={{ backgroundColor: '#1E60E6', borderRadius: '8px' }}
                   >

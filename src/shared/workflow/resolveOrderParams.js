@@ -236,7 +236,14 @@ async function fetchPackageCriteriaById(id) {
   if (!id) return [];
   try {
     const pkg = await fetchServiceById(id);
-    return extractCriteria(pkg);
+    const fromCatalog = extractCriteria(pkg);
+    if (fromCatalog.length > 0) return fromCatalog;
+  } catch {
+    // Fall through to Admin service-packages endpoint
+  }
+  try {
+    const res = await api.get(`/service-packages/${encodeURIComponent(id)}`);
+    return extractCriteria(res?.data);
   } catch {
     return [];
   }

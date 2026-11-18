@@ -148,8 +148,15 @@ export default function LookupBiochemicalResultsPage() {
     return <Badge bg="success" className="px-2 py-1 fs-7">Bình thường (Normal)</Badge>;
   };
 
+  // API trả `parameters` (lookup) hoặc `items` (TestOrder TRE) — gộp để không trống bảng
+  const resultParameters = currentResult
+    ? (Array.isArray(currentResult.parameters) && currentResult.parameters.length
+        ? currentResult.parameters
+        : (Array.isArray(currentResult.items) ? currentResult.items : []))
+    : [];
+
   // Check if current result has panic/critical values
-  const hasPanicValues = currentResult?.parameters?.some(p =>
+  const hasPanicValues = resultParameters.some(p =>
     String(p.flag).toUpperCase().includes('PANIC') || (p.isAbnormal && String(p.flag).toUpperCase().includes('HIGH') && p.value > 20)
   ) || currentResult?.conclusionNotes?.toLowerCase().includes('cảnh báo');
 
@@ -355,7 +362,7 @@ export default function LookupBiochemicalResultsPage() {
                   <span>Bảng Chỉ Số Xét Nghiệm Sinh Hóa (Biochemical Parameters)</span>
                 </h6>
                 <span className="badge bg-primary">
-                  {currentResult.parameters?.length || 0} Chỉ Số Đo
+                  {resultParameters.length || 0} Chỉ Số Đo
                 </span>
               </Card.Header>
 
@@ -372,8 +379,8 @@ export default function LookupBiochemicalResultsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentResult.parameters && currentResult.parameters.length > 0 ? (
-                      currentResult.parameters.map((p, idx) => {
+                    {resultParameters.length > 0 ? (
+                      resultParameters.map((p, idx) => {
                         const isPanic = String(p.flag || '').toUpperCase().includes('PANIC');
                         const isHigh = String(p.flag || '').toUpperCase().includes('HIGH');
                         const isLow = String(p.flag || '').toUpperCase().includes('LOW');

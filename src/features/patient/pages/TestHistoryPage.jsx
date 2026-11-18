@@ -121,20 +121,18 @@ function HistoryDetail({ id, onClose }) {
               </div>
 
               <Row className="g-2 text-muted small">
-                <Col sm={6}>Mã bệnh nhân: <strong className="text-dark">{data.summary.patientId}</strong></Col>
-                <Col sm={6}>Mã mẫu xét nghiệm: <strong className="text-dark">{data.summary.sampleId}</strong></Col>
-                <Col sm={6}>Ngày ghi nhận: <strong className="text-dark">{date(data.summary.createdAt)}</strong></Col>
+                <Col sm={6}>Mã bệnh nhân: <strong className="text-dark">{data.summary?.patientId || '—'}</strong></Col>
+                <Col sm={6}>Mã mẫu xét nghiệm: <strong className="text-dark">{data.summary?.sampleId || '—'}</strong></Col>
+                <Col sm={6}>Ngày ghi nhận: <strong className="text-dark">{date(data.summary?.createdAt)}</strong></Col>
                 <Col sm={6}>
                   Ngày phê duyệt:{' '}
                   <strong className="text-dark">
                     {(() => {
-                      if (!data.summary.approvedAt) return 'Đang xử lý';
-                      const created = data.summary.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
+                      if (!data.summary?.approvedAt) return 'Đang xử lý';
+                      const created = data.summary?.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
                       const approved = new Date(data.summary.approvedAt).getTime();
-                      // Xử lý nghịch lý lâm sàng: Thời gian phê duyệt luôn diễn ra sau thời gian nhận mẫu
-                      if (approved <= created) {
-                        return date(new Date(created + 45 * 60 * 1000));
-                      }
+                      // Không bịa thời gian: nếu approvedAt ≤ createdAt thì vẫn hiện đúng giá trị API
+                      if (Number.isNaN(approved) || Number.isNaN(created)) return date(data.summary.approvedAt);
                       return date(data.summary.approvedAt);
                     })()}
                   </strong>
@@ -142,14 +140,14 @@ function HistoryDetail({ id, onClose }) {
               </Row>
             </div>
 
-            {!data.summary.available ? (
+            {!data.summary?.available ? (
               <Alert variant="info" className="border-0 rounded-3 bg-primary-subtle text-dark small py-3">
                 Mẫu xét nghiệm đang trong quá trình phân tích kỹ thuật. Các chỉ số sinh hóa và kết luận lâm sàng chỉ hiển thị khi kết quả đã được Bác sĩ duyệt và ký số.
               </Alert>
             ) : (
               <>
                 <h6 className="fw-bold text-dark mb-3">Chỉ Số Xét Nghiệm Chi Tiết</h6>
-                {data.items.length ? (
+                {(data.items?.length || 0) ? (
                   <div className="table-responsive border rounded-3 mb-4">
                     <Table hover className="align-middle mb-0" style={{ fontSize: 13 }}>
                       <thead className="bg-light text-muted" style={{ fontSize: 11.5, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
@@ -238,7 +236,7 @@ function HistoryDetail({ id, onClose }) {
                 </div>
 
                 {/* 2. Khuyến nghị lâm sàng khi có chỉ số cảnh báo (Low / High) */}
-                {data.items.some(it => {
+                {(data.items || []).some(it => {
                   const f = flag(it.flag);
                   return f === 'Thấp' || f === 'Cao' || f === 'Nguy hiểm';
                 }) && (

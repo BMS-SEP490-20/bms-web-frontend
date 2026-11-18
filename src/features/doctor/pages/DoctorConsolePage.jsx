@@ -48,6 +48,7 @@ import {
   FaFileSignature
 } from 'react-icons/fa';
 import { receptionApi } from '../../reception/api/receptionApi';
+import api from '../../../config/api';
 import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laboratory/components/BarcodePrinter';
 
 export default function DoctorConsolePage() {

@@ -7,8 +7,8 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Alert, Spinner } from "react-bootstrap";
-import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaExclamationCircle, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
 import { sendPasswordRecoveryOtp } from "../api/authApi";
 import api from "../../../config/api";
 import OtpInputGroup from "../../../components/common/OtpInputGroup";
@@ -121,90 +121,55 @@ export default function ForgotPassword({
   }
 
   return (
-    <main className="bms-forgot-page">
-      <section className="bms-forgot-card" aria-label="Khôi phục mật khẩu">
-        <aside className="bms-forgot-aside">
-          <div className="bms-auth-logo">
-            <span className="bms-logo-mark" style={{ background: '#ffffff', padding: '3px', borderRadius: '10px', overflow: 'hidden' }}>
-              <img src="/assets/bms-logo.png" alt="BMS Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-            </span>
-            <span className="bms-logo-copy">
-              BMS CLINICAL LABORATORY
-              <small>Hệ Thống Quản Lý Xét Nghiệm Máu Tiêu Chuẩn ISO 15189</small>
-            </span>
+    <main className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 px-3" style={{ backgroundColor: "#F8FAFC" }}>
+      <div className="text-center mb-4">
+        <Link to="/" className="d-inline-block text-decoration-none">
+          <img
+            src="/assets/bms-logo.png"
+            alt="BMS Logo"
+            style={{ width: "148px", height: "auto", maxHeight: "44px", objectFit: "contain" }}
+          />
+        </Link>
+      </div>
+
+      <section className="card border rounded-4 p-4 p-md-5 shadow-none w-100" style={{ maxWidth: "460px", borderColor: "#EAEEF4", backgroundColor: "#FFFFFF" }} aria-label="Khôi phục mật khẩu">
+        <div className="bms-form-inner">
+          <div className="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style={{ width: 44, height: 44, backgroundColor: "#EFF6FF", color: "#1E60E6" }}>
+            <FaKey />
           </div>
 
-          <div className="bms-aside-content">
-            <div className="bms-eyebrow">KHÔI PHỤC MẬT KHẨU</div>
-            <h2>
-              Quên mật khẩu?
-              <br />
-              BMS sẽ hỗ trợ bạn.
-            </h2>
-            <p>
-              Nhập địa chỉ email đăng ký hồ sơ y tế. Hệ thống sẽ gửi mã xác thực OTP 6 số để bạn thiết lập lại mật khẩu an toàn.
-            </p>
-
-            <div className="bms-feature-list">
-              <div className="bms-feature">
-                <i className="bi bi-check-circle" aria-hidden="true" />
-                <span>Bảo mật chuẩn Y Tế Quốc Tế</span>
-              </div>
-              <div className="bms-feature">
-                <i className="bi bi-clock-history" aria-hidden="true" />
-                <span>Mã OTP hết hạn sau 3 phút</span>
-              </div>
-              <div className="bms-feature">
-                <i className="bi bi-key" aria-hidden="true" />
-                <span>Hủy toàn bộ phiên đăng nhập cũ sau khi đổi</span>
-              </div>
-            </div>
+          <div className="small fw-semibold text-primary text-uppercase mb-1" style={{ fontSize: "11.5px", letterSpacing: "0.04em" }}>
+            {step === 1 ? "Bước 1: Xác thực Email" : "Bước 2: Thiết lập mật khẩu mới"}
           </div>
+          <h1 className="h4 fw-bold text-dark mb-1">{step === 1 ? "Khôi Phục Mật Khẩu" : "Đặt Lại Mật Khẩu"}</h1>
+          <p className="text-muted small mb-4">
+            {step === 1
+              ? "Nhập địa chỉ email đăng ký để nhận mã xác thực một lần (OTP)."
+              : `Nhập mã OTP gửi đến ${email} và mật khẩu mới của bạn.`}
+          </p>
 
-          <div className="bms-aside-footer">
-            <span>QUY CHUẨN BR-IAM-01 · BR-IAM-03</span>
-            <span>BMS · v1.0 Production</span>
-          </div>
-        </aside>
-
-        <section className="bms-forgot-form-panel">
-          <div className="bms-form-inner">
-            <div className="bms-icon-badge">
-              <FaKey />
-            </div>
-
-            <div className="bms-form-eyebrow">
-              {step === 1 ? "BƯỚC 1: XÁC THỰC EMAIL" : "BƯỚC 2: THIẾT LẬP MẬT KHẨU MỚI"}
-            </div>
-            <h1>{step === 1 ? "Khôi Phục Mật Khẩu" : "Đặt Lại Mật Khẩu"}</h1>
-            <p className="bms-form-subtitle">
-              {step === 1
-                ? "Nhập email của bạn để nhận mã xác thực một lần (OTP)."
-                : `Nhập mã OTP gửi đến ${email} và mật khẩu mới của bạn.`}
-            </p>
-
-            {error && (
-              <div className="bms-alert bms-alert-error" role="alert">
-                <i className="bi bi-exclamation-circle-fill" aria-hidden="true" />
-                <div>
-                  <span>{error}</span>
-                  {error.includes("không tồn tại") && (
-                    <div className="mt-1">
-                      <a href="/register" className="fw-bold text-decoration-underline text-danger" style={{ fontSize: '0.875rem' }}>
-                        Chưa có tài khoản y tế? Đăng ký ngay tại đây &rarr;
-                      </a>
-                    </div>
-                  )}
-                </div>
+          {error && (
+            <div className="alert alert-danger border-0 rounded-3 d-flex align-items-start gap-2 small py-2.5 px-3 mb-3" role="alert">
+              <FaExclamationCircle className="flex-shrink-0 mt-0.5 text-danger" />
+              <div>
+                <span>{error}</span>
+                {error.includes("không tồn tại") && (
+                  <div className="mt-1">
+                    <Link to="/register" className="fw-bold text-decoration-underline text-danger" style={{ fontSize: "0.85rem" }}>
+                      Chưa có tài khoản? Đăng ký ngay
+                    </Link>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-            {message && (
-              <div className="bms-alert bms-alert-success" role="status">
-                <i className="bi bi-check-circle-fill" aria-hidden="true" />
-                <span>{message}</span>
-              </div>
-            )}
+          {message && (
+            <div className="alert alert-success border-0 rounded-3 d-flex align-items-center gap-2 small py-2.5 px-3 mb-3" role="status">
+              <FaCheckCircle className="flex-shrink-0 text-success" />
+              <span>{message}</span>
+            </div>
+          )}
 
             {step === 1 ? (
               <form onSubmit={handleSendOtp} noValidate>
@@ -350,7 +315,6 @@ export default function ForgotPassword({
               </button>
             </div>
           </div>
-        </section>
       </section>
     </main>
   );

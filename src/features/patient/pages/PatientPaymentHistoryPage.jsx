@@ -172,11 +172,7 @@ export default function PatientPaymentHistoryPage() {
           item.invoiceNumber ||
           (item.id ? `INV-${String(item.id).slice(-8).toUpperCase()}` : `INV-2026-${String(index + 1).padStart(4, '0')}`);
 
-        // Electronic VAT Invoice Lookup Code per Nghị định 123/2020/NĐ-CP
-        const numericMatch = invNum.replace(/\D/g, '') || String(index + 10001);
-        const cqtCode =
-          item.cqtCode ||
-          `0026C1C26TBM${numericMatch.padEnd(12, '9')}B920042`;
+        const cqtCode = item.cqtCode || '';
 
         // Package / Items breakdown
         const pkgName =
@@ -309,44 +305,72 @@ export default function PatientPaymentHistoryPage() {
   return (
     <div className="bms-payhistory-content">
       {/* 1. PAGE HEADER */}
-      <header className="bms-page-header">
-        
-        <h1 className="bms-payhistory-title">Lịch Sử Thanh Toán</h1>
-        
-      </header>
-
-      {/* 2. KPI FINANCIAL SUMMARY CARDS */}
-      <div className="bms-pay-kpi-grid">
-        <div className="bms-pay-kpi-card">
-          <div className="bms-pay-kpi-icon success">
-            <FaFileInvoiceDollar />
-          </div>
-          <div>
-            <div className="bms-pay-kpi-label">Tổng viện phí đã thanh toán</div>
-            <div className="bms-pay-kpi-val text-success">{formatCurrency(stats.totalPaid)}</div>
-          </div>
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Lịch Sử Thanh Toán</h1>
+          <p className="bms-page-subtitle">Theo dõi giao dịch viện phí và tra cứu hóa đơn điện tử</p>
         </div>
-
-        <div className="bms-pay-kpi-card">
-          <div className="bms-pay-kpi-icon primary">
-            <FaCheckCircle />
-          </div>
-          <div>
-            <div className="bms-pay-kpi-label">Giao dịch hoàn tất</div>
-            <div className="bms-pay-kpi-val text-primary">{stats.paidCount} hóa đơn</div>
-          </div>
-        </div>
-
-        <div className="bms-pay-kpi-card">
-          <div className="bms-pay-kpi-icon warning">
-            <FaClock />
-          </div>
-          <div>
-            <div className="bms-pay-kpi-label">Phiếu chờ thanh toán</div>
-            <div className="bms-pay-kpi-val text-warning">{stats.pendingCount} giao dịch</div>
-          </div>
+        <div className="d-flex align-items-center gap-2">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 d-inline-flex align-items-center gap-1.5"
+            onClick={fetchInvoices}
+            disabled={loading}
+          >
+            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+          </Button>
+          <Link
+            to="/appointments/book"
+            className="btn btn-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 fw-semibold"
+          >
+            <FaReceipt /> Đặt lịch mới
+          </Link>
         </div>
       </div>
+
+      {/* 2. KPI FINANCIAL SUMMARY CARDS */}
+      <Row className="g-3 mb-4">
+        <Col md={4}>
+          <div className="bms-kpi-quad-card h-100">
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <div className="bms-kpi-label">Tổng viện phí đã thanh toán</div>
+                <div className="bms-kpi-value text-success">{formatCurrency(stats.totalPaid)}</div>
+              </div>
+              <div className="bms-kpi-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
+                <FaFileInvoiceDollar />
+              </div>
+            </div>
+          </div>
+        </Col>
+        <Col md={4}>
+          <div className="bms-kpi-quad-card h-100">
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <div className="bms-kpi-label">Giao dịch hoàn tất</div>
+                <div className="bms-kpi-value text-primary">{stats.paidCount}</div>
+              </div>
+              <div className="bms-kpi-icon-box" style={{ background: '#EFF6FF', color: '#1E60E6' }}>
+                <FaCheckCircle />
+              </div>
+            </div>
+          </div>
+        </Col>
+        <Col md={4}>
+          <div className="bms-kpi-quad-card h-100">
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <div className="bms-kpi-label">Phiếu chờ thanh toán</div>
+                <div className="bms-kpi-value text-warning">{stats.pendingCount}</div>
+              </div>
+              <div className="bms-kpi-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
+                <FaClock />
+              </div>
+            </div>
+          </div>
+        </Col>
+      </Row>
 
       {/* Date Range Validation Alert */}
       {isDateInvalid && (
@@ -363,133 +387,107 @@ export default function PatientPaymentHistoryPage() {
             <FaExclamationTriangle className="text-danger flex-shrink-0" />
             <span className="small">{error}</span>
           </div>
-          <Button variant="outline-danger" size="sm" onClick={fetchInvoices} style={{ borderRadius: 6, fontSize: 12 }}>
+          <Button variant="outline-danger" size="sm" className="rounded-pill px-3" onClick={fetchInvoices}>
             <FaSyncAlt className="me-1" /> Thử lại
           </Button>
         </Alert>
       )}
 
       {/* 3. TOOLBAR & FILTER CONTROLS */}
-      <div className="bms-filter-bar">
-        <div className="bms-pay-filter-group">
-          {/* Keyword Search */}
-          <div className="position-relative">
-            <input
-              type="text"
-              className="bms-pay-search-input"
-              placeholder="Tìm số HĐ, mã GD, gói khám..."
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-            />
-          </div>
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 220 }}>
+          <FaSearch className="text-muted" size={13} />
+          <input
+            type="text"
+            placeholder="Tìm số hóa đơn, mã giao dịch, gói khám..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+        </div>
 
-          {/* Status Filter */}
-          <Form.Select
+        <Form.Select
+          size="sm"
+          value={filterStatus}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setPage(1);
+          }}
+          style={{ width: 170 }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PAID">Đã thanh toán</option>
+          <option value="PENDING">Chờ thanh toán</option>
+        </Form.Select>
+
+        <div className="d-flex align-items-center gap-1.5">
+          <span className="small text-muted fw-semibold">Từ:</span>
+          <Form.Control
+            type="date"
             size="sm"
-            value={filterStatus}
+            value={fromDate}
             onChange={(e) => {
-              setFilterStatus(e.target.value);
+              setFromDate(e.target.value);
               setPage(1);
             }}
-            style={{ width: 165, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-          >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="PAID">Đã thanh toán</option>
-            <option value="PENDING">Chờ thanh toán</option>
-          </Form.Select>
-
-          {/* Date Filter: From Date */}
-          <div className="d-flex align-items-center gap-1.5">
-            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Từ:</span>
-            <Form.Control
-              type="date"
-              size="sm"
-              value={fromDate}
-              onChange={(e) => {
-                setFromDate(e.target.value);
-                setPage(1);
-              }}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-            />
-          </div>
-
-          {/* Date Filter: To Date */}
-          <div className="d-flex align-items-center gap-1.5">
-            <span className="small text-muted fw-semibold" style={{ fontSize: 12 }}>Đến:</span>
-            <Form.Control
-              type="date"
-              size="sm"
-              value={toDate}
-              onChange={(e) => {
-                setToDate(e.target.value);
-                setPage(1);
-              }}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-            />
-          </div>
-
-          {(searchKeyword || filterStatus !== 'ALL' || fromDate || toDate) && (
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={handleResetFilters}
-              style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
-            >
-              Đặt lại
-            </Button>
-          )}
+            style={{ width: 142 }}
+          />
         </div>
 
-        <div className="d-flex align-items-center gap-2">
-          <Button
-            variant="outline-primary"
+        <div className="d-flex align-items-center gap-1.5">
+          <span className="small text-muted fw-semibold">Đến:</span>
+          <Form.Control
+            type="date"
             size="sm"
-            onClick={fetchInvoices}
-            disabled={loading}
-            style={{ height: 38, display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
-          >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
-          </Button>
-
-          <Link
-            to="/appointments/book"
-            className="btn btn-primary btn-sm px-3 fw-semibold"
-            style={{ height: 38, display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8, fontSize: 12.5, background: '#1E60E6', borderColor: '#1E60E6' }}
-          >
-            <FaReceipt /> Đặt Lịch Mới
-          </Link>
+            value={toDate}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              setPage(1);
+            }}
+            style={{ width: 142 }}
+          />
         </div>
+
+        {(searchKeyword || filterStatus !== 'ALL' || fromDate || toDate) && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3"
+            onClick={handleResetFilters}
+          >
+            Đặt lại
+          </Button>
+        )}
       </div>
 
       {/* 4. TRANSACTIONS TABLE */}
-      <div className="bms-pay-table-wrapper">
+      <div className="bms-table-standalone-section">
         <div className="table-responsive">
-          <table className="bms-pay-table">
+          <table className="table align-middle mb-0">
             <thead>
               <tr>
-                <th>MÃ HÓA ĐƠN / CQT</th>
-                <th>THỜI GIAN</th>
-                <th>KHOẢN MỤC / GÓI KHÁM</th>
-                <th>PHƯƠNG THỨC</th>
-                <th className="text-end">SỐ TIỀN</th>
-                <th className="text-center">TRẠNG THÁI</th>
-                <th className="text-end pe-3">THAO TÁC</th>
+                <th>Mã hóa đơn</th>
+                <th>Thời gian</th>
+                <th>Gói khám</th>
+                <th>Phương thức</th>
+                <th className="text-end">Số tiền</th>
+                <th className="text-center">Trạng thái</th>
+                <th className="text-end pe-3">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-3 text-muted">
+                  <td colSpan={7} className="text-center py-4 text-muted">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    Đang tải dữ liệu viện phí và hóa đơn điện tử...
+                    Đang tải lịch sử thanh toán...
                   </td>
                 </tr>
               ) : displayedTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-3 text-muted">
-                    <FaFileInvoiceDollar size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
+                  <td colSpan={7} className="text-center py-5 text-muted">
+                    <FaFileInvoiceDollar size={28} className="d-block mx-auto mb-2 opacity-50 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có giao dịch viện phí hoặc hóa đơn nào</div>
-                    <div className="small text-muted mt-1">Các giao dịch đặt lịch xét nghiệm sẽ hiển thị tại đây sau khi thanh toán.</div>
+                    <div className="small text-muted mt-1">Các giao dịch đặt lịch xét nghiệm sẽ hiển thị tại đây.</div>
                   </td>
                 </tr>
               ) : (
@@ -498,9 +496,9 @@ export default function PatientPaymentHistoryPage() {
                   return (
                     <tr key={item.id}>
                       <td>
-                        <div className="bms-txn-code">{item.invoiceNumber}</div>
+                        <div className="fw-bold text-primary font-monospace">{item.invoiceNumber}</div>
                         {item.cqtCode && (
-                          <div className="text-muted font-monospace" style={{ fontSize: 11 }} title="Mã cơ quan thuế">
+                          <div className="text-muted font-monospace" style={{ fontSize: 11 }}>
                             CQT: {item.cqtCode.slice(0, 14)}...
                           </div>
                         )}
@@ -518,7 +516,7 @@ export default function PatientPaymentHistoryPage() {
                         <div className="text-muted" style={{ fontSize: 11.5 }}>Mã hẹn: {item.appointmentCode}</div>
                       </td>
                       <td>
-                        <span className="badge bg-light text-dark border me-1 fw-normal" style={{ fontSize: 11.5 }}>
+                        <span className="badge bg-light text-dark rounded-pill px-2.5 py-1 fw-normal" style={{ fontSize: 11.5 }}>
                           {item.rawPaymentMethod === 'Cash' || item.paymentMethod.includes('quầy') ? (
                             <FaMoneyBillWave className="me-1 text-success" />
                           ) : (
@@ -526,21 +524,18 @@ export default function PatientPaymentHistoryPage() {
                           )}
                           {item.paymentMethod}
                         </span>
-                        <div className="text-muted mt-0.5" style={{ fontSize: 11 }}>
-                          Thuế: <span className="fw-semibold text-primary">{item.taxRate === 'KCT' ? 'KCT (Y tế)' : `${item.taxRate}%`}</span>
-                        </div>
                       </td>
                       <td className="text-end fw-bold text-dark font-monospace" style={{ fontSize: 13.5 }}>
                         {formatCurrency(item.amount)}
                       </td>
                       <td className="text-center">
                         {isPaid ? (
-                          <span className="badge bg-success-subtle text-success border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                            <FaCheckCircle className="me-1" /> Đã Thanh Toán
+                          <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-semibold">
+                            <FaCheckCircle className="me-1" /> Đã thanh toán
                           </span>
                         ) : (
-                          <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                            <FaClock className="me-1" /> Chờ Thanh Toán
+                          <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2.5 py-1 fw-semibold">
+                            <FaClock className="me-1" /> Chờ thanh toán
                           </span>
                         )}
                       </td>
@@ -548,21 +543,18 @@ export default function PatientPaymentHistoryPage() {
                         {isPaid ? (
                           <button
                             type="button"
-                            className="btn btn-outline-primary btn-sm py-1 px-2.5 fw-semibold d-inline-flex align-items-center gap-1.5"
+                            className="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
                             onClick={() => handleOpenReceipt(item)}
-                            style={{ borderRadius: 6, fontSize: 12.5 }}
-                            title="Xem và in Hóa đơn điện tử VAT"
                           >
-                            <FaFileInvoiceDollar /> Hóa Đơn VAT
+                            <FaFileInvoiceDollar /> Hóa đơn VAT
                           </button>
                         ) : (
                           <button
                             type="button"
-                            className="btn btn-success btn-sm py-1 px-3 fw-bold"
+                            className="btn btn-primary btn-sm rounded-pill py-1 px-3 fw-semibold"
                             onClick={() => navigate(`/payments/checkout?invoiceId=${item.id}&appointmentId=${item.appointmentCode}&amount=${item.amount}`)}
-                            style={{ borderRadius: 6, fontSize: 12.5 }}
                           >
-                            Thanh Toán <FaArrowRight className="ms-1" />
+                            Thanh toán <FaArrowRight className="ms-1" />
                           </button>
                         )}
                       </td>

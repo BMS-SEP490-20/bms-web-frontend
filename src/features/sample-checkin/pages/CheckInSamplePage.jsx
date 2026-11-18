@@ -22,6 +22,7 @@ import {
 } from 'react-icons/fa';
 import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
+import { getStoredUser } from '../../../constants/roles';
 
 const REJECTION_CODES = [
   { code: 'REJ-01', label: 'Tán huyết (Hemolysis) — Khóa phân tích & Lấy lại mẫu', isHemolysis: true },
@@ -31,7 +32,12 @@ const REJECTION_CODES = [
   { code: 'REJ-05', label: 'Rò rỉ / Nứt vỡ ống bệnh phẩm (Leakage / Broken)', isHemolysis: false },
 ];
 
-export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 'KTV. Lê Minh Tuấn' }) {
+export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName }) {
+  const resolvedTechnicianName = useMemo(() => {
+    if (technicianName) return technicianName;
+    const u = getStoredUser();
+    return u?.fullName || u?.name || u?.username || 'Kỹ thuật viên trực';
+  }, [technicianName]);
   const [selectedRoom, setSelectedRoom] = useState(labRoomId);
   const [code, setCode] = useState('');
   const [pending, setPending] = useState([]);
@@ -116,7 +122,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
       if (reject) {
         let msg = `Đã từ chối tiếp nhận mẫu ${targetCode} với lý do: ${rejectCode}`;
         if (isHemolysisSelected) {
-          msg += ' — [ISO 15189: Đã khóa phân tích và kích hoạt quy trình lấy lại mẫu/Rerun]';
+          msg += ' — Đã khóa phân tích và kích hoạt quy trình lấy lại mẫu.';
         }
         setSuccess(msg);
       } else {
@@ -146,49 +152,63 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
   const safePending = Array.isArray(pending) ? pending : [];
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh' }} className="py-3">
-      {/* Banner đầu trang chuẩn y khoa ISO 15189 */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Tiếp nhận ống mẫu</h1>
+    <div className="w-100 py-1">
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Tiếp Nhận Ống Mẫu Xét Nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Quét mã vạch ống bệnh phẩm, đối chiếu tiêu chí tiền phân tích và xác nhận bàn giao vào phòng xét nghiệm
+          </p>
         </div>
-      </header>
+        <div className="bms-page-actions">
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
+            onClick={loadPending}
+          >
+            <FaSyncAlt size={12} />
+            <span>Làm mới hàng đợi</span>
+          </button>
+        </div>
+      </div>
 
-      <div className="container-fluid px-3" style={{ maxWidth: 1200 }}>
-        {/* Hộp quét Barcode */}
-        <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <div className="card-body p-2">
-            <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-              <FaSearch style={{ color: '#1E60E6' }} />
-              <span>Quét hoặc Tra Cứu Mã Barcode Ống Mẫu</span>
-            </h6>
-            <div className="d-flex gap-2 flex-wrap">
-              <input
-                className="form-control flex-grow-1"
-                style={{ minHeight: 46, maxWidth: 520, borderRadius: '9999px' }}
-                placeholder="Quét mã vạch Barcode (VD: BC-20261011-0004 hoặc SMP-004)..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && void onLookup()}
-              />
-              <button
-                type="button"
-                className="btn d-flex align-items-center gap-2 px-3 shadow-sm text-white"
-                style={{ minHeight: 46, backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                disabled={lookupLoading}
-                onClick={() => void onLookup()}
-              >
-                {lookupLoading ? <FaSpinner className="fa-spin" /> : <FaSearch />}
-                <span>Tra cứu mẫu</span>
+      <div>
+        {/* Single-Line Barcode Lookup Bar */}
+        <div className="bms-filter-bar mb-3">
+          <div className="bms-search-input-pill">
+            <FaBarcode className="bms-search-icon" />
+            <input
+              type="text"
+              placeholder="Quét mã vạch Barcode hoặc nhập mã ống mẫu..."
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && void onLookup()}
+            />
+            {code && (
+              <button type="button" className="bms-search-clear" onClick={() => setCode('')} title="Xóa mã">
+                <FaTimes size={12} />
               </button>
-            </div>
-            {current && (
-              <div className="small mt-2 text-success fw-medium d-flex align-items-center gap-1">
-                <FaCheckCircle />
-                <span>Tìm thấy ống mẫu &bull; Mã: {current.barcode || current.sampleId} &bull; Trạng thái hiện tại: <strong>{current.status}</strong></span>
-              </div>
             )}
           </div>
+          <button
+            type="button"
+            className="btn btn-sm d-flex align-items-center gap-2 px-3 text-white rounded-pill fw-semibold"
+            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+            disabled={lookupLoading}
+            onClick={() => void onLookup()}
+          >
+            {lookupLoading ? <FaSpinner className="fa-spin" /> : <FaSearch />}
+            <span>Tra cứu mẫu</span>
+          </button>
+          {current && (
+            <span className="bms-filter-meta text-success fw-semibold d-inline-flex align-items-center gap-1">
+              <FaCheckCircle />
+              <span>Mã: {current.barcode || current.sampleId} ({current.status})</span>
+            </span>
+          )}
         </div>
 
         {/* Thông báo lỗi / thành công */}
@@ -237,11 +257,11 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">Người Bàn Giao</label>
-                    <input className="form-control" defaultValue="ĐD. Hoàng Mai Lan (Khoa Khám Bệnh)" />
+                    <input className="form-control" placeholder="Nhập họ tên điều dưỡng / nhân viên bàn giao mẫu..." />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách</label>
-                    <input className="form-control" value={technicianName} readOnly />
+                    <input className="form-control" value={resolvedTechnicianName} readOnly />
                   </div>
                 </div>
 
@@ -286,7 +306,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                 <div className="border-top pt-3 mt-4">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="small fw-bold text-danger d-flex align-items-center gap-1">
-                      <FaExclamationTriangle /> Từ chối nhận mẫu tại bàn Lab (Tiêu chuẩn loại trừ ISO 15189)
+                      <FaExclamationTriangle /> Từ chối nhận mẫu tại bàn Lab
                     </span>
                   </div>
 
@@ -320,9 +340,9 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
                     <div className="alert alert-danger mt-3 py-2 small d-flex align-items-center gap-2 rounded-3 border-danger">
                       <FaLock className="fs-5 text-danger" />
                       <div>
-                        <strong>RÀNG BUỘC NGHIỆP VỤ ISO 15189:</strong> Mẫu bị <strong>Tán huyết (Hemolysis)</strong>. 
-                        Hệ thống sẽ <strong>Khóa phân tích tự động</strong> đối với mẫu này để tránh sai lệch kết quả sinh hóa (K+, AST, LDH) 
-                        và tự động gửi yêu cầu <strong>Lấy lại mẫu (Recollect / Rerun)</strong> đến khoa phòng điều trị.
+                        <strong>Ràng buộc an toàn mẫu:</strong> Mẫu bị <strong>Tán huyết (Hemolysis)</strong>. 
+                        Hệ thống sẽ <strong>khóa phân tích tự động</strong> đối với mẫu này để tránh sai lệch kết quả sinh hóa (K+, AST, LDH) 
+                        và tự động gửi yêu cầu <strong>lấy lại mẫu</strong> đến khoa phòng điều trị.
                       </div>
                     </div>
                   )}
@@ -404,7 +424,7 @@ export function CheckInSamplePage({ labRoomId = 'LAB-ROOM-01', technicianName = 
             {/* Card quy chuẩn bàn giao */}
             <div className="card border-0 shadow-sm mb-3 bg-white rounded-3">
               <div className="card-body p-3">
-                <h6 className="fw-bold text-dark mb-2">Quy Trình Bàn Giao ISO 15189</h6>
+                <h6 className="fw-bold text-dark mb-2">Quy Trình Bàn Giao Mẫu</h6>
                 <p className="small text-muted mb-0">
                   Nếu không quét được mã Barcode, hãy kiểm tra nhãn tại phòng lấy mẫu hoặc liên hệ điều dưỡng thu mẫu. 
                   Tuyệt đối không tự ý gán nhãn mã vạch không rõ nguồn gốc.

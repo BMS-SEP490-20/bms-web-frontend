@@ -53,24 +53,23 @@ function Invoice({ checkout, onDone, onBack, onSimulatePay, isSimulating }) {
           onClick={onSimulatePay}
           disabled={isSimulating}
           style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            backgroundColor: '#10b981',
             color: '#ffffff',
             border: 'none',
             borderRadius: '9999px',
-            padding: '12px 20px',
+            padding: '11px 20px',
             fontWeight: '600',
-            fontSize: '0.95rem',
+            fontSize: '0.9rem',
             cursor: isSimulating ? 'not-allowed' : 'pointer',
             width: '100%',
             marginBottom: '0.75rem',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px'
           }}
         >
-          {isSimulating ? 'Đang xác nhận...' : '⚡ Xác nhận đã thanh toán (Mô phỏng Demo)'}
+          {isSimulating ? 'Đang xác nhận...' : 'Xác nhận đã thanh toán'}
         </button>
       ) : null}
 
@@ -105,7 +104,7 @@ export default function ProcessPaymentPage() {
         setCheckout(full.data?.data || null);
       }
     } catch (err) {
-      alert(err?.response?.data?.message || 'Lỗi khi mô phỏng thanh toán.');
+      setError(err?.response?.data?.message || 'Không thể xác nhận thanh toán lúc này.');
     } finally {
       setIsSimulating(false);
     }

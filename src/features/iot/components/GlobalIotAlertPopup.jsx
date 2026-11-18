@@ -183,13 +183,11 @@ export default function GlobalIotAlertPopup() {
           gap: '10px',
           padding: '10px 16px',
           borderRadius: '999px',
-          background: isDisconnected
-            ? 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)'
-            : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-          color: '#ffffff',
-          boxShadow: '0 10px 28px rgba(220, 38, 38, 0.38)',
+          background: isDisconnected ? '#fef2f2' : '#fffbeb',
+          color: isDisconnected ? '#991b1b' : '#92400e',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.12)',
           cursor: 'pointer',
-          border: '2px solid #fecaca',
+          border: isDisconnected ? '1px solid #fecaca' : '1px solid #fde68a',
           fontWeight: 700,
           fontSize: '13px'
         }}
@@ -227,44 +225,45 @@ export default function GlobalIotAlertPopup() {
           zIndex: 9999,
           background: '#ffffff',
           borderRadius: '16px',
-          border: '2px solid #7c3aed',
-          boxShadow: '0 18px 42px rgba(109, 40, 217, 0.24)',
+          border: '1px solid #bbf7d0',
+          boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)',
           overflow: 'hidden'
         }}
       >
         <div
           style={{
-            background: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
-            color: '#ffffff',
+            background: '#ecfdf5',
+            color: '#065f46',
+            borderBottom: '1px solid #bbf7d0',
             padding: '12px 16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, fontSize: '13.5px' }}>
-            <FaCheckCircle size={16} color="#4ade80" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '13.5px' }}>
+            <FaCheckCircle size={16} color="#10b981" />
             <span>Đã khôi phục kết nối cảm biến ({statusData.deviceId})</span>
           </div>
           <button
             type="button"
             onClick={() => setShowRecoveryBanner(false)}
-            style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: '#065f46', cursor: 'pointer' }}
           >
             <FaTimes size={14} />
           </button>
         </div>
 
         <div style={{ padding: '14px 16px', fontSize: '12.5px', color: '#334155', lineHeight: 1.5 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: '#5b21b6', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: '#047857', fontWeight: 600 }}>
             <FaDatabase size={14} />
             <span>
-              Đã đồng bộ bù {recovered?.bufferedRecordsSynced ?? 0} bản ghi lưu trữ trong lúc mất kết nối!
+              Đã đồng bộ bù {recovered?.bufferedRecordsSynced ?? 0} bản ghi lưu trữ trong lúc mất kết nối.
             </span>
           </div>
           {recovered && (
             <div style={{ fontSize: '12px', color: '#64748b' }}>
-              Khoảng gián đoạn: <strong>{formatDateTimeVi(recovered.disconnectedAt)}</strong> →{' '}
+              Khoảng gián đoạn: <strong>{formatDateTimeVi(recovered.disconnectedAt)}</strong> đến{' '}
               <strong>{formatDateTimeVi(recovered.reconnectedAt)}</strong> (
               {formatDurationVi(recovered.durationSeconds)}).
             </div>
@@ -278,12 +277,12 @@ export default function GlobalIotAlertPopup() {
               }}
               style={{
                 padding: '6px 12px',
-                borderRadius: '8px',
+                borderRadius: '999px',
                 border: 'none',
-                background: '#6d28d9',
+                background: '#1E60E6',
                 color: '#ffffff',
                 fontSize: '12px',
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -311,24 +310,23 @@ export default function GlobalIotAlertPopup() {
         position: 'fixed',
         bottom: '24px',
         right: '24px',
-        width: '420px',
+        width: '410px',
         maxWidth: 'calc(100vw - 32px)',
         zIndex: 9999,
         background: '#ffffff',
         borderRadius: '16px',
-        border: isDisconnected ? '2px solid #dc2626' : '2px solid #d97706',
-        boxShadow: '0 20px 48px rgba(15, 23, 42, 0.28)',
+        border: isDisconnected ? '1px solid #fecaca' : '1px solid #fde68a',
+        boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)',
         overflow: 'hidden'
       }}
     >
       {/* Popup Header */}
       <div
         style={{
-          background: isDisconnected
-            ? 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)'
-            : 'linear-gradient(135deg, #d97706 0%, #92400e 100%)',
-          color: '#ffffff',
-          padding: '13px 16px',
+          background: isDisconnected ? '#fef2f2' : '#fffbeb',
+          color: isDisconnected ? '#991b1b' : '#92400e',
+          borderBottom: isDisconnected ? '1px solid #fecaca' : '1px solid #fde68a',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -336,15 +334,15 @@ export default function GlobalIotAlertPopup() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-          <FaExclamationTriangle size={17} />
+          <FaExclamationTriangle size={16} />
           <div>
-            <div style={{ fontSize: '10.5px', fontWeight: 800, opacity: 0.9, letterSpacing: '0.4px' }}>
-              HỆ THỐNG GIÁM SÁT BẢO QUẢN LẠNH
+            <div style={{ fontSize: '11px', fontWeight: 600, opacity: 0.85 }}>
+              Giám sát bảo quản lạnh
             </div>
-            <div style={{ fontSize: '14px', fontWeight: 800 }}>
+            <div style={{ fontSize: '13.5px', fontWeight: 700 }}>
               {isDisconnected
-                ? 'Mất kết nối thiết bị cảm biến!'
-                : 'Cảnh báo vượt ngưỡng nhiệt độ / độ ẩm!'}
+                ? 'Mất kết nối thiết bị cảm biến'
+                : 'Cảnh báo vượt ngưỡng nhiệt độ / độ ẩm'}
             </div>
           </div>
         </div>
@@ -355,9 +353,9 @@ export default function GlobalIotAlertPopup() {
             onClick={() => setSoundEnabled((v) => !v)}
             title={soundEnabled ? 'Tắt âm báo' : 'Bật âm báo'}
             style={{
-              background: 'rgba(255,255,255,0.18)',
-              border: 'none',
-              color: '#ffffff',
+              background: '#ffffff',
+              border: isDisconnected ? '1px solid #fecaca' : '1px solid #fde68a',
+              color: isDisconnected ? '#991b1b' : '#92400e',
               width: '28px',
               height: '28px',
               borderRadius: '8px',
@@ -375,9 +373,9 @@ export default function GlobalIotAlertPopup() {
             onClick={() => setMinimized(true)}
             title="Thu gọn xuống góc phải"
             style={{
-              background: 'rgba(255,255,255,0.18)',
-              border: 'none',
-              color: '#ffffff',
+              background: '#ffffff',
+              border: isDisconnected ? '1px solid #fecaca' : '1px solid #fde68a',
+              color: isDisconnected ? '#991b1b' : '#92400e',
               width: '28px',
               height: '28px',
               borderRadius: '8px',
@@ -396,9 +394,9 @@ export default function GlobalIotAlertPopup() {
               onClick={() => setDismissedViolationKey(violationKey)}
               title="Đóng thông báo"
               style={{
-                background: 'rgba(255,255,255,0.18)',
-                border: 'none',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: '1px solid #fde68a',
+                color: '#92400e',
                 width: '28px',
                 height: '28px',
                 borderRadius: '8px',

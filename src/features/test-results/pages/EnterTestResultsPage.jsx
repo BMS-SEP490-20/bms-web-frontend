@@ -47,6 +47,7 @@ import {
 } from 'react-icons/fa';
 import { resultApi } from '../api/resultApi';
 import api from '../../../config/api';
+import { getStoredUser } from '../../../constants/roles';
 
 const DEFAULT_PARAMS = [
   { code: 'WBC', name: 'WBC · Số lượng bạch cầu', value: 0, unit: '10⁹/L', refLow: 4.0, refHigh: 10.0, criticalLow: 1.5, criticalHigh: 30.0 },
@@ -107,8 +108,10 @@ function playWebAudioAlert880Hz() {
 }
 
 export function EnterTestResultsPage() {
+  const currentUser = useMemo(() => getStoredUser(), []);
+  const currentTechnicianName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'Kỹ thuật viên trực';
   const [sampleId, setSampleId] = useState('');
-  const [batchId, setBatchId] = useState('BAT-20261104-01');
+  const [batchId, setBatchId] = useState('');
   const [device, setDevice] = useState('Sysmex XN-1000 (Huyết học tự động)');
   const [params, setParams] = useState(DEFAULT_PARAMS.map(p => ({ ...p })));
   const [notes, setNotes] = useState('Kết quả đo ổn định, không có cảnh báo quang học từ thiết bị.');
@@ -117,12 +120,12 @@ export function EnterTestResultsPage() {
   // RÀNG BUỘC NGHIỆP VỤ: Xác nhận Báo động Bác sĩ điều trị khi có cờ CRITICAL
   const [confirmRerun, setConfirmRerun] = useState(false);
   const [doctorNotified, setDoctorNotified] = useState(false);
-  const [doctorName, setDoctorName] = useState('BS. Trực Nguyễn Văn Hùng');
-  const [doctorPhone, setDoctorPhone] = useState('0912.345.678 (Máy nhánh 105)');
-  const [doctorDepartment, setDoctorDepartment] = useState('Khoa Cấp Cứu / Hồi Sức Tích Cực (ICU)');
+  const [doctorName, setDoctorName] = useState('');
+  const [doctorPhone, setDoctorPhone] = useState('');
+  const [doctorDepartment, setDoctorDepartment] = useState('');
   const [notificationChannel, setNotificationChannel] = useState('Điện thoại nội bộ khoa cấp cứu');
   const [notificationTime, setNotificationTime] = useState(() => new Date().toLocaleTimeString('vi-VN'));
-  const [callLogNotes, setCallLogNotes] = useState('Bác sĩ đã xác nhận tiếp nhận thông số nguy hiểm, chỉ định xử trí hạ kali/điện giải khẩn cấp.');
+  const [callLogNotes, setCallLogNotes] = useState('');
 
   // Đồng hồ đếm ngược 15 phút cảnh báo khẩn cấp (ISO 15189 Turnaround Time)
   const [countdownSeconds, setCountdownSeconds] = useState(900); // 15 phút = 900 giây
@@ -260,7 +263,7 @@ export function EnterTestResultsPage() {
 
     // RÀNG BUỘC NGHIỆP VỤ BẮT BUỘC: Nếu có cờ CRITICAL, BẮT BUỘC xác nhận đã thông báo cho Bác sĩ điều trị
     if (hasCritical && (!doctorNotified || !doctorName.trim() || !confirmRerun)) {
-      setError('RÀNG BUỘC BẮT BUỘC (ISO 15189): Phát hiện chỉ số ở ngưỡng BÁO ĐỘNG NGUY HIỂM (CRITICAL). Kỹ thuật viên bắt buộc phải kiểm tra màng ống, chạy kiểm chứng lần 2 và ghi log thông báo trực tiếp cho Bác sĩ điều trị!');
+      setError('Phát hiện chỉ số ở ngưỡng báo động nguy hiểm (CRITICAL). Kỹ thuật viên bắt buộc kiểm tra ống mẫu, chạy kiểm chứng lần 2 và ghi nhận thông báo trực tiếp cho bác sĩ điều trị.');
       return;
     }
 
@@ -277,13 +280,13 @@ export function EnterTestResultsPage() {
         packageId: batchId || 'BAT-DEFAULT',
         equipmentCode: device,
         parameters: validParams,
-        notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG ĐỎ CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
+        notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
         isPanic: hasCritical,
         criticalNotified: doctorNotified,
         confirmRerunChecked: confirmRerun,
         doctorNotifiedName: doctorName,
         notifiedAt: new Date().toISOString(),
-        reviewedBy: 'KTV. Lê Minh Tuấn'
+        reviewedBy: currentTechnicianName
       });
 
       setResult(res);
@@ -300,27 +303,32 @@ export function EnterTestResultsPage() {
       case 'CRITICAL':
         return <Badge bg="danger" className="px-2 py-1 fw-bold"><FaExclamationTriangle className="me-1" />NGUY HIỂM (CRITICAL)</Badge>;
       case 'HIGH':
-        return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">&uarr; VƯỢT CAO</Badge>;
+        return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">VƯỢT CAO</Badge>;
       case 'LOW':
-        return <Badge bg="info" text="dark" className="px-2 py-1 fw-bold">&darr; DƯỚI THẤP</Badge>;
+        return <Badge bg="info" text="dark" className="px-2 py-1 fw-bold">DƯỚI THẤP</Badge>;
       default:
         return <Badge bg="success-subtle" text="success" className="border border-success-subtle px-2 py-1">Bình thường</Badge>;
     }
   };
 
   return (
-    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Tiêu đề trang chuẩn y khoa ISO 15189 */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Nhập kết quả</h1>
+    <div className="w-100 py-1">
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Nhập Kết Quả Phân Tích Xét Nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Ghi nhận chỉ số phân tích bệnh phẩm, kiểm soát ngưỡng báo động nguy hiểm và chuyển bác sĩ phê duyệt
+          </p>
         </div>
-      </header>
+      </div>
 
-      <div style={{ maxWidth: 1250 }} className="mx-auto">
+      <div>
         {/* Card thiết lập lượt chạy máy */}
-        <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Body className="p-2">
+        <Card className="mb-4 bg-white rounded-4" style={{ border: '1px solid #E2E8F0' }}>
+          <Card.Body className="p-3">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
               <FaFlask style={{ color: '#1E60E6' }} />
               <span>Thông Tin Mẻ Phân Tích &amp; Thiết Bị Đo</span>
@@ -392,8 +400,8 @@ export function EnterTestResultsPage() {
               </div>
               <div>
                 <h5 className="mb-1 fw-bold text-danger d-flex align-items-center gap-2">
-                  <span>BÁO ĐỘNG ĐỎ: PHÁT HIỆN GIÁ TRỊ NGUY HIỂM (CRITICAL / PANIC)</span>
-                  <Badge bg="danger" className="px-2 py-1">ISO 15189 TAT &lt; 15 PHÚT</Badge>
+                  <span>BÁO ĐỘNG ĐỎ: PHÁT HIỆN GIÁ TRỊ NGUY HIỂM (CRITICAL)</span>
+                  <Badge bg="danger" className="px-2 py-1">TAT &lt; 15 PHÚT</Badge>
                 </h5>
                 <div className="small text-dark">
                   Chỉ số nguy hiểm: <strong>{criticalAnalytes.map(c => `${c.name} = ${c.value} ${c.unit}`).join('; ')}</strong>. Bắt buộc liên hệ Bác sĩ điều trị ngay!
@@ -439,11 +447,11 @@ export function EnterTestResultsPage() {
                     <div>
                       <h5 className="mb-0 fw-bold text-dark">Bảng Nhập Chỉ Số Đo Bệnh Phẩm</h5>
                       <small className="text-muted">
-                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu cấu hình chuẩn ISO 15189
+                        {flags.length} thông số &bull; Đơn vị tính và khoảng tham chiếu lâm sàng
                       </small>
                     </div>
                     <span className="badge bg-light text-dark border">
-                      KTV nhập: Lê Minh Tuấn
+                      KTV nhập: {currentTechnicianName}
                     </span>
                   </div>
 
@@ -510,7 +518,7 @@ export function EnterTestResultsPage() {
                       <div className="d-flex align-items-center gap-2 mb-2">
                         <FaExclamationTriangle className="fs-4 text-danger flex-shrink-0" />
                         <div>
-                          <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ (ISO 15189 §7.4)</strong>
+                          <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ</strong>
                           <div className="small">
                             Chỉ số vượt ngưỡng sinh tồn nguy hiểm. Yêu cầu kiểm tra ống mẫu, chạy lại kiểm chứng và bắt buộc hoàn tất biên bản ghi log thông báo.
                           </div>
@@ -746,7 +754,7 @@ export function EnterTestResultsPage() {
 
             <Card className="border-0 shadow-sm bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
-                <h6 className="fw-bold text-dark mb-2">Tiêu Chuẩn Kiểm Soát IQC (ISO 15189)</h6>
+                <h6 className="fw-bold text-dark mb-2">Tiêu Chuẩn Kiểm Soát Nội Kiểm (IQC)</h6>
                 <span className="badge bg-warning-subtle text-warning-emphasis border mb-3">
                   Bản nháp chờ duyệt
                 </span>
@@ -779,10 +787,10 @@ export function EnterTestResultsPage() {
 
       {/* Modal 1: Xem Trước Kết Quả (Preview Results Modal) */}
       <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="bg-light">
+        <Modal.Header closeButton style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <FaEye style={{ color: "#1E60E6" }} />
-            <span>Xem Trước Bảng Kết Quả Xét Nghiệm (Bản Kiểm Thảo Kỹ Thuật ISO 15189)</span>
+            <span>Xem Trước Bảng Kết Quả Xét Nghiệm</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
@@ -858,7 +866,7 @@ export function EnterTestResultsPage() {
               <Col sm={4}>• Đông dây / Cục đông: <strong className="text-success">Âm tính</strong></Col>
               <Col sm={4}>• Độ đục lipid: <strong className="text-success">Bình thường</strong></Col>
               <Col sm={6}>• Nội kiểm IQC: <strong className="text-success">Đạt chuẩn Westgard (Chấp nhận)</strong></Col>
-              <Col sm={6}>• Kỹ thuật viên ký số: <strong className="text-dark">KTV. Lê Minh Tuấn</strong></Col>
+              <Col sm={6}>• Kỹ thuật viên ký số: <strong className="text-dark">{currentTechnicianName}</strong></Col>
             </Row>
           </div>
         </Modal.Body>
@@ -873,7 +881,7 @@ export function EnterTestResultsPage() {
               onSubmit(e);
             }}
             disabled={loading || !sampleId.trim() || (hasCritical && (!doctorNotified || !confirmRerun))}
-            className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
+            className="d-flex align-items-center gap-2 fw-semibold text-white px-3 rounded-pill"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
           >
             <FaFileSignature /> Xác Nhận Ký Số Kỹ Thuật &amp; Gửi Bác Sĩ
@@ -883,15 +891,15 @@ export function EnterTestResultsPage() {
 
       {/* Modal 2: Hủy Kết Quả & Yêu Cầu Chạy Lại (Re-run / Re-sample) */}
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
-        <Modal.Header closeButton className="bg-danger text-white">
-          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <FaUndo />
-            <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại (Re-run)</span>
+        <Modal.Header closeButton style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA" }}>
+          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2" style={{ color: "#991B1B" }}>
+            <FaUndo className="text-danger" />
+            <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3">
           <p className="text-secondary small mb-3">
-            Kỹ thuật viên phát hiện bất thường về mẫu bệnh phẩm hoặc chỉ số kỹ thuật vi phạm nội kiểm. Vui lòng ghi nhận lý do chuẩn y tế Bộ Y Tế để tiến hành chạy lại:
+            Kỹ thuật viên phát hiện bất thường về mẫu bệnh phẩm hoặc chỉ số kỹ thuật vi phạm nội kiểm. Vui lòng ghi nhận lý do chuyên môn để tiến hành chạy lại:
           </p>
 
           <Form.Group className="mb-3">
@@ -959,7 +967,7 @@ export function EnterTestResultsPage() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }
 

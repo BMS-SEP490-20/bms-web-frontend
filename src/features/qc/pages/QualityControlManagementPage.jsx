@@ -7,6 +7,8 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Alert } from "react-bootstrap";
+import { getStoredUser } from "../../../constants/roles";
 import {
     FaVial,
     FaChartLine,
@@ -55,9 +57,13 @@ export default function QualityControlManagementPage() {
     // Record Run Modal / Form State
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [measuredValue, setMeasuredValue] = useState("");
-    const [operatorName, setOperatorName] = useState("KTV. Lê Minh Tuấn");
+    const [operatorName, setOperatorName] = useState(() => {
+        const u = getStoredUser();
+        return u?.fullName || u?.name || u?.username || "";
+    });
     const [recordResult, setRecordResult] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [feedbackBanner, setFeedbackBanner] = useState(null);
 
     // Create Lot Modal State
     const [showCreateLotModal, setShowCreateLotModal] = useState(false);
@@ -132,6 +138,7 @@ export default function QualityControlManagementPage() {
 
         setIsRecording(true);
         setRecordResult(null);
+        setFeedbackBanner(null);
         try {
             const res = await recordQcRun({
                 lotId: selectedLotId,
@@ -143,7 +150,7 @@ export default function QualityControlManagementPage() {
             await loadLeveyJennings(selectedLotId);
             await loadLotsAndSummary();
         } catch (err) {
-            alert(err.message);
+            setFeedbackBanner({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể ghi nhận lượt chạy QC." });
         } finally {
             setIsRecording(false);
         }
@@ -153,6 +160,7 @@ export default function QualityControlManagementPage() {
     const handleCreateLot = async (e) => {
         e.preventDefault();
         setIsCreatingLot(true);
+        setFeedbackBanner(null);
         try {
             const created = await createQcLot(newLotForm);
             setShowCreateLotModal(false);
@@ -167,10 +175,11 @@ export default function QualityControlManagementPage() {
                 targetStandardDeviation: "",
                 unit: "mmol/L"
             });
+            setFeedbackBanner({ variant: "success", text: "Đã khởi tạo lô kiểm chuẩn mới thành công." });
             await loadLotsAndSummary();
             setSelectedLotId(created.id);
         } catch (err) {
-            alert(err.message);
+            setFeedbackBanner({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể khởi tạo lô kiểm chuẩn." });
         } finally {
             setIsCreatingLot(false);
         }
@@ -178,11 +187,12 @@ export default function QualityControlManagementPage() {
 
     // Handle toggle lot status
     const handleToggleStatus = async (lotId) => {
+        setFeedbackBanner(null);
         try {
             await toggleQcLotStatus(lotId);
             await loadLotsAndSummary();
         } catch (err) {
-            alert(err.message);
+            setFeedbackBanner({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể thay đổi trạng thái lô kiểm chuẩn." });
         }
     };
 
@@ -192,6 +202,7 @@ export default function QualityControlManagementPage() {
         if (!selectedRunForSignoff) return;
 
         setIsSigningOff(true);
+        setFeedbackBanner(null);
         try {
             await signoffCorrectiveAction(selectedRunForSignoff.runId || selectedRunForSignoff.id, {
                 operatorName,
@@ -200,10 +211,11 @@ export default function QualityControlManagementPage() {
             setShowSignoffModal(false);
             setSelectedRunForSignoff(null);
             setCorrectiveActionNotes("");
+            setFeedbackBanner({ variant: "success", text: "Đã ký duyệt khắc phục sự cố và mở khóa thiết bị phân tích." });
             await loadLeveyJennings(selectedLotId);
             await loadLotsAndSummary();
         } catch (err) {
-            alert(err.message);
+            setFeedbackBanner({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể ký duyệt mở khóa thiết bị." });
         } finally {
             setIsSigningOff(false);
         }
@@ -263,43 +275,47 @@ export default function QualityControlManagementPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        <h1 className="bms-page-title fs-4 m-0">
+                        <h1 className="bms-page-title">
                             Kiểm Chuẩn Chất Lượng Nội Bộ (IQC)
                         </h1>
-                        <p className="text-muted small m-0 mt-1">
-                            Biểu đồ Levey-Jennings, kiểm soát cảnh báo Westgard và quản lý lô kiểm chuẩn.
-                        </p>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Biểu đồ Levey-Jennings, kiểm soát cảnh báo Westgard và quản lý lô kiểm chuẩn
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
-                        onClick={() => setShowCreateLotModal(true)}
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
+                        style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
+                        onClick={() => {
+                            setFeedbackBanner(null);
+                            setShowCreateLotModal(true);
+                        }}
                         id="btn-create-qc-lot"
                     >
                         <FaPlus size={12} />
                         <span>Khởi Tạo Lô QC</span>
                     </button>
                     <button
-                        className="btn btn-success btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
-                        onClick={() => setShowRecordModal(true)}
+                        className="btn btn-success btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#10B981', borderColor: '#10B981' }}
+                        onClick={() => {
+                            setFeedbackBanner(null);
+                            setShowRecordModal(true);
+                        }}
                         id="btn-record-qc-run"
                     >
                         <FaVial size={13} />
                         <span>Nhập Kết Quả QC</span>
                     </button>
                     <button
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadLotsAndSummary}
                         disabled={isLoading}
                     >
@@ -309,55 +325,65 @@ export default function QualityControlManagementPage() {
                 </div>
             </div>
 
-            {/* KPI Surveillance Ribbon */}
+            {feedbackBanner && !showRecordModal && !showCreateLotModal && !showSignoffModal && (
+                <Alert variant={feedbackBanner.variant} dismissible onClose={() => setFeedbackBanner(null)} className="rounded-4 mb-3">
+                    {feedbackBanner.text}
+                </Alert>
+            )}
+
+            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
-                {/* In-Control Rate */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-success border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn IQC</span>
-                            <span className="badge bg-success-subtle text-success rounded-pill">CLSI C24-A3</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tỷ Lệ Đạt Chuẩn IQC</h6>
+                            <div className="bms-kpi-value text-success">{summary.inControlRate}%</div>
+                            <div className="bms-kpi-sub text-muted">Đảm bảo độ tin cậy kết quả đo</div>
                         </div>
-                        <div className="fs-2 fw-bold text-success mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.inControlRate}%</div>
-                        <div className="small text-muted mt-1">Đảm bảo độ tin cậy mẫu bệnh nhân</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <FaCheckCircle />
+                        </div>
                     </div>
                 </div>
 
-                {/* Active Lots */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ borderLeftColor: '#1E60E6' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Số Lô QC Đang Dùng</span>
-                            <span className="badge rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6' }}>Active</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Số Lô QC Đang Dùng</h6>
+                            <div className="bms-kpi-value text-primary">{summary.activeLotsCount} lô</div>
+                            <div className="bms-kpi-sub text-muted">Đang hoạt động trên máy phân tích</div>
                         </div>
-                        <div className="fs-2 fw-bold mt-1 font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{summary.activeLotsCount} lô</div>
-                        <div className="small text-muted mt-1">Tất cả các bộ phân tích</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <FaVial />
+                        </div>
                     </div>
                 </div>
 
-                {/* Westgard Warnings */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-warning border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Cảnh Báo 1_2s (Warning)</span>
-                            <span className="badge bg-warning-subtle text-warning rounded-pill">Giám sát</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Cảnh Báo 1_2s (Warning)</h6>
+                            <div className="bms-kpi-value" style={{ color: '#B45309' }}>{summary.activeWarningsCount} lần</div>
+                            <div className="bms-kpi-sub text-muted">Độ lệch nằm trong dải 2s - 3s</div>
                         </div>
-                        <div className="fs-2 fw-bold text-warning mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.activeWarningsCount} lần</div>
-                        <div className="small text-muted mt-1">Độ lệch nằm trong dải 2s - 3s</div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                            <FaExclamationTriangle />
+                        </div>
                     </div>
                 </div>
 
-                {/* Rejections & Locked Analyzers */}
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-danger border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <span className="text-muted small fw-semibold text-uppercase">Vi Phạm Từ Chối / Khóa Máy</span>
-                            <span className="badge bg-danger-subtle text-danger rounded-pill">Rejection</span>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Vi Phạm Từ Chối / Khóa Máy</h6>
+                            <div className="bms-kpi-value text-danger">
+                                {summary.activeRejectionsCount} <span className="small fw-normal text-muted">({summary.lockedAnalyzersCount} máy khóa)</span>
+                            </div>
+                            <div className="bms-kpi-sub text-muted">Yêu cầu hiệu chuẩn lại thiết bị</div>
                         </div>
-                        <div className="fs-2 fw-bold text-danger mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {summary.activeRejectionsCount} <span className="fs-6 fw-normal text-muted">({summary.lockedAnalyzersCount} máy khóa)</span>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                            <FaLock />
                         </div>
-                        <div className="small text-muted mt-1">Yêu cầu hiệu chuẩn lại trước khi chạy mẫu</div>
                     </div>
                 </div>
             </div>
@@ -446,12 +472,12 @@ export default function QualityControlManagementPage() {
 
                     {/* CẢNH BÁO VI PHẠM QUY TẮC WESTGARD 1_3S & KHÓA MÁY */}
                     {has13sViolation && (
-                        <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center gap-3">
-                            <FaLock className="fs-2 text-danger flex-shrink-0" />
+                        <div className="alert p-3 mb-4 rounded-4 d-flex align-items-center gap-3" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#991B1B' }}>
+                            <FaLock className="fs-3 text-danger flex-shrink-0" />
                             <div>
-                                <strong className="fs-6 d-block">VI PHẠM QUY TẮC WESTGARD 1_3s — MÁY PHÂN TÍCH ĐÃ BỊ KHÓA TỰ ĐỘNG!</strong>
+                                <strong className="d-block">Vi phạm quy tắc Westgard 1_3s — Máy phân tích đã bị khóa tự động</strong>
                                 <span className="small">
-                                    Phát hiện điểm đo nội kiểm IQC vượt quá giới hạn sai số ngẫu nhiên nghiêm trọng (&plusmn;3 SD). <strong>Quy chuẩn ISO 15189:2022 yêu cầu dừng ngay việc chạy mẫu bệnh nhân trên thiết bị này.</strong> Kỹ thuật viên bắt buộc phải kiểm tra hóa chất, hiệu chuẩn lại cảm biến đo và chạy lại mẫu kiểm chuẩn đạt mới được mở khóa chạy mẫu.
+                                    Phát hiện điểm đo nội kiểm IQC vượt quá giới hạn sai số ngẫu nhiên nghiêm trọng (&plusmn;3 SD). Vui lòng kiểm tra hóa chất, hiệu chuẩn lại cảm biến đo và chạy lại mẫu kiểm chuẩn đạt trước khi mở khóa chạy mẫu bệnh nhân.
                                 </span>
                             </div>
                         </div>
@@ -572,7 +598,7 @@ export default function QualityControlManagementPage() {
                                 <span>Danh Sách Lô Kiểm Chuẩn Đang Quản Lý</span>
                             </h5>
                             <div className="bms-table-standalone-subtitle">
-                                {lots.length} lô kiểm chuẩn nội bộ IQC theo chuẩn CLSI C24-A3
+                                {lots.length} lô kiểm chuẩn nội bộ đang quản lý
                             </div>
                         </div>
                     </div>
@@ -618,9 +644,9 @@ export default function QualityControlManagementPage() {
                                                 </span>
                                             </td>
                                             <td className="text-end">
-                                                <div className="d-flex justify-content-end gap-1">
+                                                <div className="bms-action-btn-group">
                                                     <button
-                                                        className="btn btn-outline-primary btn-sm"
+                                                        className="btn btn-outline-primary btn-sm rounded-pill text-nowrap"
                                                         onClick={() => {
                                                             setSelectedLotId(lot.id);
                                                             setActiveTab("chart");
@@ -629,7 +655,7 @@ export default function QualityControlManagementPage() {
                                                         Xem biểu đồ
                                                     </button>
                                                     <button
-                                                        className={`btn btn-sm ${lot.isActive ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                                                        className={`btn btn-sm rounded-pill text-nowrap ${lot.isActive ? 'btn-outline-danger' : 'btn-outline-success'}`}
                                                         onClick={() => handleToggleStatus(lot.id)}
                                                     >
                                                         {lot.isActive ? "Tạm dừng" : "Kích hoạt"}
@@ -745,25 +771,31 @@ export default function QualityControlManagementPage() {
 
             {/* MODAL: RECORD QC RUN */}
             {showRecordModal && (
-                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg">
-                            <div className="modal-header bg-success text-white">
-                                <h5 className="modal-title fw-bold">
-                                    <FaVial className="me-2" /> Nhập Kết Quả Chạy Kiểm Chuẩn (Record QC Run)
+                        <div className="modal-content border-0 rounded-4 overflow-hidden">
+                            <div className="modal-header" style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
+                                <h5 className="modal-title fw-bold text-dark">
+                                    <FaVial className="me-2 text-success" /> Nhập Kết Quả Chạy Kiểm Chuẩn
                                 </h5>
                                 <button
                                     type="button"
-                                    className="btn-close btn-close-white"
+                                    className="btn-close"
                                     onClick={() => {
                                         setShowRecordModal(false);
                                         setRecordResult(null);
+                                        setFeedbackBanner(null);
                                     }}
                                 ></button>
                             </div>
 
                             <form onSubmit={handleRecordRun}>
-                                <div className="modal-body p-2">
+                                <div className="modal-body p-3">
+                                    {feedbackBanner && (
+                                        <Alert variant={feedbackBanner.variant} dismissible onClose={() => setFeedbackBanner(null)} className="rounded-3 mb-3">
+                                            {feedbackBanner.text}
+                                        </Alert>
+                                    )}
                                     <div className="mb-3">
                                         <label className="form-label small fw-bold text-muted text-uppercase">Chọn lô kiểm chuẩn:</label>
                                         <select
@@ -845,22 +877,30 @@ export default function QualityControlManagementPage() {
 
             {/* MODAL: CREATE QC LOT */}
             {showCreateLotModal && (
-                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg">
-                            <div className="modal-header bg-primary text-white">
-                                <h5 className="modal-title fw-bold">
-                                    <FaPlus className="me-2" /> Khởi Tạo Lô Kiểm Chuẩn Mới (Create QC Lot)
+                        <div className="modal-content border-0 rounded-4 overflow-hidden">
+                            <div className="modal-header" style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
+                                <h5 className="modal-title fw-bold text-dark">
+                                    <FaPlus className="me-2 text-primary" /> Khởi Tạo Lô Kiểm Chuẩn Mới
                                 </h5>
                                 <button
                                     type="button"
-                                    className="btn-close btn-close-white"
-                                    onClick={() => setShowCreateLotModal(false)}
+                                    className="btn-close"
+                                    onClick={() => {
+                                        setShowCreateLotModal(false);
+                                        setFeedbackBanner(null);
+                                    }}
                                 ></button>
                             </div>
 
                             <form onSubmit={handleCreateLot}>
-                                <div className="modal-body p-2">
+                                <div className="modal-body p-3">
+                                    {feedbackBanner && (
+                                        <Alert variant={feedbackBanner.variant} dismissible onClose={() => setFeedbackBanner(null)} className="rounded-3 mb-3">
+                                            {feedbackBanner.text}
+                                        </Alert>
+                                    )}
                                     <div className="row g-3">
                                         <div className="col-12 col-sm-6">
                                             <label className="form-label small fw-bold text-muted text-uppercase">Mã số lô (Lot Number):</label>
@@ -980,25 +1020,31 @@ export default function QualityControlManagementPage() {
 
             {/* MODAL: SIGNOFF CORRECTIVE ACTION */}
             {showSignoffModal && selectedRunForSignoff && (
-                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg">
-                            <div className="modal-header bg-danger text-white">
-                                <h5 className="modal-title fw-bold">
-                                    <FaLock className="me-2" /> Ký Duyệt Khắc Phục Sự Cố QC &amp; Mở Khóa Máy
+                        <div className="modal-content border-0 rounded-4 overflow-hidden">
+                            <div className="modal-header" style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA" }}>
+                                <h5 className="modal-title fw-bold" style={{ color: "#991B1B" }}>
+                                    <FaLock className="me-2 text-danger" /> Ký Duyệt Khắc Phục Sự Cố QC &amp; Mở Khóa Máy
                                 </h5>
                                 <button
                                     type="button"
-                                    className="btn-close btn-close-white"
+                                    className="btn-close"
                                     onClick={() => {
                                         setShowSignoffModal(false);
                                         setSelectedRunForSignoff(null);
+                                        setFeedbackBanner(null);
                                     }}
                                 ></button>
                             </div>
 
                             <form onSubmit={handleSignoff}>
-                                <div className="modal-body p-2">
+                                <div className="modal-body p-3">
+                                    {feedbackBanner && (
+                                        <Alert variant={feedbackBanner.variant} dismissible onClose={() => setFeedbackBanner(null)} className="rounded-3 mb-3">
+                                            {feedbackBanner.text}
+                                        </Alert>
+                                    )}
                                     <div className="alert alert-danger bg-danger-subtle border-danger mb-3 p-3">
                                         <div className="fw-bold">Lần chạy #{selectedRunForSignoff.runNumber || selectedRunForSignoff.runId}</div>
                                         <div className="small">Quy tắc vi phạm: <strong>{selectedRunForSignoff.violatedRules?.join(", ")}</strong> (Z = {selectedRunForSignoff.zScore}s)</div>

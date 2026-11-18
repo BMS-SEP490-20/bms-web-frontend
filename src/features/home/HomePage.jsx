@@ -38,12 +38,12 @@ export default function HomePage() {
     }
   }
 
-  // If user is logged in as a Patient (Role 6)
+  // If user is logged in as a Patient
   if (user && roleId === ROLES.PATIENT) {
     if (!user.medicalProfileCompleted) {
       return <Navigate to="/patient/medical-profile-setup" replace />;
     }
-    return <GuestHomePage />;
+    return <GuestHomePage user={user} />;
   }
 
   // If unauthenticated guest

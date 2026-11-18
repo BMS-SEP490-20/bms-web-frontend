@@ -47,6 +47,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   const [isIssuingTicket, setIsIssuingTicket] = useState(false);
   const [showK80Modal, setShowK80Modal] = useState(false);
   const [activePatientData, setActivePatientData] = useState(null);
+  const [ticketError, setTicketError] = useState('');
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -148,7 +149,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         isExisting: true });
       setShowK80Modal(true);
     } catch (err) {
-      alert('Lỗi cấp STT: ' + (err?.message || 'Không thể kết nối máy cấp số'));
+      setTicketError('Lỗi cấp số thứ tự: ' + (err?.message || 'Không thể kết nối máy cấp số'));
     } finally {
       setIsIssuingTicket(false);
     }
@@ -208,7 +209,7 @@ export function RegisterWalkInPage({ onSuccess }) {
       setIssuedTicket(ticket);
       setShowK80Modal(true);
     } catch (err) {
-      alert('Lỗi cấp số thứ tự: ' + (err.message || 'Không thể kết nối bảng gọi số'));
+      setTicketError('Lỗi cấp số thứ tự: ' + (err.message || 'Không thể kết nối bảng gọi số'));
     } finally {
       setIsIssuingTicket(false);
     }
@@ -275,31 +276,36 @@ export function RegisterWalkInPage({ onSuccess }) {
   if (activePatientData || result) {
     const pt = activePatientData || result;
     return (
-      <div className="container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
-        <div className="container" style={{ maxWidth: 860 }}>
-          <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+      <div className="w-100 py-1">
+        <div className="mx-auto" style={{ maxWidth: 880 }}>
+          {ticketError && (
+            <Alert variant="danger" dismissible onClose={() => setTicketError('')} className="mb-3">
+              {ticketError}
+            </Alert>
+          )}
+          <Card className="border-0 rounded-4 overflow-hidden mb-4 bg-white">
             <div
-              className="p-4 text-white d-flex align-items-center justify-content-between"
-              style={{ background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)' }}
+              className="p-4 d-flex align-items-center justify-content-between flex-wrap gap-3"
+              style={{ background: '#ECFDF5', borderBottom: '1px solid #D1FAE5' }}
             >
               <div className="d-flex align-items-center gap-3">
                 <div
-                  className="rounded-circle d-flex align-items-center justify-content-center bg-white text-success shadow-sm"
-                  style={{ width: 48, height: 48, fontSize: '24px' }}
+                  className="rounded-circle d-flex align-items-center justify-content-center bg-white text-success"
+                  style={{ width: 44, height: 44, fontSize: '20px' }}
                 >
                   <FaCheckCircle />
                 </div>
                 <div>
-                  <h4 className="fw-bold mb-1 text-white">
-                    {pt.isExisting ? 'Xác Nhận Tiếp Đón Khách Vãng Lai' : 'Tiếp Nhận & Đăng Ký Hồ Sơ Thành Công'}
+                  <h4 className="fw-semibold mb-1" style={{ color: '#065F46' }}>
+                    {pt.isExisting ? 'Xác Nhận Tiếp Đón Khách Vãng Lai' : 'Đăng Ký Hồ Sơ Khách Vãng Lai Thành Công'}
                   </h4>
-                  <p className="mb-0 text-white-50 small">
-                    Hồ sơ hợp lệ theo quy chuẩn ISO 15189:2022 &amp; Đề án 06 Bộ Y Tế
+                  <p className="mb-0 small" style={{ color: '#047857' }}>
+                    Hồ sơ bệnh nhân đã sẵn sàng cấp số thứ tự vào phòng lấy mẫu.
                   </p>
                 </div>
               </div>
-              <Badge bg="light" text="dark" className="px-3 py-2 fs-6 rounded-pill">
-                {pt.priority === 'HIGH' ? '🔥 Luồng Ưu Tiên' : '✅ Luồng Tiêu Chuẩn'}
+              <Badge bg={pt.priority === 'HIGH' ? 'danger' : 'success'} className="px-3 py-2 rounded-pill">
+                {pt.priority === 'HIGH' ? 'Luồng Ưu Tiên' : 'Luồng Tiêu Chuẩn'}
               </Badge>
             </div>
 

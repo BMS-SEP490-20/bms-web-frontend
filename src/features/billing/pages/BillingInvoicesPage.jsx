@@ -3,7 +3,7 @@ import {
   FaReceipt, FaSearch, FaTimes, FaPlus, FaPrint,
   FaFileInvoice, FaCreditCard, FaExclamationTriangle, FaCheckCircle
 } from 'react-icons/fa';
-import { Button, Alert, Badge } from 'react-bootstrap';
+import { Button, Alert, Badge, Row, Col } from 'react-bootstrap';
 import {
   getInvoices,
   createInvoice,
@@ -57,7 +57,7 @@ export default function BillingInvoicesPage() {
 
   const handleOpenPrint = async (invoice) => {
     if (invoice.status !== 1 && invoice.status !== 'Paid') {
-      alert('Chỉ có thể in biên lai cho hóa đơn đã thanh toán thành công (Status: Paid). Vui lòng thanh toán trước.');
+      setError('Chỉ có thể in biên lai cho hóa đơn đã thanh toán.');
       return;
     }
 
@@ -68,7 +68,7 @@ export default function BillingInvoicesPage() {
         setPrintData(res.data);
       }
     } catch (err) {
-      alert(err.message || 'Không thể lấy dữ liệu in biên lai.');
+      setError(err.message || 'Không thể lấy dữ liệu in biên lai.');
     } finally {
       setLoading(false);
     }
@@ -103,11 +103,11 @@ export default function BillingInvoicesPage() {
         transactionReference: `POS-${Date.now()}`
       });
       setShowPayModal(false);
-      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công!`);
+      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công.`);
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadInvoices();
     } catch (err) {
-      alert(err.message || 'Lỗi xử lý thanh toán.');
+      setError(err.message || 'Lỗi xử lý thanh toán.');
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export default function BillingInvoicesPage() {
   const handleCreateInvoice = async (e) => {
     e.preventDefault();
     if (!newPatientName.trim()) {
-      alert('Vui lòng nhập họ tên bệnh nhân.');
+      setError('Vui lòng nhập họ tên bệnh nhân.');
       return;
     }
 
@@ -145,7 +145,7 @@ export default function BillingInvoicesPage() {
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadInvoices();
     } catch (err) {
-      alert(err.message || 'Lỗi tạo hóa đơn.');
+      setError(err.message || 'Lỗi tạo hóa đơn.');
     } finally {
       setLoading(false);
     }
@@ -171,10 +171,10 @@ export default function BillingInvoicesPage() {
     .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
+    <div className="w-100 py-1">
       {/* Header */}
       <div className="bms-page-header-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 w-100">
           <div>
             <h1 className="bms-page-title fs-4 m-0">Quầy Thu Viện Phí &amp; Hóa Đơn</h1>
             <p className="text-muted small m-0 mt-1">
@@ -187,7 +187,6 @@ export default function BillingInvoicesPage() {
             className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold shadow-none"
             style={{
               backgroundColor: '#1E60E6',
-              boxShadow: '0 4px 12px rgba(30, 96, 230, 0.25)',
               fontSize: '13px'
             }}
           >
@@ -210,29 +209,39 @@ export default function BillingInvoicesPage() {
         </Alert>
       )}
 
-      {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Doanh Thu Đã Thu (Paid)</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#16a34a', marginTop: '6px' }}>
-            {totalPaid.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
+      {/* Standardized KPI Quad Row */}
+      <Row className="g-3 mb-4">
+        <Col xs={12} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Doanh Thu Đã Thu</h6>
+              <div className="bms-kpi-value text-success">{totalPaid.toLocaleString('vi-VN')} ₫</div>
+              <div className="bms-kpi-sub text-success">Hóa đơn đã thanh toán</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
           </div>
-        </div>
-
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Chờ Thu Phí (Unpaid)</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#d97706', marginTop: '6px' }}>
-            {totalPending.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
+        </Col>
+        <Col xs={12} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Chờ Thu Phí</h6>
+              <div className="bms-kpi-value text-warning">{totalPending.toLocaleString('vi-VN')} ₫</div>
+              <div className="bms-kpi-sub text-muted">Hóa đơn chờ thanh toán</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaCreditCard /></div>
           </div>
-        </div>
-
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng Hóa Đơn Trong Ca</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', marginTop: '6px' }}>
-            {invoices.length} <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }}>hóa đơn</span>
+        </Col>
+        <Col xs={12} md={4}>
+          <div className="bms-kpi-quad-card">
+            <div>
+              <h6 className="bms-kpi-label">Tổng Hóa Đơn Trong Ca</h6>
+              <div className="bms-kpi-value">{invoices.length}</div>
+              <div className="bms-kpi-sub text-muted">Tổng phiếu ghi nhận</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaReceipt /></div>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       {/* Standalone Filter Bar */}
       <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
@@ -455,7 +464,7 @@ export default function BillingInvoicesPage() {
                 onClick={handlePayInvoice}
                 style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#10b981', color: '#ffffff', fontWeight: '600', cursor: 'pointer' }}
               >
-                {loading ? 'Đang xử lý...' : '✓ Xác Nhận Đã Thu Tiền'}
+                {loading ? 'Đang xử lý...' : 'Xác Nhận Đã Thu Tiền'}
               </button>
             </div>
           </div>

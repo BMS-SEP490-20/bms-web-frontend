@@ -288,8 +288,7 @@ export default function PublicQueueBoardPage() {
 
               <Card.Body className="p-3 overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
                 {waiting.length === 0 ? (
-                  <div className="text-center py-3 text-white-50">
-                    <div className="fs-1 mb-2">✨</div>
+                  <div className="text-center py-4 text-white-50">
                     <div className="fs-5 fw-semibold">Hàng đợi trống</div>
                     <div className="small">Hiện không có số thứ tự nào đang chờ.</div>
                   </div>
@@ -345,7 +344,7 @@ export default function PublicQueueBoardPage() {
         className="px-3 py-2 border-top text-center text-white-50 small"
         style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0B132B' }}
       >
-        <span>🏥 Quý khách vui lòng giữ trật tự và theo dõi màn hình khi đến lượt. Mọi thắc mắc xin liên hệ Quầy tiếp đón hoặc Hotline: <strong>1900-8888</strong></span>
+        <span>Quý khách vui lòng giữ trật tự và theo dõi màn hình khi đến lượt. Mọi thắc mắc xin liên hệ Quầy tiếp đón hoặc Hotline: <strong>1900-8888</strong></span>
       </div>
     </div>
   );

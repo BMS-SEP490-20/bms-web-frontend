@@ -89,6 +89,7 @@ const MENU_SECTIONS = [
     category: 'Nghiệp Vụ Xét Nghiệm',
     roles: [LAB],
     items: [
+      { id: 'lab-dash', path: '/dashboard', label: 'Bảng Điều Khiển Lab', icon: FaTachometerAlt, roles: [LAB] },
       { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Bệnh Phẩm', icon: FaVial, roles: [LAB] },
       { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Tiếp Nhận Ống Mẫu Máu', icon: FaVial, roles: [LAB] },
       { id: 'lab-enter-res', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FaNotesMedical, roles: [LAB] },
@@ -121,6 +122,7 @@ const MENU_SECTIONS = [
     category: 'Bàn Khám & Điều Trị',
     roles: [DOCTOR],
     items: [
+      { id: 'doc-dash', path: '/dashboard', label: 'Bảng Điều Khiển Bác Sĩ', icon: FaTachometerAlt, roles: [DOCTOR] },
       { id: 'doc-console', path: '/doctor/console', label: 'Bàn Khám Bác Sĩ & Gọi Số', icon: FaStethoscope, roles: [DOCTOR] },
       { id: 'doc-order', path: '/doctor/orders/create', label: 'Chỉ Định Xét Nghiệm Máu', icon: FaNotesMedical, roles: [DOCTOR] },
       { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án Điện Tử (EMR)', icon: FaNotesMedical, roles: [DOCTOR] },

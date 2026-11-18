@@ -2143,7 +2143,7 @@ const AdminAppointments = () => {
                 
                 // If missing/empty, mark as required
                 if (val === undefined || val === null || String(val).trim() === '') {
-                    newErrors[t.id] = '⚠️ Bắt buộc nhập giá trị';
+                    newErrors[t.id] = 'Bắt buộc nhập giá trị';
                     missingFields.push(testName);
                     continue;
                 }
@@ -2157,7 +2157,7 @@ const AdminAppointments = () => {
                 const isExpectingNumeric = (min !== null && !isNaN(min)) || (max !== null && !isNaN(max));
 
                 if (isExpectingNumeric && isNaN(numericValue)) {
-                    newErrors[t.id] = '❌ Yêu cầu giá trị số';
+                    newErrors[t.id] = 'Yêu cầu giá trị số';
                 } else if (isExpectingNumeric) {
                     if (min !== null && numericValue < min) newErrors[t.id] = `⬇️ Giá trị nhỏ hơn giới hạn tối thiểu: ${min}`;
                     else if (max !== null && numericValue > max) newErrors[t.id] = `⬆️ Giá trị lớn hơn giới hạn tối đa: ${max}`;
@@ -2170,9 +2170,9 @@ const AdminAppointments = () => {
             if (Object.keys(newErrors).length > 0) {
                 if (missingFields.length > 0) {
                     const fieldList = missingFields.slice(0, 3).join(', ') + (missingFields.length > 3 ? ` và ${missingFields.length - 3} tiêu chí khác` : '');
-                    showError(`⚠️ Vui lòng nhập đầy đủ tất cả các tiêu chí. Còn thiếu: ${fieldList}`);
+                    showError(`Vui lòng nhập đầy đủ tất cả các tiêu chí. Còn thiếu: ${fieldList}`);
                 } else {
-                    showError('❌ Có lỗi dữ liệu trong form. Vui lòng kiểm tra các trường đã đánh dấu đỏ.');
+                    showError('Có lỗi dữ liệu trong form. Vui lòng kiểm tra các trường đã đánh dấu đỏ.');
                 }
                 
                 // Auto-scroll to first error field
@@ -2292,7 +2292,7 @@ const AdminAppointments = () => {
                     }
                 } catch (e) { /* Failed to update appointment status */ }
 
-                showSuccess('✅ Lưu kết quả thành công');
+                showSuccess('Lưu kết quả thành công');
                 // Update local cache of appointment results to reflect newly created/updated result
                 try {
                     const aptIdKey = String(appointmentIdPayload || '');
@@ -2445,7 +2445,7 @@ const AdminAppointments = () => {
                                                         onChange={(e) => { handleChangeResult(fieldKey, e.target.value); }}
                                                         onBlur={() => validateField(fieldKey, item.value, item.meta)}
                                                         isInvalid={hasError}
-                                                        placeholder="⚠️ Bắt buộc nhập"
+                                                        placeholder="Bắt buộc nhập"
                                                         required
                                                     />
                                                     {hasError && <Form.Control.Feedback type="invalid" className="d-block mt-1">{resultErrors[fieldKey]}</Form.Control.Feedback>}
@@ -2521,13 +2521,13 @@ const AdminAppointments = () => {
                     } catch (e) { /* ignore */ }
                     const createSampleRes = await sampleService.createSampleOnCheckIn(aptObj, { labUserId: canonicalLabUserIdForCreate, storageLocation: storageLocationForCreate });
                     if (createSampleRes && createSampleRes.success && createSampleRes.data) {
-                        showSuccess('✅ Check-in thành công và mẫu xét nghiệm đã được tạo.');
+                        showSuccess('Check-in thành công và mẫu xét nghiệm đã được tạo.');
                     } else {
-                        showSuccess('✅ Check-in thành công! Hệ thống sẽ cố gắng tạo mẫu.');
+                        showSuccess('Check-in thành công! Hệ thống sẽ cố gắng tạo mẫu.');
                     }
                 } catch (errCreate) {
                     /* Sample creation error post check-in */
-                    showSuccess('✅ Check-in thành công! (Không thể tạo mẫu tự động)');
+                    showSuccess('Check-in thành công! (Không thể tạo mẫu tự động)');
                 }
 
                 setRefreshFlag('appointments');
@@ -2619,7 +2619,7 @@ const AdminAppointments = () => {
             setBarcodeVerified(false);
             setShowSampleModal(true);
             
-            showSuccess('✅ Đã tải thông tin mẫu xét nghiệm. Vui lòng xác nhận lấy mẫu.');
+            showSuccess('Đã tải thông tin mẫu xét nghiệm. Vui lòng xác nhận lấy mẫu.');
         } catch (error) {
             /* Error in handleTakeSample */
             showError('Lỗi khi tải thông tin mẫu xét nghiệm');
@@ -2712,7 +2712,7 @@ const AdminAppointments = () => {
                     existingSampleId: null, existingBarcode: null
                 });
                 
-                showSuccess(`✅ Xác nhận lấy mẫu thành công! Mã vạch: ${sampleData.existingBarcode}`);
+                showSuccess(`Xác nhận lấy mẫu thành công! Mã vạch: ${sampleData.existingBarcode}`);
                 setRefreshFlag('appointments');
                 dispatchRefreshEvent('appointments', 'updated', { appointmentId: selectedAppointment?.id });
                 await loadData(true);
@@ -2912,7 +2912,7 @@ const AdminAppointments = () => {
             // Update sample status to completed
             await sampleService.updateSampleStatus(completeSampleId, 'completed');
             
-            showSuccess('✅ Đã hoàn tất xét nghiệm thành công!');
+            showSuccess('Đã hoàn tất xét nghiệm thành công!');
             
             // Reload dataset to update UI
             loadData();
@@ -4454,9 +4454,9 @@ const AdminAppointments = () => {
                                         if (expectedNorm === scannedNorm) {
                                             setBarcodeVerified(true);
                                             setShowBarcodeScanModal(false);
-                                            showSuccess('✅ Xác nhận mã vạch thành công! Bạn có thể tiếp tục lấy mẫu.');
+                                            showSuccess('Xác nhận mã vạch thành công! Bạn có thể tiếp tục lấy mẫu.');
                                         } else {
-                                            showError(`❌ Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedBarcode}`);
+                                            showError(`Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedBarcode}`);
                                         }
                                     } catch (e) {
                                         showError('Lỗi khi xử lý mã vạch');
@@ -4683,9 +4683,9 @@ const AdminAppointments = () => {
                                     if (scannedNormalized && expectedNormalized && scannedNormalized === expectedNormalized) {
                                         setResultBarcodeVerified(true);
                                         setShowBarcodeScanInResultModal(false);
-                                        showSuccess('✅ Xác nhận mã vạch thành công! Bạn có thể nhập kết quả.');
+                                        showSuccess('Xác nhận mã vạch thành công! Bạn có thể nhập kết quả.');
                                     } else {
-                                        showError(`❌ Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedRaw || 'N/A'}`);
+                                        showError(`Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedRaw || 'N/A'}`);
                                     }
                                 }}
                                 onClose={() => setShowBarcodeScanInResultModal(false)}

@@ -76,26 +76,8 @@ export default function CalculateFeesPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Helper: Normalize demo prices to realistic hospital pricing
-  const normalizePrice = (pkg) => {
-    let price = Number(pkg.price || pkg.Price || 0);
-    const code = String(pkg.code || pkg.package_code || pkg.Code || pkg.id || '').toUpperCase();
-    const name = String(pkg.name || pkg.package_name || pkg.Name || '').toLowerCase();
-    
-    // Replace unrealistic demo seed prices like 2.000đ with official hospital tariffs
-    if (price > 0 && price < 50000) {
-      if (code.includes('LIVER') || name.includes('gan')) price = 280000;
-      else if (code.includes('DIAB') || name.includes('đường') || name.includes('tiểu')) price = 380000;
-      else if (code.includes('GEN') || name.includes('tổng quát')) price = 550000;
-      else if (code.includes('CBC') || name.includes('huyết')) price = 180000;
-      else if (code.includes('BIOCHEM') || name.includes('sinh hóa')) price = 250000;
-      else if (code.includes('COAG') || name.includes('đông máu')) price = 220000;
-      else if (code.includes('HEPA') || name.includes('viêm gan')) price = 320000;
-      else if (code.includes('LIPID') || name.includes('mỡ')) price = 200000;
-      else price = 250000;
-    }
-    return price;
-  };
+  // Preserve exact database pricing without client-side fabrication
+  const normalizePrice = (pkg) => Number(pkg.price || pkg.Price || 0);
 
   // 1. Fetch dynamic packages from database on mount
   useEffect(() => {
@@ -347,50 +329,32 @@ export default function CalculateFeesPage() {
   });
 
   return (
-    <div className="calc-fees-page py-2 px-3 bg-light min-vh-100" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-      <div className="container-fluid" style={{ maxWidth: 1360 }}>
-        
-        {/* Top Header Card */}
-        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-          <Card.Body className="p-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div className="d-flex align-items-center gap-3">
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  backgroundColor: "#eff6ff",
-                  color: "#1E60E6",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 22
-                }}
-              >
-                <FaCalculator />
-              </div>
-              <div>
-                <h1 className="bms-page-title fs-4 mb-1 text-dark fw-bold">
-                  Quầy Dự Toán Viện Phí &amp; BHYT
-                </h1>
-                <div className="text-muted small">
-                  Dự toán chi phí xét nghiệm và tỷ lệ đồng chi trả BHYT.
-                </div>
-              </div>
+    <div className="calc-fees-page w-100 py-1">
+      <div className="w-100">
+        {/* Unified Top Header Card */}
+        <div className="bms-page-header-card mb-4">
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
+            <div className="bms-page-header-content">
+              <h1 className="bms-page-title m-0">
+                Quầy Dự Toán Viện Phí &amp; BHYT
+              </h1>
+              <p className="text-muted small m-0 mt-1">
+                Dự toán chi phí xét nghiệm và tỷ lệ đồng chi trả bảo hiểm y tế.
+              </p>
             </div>
 
-            <div className="d-flex gap-2">
+            <div className="bms-page-actions">
               <Button
                 variant="outline-primary"
                 size="sm"
                 onClick={() => window.print()}
-                className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill shadow-sm"
+                className="d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
               >
                 <FaPrint /> <span>In Bảng Dự Toán</span>
               </Button>
             </div>
-          </Card.Body>
-        </Card>
+          </div>
+        </div>
 
         {/* 1. Fast Importer: Doctor Order & Patient Lookup */}
         <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
@@ -458,30 +422,6 @@ export default function CalculateFeesPage() {
                     </Button>
                   </Col>
                 </Row>
-
-                <div className="d-flex flex-wrap align-items-center gap-2 mt-2 pt-1 text-muted small">
-                  <span>Mẫu thử nhanh:</span>
-                  <span
-                    className="font-monospace"
-                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
-                    onClick={() => {
-                      setOrderSearchCode("APT-261127-0001");
-                      handleLookupDoctorOrder("APT-261127-0001");
-                    }}
-                  >
-                    APT-261127-0001 (BN: Trần Văn An)
-                  </span>
-                  <span
-                    className="font-monospace"
-                    style={{ cursor: "pointer", backgroundColor: '#EFF6FF', color: '#1E40AF', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 600, fontSize: '12px' }}
-                    onClick={() => {
-                      setOrderSearchCode("APT-261113-0002");
-                      handleLookupDoctorOrder("APT-261113-0002");
-                    }}
-                  >
-                    APT-261113-0002 (Lấy mẫu máu)
-                  </span>
-                </div>
               </div>
             )}
           </Card.Body>
@@ -761,7 +701,7 @@ export default function CalculateFeesPage() {
                 {appliedVoucher && (
                   <Alert variant="success" className="d-flex justify-content-between align-items-center py-2 px-3 mb-2 rounded-3">
                     <div>
-                      <strong>✓ Đã áp dụng {appliedVoucher.code}</strong>: {appliedVoucher.description} (-{formatVnd(appliedVoucher.discountAmount)})
+                      <strong>Đã áp dụng {appliedVoucher.code}</strong>: {appliedVoucher.description} (-{formatVnd(appliedVoucher.discountAmount)})
                     </div>
                     <Button variant="link" size="sm" onClick={handleClearVoucher} className="text-danger p-0 fw-bold text-decoration-none">
                       Hủy áp dụng
@@ -888,28 +828,27 @@ export default function CalculateFeesPage() {
                       )}
                     </div>
 
-                    {/* Grand Total Card */}
+                    {/* Soft Healthcare Summary Surface */}
                     <div
                       style={{
-                        background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
-                        borderRadius: 14,
+                        backgroundColor: "#EFF6FF",
+                        borderRadius: 16,
                         padding: "20px",
-                        color: "#ffffff",
                         marginBottom: 20
                       }}
-                      className="text-center shadow"
+                      className="text-center"
                     >
-                      <div className="d-flex justify-content-between align-items-center text-white-50 small mb-1">
-                        <span className="text-uppercase fw-bold" style={{ letterSpacing: "1px" }}>TỔNG THỰC THU TẠI QUẦY (CO-PAY)</span>
+                      <div className="d-flex justify-content-between align-items-center text-muted small mb-1">
+                        <span className="fw-semibold text-primary">Tổng thực thu tại quầy</span>
                         <Badge bg="primary" className="font-monospace">VND</Badge>
                       </div>
 
-                      <div style={{ fontSize: 32, fontWeight: 800, color: "#ffffff", margin: "8px 0" }}>
+                      <div style={{ fontSize: 30, fontWeight: 700, color: "#1E60E6", margin: "8px 0", fontVariantNumeric: "tabular-nums" }}>
                         {formatVnd(calculation?.netTotalPayable)}
                       </div>
 
-                      <div className="pt-2 border-top border-white border-opacity-25 small text-white-50">
-                        Bằng chữ: <strong className="text-white">{calculation?.totalInWords || "Không đồng chẵn"}</strong>
+                      <div className="pt-2 border-top small text-muted" style={{ borderColor: "#DBEAFE" }}>
+                        Bằng chữ: <strong className="text-dark">{calculation?.totalInWords || "Không đồng chẵn"}</strong>
                       </div>
                     </div>
 

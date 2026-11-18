@@ -216,23 +216,23 @@ export default function RevenueReportPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
                             Báo Cáo Doanh Thu Viện Phí
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Tổng hợp doanh thu xét nghiệm, khấu trừ bảo hiểm y tế và đối soát giao dịch
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-2 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#10B981', borderColor: '#10B981' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#10B981', borderColor: '#10B981' }}
                         onClick={handleExportCSV}
                         id="btn-export-revenue-csv"
                     >
@@ -240,8 +240,8 @@ export default function RevenueReportPage() {
                         <span>Xuất CSV</span>
                     </button>
                     <button
-                        className="btn btn-sm d-flex align-items-center gap-2 shadow-sm text-white px-3.5 py-2 fw-semibold"
-                        style={{ borderRadius: '9999px', backgroundColor: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                        className="btn btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={loadReport}
                         disabled={isLoading}
                     >
@@ -251,90 +251,78 @@ export default function RevenueReportPage() {
                 </div>
             </div>
 
-            {/* Filter Bar */}
-            <section className="bms-inventory-filter">
-                    <div className="bms-revenue-grid">
-                        <div className="bms-field">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaCalendarAlt className="me-1" style={{ color: '#1E60E6' }} /> Mốc thời gian báo cáo:
-                            </label>
-                            <div className="d-flex flex-wrap gap-1" role="group">
-                                {[
-                                    { key: "today", label: "Hôm nay" },
-                                    { key: "7days", label: "7 ngày qua" },
-                                    { key: "30days", label: "30 ngày qua" },
-                                    { key: "thisMonth", label: "Tháng này" }
-                                ].map(p => (
-                                    <button
-                                        key={p.key}
-                                        type="button"
-                                        className="btn btn-sm"
-                                        style={{
-                                            borderRadius: '9999px',
-                                            padding: '6px 16px',
-                                            backgroundColor: datePreset === p.key ? '#1E60E6' : '#F1F5F9',
-                                            color: datePreset === p.key ? '#ffffff' : '#475569',
-                                            border: '1px solid',
-                                            borderColor: datePreset === p.key ? '#1E60E6' : '#CBD5E1',
-                                            fontWeight: '600',
-                                            fontSize: '13px'
-                                        }}
-                                        onClick={() => handlePresetChange(p.key)}
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+            {/* Single-Line Flat Filter Bar */}
+            <div className="bms-filter-bar mb-3">
+                <div className="btn-group" role="group">
+                    {[
+                        { key: "today", label: "Hôm nay" },
+                        { key: "7days", label: "7 ngày qua" },
+                        { key: "30days", label: "30 ngày qua" },
+                        { key: "thisMonth", label: "Tháng này" }
+                    ].map(p => (
+                        <button
+                            key={p.key}
+                            type="button"
+                            className={`btn btn-sm ${datePreset === p.key ? "btn-primary text-white" : "btn-outline-secondary"}`}
+                            onClick={() => handlePresetChange(p.key)}
+                        >
+                            {p.label}
+                        </button>
+                    ))}
+                </div>
 
-                        <div className="bms-field">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">Từ ngày:</label>
-                            <input
-                                type="date"
-                                className="form-control form-control-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
-                                value={fromDate}
-                                onChange={e => {
-                                    setFromDate(e.target.value);
-                                    setDatePreset("custom");
-                                }}
-                            />
-                        </div>
+                <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    style={{ width: "auto" }}
+                    value={fromDate}
+                    title="Từ ngày"
+                    onChange={e => {
+                        setFromDate(e.target.value);
+                        setDatePreset("custom");
+                    }}
+                />
 
-                        <div className="bms-field">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">Đến ngày:</label>
-                            <input
-                                type="date"
-                                className="form-control form-control-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
-                                value={toDate}
-                                onChange={e => {
-                                    setToDate(e.target.value);
-                                    setDatePreset("custom");
-                                }}
-                            />
-                        </div>
+                <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    style={{ width: "auto" }}
+                    value={toDate}
+                    title="Đến ngày"
+                    onChange={e => {
+                        setToDate(e.target.value);
+                        setDatePreset("custom");
+                    }}
+                />
 
-                        <div className="bms-field">
-                            <label className="small text-muted fw-bold text-uppercase d-block mb-1">
-                                <FaFilter className="me-1" style={{ color: '#1E60E6' }} /> Chuyên khoa:
-                            </label>
-                            <select
-                                className="form-select form-select-sm"
-                                style={{ borderRadius: '9999px', height: '40px', backgroundColor: '#FFFFFF', padding: '0 14px' }}
-                                value={categoryFilter}
-                                onChange={e => setCategoryFilter(e.target.value)}
-                            >
-                                <option value="">Tất cả chuyên khoa</option>
-                                <option value="Biochemistry">Hóa Sinh Lâm Sàng</option>
-                                <option value="Hematology">Huyết Học &amp; Đông Máu</option>
-                                <option value="Immunology">Miễn Dịch &amp; Dị Ứng</option>
-                                <option value="Microbiology">Vi Sinh &amp; Kháng Sinh Đồ</option>
-                                <option value="GeneralCheckup">Gói Khám Tổng Quát</option>
-                            </select>
-                        </div>
-                    </div>
-            </section>
+                <select
+                    className="form-select form-select-sm"
+                    style={{ width: "auto" }}
+                    value={categoryFilter}
+                    onChange={e => setCategoryFilter(e.target.value)}
+                >
+                    <option value="">Tất cả chuyên khoa</option>
+                    <option value="Biochemistry">Hóa Sinh Lâm Sàng</option>
+                    <option value="Hematology">Huyết Học &amp; Đông Máu</option>
+                    <option value="Immunology">Miễn Dịch &amp; Dị Ứng</option>
+                    <option value="Microbiology">Vi Sinh &amp; Kháng Sinh Đồ</option>
+                    <option value="GeneralCheckup">Gói Khám Tổng Quát</option>
+                </select>
+
+                {categoryFilter && (
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
+                        onClick={() => setCategoryFilter("")}
+                    >
+                        Đặt lại
+                    </button>
+                )}
+
+                <span className="bms-filter-meta">
+                    Tổng <strong>{summary.totalOrdersCount.toLocaleString("vi-VN")}</strong> đơn
+                </span>
+            </div>
 
             {/* Financial KPI Cards */}
             <div className="row g-3 mb-4">
@@ -623,47 +611,51 @@ export default function RevenueReportPage() {
                 </div>
             )}
 
-            {/* TAB 3: DETAILED TRANSACTIONS AUDIT TABLE (STANDALONE SECTION) */}
+            {/* TAB 3: DETAILED TRANSACTIONS AUDIT TABLE (ZERO BOX-IN-BOX) */}
             {activeTab === "transactions" && (
-                <div className="bms-table-standalone-section">
-                    <div className="bms-table-standalone-header">
-                        <div>
-                            <h5 className="bms-table-standalone-title">
-                                Nhật Ký Giao Dịch
-                            </h5>
+                <>
+                    <div className="bms-filter-bar mb-3">
+                        <div className="bms-search-input-pill">
+                            <FaSearch className="bms-search-icon" />
+                            <input
+                                type="text"
+                                placeholder="Tìm mã giao dịch, mã đơn, tên bệnh nhân, phương thức..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    className="bms-search-clear"
+                                    onClick={() => setSearchTerm('')}
+                                    title="Xóa tìm kiếm"
+                                >
+                                    <FaTimes size={12} />
+                                </button>
+                            )}
                         </div>
+                        <span className="bms-filter-meta">
+                            Hiển thị <strong>{Math.min(filteredTransactions.length, 50)}</strong> / {filteredTransactions.length} giao dịch
+                        </span>
+                    </div>
 
-                        <div className="bms-filter-bar">
-                            <div className="bms-search-input-pill">
-                                    <FaSearch className="bms-search-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="Tìm mã đơn, tên bệnh nhân..."
-                                        value={searchTerm}
-                                        onChange={e => setSearchTerm(e.target.value)}
-                                    />
-                                    {searchTerm && (
-                                        <button
-                                            type="button"
-                                            className="bms-search-clear"
-                                            onClick={() => setSearchTerm('')}
-                                            title="Xóa tìm kiếm"
-                                        >
-                                            <FaTimes size={12} />
-                                        </button>
-                                    )}
-                                </div>
+                    <div className="bms-table-standalone-section">
+                        <div className="bms-table-standalone-header">
+                            <div>
+                                <h5 className="bms-table-standalone-title">
+                                    Nhật Ký Giao Dịch
+                                </h5>
+                            </div>
                             <button
-                                className="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5 rounded-pill px-3 py-2 fw-semibold shadow-sm"
+                                className="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-1 fw-semibold text-nowrap"
                                 onClick={handleExportCSV}
                             >
                                 <FaDownload size={12} />
                                 <span>Xuất CSV</span>
                             </button>
                         </div>
-                    </div>
 
-                    <div className="bms-table-standalone-body">
+                        <div className="bms-table-standalone-body">
                         <div className="table-responsive">
                             <table className="bms-dash-table">
                                 <thead>
@@ -712,11 +704,12 @@ export default function RevenueReportPage() {
                         </div>
                         {filteredTransactions.length > 50 && (
                             <div className="p-3 text-center small text-muted border-top" style={{ background: '#F8FAFC' }}>
-                                Đang hiển thị 50 / {filteredTransactions.length} giao dịch. Nhấn "Xuất Báo Cáo Kế Toán" để tải toàn bộ.
+                                Đang hiển thị 50 / {filteredTransactions.length} giao dịch. Nhấn &ldquo;Xuất CSV&rdquo; để tải toàn bộ.
                             </div>
                         )}
+                        </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

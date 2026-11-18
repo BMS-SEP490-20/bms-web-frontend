@@ -2143,7 +2143,7 @@ const AdminAppointments = () => {
                 
                 // If missing/empty, mark as required
                 if (val === undefined || val === null || String(val).trim() === '') {
-                    newErrors[t.id] = '⚠️ Bắt buộc nhập giá trị';
+                    newErrors[t.id] = 'Bắt buộc nhập giá trị';
                     missingFields.push(testName);
                     continue;
                 }
@@ -2157,10 +2157,10 @@ const AdminAppointments = () => {
                 const isExpectingNumeric = (min !== null && !isNaN(min)) || (max !== null && !isNaN(max));
 
                 if (isExpectingNumeric && isNaN(numericValue)) {
-                    newErrors[t.id] = '❌ Yêu cầu giá trị số';
+                    newErrors[t.id] = 'Yêu cầu giá trị số';
                 } else if (isExpectingNumeric) {
-                    if (min !== null && numericValue < min) newErrors[t.id] = `⬇️ Giá trị nhỏ hơn giới hạn tối thiểu: ${min}`;
-                    else if (max !== null && numericValue > max) newErrors[t.id] = `⬆️ Giá trị lớn hơn giới hạn tối đa: ${max}`;
+                    if (min !== null && numericValue < min) newErrors[t.id] = `Giá trị nhỏ hơn giới hạn tối thiểu: ${min}`;
+                    else if (max !== null && numericValue > max) newErrors[t.id] = `Giá trị lớn hơn giới hạn tối đa: ${max}`;
                 }
             }
 
@@ -2170,9 +2170,9 @@ const AdminAppointments = () => {
             if (Object.keys(newErrors).length > 0) {
                 if (missingFields.length > 0) {
                     const fieldList = missingFields.slice(0, 3).join(', ') + (missingFields.length > 3 ? ` và ${missingFields.length - 3} tiêu chí khác` : '');
-                    showError(`⚠️ Vui lòng nhập đầy đủ tất cả các tiêu chí. Còn thiếu: ${fieldList}`);
+                    showError(`Vui lòng nhập đầy đủ tất cả các tiêu chí. Còn thiếu: ${fieldList}`);
                 } else {
-                    showError('❌ Có lỗi dữ liệu trong form. Vui lòng kiểm tra các trường đã đánh dấu đỏ.');
+                    showError('Có lỗi dữ liệu trong biểu mẫu. Vui lòng kiểm tra các trường đã đánh dấu đỏ.');
                 }
                 
                 // Auto-scroll to first error field
@@ -2292,7 +2292,7 @@ const AdminAppointments = () => {
                     }
                 } catch (e) { /* Failed to update appointment status */ }
 
-                showSuccess('✅ Lưu kết quả thành công');
+                showSuccess('Lưu kết quả thành công');
                 // Update local cache of appointment results to reflect newly created/updated result
                 try {
                     const aptIdKey = String(appointmentIdPayload || '');
@@ -2396,10 +2396,10 @@ const AdminAppointments = () => {
         
         return (
             <Card className="border-0 shadow-sm">
-                <Card.Header className="bg-primary text-white">
+                <Card.Header style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                     <div>
-                        <h5 className="mb-0"><FaFlask className="me-2" />{pkgName}</h5>
-                        <small className="text-white-50">Tổng cộng: {allCriteria.length} tiêu chí</small>
+                        <h5 className="mb-0 text-dark"><FaFlask className="me-2 text-primary" />{pkgName}</h5>
+                        <small className="text-muted">Tổng cộng: {allCriteria.length} tiêu chí</small>
                     </div>
                 </Card.Header>
                 <Card.Body className="p-2 p-md-3">
@@ -2445,7 +2445,7 @@ const AdminAppointments = () => {
                                                         onChange={(e) => { handleChangeResult(fieldKey, e.target.value); }}
                                                         onBlur={() => validateField(fieldKey, item.value, item.meta)}
                                                         isInvalid={hasError}
-                                                        placeholder="⚠️ Bắt buộc nhập"
+                                                        placeholder="Bắt buộc nhập"
                                                         required
                                                     />
                                                     {hasError && <Form.Control.Feedback type="invalid" className="d-block mt-1">{resultErrors[fieldKey]}</Form.Control.Feedback>}
@@ -2521,13 +2521,13 @@ const AdminAppointments = () => {
                     } catch (e) { /* ignore */ }
                     const createSampleRes = await sampleService.createSampleOnCheckIn(aptObj, { labUserId: canonicalLabUserIdForCreate, storageLocation: storageLocationForCreate });
                     if (createSampleRes && createSampleRes.success && createSampleRes.data) {
-                        showSuccess('✅ Check-in thành công và mẫu xét nghiệm đã được tạo.');
+                        showSuccess('Check-in thành công và mẫu xét nghiệm đã được tạo.');
                     } else {
-                        showSuccess('✅ Check-in thành công! Hệ thống sẽ cố gắng tạo mẫu.');
+                        showSuccess('Check-in thành công! Hệ thống sẽ cố gắng tạo mẫu.');
                     }
                 } catch (errCreate) {
                     /* Sample creation error post check-in */
-                    showSuccess('✅ Check-in thành công! (Không thể tạo mẫu tự động)');
+                    showSuccess('Check-in thành công! (Không thể tạo mẫu tự động)');
                 }
 
                 setRefreshFlag('appointments');
@@ -2619,7 +2619,7 @@ const AdminAppointments = () => {
             setBarcodeVerified(false);
             setShowSampleModal(true);
             
-            showSuccess('✅ Đã tải thông tin mẫu xét nghiệm. Vui lòng xác nhận lấy mẫu.');
+            showSuccess('Đã tải thông tin mẫu xét nghiệm. Vui lòng xác nhận lấy mẫu.');
         } catch (error) {
             /* Error in handleTakeSample */
             showError('Lỗi khi tải thông tin mẫu xét nghiệm');
@@ -2712,7 +2712,7 @@ const AdminAppointments = () => {
                     existingSampleId: null, existingBarcode: null
                 });
                 
-                showSuccess(`✅ Xác nhận lấy mẫu thành công! Mã vạch: ${sampleData.existingBarcode}`);
+                showSuccess(`Xác nhận lấy mẫu thành công! Mã vạch: ${sampleData.existingBarcode}`);
                 setRefreshFlag('appointments');
                 dispatchRefreshEvent('appointments', 'updated', { appointmentId: selectedAppointment?.id });
                 await loadData(true);
@@ -2912,7 +2912,7 @@ const AdminAppointments = () => {
             // Update sample status to completed
             await sampleService.updateSampleStatus(completeSampleId, 'completed');
             
-            showSuccess('✅ Đã hoàn tất xét nghiệm thành công!');
+            showSuccess('Đã hoàn tất xét nghiệm thành công!');
             
             // Reload dataset to update UI
             loadData();
@@ -3767,16 +3767,16 @@ const AdminAppointments = () => {
 
             {/* Appointments Table: hidden in sample management mode */}
             <Card className="shadow-sm" style={{ display: (!isSampleManagementPath && mainActiveTab === 'appointments') ? undefined : 'none' }}>
-                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 className="mb-0" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
-                        <FaCalendarAlt className="me-2" />
+                <Card.Header className="d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                    <h5 className="mb-0 text-dark fw-bold" style={{ fontSize: 'clamp(1rem, 3vw, 1.15rem)' }}>
+                        <FaCalendarAlt className="me-2 text-primary" />
                         <span className="d-none d-sm-inline">Danh sách lịch hẹn</span>
                         <span className="d-sm-none">Lịch hẹn</span>
                         <span className="ms-1">({mFilteredAppointments.length})</span>
                     </h5>
                     <div className="d-flex align-items-center">
                         <Button
-                            variant="light"
+                            variant="outline-secondary"
                             size="sm"
                             className="me-2"
                             onClick={() => setShowGlobalScanModal(true)}
@@ -4339,11 +4339,11 @@ const AdminAppointments = () => {
                                 {sampleData.existingBarcode && (
                                     <>
                                         {/* Barcode display with print/download actions */}
-                                        <Card className="mb-3 border-primary">
-                                            <Card.Header className="bg-primary text-white">
-                                                <h6 className="mb-0">
-                                                    <FaBarcode className="me-2"/>
-                                                    Mã Vạch Mẫu Xét Nghiệm
+                                        <Card className="mb-3" style={{ border: '1px solid #E2E8F0' }}>
+                                            <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                                                <h6 className="mb-0 text-dark fw-bold">
+                                                    <FaBarcode className="me-2 text-primary"/>
+                                                    Mã vạch mẫu xét nghiệm
                                                 </h6>
                                             </Card.Header>
                                             <Card.Body>
@@ -4454,9 +4454,9 @@ const AdminAppointments = () => {
                                         if (expectedNorm === scannedNorm) {
                                             setBarcodeVerified(true);
                                             setShowBarcodeScanModal(false);
-                                            showSuccess('✅ Xác nhận mã vạch thành công! Bạn có thể tiếp tục lấy mẫu.');
+                                            showSuccess('Xác nhận mã vạch thành công! Bạn có thể tiếp tục lấy mẫu.');
                                         } else {
-                                            showError(`❌ Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedBarcode}`);
+                                            showError(`Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedBarcode}`);
                                         }
                                     } catch (e) {
                                         showError('Lỗi khi xử lý mã vạch');
@@ -4492,9 +4492,9 @@ const AdminAppointments = () => {
                 size="xl"
                 centered
             >
-                <Modal.Header closeButton className="bg-success text-white">
-                    <Modal.Title>
-                        <FaFlask className="me-2" />
+                <Modal.Header closeButton style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    <Modal.Title className="text-dark">
+                        <FaFlask className="me-2 text-primary" />
                         Nhập kết quả xét nghiệm
                     </Modal.Title>
                 </Modal.Header>
@@ -4647,9 +4647,9 @@ const AdminAppointments = () => {
                 centered
                 size="lg"
             >
-                <Modal.Header closeButton style={{ background: '#198754', color: 'white' }}>
-                    <h5 className="mb-0">
-                        <FaBarcode className="me-2" />
+                <Modal.Header closeButton style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    <h5 className="mb-0 text-dark">
+                        <FaBarcode className="me-2 text-primary" />
                         Xác Nhận Mã Vạch Mẫu
                     </h5>
                 </Modal.Header>
@@ -4683,9 +4683,9 @@ const AdminAppointments = () => {
                                     if (scannedNormalized && expectedNormalized && scannedNormalized === expectedNormalized) {
                                         setResultBarcodeVerified(true);
                                         setShowBarcodeScanInResultModal(false);
-                                        showSuccess('✅ Xác nhận mã vạch thành công! Bạn có thể nhập kết quả.');
+                                        showSuccess('Xác nhận mã vạch thành công! Bạn có thể nhập kết quả.');
                                     } else {
-                                        showError(`❌ Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedRaw || 'N/A'}`);
+                                        showError(`Mã vạch không khớp! Mã vạch quét: ${barcode}, Mã vạch cần: ${expectedRaw || 'N/A'}`);
                                     }
                                 }}
                                 onClose={() => setShowBarcodeScanInResultModal(false)}
@@ -4813,8 +4813,8 @@ const AdminAppointments = () => {
                     {selectedAppointment ? (
                         <>
                             {/* Basic Information */}
-                            <Card className="mb-4">
-                                <Card.Header className="bg-primary text-white"><h6 className="mb-0"><i className="fas fa-info-circle me-2"></i>Thông tin cơ bản</h6></Card.Header>
+                            <Card className="mb-4" style={{ border: '1px solid #E2E8F0' }}>
+                                <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}><h6 className="mb-0 text-dark fw-bold"><i className="fas fa-info-circle me-2 text-primary"></i>Thông tin cơ bản</h6></Card.Header>
                                 <Card.Body>
                                     <Row>
                                         <Col md={6}><strong>Trạng thái:</strong> {getStatusBadge(selectedAppointment.status)}</Col>
@@ -4824,8 +4824,8 @@ const AdminAppointments = () => {
                             </Card>
                             
                             {/* Doctor Information */}
-                            <Card className="mb-4">
-                                <Card.Header className="bg-info text-white"><h6 className="mb-0"><i className="fas fa-user-md me-2"></i>Thông tin bác sĩ</h6></Card.Header>
+                            <Card className="mb-4" style={{ border: '1px solid #E2E8F0' }}>
+                                <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}><h6 className="mb-0 text-dark fw-bold"><i className="fas fa-user-md me-2 text-primary"></i>Thông tin bác sĩ</h6></Card.Header>
                                 <Card.Body>
                                     {(() => {
                                         const doctorId = getDoctorIdFromShift(getShiftById(getDoctorShiftId(selectedAppointment))) || selectedAppointment.doctorId;
@@ -4896,10 +4896,10 @@ const AdminAppointments = () => {
 
 
                                 return (
-                                    <Card className="mb-4">
-                                        <Card.Header className="bg-primary text-white">
-                                            <h6 className="mb-0">
-                                                <i className="fas fa-barcode me-2" /> Mã vạch mẫu xét nghiệm
+                                    <Card className="mb-4" style={{ border: '1px solid #E2E8F0' }}>
+                                        <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                                            <h6 className="mb-0 text-dark fw-bold">
+                                                <i className="fas fa-barcode me-2 text-primary" /> Mã vạch mẫu xét nghiệm
                                             </h6>
                                         </Card.Header>
                                         <Card.Body>
@@ -4977,9 +4977,9 @@ const AdminAppointments = () => {
                 size="md"
                 centered
             >
-                <Modal.Header closeButton className="bg-primary text-white">
-                    <Modal.Title style={{ fontSize: '1.1rem' }}>
-                        <FaPrint className="me-2" /> In mã vạch Barcode mẫu xét nghiệm
+                <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                    <Modal.Title className="text-dark fw-bold" style={{ fontSize: '1.1rem' }}>
+                        <FaPrint className="me-2 text-primary" /> In mã vạch mẫu xét nghiệm
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="p-3">
@@ -5095,10 +5095,10 @@ const AdminAppointments = () => {
 
                                 return (
                                     <>
-                                        <Card className="mb-4">
-                                            <Card.Header className="bg-primary text-white">
-                                                <h6 className="mb-0">
-                                                    <i className="fas fa-barcode me-2" /> Mã vạch mẫu xét nghiệm
+                                        <Card className="mb-4" style={{ border: '1px solid #E2E8F0' }}>
+                                            <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                                                <h6 className="mb-0 text-dark fw-bold">
+                                                    <i className="fas fa-barcode me-2 text-primary" /> Mã vạch mẫu xét nghiệm
                                                 </h6>
                                             </Card.Header>
                                             <Card.Body>
@@ -5331,9 +5331,9 @@ const AdminAppointments = () => {
                     ) : sampleEditForm ? (
                         <Form>
                             {/* Patient Information (read-only) */}
-                            <Card className="mb-3 border-primary">
-                                <Card.Header className="bg-primary text-white">
-                                    <h6 className="mb-0"><FaUser className="me-2" />Thông tin bệnh nhân</h6>
+                            <Card className="mb-3" style={{ border: '1px solid #E2E8F0' }}>
+                                <Card.Header style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+                                    <h6 className="mb-0 text-dark fw-bold"><FaUser className="me-2 text-primary" />Thông tin bệnh nhân</h6>
                                 </Card.Header>
                                 <Card.Body>
                                     <Row>

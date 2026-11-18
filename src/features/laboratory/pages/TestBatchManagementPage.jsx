@@ -32,7 +32,9 @@ import {
   FaArrowLeft,
   FaLock,
   FaClock,
-  FaInfoCircle
+  FaInfoCircle,
+  FaSearch,
+  FaTimes
 } from 'react-icons/fa';
 import {
   getBatches,
@@ -58,6 +60,8 @@ export default function TestBatchManagementPage() {
   // Chế độ xem: 'list' | 'create' | 'detail'
   const [activeTab, setActiveTab] = useState('list');
   const [selectedBatch, setSelectedBatch] = useState(null);
+  const [batchSearch, setBatchSearch] = useState('');
+  const [batchStatusFilter, setBatchStatusFilter] = useState('ALL');
 
   // Form tạo mẻ mới
   const [selectedAnalyzer, setSelectedAnalyzer] = useState(ANALYZERS[0]);
@@ -105,7 +109,7 @@ export default function TestBatchManagementPage() {
 
   const assignSampleToWell = (sample, wellCoordinate) => {
     if (wellCoordinate === 'A1' || wellCoordinate === 'A2') {
-      alert('Vị trí A1 và A2 là vùng bảo lưu nghiêm ngặt cho mẫu nội kiểm ISO 15189 (IQC Controls)!');
+      setError('Vị trí A1 và A2 là vùng bảo lưu dành riêng cho mẫu nội kiểm IQC.');
       return;
     }
     setAssignedWells(prev => ({
@@ -157,14 +161,14 @@ export default function TestBatchManagementPage() {
     }
 
     setAssignedWells(prev => ({ ...prev, ...newAssigned }));
-    setSuccessMsg(`Đã tự động xếp ${sIdx} mẫu vào khay theo thứ tự ưu tiên ISO 15189.`);
+    setSuccessMsg(`Đã tự động xếp ${sIdx} mẫu vào khay theo thứ tự ưu tiên.`);
     setTimeout(() => setSuccessMsg(null), 4000);
   };
 
   const handleCreateBatch = async () => {
     const wellEntries = Object.entries(assignedWells);
     if (wellEntries.length === 0) {
-      alert('Vui lòng xếp ít nhất một mẫu bệnh phẩm vào khay mẻ xét nghiệm.');
+      setError('Vui lòng xếp ít nhất một mẫu bệnh phẩm vào khay mẻ xét nghiệm.');
       return;
     }
 
@@ -227,12 +231,12 @@ export default function TestBatchManagementPage() {
         setSelectedBatch(prev => ({ ...prev, status: nextStatus }));
       }
     } catch (err) {
-      alert(err.message || 'Lỗi khi cập nhật trạng thái mẻ chạy.');
+      setError(err.message || 'Lỗi khi cập nhật trạng thái mẻ chạy.');
     }
   };
 
   const handleCancelBatch = async (batchId) => {
-    if (!window.confirm('CẢNH BÁO ISO 15189: Hủy mẻ chạy sẽ hoàn tác tất cả mẫu bệnh phẩm về trạng thái "Đã tiếp nhận" (Received). Bạn có chắc chắn muốn hủy?')) {
+    if (!window.confirm('Hủy mẻ chạy sẽ hoàn tác tất cả mẫu bệnh phẩm về trạng thái "Đã tiếp nhận". Bạn có chắc chắn muốn hủy?')) {
       return;
     }
     try {
@@ -246,43 +250,61 @@ export default function TestBatchManagementPage() {
         setActiveTab('list');
       }
     } catch (err) {
-      alert(err.message || 'Lỗi khi hủy mẻ xét nghiệm.');
+      setError(err.message || 'Lỗi khi hủy mẻ xét nghiệm.');
     }
   };
 
   const safeBatches = Array.isArray(batches) ? batches : [];
   const safePendingSamples = Array.isArray(pendingSamples) ? pendingSamples : [];
 
+  const filteredBatches = useMemo(() => {
+    const kw = batchSearch.trim().toLowerCase();
+    return safeBatches.filter((b) => {
+      const matchKw =
+        !kw ||
+        String(b.batchCode || b.id || '').toLowerCase().includes(kw) ||
+        String(b.analyzerName || b.analyzerId || '').toLowerCase().includes(kw) ||
+        String(b.createdByName || '').toLowerCase().includes(kw);
+      const matchSt = batchStatusFilter === 'ALL' || b.status === batchStatusFilter;
+      return matchKw && matchSt;
+    });
+  }, [safeBatches, batchSearch, batchStatusFilter]);
+
   const rows = ['A','B','C','D','E','F','G','H'].slice(0, selectedAnalyzer.rows);
   const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
 
   return (
-    <Container fluid className="py-2 px-md-4" style={{ minHeight: '100vh' }}>
-      {/* Header Banner chuẩn ISO 15189 */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Mẻ xét nghiệm</h1>
+    <div className="w-100 py-1">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Quản lý mẻ xét nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Quản lý mẻ chạy máy phân tích tự động, sơ đồ giếng mẫu và mẫu kiểm chuẩn IQC.
+          </p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="bms-page-actions">
           <Button
             size="sm"
             onClick={() => { setActiveTab('list'); setSelectedBatch(null); }}
-            className="d-flex align-items-center gap-1 shadow-sm px-3 rounded-pill"
-            style={activeTab === 'list' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
+            className="d-inline-flex align-items-center gap-1 px-3 rounded-pill text-nowrap"
+            style={activeTab === 'list' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
             variant={activeTab === 'list' ? 'primary' : 'outline-secondary'}
           >
-            Danh Sách Mẻ ({safeBatches.length})
+            Danh sách mẻ ({safeBatches.length})
           </Button>
           <Button
             size="sm"
             onClick={() => setActiveTab('create')}
-            className="d-flex align-items-center gap-1 shadow-sm px-3 fw-semibold rounded-pill"
-            style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
+            className="d-inline-flex align-items-center gap-1 px-3 fw-semibold rounded-pill text-nowrap text-white"
+            style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }}
           >
-            <FaPlus /> Tạo mẻ
+            <FaPlus /> Tạo mẻ mới
           </Button>
         </div>
-      </header>
+      </div>
 
       {/* Thông báo Alert */}
       {error && (
@@ -300,52 +322,100 @@ export default function TestBatchManagementPage() {
 
       {/* TAB 1: DANH SÁCH MẺ XÉT NGHIỆM */}
       {activeTab === 'list' && (
-        <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-            <h5 className="mb-0 fw-bold fs-6 d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-              <FaMicroscope style={{ color: '#1E60E6' }} />
-              <span>Danh Sách Các Mẻ Xét Nghiệm Trong Ca Làm Việc</span>
-            </h5>
-            <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="d-flex align-items-center gap-1 rounded-pill px-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-              <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
-            </Button>
-          </Card.Header>
+        <>
+          <div className="bms-filter-bar mb-3">
+            <div className="bms-search-input-pill">
+              <FaSearch className="bms-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm theo mã mẻ, máy phân tích, kỹ thuật viên..."
+                value={batchSearch}
+                onChange={(e) => setBatchSearch(e.target.value)}
+              />
+              {batchSearch && (
+                <button type="button" className="bms-search-clear" onClick={() => setBatchSearch('')}>
+                  <FaTimes size={12} />
+                </button>
+              )}
+            </div>
 
-          <Card.Body className="p-0">
-            <div className="table-responsive">
+            <Form.Select
+              value={batchStatusFilter}
+              onChange={(e) => setBatchStatusFilter(e.target.value)}
+              style={{ width: 'auto' }}
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="Draft">Bản nháp</option>
+              <option value="Running">Đang chạy máy</option>
+              <option value="Completed">Hoàn thành</option>
+              <option value="Cancelled">Đã hủy</option>
+            </Form.Select>
+
+            {(batchSearch || batchStatusFilter !== 'ALL') && (
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="rounded-pill px-3 text-nowrap"
+                onClick={() => {
+                  setBatchSearch('');
+                  setBatchStatusFilter('ALL');
+                }}
+              >
+                Đặt lại
+              </Button>
+            )}
+
+            <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="rounded-pill px-3 text-nowrap">
+              <FaSyncAlt className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+            </Button>
+
+            <span className="bms-filter-meta">
+              Hiển thị <strong>{filteredBatches.length}</strong> / {safeBatches.length} mẻ
+            </span>
+          </div>
+
+          <section className="bms-table-standalone-section">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h2 className="bms-table-standalone-title">Danh sách các mẻ xét nghiệm trong ca làm việc</h2>
+                <p className="bms-table-standalone-subtitle">Theo dõi trạng thái khay mẫu, thiết bị phân tích và tiến độ vận hành</p>
+              </div>
+            </div>
+
+            <div className="bms-table-standalone-body">
               <Table hover align="middle" className="mb-0 table-sm">
                 <thead className="table-light text-muted small text-uppercase">
                   <tr>
-                    <th className="py-3 px-3">Mã Mẻ (Batch Code)</th>
-                    <th className="py-3">Máy Phân Tích</th>
-                    <th className="py-3">Số Mẫu / Dung Lượng</th>
-                    <th className="py-3">Trạng Thái</th>
-                    <th className="py-3">Kỹ Thuật Viên</th>
-                    <th className="py-3">Thời Gian Tạo</th>
-                    <th className="py-3 px-3 text-end">Thao Tác</th>
+                    <th className="py-3 px-3">Mã mẻ</th>
+                    <th className="py-3">Máy phân tích</th>
+                    <th className="py-3">Số mẫu / Dung lượng</th>
+                    <th className="py-3">Trạng thái</th>
+                    <th className="py-3">Kỹ thuật viên</th>
+                    <th className="py-3">Thời gian tạo</th>
+                    <th className="py-3 px-3 text-end">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading && safeBatches.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-3">
+                      <td colSpan="7" className="text-center py-4">
                         <Spinner animation="border" variant="primary" size="sm" className="me-2" />
                         <span className="text-muted">Đang tải danh sách mẻ chạy...</span>
                       </td>
                     </tr>
-                  ) : safeBatches.length === 0 ? (
+                  ) : filteredBatches.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-3 text-muted">
+                      <td colSpan="7" className="text-center py-5 text-muted">
                         <FaFlask className="fs-1 text-secondary opacity-50 mb-2" />
-                        <div className="fw-semibold">Chưa có mẻ xét nghiệm nào trong ca</div>
-                        <div className="small mb-3">Hãy tạo mẻ mới để sắp xếp các ống bệnh phẩm vào khay máy.</div>
-                        <Button variant="primary" size="sm" onClick={() => setActiveTab('create')}>
-                          <FaPlus className="me-1" /> Tạo Mẻ Mới Ngay
+                        <div className="fw-semibold text-dark">Chưa có mẻ xét nghiệm phù hợp</div>
+                        <div className="small mb-3">Tạo mẻ mới để sắp xếp các ống bệnh phẩm vào khay máy.</div>
+                        <Button variant="primary" size="sm" className="rounded-pill px-3" onClick={() => setActiveTab('create')}>
+                          <FaPlus className="me-1" /> Tạo mẻ mới ngay
                         </Button>
                       </td>
                     </tr>
                   ) : (
-                    safeBatches.map((b) => {
+                    filteredBatches.map((b) => {
                       const totalWells = Array.isArray(b.positions) ? b.positions.length : b.totalPositions || 0;
                       return (
                         <tr key={b.id || b.batchCode}>
@@ -368,7 +438,7 @@ export default function TestBatchManagementPage() {
                                 b.status === 'Cancelled' ? 'danger' : 'secondary'
                               }
                               text={b.status === 'Running' ? 'dark' : undefined}
-                              className="px-2 py-1"
+                              className="px-2.5 py-1 rounded-pill"
                             >
                               {b.status === 'Draft' ? 'Bản nháp' :
                                b.status === 'Running' ? 'Đang chạy máy' :
@@ -376,7 +446,7 @@ export default function TestBatchManagementPage() {
                                b.status === 'Cancelled' ? 'Đã hủy' : b.status}
                             </Badge>
                           </td>
-                          <td className="small text-muted">{b.createdByName || 'KTV. Lê Minh Tuấn'}</td>
+                          <td className="small text-muted">{b.createdByName || 'Kỹ thuật viên trực ca'}</td>
                           <td className="small text-muted font-monospace">
                             {b.createdAt ? new Date(b.createdAt).toLocaleString('vi-VN') : '—'}
                           </td>
@@ -385,7 +455,7 @@ export default function TestBatchManagementPage() {
                               <Button
                                 variant="outline-primary"
                                 size="sm"
-                                className="px-2 py-1 rounded-pill"
+                                className="px-2.5 py-1 rounded-pill text-nowrap"
                                 style={{ fontSize: '0.75rem', borderColor: '#1E60E6', color: '#1E60E6' }}
                                 onClick={() => { setSelectedBatch(b); setActiveTab('detail'); }}
                               >
@@ -396,8 +466,8 @@ export default function TestBatchManagementPage() {
                                 <Button
                                   variant="warning"
                                   size="sm"
-                                  className="px-2 py-1 text-dark rounded-pill"
-                                  style={{ fontSize: '0.75rem', backgroundColor: '#B45309', borderColor: '#B45309' }}
+                                  className="px-2.5 py-1 rounded-pill text-nowrap text-white"
+                                  style={{ fontSize: '0.75rem', backgroundColor: '#B45309', borderColor: '#B45309', color: '#FFFFFF' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Running')}
                                 >
                                   <FaPlay className="me-1" /> Chạy máy
@@ -408,8 +478,8 @@ export default function TestBatchManagementPage() {
                                 <Button
                                   variant="success"
                                   size="sm"
-                                  className="px-2 py-1 rounded-pill"
-                                  style={{ fontSize: '0.75rem', backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
+                                  className="px-2.5 py-1 rounded-pill text-nowrap text-white"
+                                  style={{ fontSize: '0.75rem', backgroundColor: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Completed')}
                                 >
                                   <FaCheckCircle className="me-1" /> Hoàn thành
@@ -420,7 +490,7 @@ export default function TestBatchManagementPage() {
                                 <Button
                                   variant="outline-danger"
                                   size="sm"
-                                  className="px-2 py-1 rounded-circle"
+                                  className="px-2.5 py-1 rounded-pill text-nowrap"
                                   style={{ fontSize: '0.75rem' }}
                                   onClick={() => handleCancelBatch(b.id)}
                                   title="Hủy mẻ và hoàn tác mẫu về hàng đợi"
@@ -437,8 +507,8 @@ export default function TestBatchManagementPage() {
                 </tbody>
               </Table>
             </div>
-          </Card.Body>
-        </Card>
+          </section>
+        </>
       )}
 
       {/* TAB 2: TẠO MẺ CHẠY MỚI */}
@@ -449,7 +519,7 @@ export default function TestBatchManagementPage() {
             <Card.Header className="bg-white py-3 border-bottom">
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
                 <FaFlask className="text-primary" />
-                <span>1. Chọn Máy Phân Tích &amp; Lô Kiểm Chuẩn IQC (ISO 15189)</span>
+                <span>1. Chọn máy phân tích &amp; lô kiểm chuẩn IQC</span>
               </h5>
             </Card.Header>
             <Card.Body className="p-2">
@@ -765,6 +835,6 @@ export default function TestBatchManagementPage() {
           </Card.Body>
         </Card>
       )}
-    </Container>
+    </div>
   );
 }

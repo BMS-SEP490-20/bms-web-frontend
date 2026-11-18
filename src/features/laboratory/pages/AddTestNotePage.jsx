@@ -38,14 +38,14 @@ export default function AddTestNotePage() {
   // Người dùng hiện tại
   const currentUser = useMemo(() => {
     try {
-      const raw = localStorage.getItem("user") || localStorage.getItem("bms_user");
+      const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user") || localStorage.getItem("user");
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
   }, []);
 
-  const technicianName = currentUser?.fullName || currentUser?.name || "KTV. Lê Minh Tuấn";
+  const technicianName = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên trực ca";
 
   // State thông tin mẫu và lựa chọn
   const [specimenInput, setSpecimenInput] = useState(initialSpecimenId);
@@ -172,7 +172,7 @@ export default function AddTestNotePage() {
       const response = await createTestNote(payload);
 
       if (response?.success) {
-        setSuccessMessage("Đã lưu ghi chú kỹ thuật thành công vào hồ sơ kiểm toán mẫu ISO 15189.");
+        setSuccessMessage("Đã lưu ghi chú kỹ thuật thành công vào hồ sơ mẫu bệnh phẩm.");
         setContent("");
         setTags("");
 
@@ -192,19 +192,23 @@ export default function AddTestNotePage() {
   const safeExistingNotes = Array.isArray(existingNotes) ? existingNotes : [];
 
   return (
-    <div className="container-fluid py-2 px-md-4" style={{ maxWidth: "1400px", minHeight: "100vh" }}>
-      {/* Tiêu đề & Hành động đầu trang */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Ghi chú kỹ thuật</h1>
+    <div className="w-100 py-1">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Ghi chú kỹ thuật xét nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Ghi nhận quan sát chuyên môn, tình trạng mẫu bệnh phẩm và nhật ký trao đổi kỹ thuật.
+          </p>
         </div>
 
-        <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+        <div className="bms-page-actions">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="btn btn-outline-secondary btn-sm px-3 shadow-sm rounded-pill"
-            style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
+            className="btn btn-outline-secondary btn-sm px-3 rounded-pill text-nowrap"
           >
             <FaArrowLeft className="me-1" /> Quay lại
           </button>
@@ -212,14 +216,14 @@ export default function AddTestNotePage() {
             type="button"
             onClick={handleSubmit}
             disabled={submitting}
-            className="btn btn-sm px-3 fw-semibold shadow-sm d-flex align-items-center gap-1 rounded-pill"
-            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
+            className="btn btn-sm px-3 fw-semibold shadow-sm d-inline-flex align-items-center gap-1 rounded-pill text-nowrap"
+            style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6", color: "#ffffff" }}
           >
             {submitting ? <FaSpinner className="fa-spin" /> : <FaSave />}
             <span>{submitting ? "Đang lưu..." : "Lưu ghi chú"}</span>
           </button>
         </div>
-      </header>
+      </div>
 
       {/* Thông báo Alert */}
       {successMessage && (

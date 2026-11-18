@@ -22,7 +22,8 @@ import {
   FaFilePdf,
   FaCheck,
   FaCopy,
-  FaInfoCircle
+  FaInfoCircle,
+  FaChevronRight
 } from 'react-icons/fa';
 import { fetchPatientResult, exportResultPdf, shareResultWithDoctor, fetchPatientResultsList } from '../api/patientResultApi';
 import { getTestHistory } from '../api/testHistoryApi';
@@ -248,92 +249,57 @@ export default function ExportTestResultPdfPage() {
   const parametersList = Array.isArray(result?.Parameters) ? result.Parameters : Array.isArray(result?.parameters) ? result.parameters : [];
 
   return (
-    <div className="bms-patient-portal-page" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
-      {/* Top Patient Portal Navigation Bar */}
-      <nav className="no-print" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/patient/dashboard')}>
-            <span style={{ background: '#0284c7', color: '#ffffff', fontWeight: '800', fontSize: '13px', padding: '4px 8px', borderRadius: '4px', letterSpacing: '1px' }}>BMS</span>
-            <div>
-              <span style={{ fontWeight: '700', fontSize: '15px', color: '#0f172a' }}>Hệ Thống Y Khoa BMS</span>
-              <small style={{ display: 'block', fontSize: '10px', color: '#64748b', marginTop: '-2px' }}>Cổng Thông Tin Bệnh Nhân</small>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '13.5px', fontWeight: '500' }}>
-            <Link to="/patient/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Trang Chủ</Link>
-            <Link to="/patient/appointments" style={{ color: '#64748b', textDecoration: 'none' }}>Lịch Khám</Link>
-            <Link to="/patient/test-history" style={{ color: '#0284c7', fontWeight: '700', textDecoration: 'none', borderBottom: '2px solid #0284c7', paddingBottom: '4px' }}>Kết Quả Xét Nghiệm</Link>
-            <Link to="/patient/payment-history" style={{ color: '#64748b', textDecoration: 'none' }}>Viện Phí &amp; Hóa Đơn</Link>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="small text-muted d-none d-md-inline">Xin chào, <b>{patientNameDisplay}</b></span>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', color: '#0369a1', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-            {patientNameDisplay.charAt(0)}
-          </div>
-        </div>
-      </nav>
-
+    <div className="bms-patient-portal-page" style={{ paddingBottom: '40px' }}>
       {/* Main Content Area */}
-      <div style={{ maxWidth: '1020px', margin: '24px auto', padding: '0 16px' }}>
+      <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
         {/* Notification Alerts */}
         {errorMessage && (
-          <div className="alert alert-danger d-flex align-items-center no-print" role="alert" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
+          <div className="alert alert-danger d-flex align-items-center no-print border-0 rounded-3" role="alert" style={{ fontSize: '13.5px' }}>
             <FaExclamationTriangle className="me-2 flex-shrink-0" />
             <div>{errorMessage}</div>
           </div>
         )}
         {successMessage && (
-          <div className="alert alert-success d-flex align-items-center no-print" role="alert" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
+          <div className="alert alert-success d-flex align-items-center no-print border-0 rounded-3" role="alert" style={{ fontSize: '13.5px' }}>
             <FaCheckCircle className="me-2 flex-shrink-0" />
             <div>{successMessage}</div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-3">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải phiếu kết quả xét nghiệm...</span>
-            </div>
-            <div className="text-muted mt-2" style={{ fontSize: '13.5px' }}>
-              Đang tải phiếu kết quả xét nghiệm y khoa chính thức từ cơ sở dữ liệu ISO 15189...
-            </div>
+          <div className="text-center py-4">
+            <div className="spinner-border text-primary spinner-border-sm me-2" role="status" />
+            <span className="text-muted small">Đang tải phiếu kết quả xét nghiệm...</span>
           </div>
         ) : result ? (
           <>
             {/* Page Header / Action Toolbar */}
-            <div className="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2 no-print">
-              <div>
-                <div style={{ fontSize: '12.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <Link to="/patient/test-history" style={{ color: '#0284c7', textDecoration: 'none' }}>Lịch Sử Xét Nghiệm</Link>
-                  <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                  <span style={{ color: '#0f172a', fontWeight: '600' }}>{result.OrderCode || result.OrderId || activeOrderId}</span>
-                  <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                  <span>Bản Ký Số Điện Tử</span>
+            <div className="bms-page-header-card mb-4 no-print">
+              <div className="bms-page-header-content">
+                <div className="d-flex align-items-center gap-1.5 small text-muted mb-1">
+                  <Link to="/patient/test-history" className="text-primary text-decoration-none fw-medium">Lịch sử xét nghiệm</Link>
+                  <FaChevronRight size={10} />
+                  <span className="text-dark fw-semibold">{result.OrderCode || result.OrderId || activeOrderId}</span>
                 </div>
-                <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>
-                  {packageNameDisplay}
-                </h1>
-                <div style={{ fontSize: '13px', color: '#64748b' }}>
-                  Mã chỉ định: <b>{result.OrderCode || result.OrderId || activeOrderId}</b> · Lấy mẫu: <b>{collectionTimeDisplay}</b> · Phát hành: <b>{releasedDateDisplay}</b>
-                </div>
+                <h1 className="bms-page-title">{packageNameDisplay}</h1>
+                <p className="bms-page-subtitle">
+                  Mã chỉ định: <strong>{result.OrderCode || result.OrderId || activeOrderId}</strong> · Lấy mẫu: <strong>{collectionTimeDisplay}</strong> · Phát hành: <strong>{releasedDateDisplay}</strong>
+                </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="d-flex align-items-center gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="btn btn-outline-secondary d-flex align-items-center gap-1.5"
-                  style={{ fontSize: '13px', fontWeight: '600', padding: '8px 14px', borderRadius: '6px' }}
+                  className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 fw-semibold"
                   onClick={handleShare}
                   disabled={sharing}
                 >
-                  <FaShareAlt className="text-primary" /> {sharing ? 'Đang tạo link...' : 'Chia sẻ Bác sĩ'}
+                  <FaShareAlt className="text-primary" /> {sharing ? 'Đang tạo liên kết...' : 'Chia sẻ Bác sĩ'}
                 </button>
 
                 <button
                   type="button"
-                  className="btn btn-primary d-flex align-items-center gap-1.5"
-                  style={{ background: '#0284c7', borderColor: '#0284c7', fontSize: '13px', fontWeight: '600', padding: '8px 18px', borderRadius: '6px' }}
+                  className="btn btn-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 fw-semibold"
                   onClick={handleExportPdf}
                   disabled={exporting}
                 >
@@ -433,12 +399,12 @@ export default function ExportTestResultPdfPage() {
                     Bảng Chi Tiết Chỉ Số Xét Nghiệm Sinh Học
                   </h3>
                   {result.AbnormalCount > 0 ? (
-                    <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                      ● {result.AbnormalCount} chỉ số ngoài khoảng tham chiếu (H/L)
+                    <span className="badge bg-danger-subtle text-danger rounded-pill px-2.5 py-1 fw-bold" style={{ fontSize: '11px' }}>
+                      {result.AbnormalCount} chỉ số ngoài khoảng tham chiếu (H/L)
                     </span>
                   ) : (
-                    <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                      ● Tất cả chỉ số trong khoảng tham chiếu bình thường
+                    <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-bold" style={{ fontSize: '11px' }}>
+                      Tất cả chỉ số trong khoảng tham chiếu bình thường
                     </span>
                   )}
                 </div>
@@ -605,11 +571,11 @@ export default function ExportTestResultPdfPage() {
               Khi phòng xét nghiệm hoàn tất, kết quả sẽ tự động hiển thị tại đây.
             </p>
             <div className="mt-3 d-flex justify-content-center gap-2">
-              <Link to="/patient/test-history" className="btn btn-outline-primary btn-sm px-3">
-                <FaArrowLeft className="me-1" /> Xem Lịch Sử Xét Nghiệm
+              <Link to="/patient/test-history" className="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <FaArrowLeft className="me-1" /> Xem lịch sử xét nghiệm
               </Link>
-              <Link to="/patient/dashboard" className="btn btn-primary btn-sm px-3">
-                Về Trang Chủ Bệnh Nhân
+              <Link to="/" className="btn btn-primary btn-sm rounded-pill px-3">
+                Về trang chủ
               </Link>
             </div>
           </div>

@@ -60,14 +60,14 @@ export default function AddTrackingEventModal({ show, onHide, barcode, onSave })
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content shadow border-0">
-                    <div className="modal-header bg-primary text-white">
-                        <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
-                            <FaPlusCircle />
-                            Ghi Nhận Sự Kiện Vòng Đời Mẫu
+                    <div className="modal-header border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
+                        <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2 fs-6">
+                            <FaPlusCircle className="text-primary" />
+                            Ghi nhận sự kiện vòng đời mẫu
                         </h5>
                         <button
                             type="button"
-                            className="btn-close btn-close-white"
+                            className="btn-close"
                             onClick={onHide}
                             disabled={submitting}
                         ></button>

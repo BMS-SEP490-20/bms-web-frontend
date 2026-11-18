@@ -127,16 +127,7 @@ function HistoryDetail({ id, onClose }) {
                 <Col sm={6}>
                   Ngày phê duyệt:{' '}
                   <strong className="text-dark">
-                    {(() => {
-                      if (!data.summary.approvedAt) return 'Đang xử lý';
-                      const created = data.summary.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
-                      const approved = new Date(data.summary.approvedAt).getTime();
-                      // Xử lý nghịch lý lâm sàng: Thời gian phê duyệt luôn diễn ra sau thời gian nhận mẫu
-                      if (approved <= created) {
-                        return date(new Date(created + 45 * 60 * 1000));
-                      }
-                      return date(data.summary.approvedAt);
-                    })()}
+                    {data.summary.approvedAt ? date(data.summary.approvedAt) : 'Chưa ghi nhận'}
                   </strong>
                 </Col>
               </Row>
@@ -208,39 +199,33 @@ function HistoryDetail({ id, onClose }) {
                   </Alert>
                 )}
 
-                {/* 1. Thẻ Bác Sĩ Thẩm Định & Chữ Ký Số PKI Y Tế */}
-                <div className="p-3 bg-white border rounded-3 mb-3" style={{ borderLeft: '4px solid #10b981' }}>
-                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                {/* Approving Physician & Signature Block */}
+                <div className="p-3 bg-white border rounded-3 mb-3">
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div className="d-flex align-items-center gap-2">
-                      <FaUserMd className="text-success fs-5" />
+                      <FaUserMd className="text-primary fs-5" />
                       <div>
-                        <div className="fw-bold text-dark small">BS. CKI Nguyễn Văn Minh</div>
-                        <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ Thẩm định &amp; Ký số Chuyên khoa</div>
+                        <div className="fw-bold text-dark small">{data.summary.approvedBy || 'Trưởng Khoa Xét Nghiệm'}</div>
+                        <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ thẩm định &amp; ký số kết quả</div>
                       </div>
                     </div>
-                    <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
-                      <FaCheckCircle className="me-1" /> Chữ ký số PKI hợp lệ
+                    <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 small fw-semibold">
+                      <FaCheckCircle className="me-1" /> Đã ký số hợp lệ
                     </span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between text-muted" style={{ fontSize: 11.5 }}>
-                    <span>Chứng chỉ hành nghề: <strong>CCHN-008912/HCM</strong></span>
-                    <span>Quy chuẩn: <strong>ISO 15189:2022 · SHA-256</strong></span>
                   </div>
                 </div>
 
-                {/* 2. Khuyến nghị lâm sàng khi có chỉ số cảnh báo (Low / High) */}
+                {/* Clinical Advisory when Abnormal */}
                 {data.items.some(it => {
                   const f = flag(it.flag);
                   return f === 'Thấp' || f === 'Cao' || f === 'Nguy hiểm';
                 }) && (
                   <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a' }}>
                     <div className="d-flex align-items-center gap-2 mb-1 text-warning-emphasis fw-bold small">
-                      <FaExclamationTriangle /> Lời Khuyên Lâm Sàng Từ Bác Sĩ Chuyên Khoa
+                      <FaExclamationTriangle /> Khuyến nghị theo dõi lâm sàng
                     </div>
                     <p className="mb-0 text-dark small" style={{ lineHeight: 1.6, fontSize: 12.5 }}>
-                      Kết quả ghi nhận một số chỉ số tế bào máu ở mức thấp hơn khoảng tham chiếu chuẩn.
-                      Khuyến nghị bổ sung thực phẩm giàu vi chất và sắt (thịt đỏ nạc, rau bina lá xanh đậm, hạt ngũ cốc),
-                      kết hợp vitamin C tự nhiên giúp tối ưu hấp thu. Quý khách vui lòng liên hệ tổng đài y khoa hoặc đặt hẹn khám lại nếu có triệu chứng mệt mỏi kéo dài.
+                      Một số chỉ số nằm ngoài khoảng tham chiếu sinh học. Vui lòng tham vấn bác sĩ điều trị hoặc đặt lịch tái khám để được hướng dẫn chi tiết.
                     </p>
                   </div>
                 )}
@@ -254,21 +239,19 @@ function HistoryDetail({ id, onClose }) {
                   </div>
                 )}
 
-                {/* 3. CTA Action Buttons */}
+                {/* CTA Action Buttons */}
                 <div className="d-flex gap-2 flex-wrap mb-3">
                   <Link
-                    to={`/patient/export-pdf/${data.summary.id || data.summary.sampleId}`}
-                    className="btn btn-primary btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
-                    style={{ backgroundColor: '#1E60E6', borderRadius: '8px' }}
+                    to={`/patient/results/export/${encodeURIComponent(data.summary.id || data.summary.sampleId)}`}
+                    className="btn btn-primary btn-sm rounded-pill d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                   >
-                    <FaDownload /> Tải Phiếu Kết Quả Ký Số (PDF)
+                    <FaDownload /> Xem &amp; tải phiếu PDF
                   </Link>
                   <a
-                    href="tel:19008686"
-                    className="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
-                    style={{ borderRadius: '8px' }}
+                    href="tel:19006868"
+                    className="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                   >
-                    <FaPhoneAlt /> Bác Sĩ Tư Vấn Miễn Phí (1900 8686)
+                    <FaPhoneAlt /> Tư vấn y khoa (1900 6868)
                   </a>
                 </div>
               </>
@@ -352,104 +335,91 @@ export default function TestHistoryPage() {
   return (
     <div className="bms-payhistory-content">
       {/* 1. Header */}
-      <header className="bms-page-header">
-        
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div>
-            <h1 className="bms-payhistory-title">Lịch Sử Xét Nghiệm</h1>
-            
-          </div>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            disabled={loading}
-            onClick={() => setRefresh((v) => v + 1)}
-            style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-          >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
-          </Button>
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Lịch Sử Xét Nghiệm</h1>
+          <p className="bms-page-subtitle">Tra cứu kết quả xét nghiệm đã ký số và theo dõi tiến trình phân tích</p>
         </div>
-      </header>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          className="rounded-pill px-3 d-inline-flex align-items-center gap-1.5"
+          disabled={loading}
+          onClick={() => setRefresh((v) => v + 1)}
+        >
+          <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+        </Button>
+      </div>
 
       {/* 2. Filter Toolbar */}
-      <div className="bms-filter-bar">
-        <div className="bms-pay-filter-group w-100 flex-wrap">
-          <div className="position-relative flex-grow-1" style={{ minWidth: 240 }}>
-            <Form.Label htmlFor="history-search" className="visually-hidden">
-              Tìm theo mã kết quả, mã mẫu hoặc gói khám
-            </Form.Label>
-            <input
-              type="text"
-              id="history-search"
-              aria-label="Tìm theo mã kết quả, mã mẫu hoặc gói khám"
-              className="bms-pay-search-input w-100"
-              placeholder="Tìm theo mã kết quả, mã mẫu hoặc gói khám..."
-              value={search}
-              maxLength={100}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          {!isPatient && (
-            <div className="position-relative" style={{ minWidth: 160, maxWidth: 220 }}>
-              <Form.Label htmlFor="history-patient" className="visually-hidden">
-                Mã bệnh nhân
-              </Form.Label>
-              <input
-                type="text"
-                id="history-patient"
-                aria-label="Mã bệnh nhân"
-                className="bms-pay-search-input w-100"
-                placeholder="ID bệnh nhân..."
-                value={filters.patientId}
-                maxLength={100}
-                onChange={(e) => change('patientId', e.target.value)}
-                style={{ height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-              />
-            </div>
-          )}
-
-          <div className="d-flex align-items-center gap-1.5">
-            <Form.Label htmlFor="history-from" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
-              Từ:
-            </Form.Label>
-            <Form.Control
-              id="history-from"
-              aria-label="Ngày ghi nhận từ"
-              type="date"
-              size="sm"
-              value={filters.fromDate}
-              onChange={(e) => change('fromDate', e.target.value)}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-            />
-          </div>
-
-          <div className="d-flex align-items-center gap-1.5">
-            <Form.Label htmlFor="history-to" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
-              Đến:
-            </Form.Label>
-            <Form.Control
-              id="history-to"
-              aria-label="Đến ngày"
-              type="date"
-              size="sm"
-              value={filters.toDate}
-              onChange={(e) => change('toDate', e.target.value)}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-            />
-          </div>
-
-          {(search || filters.patientId || filters.fromDate || filters.toDate) && (
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={clear}
-              style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
-            >
-              Đặt lại
-            </Button>
-          )}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 240 }}>
+          <FaSearch className="text-muted" size={13} />
+          <input
+            type="text"
+            id="history-search"
+            aria-label="Tìm theo mã kết quả, mã mẫu hoặc gói khám"
+            placeholder="Tìm mã kết quả, mã mẫu hoặc gói khám..."
+            value={search}
+            maxLength={100}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+
+        {!isPatient && (
+          <Form.Control
+            type="text"
+            id="history-patient"
+            size="sm"
+            aria-label="Mã bệnh nhân"
+            placeholder="Mã bệnh nhân..."
+            value={filters.patientId}
+            maxLength={100}
+            onChange={(e) => change('patientId', e.target.value)}
+            style={{ width: 170 }}
+          />
+        )}
+
+        <div className="d-flex align-items-center gap-1.5">
+          <Form.Label htmlFor="history-from" className="small text-muted fw-semibold mb-0">
+            Từ:
+          </Form.Label>
+          <Form.Control
+            id="history-from"
+            aria-label="Ngày ghi nhận từ"
+            type="date"
+            size="sm"
+            value={filters.fromDate}
+            onChange={(e) => change('fromDate', e.target.value)}
+            style={{ width: 142 }}
+          />
+        </div>
+
+        <div className="d-flex align-items-center gap-1.5">
+          <Form.Label htmlFor="history-to" className="small text-muted fw-semibold mb-0">
+            Đến:
+          </Form.Label>
+          <Form.Control
+            id="history-to"
+            aria-label="Đến ngày"
+            type="date"
+            size="sm"
+            value={filters.toDate}
+            onChange={(e) => change('toDate', e.target.value)}
+            style={{ width: 142 }}
+          />
+        </div>
+
+        {(search || filters.patientId || filters.fromDate || filters.toDate) && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3"
+            onClick={clear}
+          >
+            Đặt lại
+          </Button>
+        )}
       </div>
 
       {invalid && (
@@ -462,41 +432,41 @@ export default function TestHistoryPage() {
       {error && (
         <Alert variant="danger" className="d-flex align-items-center justify-content-between mb-3 rounded-3 border-0 bg-danger-subtle text-dark">
           <span className="small">{error}</span>
-          <Button variant="outline-danger" size="sm" onClick={() => setRefresh((v) => v + 1)} style={{ borderRadius: 6, fontSize: 12 }}>
+          <Button variant="outline-danger" size="sm" className="rounded-pill px-3" onClick={() => setRefresh((v) => v + 1)}>
             Thử lại
           </Button>
         </Alert>
       )}
 
       {/* 3. Results Table */}
-      <div className="bms-pay-table-wrapper">
+      <div className="bms-table-standalone-section">
         <div className="table-responsive">
-          <table className="bms-pay-table">
+          <table className="table align-middle mb-0">
             <thead>
               <tr>
-                <th>MÃ KẾT QUẢ / MẪU</th>
-                <th>GÓI XÉT NGHIỆM</th>
-                <th>MÃ BỆNH NHÂN</th>
-                <th>NGÀY GHI NHẬN</th>
-                <th className="text-center">TRẠNG THÁI</th>
-                <th className="text-end pe-3">THAO TÁC</th>
+                <th>Mã kết quả / Mẫu</th>
+                <th>Gói xét nghiệm</th>
+                <th>Mã bệnh nhân</th>
+                <th>Ngày ghi nhận</th>
+                <th className="text-center">Trạng thái</th>
+                <th className="text-end pe-3">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-3 text-muted">
+                  <td colSpan={6} className="text-center py-4 text-muted">
                     <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                    Đang nạp dữ liệu lịch sử xét nghiệm y khoa...
+                    Đang tải lịch sử xét nghiệm...
                   </td>
                 </tr>
               ) : data?.items?.length ? (
                 data.items.map((row) => (
                   <tr key={row.id}>
                     <td>
-                      <div className="bms-txn-code">{row.resultCode || row.id}</div>
+                      <div className="fw-bold text-primary font-monospace">{row.resultCode || row.id}</div>
                       {row.sampleId && (
-                        <div className="text-muted font-monospace" style={{ fontSize: 11 }}>
+                        <div className="text-muted font-monospace" style={{ fontSize: 11.5 }}>
                           Mẫu: {row.sampleId}
                         </div>
                       )}
@@ -514,12 +484,12 @@ export default function TestHistoryPage() {
                     </td>
                     <td className="text-center">
                       {row.available ? (
-                        <span className="badge bg-success-subtle text-success border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                          <FaCheckCircle className="me-1" /> Đã Phát Hành
+                        <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-semibold">
+                          <FaCheckCircle className="me-1" /> Đã phát hành
                         </span>
                       ) : (
-                        <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                          <FaClock className="me-1" /> Đang Phân Tích
+                        <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2.5 py-1 fw-semibold">
+                          <FaClock className="me-1" /> Đang phân tích
                         </span>
                       )}
                     </td>
@@ -527,22 +497,21 @@ export default function TestHistoryPage() {
                       <Button
                         size="sm"
                         variant="outline-primary"
-                        className="fw-semibold px-2.5 py-1"
-                        style={{ borderRadius: 6, fontSize: 12.5 }}
+                        className="rounded-pill fw-semibold px-3 py-1"
                         aria-label={`Xem kết quả ${row.resultCode || row.id}`}
                         onClick={() => setParams({ result: row.id })}
                       >
-                        <FaEye className="me-1" /> Xem Kết Quả
+                        <FaEye className="me-1" /> Xem kết quả
                       </Button>
                     </td>
                   </tr>
                 ))
               ) : !error && !invalid ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-3 text-muted">
-                    <FaHistory size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
+                  <td colSpan={6} className="text-center py-5 text-muted">
+                    <FaHistory size={28} className="d-block mx-auto mb-2 opacity-50 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có kết quả xét nghiệm phù hợp</div>
-                    <div className="small text-muted mt-1">Vui lòng thay đổi bộ lọc hoặc kiểm tra hồ sơ xét nghiệm.</div>
+                    <div className="small text-muted mt-1">Thay đổi bộ lọc hoặc đặt lịch xét nghiệm mới để theo dõi.</div>
                   </td>
                 </tr>
               ) : null}

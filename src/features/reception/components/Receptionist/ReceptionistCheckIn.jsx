@@ -970,7 +970,7 @@ const ReceptionistCheckIn = () => {
         });
         setShowTicketModal(true);
 
-        showSuccess(`✅ Check-in thành công cho "${patientName}"! STT: ${ticketNum}`);
+        showSuccess(`Check-in thành công cho "${patientName}". Số thứ tự: ${ticketNum}`);
         setRefreshFlag('appointments');
         dispatchRefreshEvent('appointments', 'updated', { appointmentId: appointment.id });
         await loadData(true);
@@ -1779,17 +1779,17 @@ const ReceptionistCheckIn = () => {
     </div>
 
     <div class="highlight-box">
-      <h4>📍 THÔNG TIN PHÒNG VÀ KỸ THUẬT VIÊN</h4>
+      <h4>THÔNG TIN PHÒNG VÀ KỸ THUẬT VIÊN</h4>
       <div class="room-info">
-        <i class="fas fa-door-open"></i> Phòng: ${labRoomName}
+        Phòng: ${labRoomName}
       </div>
       <div class="lab-user-info">
-        <i class="fas fa-user-md"></i> ${labUserName}
+        ${labUserName}
       </div>
     </div>
 
     <div class="instructions">
-      <h4>📋 Hướng dẫn:</h4>
+      <h4>Hướng dẫn:</h4>
       <ol>
         <li>Vui lòng đến đúng phòng được chỉ định ở trên</li>
         <li>Xuất trình mã lịch hẹn: <strong>${appointmentCode}</strong></li>
@@ -1988,33 +1988,29 @@ const ReceptionistCheckIn = () => {
         `}
       </style>
       <div className="w-100 py-1">
-        {/* 1. Master Luxury Page Header Card */}
+        {/* 1. Unified Page Header Card */}
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content">
-
-            <div className="bms-page-title-row">
-
-              <h1 className="bms-page-title">
-                Quầy Tiếp Đón &amp; Check-in QR
-              </h1>
-            </div>
-
+            <h1 className="bms-page-title m-0">
+              Quầy Tiếp Đón &amp; Check-in QR
+            </h1>
+            <p className="text-muted small m-0 mt-1">
+              Xác nhận lịch hẹn đến khám, quét mã QR check-in và phân luồng lấy mẫu.
+            </p>
           </div>
           <div className="bms-page-actions">
             <Button
               id="btn-open-qr-modal"
-              size="lg"
+              size="sm"
               onClick={() => handleOpenQuickQRModal('camera')}
-              className="d-flex align-items-center gap-2 shadow-sm fw-semibold px-3 py-2"
+              className="d-inline-flex align-items-center gap-2 fw-semibold px-3 py-2 rounded-pill"
               style={{
-                borderRadius: 9999,
                 background: '#1E60E6',
                 borderColor: '#1E60E6',
-                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
-                fontSize: '14px'
+                fontSize: '13px'
               }}
             >
-              <FaQrcode size={15} />
+              <FaQrcode size={14} />
               <span>Mở Máy Quét QR / Nhập Mã</span>
             </Button>
           </div>
@@ -2064,91 +2060,61 @@ const ReceptionistCheckIn = () => {
           </Col>
         </Row>
 
-        {/* 3. Unified Card Section: Sổ Lịch Hẹn Chờ Check-in */}
-        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-          <Card.Header className="bg-white border-bottom py-3 px-4">
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-              <div>
-                <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaCalendarCheck style={{ color: '#1E60E6' }} />
-                  Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
-                </h5>
-                <div className="text-muted small">
-                  Hiển thị {filteredAppointments.length} / {confirmedList.length} lượt hẹn đã xác nhận sẵn sàng tiếp đón
-                </div>
-              </div>
-
-              <div className="d-flex align-items-center ms-auto">
-                <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
-                  <FaSearch className="bms-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setSearchTerm('')}
-                      title="Xóa tìm kiếm"
-                    >
-                      <FaTimes size={12} />
-                    </button>
-                  )}
-                </div>
-              </div>
+        {/* 3. Standalone Filter Bar (Zero Box-in-Box) */}
+        <div className="bms-filter-bar mb-3">
+          <div className="d-flex align-items-center flex-wrap gap-2 w-100">
+            <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '380px', minWidth: '240px' }}>
+              <FaSearch className="bms-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="bms-search-clear"
+                  onClick={() => setSearchTerm('')}
+                  title="Xóa tìm kiếm"
+                >
+                  <FaTimes size={12} />
+                </button>
+              )}
             </div>
-          </Card.Header>
 
-          {/* Slot Filtering Toolbar Strip */}
-          <div className="px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC' }}>
-            <div className="d-flex flex-wrap align-items-center gap-2">
-              <span className="fw-semibold text-dark small">
-                <FaClock className="me-1" style={{ color: '#1E60E6' }} /> Phân bổ khung ca sáng:
-              </span>
-              <div className="btn-group btn-group-sm" role="group">
-                <button
-                  type="button"
-                  className="btn rounded-pill px-3 me-1"
-                  style={selectedSlot === 'ALL' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
-                  onClick={() => setSelectedSlot('ALL')}
-                >
-                  Tất cả ({slotCounts.ALL})
-                </button>
-                <button
-                  type="button"
-                  className="btn rounded-pill px-3 me-1"
-                  style={selectedSlot === 'SLOT_1' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
-                  onClick={() => setSelectedSlot('SLOT_1')}
-                >
-                  Khung 1 (07:00 - 08:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_1}/12</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn rounded-pill px-3 me-1"
-                  style={selectedSlot === 'SLOT_2' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
-                  onClick={() => setSelectedSlot('SLOT_2')}
-                >
-                  Khung 2 (08:00 - 09:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_2}/12</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn rounded-pill px-3"
-                  style={selectedSlot === 'SLOT_3' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' } : { borderColor: 'rgba(15, 23, 42, 0.08)', color: '#64748b' }}
-                  onClick={() => setSelectedSlot('SLOT_3')}
-                >
-                  Khung 3 (09:00 - 10:00) <span className="badge bg-light text-dark ms-1">{slotCounts.SLOT_3}/14</span>
-                </button>
-              </div>
+            <select
+              className="form-select form-select-sm"
+              style={{ width: 'auto', minWidth: '210px' }}
+              value={selectedSlot}
+              onChange={(e) => setSelectedSlot(e.target.value)}
+            >
+              <option value="ALL">Tất cả khung giờ ({slotCounts.ALL})</option>
+              <option value="SLOT_1">Khung 1: 07:00 - 08:00 ({slotCounts.SLOT_1}/12)</option>
+              <option value="SLOT_2">Khung 2: 08:00 - 09:00 ({slotCounts.SLOT_2}/12)</option>
+              <option value="SLOT_3">Khung 3: 09:00 - 10:00 ({slotCounts.SLOT_3}/14)</option>
+            </select>
+
+            <div className="ms-auto text-muted small fw-medium text-nowrap">
+              Hiển thị <strong>{filteredAppointments.length}</strong> / <strong>{confirmedList.length}</strong> lịch hẹn
             </div>
-            <div className="small text-muted">
-              <FaUserFriends className="me-1" style={{ color: '#1E60E6' }} /> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+          </div>
+        </div>
+
+        {/* 4. Standalone Table Section: Sổ Lịch Hẹn Chờ Check-in */}
+        <div className="bms-table-standalone-section mb-4">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h5 className="bms-table-standalone-title">
+                Sổ Lịch Hẹn Chờ Check-in
+              </h5>
+              <div className="bms-table-standalone-subtitle">
+                Lượt hẹn đã xác nhận sẵn sàng tiếp đón tại quầy
+              </div>
             </div>
           </div>
 
-          <Card.Body className="p-0">
+          <div className="bms-table-standalone-body">
             {filteredAppointments.length > 0 ? (
               <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <Table hover className="align-middle mb-0" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
@@ -2270,57 +2236,54 @@ const ReceptionistCheckIn = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-3">
-                <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }} />
-                <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h5>
-                <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
+              <div className="text-center py-4">
+                <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: '2rem', color: '#94A3B8' }} />
+                <h6 className="text-dark mt-2 fw-semibold">Không có lịch hẹn nào cần check-in trong khung giờ này</h6>
+                <p className="text-muted small mb-0">Chọn "Tất cả khung giờ" hoặc chuyển khung giờ khác để theo dõi.</p>
               </div>
             )}
-          </Card.Body>
-        </Card>
+          </div>
+        </div>
 
-        {/* 4. Unified Card Section: Danh Sách Bệnh Nhân Đã Check-in */}
-        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-          <Card.Header className="bg-white border-bottom py-3 px-4">
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
-              <div>
-                <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaUserCheck style={{ color: '#16a34a' }} />
-                  Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
-                </h5>
-                <div className="text-muted small">
-                  Hồ sơ bệnh nhân đã hoàn tất cấp số thứ tự và phân luồng tiếp nhận
-                </div>
-              </div>
-
-              <div className="d-flex align-items-center gap-2">
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
-                  onClick={handleExportCheckedIn}
-                  disabled={checkedInAppointments.length === 0}
-                  style={{ fontSize: '13px' }}
-                >
-                  <FaFileCsv />
-                  <span>Xuất CSV</span>
-                </Button>
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  className="rounded-pill px-3 fw-semibold d-flex align-items-center gap-1"
-                  onClick={handlePrintCheckedIn}
-                  disabled={checkedInAppointments.length === 0}
-                  style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
-                >
-                  <FaPrint />
-                  <span>In danh sách</span>
-                </Button>
+        {/* 5. Standalone Table Section: Danh Sách Bệnh Nhân Đã Check-in */}
+        <div className="bms-table-standalone-section mb-4">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h5 className="bms-table-standalone-title">
+                Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
+              </h5>
+              <div className="bms-table-standalone-subtitle">
+                Hồ sơ bệnh nhân đã hoàn tất cấp số thứ tự và phân luồng tiếp nhận
               </div>
             </div>
-          </Card.Header>
 
-          <Card.Body className="p-0">
+            <div className="d-flex align-items-center gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1"
+                onClick={handleExportCheckedIn}
+                disabled={checkedInAppointments.length === 0}
+                style={{ fontSize: '13px' }}
+              >
+                <FaFileCsv />
+                <span>Xuất CSV</span>
+              </Button>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1"
+                onClick={handlePrintCheckedIn}
+                disabled={checkedInAppointments.length === 0}
+                style={{ fontSize: '13px' }}
+              >
+                <FaPrint />
+                <span>In danh sách</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="bms-table-standalone-body">
             {checkedInAppointments.length > 0 ? (
               <div className="table-responsive" style={{
                 overflowX: 'auto',
@@ -2408,35 +2371,28 @@ const ReceptionistCheckIn = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-3">
-                <FaUserTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }} />
-                <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Chưa có bệnh nhân nào check-in</h5>
-                <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
+              <div className="text-center py-4">
+                <FaUserTimes className="text-muted mb-2" style={{ fontSize: '2rem', color: '#94A3B8' }} />
+                <h6 className="text-dark mt-2 fw-semibold">Chưa có bệnh nhân nào check-in</h6>
+                <p className="text-muted small mb-0">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
               </div>
             )}
-          </Card.Body>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Quick QR Code Check-in Modal */}
       <Modal
         show={showQuickQRModal}
         onHide={handleCloseQuickQRModal}
-        onEntered={() => {
-          // Ensure modal is fully mounted before camera initialization
-          // Component auto-initializes when isModalOpen is true
-        }}
-        onExited={() => {
-          // Reset state when modal is dismissed
-        }}
         size={isMobile ? undefined : "lg"}
         fullscreen={isMobile}
         centered={!isMobile}
       >
-        <Modal.Header closeButton className="bg-primary text-white" style={{ padding: isMobile ? '0.75rem' : '1rem' }}>
-          <Modal.Title style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
-            <i className="fas fa-qrcode me-2"></i>
-            {isMobile ? 'Check-in QR' : 'Check-in nhanh bằng QR Code'}
+        <Modal.Header closeButton style={{ padding: isMobile ? '0.9rem 1rem' : '1.15rem 1.75rem', borderBottom: '1px solid #F1F5F9' }}>
+          <Modal.Title className="fw-semibold text-dark d-flex align-items-center gap-2" style={{ fontSize: '1.1rem' }}>
+            <FaQrcode className="text-primary" />
+            <span>{isMobile ? 'Check-in QR' : 'Check-in Nhanh Bằng QR Code'}</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: isMobile ? '0.75rem' : '1.5rem 1.75rem' }}>

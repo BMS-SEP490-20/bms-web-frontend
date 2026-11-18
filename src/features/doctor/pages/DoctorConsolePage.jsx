@@ -44,7 +44,8 @@ import {
   FaUndo,
   FaThLarge,
   FaHeartbeat,
-  FaFileSignature
+  FaFileSignature,
+  FaClipboardList
 } from 'react-icons/fa';
 import { receptionApi } from '../../reception/api/receptionApi';
 import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laboratory/components/BarcodePrinter';
@@ -323,14 +324,14 @@ export default function DoctorConsolePage() {
 
       const slipData = {
         patientName: currentServing.patientName,
-        patientId: currentServing.patientId || 'PT-001',
+        patientId: currentServing.patientId || '—',
         appointmentCode: currentServing.appointmentCode || currentServing.appointmentId,
         reason: preAnalyticsForm.rescheduleReason,
         newDate: preAnalyticsForm.newAppointmentDate,
         newSlotTime: preAnalyticsForm.newSlotTime,
         doctorAdvice: preAnalyticsForm.doctorAdvice,
-        doctorName: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
-        doctorCchn: 'CCHN-008912/HCM'
+        doctorName: currentUser?.fullName || currentUser?.name || 'Bác sĩ phụ trách',
+        doctorCchn: currentUser?.licenseNumber || 'Đã xác thực'
       };
 
       setRescheduleSuccess(slipData);
@@ -357,21 +358,17 @@ export default function DoctorConsolePage() {
   const [clinicalConclusion, setClinicalConclusion] = useState('Đường huyết đói 5.8 mmol/L (kiểm soát tốt), Men gan và chức năng thận trong giới hạn bình thường. Triglyceride 1.95 mmol/L (hơi tăng nhẹ).');
   const [treatmentAdvice, setTreatmentAdvice] = useState('Chế độ ăn giảm tinh bột trắng và mỡ động vật, tăng cường rau xanh, duy trì đi bộ 30 phút/ngày. Tạm thời chưa cần dùng thuốc hạ mỡ máu.');
   const [followUpDate, setFollowUpDate] = useState('Tái khám kiểm tra bilan lipid máu sau 3 tháng');
-  const [patientEmail, setPatientEmail] = useState('an.tran@gmail.com');
+  const [patientEmail, setPatientEmail] = useState('');
   const [isDeliverySuccess, setIsDeliverySuccess] = useState(false);
   const [showReturnRerunModal, setShowReturnRerunModal] = useState(false);
-  const [returnReason, setReturnReason] = useState('Chỉ số Kali 6.8 mmol/L không phù hợp với lâm sàng và điện tim bình thường, nghi ngờ vỡ hồng cầu in vitro');
+  const [returnReason, setReturnReason] = useState('Chỉ số xét nghiệm chưa phù hợp với triệu chứng lâm sàng, đề nghị kiểm tra lại mẫu');
 
   // Mở modal thẩm định kết quả
   const handleOpenConsultationModal = (customAlert = null) => {
-    const pt = customAlert || currentServing || {
-      patientName: 'Trần Văn An',
-      patientId: 'PT-2026-004523',
-      appointmentId: 'APT-261113-0001',
-      specimenId: 'BC-PT001-A01-1-EDTA',
-      orderId: 'ORD-261116-A01'
-    };
+    const pt = customAlert || currentServing;
+    if (!pt) return;
     setConsultationData(pt);
+    setPatientEmail(pt.patientEmail || pt.email || '');
     setConsultationStep('review');
     setIsDeliverySuccess(false);
     setShowConsultationModal(true);
@@ -389,11 +386,11 @@ export default function DoctorConsolePage() {
   const handleDoctorRequestRerun = () => {
     if (!returnReason.trim()) return;
     const rerunPayload = {
-      specimenId: consultationData?.specimenId || 'SPC-001',
-      orderId: consultationData?.orderId || 'ORD-001',
+      specimenId: consultationData?.specimenId || '—',
+      orderId: consultationData?.orderId || '—',
       patientName: consultationData?.patientName || 'Bệnh nhân',
       reason: returnReason.trim(),
-      requestedBy: currentUser?.fullName || 'BS. CKI Nguyễn Văn Minh',
+      requestedBy: currentUser?.fullName || currentUser?.name || 'Bác sĩ phụ trách',
       timestamp: new Date().toISOString()
     };
 
@@ -462,44 +459,43 @@ export default function DoctorConsolePage() {
   };
 
   return (
-    <div className="container-fluid py-2 px-lg-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="w-100 py-1">
       {/* Top Banner & Room Switcher */}
       <div className="bms-page-header-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <h1 className="bms-page-title fs-4 m-0">Bàn Khám Bác Sĩ &amp; Gọi Số Tự Động</h1>
-            <p className="text-muted small m-0 mt-1">
-              Khám lâm sàng, chỉ định xét nghiệm và điều phối hàng đợi bệnh nhân.
-            </p>
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Bàn khám bác sĩ &amp; Gọi số tự động</h1>
           </div>
-          <div className="d-flex align-items-center gap-3">
-            <div className="d-flex align-items-center gap-2">
-              <label className="small fw-semibold text-secondary mb-0 text-nowrap">Phòng khám:</label>
-              <Form.Select
-                size="sm"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                className="fw-bold text-primary"
-                style={{ width: '160px', borderRadius: '8px', borderColor: '#CBD5E1' }}
-              >
-                <option value="ROOM-101">Phòng khám 101</option>
-                <option value="ROOM-102">Phòng khám 102</option>
-                <option value="ROOM-103">Phòng khám 103</option>
-                <option value="LAB-201">Phòng lấy mẫu 201</option>
-              </Form.Select>
-            </div>
-
-            <Button
-              variant="outline-secondary"
+          <p className="text-muted small m-0 mt-1">
+            Khám lâm sàng, chỉ định xét nghiệm và điều phối hàng đợi bệnh nhân theo phòng.
+          </p>
+        </div>
+        <div className="bms-page-actions">
+          <div className="d-flex align-items-center gap-2">
+            <label className="small fw-semibold text-secondary mb-0 text-nowrap">Phòng khám:</label>
+            <Form.Select
               size="sm"
-              onClick={fetchQueue}
-              title="Tải lại danh sách hàng đợi"
-              className="rounded-circle p-2 d-flex align-items-center justify-content-center shadow-none"
-              style={{ width: '34px', height: '34px' }}
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+              className="fw-bold text-primary"
+              style={{ width: '170px', borderRadius: '999px', borderColor: '#CBD5E1' }}
             >
-              <FaRedo className={loading ? 'fa-spin' : ''} size={12} />
-            </Button>
+              <option value="ROOM-101">Phòng khám 101</option>
+              <option value="ROOM-102">Phòng khám 102</option>
+              <option value="ROOM-103">Phòng khám 103</option>
+              <option value="LAB-201">Phòng lấy mẫu 201</option>
+            </Form.Select>
           </div>
+
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={fetchQueue}
+            title="Tải lại danh sách hàng đợi"
+            className="rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-none text-nowrap"
+          >
+            <FaRedo className={loading ? 'fa-spin' : ''} size={12} /> Làm mới
+          </Button>
         </div>
       </div>
 
@@ -592,12 +588,12 @@ export default function DoctorConsolePage() {
       <Row className="g-4">
         {/* Left Column: Active Patient Console */}
         <Col lg={7}>
-          <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-            <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
-              <span className="fw-bold text-uppercase small tracking-wide">
-                Bệnh Nhân Đang Khám / Lấy Mẫu
+          <Card className="shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
+            <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+              <span className="fw-bold text-uppercase small text-dark">
+                Bệnh nhân đang khám / Lấy mẫu
               </span>
-              <Badge bg="light" text="dark" className="fw-bold px-3 py-1.5 rounded-pill">
+              <Badge bg="primary-subtle" text="primary" className="fw-bold px-3 py-1.5 rounded-pill border border-primary-subtle">
                 <FaDoorOpen className="me-1" /> {roomId}
               </Badge>
             </Card.Header>
@@ -773,30 +769,14 @@ export default function DoctorConsolePage() {
                   </p>
                   <div className="d-flex justify-content-center gap-2 flex-wrap mt-2">
                     <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm"
-                      onClick={() => setCurrentServing({
-                        appointmentId: 'APT-261127-0001',
-                        appointmentCode: 'APT-261127-0001',
-                        patientId: 'PAT-079201009988',
-                        patientName: 'Trần Văn An',
-                        patientPhone: '0909123456',
-                        queueNumberFormatted: '001',
-                        consultationStartTime: new Date().toISOString()
-                      })}
-                    >
-                      <FaUserInjured /> Tiếp Nhận Bệnh Nhân Khám (Trần Văn An)
-                    </Button>
-                    <Button
                       as={Link}
                       to="/doctor/orders/create"
                       variant="primary"
                       size="sm"
-                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white"
+                      className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm text-white text-nowrap"
                       style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     >
-                      <FaVial /> Tạo Y Lệnh Xét Nghiệm Máu
+                      <FaVial /> Tạo y lệnh xét nghiệm máu
                     </Button>
                   </div>
                 </div>
@@ -807,8 +787,8 @@ export default function DoctorConsolePage() {
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow"
-                  style={{ backgroundColor: '#0284c7', borderColor: '#0284c7' }}
+                  className="w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-pill"
+                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                   onClick={handleCallNext}
                   disabled={actionLoading || waitingCount === 0}
                 >
@@ -822,7 +802,7 @@ export default function DoctorConsolePage() {
                       <FaBullhorn />
                       <span>GỌI SỐ TIẾP THEO (F2)</span>
                       {waitingCount > 0 && (
-                        <Badge bg="light" text="dark" className="ms-2">
+                        <Badge bg="light" text="dark" className="ms-2 rounded-pill">
                           Còn {waitingCount} người
                         </Badge>
                       )}
@@ -836,36 +816,36 @@ export default function DoctorConsolePage() {
 
         {/* Right Column: Waiting Queue List */}
         <Col lg={5}>
-          <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
-            <Card.Header className="bg-white py-3 px-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: '#e2e8f0' }}>
+          <section className="bms-table-standalone-section m-0 h-100">
+            <div className="bms-table-standalone-header">
               <div>
-                <h5 className="fw-bold mb-0 text-dark">Hàng Đợi Chờ Khám</h5>
-                <small className="text-muted">Bệnh nhân đã Check-in và đang chờ gọi số</small>
+                <h2 className="bms-table-standalone-title">Hàng đợi chờ khám</h2>
+                <p className="bms-table-standalone-subtitle">Bệnh nhân đã check-in và đang chờ gọi số</p>
               </div>
-              <Badge className="fs-6 px-3 py-1.5 rounded-pill" style={{ backgroundColor: '#0284c7' }}>
+              <Badge bg="primary-subtle" text="primary" className="px-3 py-1.5 rounded-pill border border-primary-subtle fw-semibold">
                 {waitingCount} đang chờ
               </Badge>
-            </Card.Header>
+            </div>
 
-            <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            <div className="bms-table-standalone-body" style={{ maxHeight: '500px', overflowY: 'auto' }}>
               <Table hover className="align-middle mb-0">
                 <thead className="table-light small text-uppercase text-muted sticky-top">
                   <tr>
                     <th className="px-3 text-start">STT</th>
-                    <th className="text-start">Bệnh Nhân</th>
-                    <th className="text-start">Thời Gian Đến</th>
-                    <th className="text-center">Trạng Thái</th>
+                    <th className="text-start">Bệnh nhân</th>
+                    <th className="text-start">Thời gian đến</th>
+                    <th className="text-center">Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody>
                   {!Array.isArray(waitingList) || waitingList.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="text-center py-4 text-muted">
-                        <div className="fs-3 mb-2">📋</div>
+                      <td colSpan={4} className="text-center py-5 text-muted">
+                        <FaClipboardList className="fs-2 mb-2 text-muted opacity-50" />
                         <div className="fw-semibold text-dark">Hàng đợi gọi số tự động đang trống</div>
-                        <div className="small mb-3">Hiện chưa có số mới được gọi vào phòng. Bác sĩ có thể mở ngay danh mục tạo y lệnh:</div>
-                        <Link to="/doctor/orders/create" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
-                          <FaVial className="me-1" /> Mở Bàn Lập Y Lệnh Xét Nghiệm
+                        <div className="small mb-3">Hiện chưa có bệnh nhân mới chờ gọi vào phòng.</div>
+                        <Link to="/doctor/orders/create" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold text-nowrap">
+                          <FaVial className="me-1" /> Mở bàn lập y lệnh xét nghiệm
                         </Link>
                       </td>
                     </tr>
@@ -877,7 +857,7 @@ export default function DoctorConsolePage() {
                       return (
                         <tr key={item.appointmentId || item.id}>
                           <td className="px-3 text-start">
-                            <span className="fw-bold font-monospace fs-6" style={{ color: '#0284c7' }}>
+                            <span className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
                               {item.queueNumberFormatted || item.queueNumber}
                             </span>
                           </td>
@@ -887,7 +867,7 @@ export default function DoctorConsolePage() {
                           </td>
                           <td className="small text-muted text-start">{arrivalTime}</td>
                           <td className="text-center">
-                            <Badge bg="info" className="text-white px-2 py-1">
+                            <Badge bg="info-subtle" text="info-emphasis" className="border border-info-subtle rounded-pill px-2.5 py-1">
                               Chờ khám
                             </Badge>
                           </td>
@@ -898,7 +878,7 @@ export default function DoctorConsolePage() {
                 </tbody>
               </Table>
             </div>
-          </Card>
+          </section>
         </Col>
       </Row>
 
@@ -966,10 +946,10 @@ export default function DoctorConsolePage() {
 
       {/* Modal Sàng Lọc Tiền Phân Tích & Dời Lịch Hẹn (Pre-analytical & Reschedule) */}
       <Modal show={showPreAnalyticsModal} onHide={() => setShowPreAnalyticsModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="bg-light border-bottom">
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <FaCalendarAlt style={{ color: "#1E60E6" }} />
-            <span>Sàng Lọc Tiền Phân Tích &amp; Dời Lịch Xét Nghiệm Máu (Bộ Y Tế)</span>
+            <span>Sàng lọc tiền phân tích &amp; Dời lịch xét nghiệm máu</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
@@ -982,24 +962,23 @@ export default function DoctorConsolePage() {
                   {currentServing?.patientName || "Bệnh nhân hiện tại"}
                 </div>
                 <div className="small text-muted font-monospace">
-                  Mã lượt: {currentServing?.appointmentCode || currentServing?.appointmentId || "APT-001"} · STT: {currentServing?.queueNumberFormatted || "01"}
+                  Mã lượt: {currentServing?.appointmentCode || currentServing?.appointmentId || "—"} · STT: {currentServing?.queueNumberFormatted || "—"}
                 </div>
               </Col>
               <Col sm={6} className="text-sm-end">
                 <div className="small text-muted">Bác sĩ khám:</div>
                 <div className="fw-bold text-dark fs-6">
-                  {currentUser?.fullName || "BS. CKI Nguyễn Văn Minh"}
+                  {currentUser?.fullName || currentUser?.name || "Bác sĩ phụ trách"}
                 </div>
-                <div className="small text-muted font-monospace">Số CCHN: CCHN-008912/HCM</div>
               </Col>
             </Row>
           </div>
 
-          {/* Checklist Tiêu Chuẩn Tiền Phân Tích (Circular 01/2013/TT-BYT) */}
+          {/* Checklist Tiêu Chuẩn Tiền Phân Tích */}
           <Card className="border-0 shadow-sm rounded-3 mb-3 bg-white">
             <Card.Header className="bg-white py-2 border-bottom">
               <span className="fw-bold small text-uppercase text-secondary">
-                1. Tiêu Chuẩn Tiền Phân Tích Trước Lấy Máu (Đánh Giá Lâm Sàng)
+                1. Tiêu chuẩn tiền phân tích trước lấy máu
               </span>
             </Card.Header>
             <Card.Body className="p-3">
@@ -1015,9 +994,9 @@ export default function DoctorConsolePage() {
                     />
                     <div className="small text-muted mt-1 ps-4">
                       {preAnalyticsForm.isFasting8h ? (
-                        <span className="text-success fw-semibold">✓ Đủ điều kiện xét nghiệm sinh hóa (Glucose, Men gan, Lipid)</span>
+                        <span className="text-success fw-semibold d-inline-flex align-items-center"><FaCheckCircle className="me-1" /> Đủ điều kiện xét nghiệm sinh hóa (Glucose, Men gan, Lipid)</span>
                       ) : (
-                        <span className="text-danger fw-semibold">⚠ Chưa nhịn ăn: Nguy cơ sai lệch đường huyết và lipid máu</span>
+                        <span className="text-danger fw-semibold d-inline-flex align-items-center"><FaExclamationTriangle className="me-1" /> Chưa nhịn ăn: Nguy cơ sai lệch đường huyết và lipid máu</span>
                       )}
                     </div>
                   </div>
@@ -1058,9 +1037,9 @@ export default function DoctorConsolePage() {
                     />
                     <div className="small text-muted mt-1 ps-4">
                       {preAnalyticsForm.isAcuteFever ? (
-                        <span className="text-danger fw-semibold">⚠ Sốt cao cấp tính: Nên hoãn lấy máu thường quy</span>
+                        <span className="text-danger fw-semibold d-inline-flex align-items-center"><FaExclamationTriangle className="me-1" /> Sốt cao cấp tính: Nên hoãn lấy máu thường quy</span>
                       ) : (
-                        <span className="text-success fw-semibold">✓ Thể trạng ổn định</span>
+                        <span className="text-success fw-semibold d-inline-flex align-items-center"><FaCheckCircle className="me-1" /> Thể trạng ổn định</span>
                       )}
                     </div>
                   </div>
@@ -1077,9 +1056,9 @@ export default function DoctorConsolePage() {
                     />
                     <div className="small text-muted mt-1 ps-4">
                       {preAnalyticsForm.isTakingAnticoagulant ? (
-                        <span className="text-warning-emphasis fw-semibold">⚠ Đang dùng kháng đông: Nguy cơ chảy máu sau chích</span>
+                        <span className="text-warning-emphasis fw-semibold d-inline-flex align-items-center"><FaExclamationTriangle className="me-1" /> Đang dùng kháng đông: Nguy cơ chảy máu sau lấy máu</span>
                       ) : (
-                        <span className="text-success fw-semibold">✓ Không ghi nhận thuốc can thiệp</span>
+                        <span className="text-success fw-semibold d-inline-flex align-items-center"><FaCheckCircle className="me-1" /> Không ghi nhận thuốc can thiệp</span>
                       )}
                     </div>
                   </div>
@@ -1092,9 +1071,9 @@ export default function DoctorConsolePage() {
           <Card className="border-0 shadow-sm rounded-3 bg-white">
             <Card.Header className="bg-white py-2 border-bottom d-flex justify-content-between align-items-center">
               <span className="fw-bold small text-uppercase text-secondary">
-                2. Kế Hoạch Hoãn Lấy Máu &amp; Dời Lịch Xét Nghiệm (Luật Khám Bệnh 2023)
+                2. Kế hoạch hoãn lấy máu &amp; Dời lịch xét nghiệm
               </span>
-              <Badge bg="warning" text="dark">Hoãn Lấy Mẫu</Badge>
+              <Badge bg="warning" text="dark">Hoãn lấy mẫu</Badge>
             </Card.Header>
             <Card.Body className="p-3">
               <Form.Group className="mb-3">
@@ -1199,10 +1178,10 @@ export default function DoctorConsolePage() {
 
       {/* Modal Thẩm Định Kết Quả Xét Nghiệm & Tư Vấn Bệnh Nhân (Doctor Consultation Modal) */}
       <Modal show={showConsultationModal} onHide={() => setShowConsultationModal(false)} size="xl" centered>
-        <Modal.Header closeButton className="bg-light border-bottom">
+        <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <FaUserMd style={{ color: "#1E60E6" }} />
-            <span>Thẩm Định Kết Quả Xét Nghiệm &amp; Tư Vấn Bệnh Nhân (Quy Trình Khép Kín ISO 15189)</span>
+            <span>Thẩm định kết quả xét nghiệm &amp; Tư vấn bệnh nhân</span>
           </Modal.Title>
         </Modal.Header>
 
@@ -1214,18 +1193,18 @@ export default function DoctorConsolePage() {
                 <div className="small text-muted">Bệnh nhân hội chẩn:</div>
                 <div className="fw-bold fs-6 text-dark d-flex align-items-center gap-2">
                   <FaUserInjured style={{ color: "#1E60E6" }} />
-                  {consultationData?.patientName || "Trần Văn An"}
+                  {consultationData?.patientName || "Bệnh nhân hiện tại"}
                 </div>
                 <div className="small text-muted font-monospace">
-                  Mã BN: {consultationData?.patientId || "PT-2026-004523"} · Đơn: {consultationData?.orderId || "ORD-261116-A01"}
+                  Mã BN: {consultationData?.patientId || "—"} · Đơn: {consultationData?.orderId || consultationData?.appointmentCode || "—"}
                 </div>
               </Col>
               <Col sm={6} className="text-sm-end">
-                <div className="small text-muted">Chữ ký số kỹ thuật Lab:</div>
+                <div className="small text-muted">Trạng thái phê duyệt kỹ thuật Lab:</div>
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
-                  <FaCheckCircle /> BSCKII. Lê Lan Anh (Trưởng Khoa Xét Nghiệm)
+                  <FaCheckCircle /> {consultationData?.verifiedBy || "Đã xác nhận phê duyệt kỹ thuật"}
                 </div>
-                <div className="small text-muted">Chứng thư số y tế hợp lệ · Tiêu chuẩn ISO 15189:2022</div>
+                <div className="small text-muted">Chữ ký số y tế hợp lệ</div>
               </Col>
             </Row>
           </div>
@@ -1497,10 +1476,10 @@ export default function DoctorConsolePage() {
 
       {/* Modal Bác Sĩ Trả Kết Quả Về Lab Yêu Cầu Chạy Lại */}
       <Modal show={showReturnRerunModal} onHide={() => setShowReturnRerunModal(false)} centered>
-        <Modal.Header closeButton className="bg-danger text-white">
-          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
+        <Modal.Header closeButton style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
+          <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2" style={{ color: '#991B1B' }}>
             <FaUndo />
-            <span>Bác Sĩ Trả Về Yêu Cầu Xét Nghiệm Lại</span>
+            <span>Bác sĩ trả về yêu cầu xét nghiệm lại</span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3">

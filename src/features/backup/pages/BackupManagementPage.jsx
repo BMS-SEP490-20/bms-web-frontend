@@ -237,25 +237,25 @@ export default function BackupManagementPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Page Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
                             Quản Lý Sao Lưu &amp; Phục Hồi Dữ Liệu Xét Nghiệm
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Lưu trữ định kỳ, kiểm tra toàn vẹn mã băm SHA-256 và khôi phục dữ liệu xét nghiệm
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm px-3 py-2 fw-semibold"
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
                         onClick={loadData}
-                        style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
+                        style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
                     >
                         <FaSync className={loading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
@@ -263,9 +263,9 @@ export default function BackupManagementPage() {
                     {isAdmin && (
                         <button
                             type="button"
-                            className="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm px-3 py-2 fw-semibold"
+                            className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
                             onClick={() => setShowCreateModal(true)}
-                            style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
+                            style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
                         >
                             <FaPlus />
                             <span>Sao Lưu Dữ Liệu Mới</span>
@@ -277,7 +277,7 @@ export default function BackupManagementPage() {
             {/* Notification Toast */}
             {toastMessage && (
                 <div
-                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4`}
+                    className={`alert alert-${toastMessage.type} alert-dismissible fade show mb-4`}
                     role="alert"
                     style={{ borderRadius: 14 }}
                 >
@@ -293,101 +293,77 @@ export default function BackupManagementPage() {
                 </div>
             )}
 
-            {/* KPI Cards */}
+            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-                        <div className="card-body p-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-1">
-                                        Tổng Bản Sao Lưu
-                                    </span>
-                                    <h3 className="fw-bold mb-0" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>{stats.totalBackups}</h3>
-                                </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                                    <FaDatabase className="fs-4" />
-                                </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tổng Bản Sao Lưu</h6>
+                            <div className="bms-kpi-value">{stats.totalBackups}</div>
+                            <div className="bms-kpi-sub text-muted">
+                                <span className="fw-semibold text-primary">{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
                             </div>
-                            <small className="text-secondary mt-2 d-block">
-                                <span className="fw-semibold" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{stats.patientTestScopeBackups}</span> bản lưu trữ xét nghiệm
-                            </small>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <FaDatabase />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-                        <div className="card-body p-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-1">
-                                        Dung Lượng Đã Dùng
-                                    </span>
-                                    <h3 className="fw-bold mb-0" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>{stats.totalStorageMb} MB</h3>
-                                </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6' }}>
-                                    <FaHdd className="fs-4" />
-                                </div>
-                            </div>
-                            <small className="text-secondary mt-2 d-block">
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Dung Lượng Đã Dùng</h6>
+                            <div className="bms-kpi-value text-primary">{stats.totalStorageMb} MB</div>
+                            <div className="bms-kpi-sub text-muted">
                                 Nén bảo mật định dạng <code>.json.gz</code>
-                            </small>
+                            </div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-cyan">
+                            <FaHdd />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-                        <div className="card-body p-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-1">
-                                        Độ Toàn Vẹn SHA-256
-                                    </span>
-                                    <h3 className="fw-bold mb-0" style={{ color: '#2E7D32', fontVariantNumeric: 'tabular-nums' }}>{stats.integritySuccessRate}%</h3>
-                                </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
-                                    <FaCheckCircle className="fs-4" />
-                                </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Độ Toàn Vẹn SHA-256</h6>
+                            <div className="bms-kpi-value text-success">{stats.integritySuccessRate}%</div>
+                            <div className="bms-kpi-sub text-muted">
+                                Niêm phong số và đối chiếu tự động
                             </div>
-                            <small className="text-secondary mt-2 d-block">
-                                100% bản lưu trữ được niêm phong số
-                            </small>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <FaCheckCircle />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card shadow-sm border-0 h-100" style={{ borderRadius: 18, background: '#ffffff' }}>
-                        <div className="card-body p-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-1">
-                                        Thời Hạn Lưu Trữ
-                                    </span>
-                                    <h3 className="fw-bold mb-0" style={{ color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>10 Năm</h3>
-                                </div>
-                                <div className="p-3 rounded-circle" style={{ background: 'rgba(231, 188, 76, 0.2)', color: '#b45309' }}>
-                                    <FaCalendarAlt className="fs-4" />
-                                </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Thời Hạn Lưu Trữ</h6>
+                            <div className="bms-kpi-value" style={{ color: '#b45309' }}>10 Năm</div>
+                            <div className="bms-kpi-sub text-muted">
+                                Chính sách lưu trữ dữ liệu y tế dài hạn
                             </div>
-                            <small className="text-secondary mt-2 d-block">
-                                Tuân thủ chuẩn ISO 15189 & Nghị định 123/2020/NĐ-CP (Tối thiểu 10 năm)
-                            </small>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                            <FaCalendarAlt />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
+            {/* Single-Line Filter Bar */}
             {activeTab !== "HISTORY" && (
-                <div className="bms-filter-bar">
+                <div className="bms-filter-bar mb-3">
                     <div className="bms-search-input-pill">
                         <FaSearch className="bms-search-icon" />
                         <input
                             type="text"
-                            placeholder="Tìm theo tên, mã sao lưu..."
+                            placeholder="Tìm theo tên, mã sao lưu hoặc người tạo..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -402,6 +378,9 @@ export default function BackupManagementPage() {
                             </button>
                         )}
                     </div>
+                    <span className="bms-filter-meta">
+                        Hiển thị <strong>{filteredBackups.length}</strong> / {totalCount || safeBackupsList.length} bản sao lưu
+                    </span>
                 </div>
             )}
 

@@ -303,18 +303,14 @@ export default function UserManagementPage() {
   return (
     <div className="w-100 py-2">
       {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          
-          <div className="bms-page-title-row">
-            <h1 className="bms-page-title fs-4 m-0">
-              Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
-            </h1>
-            <p className="text-muted small m-0 mt-1">
-              Quản lý hồ sơ cán bộ y tế, phân quyền truy cập và kiểm soát tài khoản hệ thống.
-            </p>
-          </div>
-          
+          <h1 className="bms-page-title">
+            Quản Lý Nhân Sự &amp; Tài Khoản (IAM)
+          </h1>
+          <p className="bms-page-subtitle">
+            Quản lý hồ sơ cán bộ y tế, phân quyền truy cập và trạng thái tài khoản hệ thống
+          </p>
         </div>
         <div className="bms-page-actions">
           <Button

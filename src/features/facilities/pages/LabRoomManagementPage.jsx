@@ -5,8 +5,9 @@
  * Tuân thủ: ISO 15189, Clean Medical Standard & AGENTS.md.
  */
 
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Button, Form, Modal, Spinner, Badge } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Row, Col, Table, Button, Form, Modal, Spinner, Badge } from 'react-bootstrap';
+import { FaPlus, FaSearch, FaTimes, FaSyncAlt, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { testOrderService } from '../../../services/testOrderService';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
@@ -19,6 +20,9 @@ const LabRoomManagementPage = () => {
 
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [typeFilter, setTypeFilter] = useState('ALL');
     const [showModal, setShowModal] = useState(false);
     const [editingRoom, setEditingRoom] = useState(null);
     const [formData, setFormData] = useState({
@@ -136,30 +140,134 @@ const LabRoomManagementPage = () => {
         }
     };
 
+    const filteredRooms = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        return (Array.isArray(rooms) ? rooms : []).filter((room) => {
+            const isAvail = room.isAvailable !== undefined ? room.isAvailable : room.is_available;
+            const rType = String(room.roomType || room.room_type || room.accessLevel || 'Xét nghiệm').toLowerCase();
+            if (statusFilter === 'AVAILABLE' && !isAvail) return false;
+            if (statusFilter === 'MAINTENANCE' && isAvail) return false;
+            if (typeFilter !== 'ALL' && !rType.includes(typeFilter.toLowerCase())) return false;
+            if (!q) return true;
+            const name = String(room.roomName || room.room_name || room.name || '').toLowerCase();
+            const loc = String(room.roomLocation || room.room_location || room.floor || '').toLowerCase();
+            const equip = String(room.assignedEquipment || room.assigned_equipment || '').toLowerCase();
+            const tech = String(room.technicianInCharge || room.technician_in_charge || '').toLowerCase();
+            return name.includes(q) || loc.includes(q) || equip.includes(q) || tech.includes(q);
+        });
+    }, [rooms, searchTerm, statusFilter, typeFilter]);
+
     return (
-        <Container fluid className="py-2 px-md-5" style={{ maxWidth: 1400 }}>
-            <header className="bms-page-header">
-                <div className="bms-page-header-content">
-                    <h1 className="bms-page-title">Phòng xét nghiệm</h1>
+        <div className="w-100 py-1">
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
+                    <div className="bms-page-title-row">
+                        <h1 className="bms-page-title">Quản Lý Phòng Xét Nghiệm &amp; Lâm Sàng</h1>
+                    </div>
+                    <p className="text-muted small m-0 mt-1">
+                        Quản lý danh mục phòng chức năng, thiết bị phân tích cố định và trạng thái vận hành
+                    </p>
                 </div>
-                {isManagerOrAdmin && (
-                    <Button variant="primary" className="fw-semibold d-flex align-items-center gap-2" onClick={() => handleOpenModal()}>
-                        <i className="fas fa-plus"></i> Phòng mới
+                <div className="bms-page-actions">
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
+                        onClick={fetchRooms}
+                        disabled={loading}
+                    >
+                        <FaSyncAlt className={loading ? 'fa-spin' : ''} size={13} />
+                        <span>Làm mới</span>
+                    </Button>
+                    {isManagerOrAdmin && (
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
+                            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                            onClick={() => handleOpenModal()}
+                        >
+                            <FaPlus size={12} />
+                            <span>Thêm phòng mới</span>
+                        </Button>
+                    )}
+                </div>
+            </div>
+
+            <div className="bms-filter-bar mb-3">
+                <div className="bms-search-input-pill">
+                    <FaSearch className="bms-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Tìm tên phòng, vị trí, thiết bị hoặc nhân sự phụ trách..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            className="bms-search-clear"
+                            onClick={() => setSearchTerm('')}
+                            title="Xóa tìm kiếm"
+                        >
+                            <FaTimes size={12} />
+                        </button>
+                    )}
+                </div>
+
+                <Form.Select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    style={{ width: 'auto' }}
+                >
+                    <option value="ALL">Tất cả chức năng</option>
+                    <option value="Xét nghiệm">Phòng xét nghiệm</option>
+                    <option value="Khám">Phòng khám lâm sàng</option>
+                    <option value="Lấy mẫu">Phòng thu thập mẫu</option>
+                    <option value="Hành chính">Phòng hành chính</option>
+                </Form.Select>
+
+                <Form.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{ width: 'auto' }}
+                >
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="AVAILABLE">Đang hoạt động</option>
+                    <option value="MAINTENANCE">Bảo trì / Tạm dừng</option>
+                </Form.Select>
+
+                {(searchTerm !== '' || statusFilter !== 'ALL' || typeFilter !== 'ALL') && (
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="rounded-pill px-3 text-nowrap"
+                        onClick={() => {
+                            setSearchTerm('');
+                            setStatusFilter('ALL');
+                            setTypeFilter('ALL');
+                        }}
+                    >
+                        Đặt lại
                     </Button>
                 )}
-            </header>
 
-            <Card className="shadow-sm border-0 rounded-3">
-                <Card.Body className="p-0">
+                <span className="bms-filter-meta">
+                    Hiển thị <strong>{filteredRooms.length}</strong> / {rooms.length} phòng
+                </span>
+            </div>
+
+            <div className="bms-table-standalone-section">
+                <div className="bms-table-standalone-body">
                     {loading ? (
-                        <div className="text-center py-3">
+                        <div className="text-center py-4">
                             <Spinner animation="border" variant="primary" />
                             <div className="text-muted small mt-2">Đang tải danh sách phòng xét nghiệm...</div>
                         </div>
                     ) : (
                         <div className="table-responsive">
                             <Table hover className="align-middle mb-0">
-                                <thead className="table-light small text-uppercase">
+                                <thead>
                                     <tr>
                                         <th className="ps-4">Tên Phòng Xét Nghiệm</th>
                                         <th>Vị Trí</th>
@@ -171,7 +279,7 @@ const LabRoomManagementPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Array.isArray(rooms) && rooms.length > 0 ? rooms.map((room) => {
+                                    {filteredRooms.length > 0 ? filteredRooms.map((room) => {
                                         const rId = room.roomId || room.room_id || room.Id || room.id;
                                         const isAvail = room.isAvailable !== undefined ? room.isAvailable : room.is_available;
                                         return (
@@ -179,45 +287,47 @@ const LabRoomManagementPage = () => {
                                                 <td className="ps-4 fw-bold text-primary">{room.roomName || room.room_name || room.name}</td>
                                                 <td>{room.roomLocation || room.room_location || room.floor || '-'}</td>
                                                 <td>
-                                                    <Badge bg="info-subtle" text="info" className="border border-info-subtle px-2 py-1">
-                                                        {(room.roomType || room.room_type || room.accessLevel || 'Xét Nghiệm').toUpperCase()}
+                                                    <Badge bg="info-subtle" text="info" className="border border-info-subtle px-2 py-1 rounded-pill">
+                                                        {room.roomType || room.room_type || room.accessLevel || 'Xét nghiệm'}
                                                     </Badge>
                                                 </td>
                                                 <td>{room.assignedEquipment || room.assigned_equipment || '-'}</td>
                                                 <td>{room.technicianInCharge || room.technician_in_charge || '-'}</td>
                                                 <td>
                                                     {isAvail ? (
-                                                        <Badge bg="success-subtle" text="success" className="border border-success-subtle px-2 py-1">
-                                                            ● Đang Hoạt Động
+                                                        <Badge bg="success-subtle" text="success" className="border border-success-subtle px-2 py-1 rounded-pill">
+                                                            Đang hoạt động
                                                         </Badge>
                                                     ) : (
-                                                        <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle px-2 py-1">
-                                                            ● Bảo Trì / Tạm Dừng
+                                                        <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle px-2 py-1 rounded-pill">
+                                                            Bảo trì / Tạm dừng
                                                         </Badge>
                                                     )}
                                                 </td>
                                                 <td className="text-end pe-4">
-                                                    {isManagerOrAdmin ? (
-                                                        <>
-                                                            <Button variant="outline-primary" size="sm" className="me-2 fw-semibold" onClick={() => handleOpenModal(room)}>
-                                                                <i className="fas fa-edit me-1"></i> Sửa
+                                                    <div className="bms-action-btn-group">
+                                                        {isManagerOrAdmin ? (
+                                                            <>
+                                                                <Button variant="outline-primary" size="sm" className="rounded-pill text-nowrap fw-semibold" onClick={() => handleOpenModal(room)}>
+                                                                    <FaEdit className="me-1" /> Sửa
+                                                                </Button>
+                                                                <Button variant="outline-danger" size="sm" className="rounded-pill text-nowrap fw-semibold" onClick={() => handleDelete(rId)}>
+                                                                    <FaTrash className="me-1" /> Xóa
+                                                                </Button>
+                                                            </>
+                                                        ) : (
+                                                            <Button variant="outline-primary" size="sm" className="rounded-pill text-nowrap" onClick={() => handleOpenModal(room)}>
+                                                                <FaEye className="me-1" /> Xem chi tiết
                                                             </Button>
-                                                            <Button variant="outline-danger" size="sm" className="fw-semibold" onClick={() => handleDelete(rId)}>
-                                                                <i className="fas fa-trash me-1"></i> Xóa
-                                                            </Button>
-                                                        </>
-                                                    ) : (
-                                                        <Button variant="outline-info" size="sm" onClick={() => handleOpenModal(room)}>
-                                                            <i className="fas fa-eye me-1"></i> Xem chi tiết
-                                                        </Button>
-                                                    )}
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
                                     }) : (
                                         <tr>
-                                            <td colSpan={7} className="text-center py-3 text-muted">
-                                                Chưa có dữ liệu phòng xét nghiệm nào được cấu hình trong hệ thống.
+                                            <td colSpan={7} className="text-center py-4 text-muted">
+                                                Không tìm thấy phòng xét nghiệm nào phù hợp với bộ lọc.
                                             </td>
                                         </tr>
                                     )}
@@ -225,8 +335,8 @@ const LabRoomManagementPage = () => {
                             </Table>
                         </div>
                     )}
-                </Card.Body>
-            </Card>
+                </div>
+            </div>
 
             {/* Modal Thiết lập / Chỉnh sửa phòng xét nghiệm */}
             <Modal show={showModal} onHide={handleCloseModal} centered backdrop="static">
@@ -328,7 +438,7 @@ const LabRoomManagementPage = () => {
                     </Modal.Footer>
                 </Form>
             </Modal>
-        </Container>
+        </div>
     );
 };
 

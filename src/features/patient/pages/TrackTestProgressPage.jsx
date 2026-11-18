@@ -4,8 +4,8 @@
  * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams, useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { 
     FaSearch, 
     FaVial, 
@@ -27,6 +27,7 @@ import {
 import { fetchTrackingByCode } from "../api/trackingApi";
 import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
+import { getStoredUser } from "../../../constants/roles";
 import usePageTransition from "../../../shared/hooks/usePageTransition";
 import "./TrackTestProgressPage.css";
 
@@ -35,6 +36,9 @@ export default function TrackTestProgressPage() {
     const [searchParams] = useSearchParams();
     const { identifier: routeIdentifier } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const storedUser = useMemo(() => getStoredUser(), []);
+    const isEmbeddedInPortal = location.pathname.startsWith("/patient/");
 
     const [searchInput, setSearchInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -89,7 +93,7 @@ export default function TrackTestProgressPage() {
         setTrackingData(null);
         setErrorMessage("");
         setHasSearched(false);
-        navigate("/tracking", { replace: true });
+        navigate(isEmbeddedInPortal ? "/patient/tracking" : "/tracking", { replace: true });
     };
 
     const formatDateTime = (dateStr) => {
@@ -163,25 +167,21 @@ export default function TrackTestProgressPage() {
 
     return (
         <div className="bms-tracking-page">
-            <PortalNavbar />
+            {!isEmbeddedInPortal && <PortalNavbar user={storedUser} />}
             
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
                 <div className="container" style={{ maxWidth: 1180 }}>
                     
-                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO (Header + Separated Input & Button Aligned Right - Pure 2D Flat, Zero Border) */}
+                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO */}
                     <div className="bms-tracking-hero mb-4">
                         <div className="row align-items-center g-4">
                             {/* Left Column: Heading & Concise Subtitle */}
                             <div className="col-lg-6">
-                                <div className="d-flex align-items-center gap-2 mb-2" style={{ fontSize: '11px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
-                                    <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                                    <span>TIÊU CHUẨN ISO 15189:2022 · BẢO MẬT DỮ LIỆU Y TẾ 100%</span>
-                                </div>
-                                <h1 className="fw-bold mb-2" style={{ fontSize: '26px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
+                                <h1 className="fw-bold mb-2" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
                                     Tra Cứu Lộ Trình Mẫu Máu
                                 </h1>
-                                <p className="mb-0 text-muted" style={{ fontSize: '13px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
-                                    Theo dõi trực tiếp lộ trình phân tích mẫu và thời gian nhận kết quả có chữ ký số theo thời gian thực.
+                                <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
+                                    Theo dõi trực tiếp tiến trình phân tích mẫu và thời gian nhận kết quả ký số.
                                 </p>
                             </div>
 
@@ -426,8 +426,8 @@ export default function TrackTestProgressPage() {
                                             <div className="text-muted small" style={{ fontSize: 12 }}>MÃ VẠCH ĐỊNH DANH</div>
                                             <h2 className="bms-specimen-id-badge">{trackingData.orderNumber}</h2>
                                         </div>
-                                        <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger" : "bg-primary-subtle text-primary border border-primary-subtle"} px-2 py-1`}>
-                                            {trackingData.priority === "Stat" ? "⚡ CẤP CỨU STAT" : "Chuẩn Routine"}
+                                        <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger-subtle text-danger" : "bg-primary-subtle text-primary"} rounded-pill px-2.5 py-1`}>
+                                            {trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "Cấp cứu (STAT)" : "Thường quy"}
                                         </span>
                                     </div>
 
@@ -484,33 +484,33 @@ export default function TrackTestProgressPage() {
                                     {/* Action Buttons */}
                                     <div className="d-grid gap-2 mt-4 pt-3 border-top">
                                         {trackingData.isCompleted && (
-                                            <a 
-                                                href={`/patient/export-pdf/${encodeURIComponent(trackingData.orderNumber)}`} 
-                                                className="btn btn-success d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                            <Link 
+                                                to={`/patient/results/export/${encodeURIComponent(trackingData.orderNumber)}`} 
+                                                className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
                                             >
-                                                <FaFileMedicalAlt /> Xem & Tải Phiếu Kết Quả Ký Số (PDF)
-                                            </a>
+                                                <FaFileMedicalAlt /> Xem & Tải phiếu kết quả (PDF)
+                                            </Link>
                                         )}
                                         <button 
                                             type="button" 
-                                            className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                            className="btn btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
                                             onClick={() => handleTrackLookup(trackingData.orderNumber)}
                                         >
-                                            <FaRedoAlt /> Tải Lại Tiến Trình
+                                            <FaRedoAlt /> Tải lại tiến trình
                                         </button>
                                         <button 
                                             type="button" 
-                                            className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                            className="btn btn-outline-secondary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
                                             onClick={() => window.print()}
                                         >
-                                            <FaPrint /> In Phiếu Lộ Trình
+                                            <FaPrint /> In phiếu lộ trình
                                         </button>
                                         <button 
                                             type="button" 
                                             className="btn btn-link text-decoration-none text-muted small py-1"
                                             onClick={handleClearSearch}
                                         >
-                                            ← Tra cứu mã khác
+                                            Tra cứu mã khác
                                         </button>
                                     </div>
                                 </div>
@@ -600,7 +600,7 @@ export default function TrackTestProgressPage() {
                 </div>
             </main>
 
-            <MegaFooter />
+            {!isEmbeddedInPortal && <MegaFooter />}
         </div>
     );
 }

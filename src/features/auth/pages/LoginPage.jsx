@@ -17,6 +17,7 @@ import {
   FaEye, 
   FaEyeSlash, 
   FaCheckCircle,
+  FaExclamationCircle,
   FaUserMd,
   FaFlask,
   FaIdCard
@@ -564,7 +565,7 @@ export default function LoginPage({
 
         {error && (
           <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
-            <FaCheckCircle className="flex-shrink-0" style={{ color: '#DC2626' }} />
+            <FaExclamationCircle className="flex-shrink-0" style={{ color: '#DC2626' }} />
             <span style={{ fontSize: '13px' }}>{error}</span>
           </Alert>
         )}

@@ -1288,7 +1288,7 @@ export const UserProfilePage = () => {
                                 }))
                               }
                             >
-                              ✓ Đặt là "Không có bệnh"
+                              Đặt là "Không có bệnh"
                             </Button>
                           )}
                         </div>
@@ -1352,7 +1352,7 @@ export const UserProfilePage = () => {
                                 }))
                               }
                             >
-                              ✓ Đặt là "Không có dị ứng (NKDA)"
+                              Đặt là "Không có dị ứng (NKDA)"
                             </Button>
                           )}
                         </div>
@@ -1416,7 +1416,7 @@ export const UserProfilePage = () => {
                                 }))
                               }
                             >
-                              ✓ Đặt là "Không dùng thuốc"
+                              Đặt là "Không dùng thuốc"
                             </Button>
                           )}
                         </div>

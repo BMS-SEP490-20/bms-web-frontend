@@ -6,7 +6,18 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaPlus, FaSlidersH } from 'react-icons/fa';
+import {
+  FaSearch,
+  FaPlus,
+  FaSlidersH,
+  FaSpinner,
+  FaFlask,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaTimes,
+  FaArrowLeft,
+  FaArrowRight
+} from 'react-icons/fa';
 import testCriterionService from '../../../services/testCriterionService';
 import TestCriterionFormModal from '../components/TestCriterionFormModal';
 import DeactivateCriterionModal from '../components/DeactivateCriterionModal';
@@ -190,116 +201,149 @@ export default function TestCriteriaPage() {
   };
 
   return (
-    <div className="bms-criteria-container">
+    <div className="w-100 py-1">
       {/* Header Card */}
-      <div className="bms-page-header-card mb-3">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Danh mục chỉ số xét nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Quản lý danh mục chỉ số, chuyên khoa và khoảng tham chiếu sinh học.
+          </p>
+        </div>
+        <div className="bms-page-actions">
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 fw-semibold text-nowrap"
+            onClick={() => navigate('/laboratory/reference-intervals')}
+            id="btn-goto-reference-intervals"
+          >
+            <FaSlidersH size={13} />
+            <span>Khoảng tham chiếu</span>
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 fw-semibold shadow-none text-nowrap"
+            onClick={handleOpenCreateModal}
+            id="btn-add-criterion"
+          >
+            <FaPlus size={12} />
+            <span>Thêm chỉ số</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Single-Line Flat Filter Bar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã (GLU, WBC) hoặc tên chỉ số..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            id="input-criteria-search"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => {
+                setSearchQuery('');
+                fetchCriteria(1, '', selectedCategory, statusFilter);
+              }}
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+
+        <select
+          className="form-select"
+          style={{ width: 'auto' }}
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          id="select-category-filter"
+        >
+          <option value="">Tất cả chuyên khoa</option>
+          <option value="Biochemistry">Sinh hóa máu</option>
+          <option value="Hematology">Huyết học</option>
+          <option value="Immunology">Miễn dịch học</option>
+          <option value="BloodGas">Khí máu &amp; Điện giải</option>
+          <option value="Coagulation">Đông máu</option>
+        </select>
+
+        <select
+          className="form-select"
+          style={{ width: 'auto' }}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          id="select-status-filter"
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="ACTIVE">Đang áp dụng</option>
+          <option value="INACTIVE">Đã ngưng sử dụng</option>
+        </select>
+
+        {(searchQuery || selectedCategory || statusFilter !== 'ALL') && (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary rounded-pill px-3 text-nowrap"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedCategory('');
+              setStatusFilter('ALL');
+              fetchCriteria(1, '', '', 'ALL');
+            }}
+          >
+            Đặt lại
+          </button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{criteria.length}</strong> / <strong>{pagination.totalCount}</strong> chỉ số
+        </span>
+      </div>
+
+      {/* Standalone Table Section */}
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
           <div>
-            <h1 className="bms-page-title fs-4 m-0">Danh Mục Chỉ Số Xét Nghiệm</h1>
-            <p className="text-muted small m-0 mt-1">
-              Quản lý danh mục chỉ số, chuyên khoa và khoảng tham chiếu sinh học.
-            </p>
-          </div>
-          <div className="d-flex align-items-center gap-2">
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold"
-              onClick={() => navigate('/laboratory/reference-intervals')}
-              id="btn-goto-reference-intervals"
-            >
-              <FaSlidersH size={13} />
-              <span>Khoảng tham chiếu</span>
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 rounded-pill px-3 py-2 fw-semibold shadow-none"
-              onClick={handleOpenCreateModal}
-              id="btn-add-criterion"
-            >
-              <FaPlus size={12} />
-              <span>Thêm chỉ số</span>
-            </button>
+            <h2 className="bms-table-standalone-title">Danh sách chỉ số xét nghiệm</h2>
+            <p className="bms-table-standalone-subtitle">Mã chỉ số, chuyên khoa, đơn vị đo và ngưỡng cảnh báo</p>
           </div>
         </div>
-      </div>
-
-      {/* Toolbar / Filters */}
-      <div className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
-        <div className="d-flex align-items-center flex-wrap gap-2 w-100">
-          <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
-            <FaSearch className="text-muted me-2" style={{ fontSize: '13px', flexShrink: 0 }} />
-            <input
-              type="text"
-              className="bms-search-field border-0 bg-transparent flex-grow-1"
-              placeholder="Tìm theo mã (GLU, WBC) hoặc tên chỉ số..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              id="input-criteria-search"
-              style={{ outline: 'none', fontSize: '13px' }}
-            />
-          </div>
-
-          <select
-            className="form-select form-select-sm"
-            style={{ width: 'auto', minWidth: '180px', maxWidth: '240px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            id="select-category-filter"
-          >
-            <option value="">Tất cả chuyên khoa</option>
-            <option value="Biochemistry">Sinh hóa máu (Biochemistry)</option>
-            <option value="Hematology">Huyết học (Hematology)</option>
-            <option value="Immunology">Miễn dịch học (Immunology)</option>
-            <option value="BloodGas">Khí máu & Điện giải (Blood Gas)</option>
-            <option value="Coagulation">Đông máu (Coagulation)</option>
-          </select>
-
-          <select
-            className="form-select form-select-sm"
-            style={{ width: 'auto', minWidth: '160px', maxWidth: '200px', height: '40px', borderRadius: '8px', borderColor: '#CBD5E1', fontSize: '13px' }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            id="select-status-filter"
-          >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="ACTIVE">Đang áp dụng</option>
-            <option value="INACTIVE">Đã ngưng sử dụng</option>
-          </select>
-
-          <div className="ms-auto text-muted small fw-medium text-nowrap">
-            Hiển thị <strong>{criteria.length}</strong> / <strong>{pagination.totalCount}</strong> chỉ số
-          </div>
-        </div>
-      </div>
-
-      {/* Table Card */}
-      <div className="bms-table-card">
-        <div className="bms-table-responsive">
+        <div className="bms-table-standalone-body">
           <table className="bms-criteria-table">
             <thead>
               <tr>
-                <th className="col-center" style={{ width: '90px' }}>Mã Chỉ Số</th>
-                <th className="col-left">Tên Chỉ Số Y Tế</th>
-                <th className="col-center" style={{ width: '130px' }}>Chuyên Khoa</th>
-                <th className="col-center" style={{ width: '90px' }}>Đơn Vị</th>
-                <th className="col-right" style={{ width: '140px' }}>Dải Bình Thường</th>
-                <th className="col-right" style={{ width: '150px' }}>Ngưỡng Panic</th>
-                <th className="col-center" style={{ width: '110px' }}>Trạng Thái</th>
-                <th className="col-right" style={{ width: '130px' }}>Thao Tác</th>
+                <th className="col-center" style={{ width: '90px' }}>Mã chỉ số</th>
+                <th className="col-left">Tên chỉ số y tế</th>
+                <th className="col-center" style={{ width: '130px' }}>Chuyên khoa</th>
+                <th className="col-center" style={{ width: '90px' }}>Đơn vị</th>
+                <th className="col-right" style={{ width: '140px' }}>Dải bình thường</th>
+                <th className="col-right" style={{ width: '150px' }}>Ngưỡng nguy kịch</th>
+                <th className="col-center" style={{ width: '110px' }}>Trạng thái</th>
+                <th className="col-right" style={{ width: '130px' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    <div style={{ display: 'inline-block', marginBottom: '8px' }}>&#8987;</div>
+                    <div style={{ display: 'inline-block', marginBottom: '8px' }}>
+                      <FaSpinner className="fa-spin text-primary" size={20} />
+                    </div>
                     <div>Đang tải dữ liệu chỉ số xét nghiệm...</div>
                   </td>
                 </tr>
               ) : criteria.length === 0 ? (
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
-                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>&#128300;</div>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                      <FaFlask className="text-muted opacity-50" size={28} />
+                    </div>
                     <div style={{ fontWeight: 600, color: '#334155' }}>Không tìm thấy chỉ số xét nghiệm phù hợp</div>
                     <div style={{ fontSize: '13px', marginTop: '4px' }}>
                       Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc chuyên khoa
@@ -331,8 +375,8 @@ export default function TestCriteriaPage() {
                     </td>
                     <td className="col-right">
                       {item.formattedPanicRange && item.formattedPanicRange !== 'N/A' ? (
-                        <span className="bms-panic-range">
-                          <span style={{ fontSize: '11px' }}>&#9888;</span>
+                        <span className="bms-panic-range d-inline-flex align-items-center gap-1">
+                          <FaExclamationTriangle size={11} />
                           <span>{item.formattedPanicRange}</span>
                         </span>
                       ) : (
@@ -400,23 +444,23 @@ export default function TestCriteriaPage() {
           <div className="bms-pagination-buttons d-flex gap-2">
             <button
               type="button"
-              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none"
+              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none d-inline-flex align-items-center gap-1 text-nowrap"
               disabled={pagination.currentPage <= 1 || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage - 1)}
             >
-              &larr; Trang Trước
+              <FaArrowLeft size={10} /> Trang trước
             </button>
             <button
               type="button"
-              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none"
+              className="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold shadow-none d-inline-flex align-items-center gap-1 text-nowrap"
               disabled={pagination.currentPage >= pagination.totalPages || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage + 1)}
             >
-              Trang Sau &rarr;
+              Trang sau <FaArrowRight size={10} />
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Add / Edit Modal */}
       <TestCriterionFormModal
@@ -438,7 +482,9 @@ export default function TestCriteriaPage() {
       {/* Toast Notification */}
       {toast && (
         <div className={`bms-toast ${toast.type === 'error' ? 'bms-toast-error' : 'bms-toast-success'}`}>
-          <span>{toast.type === 'error' ? '&#9888;' : '&#10003;'}</span>
+          <span className="d-inline-flex align-items-center">
+            {toast.type === 'error' ? <FaExclamationTriangle /> : <FaCheckCircle />}
+          </span>
           <span>{toast.message}</span>
         </div>
       )}

@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaVial, FaClock, FaCheckCircle, FaPrint, FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
+import { FaSearch, FaVial, FaClock, FaCheckCircle, FaPrint, FaCalendarAlt, FaArrowRight, FaTimes } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
@@ -118,13 +118,13 @@ export default function PricingPage() {
                 {/* 3 Gold Commitments Badges */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div style={{ background: '#EFF6FF', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#1E60E6', fontWeight: 650 }}>
-                    ✓ Không phụ phí ẩn &amp; Miễn phí vật tư lấy mẫu
+                    Không phụ phí ẩn &amp; Miễn phí vật tư lấy mẫu
                   </div>
                   <div style={{ background: '#ECFDF5', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#059669', fontWeight: 650 }}>
-                    ✓ Tự động chiết khấu quyền lợi BHYT
+                    Tự động chiết khấu quyền lợi BHYT
                   </div>
                   <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#475569', fontWeight: 650, border: '1px solid #E2E8F0' }}>
-                    ✓ Bác sĩ Chuyên khoa giải thích kết quả miễn phí
+                    Bác sĩ Chuyên khoa giải thích kết quả miễn phí
                   </div>
                 </div>
               </div>
@@ -240,11 +240,11 @@ export default function PricingPage() {
                       border: 'none',
                       color: '#94A3B8',
                       cursor: 'pointer',
-                      fontSize: '13px',
+                      fontSize: '12px',
                       padding: '4px 6px'
                     }}
                   >
-                    ✕
+                    <FaTimes />
                   </button>
                 )}
               </div>

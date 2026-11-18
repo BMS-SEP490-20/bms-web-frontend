@@ -19,3 +19,38 @@
   border-color: var(--primary-hover, #1550C4);
   transform: translateY(-1px);
 }
+
+/* Ensure all inputs in walkin page have solid borders and clean styling */
+.walkin-page .form-control,
+.walkin-page .form-select {
+  border: 1px solid #CBD5E1 !important;
+  background-color: #FFFFFF !important;
+  border-radius: 8px !important;
+  color: #1E293B !important;
+}
+
+.walkin-page .form-control:focus,
+.walkin-page .form-select:focus {
+  border-color: #1E60E6 !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.15) !important;
+  background-color: #FFFFFF !important;
+}
+
+.walkin-page .form-control.is-invalid,
+.walkin-page .form-select.is-invalid {
+  border-color: #DC2626 !important;
+  background-image: none !important;
+}
+
+.walkin-page .form-control.is-invalid:focus,
+.walkin-page .form-select.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+/* Fix for any input inside input-group on walkin page */
+.walkin-page .input-group > .form-control,
+.walkin-page .input-group > input {
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 8px !important;
+  background-color: #FFFFFF !important;
+}

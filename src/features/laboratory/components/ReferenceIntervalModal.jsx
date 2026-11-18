@@ -3,12 +3,14 @@
  * @description Medical-grade modal for creating and updating biological reference intervals (UC57).
  * Built with React-Bootstrap Modal.
  * Complies with ISO 15189:2022, Decision 2429/QD-BYT and BR-LAB-02 / BR-LAB-03.
+ * Enforces rule: Each test criterion has exactly ONE biological reference interval (no duplicates allowed).
  */
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaHeartbeat, FaShieldAlt, FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHeartbeat, FaShieldAlt, FaSave, FaTimes, FaExclamationTriangle, FaCheckCircle, FaBan } from 'react-icons/fa';
 import testCriterionService from '../../../services/testCriterionService';
+import referenceIntervalService from '../../../services/referenceIntervalService';
 
 const COMMON_CRITERIA_LIST = [
   { code: 'GLU', name: 'Glucose máu lúc đói', unit: 'mmol/L' },
@@ -63,10 +65,14 @@ export default function ReferenceIntervalModal({
   });
 
   const [criteriaOptions, setCriteriaOptions] = useState(COMMON_CRITERIA_LIST);
+  const [criterionGenderMap, setCriterionGenderMap] = useState({});
   const [validationError, setValidationError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    // 1. Tải danh mục chỉ số xét nghiệm từ hệ thống
     testCriterionService
       .getCriteria({ page: 1, pageSize: 100, isActive: true })
       .then((res) => {
@@ -81,17 +87,52 @@ export default function ReferenceIntervalModal({
         }
       })
       .catch(() => {
-        // Keep fallback COMMON_CRITERIA_LIST
+        // Giữ danh sách mặc định COMMON_CRITERIA_LIST
       });
-  }, []);
+
+    // 2. Tải danh sách tất cả các chỉ số đã có khoảng tham chiếu để phân loại Nam/Nữ và chặn trùng lặp
+    referenceIntervalService
+      .getIntervals({ page: 1, pageSize: 500, isActive: true })
+      .then((res) => {
+        const safeItems = Array.isArray(res) ? res : (res?.items || res?.Items || res?.data || []);
+        const map = {};
+        safeItems
+          .filter((item) => !item.isDeleted && item.isActive !== false)
+          .forEach((item) => {
+            const code = (item.criterionCode || item.testId || '').toUpperCase();
+            if (!code) return;
+            if (!map[code]) {
+              map[code] = { hasMale: false, hasFemale: false, maleId: null, femaleId: null, count: 0 };
+            }
+            const g = (item.gender || '').toUpperCase();
+            if (g === 'MALE' || g === 'NAM') {
+              map[code].hasMale = true;
+              map[code].maleId = item.id;
+              map[code].count++;
+            } else if (g === 'FEMALE' || g === 'NU' || g === 'NỮ') {
+              map[code].hasFemale = true;
+              map[code].femaleId = item.id;
+              map[code].count++;
+            } else if (g === 'ALL') {
+              map[code].hasMale = true;
+              map[code].hasFemale = true;
+              map[code].count += 2;
+            }
+          });
+        setCriterionGenderMap(map);
+      })
+      .catch(() => {});
+  }, [isOpen]);
 
   useEffect(() => {
     if (interval && mode === 'edit') {
+      const g = interval.gender || 'Male';
+      const normalizedG = (g.toUpperCase() === 'FEMALE' || g.toUpperCase() === 'NU' || g.toUpperCase() === 'NỮ') ? 'Female' : 'Male';
       setFormData({
         criterionCode: interval.criterionCode || '',
         criterionName: interval.criterionName || '',
         unit: interval.unit || '',
-        gender: interval.gender || 'All',
+        gender: normalizedG,
         ageMin: interval.ageMin ?? 0,
         ageMax: interval.ageMax ?? 120,
         ageUnit: interval.ageUnit || 'Years',
@@ -107,17 +148,29 @@ export default function ReferenceIntervalModal({
         isActive: interval.isActive !== undefined ? interval.isActive : true,
       });
     } else {
-      const code = initialCriterionCode || 'HGB';
-      const preset = criteriaOptions.find((c) => c.code === code) || criteriaOptions[0] || COMMON_CRITERIA_LIST[0];
+      // Ưu tiên chọn chỉ số chưa đủ 2 khoảng (1 Nam, 1 Nữ)
+      const availablePreset = criteriaOptions.find((c) => {
+        const info = criterionGenderMap[c.code];
+        return !(info?.hasMale && info?.hasFemale);
+      })
+        || (initialCriterionCode && criteriaOptions.find((c) => c.code === initialCriterionCode))
+        || criteriaOptions[0]
+        || COMMON_CRITERIA_LIST[0];
+
+      const chosenCode = availablePreset.code;
+      const info = criterionGenderMap[chosenCode];
+      const defaultGender = (info?.hasMale && !info?.hasFemale) ? 'Female' : 'Male';
+      const genderVi = defaultGender === 'Male' ? 'Nam' : 'Nữ';
+
       setFormData({
-        criterionCode: preset.code,
-        criterionName: preset.name,
-        unit: preset.unit,
-        gender: 'All',
+        criterionCode: chosenCode,
+        criterionName: availablePreset.name,
+        unit: availablePreset.unit,
+        gender: defaultGender,
         ageMin: 18,
         ageMax: 120,
         ageUnit: 'Years',
-        demographicLabel: 'Người lớn trưởng thành (≥ 18 tuổi)',
+        demographicLabel: `${genderVi} người lớn trưởng thành (≥ 18 tuổi)`,
         normalMin: '',
         normalMax: '',
         normalText: '',
@@ -130,7 +183,7 @@ export default function ReferenceIntervalModal({
       });
     }
     setValidationError('');
-  }, [interval, mode, isOpen, initialCriterionCode]);
+  }, [interval, mode, isOpen, initialCriterionCode, Object.keys(criterionGenderMap).length]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -145,6 +198,13 @@ export default function ReferenceIntervalModal({
         if (found) {
           updated.criterionName = found.name;
           updated.unit = found.unit;
+        }
+        // Tự động gán giới tính còn thiếu cho chỉ số được chọn
+        const info = criterionGenderMap[value];
+        if (info?.hasMale && !info?.hasFemale) {
+          updated.gender = 'Female';
+        } else if (info?.hasFemale && !info?.hasMale) {
+          updated.gender = 'Male';
         }
       }
 
@@ -161,9 +221,50 @@ export default function ReferenceIntervalModal({
     });
   };
 
+  const currentCode = (formData.criterionCode || '').toUpperCase();
+  const currentGenderInfo = criterionGenderMap[currentCode] || { hasMale: false, hasFemale: false, count: 0 };
+  const hasMale = currentGenderInfo.hasMale;
+  const hasFemale = currentGenderInfo.hasFemale;
+  const isFullyConfigured = hasMale && hasFemale;
+
+  // Lỗi tạo trùng giới tính khi tạo mới
+  const isDuplicateGenderOnCreate = mode === 'create' && (
+    (formData.gender === 'Male' && hasMale) ||
+    (formData.gender === 'Female' && hasFemale)
+  );
+
+  // Lỗi đổi sang giới tính đã có khi sửa
+  const isDuplicateGenderOnEdit = mode === 'edit' && (
+    (formData.gender === 'Male' && interval?.gender !== 'Male' && hasMale) ||
+    (formData.gender === 'Female' && interval?.gender !== 'Female' && hasFemale)
+  );
+
+  const isDuplicate = isFullyConfigured || isDuplicateGenderOnCreate || isDuplicateGenderOnEdit;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError('');
+
+    if (isFullyConfigured && mode === 'create') {
+      setValidationError(
+        `Chỉ số xét nghiệm '${formData.criterionCode}' (${formData.criterionName}) đã có đủ 2 khoảng tham chiếu (1 Nam, 1 Nữ). Vui lòng chỉnh sửa khoảng tham chiếu đã có thay vì tạo mới.`
+      );
+      return;
+    }
+
+    if (isDuplicateGenderOnCreate) {
+      setValidationError(
+        `Chỉ số xét nghiệm '${formData.criterionCode}' đã có khoảng tham chiếu cho giới tính ${formData.gender === 'Male' ? 'Nam' : 'Nữ'}. Mỗi chỉ số chỉ được cấu hình tối đa 1 khoảng cho Nam và 1 khoảng cho Nữ.`
+      );
+      return;
+    }
+
+    if (isDuplicateGenderOnEdit) {
+      setValidationError(
+        `Không thể chuyển sang giới tính ${formData.gender === 'Male' ? 'Nam' : 'Nữ'} vì chỉ số này đã tồn tại khoảng tham chiếu cho giới tính đó.`
+      );
+      return;
+    }
 
     const ageMin = parseFloat(formData.ageMin);
     const ageMax = parseFloat(formData.ageMax);
@@ -179,21 +280,23 @@ export default function ReferenceIntervalModal({
 
     const normMin = formData.normalMin !== '' ? parseFloat(formData.normalMin) : null;
     const normMax = formData.normalMax !== '' ? parseFloat(formData.normalMax) : null;
+
+    if (normMin !== null && normMax !== null && normMin > normMax) {
+      setValidationError(
+        `Giới hạn bình thường dưới (NormalMin: ${normMin}) không được lớn hơn giới hạn trên (NormalMax: ${normMax}).`
+      );
+      return;
+    }
+
     const pLow = formData.panicLow !== '' ? parseFloat(formData.panicLow) : null;
     const pHigh = formData.panicHigh !== '' ? parseFloat(formData.panicHigh) : null;
 
-    if (normMin !== null && normMax !== null && normMin > normMax) {
-      setValidationError(`Giới hạn dưới bình thường (${normMin}) không được lớn hơn giới hạn trên (${normMax}).`);
-      return;
-    }
-
     if (pLow !== null && normMin !== null && pLow > normMin) {
-      setValidationError(`Ngưỡng Panic thấp (${pLow}) phải nhỏ hơn hoặc bằng giới hạn dưới bình thường (${normMin}).`);
+      setValidationError(`Ngưỡng Panic Low (${pLow}) phải nhỏ hơn hoặc bằng giới hạn dưới (${normMin}).`);
       return;
     }
-
     if (pHigh !== null && normMax !== null && pHigh < normMax) {
-      setValidationError(`Ngưỡng Panic cao (${pHigh}) phải lớn hơn hoặc bằng giới hạn trên bình thường (${normMax}).`);
+      setValidationError(`Ngưỡng Panic High (${pHigh}) phải lớn hơn hoặc bằng giới hạn trên (${normMax}).`);
       return;
     }
 
@@ -238,7 +341,33 @@ export default function ReferenceIntervalModal({
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
-        <Modal.Body className="p-2">
+        <Modal.Body className="p-3">
+          {isFullyConfigured && mode === 'create' && (
+            <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3">
+              <FaExclamationTriangle className="text-warning flex-shrink-0 fs-5" />
+              <div>
+                <strong>Chỉ số đã đủ 2 khoảng tham chiếu:</strong> Chỉ số{' '}
+                <Badge bg="warning" text="dark" className="fs-6 me-1">
+                  {formData.criterionCode}
+                </Badge>
+                ({formData.criterionName}) đã có đủ <strong>1 khoảng Nam</strong> và <strong>1 khoảng Nữ</strong>. Theo quy chuẩn y tế, mỗi loại chỉ số chỉ cấu hình tối đa 2 khoảng tham chiếu. Vui lòng chọn chỉ số khác hoặc bấm <em>Hủy bỏ</em> để chỉnh sửa khoảng tham chiếu đã có.
+              </div>
+            </Alert>
+          )}
+
+          {isDuplicateGenderOnCreate && !isFullyConfigured && (
+            <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3">
+              <FaExclamationTriangle className="text-warning flex-shrink-0 fs-5" />
+              <div>
+                <strong>Giới tính đã được cấu hình:</strong> Chỉ số{' '}
+                <Badge bg="info" className="fs-6 me-1">
+                  {formData.criterionCode}
+                </Badge>
+                đã có khoảng tham chiếu cho giới tính <strong>{formData.gender === 'Male' ? 'Nam' : 'Nữ'}</strong>. Vui lòng chuyển sang giới tính <strong>{formData.gender === 'Male' ? 'Nữ' : 'Nam'}</strong> để cấu hình khoảng tham chiếu còn lại.
+              </div>
+            </Alert>
+          )}
+
           {validationError && (
             <Alert variant="danger" className="py-2 mb-3">
               <FaExclamationTriangle className="me-2" />
@@ -259,11 +388,20 @@ export default function ReferenceIntervalModal({
                       onChange={handleChange}
                       required
                     >
-                      {criteriaOptions.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.code} ({c.unit})
-                        </option>
-                      ))}
+                      {criteriaOptions.map((c) => {
+                        const statusInfo = criterionGenderMap[c.code];
+                        const isFullyDone = statusInfo?.hasMale && statusInfo?.hasFemale;
+                        let statusTag = '— [Chưa có khoảng nào (0/2)]';
+                        if (isFullyDone) statusTag = '— [Đã đủ 1 Nam, 1 Nữ (2/2)]';
+                        else if (statusInfo?.hasMale) statusTag = '— [Đã có Nam - Thiếu Nữ (1/2)]';
+                        else if (statusInfo?.hasFemale) statusTag = '— [Đã có Nữ - Thiếu Nam (1/2)]';
+
+                        return (
+                          <option key={c.code} value={c.code} disabled={isFullyDone}>
+                            {c.code} - {c.name} {statusTag}
+                          </option>
+                        );
+                      })}
                     </Form.Select>
                   ) : (
                     <Form.Control
@@ -273,6 +411,11 @@ export default function ReferenceIntervalModal({
                       disabled
                       className="bg-secondary bg-opacity-10 fw-bold"
                     />
+                  )}
+                  {mode === 'create' && (
+                    <Form.Text className="text-muted small">
+                      Mỗi loại chỉ số xét nghiệm chỉ có tối đa 2 khoảng: 1 cho Nam và 1 cho Nữ.
+                    </Form.Text>
                   )}
                 </Form.Group>
               </Col>
@@ -311,12 +454,24 @@ export default function ReferenceIntervalModal({
             <Row className="g-3">
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label className="small fw-semibold">Giới tính áp dụng *</Form.Label>
+                  <Form.Label className="small fw-semibold">Giới tính áp dụng (1 Nam, 1 Nữ) *</Form.Label>
                   <Form.Select name="gender" value={formData.gender} onChange={handleChange} required>
-                    <option value="All">Tất cả giới tính (All)</option>
-                    <option value="Male">Nam (Male)</option>
-                    <option value="Female">Nữ (Female)</option>
+                    <option
+                      value="Male"
+                      disabled={mode === 'create' ? hasMale : (interval?.gender !== 'Male' && hasMale)}
+                    >
+                      Nam (Male){(mode === 'create' ? hasMale : (interval?.gender !== 'Male' && hasMale)) ? ' — [Đã có cấu hình]' : ''}
+                    </option>
+                    <option
+                      value="Female"
+                      disabled={mode === 'create' ? hasFemale : (interval?.gender !== 'Female' && hasFemale)}
+                    >
+                      Nữ (Female){(mode === 'create' ? hasFemale : (interval?.gender !== 'Female' && hasFemale)) ? ' — [Đã có cấu hình]' : ''}
+                    </option>
                   </Form.Select>
+                  <Form.Text className="text-muted small">
+                    Hệ thống tự động khóa giới tính đã cấu hình để tránh trùng lặp.
+                  </Form.Text>
                 </Form.Group>
               </Col>
 
@@ -514,10 +669,18 @@ export default function ReferenceIntervalModal({
           <Button variant="secondary" onClick={onClose} disabled={submitting}>
             <FaTimes className="me-1" /> Hủy bỏ
           </Button>
-          <Button variant="primary" type="submit" disabled={submitting}>
+          <Button variant="primary" type="submit" disabled={submitting || isDuplicate}>
             {submitting ? (
               <>
                 <Spinner animation="border" size="sm" className="me-1" /> Đang lưu...
+              </>
+            ) : isFullyConfigured && mode === 'create' ? (
+              <>
+                <FaBan className="me-1" /> Đã đủ 2 khoảng (1 Nam, 1 Nữ)
+              </>
+            ) : isDuplicate ? (
+              <>
+                <FaBan className="me-1" /> Giới tính này đã có cấu hình
               </>
             ) : (
               <>

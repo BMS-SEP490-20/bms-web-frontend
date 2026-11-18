@@ -54,7 +54,7 @@ const MENU_SECTIONS = [
       { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu Viện Phí', icon: FaChartBar, roles: [MANAGER] },
       { id: 'mgr-search-packages', path: '/services', label: 'Tra Cứu Gói Xét Nghiệm', icon: FaSearch, roles: [MANAGER] },
       { id: 'mgr-feedback', path: '/feedback', label: 'Đánh Giá & Khảo Sát Bệnh Nhân', icon: FaStar, roles: [MANAGER] },
-      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Cảnh Báo & Thông Báo Khẩn', icon: FaBell, roles: [MANAGER] }
+      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm (UC60)', icon: FaBell, roles: [MANAGER] }
     ]
   },
   {
@@ -113,7 +113,7 @@ const MENU_SECTIONS = [
       { id: 'lab-inventory', path: '/inventory', label: 'Quản Lý Kho Hóa Chất & Vật Tư', icon: FaBoxOpen, roles: [LAB] },
       { id: 'lab-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [LAB] },
       { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] },
-      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Nội Bộ Lab', icon: FaBell, roles: [LAB] }
+      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm (UC60)', icon: FaBell, roles: [LAB] }
     ]
   },
 

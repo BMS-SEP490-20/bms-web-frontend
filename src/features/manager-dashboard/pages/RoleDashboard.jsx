@@ -565,29 +565,7 @@ export default function RoleBasedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {managerQueue.map((item) => (
-                      <tr key={item.id}>
-                        <td className="ps-4 fw-bold font-monospace text-primary">{item.id}</td>
-                        <td className="fw-semibold text-dark">{item.patientName}</td>
-                        <td className="small text-muted">{item.packageName}</td>
-                        <td>
-                          <span className={`bms-pill-badge ${item.priority === 'Stat' ? 'bms-pill-stat' : item.priority === 'Urgent' ? 'bms-pill-urgent' : 'bms-pill-normal'}`}>
-                            {item.priority === 'Stat' ? 'Cấp cứu (STAT)' : item.priority === 'Urgent' ? 'Khẩn cấp' : 'Thường quy'}
-                          </span>
-                        </td>
-                        <td className="small text-muted">{item.submittedAt}</td>
-                        <td className="text-end pe-4">
-                          <Button
-                            size="sm"
-                            variant="outline-primary"
-                            className="rounded-pill px-3 py-1 fw-semibold"
-                            onClick={() => navigate(`/laboratory/verify-results?specimenId=${item.id}`)}
-                          >
-                            Thẩm định KT
-                          </Button>
-                        </td>
-                      </tr>
-                    ) : verificationQueue.length === 0 ? (
+                    {verificationQueue.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="text-center text-muted">
                           Hiện không có mẫu xét nghiệm nào đang chờ ký duyệt.

@@ -29,7 +29,6 @@ import PortalNavbar from "../../home/components/PortalNavbar";
 import MegaFooter from "../../home/components/MegaFooter";
 import { getStoredUser } from "../../../constants/roles";
 import usePageTransition from "../../../shared/hooks/usePageTransition";
-import { getStoredUser } from "../../../constants/roles";
 import "./TrackTestProgressPage.css";
 
 export default function TrackTestProgressPage() {

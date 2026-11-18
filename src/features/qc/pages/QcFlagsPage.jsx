@@ -263,7 +263,7 @@ const QcFlagsPage = () => {
                 <span>Làm mới</span>
               </Button>
         </div>
-      </div>
+      </header>
 
       <Alert variant="light" className="border rounded-3 shadow-sm mb-3 d-flex align-items-start gap-2">
         <FaInfoCircle className="text-primary mt-1 flex-shrink-0" />

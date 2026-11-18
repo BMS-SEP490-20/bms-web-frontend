@@ -465,57 +465,20 @@ const FeedbackHubPage = () => {
             </Col>
           </Row>
 
-        <Form.Select 
-          size="sm"
-          value={ratingFilter} 
-          onChange={(e) => setRatingFilter(e.target.value)}
-          style={{ width: 155 }}
-        >
-          <option value="ALL">Tất cả số sao</option>
-          <option value="5">5 Sao (Tuyệt vời)</option>
-          <option value="4">4 Sao (Tốt)</option>
-          <option value="3">3 Sao (Bình thường)</option>
-          <option value="2">2 Sao (Cần cải thiện)</option>
-          <option value="1">1 Sao (Kém)</option>
-        </Form.Select>
-
-        <Form.Select 
-          size="sm"
-          value={categoryFilter} 
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          style={{ width: 205 }}
-        >
-          <option value="ALL">Tất cả nhóm dịch vụ</option>
-          <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
-          <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
-          <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
-          <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
-          <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
-        </Form.Select>
-
-        <Form.Select 
-          size="sm"
-          value={statusFilter} 
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ width: 175 }}
-        >
-          <option value="ALL">Tất cả trạng thái</option>
-          <option value="PENDING">Chờ phản hồi</option>
-          <option value="REVIEWED">Đã xem xét</option>
-          <option value="RESPONDED">Đã phản hồi</option>
-        </Form.Select>
-
-        {isPatient && myFeedbacks.length > 0 && (
-          <Form.Check 
-            type="switch"
-            id="filter-my-only"
-            label={`Của tôi (${myFeedbacks.length})`}
-            checked={filterMyOnly}
-            onChange={(e) => setFilterMyOnly(e.target.checked)}
-            className="fw-semibold text-primary small mb-0 ms-2"
-          />
-        )}
-      </div>
+          {isPatient && myFeedbacks.length > 0 && (
+            <div className="mt-3 pt-2 border-top d-flex align-items-center gap-2">
+              <Form.Check 
+                type="switch"
+                id="filter-my-only"
+                label={`Chỉ xem đánh giá của tôi (${myFeedbacks.length} bài viết)`}
+                checked={filterMyOnly}
+                onChange={(e) => setFilterMyOnly(e.target.checked)}
+                className="fw-semibold text-primary small"
+              />
+            </div>
+          )}
+        </Card.Body>
+      </Card>
 
       {/* Feedbacks List */}
       {loading && displayedFeedbacks.length === 0 ? (

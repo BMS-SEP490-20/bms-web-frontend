@@ -1345,24 +1345,30 @@ export default function DoctorConsolePage() {
                   </thead>
                   <tbody>
                     {/* Trường hợp có kết quả thực tế từ CSDL do KTV Lab vừa nhập */}
-                    {liveTestResults.length > 0 && liveTestResults[0]?.items?.length > 0 ? (
+                    {liveTestResults.length > 0 && (liveTestResults[0]?.parameters?.length > 0 || liveTestResults[0]?.items?.length > 0) ? (
                       <>
                         <tr className="table-light fw-bold" style={{ backgroundColor: "#eff6ff" }}>
                           <td colSpan={5} className="ps-3 text-primary">
                             <FaFlask className="me-1" /> Kết Quả Xét Nghiệm Do Kỹ Thuật Viên Phòng Lab Nhập Trực Tiếp (Mã KQ: {liveTestResults[0].testResultId || liveTestResults[0].id})
                           </td>
                         </tr>
-                        {liveTestResults[0].items.map((item, idx) => {
-                          const isHigh = item.flag === 'High' || item.flag === 'CriticalPanic';
-                          const isLow = item.flag === 'Low';
+                        {(liveTestResults[0].parameters || liveTestResults[0].items || []).map((item, idx) => {
+                          const flagRaw = String(item.flag ?? '');
+                          const isHigh = /high|critical|panic|2|3/i.test(flagRaw);
+                          const isLow = /low|^1$/i.test(flagRaw) && !isHigh;
+                          const displayName = item.paramName || item.name || item.criterionName
+                            || item.abbreviation || item.code || item.criteriaId || 'Chỉ số';
+                          const displayValue = item.value ?? item.measuredValue ?? '—';
+                          const displayUnit = item.unit || '—';
+                          const displayRange = item.normalRange || item.referenceRange || item.referenceInterval || 'Theo chuẩn';
                           return (
                             <tr key={idx} className={isHigh || isLow ? 'table-warning' : ''}>
-                              <td className="ps-4 fw-semibold text-dark">{item.paramName || item.criteriaId}</td>
+                              <td className="ps-4 fw-semibold text-dark">{displayName}</td>
                               <td className={`text-end font-monospace fw-bold ${isHigh ? 'text-danger' : isLow ? 'text-warning' : 'text-dark'}`}>
-                                {item.value}
+                                {displayValue}
                               </td>
-                              <td className="small text-secondary">{item.unit || '—'}</td>
-                              <td className="small text-muted font-monospace">{item.normalRange || 'Theo chuẩn'}</td>
+                              <td className="small text-secondary">{displayUnit}</td>
+                              <td className="small text-muted font-monospace">{displayRange}</td>
                               <td className="text-center">
                                 {isHigh ? (
                                   <Badge bg="danger">&uarr; TĂNG CAO</Badge>

@@ -1386,7 +1386,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+    </Container>
   );
 }
 

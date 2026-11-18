@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card, Table, Badge, Button, Form, Row, Col,
   Modal, Spinner, InputGroup, Alert
@@ -19,38 +20,52 @@ import {
 import {
   FaVial, FaClock, FaExchangeAlt, FaRedoAlt, FaSearch,
   FaSyncAlt, FaBarcode, FaCheckCircle, FaExclamationTriangle,
-  FaHistory, FaUserInjured, FaFlask
+  FaHistory, FaUserInjured, FaFlask, FaTimes, FaEye, FaSave, FaInfoCircle
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import PageHeader from '../../../components/ui/PageHeader';
 import StatRow from '../../../components/ui/StatRow';
 import { searchPatients } from '../../../services/patientService';
 import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
+import {
+  ALLOWED_SAMPLE_TRANSITIONS as ALLOWED_TRANSITIONS,
+  canCollectSample,
+  canEnterTestResults,
+  canRejectSample,
+  canStartTesting,
+  canViewTestResults,
+  normalizeSampleStatus,
+  pathToTesting,
+  primaryForwardAction
+} from '../../../shared/workflow/sampleWorkflowGates';
+import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 
 /**
- * ISO 15189 Permitted Sample Status Transitions (matches LabQueueService.AllowedStatusTransitions in BE).
+ * Standard Clinical Lab Test Parameters (Clean Human-Operated Routine Entry).
  */
-const ALLOWED_TRANSITIONS = {
-  PendingCollection: ['Collected', 'Rejected'],
-  Collected: ['Collected', 'InTransit', 'Received', 'Processing', 'Testing', 'Rejected'],
-  InTransit: ['Received', 'Processing', 'Testing', 'Rejected'],
-  Received: ['Processing', 'Testing', 'Completed', 'Rejected'],
-  Processing: ['Testing', 'Completed', 'RerunRequested', 'Rejected'],
-  Testing: ['Processing', 'Completed', 'RerunRequested', 'Rejected'],
-  RerunRequested: ['Processing', 'Testing', 'Completed', 'Rejected'],
-  Completed: ['RerunRequested'],
-  Rejected: []
-};
+const DEFAULT_TEST_PARAMS = [
+  { code: 'WBC', name: 'WBC · Số lượng bạch cầu', value: '', unit: '10⁹/L', refLow: 4.0, refHigh: 10.0 },
+  { code: 'RBC', name: 'RBC · Số lượng hồng cầu', value: '', unit: '10¹²/L', refLow: 4.0, refHigh: 5.5 },
+  { code: 'HGB', name: 'HGB · Nồng độ Hemoglobin', value: '', unit: 'g/L', refLow: 120, refHigh: 165 },
+  { code: 'HCT', name: 'HCT · Dung tích hồng cầu', value: '', unit: '%', refLow: 35.0, refHigh: 50.0 },
+  { code: 'MCV', name: 'MCV · Thể tích TB hồng cầu', value: '', unit: 'fL', refLow: 80.0, refHigh: 100.0 },
+  { code: 'PLT', name: 'PLT · Số lượng tiểu cầu', value: '', unit: '10⁹/L', refLow: 150, refHigh: 400 },
+  { code: 'GLU', name: 'GLU · Đường huyết đói (Glucose)', value: '', unit: 'mmol/L', refLow: 3.9, refHigh: 6.4 },
+  { code: 'UREA', name: 'UREA · Ure máu', value: '', unit: 'mmol/L', refLow: 2.5, refHigh: 7.5 },
+  { code: 'CREA', name: 'CREA · Creatinine máu', value: '', unit: 'µmol/L', refLow: 53.0, refHigh: 106.0 },
+  { code: 'AST', name: 'AST (GOT) · Men gan AST', value: '', unit: 'U/L', refLow: 10.0, refHigh: 40.0 },
+  { code: 'ALT', name: 'ALT (GPT) · Men gan ALT', value: '', unit: 'U/L', refLow: 10.0, refHigh: 40.0 }
+];
 
 const STATUS_META = {
   PendingCollection: { label: 'Chờ lấy mẫu', bg: 'secondary' },
-  Collected: { label: 'Đã lấy mẫu', bg: 'info' },
-  InTransit: { label: 'Đang vận chuyển', bg: 'primary' },
+  Collected: { label: 'Đã lấy mẫu (Sẵn sàng nhập KQ)', bg: 'info' },
+  InTransit: { label: 'Đã lấy mẫu', bg: 'info' },
   Received: { label: 'Đã tiếp nhận Lab', bg: 'primary' },
-  Processing: { label: 'Đang xử lý / Ly tâm', bg: 'warning', text: 'dark' },
-  Testing: { label: 'Đang chạy máy XN', bg: 'warning', text: 'dark' },
-  Completed: { label: 'Hoàn thành KQ', bg: 'success' },
-  RerunRequested: { label: 'Yêu cầu chạy lại', bg: 'danger' },
+  Processing: { label: 'Đang xử lý', bg: 'warning', text: 'dark' },
+  Testing: { label: 'Đang xét nghiệm', bg: 'warning', text: 'dark' },
+  Completed: { label: 'Đã có kết quả (Chờ BS duyệt)', bg: 'success' },
+  RerunRequested: { label: 'Yêu cầu làm lại', bg: 'danger' },
   Rejected: { label: 'Từ chối mẫu', bg: 'dark' }
 };
 
@@ -114,10 +129,11 @@ function findStaffMatch(list, { idOrCode, name } = {}) {
 }
 
 const SampleQueuePage = () => {
+  const navigate = useNavigate();
   const currentUser = useMemo(() => getStoredUser(), []);
   const canRecordSampleTime = hasRole(currentUser, ROLES.LAB);
   const canUpdateSampleStatus = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
-  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || '';
+  const defaultOperatorName = currentUser?.fullName || currentUser?.name || currentUser?.username || 'Kỹ thuật viên trực ca';
   const defaultOperatorId = currentUser?.employeeCode || currentUser?.id || currentUser?.username || '';
 
   const [samples, setSamples] = useState([]);
@@ -138,6 +154,29 @@ const SampleQueuePage = () => {
   const [labRooms, setLabRooms] = useState(['LAB-ROOM-01', 'LAB-ROOM-02', 'LAB-BIOCHEM-01', 'LAB-HEMATOLOGY-01']);
   const [staffOptions, setStaffOptions] = useState([]);
   const [staffLoading, setStaffLoading] = useState(false);
+  const [dutyRoomId, setDutyRoomId] = useState('LAB-ROOM-01');
+  const [dutyRoomName, setDutyRoomName] = useState('Đang tải phòng phân công…');
+  const [dutyTechName, setDutyTechName] = useState(defaultOperatorName);
+  const [dutyTechId, setDutyTechId] = useState(defaultOperatorId);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const duty = await resolveDutyAssignment();
+      if (cancelled) return;
+      if (duty.roomId && duty.roomId !== 'UNASSIGNED') setDutyRoomId(duty.roomId);
+      setDutyRoomName(duty.roomName);
+      setDutyTechName(duty.technicianName || defaultOperatorName);
+      setDutyTechId(duty.technicianId || defaultOperatorId);
+      setCollectionForm((prev) => ({
+        ...prev,
+        labRoom: (duty.roomId && duty.roomId !== 'UNASSIGNED') ? duty.roomId : prev.labRoom,
+        collectorName: duty.technicianName || prev.collectorName,
+        collectedBy: duty.technicianId || prev.collectedBy
+      }));
+    })();
+    return () => { cancelled = true; };
+  }, [defaultOperatorName, defaultOperatorId]);
 
   // =========================================================================
   // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
@@ -189,6 +228,139 @@ const SampleQueuePage = () => {
   const [selectedSample, setSelectedSample] = useState(null);
   const [rerunReason, setRerunReason] = useState('');
   const [rerunLoading, setRerunLoading] = useState(false);
+
+  // =========================================================================
+  // MODAL 4: NHẬP / XEM KẾT QUẢ XÉT NGHIỆM MÁU (Clean Human-Operated Entry)
+  // =========================================================================
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultTargetSample, setResultTargetSample] = useState(null);
+  const [resultParameters, setResultParameters] = useState([]);
+  const [resultSubmitting, setResultSubmitting] = useState(false);
+  const [resultError, setResultError] = useState('');
+  const [viewOnlyResult, setViewOnlyResult] = useState(false);
+
+  const evalFlag = (val, refLow, refHigh) => {
+    if (val === '' || val === null || val === undefined) return { label: 'Chờ nhập', bg: 'secondary', text: 'white' };
+    const n = Number(val);
+    if (Number.isNaN(n)) return { label: 'Không hợp lệ', bg: 'warning', text: 'dark' };
+    if (refLow != null && n < refLow) return { label: 'Thấp (Low)', bg: 'warning', text: 'dark' };
+    if (refHigh != null && n > refHigh) return { label: 'Cao (High)', bg: 'danger', text: 'white' };
+    return { label: 'Bình thường', bg: 'success', text: 'white' };
+  };
+
+  const handleParamChange = (index, val) => {
+    setResultParameters(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], value: val };
+      return copy;
+    });
+  };
+
+  const openResultEntryModal = async (sample) => {
+    setResultTargetSample(sample);
+    setViewOnlyResult(false);
+    setResultError('');
+
+    let paramsToUse = DEFAULT_TEST_PARAMS.map(p => ({ ...p, value: '' }));
+
+    try {
+      if (sample.appointmentId) {
+        const res = await api.get(`/TestOrder/TestResult/by-appointment/${encodeURIComponent(sample.appointmentId)}`).catch(() => null);
+        const existingResults = res?.data?.data || res?.data;
+        if (Array.isArray(existingResults) && existingResults.length > 0) {
+          const latestResult = existingResults[0];
+          if (Array.isArray(latestResult.parameters) && latestResult.parameters.length > 0) {
+            paramsToUse = paramsToUse.map(defP => {
+              const found = latestResult.parameters.find(ep => ep.criteriaId === defP.code || ep.paramName === defP.name || ep.abbreviation === defP.code);
+              return found ? { ...defP, value: found.value ?? '' } : defP;
+            });
+          }
+        }
+      }
+    } catch {
+      // Keep defaults
+    }
+
+    setResultParameters(paramsToUse);
+    setShowResultModal(true);
+  };
+
+  const openViewResultModal = async (sample) => {
+    setResultTargetSample(sample);
+    setViewOnlyResult(true);
+    setResultError('');
+
+    let paramsToUse = DEFAULT_TEST_PARAMS.map(p => ({ ...p, value: '' }));
+
+    try {
+      if (sample.appointmentId) {
+        const res = await api.get(`/TestOrder/TestResult/by-appointment/${encodeURIComponent(sample.appointmentId)}`).catch(() => null);
+        const existingResults = res?.data?.data || res?.data;
+        if (Array.isArray(existingResults) && existingResults.length > 0) {
+          const latestResult = existingResults[0];
+          if (Array.isArray(latestResult.parameters) && latestResult.parameters.length > 0) {
+            paramsToUse = latestResult.parameters.map(p => ({
+              code: p.abbreviation || p.criteriaId,
+              name: p.paramName,
+              value: p.value,
+              unit: p.unit || 'Đơn vị',
+              refLow: p.refLow ?? 0,
+              refHigh: p.refHigh ?? 100
+            }));
+          }
+        }
+      }
+    } catch {
+      // Keep defaults
+    }
+
+    setResultParameters(paramsToUse);
+    setShowResultModal(true);
+  };
+
+  const handleSaveResultAndSendToDoctor = async () => {
+    if (!resultTargetSample) return;
+    if (!canEnterTestResults(resultTargetSample.status)) {
+      setResultError(`Mẫu "${resultTargetSample.status}" không cho nhập/gửi lại (không quay bước).`);
+      return;
+    }
+    setResultSubmitting(true);
+    setResultError('');
+    try {
+      const enteredParams = resultParameters.filter(p => p.value !== '' && p.value !== null && p.value !== undefined);
+      if (enteredParams.length === 0) {
+        setResultError('Vui lòng nhập ít nhất một giá trị chỉ số xét nghiệm.');
+        setResultSubmitting(false);
+        return;
+      }
+
+      const payload = {
+        sampleId: resultTargetSample.id || resultTargetSample.barcode,
+        appointmentId: resultTargetSample.appointmentId,
+        status: 'waiting_review',
+        deviceId: 'Nhập thủ công (Manual Entry)',
+        confirmRerunChecked: true,
+        criticalNotified: true,
+        doctorNotifiedName: 'BS. Lâm sàng điều trị',
+        parameters: enteredParams.map(p => ({
+          criteriaId: p.code,
+          paramName: p.name,
+          abbreviation: p.code,
+          value: String(p.value ?? ''),
+          flag: Number(p.value) < p.refLow ? 'Low' : Number(p.value) > p.refHigh ? 'High' : 'Normal'
+        }))
+      };
+
+      await api.post('/TestOrder/TestResult', payload);
+      setSuccessMsg(`✅ Đã lưu kết quả thành công cho mẫu ${resultTargetSample.barcode} và gửi Bác sĩ duyệt (WaitingReview)!`);
+      setShowResultModal(false);
+      await fetchQueue();
+    } catch (err) {
+      setResultError(extractApiError(err, 'Không thể lưu kết quả xét nghiệm.'));
+    } finally {
+      setResultSubmitting(false);
+    }
+  };
 
   const fetchQueue = useCallback(async () => {
     setLoading(true);
@@ -265,9 +437,15 @@ const SampleQueuePage = () => {
     try {
       const roomRes = await api.get('/shifts/rooms');
       const rList = Array.isArray(roomRes.data?.data) ? roomRes.data.data : (Array.isArray(roomRes.data) ? roomRes.data : []);
-      if (rList.length > 0) setLabRooms(rList);
+      // Main Lab flow: only LAB / lấy mẫu rooms — never overwrite with ROOM-10x clinic rooms.
+      const labOnly = rList.filter((r) => {
+        const code = String(r?.id || r?.roomNumber || r?.code || r || '').toUpperCase();
+        const name = String(r?.name || r?.roomName || '').toUpperCase();
+        return code.startsWith('LAB') || name.includes('LAB') || name.includes('LẤY MẪU') || name.includes('XÉT NGHIỆM');
+      });
+      if (labOnly.length > 0) setLabRooms(labOnly);
     } catch {
-      // Non-blocking
+      // Non-blocking — keep default LAB-ROOM-* list
     }
 
     try {
@@ -357,14 +535,14 @@ const SampleQueuePage = () => {
         patientId: sample.patientId || '',
         appointmentId: sample.appointmentId || sample.testOrderId || '',
         collectedAt: toLocalDateTimeInput(sample.collectedAt || new Date()),
-        collectorName: matchedSampleStaff?.fullName || sample.collectorName || defaultOperatorName,
-        collectedBy: matchedSampleStaff?.employeeCode || matchedSampleStaff?.id || sample.collectedBy || defaultOperatorId,
+        collectorName: matchedSampleStaff?.fullName || dutyTechName || sample.collectorName || defaultOperatorName,
+        collectedBy: matchedSampleStaff?.employeeCode || matchedSampleStaff?.id || dutyTechId || sample.collectedBy || defaultOperatorId,
         sampleType: sample.sampleType || 'Blood',
         tubeColor: sample.tubeColor || 'Purple',
         anticoagulant: sample.anticoagulant || 'K2-EDTA',
         volumeMl: sample.volumeMl || 3.0,
         priority: sample.priority || 'Normal',
-        labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
+        labRoom: dutyRoomId || sample.labRoom || 'LAB-ROOM-01',
         notes: sample.notes || ''
       });
     } else {
@@ -376,14 +554,14 @@ const SampleQueuePage = () => {
         patientId: '',
         appointmentId: '',
         collectedAt: toLocalDateTimeInput(new Date()),
-        collectorName: fallbackStaff?.fullName || defaultOperatorName,
-        collectedBy: fallbackStaff?.employeeCode || fallbackStaff?.id || defaultOperatorId,
+        collectorName: fallbackStaff?.fullName || dutyTechName || defaultOperatorName,
+        collectedBy: fallbackStaff?.employeeCode || fallbackStaff?.id || dutyTechId || defaultOperatorId,
         sampleType: 'Blood',
         tubeColor: 'Purple',
         anticoagulant: 'K2-EDTA',
         volumeMl: 3.0,
         priority: 'Normal',
-        labRoom: (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
+        labRoom: dutyRoomId || 'LAB-ROOM-01',
         notes: ''
       });
     }
@@ -473,9 +651,37 @@ const SampleQueuePage = () => {
   // =========================================================================
   // HANDLERS: UPDATE SAMPLE STATUS MODAL
   // =========================================================================
-  const openStatusUpdateModal = async (sample) => {
+  /** Một nút: Collected/Received/Processing → Testing (chain PUT theo BE, không mở modal chọn trạng thái). */
+  const handleStartTesting = async (sample) => {
+    const steps = pathToTesting(sample?.status);
+    if (!steps || steps.length === 0) {
+      setErrorMsg('Mẫu không thể chuyển sang Đang xét nghiệm từ trạng thái hiện tại.');
+      return;
+    }
+    setErrorMsg('');
+    try {
+      for (const nextStatus of steps) {
+        await api.put(`/laboratory/samples/${encodeURIComponent(sample.id)}/status`, {
+          status: nextStatus,
+          technicianId: dutyTechId || defaultOperatorId || undefined,
+          technicianName: dutyTechName || defaultOperatorName || undefined,
+          labRoom: dutyRoomId || sample.labRoom || 'LAB-ROOM-01',
+          timestamp: new Date().toISOString(),
+          notes: `Chuyển ${nextStatus} (nút Đang xét nghiệm)`
+        });
+      }
+      setSuccessMsg(`Mẫu ${sample.barcode || sample.id} → Đang xét nghiệm. Bấm Nhập KQ để nhập kết quả.`);
+      await fetchQueue();
+    } catch (err) {
+      setErrorMsg(extractApiError(err, 'Không chuyển được sang Đang xét nghiệm.'));
+    }
+  };
+
+  const openStatusUpdateModal = async (sample, targetStatus = null) => {
     const allowed = ALLOWED_TRANSITIONS[sample.status] || [];
-    const defaultNext = allowed.find(st => st !== 'Rejected' && st !== sample.status) || allowed[0] || sample.status;
+    const defaultNext = (targetStatus && allowed.includes(targetStatus))
+      ? targetStatus
+      : (allowed.find(st => st !== 'Rejected') || allowed[0] || sample.status);
 
     setStatusTargetSample(sample);
     setStatusError('');
@@ -486,9 +692,9 @@ const SampleQueuePage = () => {
 
     setStatusForm({
       status: defaultNext,
-      technicianName: matchedTech?.fullName || sample.assignedTechnicianName || defaultOperatorName,
-      technicianId: matchedTech?.employeeCode || matchedTech?.id || sample.assignedTechnicianId || defaultOperatorId,
-      labRoom: sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
+      technicianName: matchedTech?.fullName || dutyTechName || sample.assignedTechnicianName || defaultOperatorName,
+      technicianId: matchedTech?.employeeCode || matchedTech?.id || dutyTechId || sample.assignedTechnicianId || defaultOperatorId,
+      labRoom: (dutyRoomId && dutyRoomId !== 'UNASSIGNED' ? dutyRoomId : null) || sample.labRoom || (typeof labRooms[0] === 'string' ? labRooms[0] : labRooms[0]?.id) || 'LAB-ROOM-01',
       timestamp: toLocalDateTimeInput(new Date()),
       rejectionReason: sample.rejectionReason || '',
       notes: ''
@@ -621,32 +827,33 @@ const SampleQueuePage = () => {
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header */}
-      {/* Page Header */}
-      <PageHeader
-        icon={<FaFlask size={20} />}
-        title="Hàng Đợi Mẫu Bệnh Phẩm Xét Nghiệm"
-        lead="Tiếp nhận mẫu bệnh phẩm, ghi nhận thời gian lấy mẫu và kiểm soát vòng đời phân tích tại phòng xét nghiệm."
-        meta={['Tiêu chuẩn ISO 15189:2022', 'Mã hóa Barcode 1D/2D tự động']}
-        actions={
-          <div className="d-flex gap-2">
-            <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3">
-              Làm mới
-            </Button>
-            {canRecordSampleTime && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => openRecordCollectionModal(null)}
-                className="rounded-pill px-3 fw-semibold text-white"
-                style={{ backgroundColor: '#1E60E6', border: 'none' }}
-              >
-                Ghi Nhận Lấy Mẫu Mới
-              </Button>
-            )}
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Hàng đợi mẫu bệnh phẩm</h1>
           </div>
-        }
-      />
+          <p className="text-muted small m-0 mt-1">
+            Quản lý tiếp nhận, ghi nhận giờ lấy mẫu và cập nhật trạng thái xử lý tại phòng xét nghiệm.
+          </p>
+        </div>
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3 text-nowrap">
+            <FaSyncAlt className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+          </Button>
+          {canRecordSampleTime && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => openRecordCollectionModal(null)}
+              className="rounded-pill px-3 fw-semibold text-white text-nowrap"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+            >
+              <FaClock className="me-1" /> Ghi nhận lấy mẫu mới
+            </Button>
+          )}
+        </div>
+      </div>
 
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3">
@@ -659,89 +866,125 @@ const SampleQueuePage = () => {
         </Alert>
       )}
 
-      {/* KPI Metrics StatRow */}
-      <StatRow
-        items={[
-          { label: 'Tổng mẫu trong hàng đợi', value: totalCount, primary: true },
-          { label: 'Đã lấy mẫu / Tiếp nhận', value: collectedCount },
-          { label: 'Đang xử lý / Chạy máy', value: processingCount },
-          { label: 'Đã hoàn thành kết quả', value: completedCount }
-        ]}
-      />
+      {/* KPI Quad Cards */}
+      <Row className="g-3 mb-4">
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{totalCount}</div>
+            <div className="bms-kpi-quad-title">Tổng mẫu trong hàng đợi</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaClock size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{collectedCount}</div>
+            <div className="bms-kpi-quad-title">Đã lấy mẫu / Tiếp nhận</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaFlask size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{processingCount}</div>
+            <div className="bms-kpi-quad-title">Đang xử lý / Chạy máy</div>
+          </div>
+        </Col>
+        <Col sm={6} xl={3}>
+          <div className="bms-kpi-quad-card">
+            <div className="bms-kpi-quad-top">
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle size={18} /></div>
+            </div>
+            <div className="bms-kpi-quad-value">{completedCount}</div>
+            <div className="bms-kpi-quad-title">Đã hoàn thành kết quả</div>
+          </div>
+        </Col>
+      </Row>
 
       {/* Filter and Search Bar */}
       <section className="bms-inventory-filter">
-          <Form onSubmit={handleSearch} className="bms-field-grid">
-              <label className="bms-field">
-                Tìm mẫu
-                <InputGroup size="sm">
-                  <InputGroup.Text><FaSearch /></InputGroup.Text>
-                  <Form.Control
-                    type="text"
-                    placeholder="Barcode, mã mẫu, mã BN"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-              </label>
+        <Form onSubmit={handleSearch} className="bms-field-grid">
+          <label className="bms-field">
+            Tìm mẫu
+            <InputGroup size="sm">
+              <InputGroup.Text><FaSearch /></InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Barcode, mã mẫu, mã BN"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+          </label>
 
-              <label className="bms-field">
-                Trạng thái
-                <Form.Select size="sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                  <option value="All">Tất cả trạng thái mẫu</option>
-                  <option value="PendingCollection">Chờ lấy mẫu (PendingCollection)</option>
-                  <option value="Collected">Đã lấy mẫu (Collected)</option>
-                  <option value="InTransit">Đang vận chuyển (InTransit)</option>
-                  <option value="Received">Đã tiếp nhận Lab (Received)</option>
-                  <option value="Processing">Đang xử lý / Ly tâm (Processing)</option>
-                  <option value="Testing">Đang chạy máy XN (Testing)</option>
-                  <option value="Completed">Hoàn thành (Completed)</option>
-                  <option value="RerunRequested">Yêu cầu chạy lại (RerunRequested)</option>
-                  <option value="Rejected">Từ chối mẫu (Rejected)</option>
-                </Form.Select>
-              </label>
+          <label className="bms-field">
+            Trạng thái
+            <Form.Select size="sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="All">Tất cả trạng thái mẫu</option>
+              <option value="PendingCollection">Chờ lấy mẫu (PendingCollection)</option>
+              <option value="Collected">Đã lấy mẫu (Collected)</option>
+              <option value="InTransit">Đang vận chuyển (InTransit)</option>
+              <option value="Received">Đã tiếp nhận Lab (Received)</option>
+              <option value="Processing">Đang xử lý / Ly tâm (Processing)</option>
+              <option value="Testing">Đang chạy máy XN (Testing)</option>
+              <option value="Completed">Hoàn thành (Completed)</option>
+              <option value="RerunRequested">Yêu cầu chạy lại (RerunRequested)</option>
+              <option value="Rejected">Từ chối mẫu (Rejected)</option>
+            </Form.Select>
+          </label>
 
-              <label className="bms-field">
-                Ưu tiên
-                <Form.Select size="sm" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
-                  <option value="All">Mọi mức độ ưu tiên</option>
-                  <option value="Normal">Bình thường (Normal)</option>
-                  <option value="Urgent">Khẩn cấp (Urgent)</option>
-                  <option value="Stat">Cấp cứu (STAT)</option>
-                </Form.Select>
-              </label>
+          <label className="bms-field">
+            Ưu tiên
+            <Form.Select size="sm" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+              <option value="All">Mọi mức độ ưu tiên</option>
+              <option value="Normal">Bình thường (Normal)</option>
+              <option value="Urgent">Khẩn cấp (Urgent)</option>
+              <option value="Stat">Cấp cứu (STAT)</option>
+            </Form.Select>
+          </label>
 
-              <label className="bms-field">
-                Phòng lab
-                <Form.Control
-                  size="sm"
-                  type="text"
-                  placeholder="LAB-ROOM-01"
-                  value={labRoomFilter}
-                  onChange={(e) => setLabRoomFilter(e.target.value)}
-                />
-              </label>
+          <label className="bms-field">
+            Phòng lab
+            <Form.Control
+              size="sm"
+              type="text"
+              placeholder="LAB-ROOM-01"
+              value={labRoomFilter}
+              onChange={(e) => setLabRoomFilter(e.target.value)}
+            />
+          </label>
 
-              <div className="bms-field-actions">
-                <Button variant="primary" type="submit" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>Tìm</Button>
-                <Button
-                  variant="outline-secondary"
-                  type="button"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setStatusFilter('All');
-                    setPriorityFilter('All');
-                    setLabRoomFilter('');
-                  }}
-                >
-                  Xóa lọc
-                </Button>
-              </div>
-          </Form>
+          <div className="bms-field-actions">
+            <Button variant="primary" type="submit" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>Tìm</Button>
+            <Button
+              variant="outline-secondary"
+              type="button"
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('All');
+                setPriorityFilter('All');
+                setLabRoomFilter('');
+              }}
+            >
+              Xóa lọc
+            </Button>
+          </div>
+        </Form>
       </section>
 
       {/* Samples Queue Table - Standalone Section */}
-      <div className="bms-table-standalone-section">
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">Danh sách mẫu bệnh phẩm trong hàng đợi</h2>
+            <p className="bms-table-standalone-subtitle">Theo dõi mã vạch, thời điểm lấy mẫu và vòng đời xử lý</p>
+          </div>
+        </div>
         <div className="bms-table-standalone-body">
           {loading ? (
             <div className="text-center py-3">
@@ -760,18 +1003,8 @@ const SampleQueuePage = () => {
               )}
             </div>
           ) : (
-            <div className="table-responsive" style={{ overflowX: 'hidden' }}>
-              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
-                <colgroup>
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '14%' }} />
-                  <col style={{ width: '18%' }} />
-                  <col style={{ width: '13%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '11%' }} />
-                  <col style={{ width: '14%' }} />
-                </colgroup>
+            <div className="table-responsive">
+              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'auto', width: '100%' }}>
                 <thead className="table-light">
                   <tr>
                     <th className="ps-3">Barcode / Mã Mẫu</th>
@@ -781,7 +1014,7 @@ const SampleQueuePage = () => {
                     <th>Ưu Tiên</th>
                     <th>Phòng Lab</th>
                     <th>Trạng Thái</th>
-                    <th className="text-end pe-3">Thao Tác (Popup)</th>
+                    <th className="text-end pe-3">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -838,7 +1071,7 @@ const SampleQueuePage = () => {
                       <td>{getPriorityBadge(s.priority)}</td>
 
                       <td>
-                        <span className="badge bg-light text-dark border text-truncate d-inline-block" style={{ maxWidth: '100%', fontSize: '0.75rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
+                        <span className="badge bg-light text-dark text-truncate d-inline-block" style={{ maxWidth: '135px', fontSize: '0.74rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
                           {s.labRoom || 'LAB-ROOM-01'}
                         </span>
                       </td>
@@ -847,46 +1080,94 @@ const SampleQueuePage = () => {
 
                       <td className="text-end pe-3">
                         <div className="d-flex gap-1 justify-content-end align-items-center">
-                          {canRecordSampleTime && (
-                            <Button
-                              variant="outline-info"
-                              size="sm"
-                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                              style={{ fontSize: '0.75rem', borderRadius: '9999px' }}
-                              title="Ghi nhận / Cập nhật thời gian lấy mẫu"
-                              onClick={() => openRecordCollectionModal(s)}
-                            >
-                              <FaClock />
-                              <span>Giờ lấy</span>
-                            </Button>
-                          )}
+                          {(() => {
+                            const st = normalizeSampleStatus(s.status);
+                            const fwd = primaryForwardAction(st);
+                            const btnStyle = { fontSize: '0.75rem', borderRadius: '9999px' };
+                            const sampleKey = encodeURIComponent(s.barcode || s.sampleCode || s.id);
 
-                          {canUpdateSampleStatus && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="px-2 py-1 text-nowrap d-flex align-items-center gap-1 text-white"
-                              style={{ fontSize: '0.75rem', backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                              title="Cập nhật trạng thái vòng đời mẫu"
-                              onClick={() => openStatusUpdateModal(s)}
-                            >
-                              <FaExchangeAlt />
-                              <span>Trạng thái</span>
-                            </Button>
-                          )}
+                            if (st === 'Rejected') {
+                              return <Badge bg="dark" className="px-2.5 py-1" style={{ fontSize: '0.72rem' }}>Đã từ chối</Badge>;
+                            }
 
-                          {canRecordSampleTime && (
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              className="px-2 py-1"
-                              style={{ fontSize: '0.75rem', borderRadius: '9999px' }}
-                              title="Yêu cầu chạy lại mẫu (Rerun)"
-                              onClick={() => openRerunModal(s)}
-                            >
-                              <FaRedoAlt />
-                            </Button>
-                          )}
+                            // Queue chỉ 3 nút: Lấy Mẫu → Đang xét nghiệm → Nhập KQ (rồi Xem KQ)
+                            return (
+                              <>
+                                {fwd.kind === 'collect' && canCollectSample(st) && canRecordSampleTime && (
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1 shadow-sm"
+                                    style={btnStyle}
+                                    title="Ghi nhận lấy mẫu"
+                                    onClick={() => openRecordCollectionModal(s)}
+                                  >
+                                    <FaClock />
+                                    <span>Lấy Mẫu</span>
+                                  </Button>
+                                )}
+
+                                {fwd.kind === 'toTesting' && canStartTesting(st) && (
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1 shadow-sm"
+                                    style={btnStyle}
+                                    title="Chuyển mẫu sang Đang xét nghiệm — sau đó bấm Nhập KQ"
+                                    onClick={() => void handleStartTesting(s)}
+                                  >
+                                    <FaFlask />
+                                    <span>Đang xét nghiệm</span>
+                                  </Button>
+                                )}
+
+                                {fwd.kind === 'enter' && canEnterTestResults(st) && (
+                                  <Button
+                                    variant="warning"
+                                    size="sm"
+                                    className="px-3 py-1 text-nowrap d-flex align-items-center gap-1 fw-bold text-white shadow-sm"
+                                    style={{ ...btnStyle, backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
+                                    title="Nhập kết quả"
+                                    onClick={() => navigate(`/laboratory/enter-test-results?sampleId=${sampleKey}`)}
+                                  >
+                                    <FaFlask />
+                                    <span>Nhập KQ</span>
+                                  </Button>
+                                )}
+
+                                {fwd.kind === 'view' && canViewTestResults(st) && (
+                                  <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1"
+                                    style={btnStyle}
+                                    title="Xem kết quả đã nhập"
+                                    onClick={() =>
+                                      navigate(
+                                        `/laboratory/enter-test-results?sampleId=${encodeURIComponent(sampleKey)}&mode=view`
+                                      )
+                                    }
+                                  >
+                                    <FaEye />
+                                    <span>Xem KQ</span>
+                                  </Button>
+                                )}
+
+                                {canRejectSample(st) && st === 'PendingCollection' && (
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    className="px-2 py-1"
+                                    style={btnStyle}
+                                    title="Từ chối / hủy lấy mẫu"
+                                    onClick={() => openStatusUpdateModal(s, 'Rejected')}
+                                  >
+                                    <FaTimes />
+                                  </Button>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </td>
                     </tr>
@@ -896,7 +1177,7 @@ const SampleQueuePage = () => {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* =====================================================================
           MODAL 1: RECORD SAMPLE TIME POPUP (Ghi nhận thời gian lấy mẫu)
@@ -909,18 +1190,18 @@ const SampleQueuePage = () => {
         backdrop="static"
       >
         <Form onSubmit={handleSubmitCollectionTime}>
-          <Modal.Header closeButton={!collectionSubmitting} className="bg-light">
-            <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <Modal.Header closeButton={!collectionSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
               <FaClock className="text-primary" />
               <span>
                 {collectionTargetSample
-                  ? `Ghi Nhận Thời Gian Lấy Mẫu — ${collectionTargetSample.barcode}`
-                  : 'Ghi Nhận Thời Gian Lấy Mẫu Mới (Record Sample Time)'}
+                  ? `Ghi nhận thời gian lấy mẫu — ${collectionTargetSample.barcode}`
+                  : 'Ghi nhận thời gian lấy mẫu mới'}
               </span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body className="p-3">
             {collectionError && (
               <Alert variant="danger" className="py-2 small">
                 <FaExclamationTriangle className="me-2" />
@@ -928,26 +1209,73 @@ const SampleQueuePage = () => {
               </Alert>
             )}
 
+            {/* Thông tin đã gán từ hệ thống — chỉ xem, không nhập lại */}
+            <div className="rounded-3 border bg-light p-3 mb-3">
+              <div className="small text-secondary fw-semibold mb-2 text-uppercase">
+                Thông tin đã gắn (không đổi)
+              </div>
+              <Row className="g-2 small">
+                <Col md={6}>
+                  <span className="text-muted">Barcode:</span>{' '}
+                  <code className="fw-semibold text-dark">{collectionForm.barcode || '—'}</code>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Mã BN:</span>{' '}
+                  <strong>{collectionForm.patientId || '—'}</strong>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Lịch hẹn / chỉ định:</span>{' '}
+                  <span className="font-monospace" style={{ fontSize: '0.72rem' }}>
+                    {collectionForm.appointmentId || '—'}
+                  </span>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Người lấy / mã NV:</span>{' '}
+                  <strong>{collectionForm.collectorName || dutyTechName}</strong>
+                  <span className="text-muted"> · </span>
+                  <code>{collectionForm.collectedBy || dutyTechId}</code>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Ống / bệnh phẩm:</span>{' '}
+                  <strong>
+                    {collectionForm.tubeColor} · {collectionForm.sampleType} · {collectionForm.anticoagulant}
+                  </strong>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Phòng (ca trực):</span>{' '}
+                  <strong>{dutyRoomName}</strong>
+                  <span className="text-muted"> ({collectionForm.labRoom || dutyRoomId})</span>
+                </Col>
+                <Col md={6}>
+                  <span className="text-muted">Ưu tiên:</span> {collectionForm.priority || 'Normal'}
+                </Col>
+              </Row>
+            </div>
+
+            {!collectionTargetSample && (
+              <Alert variant="info" className="py-2 small mb-3">
+                Mẫu mới: chọn BN/lịch bên dưới rồi ghi nhận thời điểm. Barcode/phòng/KTV vẫn theo hệ thống &amp; ca trực.
+              </Alert>
+            )}
+
             {!collectionTargetSample && patientOptions.length > 0 && (
-              <div className="p-3 rounded-3 bg-light border mb-3">
-                <Form.Label className="small fw-bold text-secondary mb-1">
-                  <FaUserInjured className="me-1" />
-                  Chọn nhanh bệnh nhân từ danh sách tiếp đón (tự động điền Patient ID)
+              <div className="mb-3">
+                <Form.Label className="small fw-semibold">
+                  <FaUserInjured className="me-1" /> Chọn bệnh nhân <span className="text-danger">*</span>
                 </Form.Label>
                 <Form.Select
                   size="sm"
-                  defaultValue=""
+                  value={collectionForm.patientId || ''}
+                  required
                   onChange={(e) => {
                     const pid = e.target.value;
-                    if (pid) {
-                      setCollectionForm(prev => ({ ...prev, patientId: pid }));
-                    }
+                    setCollectionForm((prev) => ({ ...prev, patientId: pid }));
                   }}
                 >
-                  <option value="">-- Chọn bệnh nhân để liên kết mẫu bệnh phẩm --</option>
-                  {(Array.isArray(patientOptions) ? patientOptions : []).map(p => (
+                  <option value="">-- Chọn bệnh nhân --</option>
+                  {(Array.isArray(patientOptions) ? patientOptions : []).map((p) => (
                     <option key={p.id || p.patientCode} value={p.patientCode || p.id}>
-                      [{p.patientCode || p.id}] {p.fullName} — SĐT: {p.phoneNumber || p.phone || '—'}
+                      [{p.patientCode || p.id}] {p.fullName}
                     </option>
                   ))}
                 </Form.Select>
@@ -955,31 +1283,31 @@ const SampleQueuePage = () => {
             )}
 
             {!collectionTargetSample && appointmentOptions.length > 0 && (
-              <div className="p-3 rounded-3 bg-light border mb-3">
-                <Form.Label className="small fw-bold text-secondary mb-1">
-                  Chọn nhanh Lịch hẹn / Phiếu chỉ định từ hệ thống (tự động điền Appointment ID & Patient ID)
-                </Form.Label>
+              <div className="mb-3">
+                <Form.Label className="small fw-semibold">Gắn lịch hẹn / chỉ định</Form.Label>
                 <Form.Select
                   size="sm"
-                  defaultValue=""
+                  value={collectionForm.appointmentId || ''}
                   onChange={(e) => {
                     const aid = e.target.value;
-                    const apt = appointmentOptions.find(a => (a.id || a.appointmentId) === aid);
+                    const apt = appointmentOptions.find((a) => (a.id || a.appointmentId) === aid);
                     if (apt) {
-                      setCollectionForm(prev => ({
+                      setCollectionForm((prev) => ({
                         ...prev,
                         appointmentId: apt.id || apt.appointmentId,
                         patientId: apt.patientId || prev.patientId
                       }));
+                    } else {
+                      setCollectionForm((prev) => ({ ...prev, appointmentId: aid }));
                     }
                   }}
                 >
-                  <option value="">-- Chọn lịch hẹn / chỉ định xét nghiệm từ CSDL --</option>
-                  {appointmentOptions.map(a => {
+                  <option value="">-- Không gắn / chọn lịch --</option>
+                  {appointmentOptions.map((a) => {
                     const aid = a.id || a.appointmentId;
                     return (
                       <option key={aid} value={aid}>
-                        [{aid}] {a.patientName || a.patientId || 'Bệnh nhân'} — {a.status || 'Active'}
+                        [{aid}] {a.patientName || a.patientId || 'BN'} — {a.status || 'Active'}
                       </option>
                     );
                   })}
@@ -987,65 +1315,48 @@ const SampleQueuePage = () => {
               </div>
             )}
 
+            {/* Chỉ các trường nghiệp vụ cần nhập khi lấy mẫu */}
             <Row className="g-3">
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Mã Barcode Ống Mẫu</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: SMP-20261018-001"
-                  value={collectionForm.barcode}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, barcode: e.target.value }))}
-                />
-              </Col>
-
-              <Col md={4}>
+              <Col md={7}>
                 <Form.Label className="small fw-semibold">
-                  Mã Bệnh Nhân (Patient ID) <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: PAT-079095001234"
-                  value={collectionForm.patientId}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, patientId: e.target.value }))}
-                  required={!collectionTargetSample}
-                />
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Mã Lịch Hẹn / Chỉ Định</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="VD: APP-20260529-01"
-                  value={collectionForm.appointmentId}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, appointmentId: e.target.value }))}
-                />
-              </Col>
-
-              <Col md={6}>
-                <Form.Label className="small fw-semibold">
-                  Thời Điểm Lấy Mẫu Thực Tế (CollectedAt) <span className="text-danger">*</span>
+                  Thời điểm lấy mẫu thực tế <span className="text-danger">*</span>
                 </Form.Label>
                 <InputGroup>
                   <Form.Control
                     type="datetime-local"
                     value={collectionForm.collectedAt}
-                    onChange={(e) => setCollectionForm(prev => ({ ...prev, collectedAt: e.target.value }))}
+                    onChange={(e) => setCollectionForm((prev) => ({ ...prev, collectedAt: e.target.value }))}
                     required
                   />
                   <Button
                     variant="outline-primary"
                     type="button"
-                    onClick={() => setCollectionForm(prev => ({ ...prev, collectedAt: toLocalDateTimeInput(new Date()) }))}
+                    onClick={() =>
+                      setCollectionForm((prev) => ({ ...prev, collectedAt: toLocalDateTimeInput(new Date()) }))
+                    }
                   >
                     Bây giờ
                   </Button>
                 </InputGroup>
-                <Form.Text className="text-muted">
-                  Hệ thống kiểm tra không vượt quá thời điểm hiện tại và không quá 30 ngày trước.
-                </Form.Text>
+                <Form.Text className="text-muted">Không vượt hiện tại; không quá 30 ngày trước.</Form.Text>
               </Col>
 
-              <Col md={3}>
+              <Col md={5}>
+                <Form.Label className="small fw-semibold">
+                  Thể tích mẫu (ml) <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  max="50"
+                  value={collectionForm.volumeMl}
+                  onChange={(e) => setCollectionForm((prev) => ({ ...prev, volumeMl: e.target.value }))}
+                  required
+                />
+              </Col>
+
+              <Col md={6}>
                 <Form.Label className="small fw-semibold">Người Lấy Mẫu (CSDL)</Form.Label>
                 {staffOptions.length > 0 ? (
                   <Form.Select
@@ -1083,108 +1394,7 @@ const SampleQueuePage = () => {
                 )}
               </Col>
 
-              <Col md={3}>
-                <Form.Label className="small fw-semibold">Mã Nhân Viên Lấy Mẫu (CSDL)</Form.Label>
-                {staffOptions.length > 0 ? (
-                  <Form.Select
-                    value={matchedCollectionStaff?.employeeCode || matchedCollectionStaff?.id || collectionForm.collectedBy}
-                    onChange={(e) => {
-                      const code = e.target.value;
-                      const selected = staffOptions.find((s) => (s.employeeCode || s.id) === code || s.id === code);
-                      if (selected) {
-                        setCollectionForm((prev) => ({
-                          ...prev,
-                          collectedBy: selected.employeeCode || selected.id,
-                          collectorName: selected.fullName
-                        }));
-                      }
-                    }}
-                  >
-                    <option value="">-- Chọn mã nhân viên --</option>
-                    {!matchedCollectionStaff && collectionForm.collectedBy && (
-                      <option value={collectionForm.collectedBy}>
-                        {collectionForm.collectedBy}
-                      </option>
-                    )}
-                    {staffOptions.map((s) => {
-                      const code = s.employeeCode || s.id;
-                      return (
-                        <option key={s.id} value={code}>
-                          {code} — {s.fullName}
-                        </option>
-                      );
-                    })}
-                  </Form.Select>
-                ) : (
-                  <Form.Control
-                    type="text"
-                    placeholder={staffLoading ? 'Đang tải mã nhân viên...' : 'VD: KTV-004'}
-                    value={collectionForm.collectedBy}
-                    onChange={(e) => setCollectionForm((prev) => ({ ...prev, collectedBy: e.target.value }))}
-                  />
-                )}
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Loại Ống Nghiệm (Tube Color)</Form.Label>
-                <Form.Select
-                  value={collectionForm.tubeColor}
-                  onChange={(e) => handleTubePresetChange(e.target.value)}
-                >
-                  {TUBE_PRESETS.map(t => (
-                    <option key={t.color} value={t.color}>{t.label}</option>
-                  ))}
-                </Form.Select>
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Loại Bệnh Phẩm (Sample Type)</Form.Label>
-                <Form.Select
-                  value={collectionForm.sampleType}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, sampleType: e.target.value }))}
-                >
-                  <option value="Blood">Máu toàn phần (Whole Blood)</option>
-                  <option value="Serum">Huyết thanh (Serum)</option>
-                  <option value="Plasma">Huyết tương (Plasma)</option>
-                  <option value="Urine">Nước tiểu (Urine)</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Chất Chống Đông (Anticoagulant)</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={collectionForm.anticoagulant}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, anticoagulant: e.target.value }))}
-                />
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Thể Tích Mẫu (ml) <span className="text-danger">*</span></Form.Label>
-                <Form.Control
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  max="50"
-                  value={collectionForm.volumeMl}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, volumeMl: e.target.value }))}
-                  required
-                />
-              </Col>
-
-              <Col md={4}>
-                <Form.Label className="small fw-semibold">Mức Độ Ưu Tiên</Form.Label>
-                <Form.Select
-                  value={collectionForm.priority}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, priority: e.target.value }))}
-                >
-                  <option value="Normal">Bình thường (Normal)</option>
-                  <option value="Urgent">Khẩn cấp (Urgent)</option>
-                  <option value="Stat">Cấp cứu (STAT)</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (CSDL)</Form.Label>
                 {labRooms.length > 0 ? (
                   <Form.Select
@@ -1212,13 +1422,13 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col xs={12}>
-                <Form.Label className="small fw-semibold">Ghi Chú Khi Lấy Mẫu</Form.Label>
+                <Form.Label className="small fw-semibold">Ghi chú khi lấy mẫu</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={2}
-                  placeholder="Ghi chú tình trạng tĩnh mạch, thời gian nhịn ăn của bệnh nhân..."
+                  placeholder="Tình trạng tĩnh mạch, nhịn ăn… (tuỳ chọn)"
                   value={collectionForm.notes}
-                  onChange={(e) => setCollectionForm(prev => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) => setCollectionForm((prev) => ({ ...prev, notes: e.target.value }))}
                 />
               </Col>
             </Row>
@@ -1253,10 +1463,10 @@ const SampleQueuePage = () => {
         backdrop="static"
       >
         <Form onSubmit={handleSubmitStatusUpdate}>
-          <Modal.Header closeButton={!statusSubmitting} className="bg-light">
-            <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+          <Modal.Header closeButton={!statusSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
               <FaExchangeAlt className="text-primary" />
-              <span>Cập Nhật Trạng Thái Mẫu Bệnh Phẩm (ISO 15189)</span>
+              <span>Cập nhật trạng thái mẫu bệnh phẩm</span>
             </Modal.Title>
           </Modal.Header>
 
@@ -1338,20 +1548,13 @@ const SampleQueuePage = () => {
                   </Col>
 
                   <Col md={6}>
-                    <Form.Label className="small fw-semibold">Phòng Lab Xử Lý</Form.Label>
+                    <Form.Label className="small fw-semibold">Phòng Lab Xử Lý (theo ca)</Form.Label>
                     <Form.Control
-                      type="text"
-                      list="status-lab-room-options"
-                      placeholder="VD: LAB-ROOM-01"
-                      value={statusForm.labRoom}
-                      onChange={(e) => setStatusForm(prev => ({ ...prev, labRoom: e.target.value }))}
+                      readOnly
+                      disabled
+                      className="bg-light"
+                      value={`${dutyRoomName} (${statusForm.labRoom || dutyRoomId})`}
                     />
-                    <datalist id="status-lab-room-options">
-                      {labRooms.map((rm) => {
-                        const code = typeof rm === 'string' ? rm : (rm.id || rm.roomNumber || 'LAB-ROOM-01');
-                        return <option key={code} value={code} />;
-                      })}
-                    </datalist>
                   </Col>
 
                   <Col md={6}>
@@ -1386,7 +1589,7 @@ const SampleQueuePage = () => {
                       <Form.Control
                         type="text"
                         placeholder="Họ và tên KTV"
-                        value={statusForm.technicianName}
+                        value={statusForm.technicianName || dutyTechName}
                         onChange={(e) => setStatusForm((prev) => ({ ...prev, technicianName: e.target.value }))}
                       />
                     )}
@@ -1454,7 +1657,7 @@ const SampleQueuePage = () => {
                     <Form.Control
                       as="textarea"
                       rows={2}
-                      placeholder="Ghi chú tình trạng huyết thanh, máy phân tích Cobas / Sysmex..."
+                      placeholder="Ghi chú chuyên môn phòng xét nghiệm (tình trạng mẫu huyết thanh, lý do nếu có)..."
                       value={statusForm.notes}
                       onChange={(e) => setStatusForm(prev => ({ ...prev, notes: e.target.value }))}
                     />
@@ -1476,7 +1679,7 @@ const SampleQueuePage = () => {
                         <div key={i} className="small py-1 border-bottom last-border-0 d-flex justify-content-between gap-2">
                           <div>
                             <Badge bg="secondary" className="me-1">{h.fromStatus || 'Khởi tạo'}</Badge>
-                            <span>→</span>
+                            <FaArrowRight size={10} className="mx-1 text-muted" />
                             <Badge bg="primary" className="ms-1 me-2">{h.toStatus}</Badge>
                             <span className="text-dark">{h.notes || ''}</span>
                           </div>
@@ -1556,6 +1759,172 @@ const SampleQueuePage = () => {
             </div>
           </Form>
         </Modal.Body>
+      </Modal>
+      {/* ========================================================================= */}
+      {/* MODAL 4: NHẬP / XEM KẾT QUẢ XÉT NGHIỆM MÁU (Clean Human-Operated Lab Entry) */}
+      {/* ========================================================================= */}
+      <Modal
+        show={showResultModal}
+        onHide={() => !resultSubmitting && setShowResultModal(false)}
+        size="lg"
+        centered
+        backdrop={resultSubmitting ? 'static' : true}
+      >
+        <Modal.Header closeButton={!resultSubmitting} className="bg-light">
+          <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
+            <FaFlask className="text-warning" />
+            <span>{viewOnlyResult ? 'Chi Tiết Kết Quả Xét Nghiệm Máu' : 'Nhập Kết Quả Xét Nghiệm Máu'}</span>
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="p-3">
+          {resultError && (
+            <Alert variant="danger" className="py-2 small">
+              <FaExclamationTriangle className="me-2" />
+              {resultError}
+            </Alert>
+          )}
+
+          {resultTargetSample && (
+            <>
+              {/* Patient and Sample Summary Card */}
+              <div className="p-3 rounded-3 bg-light border mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                  <div className="fw-bold text-dark fs-6">
+                    Bệnh nhân: <span className="text-primary">{resultTargetSample.patientName}</span>
+                    <span className="ms-2 badge bg-secondary">{resultTargetSample.patientId}</span>
+                  </div>
+                  <div className="small text-secondary mt-1">
+                    Mã Barcode: <strong className="font-monospace text-dark">{resultTargetSample.barcode}</strong> •
+                    Loại mẫu: <strong>{resultTargetSample.sampleType}</strong> ({resultTargetSample.tubeColor || 'Purple'}) •
+                    Gói XN: <span className="badge bg-info text-dark">{resultTargetSample.testOrderName || 'Xét nghiệm máu tổng quát'}</span>
+                  </div>
+                </div>
+                <div>
+                  {getStatusBadge(resultTargetSample.status)}
+                </div>
+              </div>
+
+              {!viewOnlyResult && (
+                <div className="alert alert-info py-2 small d-flex align-items-center gap-2 mb-3">
+                  <FaInfoCircle />
+                  <span>
+                    Kỹ thuật viên nhập các giá trị đo được vào bảng bên dưới. Hệ thống sẽ tự động đối soát với khoảng tham chiếu chuẩn.
+                  </span>
+                </div>
+              )}
+
+              {/* Parameters Table */}
+              <div className="table-responsive border rounded-3">
+                <Table hover className="mb-0 align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th style={{ width: '35%' }}>Chỉ Số Xét Nghiệm</th>
+                      <th style={{ width: '25%' }}>Kết Quả Đo</th>
+                      <th style={{ width: '15%' }}>Đơn Vị</th>
+                      <th style={{ width: '25%' }}>Khoảng Chuẩn (Min - Max)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultParameters.map((param, idx) => {
+                      const flag = evalFlag(param.value, param.refLow, param.refHigh);
+                      return (
+                        <tr key={param.code || idx}>
+                          <td>
+                            <div className="fw-bold text-dark">{param.name}</div>
+                            <small className="text-muted font-monospace">{param.code}</small>
+                          </td>
+                          <td>
+                            {viewOnlyResult ? (
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="fw-bold fs-6">{param.value || 'Chưa có'}</span>
+                                {param.value && <Badge bg={flag.bg} text={flag.text}>{flag.label}</Badge>}
+                              </div>
+                            ) : (
+                              <div className="d-flex align-items-center gap-2">
+                                <Form.Control
+                                  size="sm"
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Nhập KQ..."
+                                  value={param.value}
+                                  onChange={(e) => handleParamChange(idx, e.target.value)}
+                                  className="fw-bold"
+                                  style={{ maxWidth: 120 }}
+                                />
+                                {param.value !== '' && (
+                                  <Badge bg={flag.bg} text={flag.text} style={{ fontSize: '0.7rem' }}>
+                                    {flag.label}
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                          <td className="small text-secondary font-monospace">{param.unit}</td>
+                          <td className="small">
+                            <span className="badge bg-light text-dark border">
+                              {param.refLow} – {param.refHigh} {param.unit}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+
+              {!viewOnlyResult && (
+                <div className="mt-3 p-2 rounded bg-light border text-muted small">
+                  <strong>💡 Quy trình y khoa:</strong> Sau khi bấm <strong>"Lưu &amp; Gửi Bác Sĩ Duyệt"</strong>, kết quả sẽ chuyển trực tiếp tới Bàn khám Bác sĩ ở trạng thái <em>Chờ duyệt (WaitingReview)</em> để Bác sĩ thẩm định và kết luận chẩn đoán lâm sàng (ICD-10).
+                </div>
+              )}
+            </>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer className="bg-light d-flex justify-content-between align-items-center">
+          <div>
+            {!viewOnlyResult && (
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="d-flex align-items-center gap-1 fw-semibold"
+                onClick={() => {
+                  setShowResultModal(false);
+                  navigate(`/laboratory/enter-test-results?sampleId=${encodeURIComponent(resultTargetSample?.barcode || resultTargetSample?.id || '')}`);
+                }}
+              >
+                <FaFlask /> Mở Trạm Nhập Chi Tiết
+              </Button>
+            )}
+          </div>
+          <div className="d-flex gap-2">
+            <Button variant="secondary" onClick={() => setShowResultModal(false)} disabled={resultSubmitting}>
+              {viewOnlyResult ? 'Đóng' : 'Hủy Bỏ'}
+            </Button>
+            {!viewOnlyResult && canEnterTestResults(resultTargetSample?.status) && (
+              <Button
+                variant="primary"
+                className="px-4 fw-bold shadow-sm d-flex align-items-center gap-2"
+                onClick={handleSaveResultAndSendToDoctor}
+                disabled={resultSubmitting}
+                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+              >
+                {resultSubmitting ? (
+                  <>
+                    <Spinner animation="border" size="sm" />
+                    <span>Đang Lưu &amp; Gửi...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaSave />
+                    <span>Lưu &amp; Gửi Bác Sĩ Duyệt</span>
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </Modal.Footer>
       </Modal>
     </div>
   );

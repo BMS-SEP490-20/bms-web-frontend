@@ -18,12 +18,16 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
 import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
+import api from '../../../config/api';
 
 export default function LookupBiochemicalResultsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = getStoredUser();
   const canNotify = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
+  const canApprove = hasRole(currentUser, ROLES.DOCTOR, ROLES.MANAGER);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionMsg, setActionMsg] = useState('');
 
   // Search state
   const initialQuery = searchParams.get('barcode') || searchParams.get('sampleId') || searchParams.get('patientId') || searchParams.get('search') || '';
@@ -89,20 +93,13 @@ export default function LookupBiochemicalResultsPage() {
     }
   }, []);
 
-  // Initialize
+  // Initialize: chỉ auto-search khi có query; không tự mở KQ bệnh nhân khác
   useEffect(() => {
     loadRecentResults();
     if (initialQuery) {
       executeSearch(initialQuery);
     } else {
-      // Default load first recent result if available
-      lookupTestResults({}).then((res) => {
-        if (Array.isArray(res?.data) && res.data.length > 0) {
-          getTestResultById(res.data[0].id).then((dRes) => {
-            if (dRes?.data) setCurrentResult(dRes.data);
-          });
-        }
-      });
+      setCurrentResult(null);
     }
   }, [executeSearch, initialQuery, loadRecentResults]);
 
@@ -151,8 +148,15 @@ export default function LookupBiochemicalResultsPage() {
     return <Badge bg="success" className="px-2 py-1 fs-7">Bình thường (Normal)</Badge>;
   };
 
+  // API trả `parameters` (lookup) hoặc `items` (TestOrder TRE) — gộp để không trống bảng
+  const resultParameters = currentResult
+    ? (Array.isArray(currentResult.parameters) && currentResult.parameters.length
+        ? currentResult.parameters
+        : (Array.isArray(currentResult.items) ? currentResult.items : []))
+    : [];
+
   // Check if current result has panic/critical values
-  const hasPanicValues = currentResult?.parameters?.some(p =>
+  const hasPanicValues = resultParameters.some(p =>
     String(p.flag).toUpperCase().includes('PANIC') || (p.isAbnormal && String(p.flag).toUpperCase().includes('HIGH') && p.value > 20)
   ) || currentResult?.conclusionNotes?.toLowerCase().includes('cảnh báo');
 
@@ -358,20 +362,12 @@ export default function LookupBiochemicalResultsPage() {
                   <span>Bảng Chỉ Số Xét Nghiệm Sinh Hóa (Biochemical Parameters)</span>
                 </h6>
                 <span className="badge bg-primary">
-                  {currentResult.parameters?.length || 0} Chỉ Số Đo
+                  {resultParameters.length || 0} Chỉ Số Đo
                 </span>
               </Card.Header>
 
               <div className="table-responsive">
-                <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
-                  <colgroup>
-                    <col style={{ width: '12%' }} />
-                    <col style={{ width: '28%' }} />
-                    <col style={{ width: '16%' }} />
-                    <col style={{ width: '12%' }} />
-                    <col style={{ width: '16%' }} />
-                    <col style={{ width: '16%' }} />
-                  </colgroup>
+                <Table hover className="mb-0 align-middle table-sm" style={{ minWidth: 720 }}>
                   <thead className="table-light">
                     <tr>
                       <th className="ps-3">Mã</th>
@@ -383,8 +379,8 @@ export default function LookupBiochemicalResultsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentResult.parameters && currentResult.parameters.length > 0 ? (
-                      currentResult.parameters.map((p, idx) => {
+                    {resultParameters.length > 0 ? (
+                      resultParameters.map((p, idx) => {
                         const isPanic = String(p.flag || '').toUpperCase().includes('PANIC');
                         const isHigh = String(p.flag || '').toUpperCase().includes('HIGH');
                         const isLow = String(p.flag || '').toUpperCase().includes('LOW');
@@ -395,23 +391,23 @@ export default function LookupBiochemicalResultsPage() {
                             className={isPanic ? 'table-danger' : (p.isAbnormal ? 'table-warning' : '')}
                           >
                             <td className="ps-3 font-monospace fw-bold text-secondary" style={{ fontSize: '0.85rem' }}>
-                              {p.code}
+                              {p.code || p.abbreviation || p.criteriaId || '—'}
                             </td>
                             <td>
                               <div className="fw-semibold text-dark" style={{ fontSize: '0.88rem' }}>
-                                {p.name}
+                                {p.name || p.paramName || p.criterionName || '—'}
                               </div>
                             </td>
                             <td>
                               <span className={`fw-bold fs-6 ${isPanic ? 'text-danger' : (isHigh || isLow ? 'text-warning-emphasis' : 'text-dark')}`}>
-                                {p.value}
+                                {p.value ?? p.measuredValue ?? '—'}
                               </span>
                             </td>
                             <td className="text-muted small">
-                              {p.unit}
+                              {p.unit || '—'}
                             </td>
                             <td className="text-muted small font-monospace">
-                              {p.referenceRange || '—'}
+                              {p.referenceRange || p.referenceInterval || '—'}
                             </td>
                             <td className="text-center pe-3">
                               {renderFlagBadge(p.flag, p.isAbnormal)}
@@ -436,6 +432,71 @@ export default function LookupBiochemicalResultsPage() {
                 <div className="p-3 bg-white rounded border text-dark fw-medium" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
                   {currentResult.conclusionNotes || 'Tất cả các thông số sinh hóa và tế bào nằm trong giới hạn tham chiếu bình thường. Không ghi nhận dấu hiệu bất thường.'}
                 </div>
+                {canApprove && !/approved|doctorapproved|signed/i.test(String(currentResult.status || '')) && (
+                  <div className="d-flex flex-wrap gap-2 mt-3">
+                    <Button
+                      variant="success"
+                      size="sm"
+                      disabled={actionBusy}
+                      onClick={async () => {
+                        const resultId = currentResult.id || currentResult.testResultId;
+                        if (!resultId) {
+                          setActionMsg('Thiếu mã kết quả để duyệt.');
+                          return;
+                        }
+                        setActionBusy(true);
+                        setActionMsg('');
+                        try {
+                          await api.post(`/TestOrder/TestResult/${encodeURIComponent(resultId)}/approve`, {
+                            approverId: currentUser?.id || currentUser?.userId || '',
+                            approverName: currentUser?.fullName || currentUser?.name || 'Doctor',
+                            approverRole: 'Doctor',
+                            notes: 'Duyệt lâm sàng từ màn Xem Kết Quả Lab'
+                          });
+                          setActionMsg('Đã phê duyệt & ký kết quả cho bệnh nhân.');
+                          const detailRes = await getTestResultById(resultId);
+                          if (detailRes?.data) setCurrentResult(detailRes.data);
+                          else setCurrentResult((prev) => ({ ...prev, status: 'Approved' }));
+                        } catch (err) {
+                          setActionMsg(err?.response?.data?.message || err?.message || 'Duyệt thất bại.');
+                        } finally {
+                          setActionBusy(false);
+                        }
+                      }}
+                    >
+                      <FaCheckCircle className="me-1" /> Phê duyệt &amp; ký
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      disabled={actionBusy}
+                      onClick={async () => {
+                        const specimenId = currentResult.barcode || currentResult.sampleId;
+                        if (!specimenId) {
+                          setActionMsg('Thiếu mã ống để yêu cầu chạy lại.');
+                          return;
+                        }
+                        setActionBusy(true);
+                        setActionMsg('');
+                        try {
+                          await api.post(`/laboratory/samples/${encodeURIComponent(specimenId)}/rerun`, {
+                            reason: 'Bác sĩ yêu cầu chạy lại từ màn xem KQ Lab',
+                            requestedBy: currentUser?.fullName || currentUser?.name || 'Doctor',
+                            notes: `Result ${currentResult.id || currentResult.testResultId || ''}`
+                          });
+                          setActionMsg(`Đã gửi yêu cầu chạy lại Lab cho mẫu ${specimenId}.`);
+                        } catch (err) {
+                          setActionMsg(err?.response?.data?.message || err?.message || 'Gửi rerun thất bại.');
+                        } finally {
+                          setActionBusy(false);
+                        }
+                      }}
+                    >
+                      <FaExclamationTriangle className="me-1" /> Yêu cầu Lab chạy lại
+                    </Button>
+                    {actionMsg ? <div className="w-100 small text-primary mt-1">{actionMsg}</div> : null}
+                  </div>
+                )}
               </Card.Footer>
             </Card>
           </Col>

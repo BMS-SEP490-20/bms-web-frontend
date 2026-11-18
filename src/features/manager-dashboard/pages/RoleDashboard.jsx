@@ -1,21 +1,14 @@
 /**
  * @file RoleDashboard.jsx
- * @description Master Role-Based Medical Operations Dashboard (UC12).
- * Integrates comprehensive workflows and clinical metrics across all hospital roles:
- * - Trưởng Khoa & Quản Lý (Lab Manager)
- * - Bác Sĩ Lâm Sàng (Doctor)
- * - Kỹ Thuật Viên Xét Nghiệm (Laboratory User)
- * - Tiếp Đón & Lễ Tân (Receptionist)
- * - Quản Trị Hệ Thống (System Admin)
- * 
- * Conforms to: Soft Medical Telehealth UI Specification (macOS / Apple Grade),
- * ISO 15189:2022 Medical Standard, Decision 2429/QD-BYT, and Zero Fabricated Data Rule.
- * @module features/manager-dashboard/pages/RoleDashboard
+ * @description Unified Role-Scoped Operations Dashboard (UC12).
+ * Strictly enforces RBAC separation of duties: each authenticated staff member only views
+ * and queries endpoints permitted for their own canonical role, with 100% real backend data
+ * and Modern Soft Healthcare SaaS styling.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Row, Col, Badge, Button, Table, Spinner, Alert, ProgressBar } from 'react-bootstrap';
+import { Row, Col, Badge, Button, Alert, Spinner } from 'react-bootstrap';
 import {
   FaCheckCircle,
   FaExclamationTriangle,
@@ -28,8 +21,6 @@ import {
   FaMoneyBillWave,
   FaArrowRight,
   FaSyncAlt,
-  FaShieldAlt,
-  FaChartLine,
   FaHeartbeat,
   FaStethoscope,
   FaUserMd,
@@ -38,41 +29,91 @@ import {
   FaQrcode,
   FaUserPlus,
   FaClock,
-  FaCalendarAlt,
   FaReceipt,
   FaDatabase,
   FaUserCog,
   FaUsers,
   FaServer,
-  FaLock
+  FaHistory
 } from 'react-icons/fa';
 import api from '../../../config/api';
 import { fetchVerificationQueue } from '../../laboratory/api/testResultVerificationApi';
 import { getAdminOps } from '../../admin/services/adminOpsService';
-import { ROLES, ROLE_LABELS, getStoredUser } from '../../../constants/roles';
-
-const ROLES_LIST = [
-  { id: 'Manager', label: 'Trưởng Khoa & Quản Lý', icon: FaSlidersH, badgeColor: '#1E60E6' },
-  { id: 'Doctor', label: 'Bác Sĩ Lâm Sàng', icon: FaStethoscope, badgeColor: '#059669' },
-  { id: 'LaboratoryUser', label: 'Kỹ Thuật Viên Lab', icon: FaFlask, badgeColor: '#D97706' },
-  { id: 'Receptionist', label: 'Tiếp Đón & Lễ Tân', icon: FaQrcode, badgeColor: '#8B5CF6' },
-  { id: 'Admin', label: 'Quản Trị Hệ Thống', icon: FaShieldAlt, badgeColor: '#475569' }
-];
+import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
 const VND = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
 const NUM = new Intl.NumberFormat('vi-VN');
 
+const ROLE_META = {
+  Admin: {
+    title: 'Bảng Điều Khiển Quản Trị Hệ Thống',
+    subtitle: 'Giám sát tài khoản nhân sự, nhật ký kiểm toán, sao lưu dữ liệu và hạ tầng cảm biến.'
+  },
+  Manager: {
+    title: 'Bảng Điều Khiển Trưởng Khoa Xét Nghiệm',
+    subtitle: 'Điều hành thẩm định ký số kết quả, hiệu suất thời gian trả kết quả TAT và kiểm chuẩn chất lượng.'
+  },
+  Doctor: {
+    title: 'Bảng Điều Khiển Bác Sĩ Lâm Sàng',
+    subtitle: 'Theo dõi lịch khám trong ngày, kết quả xét nghiệm mới và hồ sơ bệnh án điện tử.'
+  },
+  LaboratoryUser: {
+    title: 'Bảng Điều Khiển Kỹ Thuật Viên Lab',
+    subtitle: 'Theo dõi hàng đợi mẫu bệnh phẩm, tiến độ phân tích và kiểm soát chất lượng nội bộ.'
+  },
+  Receptionist: {
+    title: 'Bảng Điều Khiển Lễ Tân & Tiếp Đón',
+    subtitle: 'Điều phối check-in lịch hẹn, hàng đợi gọi số, tiếp nhận khách vãng lai và viện phí trong ca.'
+  }
+};
+
+function resolveDashboardRoleKey(user) {
+  const roleId = resolveRoleId(user);
+  switch (roleId) {
+    case ROLES.ADMIN:
+      return 'Admin';
+    case ROLES.DOCTOR:
+      return 'Doctor';
+    case ROLES.LAB:
+      return 'LaboratoryUser';
+    case ROLES.RECEPTIONIST:
+      return 'Receptionist';
+    case ROLES.MANAGER:
+    default:
+      return 'Manager';
+  }
+}
+
+function renderPriorityBadge(priority) {
+  const p = String(priority || '').toLowerCase();
+  if (p === 'stat') return <Badge bg="danger">Cấp cứu (STAT)</Badge>;
+  if (p === 'urgent') return <Badge bg="warning">Khẩn cấp</Badge>;
+  return <Badge bg="secondary">Thường quy</Badge>;
+}
+
+function renderStatusBadge(status) {
+  const s = String(status || '').toLowerCase();
+  if (s.includes('complete') || s.includes('paid') || s.includes('approved') || s.includes('success')) {
+    return <Badge bg="success">{status}</Badge>;
+  }
+  if (s.includes('checkin') || s.includes('checkedin') || s.includes('called') || s.includes('progress') || s.includes('testing') || s.includes('collecting')) {
+    return <Badge bg="primary">{status}</Badge>;
+  }
+  if (s.includes('wait') || s.includes('pending') || s.includes('confirm')) {
+    return <Badge bg="warning">{status}</Badge>;
+  }
+  if (s.includes('cancel') || s.includes('reject') || s.includes('fail')) {
+    return <Badge bg="danger">{status}</Badge>;
+  }
+  return <Badge bg="secondary">{status || '—'}</Badge>;
+}
+
 export default function RoleBasedDashboard() {
   const navigate = useNavigate();
 
-  const currentUser = useMemo(() => {
-    try {
-      const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || localStorage.getItem('user');
-      return raw ? JSON.parse(raw) : getStoredUser();
-    } catch {
-      return getStoredUser();
-    }
-  }, []);
+  const currentUser = useMemo(() => getStoredUser(), []);
+  const activeRole = useMemo(() => resolveDashboardRoleKey(currentUser), [currentUser]);
+  const meta = ROLE_META[activeRole] || ROLE_META.Manager;
 
   // Determine initial role from logged in user claims
   const initialRole = useMemo(() => {
@@ -85,72 +126,95 @@ export default function RoleBasedDashboard() {
     return 'Manager';
   }, [currentUser]);
 
-  const [selectedRole, setSelectedRole] = useState(initialRole);
+  // SoD (decision 10 / Phase 6): never let Admin (or any role) preview another role's clinical dashboard.
+  // Cross-role tabs previously exposed Manager "Vào thẩm định kỹ thuật" CTAs to Admin.
+  const selectedRole = initialRole;
   const [stats, setStats] = useState(null);
   const [adminOps, setAdminOps] = useState(null);
-  const [liveQueue, setLiveQueue] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [verificationQueue, setVerificationQueue] = useState([]);
+  const [doctorAppointments, setDoctorAppointments] = useState([]);
+  const [labSamples, setLabSamples] = useState([]);
+  const [receptionQueue, setReceptionQueue] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
-  // Fetch Dashboard Stats from real Backend API
-  const loadDashboardData = useCallback(async (role) => {
+  const loadDashboardData = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      if (role === 'Admin') {
+      if (activeRole === 'Admin') {
         const opsData = await getAdminOps();
-        setAdminOps(opsData);
+        setAdminOps(opsData || null);
       } else {
-        const res = await api.get(`/dashboard/stats?role=${role}`);
-        if (res.data?.success && res.data?.data) {
-          setStats(res.data.data);
-        } else {
-          setError(res.data?.message || 'Không thể tải số liệu vận hành.');
+        const statsRes = await api.get('/dashboard/stats');
+        const payload = statsRes?.data?.data || statsRes?.data || null;
+        setStats(payload);
+
+        if (activeRole === 'Manager') {
+          try {
+            const qRes = await fetchVerificationQueue();
+            const list = Array.isArray(qRes) ? qRes : (Array.isArray(qRes?.data) ? qRes.data : []);
+            setVerificationQueue(list.slice(0, 8));
+          } catch {
+            setVerificationQueue([]);
+          }
+        } else if (activeRole === 'Doctor') {
+          const scheduleFromStats = payload?.doctorData?.todaySchedule;
+          if (Array.isArray(scheduleFromStats) && scheduleFromStats.length > 0) {
+            setDoctorAppointments(scheduleFromStats.slice(0, 8));
+          } else {
+            try {
+              const today = new Date().toISOString().slice(0, 10);
+              const aptRes = await api.get('/appointments', {
+                params: { fromDate: today, toDate: today, page: 1, pageSize: 8 }
+              });
+              const list = aptRes?.data?.data || aptRes?.data?.items || [];
+              setDoctorAppointments(Array.isArray(list) ? list.slice(0, 8) : []);
+            } catch {
+              setDoctorAppointments([]);
+            }
+          }
+        } else if (activeRole === 'LaboratoryUser') {
+          try {
+            const smpRes = await api.get('/laboratory/samples/queue', { params: { page: 1, pageSize: 8 } });
+            const raw = smpRes?.data?.data || smpRes?.data?.items || smpRes?.data || [];
+            const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
+            setLabSamples(list.slice(0, 8));
+          } catch {
+            setLabSamples([]);
+          }
+        } else if (activeRole === 'Receptionist') {
+          try {
+            const qRes = await api.get('/reception/queue');
+            const list = qRes?.data?.data?.currentQueue || [];
+            setReceptionQueue(Array.isArray(list) ? list.slice(0, 8) : []);
+          } catch {
+            setReceptionQueue([]);
+          }
         }
       }
       setLastRefreshed(new Date());
     } catch (err) {
       console.warn('[RoleDashboard] API notice:', err);
-      // Fallback clean structured model to preserve UI rendering stability
-      if (role === 'Admin') {
-        setAdminOps({
-          usersPerRole: { Admin: 4, Manager: 6, Doctor: 18, Lab: 22, Receptionist: 12, Patient: 86 },
-          lockedAccounts: 0,
-          logins: { distinctAccountsLast24h: 38, distinctAccountsLast7d: 112, accountsWithFailedAttempts: 2 },
-          backup: { lastStatus: 'Success', lastCompletedAtUtc: new Date().toISOString(), completedLast7d: 7, failedLast7d: 0 },
-          auditLogRows: 1420,
-          iotDevices: { online: 12, offline: 0 },
-          revenue: { totalCollected: 184500000, paidInvoiceCount: 94 },
-          generatedAtUtc: new Date().toISOString()
-        });
-      } else {
-        setStats({
-          userName: currentUser?.fullName || currentUser?.name || 'BSCKII. Lê Lan Anh',
-          role: role,
-          summaryCards: [
-            { key: 'total_orders', title: 'Tổng lượt khám & xét nghiệm', value: '0', icon: 'FaClipboardCheck', colorVariant: 'blue', subtitle: 'Dữ liệu thời gian thực hôm nay' },
-            { key: 'samples', title: 'Mẫu xét nghiệm tiếp nhận', value: '0', icon: 'FaVial', colorVariant: 'green', subtitle: 'Đang lưu hành toàn viện' },
-            { key: 'tat', title: 'Thời gian trả kết quả (TAT)', value: '—', icon: 'FaStopwatch', colorVariant: 'amber', subtitle: 'Đạt chuẩn ISO 15189' },
-            { key: 'iot_alert', title: 'Nhiệt độ tủ lạnh IoT', value: '—', icon: 'FaTemperatureHigh', colorVariant: 'cyan', subtitle: 'Dải an toàn bảo quản (2°C - 8°C)' }
-          ],
-          managerData: { totalOrdersToday: 0, revenueToday: 0, averageTatMinutes: 0, activeAlertsCount: 0, coldStorageTemperature: null },
-          doctorData: { todayAppointmentsCount: 0, pendingApprovalsCount: 0, reviewedTodayCount: 0, todaySchedule: [] },
-          labUserData: { queueWaitingCount: 0, inProgressCount: 0, completedTodayCount: 0, rerunRequestedCount: 0, prioritySamples: [] },
-          receptionistData: { checkInsToday: 0, waitingQueueCount: 0, totalWalkIns: 0, paymentsCollectedToday: 0 }
-        });
-      }
+      setAdminOps(null);
+      setStats(null);
+      setError(err?.response?.data?.message || err?.message || 'Không thể tải số liệu vận hành. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+  }, [activeRole]);
 
   useEffect(() => {
-    loadDashboardData(selectedRole);
-  }, [selectedRole, loadDashboardData]);
+    loadDashboardData();
+  }, [loadDashboardData]);
 
-  // Load real Verification Queue for clinical roles
+  // Manager-only tech-verify queue (patient names). Skip for Admin/Doctor/Lab/Receptionist.
   useEffect(() => {
+    if (selectedRole !== 'Manager') {
+      setLiveQueue([]);
+      return;
+    }
     fetchVerificationQueue()
       .then(items => {
         const safeItems = Array.isArray(items) ? items : (items?.data && Array.isArray(items.data) ? items.data : []);
@@ -167,57 +231,51 @@ export default function RoleBasedDashboard() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [selectedRole]);
 
   const managerQueue = useMemo(() => {
     return liveQueue.slice(0, 5);
   }, [liveQueue]);
 
   return (
-    <div className="bms-dashboard-wrapper">
-      {/* 1. Master Luxury Page Header Card */}
-      <div className="bms-page-header-card">
-        <div className="bms-page-header-content">
-          
-          <div className="bms-page-title-row">
-            
-            <h1 className="bms-page-title">
-              Bảng điều khiển
-            </h1>
+    <div className="w-100 py-1">
+      {/* 1. Unified Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 w-100">
+          <div className="bms-page-header-content">
+            <h1 className="bms-page-title m-0">{meta.title}</h1>
+            <p className="text-muted small m-0 mt-1">{meta.subtitle}</p>
           </div>
-          
-        </div>
-
-        <div className="bms-page-actions">
-          <Button
-            variant="outline-primary"
-            size="sm"
-            className="rounded-pill px-3.5 py-1.5 fw-semibold d-inline-flex align-items-center gap-2 shadow-xs"
-            onClick={() => loadDashboardData(selectedRole)}
-            disabled={loading}
-          >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} size={12} />
-            <span>{loading ? 'Đang đồng bộ...' : 'Làm mới'}</span>
-          </Button>
-          <div className="d-none d-lg-block text-muted small text-end px-2" style={{ fontSize: '11.5px' }}>
-            <div>Cập nhật: <strong className="text-dark">{lastRefreshed.toLocaleTimeString('vi-VN')}</strong></div>
-            <span className="text-success fw-semibold">● Hệ thống sẵn sàng</span>
+          <div className="bms-page-actions">
+            <span className="text-muted small d-none d-md-inline me-1">
+              Cập nhật lúc <strong className="text-dark">{lastRefreshed.toLocaleTimeString('vi-VN')}</strong>
+            </span>
+            <Button
+              variant="outline-primary"
+              size="sm"
+              className="rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-2"
+              onClick={loadDashboardData}
+              disabled={loading}
+            >
+              <FaSyncAlt className={loading ? 'fa-spin' : ''} size={12} />
+              <span>{loading ? 'Đang tải...' : 'Làm mới'}</span>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* 2. Master Role Switcher Navigation Capsule Bar */}
+      {/* Own-role badge only — no cross-role switcher (SoD / Phase 6 Admin audit). */}
       <div className="mb-4">
         <div className="bms-role-nav-capsule">
-          {ROLES_LIST.map((r) => {
+          {ROLES_LIST.filter((r) => r.id === selectedRole).map((r) => {
             const Icon = r.icon;
-            const isActive = selectedRole === r.id;
             return (
               <button
                 key={r.id}
                 type="button"
-                className={`bms-role-nav-tab ${isActive ? 'active' : ''}`}
-                onClick={() => setSelectedRole(r.id)}
+                className="bms-role-nav-tab active"
+                disabled
+                aria-current="page"
               >
                 <Icon size={14} />
                 <span>{r.label}</span>
@@ -228,22 +286,22 @@ export default function RoleBasedDashboard() {
       </div>
 
       {error && (
-        <Alert variant="danger" className="mb-4 rounded-4 shadow-xs" dismissible onClose={() => setError('')}>
+        <Alert variant="danger" dismissible onClose={() => setError('')} className="mb-4">
           <FaExclamationTriangle className="me-2" />
           {error}
         </Alert>
       )}
 
-      {/* 3. Role-Specific Dynamic Metric Quad (4 KPI Cards) */}
+      {/* 2. Role-Scoped Real-Time KPI Quad */}
       <div className="mb-4">
-        {selectedRole === 'Manager' && (
+        {activeRole === 'Manager' && (
           <Row className="g-3">
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Tổng Lượt Khám &amp; Xét Nghiệm</h6>
-                  <div className="bms-kpi-value">{stats?.managerData?.totalOrdersToday ?? 0}</div>
-                  <div className="bms-kpi-sub text-muted">Dữ liệu thời gian thực hôm nay</div>
+                  <h6 className="bms-kpi-label">Đơn Xét Nghiệm Hôm Nay</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.managerData?.totalOrdersToday ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Tổng lượt chỉ định trong ngày</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaClipboardCheck /></div>
               </div>
@@ -252,7 +310,7 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Doanh Thu Viện Phí Hôm Nay</h6>
-                  <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday || 184500000)}</div>
+                  <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-primary">Đạt 94% chỉ tiêu ca trực</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaMoneyBillWave /></div>
@@ -261,9 +319,11 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Thời Gian Trả KQ Trung Bình (TAT)</h6>
-                  <div className="bms-kpi-value">{stats?.managerData?.averageTatMinutes || 42} <span className="fs-6 fw-bold">phút</span></div>
-                  <div className="bms-kpi-sub text-success">Đạt chuẩn ISO (&lt; 60m STAT)</div>
+                  <h6 className="bms-kpi-label">Thời Gian Trả KQ Trung Bình</h6>
+                  <div className="bms-kpi-value">
+                    {stats?.managerData?.averageTatMinutes ? `${stats.managerData.averageTatMinutes} phút` : '—'}
+                  </div>
+                  <div className="bms-kpi-sub text-muted">Chỉ số hiệu suất TAT</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaStopwatch /></div>
               </div>
@@ -271,9 +331,15 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Nhiệt Độ Tủ Trữ Lạnh IoT</h6>
-                  <div className="bms-kpi-value">{stats?.managerData?.coldStorageTemperature || 3.8}°C</div>
-                  <div className="bms-kpi-sub text-success">Dải an toàn (2°C - 8°C)</div>
+                  <h6 className="bms-kpi-label">Nhiệt Độ Tủ Bảo Quản IoT</h6>
+                  <div className="bms-kpi-value">
+                    {stats?.managerData?.coldStorageTemperature != null ? `${stats.managerData.coldStorageTemperature}°C` : '—'}
+                  </div>
+                  <div className="bms-kpi-sub text-muted">
+                    {(stats?.managerData?.activeAlertsCount ?? 0) === 0
+                      ? 'Dải tiêu chuẩn 2°C – 8°C'
+                      : `${stats.managerData.activeAlertsCount} cảnh báo vượt ngưỡng`}
+                  </div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaTemperatureHigh /></div>
               </div>
@@ -281,14 +347,14 @@ export default function RoleBasedDashboard() {
           </Row>
         )}
 
-        {selectedRole === 'Doctor' && (
+        {activeRole === 'Doctor' && (
           <Row className="g-3">
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Lịch Khám Lâm Sàng Hôm Nay</h6>
-                  <div className="bms-kpi-value">{stats?.doctorData?.todayAppointmentsCount || 18}</div>
-                  <div className="bms-kpi-sub text-primary">4 bệnh nhân đang chờ tại sảnh</div>
+                  <h6 className="bms-kpi-label">Lịch Khám Hôm Nay</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.doctorData?.todayAppointmentsCount ?? doctorAppointments.length)}</div>
+                  <div className="bms-kpi-sub text-primary">Ca khám phân công trong ngày</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserMd /></div>
               </div>
@@ -296,19 +362,19 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Kết Quả Mới Chờ Thẩm Định</h6>
-                  <div className="bms-kpi-value">{stats?.doctorData?.pendingApprovalsCount || 6}</div>
-                  <div className="bms-kpi-sub text-danger">2 kết quả có cờ cảnh báo (H/L)</div>
+                  <h6 className="bms-kpi-label">Kết Quả Chờ Xem Xét</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.doctorData?.pendingApprovalsCount ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Phiếu xét nghiệm cần hội chẩn</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaExclamationTriangle /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaClipboardCheck /></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Hồ Sơ Đã Hoàn Tất Khám</h6>
-                  <div className="bms-kpi-value">{stats?.doctorData?.reviewedTodayCount || 24}</div>
-                  <div className="bms-kpi-sub text-success">100% đã ký duyệt số hóa</div>
+                  <div className="bms-kpi-value">{stats?.doctorData?.reviewedTodayCount ?? 0}</div>
+                  <div className="bms-kpi-sub text-success">Đã thẩm định trong ca</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
               </div>
@@ -317,43 +383,43 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Ca Trực Hiện Tại</h6>
-                  <div className="bms-kpi-value fs-4">Ca Sáng</div>
-                  <div className="bms-kpi-sub text-muted">07:00 – 15:30 (Phòng Khám 102)</div>
+                  <div className="bms-kpi-value fs-4">{stats?.doctorData?.currentShiftName || '—'}</div>
+                  <div className="bms-kpi-sub text-muted">{stats?.doctorData?.currentShiftWindow || 'Theo lịch phân công'}</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaStethoscope /></div>
               </div>
             </Col>
           </Row>
         )}
 
-        {selectedRole === 'LaboratoryUser' && (
+        {activeRole === 'LaboratoryUser' && (
           <Row className="g-3">
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Mẫu Chờ Phân Tích (Queue)</h6>
-                  <div className="bms-kpi-value">{stats?.labUserData?.queueWaitingCount || 36}</div>
-                  <div className="bms-kpi-sub text-danger">8 mẫu Cấp cứu (STAT)</div>
+                  <h6 className="bms-kpi-label">Mẫu Đang Chờ Xử Lý</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.queueWaitingCount ?? 0)}</div>
+                  <div className="bms-kpi-sub text-primary">Hàng đợi tiếp nhận phòng Lab</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaVial /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial /></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Lô Mẫu Đang Chạy Máy</h6>
-                  <div className="bms-kpi-value">{stats?.labUserData?.inProgressCount || 14}</div>
-                  <div className="bms-kpi-sub text-primary">Máy Sinh hóa AU680 &amp; DxH900</div>
+                  <h6 className="bms-kpi-label">Mẫu Đang Phân Tích</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.inProgressCount ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Đang chạy máy xét nghiệm</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaFlask /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaFlask /></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Đã Hoàn Thành Đo Lường</h6>
-                  <div className="bms-kpi-value">{stats?.labUserData?.completedTodayCount || 142}</div>
-                  <div className="bms-kpi-sub text-success">Đồng bộ tự động qua LIS</div>
+                  <h6 className="bms-kpi-label">Hoàn Tất Hôm Nay</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.completedTodayCount ?? 0)}</div>
+                  <div className="bms-kpi-sub text-success">Đã ghi nhận kết quả đo lường</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
               </div>
@@ -362,8 +428,8 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Yêu Cầu Chạy Lại (Rerun)</h6>
-                  <div className="bms-kpi-value">{stats?.labUserData?.rerunRequestedCount || 3}</div>
-                  <div className="bms-kpi-sub text-muted">Mẫu đục / Nghi ngờ tán huyết</div>
+                  <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.rerunRequestedCount ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Mẫu cần kiểm tra đối chiếu lại</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaExclamationTriangle /></div>
               </div>
@@ -371,14 +437,14 @@ export default function RoleBasedDashboard() {
           </Row>
         )}
 
-        {selectedRole === 'Receptionist' && (
+        {activeRole === 'Receptionist' && (
           <Row className="g-3">
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Tiếp Đón &amp; Check-in Hôm Nay</h6>
-                  <div className="bms-kpi-value">{stats?.receptionistData?.checkInsToday || 68}</div>
-                  <div className="bms-kpi-sub text-success">42 lượt quét mã QR tự động</div>
+                  <h6 className="bms-kpi-label">Lượt Check-in Hôm Nay</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.checkInsToday ?? 0)}</div>
+                  <div className="bms-kpi-sub text-success">Tiếp đón tại quầy và quét QR</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaQrcode /></div>
               </div>
@@ -386,9 +452,9 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Đang Chờ Gọi Số Thứ Tự</h6>
-                  <div className="bms-kpi-value">{stats?.receptionistData?.waitingQueueCount || 7}</div>
-                  <div className="bms-kpi-sub text-primary">Thời gian chờ trung bình: 4 phút</div>
+                  <h6 className="bms-kpi-label">Đang Chờ Gọi Số</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.waitingQueueCount ?? receptionQueue.length)}</div>
+                  <div className="bms-kpi-sub text-primary">Bệnh nhân tại sảnh chờ</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaClock /></div>
               </div>
@@ -396,9 +462,9 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Bệnh Nhân Vãng Lai (Walk-in)</h6>
-                  <div className="bms-kpi-value">{stats?.receptionistData?.totalWalkIns || 14}</div>
-                  <div className="bms-kpi-sub text-muted">Đã tạo mã bệnh nhân mới</div>
+                  <h6 className="bms-kpi-label">Khách Vãng Lai Hôm Nay</h6>
+                  <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.totalWalkIns ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Hồ sơ đăng ký trực tiếp tại quầy</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserPlus /></div>
               </div>
@@ -407,7 +473,7 @@ export default function RoleBasedDashboard() {
               <div className="bms-kpi-quad-card">
                 <div>
                   <h6 className="bms-kpi-label">Viện Phí Thu Tại Quầy</h6>
-                  <div className="bms-kpi-value">{VND.format(stats?.receptionistData?.paymentsCollectedToday || 38250000)}</div>
+                  <div className="bms-kpi-value">{VND.format(stats?.receptionistData?.paymentsCollectedToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Xuất hóa đơn điện tử 100%</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaReceipt /></div>
@@ -416,14 +482,14 @@ export default function RoleBasedDashboard() {
           </Row>
         )}
 
-        {selectedRole === 'Admin' && adminOps && (
+        {activeRole === 'Admin' && (
           <Row className="g-3">
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Tổng tài khoản hệ thống</h6>
-                  <div className="bms-kpi-value">{Object.values(adminOps.usersPerRole || {}).reduce((a, b) => a + b, 0)}</div>
-                  <div className="bms-kpi-sub text-muted">5 vai trò nhân sự lâm sàng</div>
+                  <h6 className="bms-kpi-label">Tổng Tài Khoản Hệ Thống</h6>
+                  <div className="bms-kpi-value">{NUM.format(totalAdminUsers)}</div>
+                  <div className="bms-kpi-sub text-muted">Nhân sự y tế và bệnh nhân</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUsers /></div>
               </div>
@@ -431,19 +497,19 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Đăng nhập 24 giờ qua</h6>
-                  <div className="bms-kpi-value">{adminOps.logins?.distinctAccountsLast24h || 38}</div>
-                  <div className="bms-kpi-sub text-success">{adminOps.logins?.distinctAccountsLast7d || 112} tài khoản trong tuần</div>
+                  <h6 className="bms-kpi-label">Hoạt Động 24 Giờ Qua</h6>
+                  <div className="bms-kpi-value">{NUM.format(adminOps?.logins?.distinctAccountsLast24h ?? 0)}</div>
+                  <div className="bms-kpi-sub text-success">{NUM.format(adminOps?.logins?.distinctAccountsLast7d ?? 0)} tài khoản trong 7 ngày</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCheckIcon /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCog /></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Thiết bị IoT &amp; Cảm biến</h6>
-                  <div className="bms-kpi-value text-success">{adminOps.iotDevices?.online || 12} <span className="fs-6 text-muted">Online</span></div>
-                  <div className="bms-kpi-sub text-success">100% cảm biến hoạt động</div>
+                  <h6 className="bms-kpi-label">Cảm Biến IoT Trực Tuyến</h6>
+                  <div className="bms-kpi-value">{NUM.format(adminOps?.iotDevices?.online ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">{NUM.format(adminOps?.iotDevices?.offline ?? 0)} thiết bị ngoại tuyến</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaServer /></div>
               </div>
@@ -451,9 +517,9 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Sao lưu dữ liệu tự động</h6>
-                  <div className="bms-kpi-value fs-4 text-success">{adminOps.backup?.lastStatus || 'Success'}</div>
-                  <div className="bms-kpi-sub text-muted">7/7 bản backup tuần đạt chuẩn</div>
+                  <h6 className="bms-kpi-label">Sao Lưu Cơ Sở Dữ Liệu</h6>
+                  <div className="bms-kpi-value fs-5">{adminOps?.backup?.lastStatus || 'Sẵn sàng'}</div>
+                  <div className="bms-kpi-sub text-muted">{NUM.format(adminOps?.auditLogRows ?? 0)} bản ghi nhật ký audit</div>
                 </div>
                 <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaDatabase /></div>
               </div>
@@ -462,19 +528,18 @@ export default function RoleBasedDashboard() {
         )}
       </div>
 
-      {/* 4. Main Specialized Workspace according to Selected Role */}
-      {selectedRole === 'Manager' && (
+      {/* 3. Role-Scoped Standalone Live Data Table (Zero Box-in-Box) */}
+      {activeRole === 'Manager' && (
         <>
-          {/* 1. Standalone Table Section (Full Width 100% - ZERO TABLE IN CARDS) */}
-          <div className="bms-table-standalone-section">
+          <div className="bms-table-standalone-section mb-4">
             <div className="bms-table-standalone-header">
               <div>
                 <h5 className="bms-table-standalone-title">
                   <FaClipboardCheck style={{ color: '#1E60E6' }} />
-                  Hàng Đợi Thẩm Định &amp; Ký Số Điện Tử (PKI Signature Queue)
+                  Hàng Đợi Thẩm Định Kỹ Thuật (Tùy chọn — QC / Westgard)
                 </h5>
                 <div className="bms-table-standalone-subtitle">
-                  Mẫu đã hoàn tất đo lường phân tích, đang chờ Trưởng khoa phê duyệt ký số PKI (ISO 15189)
+                  Bước tùy chọn của Quản lý Lab. Công bố kết quả cho bệnh nhân chỉ sau khi Bác sĩ ký duyệt tại bàn khám.
                 </div>
               </div>
               <Link
@@ -482,13 +547,13 @@ export default function RoleBasedDashboard() {
                 className="btn btn-sm btn-primary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
-                <span>Vào thẩm định &amp; ký số</span>
+                <span>Vào thẩm định kỹ thuật</span>
                 <FaArrowRight size={11} />
               </Link>
             </div>
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
-                <table className="bms-dash-table">
+                <table className="table align-middle mb-0">
                   <thead>
                     <tr>
                       <th className="ps-4">Mã Mẫu</th>
@@ -500,29 +565,38 @@ export default function RoleBasedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {managerQueue.map((item) => (
-                      <tr key={item.id}>
-                        <td className="ps-4 fw-bold font-monospace text-primary">{item.id}</td>
-                        <td className="fw-semibold text-dark">{item.patientName}</td>
-                        <td className="small text-muted">{item.packageName}</td>
-                        <td>
-                          <span className={`bms-pill-badge ${item.priority === 'Stat' ? 'bms-pill-stat' : item.priority === 'Urgent' ? 'bms-pill-urgent' : 'bms-pill-normal'}`}>
-                            {item.priority === 'Stat' ? 'Cấp cứu (STAT)' : item.priority === 'Urgent' ? 'Khẩn cấp' : 'Thường quy'}
-                          </span>
-                        </td>
-                        <td className="small text-muted">{item.submittedAt}</td>
-                        <td className="text-end pe-4">
-                          <Button
-                            size="sm"
-                            variant="outline-primary"
-                            className="rounded-pill px-3 py-1 fw-semibold"
-                            onClick={() => navigate(`/laboratory/verify-results?specimenId=${item.id}`)}
-                          >
-                            Ký Duyệt
-                          </Button>
+                    {verificationQueue.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          Hiện không có mẫu xét nghiệm nào đang chờ ký duyệt.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      verificationQueue.map((item, idx) => {
+                        const specimenId = item.specimenId || item.id || `SPC-${idx + 1}`;
+                        return (
+                          <tr key={specimenId}>
+                            <td className="ps-4 fw-semibold font-monospace text-primary">{specimenId}</td>
+                            <td className="fw-medium text-dark">{item.patientName || '—'}</td>
+                            <td className="text-muted">{item.packageName || 'Xét nghiệm lâm sàng'}</td>
+                            <td>{renderPriorityBadge(item.priority)}</td>
+                            <td className="text-muted">
+                              {item.createdAt ? new Date(item.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                            </td>
+                            <td className="text-end pe-4">
+                              <Button
+                                size="sm"
+                                variant="outline-primary"
+                                className="rounded-pill px-3 py-1 fw-semibold"
+                                onClick={() => navigate(`/laboratory/verify-results?specimenId=${encodeURIComponent(specimenId)}`)}
+                              >
+                                Thẩm Định
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -530,378 +604,241 @@ export default function RoleBasedDashboard() {
           </div>
 
           <Row className="g-3 mb-4">
-            <Col lg={6}>
-              <section className="bms-monitor-card">
-                <div className="bms-monitor-head">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/laboratory/rooms" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaDoorOpen /></div>
                   <div>
-                    <h5><FaStopwatch /> Hiệu suất TAT</h5>
-                    <p>Cam kết thời gian trả kết quả toàn viện</p>
+                    <h6 className="fw-semibold mb-0">Phòng Xét Nghiệm</h6>
+                    <small className="text-muted">Quản lý phòng lab và thiết bị</small>
                   </div>
-                  <Link to="/reports/tat" className="bms-monitor-link">Chi tiết</Link>
                 </div>
-                <div className="bms-monitor-block">
-                  <div className="bms-monitor-line">
-                    <span className="bms-monitor-name is-stat">Cấp cứu (STAT)</span>
-                    <strong>98.5%</strong>
-                  </div>
-                  <div className="bms-monitor-note">Mục tiêu dưới 60 phút · Trung bình 38 phút</div>
-                  <div className="bms-monitor-track"><div className="is-stat" style={{ width: '98.5%' }} /></div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở danh mục</span>
+                  <FaArrowRight size={11} />
                 </div>
-                <div className="bms-monitor-block">
-                  <div className="bms-monitor-line">
-                    <span className="bms-monitor-name is-routine">Thường quy</span>
-                    <strong>96.2%</strong>
-                  </div>
-                  <div className="bms-monitor-note">Mục tiêu dưới 120 phút · Trung bình 84 phút</div>
-                  <div className="bms-monitor-track"><div className="is-routine" style={{ width: '96.2%' }} /></div>
-                </div>
-              </section>
+              </Link>
             </Col>
-            <Col lg={6}>
-              <section className="bms-monitor-card">
-                <div className="bms-monitor-head">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/criteria" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaSlidersH /></div>
                   <div>
-                    <h5><FaTemperatureHigh /> Tủ bảo quản mẫu</h5>
-                    <p>Chuỗi lạnh 2°C – 8°C</p>
+                    <h6 className="fw-semibold mb-0">Danh Mục Chỉ Số</h6>
+                    <small className="text-muted">Chỉ số và đơn vị đo lường</small>
                   </div>
-                  <span className="bms-monitor-status">
-                    {stats?.managerData?.activeAlertsCount === 0 ? 'Ổn định' : `${stats?.managerData?.activeAlertsCount} cảnh báo`}
-                  </span>
                 </div>
-                <div className="bms-monitor-temp">
-                  <span>Nhiệt độ hiện tại</span>
-                  <strong>{stats?.managerData?.coldStorageTemperature ? `${stats.managerData.coldStorageTemperature}°C` : '—'}</strong>
+                <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
+                  <span>Mở danh mục</span>
+                  <FaArrowRight size={11} />
                 </div>
-                <div className="bms-monitor-facts">
-                  <span>Cảm biến</span>
-                  <strong>{stats?.managerData?.activeAlertsCount === 0 ? 'Hoạt động bình thường' : 'Cần kiểm tra'}</strong>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/laboratory/reference-intervals" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaHeartbeat /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Khoảng Tham Chiếu</h6>
+                    <small className="text-muted">Ngưỡng sinh học và cảnh báo</small>
+                  </div>
                 </div>
-                <div className="bms-monitor-facts">
-                  <span>Dải an toàn</span>
-                  <strong>2.0°C – 8.0°C</strong>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Cấu hình</span>
+                  <FaArrowRight size={11} />
                 </div>
-                <Link to="/manager/iot-thresholds" className="bms-monitor-link">Cấu hình ngưỡng</Link>
-              </section>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/reports/revenue" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaMoneyBillWave /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Báo Cáo Doanh Thu</h6>
+                    <small className="text-muted">Thống kê tài chính viện phí</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Xem báo cáo</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
             </Col>
           </Row>
-
-          {/* Quick Shortcuts Grid */}
-          <div className="bms-dash-card mb-4">
-            <div className="bms-dash-card-header">
-              <h5 className="bms-dash-card-title">
-                <FaSlidersH className="text-primary" />
-                Trung Tâm Quản Trị Chuyên Môn &amp; Danh Mục Y Tế
-              </h5>
-            </div>
-            <div className="p-2">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/laboratory/rooms" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaDoorOpen /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Phòng Xét Nghiệm</h6>
-                        <small className="text-muted">Quản lý phòng lab &amp; máy</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                      <span>Mở giao diện</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/criteria" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaVial /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Danh Mục Chỉ Số</h6>
-                        <small className="text-muted">Tiêu chí xét nghiệm y tế</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                      <span>Mở giao diện</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/laboratory/reference-intervals" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaHeartbeat /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Khoảng Tham Chiếu</h6>
-                        <small className="text-muted">Khoảng sinh học &amp; cờ H/L</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-info small fw-semibold">
-                      <span>Mở giao diện</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/reports/revenue" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaMoneyBillWave /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Báo Cáo Doanh Thu</h6>
-                        <small className="text-muted">Tài chính viện phí phòng Lab</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-warning small fw-semibold">
-                      <span>Mở giao diện</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-              </Row>
-            </div>
-          </div>
         </>
       )}
 
-      {selectedRole === 'Doctor' && (
+      {activeRole === 'Doctor' && (
         <>
-          {/* 1. Standalone Table Section (Full Width 100% - ZERO TABLE IN CARDS) */}
-          <div className="bms-table-standalone-section">
+          <div className="bms-table-standalone-section mb-4">
             <div className="bms-table-standalone-header">
               <div>
-                <h5 className="bms-table-standalone-title">
-                  <FaUserMd className="text-primary" />
-                  Lịch Khám &amp; Chỉ Định Xét Nghiệm Hôm Nay
-                </h5>
+                <h5 className="bms-table-standalone-title">Lịch Khám &amp; Tiếp Đón Bệnh Nhân Hôm Nay</h5>
                 <div className="bms-table-standalone-subtitle">
-                  Danh sách bệnh nhân đã check-in đang chờ bác sĩ khám và chỉ định cận lâm sàng
+                  Danh sách lịch hẹn khám và chỉ định xét nghiệm trong ngày
                 </div>
               </div>
               <Link to="/doctor/console" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
-                Vào Bàn Khám
+                Mở Bàn Khám
               </Link>
             </div>
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
-                <table className="bms-dash-table">
+                <table className="table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th className="ps-4">Mã Hẹn</th>
+                      <th className="ps-4">Mã Lịch Hẹn</th>
                       <th>Bệnh Nhân</th>
-                      <th>Gói Khám</th>
-                      <th>Giờ Khám</th>
+                      <th>Dịch Vụ / Gói Khám</th>
+                      <th>Khung Giờ</th>
                       <th>Trạng Thái</th>
                       <th className="text-end pe-4">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">APT-261006-0042</td>
-                      <td className="fw-semibold text-dark">Nguyễn Thị Thanh Hà</td>
-                      <td className="small text-muted">Bộ Mỡ Máu &amp; Đường Huyết</td>
-                      <td>08:30 Sáng</td>
-                      <td><span className="bms-pill-badge bms-pill-urgent">Đang chờ</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/doctor/console')}>
-                          Khám Ngay
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">APT-261006-0048</td>
-                      <td className="fw-semibold text-dark">Phạm Quốc Dũng</td>
-                      <td className="small text-muted">Tầm Soát Viêm Gan B &amp; C</td>
-                      <td>09:15 Sáng</td>
-                      <td><span className="bms-pill-badge bms-pill-success">Đã check-in</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/doctor/console')}>
-                          Bắt Đầu
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">APT-261006-0055</td>
-                      <td className="fw-semibold text-dark">Trần Bảo Trâm</td>
-                      <td className="small text-muted">Tổng Phân Tích Máu 24 Chỉ Số</td>
-                      <td>10:00 Sáng</td>
-                      <td><span className="bms-pill-badge bms-pill-normal">Đặt trước</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-secondary" className="rounded-pill px-3 py-1 fw-semibold">
-                          Xem Hồ Sơ
-                        </Button>
-                      </td>
-                    </tr>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang tải lịch khám hôm nay...
+                        </td>
+                      </tr>
+                    ) : doctorAppointments.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          Chưa có lịch hẹn khám nào được phân công trong hôm nay.
+                        </td>
+                      </tr>
+                    ) : (
+                      doctorAppointments.map((apt, idx) => {
+                        const code = apt.appointmentCode || apt.appointmentId || apt.id || `APT-${idx + 1}`;
+                        return (
+                          <tr key={code}>
+                            <td className="ps-4 fw-semibold font-monospace text-primary">{code}</td>
+                            <td className="fw-medium text-dark">{apt.patientName || '—'}</td>
+                            <td className="text-muted">{apt.packageName || apt.testPackageName || 'Khám lâm sàng'}</td>
+                            <td>{apt.slotTime || apt.appointmentTime || '—'}</td>
+                            <td>{renderStatusBadge(apt.status)}</td>
+                            <td className="text-end pe-4">
+                              <Button
+                                size="sm"
+                                variant="outline-primary"
+                                className="rounded-pill px-3 py-1 fw-semibold"
+                                onClick={() => navigate('/doctor/console')}
+                              >
+                                Vào Khám
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
 
-          {/* 2. Secondary Clinical Diagnostic Grid */}
-          <Row className="g-4 mb-4">
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+          <Row className="g-3 mb-4">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/doctor/console" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaStethoscope /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-danger">
-                      <FaExclamationTriangle />
-                      Kết Quả Bất Thường Cần Tư Vấn (Delta Check)
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Cảnh báo biến thiên chỉ số vượt ngưỡng sinh học an toàn
-                    </div>
+                    <h6 className="fw-semibold mb-0">Bàn Khám Bác Sĩ</h6>
+                    <small className="text-muted">Gọi số và khám bệnh nhân</small>
                   </div>
-                  <Badge bg="danger" className="rounded-pill">3 cảnh báo</Badge>
                 </div>
-                <div className="p-2 d-flex flex-column gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#FFF1F2' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <strong className="text-danger">Glucose Huyết Tương: 14.8 mmol/L (HH)</strong>
-                      <span className="bms-pill-badge bms-pill-stat">Nguy cấp</span>
-                    </div>
-                    <div className="small text-dark fw-semibold">Bệnh nhân: Lê Văn Toàn (Nam, 58 tuổi)</div>
-                    <div className="small text-muted">Mã chỉ định: ORD-261006-0182 | Chỉ số vượt 2.1x ngưỡng bình thường</div>
-                  </div>
-                  <div className="p-3 rounded-4" style={{ background: '#FFFBEB' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <strong className="text-warning text-dark">Troponin T hs: 58 ng/L (H)</strong>
-                      <span className="bms-pill-badge bms-pill-urgent">Khẩn</span>
-                    </div>
-                    <div className="small text-dark fw-semibold">Bệnh nhân: Hoàng Thị Lan (Nữ, 64 tuổi)</div>
-                    <div className="small text-muted">Mã chỉ định: ORD-261006-0195 | Nghi ngờ hội chứng mạch vành cấp</div>
-                  </div>
-                  <Button variant="outline-danger" className="w-100 rounded-pill fw-semibold mt-1" onClick={() => navigate('/laboratory/biochemical-results')}>
-                    Xem Toàn Bộ Cờ Cảnh Báo Lâm Sàng
-                  </Button>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở bàn khám</span>
+                  <FaArrowRight size={11} />
                 </div>
-              </div>
+              </Link>
             </Col>
-
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/doctor/orders/create" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaNotesMedical /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-primary">
-                      <FaClock />
-                      Lịch Trực Lâm Sàng &amp; Phân Bổ Bàn Khám
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Thông tin ca làm việc và điều phối bệnh nhân tại phòng khám
-                    </div>
+                    <h6 className="fw-semibold mb-0">Chỉ Định Xét Nghiệm</h6>
+                    <small className="text-muted">Tạo phiếu y lệnh cận lâm sàng</small>
                   </div>
-                  <span className="bms-pill-badge bms-pill-primary">Phòng 102</span>
                 </div>
                 <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
                   <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-muted small">Ca trực hôm nay:</span>
-                      <strong className="text-primary fs-5">Ca Sáng (07:00 – 15:30)</strong>
+                      <strong className="text-primary fs-5">{stats?.doctorData?.currentShiftName || 'Chưa có ca'}</strong>
                     </div>
                     <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
                       <span>Bác sĩ phụ trách:</span>
-                      <strong className="text-dark">{currentUser?.fullName || 'BS. CKII Nguyễn Văn Minh'}</strong>
+                      <strong className="text-dark">{currentUser?.fullName || stats?.userName || '—'}</strong>
                     </div>
                   </div>
                   <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <span className="text-primary small fw-semibold">Tiến độ khám bệnh:</span>
-                      <span className="bms-pill-badge bms-pill-success">18 / 24 bệnh nhân</span>
+                      <span className="bms-pill-badge bms-pill-success">
+                        {stats?.doctorData?.reviewedTodayCount ?? 0} / {stats?.doctorData?.todayAppointmentsCount ?? 0} bệnh nhân
+                      </span>
                     </div>
-                    <ProgressBar variant="primary" now={75} style={{ height: 8, borderRadius: 4, marginTop: 8 }} />
+                    <ProgressBar
+                      variant="primary"
+                      now={
+                        (stats?.doctorData?.todayAppointmentsCount || 0) > 0
+                          ? Math.min(100, Math.round(((stats?.doctorData?.reviewedTodayCount || 0) / stats.doctorData.todayAppointmentsCount) * 100))
+                          : 0
+                      }
+                      style={{ height: 8, borderRadius: 4, marginTop: 8 }}
+                    />
                   </div>
                   <Button variant="primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/doctor/console')}>
                     Mở Bàn Khám Điện Tử
                   </Button>
                 </div>
-              </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/doctor/emr" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaNotesMedical /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Bệnh Án Điện Tử (EMR)</h6>
+                    <small className="text-muted">Tra cứu và lập bệnh án</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở EMR</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/medical-assessments" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaHeartbeat /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Chẩn Đoán ICD-10</h6>
+                    <small className="text-muted">Đánh giá lâm sàng và phác đồ</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở danh sách</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
             </Col>
           </Row>
-
-          <div className="bms-dash-card mb-4">
-            <div className="bms-dash-card-header">
-              <h5 className="bms-dash-card-title">
-                <FaStethoscope className="text-primary" />
-                Lối Tắt Nghiệp Vụ Bác Sĩ Lâm Sàng
-              </h5>
-            </div>
-            <div className="p-2">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/doctor/console" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaStethoscope /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Bàn Khám Bác Sĩ</h6>
-                        <small className="text-muted">Gọi số &amp; đón tiếp bệnh nhân</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                      <span>Mở bàn khám</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/doctor/orders/create" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaNotesMedical /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Chỉ Định Xét Nghiệm</h6>
-                        <small className="text-muted">Lập phiếu chỉ định cận lâm sàng</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                      <span>Lập chỉ định</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/doctor/emr" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaNotesMedical /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Bệnh Án Điện Tử (EMR)</h6>
-                        <small className="text-muted">Tra cứu lịch sử bệnh án số</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-purple small fw-semibold">
-                      <span>Mở bệnh án</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/medical-assessments" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaHeartbeat /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Chẩn Đoán ICD-10</h6>
-                        <small className="text-muted">Mã bệnh lý chuẩn Bộ Y Tế</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-warning small fw-semibold">
-                      <span>Tra cứu mã</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-              </Row>
-            </div>
-          </div>
         </>
       )}
 
-      {selectedRole === 'LaboratoryUser' && (
+      {activeRole === 'LaboratoryUser' && (
         <>
-          {/* 1. Standalone Table Section (Full Width 100% - ZERO TABLE IN CARDS) */}
-          <div className="bms-table-standalone-section">
+          <div className="bms-table-standalone-section mb-4">
             <div className="bms-table-standalone-header">
               <div>
-                <h5 className="bms-table-standalone-title">
-                  <FaFlask className="text-warning text-dark" />
-                  Hàng Đợi Mẫu Ưu Tiên &amp; Cấp Cứu (STAT Specimen Queue)
-                </h5>
+                <h5 className="bms-table-standalone-title">Hàng Đợi Mẫu Bệnh Phẩm Trong Ca</h5>
                 <div className="bms-table-standalone-subtitle">
-                  Mẫu máu đã tiếp nhận, đang trong quy trình ly tâm và phân tích tự động trên hệ thống máy Lab
+                  Danh sách mẫu bệnh phẩm mới nhất đang chờ tiếp nhận và phân tích
                 </div>
               </div>
               <Link to="/lab/queue" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
@@ -910,265 +847,50 @@ export default function RoleBasedDashboard() {
             </div>
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
-                <table className="bms-dash-table">
+                <table className="table align-middle mb-0">
                   <thead>
                     <tr>
                       <th className="ps-4">Barcode Mẫu</th>
                       <th>Bệnh Nhân</th>
                       <th>Loại Mẫu</th>
-                      <th>Ưu Tiên</th>
+                      <th>Độ Ưu Tiên</th>
                       <th>Trạng Thái</th>
-                      <th className="text-end pe-4">Hành Động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">BAR-261006-9901</td>
-                      <td className="fw-semibold text-dark">Nguyễn Thị Bích</td>
-                      <td><span className="bms-pill-badge bms-pill-normal">EDTA Tím</span></td>
-                      <td><span className="bms-pill-badge bms-pill-stat">STAT</span></td>
-                      <td><span className="bms-pill-badge bms-pill-urgent">Đang ly tâm</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/laboratory/enter-test-results')}>
-                          Nhập KQ
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">BAR-261006-9908</td>
-                      <td className="fw-semibold text-dark">Đinh Văn Hùng</td>
-                      <td><span className="bms-pill-badge bms-pill-normal">Serum Vàng</span></td>
-                      <td><span className="bms-pill-badge bms-pill-urgent">Khẩn</span></td>
-                      <td><span className="bms-pill-badge bms-pill-info">Đang đo</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/laboratory/enter-test-results')}>
-                          Xem Lô
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="ps-4 fw-bold font-monospace text-primary">BAR-261006-9915</td>
-                      <td className="fw-semibold text-dark">Võ Hoàng Yến</td>
-                      <td><span className="bms-pill-badge bms-pill-normal">Citrate Xanh</span></td>
-                      <td><span className="bms-pill-badge bms-pill-normal">Thường</span></td>
-                      <td><span className="bms-pill-badge bms-pill-success">Chờ duyệt</span></td>
-                      <td className="text-end pe-4">
-                        <Button size="sm" variant="outline-secondary" className="rounded-pill px-3 py-1 fw-semibold">
-                          Chi Tiết
-                        </Button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. Secondary Laboratory Monitoring Grid */}
-          <Row className="g-4 mb-4">
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
-                  <div>
-                    <h5 className="bms-dash-card-title text-success">
-                      <FaCheckCircle />
-                      Kiểm Soát Nội Kiểm IQC Westgard
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Đồ thị Levey-Jennings &amp; Trạng thái máy xét nghiệm tự động
-                    </div>
-                  </div>
-                  <span className="bms-pill-badge bms-pill-success">Đạt chuẩn ISO</span>
-                </div>
-                <div className="p-2 d-flex flex-column gap-3">
-                  <div className="p-3 rounded-4" style={{ background: '#F0FDF4' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <strong className="text-success">Máy Sinh Hóa Tự Động AU680</strong>
-                      <span className="bms-pill-badge bms-pill-success">Đang đo</span>
-                    </div>
-                    <div className="small text-muted">IQC 3 mức nồng độ: Đạt chuẩn Westgard (Không vi phạm 1-3s, 2-2s)</div>
-                    <div className="small text-dark mt-1">Độ lệch chuẩn CV%: <strong>1.82%</strong> (Mục tiêu &lt; 2.5%)</div>
-                  </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <strong className="text-primary">Máy Huyết Học Beckman Coulter DxH900</strong>
-                      <span className="bms-pill-badge bms-pill-primary">Đang đo</span>
-                    </div>
-                    <div className="small text-muted">QC 5 thành phần bạch cầu Laser: Hiệu chuẩn 100% chính xác</div>
-                    <div className="small text-dark mt-1">Lô hóa chất: <strong>LOT-BC-202611</strong> (Hạn dùng: 2027-04)</div>
-                  </div>
-                  <Button variant="outline-primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/laboratory/qc-flags')}>
-                    Mở Bảng Kiểm Chuẩn Westgard (IQC)
-                  </Button>
-                </div>
-              </div>
-            </Col>
-
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
-                  <div>
-                    <h5 className="bms-dash-card-title text-primary">
-                      <FaFlask />
-                      Quản Lý Lô Mẫu &amp; Tải Trọng Máy Phân Tích
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Tiến độ chạy các khay mẫu sinh phẩm trên máy phân tích LIS
-                    </div>
-                  </div>
-                  <span className="bms-pill-badge bms-pill-primary">4 Khay Đang Chạy</span>
-                </div>
-                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-muted small">Lô sinh hóa buổi sáng (Batch-BIO-01):</span>
-                      <strong className="text-success">42 / 48 mẫu</strong>
-                    </div>
-                    <ProgressBar variant="success" now={87.5} style={{ height: 8, borderRadius: 4, marginTop: 8 }} />
-                  </div>
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-muted small">Lô miễn dịch &amp; virus (Batch-IMM-02):</span>
-                      <strong className="text-primary">18 / 24 mẫu</strong>
-                    </div>
-                    <ProgressBar variant="primary" now={75} style={{ height: 8, borderRadius: 4, marginTop: 8 }} />
-                  </div>
-                  <Button variant="outline-primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/laboratory/batches')}>
-                    Quản Lý Chi Tiết Các Lô Mẫu
-                  </Button>
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          <div className="bms-dash-card mb-4">
-            <div className="bms-dash-card-header">
-              <h5 className="bms-dash-card-title">
-                <FaVial className="text-primary" />
-                Lối Tắt Nghiệp Vụ Kỹ Thuật Viên Phòng Lab
-              </h5>
-            </div>
-            <div className="p-2">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/lab/queue" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Hàng Đợi Mẫu</h6>
-                        <small className="text-muted">Theo dõi danh sách mẫu</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                      <span>Mở hàng đợi</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/laboratory/checkinsample" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Tiếp Nhận Mẫu Máu</h6>
-                        <small className="text-muted">Quét barcode nắp ống nghiệm</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                      <span>Tiếp nhận</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/laboratory/enter-test-results" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaNotesMedical /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Nhập Kết Quả Xét Nghiệm</h6>
-                        <small className="text-muted">Ghi nhận chỉ số đo lường</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-warning small fw-semibold">
-                      <span>Nhập số liệu</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/laboratory/batches" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaFlask /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Quản Lý Lô Mẫu</h6>
-                        <small className="text-muted">Gom lô phân tích tự động</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-purple small fw-semibold">
-                      <span>Quản lý lô</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-              </Row>
-            </div>
-          </div>
-        </>
-      )}
-
-      {selectedRole === 'Receptionist' && (
-        <>
-          {/* 1. Standalone Table Section (Full Width 100% - ZERO TABLE IN CARDS) */}
-          <div className="bms-table-standalone-section">
-            <div className="bms-table-standalone-header">
-              <div>
-                <h5 className="bms-table-standalone-title">
-                  <FaQrcode className="text-primary" />
-                  Hàng Đợi Tiếp Đón &amp; Quét Mã QR Check-in
-                </h5>
-                <div className="bms-table-standalone-subtitle">
-                  Danh sách bệnh nhân đang có mặt tại quầy tiếp đón làm thủ tục lấy mẫu xét nghiệm
-                </div>
-              </div>
-              <Link to="/receptionist/check-in" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
-                Quầy Tiếp Đón
-              </Link>
-            </div>
-            <div className="bms-table-standalone-body">
-              <div className="table-responsive">
-                <table className="bms-dash-table">
-                  <thead>
-                    <tr>
-                      <th className="ps-4">Số TT</th>
-                      <th>Bệnh Nhân</th>
-                      <th>Mã Hồ Sơ</th>
-                      <th>Giờ Đến</th>
-                      <th>Hình Thức</th>
                       <th className="text-end pe-4">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {liveQueue.length > 0 ? (
-                      liveQueue.slice(0, 5).map((item, idx) => (
-                        <tr key={item.id || idx}>
-                          <td className="ps-4 fw-bold fs-5 text-primary">#{String(idx + 1).padStart(2, '0')}</td>
-                          <td className="fw-semibold text-dark">{item.patientName || 'Bệnh nhân'}</td>
-                          <td className="font-monospace small">{item.patientId || item.id}</td>
-                          <td>{item.submittedAt || '—'}</td>
-                          <td><span className="bms-pill-badge bms-pill-success">{item.priority || 'Tiếp nhận'}</span></td>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang tải hàng đợi mẫu...
+                        </td>
+                      </tr>
+                    ) : labSamples.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          Hiện chưa có mẫu bệnh phẩm nào trong hàng đợi.
+                        </td>
+                      </tr>
+                    ) : (
+                      labSamples.map((smp, idx) => (
+                        <tr key={smp.id || smp.barcode || idx}>
+                          <td className="ps-4 fw-semibold font-monospace text-primary">{smp.barcode || smp.id}</td>
+                          <td className="fw-medium text-dark">{smp.patientName || '—'}</td>
+                          <td className="text-muted">{smp.sampleType || 'Máu toàn phần'} {smp.tubeColor ? `(${smp.tubeColor})` : ''}</td>
+                          <td>{renderPriorityBadge(smp.priority)}</td>
+                          <td>{renderStatusBadge(smp.status)}</td>
                           <td className="text-end pe-4">
-                            <Button size="sm" variant="primary" className="rounded-pill px-3 py-1 fw-semibold" onClick={() => navigate('/receptionist/check-in')}>
-                              Chi tiết
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              className="rounded-pill px-3 py-1 fw-semibold"
+                              onClick={() => navigate('/laboratory/enter-test-results')}
+                            >
+                              Xử Lý Mẫu
                             </Button>
                           </td>
                         </tr>
                       ))
-                    ) : (
-                      <tr>
-                        <td colSpan="6" className="text-center py-2 text-muted">
-                          Chưa có bệnh nhân nào trong hàng đợi tiếp đón hôm nay.
-                        </td>
-                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -1176,358 +898,335 @@ export default function RoleBasedDashboard() {
             </div>
           </div>
 
-          {/* 2. Secondary Reception Monitoring Grid */}
-          <Row className="g-4 mb-4">
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+          <Row className="g-3 mb-4">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/lab/queue" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-success">
-                      <FaReceipt />
-                      Quầy Thu Viện Phí &amp; Hóa Đơn Điện Tử
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Tóm tắt viện phí thu trực tiếp tại quầy trong ngày
-                    </div>
+                    <h6 className="fw-semibold mb-0">Hàng Đợi Mẫu</h6>
+                    <small className="text-muted">Theo dõi vòng đời ống mẫu</small>
                   </div>
-                  <Link to="/invoices" className="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold">
-                    Xem Quầy Thu
-                  </Link>
                 </div>
-                <div className="p-2 d-flex flex-column gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-muted small">Tổng thu tiền mặt &amp; thẻ:</span>
-                      <strong className="text-success fs-5">{VND.format(38250000)}</strong>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center text-muted small mt-2">
-                      <span>Đã xuất hóa đơn VAT điện tử:</span>
-                      <strong className="text-dark">48 hóa đơn</strong>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-4" style={{ background: '#EFF6FF' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="text-primary small fw-semibold">Thanh toán qua cổng VNPay-QR:</span>
-                      <span className="bms-pill-badge bms-pill-primary">24 lượt</span>
-                    </div>
-                    <div className="small text-muted mt-1">Đồng bộ tự động vào sổ cái viện phí không cần đối soát thủ công</div>
-                  </div>
-                  <Button variant="primary" className="w-100 rounded-pill fw-semibold py-2" onClick={() => navigate('/receptionist/check-in')}>
-                    Mở Bàn Tiếp Đón &amp; Gọi Số Kế Tiếp
-                  </Button>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở hàng đợi</span>
+                  <FaArrowRight size={11} />
                 </div>
-              </div>
+              </Link>
             </Col>
-
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/laboratory/checkinsample" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-primary">
-                      <FaClock />
-                      Điều Phối Phòng Lấy Mẫu &amp; Sảnh Chờ
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Tình trạng hoạt động của các buồng lấy máu và sảnh đón tiếp
-                    </div>
+                    <h6 className="fw-semibold mb-0">Tiếp Nhận Mẫu Máu</h6>
+                    <small className="text-muted">Quét barcode nhận mẫu</small>
                   </div>
-                  <span className="bms-pill-badge bms-pill-primary">3 Buồng Mở</span>
                 </div>
-                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="fw-semibold text-dark small">Buồng lấy mẫu máu 01:</span>
-                      <span className="bms-pill-badge bms-pill-success">Đang phục vụ</span>
-                    </div>
-                    <div className="small text-muted mt-1">Điều dưỡng: Lê Thị Mai | Đã lấy 28 ca sáng nay</div>
-                  </div>
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <span className="fw-semibold text-dark small">Buồng lấy mẫu máu 02:</span>
-                      <span className="bms-pill-badge bms-pill-success">Đang phục vụ</span>
-                    </div>
-                    <div className="small text-muted mt-1">Điều dưỡng: Trần Quốc Tuấn | Đã lấy 24 ca sáng nay</div>
-                  </div>
-                  <Button variant="outline-primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/reception/queue')}>
-                    Xem Màn Hình Hàng Đợi Sảnh Chờ
-                  </Button>
+                <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
+                  <span>Tiếp nhận</span>
+                  <FaArrowRight size={11} />
                 </div>
-              </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/laboratory/enter-test-results" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaNotesMedical /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Nhập Kết Quả XN</h6>
+                    <small className="text-muted">Ghi nhận chỉ số phân tích</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Nhập kết quả</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/qc/management" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaFlask /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Kiểm Chuẩn IQC</h6>
+                    <small className="text-muted">Biểu đồ Levey-Jennings</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở IQC</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
             </Col>
           </Row>
-
-          <div className="bms-dash-card mb-4">
-            <div className="bms-dash-card-header">
-              <h5 className="bms-dash-card-title">
-                <FaQrcode className="text-primary" />
-                Lối Tắt Tiếp Đón &amp; Điều Phối Bệnh Nhân
-              </h5>
-            </div>
-            <div className="p-2">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/receptionist/check-in" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaQrcode /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Tiếp Đón &amp; Check-in</h6>
-                        <small className="text-muted">Quét mã QR tại quầy tiếp tân</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                      <span>Mở quầy check-in</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/reception/queue" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaClock /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Bảng Gọi Số &amp; Hàng Đợi</h6>
-                        <small className="text-muted">Màn hình hiển thị số thứ tự sảnh</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                      <span>Mở bảng gọi số</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/receptionist/create-patient" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserPlus /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Tạo Hồ Sơ Bệnh Nhân</h6>
-                        <small className="text-muted">Đăng ký người bệnh vãng lai</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-purple small fw-semibold">
-                      <span>Tạo hồ sơ</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/invoices" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaReceipt /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Quầy Thu Viện Phí</h6>
-                        <small className="text-muted">Thanh toán &amp; Hóa đơn VAT</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-warning small fw-semibold">
-                      <span>Mở quầy thu</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-              </Row>
-            </div>
-          </div>
         </>
       )}
 
-      {selectedRole === 'Admin' && adminOps && (
+      {activeRole === 'Receptionist' && (
         <>
-          {/* 1. Standalone Table Section (Full Width 100% - ZERO TABLE IN CARDS) */}
-          <div className="bms-table-standalone-section">
+          <div className="bms-table-standalone-section mb-4">
             <div className="bms-table-standalone-header">
               <div>
-                <h5 className="bms-table-standalone-title">
-                  <FaUsers className="text-primary" />
-                  Phân Bổ Nhân Sự &amp; Tài Khoản (IAM)
-                </h5>
+                <h5 className="bms-table-standalone-title">Hàng Đợi Sảnh Đón Tiếp &amp; Lấy Mẫu</h5>
                 <div className="bms-table-standalone-subtitle">
-                  Thống kê số lượng nhân sự theo vai trò phân quyền lâm sàng trong hệ thống.
+                  Danh sách số thứ tự đang chờ phục vụ tại các quầy tiếp nhận
                 </div>
               </div>
-              <Link to="/admin/user-management" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
-                Quản Lý Tài Khoản IAM
-              </Link>
+              <div className="d-flex gap-2">
+                <Link to="/receptionist/check-in" className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                  Check-in QR
+                </Link>
+                <Link to="/reception/queue" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
+                  Bảng Gọi Số
+                </Link>
+              </div>
             </div>
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
-                <table className="bms-dash-table">
+                <table className="table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th className="ps-4">VAI TRÒ HỆ THỐNG (ROLE)</th>
-                      <th className="text-end">SỐ TÀI KHOẢN</th>
-                      <th className="text-end">TÌNH TRẠNG</th>
-                      <th className="text-end pe-4">THAO TÁC</th>
+                      <th className="ps-4">Số Thứ Tự</th>
+                      <th>Bệnh Nhân</th>
+                      <th>Mã Bệnh Nhân</th>
+                      <th>Độ Ưu Tiên</th>
+                      <th>Trạng Thái</th>
+                      <th className="text-end pe-4">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.entries(adminOps.usersPerRole || {}).map(([roleKey, count]) => (
-                      <tr key={roleKey}>
-                        <td className="ps-4 fw-semibold text-dark">{ROLE_LABELS[roleKey] || roleKey}</td>
-                        <td className="text-end fw-bold font-monospace">{NUM.format(count)}</td>
-                        <td className="text-end">
-                          <span className="bms-pill-badge bms-pill-success">Hoạt động</span>
-                        </td>
-                        <td className="text-end pe-4">
-                          <Button
-                            size="sm"
-                            variant="outline-primary"
-                            className="rounded-pill px-3 py-1 fw-semibold"
-                            onClick={() => navigate('/admin/user-management')}
-                          >
-                            Chi Tiết
-                          </Button>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang tải hàng đợi tiếp đón...
                         </td>
                       </tr>
-                    ))}
+                    ) : receptionQueue.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          Hiện chưa có bệnh nhân nào đang chờ trong hàng đợi lấy mẫu.
+                        </td>
+                      </tr>
+                    ) : (
+                      receptionQueue.map((ticket, idx) => (
+                        <tr key={ticket.id || ticket.ticketNumber || idx}>
+                          <td className="ps-4 fw-semibold font-monospace text-primary">{ticket.ticketNumber || `#${idx + 1}`}</td>
+                          <td className="fw-medium text-dark">{ticket.patientName || '—'}</td>
+                          <td className="font-monospace text-muted">{ticket.patientCode || '—'}</td>
+                          <td>{renderPriorityBadge(ticket.priority)}</td>
+                          <td>{renderStatusBadge(ticket.status)}</td>
+                          <td className="text-end pe-4">
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              className="rounded-pill px-3 py-1 fw-semibold"
+                              onClick={() => navigate('/reception/queue')}
+                            >
+                              Điều Phối
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
 
-          {/* 2. Secondary Infrastructure & Security Monitoring Grid */}
-          <Row className="g-4 mb-4">
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+          <Row className="g-3 mb-4">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/receptionist/check-in" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaQrcode /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-success">
-                      <FaServer />
-                      Hạ Tầng Sao Lưu Tự Động (MongoDB Backup)
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Giám sát chu kỳ backup cơ sở dữ liệu y tế định kỳ.
-                    </div>
+                    <h6 className="fw-semibold mb-0">Tiếp Đón &amp; Check-in</h6>
+                    <small className="text-muted">Quét mã QR lịch hẹn</small>
                   </div>
-                  <Badge bg="success" className="rounded-pill">Đã xác thực</Badge>
                 </div>
-                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <strong className="text-dark d-flex align-items-center gap-2">
-                        <FaDatabase className="text-primary" />
-                        Trạng Thái Snapshot Gần Nhất:
-                      </strong>
-                      <span className="bms-pill-badge bms-pill-success">{adminOps.backup?.lastStatus || 'Success'}</span>
-                    </div>
-                    <div className="small text-muted mt-2">
-                      Thời điểm hoàn thành: <strong>{adminOps.backup?.lastCompletedAtUtc ? new Date(adminOps.backup.lastCompletedAtUtc).toLocaleString('vi-VN') : '03:00 Sáng nay'}</strong>
-                    </div>
-                  </div>
-                  <Button variant="outline-primary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/admin/backup')}>
-                    Quản Trị Sao Lưu &amp; Khôi Phục Dữ Liệu
-                  </Button>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở quầy check-in</span>
+                  <FaArrowRight size={11} />
                 </div>
-              </div>
+              </Link>
             </Col>
-
-            <Col lg={6}>
-              <div className="bms-dash-card h-100">
-                <div className="bms-dash-card-header">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/receptionist/create-patient" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserPlus /></div>
                   <div>
-                    <h5 className="bms-dash-card-title text-primary">
-                      <FaShieldAlt className="text-primary" />
-                      Nhật Ký Kiểm Toán (Audit Logs) &amp; Bảo Mật
-                    </h5>
-                    <div className="bms-dash-card-subtitle">
-                      Ghi nhận truy cập và chỉnh sửa hồ sơ bệnh án số bất biến.
-                    </div>
+                    <h6 className="fw-semibold mb-0">Tiếp Nhận Vãng Lai</h6>
+                    <small className="text-muted">Đăng ký hồ sơ mới tại quầy</small>
                   </div>
-                  <span className="bms-pill-badge bms-pill-info">{NUM.format(adminOps.auditLogRows || 1420)} sự kiện</span>
                 </div>
-                <div className="p-2 d-flex flex-column justify-content-between flex-grow-1 gap-3">
-                  <div className="p-2 rounded-4" style={{ background: '#F8FAFC' }}>
-                    <div className="small text-dark fw-semibold mb-1">Bảo đảm an toàn thông tin y tế:</div>
-                    <div className="small text-muted">Toàn bộ thao tác nghiệp vụ lâm sàng đều được ghi nhận kèm mã nhân viên, địa chỉ IP và timestamp chuẩn ISO 8601.</div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Tạo hồ sơ</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/invoices" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaReceipt /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Quầy Thu Viện Phí</h6>
+                    <small className="text-muted">Hóa đơn và biên lai K80</small>
                   </div>
-                  <Button variant="outline-secondary" className="w-100 rounded-pill fw-semibold" onClick={() => navigate('/admin/audit-logs')}>
-                    Xem Chi Tiết Nhật Ký Audit Logs
-                  </Button>
                 </div>
-              </div>
+                <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
+                  <span>Mở quầy thu</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/calculate-fees" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaMoneyBillWave /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Dự Toán BHYT</h6>
+                    <small className="text-muted">Chiết tính đồng chi trả</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở bảng tính</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
             </Col>
           </Row>
+        </>
+      )}
 
-          <div className="bms-dash-card mb-4">
-            <div className="bms-dash-card-header">
-              <h5 className="bms-dash-card-title">
-                <FaShieldAlt className="text-primary" />
-                Trung Tâm Quản Trị Hệ Thống Toàn Viện
-              </h5>
+      {activeRole === 'Admin' && (
+        <>
+          <div className="bms-table-standalone-section mb-4">
+            <div className="bms-table-standalone-header">
+              <div>
+                <h5 className="bms-table-standalone-title">Phân Bổ Nhân Sự &amp; Tài Khoản Hệ Thống (IAM)</h5>
+                <div className="bms-table-standalone-subtitle">
+                  Thống kê số lượng tài khoản hoạt động theo từng nhóm vai trò phân quyền
+                </div>
+              </div>
+              <Link to="/admin/user-management" className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
+                Quản Lý Tài Khoản
+              </Link>
             </div>
-            <div className="p-2">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/admin/user-management" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserCog /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Quản Lý Tài Khoản (IAM)</h6>
-                        <small className="text-muted">Cấp phát &amp; phân quyền</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                      <span>Mở quản trị IAM</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/roles" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaShieldAlt /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Phân Quyền Vai Trò (RBAC)</h6>
-                        <small className="text-muted">Thiết lập ma trận quyền hạn</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                      <span>Mở ma trận RBAC</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/admin/audit-logs" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaShieldAlt /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Nhật Ký Audit Hệ Thống</h6>
-                        <small className="text-muted">Lịch sử đăng nhập &amp; truy xuất</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-purple small fw-semibold">
-                      <span>Mở audit log</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-                <Col xs={12} sm={6} lg={3}>
-                  <Link to="/admin/backup" className="bms-quick-tile">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaDatabase /></div>
-                      <div>
-                        <h6 className="fw-bold mb-0">Sao Lưu &amp; Khôi Phục</h6>
-                        <small className="text-muted">Backup tự động toàn hệ thống</small>
-                      </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between text-warning small fw-semibold">
-                      <span>Mở sao lưu</span>
-                      <FaArrowRight size={11} />
-                    </div>
-                  </Link>
-                </Col>
-              </Row>
+            <div className="bms-table-standalone-body">
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th className="ps-4">Vai Trò Hệ Thống</th>
+                      <th className="text-end">Số Lượng Tài Khoản</th>
+                      <th className="text-center">Trạng Thái</th>
+                      <th className="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="4" className="text-center text-muted">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang tải thống kê tài khoản...
+                        </td>
+                      </tr>
+                    ) : !adminOps?.usersPerRole || Object.keys(adminOps.usersPerRole).length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center text-muted">
+                          Chưa ghi nhận dữ liệu phân bổ tài khoản.
+                        </td>
+                      </tr>
+                    ) : (
+                      Object.entries(adminOps.usersPerRole).map(([roleKey, count]) => (
+                        <tr key={roleKey}>
+                          <td className="ps-4 fw-medium text-dark">{ROLE_LABELS[roleKey] || roleKey}</td>
+                          <td className="text-end fw-semibold font-monospace">{NUM.format(count)}</td>
+                          <td className="text-center"><Badge bg="success">Đang hoạt động</Badge></td>
+                          <td className="text-end pe-4">
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              className="rounded-pill px-3 py-1 fw-semibold"
+                              onClick={() => navigate('/admin/user-management')}
+                            >
+                              Chi Tiết
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
+
+          <Row className="g-3 mb-4">
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/admin/user-management" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserCog /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Quản Lý Tài Khoản</h6>
+                    <small className="text-muted">Cấp phát và phân quyền IAM</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở quản trị IAM</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/roles" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Phân Quyền Vai Trò</h6>
+                    <small className="text-muted">Ma trận đặc quyền RBAC</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
+                  <span>Mở RBAC</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/admin/audit-logs" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaHistory /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Nhật Ký Audit</h6>
+                    <small className="text-muted">Lịch sử truy xuất hệ thống</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở nhật ký</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+            <Col xs={12} sm={6} lg={3}>
+              <Link to="/admin/backup" className="bms-quick-tile">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaDatabase /></div>
+                  <div>
+                    <h6 className="fw-semibold mb-0">Sao Lưu &amp; Khôi Phục</h6>
+                    <small className="text-muted">Snapshot cơ sở dữ liệu</small>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
+                  <span>Mở sao lưu</span>
+                  <FaArrowRight size={11} />
+                </div>
+              </Link>
+            </Col>
+          </Row>
         </>
       )}
     </div>
   );
-}
-
-// Small helper component for user check icon
-function FaUserCheckIcon() {
-  return <FaUsers />;
 }

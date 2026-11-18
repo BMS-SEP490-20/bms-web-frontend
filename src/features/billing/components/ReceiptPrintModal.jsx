@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { FaPrint, FaTimes } from 'react-icons/fa';
 
 export default function ReceiptPrintModal({ printData, onClose }) {
     const receiptRef = useRef(null);
@@ -104,7 +105,8 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 boxShadow: '0 2px 8px rgba(30, 96, 230, 0.3)',
                             }}
                         >
-                            🖨️ In Ngay (Print)
+                            <FaPrint size={13} />
+                            <span>In Ngay</span>
                         </button>
                         <button
                             onClick={onClose}
@@ -116,9 +118,11 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 borderRadius: '9999px',
                                 fontSize: '13px',
                                 cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
                             }}
                         >
-                            ✕
+                            <FaTimes size={13} />
                         </button>
                     </div>
                 </div>
@@ -355,12 +359,15 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 border: 'none',
                                 backgroundColor: '#1E60E6',
                                 color: '#ffffff',
-                                fontWeight: '700',
+                                fontWeight: '600',
                                 cursor: 'pointer',
-                                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
                             }}
                         >
-                            🖨️ In Biên Lai (K80)
+                            <FaPrint size={13} />
+                            <span>In Biên Lai (K80)</span>
                         </button>
                     </div>
                 </div>

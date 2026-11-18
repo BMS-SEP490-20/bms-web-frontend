@@ -1,16 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { FaReceipt, FaSearch, FaTimes, FaPlus } from 'react-icons/fa';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Modal,
+  Button,
+  Form,
+  Row,
+  Col,
+  Badge,
+  Spinner,
+  Alert,
+  Table
+} from 'react-bootstrap';
+import {
+  FaReceipt,
+  FaSearch,
+  FaTimes,
+  FaPlus,
+  FaPrint,
+  FaFileInvoice,
+  FaCreditCard,
+  FaMoneyBillWave,
+  FaQrcode
+} from 'react-icons/fa';
 import {
   getInvoices,
   createInvoice,
   payInvoice,
   getReceiptPrintData
 } from '../api/billingApi';
+import { getPackages } from '../../admin/api/packageApi';
 import ReceiptPrintModal from '../components/ReceiptPrintModal';
-import VatInvoiceModal from '../components/VatInvoiceModal';
+import VatInvoiceModal, { numberToVietnameseWords } from '../components/VatInvoiceModal';
 
 export default function BillingInvoicesPage() {
   const [invoices, setInvoices] = useState([]);
+  const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
@@ -31,19 +54,39 @@ export default function BillingInvoicesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPatientName, setNewPatientName] = useState('');
   const [newPatientPhone, setNewPatientPhone] = useState('');
-  const [newItemName, setNewItemName] = useState('Khám Nội Tổng Quát + Xét Nghiệm Máu');
-  const [newItemPrice, setNewItemPrice] = useState(350000);
+  const [newPatientCccd, setNewPatientCccd] = useState('');
+  const [selectedPackageCode, setSelectedPackageCode] = useState('');
+  const [newItemName, setNewItemName] = useState('Gói Xét Nghiệm Tầm Soát Thiếu Máu & Bệnh Lý Huyết Sắc Tố');
+  const [newItemPrice, setNewItemPrice] = useState(620000);
   const [newDiscount, setNewDiscount] = useState(0);
 
   useEffect(() => {
     loadInvoices();
+    loadPackages();
   }, [statusFilter]);
+
+  async function loadPackages() {
+    try {
+      const res = await getPackages({ pageSize: 50 });
+      if (Array.isArray(res)) {
+        setPackages(res);
+      } else if (res?.data && Array.isArray(res.data)) {
+        setPackages(res.data);
+      }
+    } catch (err) {
+      console.warn('Không thể nạp danh mục gói xét nghiệm:', err);
+    }
+  }
 
   async function loadInvoices() {
     setLoading(true);
     try {
       const res = await getInvoices({ status: statusFilter });
-      if (res.data) setInvoices(res.data);
+      if (res?.data) {
+        setInvoices(res.data);
+      } else if (Array.isArray(res)) {
+        setInvoices(res);
+      }
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách hóa đơn.');
     } finally {
@@ -53,18 +96,20 @@ export default function BillingInvoicesPage() {
 
   const handleOpenPrint = async (invoice) => {
     if (invoice.status !== 1 && invoice.status !== 'Paid') {
-      alert('Chỉ có thể in biên lai cho hóa đơn đã thanh toán thành công (Status: Paid). Vui lòng thanh toán trước.');
+      setError('Chỉ có thể in biên lai cho hóa đơn đã thanh toán.');
       return;
     }
 
     try {
       setLoading(true);
       const res = await getReceiptPrintData(invoice.id);
-      if (res.data) {
+      if (res?.data) {
         setPrintData(res.data);
+      } else if (res) {
+        setPrintData(res);
       }
     } catch (err) {
-      alert(err.message || 'Không thể lấy dữ liệu in biên lai.');
+      setError(err.message || 'Không thể lấy dữ liệu in biên lai.');
     } finally {
       setLoading(false);
     }
@@ -99,36 +144,57 @@ export default function BillingInvoicesPage() {
         transactionReference: `POS-${Date.now()}`
       });
       setShowPayModal(false);
-      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công!`);
+      setSuccessMsg(`Thanh toán hóa đơn ${selectedInvoice.invoiceCode} thành công.`);
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadInvoices();
     } catch (err) {
-      alert(err.message || 'Lỗi xử lý thanh toán.');
+      setError(err.message || 'Lỗi xử lý thanh toán.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelectPackageChange = (code) => {
+    setSelectedPackageCode(code);
+    if (!code) {
+      return;
+    }
+    if (code === 'CUSTOM') {
+      setNewItemName('');
+      setNewItemPrice(0);
+      return;
+    }
+    const found = packages.find(
+      p => p.packageCode === code || p.id === code || p.package_code === code
+    );
+    if (found) {
+      setNewItemName(found.packageName || found.name || found.package_name);
+      const price = found.discountPrice || found.price || found.discount_price || 0;
+      setNewItemPrice(price);
     }
   };
 
   const handleCreateInvoice = async (e) => {
     e.preventDefault();
     if (!newPatientName.trim()) {
-      alert('Vui lòng nhập họ tên bệnh nhân.');
+      alert('Vui lòng nhập họ tên người bệnh.');
       return;
     }
 
     const payload = {
-      patientId: `PAT-${Date.now().toString().slice(-6)}`,
+      patientId: newPatientCccd?.trim() ? `PAT-${newPatientCccd.trim().slice(-6)}` : `PAT-${Date.now().toString().slice(-6)}`,
       patientName: newPatientName.trim(),
-      patientPhone: newPatientPhone.trim(),
+      patientPhone: newPatientPhone.trim() || undefined,
+      citizenId: newPatientCccd.trim() || undefined,
       items: [
         {
-          itemCode: 'SRV-01',
-          itemName: newItemName,
+          itemCode: selectedPackageCode && selectedPackageCode !== 'CUSTOM' ? selectedPackageCode : 'SRV-01',
+          itemName: newItemName.trim() || 'Dịch vụ xét nghiệm y khoa',
           quantity: 1,
-          unitPrice: Number(newItemPrice)
+          unitPrice: Number(newItemPrice) || 0
         }
       ],
-      discountAmount: Number(newDiscount)
+      discountAmount: Number(newDiscount) || 0
     };
 
     try {
@@ -137,111 +203,172 @@ export default function BillingInvoicesPage() {
       setShowCreateModal(false);
       setNewPatientName('');
       setNewPatientPhone('');
-      setSuccessMsg('Đã tạo hóa đơn thu phí mới thành công.');
-      setTimeout(() => setSuccessMsg(null), 3000);
+      setNewPatientCccd('');
+      setSuccessMsg('Đã tạo hóa đơn thu phí mới và lưu vào sổ viện phí thành công.');
+      setTimeout(() => setSuccessMsg(null), 3500);
       await loadInvoices();
     } catch (err) {
-      alert(err.message || 'Lỗi tạo hóa đơn.');
+      alert(err.message || 'Lỗi tạo hóa đơn thu phí.');
     } finally {
       setLoading(false);
     }
   };
 
   // Filtered list by search
-  const filteredInvoices = invoices.filter(inv => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      inv.invoiceCode?.toLowerCase().includes(term) ||
-      inv.patientName?.toLowerCase().includes(term) ||
-      inv.patientPhone?.includes(term)
-    );
-  });
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter(inv => {
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        inv.invoiceCode?.toLowerCase().includes(term) ||
+        inv.patientName?.toLowerCase().includes(term) ||
+        inv.patientPhone?.includes(term)
+      );
+    });
+  }, [invoices, searchTerm]);
 
-  const totalPaid = invoices
-    .filter(i => i.status === 1 || i.status === 'Paid')
-    .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+  const totalPaid = useMemo(() => {
+    return invoices
+      .filter(i => i.status === 1 || i.status === 'Paid')
+      .reduce((sum, i) => sum + (Number(i.totalAmount) || 0), 0);
+  }, [invoices]);
 
-  const totalPending = invoices
-    .filter(i => i.status === 0 || i.status === 'Unpaid')
-    .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+  const totalPending = useMemo(() => {
+    return invoices
+      .filter(i => i.status === 0 || i.status === 'Unpaid')
+      .reduce((sum, i) => sum + (Number(i.totalAmount) || 0), 0);
+  }, [invoices]);
+
+  const calculatedTotal = Math.max(0, (Number(newItemPrice) || 0) - (Number(newDiscount) || 0));
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e293b' }}>
-      {/* Header */}
-      <header className="bms-page-header mb-4">
-        <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
-          <h1 className="bms-page-title fs-4">Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử</h1>
-          <p className="text-muted small mb-0">
-            Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT theo Nghị định 123/2020/NĐ-CP.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowCreateModal(true)}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '9999px',
-            border: 'none',
-            backgroundColor: '#1E60E6',
-            color: '#ffffff',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(30, 96, 230, 0.25)',
+    <div className="container-fluid py-3 px-4" style={{ maxWidth: '1440px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      
+      {/* Master Page Header Card (BMS Luxury Standard) */}
+      <div className="bms-page-header-card d-flex align-items-center justify-content-between flex-wrap gap-3 p-3 mb-4 bg-white rounded-4 shadow-sm border border-slate-100">
+        <div className="d-flex align-items-center gap-3">
+          <div style={{
+            width: 46,
+            height: 46,
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            color: '#1d4ed8',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <span>+</span>
-          <span>Tạo Hóa Đơn Thu Viện Phí</span>
-        </button>
-      </header>
+            justifyContent: 'center',
+            fontSize: 22,
+            boxShadow: '0 2px 8px rgba(29, 78, 216, 0.15)'
+          }}>
+            <FaReceipt />
+          </div>
+          <div>
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <h1 className="bms-page-title mb-0" style={{ fontSize: '19px', fontWeight: '800', color: '#0f172a' }}>
+                Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử
+              </h1>
+              <span className="badge rounded-pill" style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: '700' }}>
+                Nghị Định 123/2020/NĐ-CP
+              </span>
+              <span className="badge rounded-pill" style={{ background: '#ecfdf5', color: '#065f46', fontSize: '11px', fontWeight: '700' }}>
+                Chuẩn ISO 15189
+              </span>
+            </div>
+            <p className="text-muted small mb-0 mt-1">
+              Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT.
+            </p>
+          </div>
+        </div>
+
+        <div className="bms-page-actions">
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
+            style={{
+              borderRadius: 9999,
+              background: '#1E60E6',
+              borderColor: '#1E60E6',
+              boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+              padding: '9px 20px',
+              fontSize: '13.5px'
+            }}
+          >
+            <FaPlus size={12} />
+            <span>Tạo Hóa Đơn Thu Viện Phí</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Notifications */}
       {error && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', borderRadius: '8px', color: '#991b1b', marginBottom: '16px' }}>
-          ⚠️ {error}
-        </div>
+        <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm py-2 px-3 mb-3">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {error}
+        </Alert>
       )}
       {successMsg && (
-        <div style={{ padding: '12px 16px', backgroundColor: '#ecfdf5', borderRadius: '8px', color: '#065f46', marginBottom: '16px' }}>
-          ✅ {successMsg}
-        </div>
+        <Alert variant="success" dismissible onClose={() => setSuccessMsg(null)} className="rounded-3 shadow-sm py-2 px-3 mb-3">
+          <i className="bi bi-check-circle-fill me-2"></i>
+          {successMsg}
+        </Alert>
       )}
 
-      {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Doanh Thu Đã Thu (Paid)</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#16a34a', marginTop: '6px' }}>
-            {totalPaid.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
+      {/* Luxury Metric Cards */}
+      <Row className="g-3 mb-4">
+        <Col md={4}>
+          <div className="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center justify-content-between h-100" style={{ borderColor: '#e2e8f0' }}>
+            <div>
+              <div className="text-muted small fw-semibold text-uppercase tracking-wider">Doanh Thu Đã Thu (Paid)</div>
+              <div className="fs-4 fw-bolder text-success mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {totalPaid.toLocaleString('vi-VN')} <span className="fs-6 fw-semibold text-muted">VNĐ</span>
+              </div>
+            </div>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+              <FaMoneyBillWave />
+            </div>
           </div>
-        </div>
+        </Col>
 
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Chờ Thu Phí (Unpaid)</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#d97706', marginTop: '6px' }}>
-            {totalPending.toLocaleString('vi-VN')} <span style={{ fontSize: '14px' }}>VNĐ</span>
+        <Col md={4}>
+          <div className="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center justify-content-between h-100" style={{ borderColor: '#e2e8f0' }}>
+            <div>
+              <div className="text-muted small fw-semibold text-uppercase tracking-wider">Chờ Thu Phí (Unpaid)</div>
+              <div className="fs-4 fw-bolder text-warning mt-1" style={{ fontVariantNumeric: 'tabular-nums', color: '#d97706' }}>
+                {totalPending.toLocaleString('vi-VN')} <span className="fs-6 fw-semibold text-muted">VNĐ</span>
+              </div>
+            </div>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+              <i className="bi bi-hourglass-split"></i>
+            </div>
           </div>
-        </div>
+        </Col>
 
-        <div style={{ backgroundColor: '#ffffff', padding: '18px 20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng Hóa Đơn Trong Ca</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', marginTop: '6px' }}>
-            {invoices.length} <span style={{ fontSize: '14px', fontWeight: '500', color: '#64748b' }}>hóa đơn</span>
+        <Col md={4}>
+          <div className="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center justify-content-between h-100" style={{ borderColor: '#e2e8f0' }}>
+            <div>
+              <div className="text-muted small fw-semibold text-uppercase tracking-wider">Tổng Hóa Đơn Trong Ca</div>
+              <div className="fs-4 fw-bolder text-dark mt-1">
+                {invoices.length} <span className="fs-6 fw-semibold text-muted">hóa đơn</span>
+              </div>
+            </div>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+              <i className="bi bi-receipt"></i>
+            </div>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       {/* Unified Invoices Card */}
       <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
         <div className="card-header bg-white border-bottom py-3 px-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
             <div>
-              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+              <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2" style={{ fontSize: '16px' }}>
                 <FaReceipt style={{ color: '#1E60E6' }} />
-                Sổ Hóa Đơn &amp; Biên Lai Viện Phí ({filteredInvoices.length})
+                Sổ Hóa Đơn &amp; Biên Lai Viện Phí
+                <span className="badge rounded-pill bg-light text-primary border ms-1" style={{ fontSize: '12px' }}>
+                  {filteredInvoices.length}
+                </span>
               </h5>
               <div className="text-muted small">
                 Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
@@ -253,7 +380,7 @@ export default function BillingInvoicesPage() {
                 <FaSearch className="bms-search-icon" />
                 <input
                   type="text"
-                  placeholder="Tìm theo mã HĐ, tên bệnh nhân, SĐT..."
+                  placeholder="Tìm theo mã HĐ, tên người bệnh, SĐT..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -268,291 +395,597 @@ export default function BillingInvoicesPage() {
                   </button>
                 )}
               </div>
+
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="form-select form-select-sm rounded-pill"
-                style={{ width: 'auto', paddingRight: '2rem' }}
+                style={{ width: 'auto', paddingRight: '2rem', height: '36px', fontSize: '13px' }}
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="1">Đã thanh toán (Paid)</option>
                 <option value="0">Chưa thanh toán (Unpaid)</option>
               </select>
+
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={loadInvoices}
+                title="Làm mới sổ hóa đơn"
+                className="rounded-pill px-3"
+                style={{ height: '36px' }}
+              >
+                <i className="bi bi-arrow-clockwise"></i>
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="card-body p-0">
+        <div className="bms-table-standalone-body">
           <div className="table-responsive">
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-              <th style={{ padding: '12px 16px' }}>Mã Hóa Đơn</th>
-              <th style={{ padding: '12px 16px' }}>Bệnh Nhân</th>
-              <th style={{ padding: '12px 16px' }}>Dịch Vụ</th>
-              <th style={{ padding: '12px 16px' }}>Số Tiền</th>
-              <th style={{ padding: '12px 16px' }}>Trạng Thái</th>
-              <th style={{ padding: '12px 16px' }}>Số Lần In</th>
-              <th style={{ padding: '12px 16px' }}>Thời Gian</th>
-              <th style={{ padding: '12px 16px', textAlign: 'center' }}>Thao Tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInvoices.length === 0 ? (
-              <tr>
-                <td colSpan={8} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
-                  {loading ? 'Đang tải dữ liệu viện phí...' : 'Không có hóa đơn nào phù hợp với bộ lọc.'}
-                </td>
-              </tr>
-            ) : (
-              filteredInvoices.map((inv) => {
-                const isPaid = inv.status === 1 || inv.status === 'Paid';
-
-                return (
-                  <tr key={inv.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#1E60E6' }}>
-                      {inv.invoiceCode}
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <div style={{ fontWeight: '600', color: '#0f172a' }}>{inv.patientName || 'Khách hàng'}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{inv.patientPhone || 'Chưa có SĐT'}</div>
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#475569', fontSize: '13px' }}>
-                      {inv.items?.length || 0} mục dịch vụ
-                    </td>
-                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#0f172a' }}>
-                      {Number(inv.totalAmount).toLocaleString('vi-VN')} đ
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        backgroundColor: isPaid ? '#dcfce7' : '#fef3c7',
-                        color: isPaid ? '#166534' : '#92400e'
-                      }}>
-                        {isPaid ? '✓ Đã Thanh Toán' : 'Chờ Thanh Toán'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      {inv.printCount > 0 ? (
-                        <span style={{
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          color: inv.printCount > 1 ? '#b91c1c' : '#475569',
-                          backgroundColor: inv.printCount > 1 ? '#fee2e2' : '#f1f5f9',
-                          padding: '2px 8px',
-                          borderRadius: '8px'
-                        }}>
-                          {inv.printCount > 1 ? `In lại (${inv.printCount} lần)` : 'Đã in (1 lần)'}
-                        </span>
-                      ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '12px' }}>Chưa in</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '13px' }}>
-                      {new Date(inv.createdAt).toLocaleString('vi-VN')}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <div style={{ display: 'inline-flex', gap: '8px' }}>
-                        {!isPaid && (
-                          <button
-                            onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              backgroundColor: '#10b981',
-                              color: '#ffffff',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            💳 Thu Tiền POS
-                          </button>
-                        )}
-                        {isPaid && (
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenPrint(inv)}
-                              style={{
-                                padding: '6px 12px',
-                                borderRadius: '6px',
-                                backgroundColor: '#ffffff',
-                                color: '#1E60E6',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              🖨️ K80
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenVat(inv)}
-                              style={{
-                                padding: '6px 10px',
-                                borderRadius: '6px',
-                                backgroundColor: '#f0f9ff',
-                                color: '#0369a1',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              🧾 HĐ VAT
-                            </button>
-                          </div>
-                        )}
-                      </div>
+            <Table hover className="align-middle mb-0" style={{ fontSize: '13.5px' }}>
+              <thead className="table-light">
+                <tr style={{ color: '#475569', borderBottom: '1px solid #e2e8f0', fontSize: '12.5px', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>Mã Hóa Đơn</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>Bệnh Nhân</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>Dịch Vụ Chỉ Định</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700', textAlign: 'right' }}>Số Tiền</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700', textAlign: 'center' }}>Trạng Thái</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700', textAlign: 'center' }}>Số Lần In</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>Thời Gian</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700', textAlign: 'center' }}>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading && invoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-5 text-muted">
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Đang tải dữ liệu sổ viện phí...
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                ) : filteredInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-5 text-muted">
+                      <i className="bi bi-inbox fs-2 d-block mb-2 text-slate-300"></i>
+                      Không có hóa đơn nào phù hợp với điều kiện tra cứu.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInvoices.map((inv) => {
+                    const isPaid = inv.status === 1 || inv.status === 'Paid';
+                    const mainItem = inv.items?.[0]?.itemName || 'Dịch vụ xét nghiệm máu';
+                    const moreItemsCount = (inv.items?.length || 1) - 1;
+
+                    return (
+                      <tr key={inv.id || inv.invoiceCode} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        {/* Mã Hóa Đơn */}
+                        <td style={{ padding: '12px 16px' }}>
+                          <span
+                            className="bms-role-code-cell fw-bold"
+                            style={{
+                              fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+                              fontSize: '12.5px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              background: '#eff6ff',
+                              color: '#1d4ed8'
+                            }}
+                          >
+                            {inv.invoiceCode || inv.invoiceNumber}
+                          </span>
+                        </td>
+
+                        {/* Bệnh Nhân */}
+                        <td style={{ padding: '12px 16px' }}>
+                          <div className="fw-semibold text-dark" style={{ fontSize: '13.5px' }}>
+                            {inv.patientName || 'Khách vãng lai'}
+                          </div>
+                          <div className="text-muted small">
+                            {inv.patientPhone || 'Chưa cập nhật SĐT'}
+                          </div>
+                        </td>
+
+                        {/* Dịch Vụ */}
+                        <td style={{ padding: '12px 16px', maxWidth: '240px' }}>
+                          <div className="text-truncate text-dark fw-medium" title={mainItem}>
+                            {mainItem}
+                          </div>
+                          <div className="text-muted small">
+                            {inv.items?.length || 1} mục dịch vụ {moreItemsCount > 0 && `(+${moreItemsCount} chỉ số)`}
+                          </div>
+                        </td>
+
+                        {/* Số Tiền */}
+                        <td style={{ padding: '12px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                          <div className="fw-bold" style={{ color: '#0f172a', fontSize: '14.5px' }}>
+                            {Number(inv.totalAmount || inv.finalAmount || 0).toLocaleString('vi-VN')} đ
+                          </div>
+                        </td>
+
+                        {/* Trạng Thái */}
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          <span
+                            className="bms-status-pill"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '4px 12px',
+                              borderRadius: '9999px',
+                              fontSize: '11.5px',
+                              fontWeight: '700',
+                              backgroundColor: isPaid ? '#dcfce7' : '#fef3c7',
+                              color: isPaid ? '#166534' : '#92400e'
+                            }}
+                          >
+                            <i className="bi bi-circle-fill" style={{ fontSize: '6px' }}></i>
+                            {isPaid ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
+                          </span>
+                        </td>
+
+                        {/* Số Lần In */}
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          {inv.printCount > 0 ? (
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                fontSize: '11.5px',
+                                fontWeight: '600',
+                                color: inv.printCount > 1 ? '#991b1b' : '#334155',
+                                backgroundColor: inv.printCount > 1 ? '#fee2e2' : '#f1f5f9',
+                                padding: '3px 8px',
+                                borderRadius: '9999px'
+                              }}
+                            >
+                              {inv.printCount > 1 ? `In lại (${inv.printCount} lần)` : 'Đã in (1 lần)'}
+                            </span>
+                          ) : (
+                            <span className="text-muted" style={{ fontSize: '12px' }}>Chưa in</span>
+                          )}
+                        </td>
+
+                        {/* Thời Gian */}
+                        <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '12.5px', whiteSpace: 'nowrap' }}>
+                          {inv.createdAt ? new Date(inv.createdAt).toLocaleString('vi-VN') : '—'}
+                        </td>
+
+                        {/* THAO TÁC: Standardized to "In Biên Lai" & "HĐ VAT" with Luxury System Styling */}
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          <div className="d-inline-flex align-items-center gap-2">
+                            {!isPaid ? (
+                              <Button
+                                variant="success"
+                                size="sm"
+                                onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
+                                className="d-inline-flex align-items-center gap-1 shadow-sm fw-semibold"
+                                style={{
+                                  borderRadius: 9999,
+                                  fontSize: '12px',
+                                  padding: '4px 12px',
+                                  background: '#10b981',
+                                  borderColor: '#10b981',
+                                  color: '#ffffff'
+                                }}
+                                title="Xác nhận thu viện phí trực tiếp qua POS / Tiền mặt"
+                              >
+                                <FaCreditCard size={11} />
+                                <span>Thu Tiền POS</span>
+                              </Button>
+                            ) : (
+                              <>
+                                {/* In Biên Lai (K80) */}
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={() => handleOpenPrint(inv)}
+                                  className="d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
+                                  style={{
+                                    borderRadius: 9999,
+                                    fontSize: '12px',
+                                    padding: '4px 12px',
+                                    background: '#eff6ff',
+                                    borderColor: '#bfdbfe',
+                                    color: '#1d4ed8'
+                                  }}
+                                  title="In biên lai thu phí khổ nhiệt K80 (máy in POS 80mm)"
+                                >
+                                  <FaPrint size={11} />
+                                  <span>In Biên Lai</span>
+                                </Button>
+
+                                {/* Hóa Đơn Điện Tử VAT */}
+                                <Button
+                                  variant="outline-secondary"
+                                  size="sm"
+                                  onClick={() => handleOpenVat(inv)}
+                                  className="d-inline-flex align-items-center gap-1 shadow-xs fw-semibold"
+                                  style={{
+                                    borderRadius: 9999,
+                                    fontSize: '12px',
+                                    padding: '4px 12px',
+                                    background: '#f5f3ff',
+                                    borderColor: '#ddd6fe',
+                                    color: '#6d28d9'
+                                  }}
+                                  title="Xem & phát hành hóa đơn điện tử VAT chuẩn Nghị định 123/2020/NĐ-CP"
+                                >
+                                  <FaFileInvoice size={11} />
+                                  <span>HĐ VAT</span>
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </Table>
           </div>
         </div>
       </div>
 
-      {/* Modal: Process Payment */}
-      {showPayModal && selectedInvoice && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: '700' }}>
-              Xác Nhận Thu Tiền Viện Phí
-            </h3>
-            <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
-              <div>Mã HĐ: <strong>{selectedInvoice.invoiceCode}</strong></div>
-              <div>Bệnh nhân: <strong>{selectedInvoice.patientName}</strong></div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#16a34a', marginTop: '8px' }}>
-                Tổng thu: {Number(selectedInvoice.totalAmount).toLocaleString('vi-VN')} VNĐ
+      {/* ============================================================== */}
+      {/* MODAL 1: TẠO HÓA ĐƠN THU PHÍ MỚI (Overhauled with BMS Luxury UI) */}
+      {/* ============================================================== */}
+      <Modal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        size="lg"
+        centered
+        backdrop="static"
+        contentClassName="border-0 shadow-lg"
+        style={{ borderRadius: 16 }}
+      >
+        <Form onSubmit={handleCreateInvoice}>
+          <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '16px 16px 0 0', padding: '16px 24px' }}>
+            <div className="d-flex align-items-center gap-3">
+              <div style={{
+                width: 42,
+                height: 42,
+                borderRadius: 12,
+                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                color: '#1d4ed8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 20
+              }}>
+                <FaReceipt />
+              </div>
+              <div>
+                <Modal.Title as="h5" className="fw-bold mb-0 text-dark" style={{ fontSize: '17px' }}>
+                  Tạo Hóa Đơn &amp; Biên Lai Thu Viện Phí Mới
+                </Modal.Title>
+                <small className="text-muted">
+                  Lập phiếu thu viện phí trực tiếp tại quầy theo bảng giá xét nghiệm chuẩn ISO 15189
+                </small>
               </div>
             </div>
+          </Modal.Header>
 
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
-              Hình thức thanh toán:
-            </label>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}
+          <Modal.Body style={{ padding: '24px' }}>
+            {/* 1. Thông Tin Người Bệnh */}
+            <div className="mb-4">
+              <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
+                <i className="bi bi-person-badge-fill text-primary"></i>
+                1. Thông Tin Định Danh Người Bệnh
+              </h6>
+              <Row className="g-3">
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Họ và Tên Bệnh Nhân <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      required
+                      placeholder="VD: Nguyễn Văn An"
+                      value={newPatientName}
+                      onChange={(e) => setNewPatientName(e.target.value)}
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Số Điện Thoại Liên Hệ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="VD: 0912345678"
+                      value={newPatientPhone}
+                      onChange={(e) => setNewPatientPhone(e.target.value)}
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={12}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Số CCCD / Định Danh Y Tế (VNeID)</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="VD: 079203004321 (Tùy chọn - đối soát hồ sơ Đề án 06)"
+                      value={newPatientCccd}
+                      onChange={(e) => setNewPatientCccd(e.target.value)}
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+
+            <hr className="my-3 text-slate-200" />
+
+            {/* 2. Chỉ Định Dịch Vụ & Viện Phí */}
+            <div className="mb-4">
+              <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
+                <i className="bi bi-card-checklist text-primary"></i>
+                2. Chỉ Định Gói Xét Nghiệm &amp; Chính Sách Giá
+              </h6>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-semibold text-secondary">
+                  Chọn Gói Xét Nghiệm (Từ Danh Mục Chuẩn Y Khoa)
+                </Form.Label>
+                <Form.Select
+                  value={selectedPackageCode}
+                  onChange={(e) => handleSelectPackageChange(e.target.value)}
+                  style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                >
+                  <option value="">-- Chọn gói xét nghiệm chuẩn hoặc tự nhập --</option>
+                  {packages.map((pkg) => {
+                    const code = pkg.packageCode || pkg.id || pkg.package_code;
+                    const name = pkg.packageName || pkg.name || pkg.package_name;
+                    const price = pkg.discountPrice || pkg.price || pkg.discount_price || 0;
+                    return (
+                      <option key={code} value={code}>
+                        {code} - {name} ({price.toLocaleString('vi-VN')} đ)
+                      </option>
+                    );
+                  })}
+                  <option value="CUSTOM">-- Nhập Tùy Chỉnh (Dịch Vụ Khác) --</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Row className="g-3">
+                <Col md={12}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Tên Gói Dịch Vụ / Xét Nghiệm Hiển Thị <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      required
+                      value={newItemName}
+                      onChange={(e) => setNewItemName(e.target.value)}
+                      placeholder="VD: Gói Xét Nghiệm Tầm Soát Thiếu Máu..."
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Đơn Giá Niêm Yết (VNĐ) <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                      type="number"
+                      required
+                      min={0}
+                      step={1000}
+                      value={newItemPrice}
+                      onChange={(e) => setNewItemPrice(Number(e.target.value) || 0)}
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px', fontWeight: '600' }}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-semibold text-secondary">Miễn Giảm / BHYT Hỗ Trợ (VNĐ)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min={0}
+                      step={1000}
+                      value={newDiscount}
+                      onChange={(e) => setNewDiscount(Number(e.target.value) || 0)}
+                      style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+
+            {/* 3. Live Summary Card (BMS Billing Calculator) */}
+            <div
+              className="p-3 rounded-3 border"
+              style={{
+                backgroundColor: '#f8fafc',
+                borderColor: '#e2e8f0'
+              }}
             >
-              <option value="1">Tiền mặt (Cash)</option>
-              <option value="2">VNPay QR</option>
-              <option value="3">Chuyển khoản Ngân hàng</option>
-              <option value="4">Thẻ POS (Visa/Master)</option>
-            </select>
+              <div className="d-flex justify-content-between align-items-center mb-1 small text-secondary">
+                <span>Đơn giá niêm yết:</span>
+                <span className="fw-semibold text-dark">{(Number(newItemPrice) || 0).toLocaleString('vi-VN')} đ</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mb-2 small text-secondary">
+                <span>Miễn giảm / Giảm trừ viện phí:</span>
+                <span className="fw-semibold text-danger">-{(Number(newDiscount) || 0).toLocaleString('vi-VN')} đ</span>
+              </div>
+              <div className="border-top pt-2 d-flex justify-content-between align-items-baseline">
+                <div>
+                  <div className="small fw-bold text-uppercase text-secondary" style={{ letterSpacing: '0.04em' }}>
+                    Tổng Viện Phí Phải Thu
+                  </div>
+                  <div className="small text-muted fst-italic">
+                    Bằng chữ: <strong>{numberToVietnameseWords(calculatedTotal)}</strong>
+                  </div>
+                </div>
+                <div className="fs-3 fw-bolder text-success" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {calculatedTotal.toLocaleString('vi-VN')} <span className="fs-6 fw-bold">VNĐ</span>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setShowPayModal(false)}
-                style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#ffffff', cursor: 'pointer' }}
-              >
-                Hủy bỏ
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handlePayInvoice}
-                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#10b981', color: '#ffffff', fontWeight: '600', cursor: 'pointer' }}
-              >
-                {loading ? 'Đang xử lý...' : '✓ Xác Nhận Đã Thu Tiền'}
-              </button>
+          <Modal.Footer style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', borderRadius: '0 0 16px 16px', padding: '14px 24px' }}>
+            <Button
+              variant="light"
+              onClick={() => setShowCreateModal(false)}
+              className="fw-semibold px-4"
+              style={{ borderRadius: 9999, border: '1px solid #cbd5e1' }}
+            >
+              Hủy Bỏ
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={loading}
+              className="fw-semibold px-4 shadow-sm text-white d-flex align-items-center gap-2"
+              style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6' }}
+            >
+              {loading ? (
+                <>
+                  <Spinner animation="border" size="sm" />
+                  <span>Đang Tạo Hóa Đơn...</span>
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check2-circle"></i>
+                  <span>Tạo Hóa Đơn Thu Phí</span>
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* ============================================================== */}
+      {/* MODAL 2: XÁC NHẬN THU TIỀN POS / TIỀN MẶT (BMS System Style)   */}
+      {/* ============================================================== */}
+      <Modal
+        show={showPayModal && !!selectedInvoice}
+        onHide={() => setShowPayModal(false)}
+        centered
+        backdrop="static"
+        contentClassName="border-0 shadow-lg"
+        style={{ borderRadius: 16 }}
+      >
+        <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '16px 16px 0 0', padding: '16px 24px' }}>
+          <div className="d-flex align-items-center gap-3">
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: '#dcfce7',
+              color: '#16a34a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18
+            }}>
+              <FaCreditCard />
+            </div>
+            <div>
+              <Modal.Title as="h5" className="fw-bold mb-0 text-dark" style={{ fontSize: '16.5px' }}>
+                Xác Nhận Thu Tiền Viện Phí
+              </Modal.Title>
+              <small className="text-muted">Hoàn tất thanh toán trực tiếp tại quầy tiếp đón</small>
             </div>
           </div>
-        </div>
-      )}
+        </Modal.Header>
 
-      {/* Modal: Create Invoice */}
-      {showCreateModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-          <form onSubmit={handleCreateInvoice} style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: '700' }}>
-              Tạo Hóa Đơn Thu Phí Mới
-            </h3>
+        <Modal.Body style={{ padding: '20px 24px' }}>
+          {selectedInvoice && (
+            <>
+              <div className="p-3 rounded-3 mb-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex justify-content-between mb-1 small">
+                  <span className="text-muted">Mã Hóa Đơn:</span>
+                  <span className="fw-bold text-primary">{selectedInvoice.invoiceCode}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2 small">
+                  <span className="text-muted">Bệnh Nhân:</span>
+                  <span className="fw-semibold text-dark">{selectedInvoice.patientName}</span>
+                </div>
+                <div className="border-top pt-2 d-flex justify-content-between align-items-baseline">
+                  <span className="fw-bold text-dark">Số tiền thu:</span>
+                  <span className="fs-4 fw-bolder text-success">
+                    {Number(selectedInvoice.totalAmount || 0).toLocaleString('vi-VN')} VNĐ
+                  </span>
+                </div>
+              </div>
 
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Tên Bệnh Nhân *</label>
-              <input
-                type="text"
-                required
-                value={newPatientName}
-                onChange={(e) => setNewPatientName(e.target.value)}
-                placeholder="Nguyễn Văn A"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-                />
-            </div>
+              <Form.Group className="mb-2">
+                <Form.Label className="small fw-semibold text-secondary">Hình thức thanh toán:</Form.Label>
+                <div className="d-grid gap-2">
+                  {[
+                    { id: 1, label: 'Tiền mặt (Cash)', icon: <FaMoneyBillWave className="text-success me-2" /> },
+                    { id: 4, label: 'Thẻ POS (Visa / Mastercard / Napas)', icon: <FaCreditCard className="text-primary me-2" /> },
+                    { id: 2, label: 'VietQR / Chuyển khoản quét mã', icon: <FaQrcode className="text-info me-2" /> },
+                    { id: 3, label: 'Chuyển khoản Ngân hàng', icon: <i className="bi bi-bank me-2 text-warning"></i> }
+                  ].map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => setPaymentMethod(item.id)}
+                      className={`p-2 px-3 rounded-3 border d-flex align-items-center justify-content-between cursor-pointer`}
+                      style={{
+                        cursor: 'pointer',
+                        borderColor: Number(paymentMethod) === item.id ? '#1E60E6' : '#e2e8f0',
+                        backgroundColor: Number(paymentMethod) === item.id ? '#eff6ff' : '#ffffff',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div className="d-flex align-items-center small fw-semibold text-dark">
+                        {item.icon}
+                        {item.label}
+                      </div>
+                      <Form.Check
+                        type="radio"
+                        name="payMethodRadio"
+                        checked={Number(paymentMethod) === item.id}
+                        onChange={() => setPaymentMethod(item.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
 
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Số Điện Thoại</label>
-              <input
-                type="text"
-                value={newPatientPhone}
-                onChange={(e) => setNewPatientPhone(e.target.value)}
-                placeholder="0912345678"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-                />
-            </div>
+        <Modal.Footer style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', borderRadius: '0 0 16px 16px', padding: '12px 24px' }}>
+          <Button
+            variant="light"
+            onClick={() => setShowPayModal(false)}
+            className="fw-semibold px-4"
+            style={{ borderRadius: 9999, border: '1px solid #cbd5e1' }}
+          >
+            Hủy Bỏ
+          </Button>
+          <Button
+            variant="success"
+            disabled={loading}
+            onClick={handlePayInvoice}
+            className="fw-semibold px-4 shadow-sm text-white d-flex align-items-center gap-2"
+            style={{ borderRadius: 9999 }}
+          >
+            {loading ? (
+              <>
+                <Spinner animation="border" size="sm" />
+                <span>Đang xử lý...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check2-circle"></i>
+                <span>Xác Nhận Đã Thu Tiền</span>
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Gói Dịch Vụ / Xét Nghiệm</label>
-              <input
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-                />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Đơn Giá (VNĐ)</label>
-                <input
-                  type="number"
-                  value={newItemPrice}
-                  onChange={(e) => setNewItemPrice(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-                  />
-            </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>Miễn Giảm (VNĐ)</label>
-                <input
-                  type="number"
-                  value={newDiscount}
-                  onChange={(e) => setNewDiscount(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '14px' }}
-                  />
-            </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: '#ffffff', cursor: 'pointer' }}
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#1E60E6', color: '#ffffff', fontWeight: '600', cursor: 'pointer' }}
-              >
-                Tạo Hóa Đơn
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Modal: Thermal K80 Print Preview */}
+      {/* ============================================================== */}
+      {/* MODAL 3: IN BIÊN LAI NHIỆT K80 (ReceiptPrintModal)             */}
+      {/* ============================================================== */}
       {printData && (
         <ReceiptPrintModal
           printData={printData}
@@ -560,7 +993,9 @@ export default function BillingInvoicesPage() {
         />
       )}
 
-      {/* Modal: Official VAT Invoice (Thông tư 78/2021/TT-BTC) */}
+      {/* ============================================================== */}
+      {/* MODAL 4: HÓA ĐƠN ĐIỆN TỬ VAT (Nghị định 123 / Thông tư 78)     */}
+      {/* ============================================================== */}
       <VatInvoiceModal
         show={showVatModal}
         onClose={() => setShowVatModal(false)}

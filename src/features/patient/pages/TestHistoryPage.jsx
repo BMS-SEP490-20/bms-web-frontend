@@ -104,9 +104,9 @@ function HistoryDetail({ id, onClose }) {
             <div className="mb-4 pb-3 border-bottom">
               <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                 <h5 className="fw-bold text-dark mb-0" style={{ letterSpacing: '-0.02em' }}>
-                  {data.summary.packageName || 'Chưa ghi nhận gói xét nghiệm'}
+                  {data.summary?.packageName || data.packageName || 'Kết quả xét nghiệm đã duyệt'}
                 </h5>
-                {data.summary.available ? (
+                {(data.summary?.available || data.summary?.approvedAt || data.approvedAt || data.digitalSignature) ? (
                   <span className="badge bg-success-subtle text-success border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
                     <FaCheckCircle className="me-1" /> Đã duyệt và ký số
                   </span>
@@ -117,24 +117,22 @@ function HistoryDetail({ id, onClose }) {
                 )}
               </div>
               <div className="font-monospace text-primary fw-bold small mb-3">
-                Mã KQ: {data.summary.resultCode || data.summary.id}
+                Mã KQ: {data.summary?.resultCode || data.summary?.id || data.id}
               </div>
 
               <Row className="g-2 text-muted small">
-                <Col sm={6}>Mã bệnh nhân: <strong className="text-dark">{data.summary.patientId}</strong></Col>
-                <Col sm={6}>Mã mẫu xét nghiệm: <strong className="text-dark">{data.summary.sampleId}</strong></Col>
-                <Col sm={6}>Ngày ghi nhận: <strong className="text-dark">{date(data.summary.createdAt)}</strong></Col>
+                <Col sm={6}>Mã bệnh nhân: <strong className="text-dark">{data.summary?.patientId || '—'}</strong></Col>
+                <Col sm={6}>Mã mẫu xét nghiệm: <strong className="text-dark">{data.summary?.sampleId || '—'}</strong></Col>
+                <Col sm={6}>Ngày ghi nhận: <strong className="text-dark">{date(data.summary?.createdAt)}</strong></Col>
                 <Col sm={6}>
                   Ngày phê duyệt:{' '}
                   <strong className="text-dark">
                     {(() => {
-                      if (!data.summary.approvedAt) return 'Đang xử lý';
-                      const created = data.summary.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
+                      if (!data.summary?.approvedAt) return 'Đang xử lý';
+                      const created = data.summary?.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
                       const approved = new Date(data.summary.approvedAt).getTime();
-                      // Xử lý nghịch lý lâm sàng: Thời gian phê duyệt luôn diễn ra sau thời gian nhận mẫu
-                      if (approved <= created) {
-                        return date(new Date(created + 45 * 60 * 1000));
-                      }
+                      // Không bịa thời gian: nếu approvedAt ≤ createdAt thì vẫn hiện đúng giá trị API
+                      if (Number.isNaN(approved) || Number.isNaN(created)) return date(data.summary.approvedAt);
                       return date(data.summary.approvedAt);
                     })()}
                   </strong>
@@ -142,14 +140,14 @@ function HistoryDetail({ id, onClose }) {
               </Row>
             </div>
 
-            {!data.summary.available ? (
+            {!data.summary?.available ? (
               <Alert variant="info" className="border-0 rounded-3 bg-primary-subtle text-dark small py-3">
                 Mẫu xét nghiệm đang trong quá trình phân tích kỹ thuật. Các chỉ số sinh hóa và kết luận lâm sàng chỉ hiển thị khi kết quả đã được Bác sĩ duyệt và ký số.
               </Alert>
             ) : (
               <>
                 <h6 className="fw-bold text-dark mb-3">Chỉ Số Xét Nghiệm Chi Tiết</h6>
-                {data.items.length ? (
+                {(data.items?.length || 0) ? (
                   <div className="table-responsive border rounded-3 mb-4">
                     <Table hover className="align-middle mb-0" style={{ fontSize: 13 }}>
                       <thead className="bg-light text-muted" style={{ fontSize: 11.5, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
@@ -214,22 +212,31 @@ function HistoryDetail({ id, onClose }) {
                     <div className="d-flex align-items-center gap-2">
                       <FaUserMd className="text-success fs-5" />
                       <div>
-                        <div className="fw-bold text-dark small">BS. CKI Nguyễn Văn Minh</div>
+                        <div className="fw-bold text-dark small">
+                          {data.approvingDoctorName || data.reviewedBy || data.doctorName
+                            || (data.summary?.approvedAt || data.summary?.available ? 'Bác sĩ lâm sàng đã ký duyệt' : 'Chưa ghi nhận bác sĩ ký')}
+                        </div>
                         <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ Thẩm định &amp; Ký số Chuyên khoa</div>
                       </div>
                     </div>
-                    <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
-                      <FaCheckCircle className="me-1" /> Chữ ký số PKI hợp lệ
-                    </span>
+                    {(data.digitalSignature || data.signedAt || data.approvedAt || data.summary?.approvedAt || data.summary?.available) ? (
+                      <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
+                        <FaCheckCircle className="me-1" /> Đã ký duyệt
+                      </span>
+                    ) : (
+                      <span className="badge bg-secondary-subtle text-secondary border px-2 py-1 small fw-semibold">
+                        Chưa có chữ ký
+                      </span>
+                    )}
                   </div>
                   <div className="d-flex align-items-center justify-content-between text-muted" style={{ fontSize: 11.5 }}>
-                    <span>Chứng chỉ hành nghề: <strong>CCHN-008912/HCM</strong></span>
+                    <span>CCHN: <strong>{data.licenseNumber || data.doctorLicense || '—'}</strong></span>
                     <span>Quy chuẩn: <strong>ISO 15189:2022 · SHA-256</strong></span>
                   </div>
                 </div>
 
                 {/* 2. Khuyến nghị lâm sàng khi có chỉ số cảnh báo (Low / High) */}
-                {data.items.some(it => {
+                {(data.items || []).some(it => {
                   const f = flag(it.flag);
                   return f === 'Thấp' || f === 'Cao' || f === 'Nguy hiểm';
                 }) && (

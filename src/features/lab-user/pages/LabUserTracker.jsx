@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Badge, Card, Row, Col, Form } from 'react-bootstrap';
+import { FaUserCheck } from 'react-icons/fa';
 import testOrderService from '../../../services/testOrderService';
 import useResponsive from '../../shared/hooks/useResponsive';
 
@@ -129,10 +130,13 @@ export const LabUserCard = ({ userId, labUsers, performedAt }) => {
 
   if (!labUser) {
     return (
-      <Card className="mb-3">
+      <Card className="mb-3 rounded-4" style={{ border: '1px solid #E2E8F0' }}>
         <Card.Body>
-          <Card.Title>👤 Người Thực Hiện</Card.Title>
-          <p className="text-muted">Không có thông tin</p>
+          <Card.Title className="d-flex align-items-center gap-2 fs-6 fw-bold text-dark">
+            <FaUserCheck className="text-primary" />
+            <span>Người Thực Hiện</span>
+          </Card.Title>
+          <p className="text-muted mb-0">Không có thông tin</p>
         </Card.Body>
       </Card>
     );
@@ -155,9 +159,12 @@ export const LabUserCard = ({ userId, labUsers, performedAt }) => {
   };
 
   return (
-    <Card className="mb-3 border-primary">
-      <Card.Header className="bg-primary text-white">
-        <strong>👤 Thông Tin Người Thực Hiện</strong>
+    <Card className="mb-3 rounded-4 overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
+      <Card.Header style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+        <strong className="text-dark d-flex align-items-center gap-2">
+          <FaUserCheck className="text-primary" />
+          <span>Thông Tin Người Thực Hiện</span>
+        </strong>
       </Card.Header>
       <Card.Body>
         <Row>
@@ -248,8 +255,9 @@ export const LabUserBadge = ({ userId, labUsers }) => {
   }
 
   return (
-    <Badge bg="primary" title={`Giấy phép: ${labUser.licenseNumber || 'N/A'}`}>
-      👤 {labUser.fullName || labUser.name}
+    <Badge bg="primary" className="d-inline-flex align-items-center gap-1 rounded-pill" title={`Giấy phép: ${labUser.licenseNumber || 'N/A'}`}>
+      <FaUserCheck size={11} />
+      <span>{labUser.fullName || labUser.name}</span>
     </Badge>
   );
 };

@@ -13,13 +13,13 @@ export default function PatientPortalLayout() {
   const user = useMemo(() => getStoredUser(), []);
 
   return (
-    <div className="bms-landing-wrapper min-vh-100 d-flex flex-column bg-light">
+    <div className="bms-landing-wrapper min-vh-100 d-flex flex-column" style={{ background: '#F4F7FB' }}>
       {/* 1. Synced Patient Topbar & Navbar */}
       <PortalNavbar user={user} />
 
-      {/* 2. Patient Module Content Body */}
-      <main className="bms-patient-module-container flex-grow-1" style={{ padding: '24px 16px 20px' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
+      {/* 2. Patient Module Content Body with unified bms-workbench surface */}
+      <main className="bms-patient-module-container bms-app-layout flex-grow-1" style={{ padding: '20px 16px 28px' }}>
+        <div className="container bms-page-content" style={{ maxWidth: 1240, background: 'transparent' }}>
           <Outlet />
         </div>
       </main>

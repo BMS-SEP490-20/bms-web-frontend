@@ -87,9 +87,12 @@ const ChangePassword = () => {
 
   return (
     <div className="bms-password-page">
-      <header className="bms-page-header">
-        <h1 className="bms-page-title">Đổi mật khẩu</h1>
-      </header>
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <h1 className="bms-page-title">Đổi Mật Khẩu Bảo Mật</h1>
+          <p className="bms-page-subtitle">Cập nhật mật khẩu định kỳ để bảo vệ tài khoản và hồ sơ y tế</p>
+        </div>
+      </div>
       <form className="bms-password-card" onSubmit={handleSubmit}>
         {errorMsg && <Alert variant="danger" dismissible onClose={() => setErrorMsg('')}>{errorMsg}</Alert>}
         {successMsg && <Alert variant="success" dismissible onClose={() => setSuccessMsg('')}>{successMsg}</Alert>}

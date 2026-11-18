@@ -19,6 +19,7 @@ import {
   Modal,
   InputGroup
 } from 'react-bootstrap';
+import { canValidateSampleQc, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
 import {
   FaVial,
   FaCheckCircle,
@@ -365,6 +366,7 @@ const ValidateSample = () => {
                     const sampleId = sample.id || sample.sampleId || sample.sampleCode;
                     const isLocked = sample.status?.toLowerCase() === 'rejected';
                     const isValidated = sample.status?.toLowerCase() === 'validated';
+                    const canQc = canValidateSampleQc(sample.status) && !isLocked && !isValidated;
                     return (
                       <tr key={sampleId}>
                         <td className="px-3">
@@ -413,46 +415,49 @@ const ValidateSample = () => {
                         <td className="px-3 text-end">
                           <div className="d-flex justify-content-end gap-1 flex-wrap">
                             {/* Nút Đạt chuẩn */}
-                            <Button
-                              variant="outline-success"
-                              size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1"
-                              style={{ fontSize: '0.75rem' }}
-                              disabled={isLocked}
-                              onClick={() => openAssessmentModal(sample, 'PASSED')}
-                              title="Xác nhận mẫu đạt chuẩn đưa vào phân tích"
-                            >
-                              <FaCheckCircle />
-                              <span>Đạt chuẩn</span>
-                            </Button>
-
-                            {/* Nút Tán huyết */}
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1"
-                              style={{ fontSize: '0.75rem' }}
-                              disabled={isLocked}
-                              onClick={() => openAssessmentModal(sample, 'HEMOLYSIS')}
-                              title="Báo mẫu tán huyết: Khóa phân tích & Lấy lại mẫu"
-                            >
-                              <FaLock />
-                              <span>Tán huyết</span>
-                            </Button>
-
-                            {/* Nút Đông dây */}
-                            <Button
-                              variant="outline-warning"
-                              size="sm"
-                              className="px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                              style={{ fontSize: '0.75rem' }}
-                              disabled={isLocked}
-                              onClick={() => openAssessmentModal(sample, 'CLOTTED')}
-                              title="Báo mẫu đông dây / vón cục"
-                            >
-                              <FaExclamationTriangle />
-                              <span>Đông dây</span>
-                            </Button>
+                            {canQc ? (
+                              <>
+                                <Button
+                                  variant="outline-success"
+                                  size="sm"
+                                  className="px-2 py-1 d-flex align-items-center gap-1"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => openAssessmentModal(sample, 'PASSED')}
+                                  title="Xác nhận mẫu đạt chuẩn đưa vào phân tích"
+                                >
+                                  <FaCheckCircle />
+                                  <span>Đạt chuẩn</span>
+                                </Button>
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  className="px-2 py-1 d-flex align-items-center gap-1"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => openAssessmentModal(sample, 'HEMOLYSIS')}
+                                  title="Báo mẫu tán huyết: Khóa phân tích & Lấy lại mẫu"
+                                >
+                                  <FaLock />
+                                  <span>Tán huyết</span>
+                                </Button>
+                                <Button
+                                  variant="outline-warning"
+                                  size="sm"
+                                  className="px-2 py-1 d-flex align-items-center gap-1 text-dark"
+                                  style={{ fontSize: '0.75rem' }}
+                                  onClick={() => openAssessmentModal(sample, 'CLOTTED')}
+                                  title="Báo mẫu đông dây / vón cục"
+                                >
+                                  <FaExclamationTriangle />
+                                  <span>Đông dây</span>
+                                </Button>
+                              </>
+                            ) : (
+                              <Badge bg={isLocked ? 'dark' : 'secondary'} className="px-2 py-1" style={{ fontSize: '0.72rem' }}>
+                                {isLocked
+                                  ? 'Đã từ chối'
+                                  : `Không QC · ${normalizeSampleStatus(sample.status) || '—'}`}
+                              </Badge>
+                            )}
                           </div>
                         </td>
                       </tr>

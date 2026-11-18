@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, Alert 
@@ -18,18 +19,20 @@ import {
 import { 
   FaFlask, FaExclamationTriangle, FaCheckCircle, 
   FaPlus, FaTrashAlt, FaSyncAlt, FaSearch, 
-  FaVial, FaTools, FaCheck
+  FaVial, FaTools, FaCheck, FaInfoCircle
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';
 
 const QcFlagsPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Live state bound directly to MongoDB collection 'QcFlags' via backend service.
   const [flags, setFlags] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   // Filters are applied server-side by the MongoDB aggregation pipeline in Testorder-service.
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -75,6 +78,7 @@ const QcFlagsPage = () => {
   const fetchFlags = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const [flagsRes, statsRes] = await Promise.all([
         qcFlagService.getFlags({
           status: statusFilter,
@@ -85,14 +89,15 @@ const QcFlagsPage = () => {
         qcFlagService.getStatistics()
       ]);
 
-      if (flagsRes.success) {
-        setFlags(flagsRes.data);
-      }
-      if (statsRes.success) {
-        setStatistics(statsRes.data);
+      const list = flagsRes?.data ?? flagsRes?.items ?? flagsRes;
+      setFlags(Array.isArray(list) ? list : (Array.isArray(flagsRes?.data) ? flagsRes.data : []));
+      if (statsRes?.success || statsRes?.data) {
+        setStatistics(statsRes.data || statsRes);
       }
     } catch (e) {
       console.error(e);
+      setFlags([]);
+      setLoadError(e?.message || 'Không tải được danh sách cờ QC.');
     } finally {
       setLoading(false);
     }
@@ -217,22 +222,34 @@ const QcFlagsPage = () => {
     }
   };
 
+  const hasActiveFilters = searchTerm !== '' || statusFilter !== 'ALL' || severityFilter !== 'ALL' || analyzerFilter !== 'ALL';
+
   return (
     <div className="w-100">
       {/* Top Banner */}
       <header className="bms-page-header">
         <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Cờ kiểm chuẩn</h1>
+          <h1 className="bms-page-title">Cảnh báo vi phạm Westgard (IQC)</h1>
         </div>
         <div className="bms-page-actions">
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => navigate('/laboratory/qc')}
+                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2"
+              >
+                <FaFlask />
+                <span>Mở nội kiểm IQC</span>
+              </Button>
               <Button
                 size="sm"
                 onClick={() => setShowCreateModal(true)}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                title="Chỉ dùng khi ghi tay sự cố — bình thường cờ sinh từ trang IQC"
               >
                 <FaPlus />
-                <span>Tạo cờ QC mới</span>
+                <span>Ghi tay sự cố</span>
               </Button>
               <Button
                 variant="light"
@@ -248,160 +265,159 @@ const QcFlagsPage = () => {
         </div>
       </header>
 
+      <Alert variant="light" className="border rounded-3 shadow-sm mb-3 d-flex align-items-start gap-2">
+        <FaInfoCircle className="text-primary mt-1 flex-shrink-0" />
+        <div className="small mb-0">
+          <strong>Không thuộc luồng BN chính.</strong> Đây là bảng sự cố nội kiểm máy (IQC / Westgard) —
+          khi QC ngoài giới hạn thì xem/xử lý tại đây. Demo E2E: BN → lấy mẫu → nhập KQ → BS duyệt
+          <strong> không bắt buộc</strong> vào màn này.
+        </div>
+      </Alert>
+
+      {loadError && (
+        <Alert variant="danger" dismissible onClose={() => setLoadError(null)} className="rounded-3">
+          {loadError}
+        </Alert>
+      )}
+
       {alertMsg && (
-        <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="rounded-4 shadow-sm">
+        <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="rounded-4">
           {alertMsg.text}
         </Alert>
       )}
 
       {/* CẢNH BÁO KHÓA MÁY (WESTGARD 1_3s) */}
       {Array.isArray(flags) && flags.some(f => f.status === 'ACTIVE' && (f.ruleType?.includes('1_3s') || f.severity === 'CRITICAL')) && (
-        <Alert variant="danger" className="rounded-4 border-danger shadow-sm mb-4 d-flex align-items-center gap-3">
-          <FaExclamationTriangle className="fs-2 text-danger flex-shrink-0" />
+        <Alert variant="danger" className="rounded-4 mb-4 d-flex align-items-center gap-3" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
+          <FaExclamationTriangle className="fs-3 text-danger flex-shrink-0" />
           <div>
-            <strong className="fs-6 d-block">CẢNH BÁO KHÓA MÁY PHÂN TÍCH: PHÁT HIỆN CỜ NGUY HIỂM / VI PHẠM WESTGARD 1_3s!</strong>
+            <strong className="d-block">Cảnh báo khóa máy phân tích: Phát hiện cờ nguy hiểm / vi phạm Westgard 1_3s</strong>
             <span className="small">
-              Có cờ kiểm chuẩn QC mức độ NGUY HIỂM (CRITICAL) hoặc vi phạm quy tắc Westgard 1_3s đang ở trạng thái ACTIVE. 
-              <strong>Theo tiêu chuẩn ISO 15189:2022, máy phân tích tương ứng đang bị tạm dừng phân tích mẫu bệnh nhân.</strong> 
-              Vui lòng thực hiện hành động khắc phục và chuyển cờ sang trạng thái RESOLVED.
+              Có cờ kiểm chuẩn QC mức độ nghiêm trọng (CRITICAL) hoặc vi phạm quy tắc Westgard 1_3s đang kích hoạt. Máy phân tích tương ứng đang tạm dừng chạy mẫu bệnh nhân cho đến khi hoàn tất khắc phục.
             </span>
           </div>
         </Alert>
       )}
 
-      {/* Statistics Cards */}
+      {/* KPI Quad Cards */}
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #1E60E6' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Tổng số cờ QC</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>{statistics.totalFlags}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
-                    <FaVial className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Tổng Số Cờ QC</h6>
+                <div className="bms-kpi-value">{statistics.totalFlags}</div>
+                <div className="bms-kpi-sub text-muted">Toàn bộ cờ kiểm chuẩn ghi nhận</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                <FaVial />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #dc3545' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Đang cảnh báo (Active)</span>
-                    <h3 className="fw-bold mb-0 text-danger mt-1" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.activeFlags}</h3>
-                  </div>
-                  <div className="rounded-circle bg-danger bg-opacity-10 p-3 text-danger">
-                    <FaExclamationTriangle className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Đang Cảnh Báo (Active)</h6>
+                <div className="bms-kpi-value text-danger">{statistics.activeFlags}</div>
+                <div className="bms-kpi-sub text-muted">Cần kiểm tra thiết bị ngay</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                <FaExclamationTriangle />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #B45309' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Đang điều tra / Xử lý</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>{statistics.investigatingFlags}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(231,188,76,0.12)', color: '#B45309' }}>
-                    <FaTools className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Đang Điều Tra / Xử Lý</h6>
+                <div className="bms-kpi-value" style={{ color: '#B45309' }}>{statistics.investigatingFlags}</div>
+                <div className="bms-kpi-sub text-muted">Đang hiệu chuẩn hoặc thay hóa chất</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                <FaTools />
+              </div>
+            </div>
           </Col>
           <Col xs={12} sm={6} lg={3}>
-            <Card className="border-0 shadow-sm rounded-4 h-100" style={{ borderLeft: '4px solid #10B981' }}>
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <span className="text-muted small fw-medium">Đã khắc phục (Resolved)</span>
-                    <h3 className="fw-bold mb-0 mt-1" style={{ color: '#16a34a', fontVariantNumeric: 'tabular-nums' }}>{statistics.resolvedFlags}</h3>
-                  </div>
-                  <div className="rounded-circle p-3" style={{ backgroundColor: 'rgba(145,222,131,0.2)', color: '#16a34a' }}>
-                    <FaCheckCircle className="fs-4" />
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card">
+              <div>
+                <h6 className="bms-kpi-label">Đã Khắc Phục</h6>
+                <div className="bms-kpi-value text-success">{statistics.resolvedFlags}</div>
+                <div className="bms-kpi-sub text-muted">Đã xác nhận ổn định trở lại</div>
+              </div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                <FaCheckCircle />
+              </div>
+            </div>
           </Col>
         </Row>
       )}
 
-      {/* Filter Bar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-3">
-            <Col xs={12} md={4}>
-              <InputGroup>
-                <InputGroup.Text className="border-end-0 rounded-start-3" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  placeholder="Tìm theo chỉ số (WBC, RBC, Glucose...)"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-start-0 rounded-end-3"
-                  style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} sm={4} md={2}>
-              <Form.Select 
-                value={statusFilter} 
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-3"
-                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="ACTIVE">Đang cảnh báo (Active)</option>
-                <option value="INVESTIGATING">Đang điều tra</option>
-                <option value="RESOLVED">Đã giải quyết</option>
-                <option value="DISMISSED">Đã đóng</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} sm={4} md={3}>
-              <Form.Select 
-                value={severityFilter} 
-                onChange={(e) => setSeverityFilter(e.target.value)}
-                className="rounded-3"
-                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <option value="ALL">Tất cả mức độ</option>
-                <option value="CRITICAL">Nguy hiểm (Critical)</option>
-                <option value="HIGH">Mức cao (High)</option>
-                <option value="MEDIUM">Trung bình (Medium)</option>
-                <option value="LOW">Thấp (Low)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={12} sm={4} md={3}>
-              <Form.Select 
-                value={analyzerFilter} 
-                onChange={(e) => setAnalyzerFilter(e.target.value)}
-                className="rounded-3"
-                style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <option value="ALL">Tất cả máy phân tích</option>
-                <option value="ANL-SYS-01">Sysmex XN-1000</option>
-                <option value="ANL-COB-02">Cobas 6000</option>
-                <option value="ANL-MIN-03">Mindray BC-6800</option>
-              </Form.Select>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      {/* Single-Line Flat Filter Bar */}
+      <div className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo chỉ số (WBC, RBC, Glucose...)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button type="button" className="bms-search-clear" onClick={() => setSearchTerm('')} title="Xóa tìm kiếm">
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
 
-      {/* QC Flags Cards List */}
+        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ width: 'auto' }}>
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="ACTIVE">Đang cảnh báo (Active)</option>
+          <option value="INVESTIGATING">Đang điều tra</option>
+          <option value="RESOLVED">Đã giải quyết</option>
+          <option value="DISMISSED">Đã đóng</option>
+        </Form.Select>
+
+        <Form.Select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} style={{ width: 'auto' }}>
+          <option value="ALL">Tất cả mức độ</option>
+          <option value="CRITICAL">Nguy hiểm (Critical)</option>
+          <option value="HIGH">Mức cao (High)</option>
+          <option value="MEDIUM">Trung bình (Medium)</option>
+          <option value="LOW">Thấp (Low)</option>
+        </Form.Select>
+
+        <Form.Select value={analyzerFilter} onChange={(e) => setAnalyzerFilter(e.target.value)} style={{ width: 'auto' }}>
+          <option value="ALL">Tất cả máy phân tích</option>
+          <option value="ANL-SYS-01">Sysmex XN-1000</option>
+          <option value="ANL-COB-02">Cobas 6000</option>
+          <option value="ANL-MIN-03">Mindray BC-6800</option>
+        </Form.Select>
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('ALL');
+              setSeverityFilter('ALL');
+              setAnalyzerFilter('ALL');
+            }}
+          >
+            Đặt lại
+          </Button>
+        )}
+
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{Array.isArray(flags) ? flags.length : 0}</strong> cờ QC
+        </span>
+      </div>
+
+      {/* QC Flags Cards List (No Thick Left Border) */}
       {loading && (!Array.isArray(flags) || flags.length === 0) ? (
-        <div className="text-center py-3">
-          <Spinner animation="border" variant="warning" />
+        <div className="text-center py-4">
+          <Spinner animation="border" variant="primary" />
           <p className="mt-3 text-muted small">Đang tải danh sách cờ kiểm chuẩn QC...</p>
         </div>
       ) : (Array.isArray(flags) && flags.length > 0) ? (
@@ -411,12 +427,10 @@ const QcFlagsPage = () => {
             return (
               <Card 
                 key={flag.flagId} 
-                className="border-0 shadow-sm rounded-4 overflow-hidden bg-white"
-                style={{
-                  borderLeft: flag.status === 'ACTIVE' ? '5px solid #dc3545' : flag.status === 'INVESTIGATING' ? '5px solid #ffc107' : '5px solid #198754'
-                }}
+                className="rounded-4 overflow-hidden bg-white"
+                style={{ border: '1px solid #E2E8F0' }}
               >
-                <Card.Body className="p-2">
+                <Card.Body className="p-3">
                   <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
                     <div className="d-flex align-items-start gap-3">
                       <div 
@@ -510,11 +524,22 @@ const QcFlagsPage = () => {
           })}
         </div>
       ) : (
-        <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
+        <Card className="border-0 shadow-sm rounded-4 text-center py-4 bg-white">
           <Card.Body>
-            <FaCheckCircle className="text-success mb-3" style={{ fontSize: '3rem', opacity: 0.4 }} />
-            <h5 className="text-dark fw-bold">Hệ thống phòng Lab không có cờ QC nào trong mục này</h5>
-            <p className="text-muted small mb-0">Tất cả các máy phân tích huyết học và sinh hóa đang vận hành ổn định trong giới hạn cho phép.</p>
+            <FaCheckCircle className="text-secondary mb-3" style={{ fontSize: '2.5rem', opacity: 0.45 }} />
+            <h5 className="text-dark fw-bold">Chưa có cờ vi phạm Westgard</h5>
+            <p className="text-muted small mx-auto mb-3" style={{ maxWidth: 520 }}>
+              Danh sách trống = chưa ghi nhận sự cố IQC (hoặc đã lọc hết). Không đồng nghĩa mọi máy
+              đang chạy — chỉ nghĩa chưa có bản ghi cờ trong bộ lọc hiện tại.
+            </p>
+            <Button
+              variant="outline-primary"
+              size="sm"
+              className="rounded-pill px-3"
+              onClick={() => navigate('/laboratory/qc')}
+            >
+              Ghi nhận nội kiểm tại trang IQC
+            </Button>
           </Card.Body>
         </Card>
       )}
@@ -735,7 +760,7 @@ const QcFlagsPage = () => {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button variant="secondary" className="rounded-pill px-3" onClick={() => setShowEditModal(false)}>Hủy</Button>
-            <Button variant="success" className="rounded-pill px-3" style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }} type="submit" disabled={submitting}>
+            <Button variant="success" className="rounded-pill px-3 text-white" style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }} type="submit" disabled={submitting}>
               {submitting ? 'Đang lưu...' : 'Lưu kết quả xử lý'}
             </Button>
           </Modal.Footer>

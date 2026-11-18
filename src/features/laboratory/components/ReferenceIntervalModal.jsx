@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaHeartbeat, FaShieldAlt, FaSave, FaTimes, FaExclamationTriangle, FaCheckCircle, FaBan } from 'react-icons/fa';
+import { FaHeartbeat, FaSave, FaTimes, FaExclamationTriangle, FaCheckCircle, FaBan } from 'react-icons/fa';
 import testCriterionService from '../../../services/testCriterionService';
 import referenceIntervalService from '../../../services/referenceIntervalService';
 

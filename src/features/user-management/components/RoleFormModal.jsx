@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Alert, Spinner, Badge } from 'react-bootstrap';
-import { FaShieldAlt, FaSave, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaSave, FaCheck, FaTimes, FaCheckCircle } from 'react-icons/fa';
 import { createRole, updateRole } from '../../../services/roleService';
 
 // Medical domain translation dictionary for permissions
@@ -33,16 +33,14 @@ const PERMISSION_TRANSLATIONS = {
   'BILLING_POS': 'Lập hóa đơn viện phí & thu tiền tại quầy',
   'BILLING_REFUND': 'Xử lý hoàn trả viện phí & hủy biên lai',
   'INVENTORY_VIEW': 'Tra cứu tồn kho vật tư & hóa chất xét nghiệm',
-  'IOT_MONITOR': 'Theo dõi cảm biến nhiệt độ & cảnh báo phòng lab',
-};
+  'IOT_MONITOR': 'Theo dõi cảm biến nhiệt độ & cảnh báo phòng lab' };
 
 export const RoleFormModal = ({
   show,
   onHide,
   roleToEdit = null,
   permissionMatrix = {},
-  onSaved,
-}) => {
+  onSaved }) => {
   const isEditing = Boolean(roleToEdit);
 
   const [roleCode, setRoleCode] = useState('');
@@ -108,8 +106,7 @@ export const RoleFormModal = ({
           roleName: roleName.trim(),
           description: description.trim(),
           permissions: selectedPermissions,
-          isActive,
-        });
+          isActive });
         if (result && result.isSuccess) {
           onSaved?.();
           onHide();
@@ -122,8 +119,7 @@ export const RoleFormModal = ({
           roleName: roleName.trim(),
           description: description.trim(),
           permissions: selectedPermissions,
-          isActive,
-        });
+          isActive });
         if (result && result.isSuccess) {
           onSaved?.();
           onHide();
@@ -143,7 +139,7 @@ export const RoleFormModal = ({
     <Modal show={show} onHide={onHide} size="lg" centered backdrop="static">
       <Modal.Header closeButton style={{ background: '#1e40af', color: '#ffffff' }}>
         <Modal.Title className="h5 fw-bold m-0 text-white d-flex align-items-center gap-2">
-          <FaShieldAlt />
+          <FaCheckCircle />
           {isEditing ? `Cập Nhật Vai Trò: ${roleToEdit.roleCode}` : 'Thêm Mới Vai Trò Hệ Thống (RBAC)'}
         </Modal.Title>
       </Modal.Header>
@@ -224,7 +220,7 @@ export const RoleFormModal = ({
           <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h6 className="fw-bold m-0 text-dark d-flex align-items-center gap-2">
-                <FaShieldAlt className="text-primary" />
+                <FaCheckCircle className="text-primary" />
                 Ma Trận Phân Quyền Chi Tiết (RBAC Matrix)
               </h6>
               <Badge bg="primary" className="px-3 py-2 fw-semibold">

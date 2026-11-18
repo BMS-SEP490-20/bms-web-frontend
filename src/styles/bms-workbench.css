@@ -48,14 +48,26 @@
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-section .table-responsive,
-.bms-app-layout .bms-page-content .bms-table-standalone-body > table,
 .bms-app-layout .bms-page-content .card:has(table) .table-responsive,
 .bms-app-layout .bms-page-content .card:has(.table) .table-responsive {
   background: #ffffff !important;
   border: 0 !important;
   border-radius: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  margin: 0 !important;
+}
+
+.bms-app-layout .bms-page-content .bms-table-standalone-body > table {
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   overflow: hidden !important;
   margin: 0 !important;
+}
+
+.bms-app-layout .bms-page-content .bms-page-header-card > .d-flex:only-child {
+  width: 100% !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-body > .d-flex,
@@ -174,8 +186,9 @@
 .bms-app-layout .bms-page-content table:not(.bms-vat-table) tbody tr:has(td[colspan]) td,
 .bms-app-layout .bms-page-content table:not(.bms-vat-table) tbody tr:has(td[colspan]):hover td {
   background: #ffffff !important;
-  height: 520px;
-  padding: 128px 32px !important;
+  height: auto;
+  min-height: 160px;
+  padding: 48px 24px !important;
   line-height: 1.6 !important;
   cursor: default;
 }
@@ -824,6 +837,8 @@
   color: #64748b !important;
 }
 
+.bms-app-layout .bms-search-input-wrapper,
+.bms-app-layout .bms-search-input-pill,
 .bms-app-layout .bms-page-content .bms-filter-bar .input-group,
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-wrapper,
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-pill {
@@ -839,24 +854,28 @@
   padding: 0 12px !important;
   gap: 8px !important;
   background: #f8fbff !important;
-  border: 1px solid #d5e3f5 !important;
-  border-radius: 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9999px !important;
   box-shadow: none !important;
   overflow: hidden !important;
 }
 
-.bms-app-layout .bms-page-content .bms-filter-bar > .bms-search-input-wrapper,
-.bms-app-layout .bms-page-content .bms-filter-bar > .bms-search-input-pill,
-.bms-app-layout .bms-page-content .bms-filter-bar > .input-group,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters > .bms-search-input-wrapper,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters > .input-group,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group > .bms-search-input-pill,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group > .input-group {
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-wrapper,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-pill,
+.bms-app-layout .bms-page-content .bms-filter-bar .input-group,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters .bms-search-input-wrapper,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters .input-group,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group .bms-search-input-pill,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-filter-group .input-group,
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-search-input-pill,
+.bms-app-layout .bms-page-content .bms-table-standalone-header .bms-search-input-wrapper {
   flex: 1 1 240px !important;
   width: auto !important;
-  max-width: 420px !important;
+  max-width: 380px !important;
 }
 
+.bms-app-layout .bms-search-input-wrapper > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+.bms-app-layout .bms-search-input-pill > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-page-content .bms-filter-bar .input-group > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-wrapper > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-search-input-pill > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
@@ -867,7 +886,7 @@
   max-width: none !important;
   height: 32px !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 0 0 0 4px !important;
   border: 0 !important;
   border-radius: 0 !important;
   outline: none !important;
@@ -879,13 +898,14 @@
 }
 
 .bms-app-layout .bms-page-content .bms-filter-bar .input-group-text,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-search-icon {
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-search-icon,
+.bms-app-layout .bms-search-icon {
   flex: 0 0 auto !important;
   display: inline-flex !important;
   align-items: center !important;
   width: auto !important;
   height: auto !important;
-  margin: 0 !important;
+  margin: 0 8px 0 0 !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -897,21 +917,49 @@
 
 .bms-app-layout .bms-page-content .bms-filter-bar select,
 .bms-app-layout .bms-page-content .bms-filter-bar .form-select,
-.bms-app-layout .bms-page-content .bms-filter-bar .bms-filter-select,
+.bms-app-layout .bms-page-content .bms-filter-bar .bms-filter-select {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 148px !important;
+  max-width: 235px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  padding: 0 32px 0 12px !important;
+  border: 1px solid #d5e3f5 !important;
+  border-radius: 10px !important;
+  background-color: #f8fbff !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  color: #0f2744 !important;
+}
+
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-pay-search-input,
-.bms-app-layout .bms-page-content .bms-filter-bar .form-control,
-.bms-app-layout .bms-page-content .bms-filter-bar .col > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]) {
-  width: 100% !important;
-  max-width: none !important;
+.bms-app-layout .bms-page-content .bms-filter-bar .form-control {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 142px !important;
+  max-width: 240px !important;
   height: 36px !important;
   margin: 0 !important;
   padding: 0 12px !important;
   border: 1px solid #d5e3f5 !important;
   border-radius: 10px !important;
-  background: #f8fbff !important;
+  background-color: #f8fbff !important;
   box-shadow: none !important;
   font-size: 13px !important;
   color: #0f2744 !important;
+}
+
+.bms-app-layout .bms-page-content .bms-filter-bar .col select,
+.bms-app-layout .bms-page-content .bms-filter-bar .col .form-select,
+.bms-app-layout .bms-page-content .bms-filter-bar .col .form-control,
+.bms-app-layout .bms-page-content .bms-filter-bar [class*="col-"] select,
+.bms-app-layout .bms-page-content .bms-filter-bar [class*="col-"] .form-select,
+.bms-app-layout .bms-page-content .bms-filter-bar [class*="col-"] .form-control,
+.bms-app-layout .bms-page-content .bms-filter-bar .col > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]) {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
 }
 
 .bms-app-layout .bms-page-content .bms-filter-bar .bms-criteria-filters > select,
@@ -1041,14 +1089,19 @@
   outline: none !important;
 }
 
+/* Zero Box-in-Box: Filter bars placed inside table containers must render cleanly without nested card borders/backgrounds */
 .bms-app-layout .bms-page-content .bms-table-standalone-section .bms-filter-bar,
-.bms-app-layout .bms-page-content .card:has(table) > .bms-filter-bar {
+.bms-app-layout .bms-page-content .bms-table-standalone-body .bms-filter-bar,
+.bms-app-layout .bms-page-content .card:has(table) .bms-filter-bar,
+.bms-app-layout .bms-page-content .card:has(.table) .bms-filter-bar {
   width: 100% !important;
-  margin: 0 0 12px !important;
-  padding: 10px 12px !important;
-  background: #ffffff !important;
-  border: 1px solid #d5e3f5 !important;
-  border-radius: 16px !important;
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eef2f6 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .bms-app-layout .bms-page-content .bms-table-standalone-header .bms-filter-bar,
@@ -1068,4 +1121,64 @@
   padding: 0 !important;
   background: transparent !important;
   border: 0 !important;
+}
+
+/* Global Zero Box-in-Box Fallback across ALL Roles & Layouts */
+.bms-table-standalone-section .bms-filter-bar,
+.bms-table-standalone-body .bms-filter-bar,
+.card:has(table) .bms-filter-bar,
+.card:has(.table) .bms-filter-bar {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eef2f6 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Unified Action Column Styling: No Line Break, Neat Alignment */
+table td:last-child {
+  white-space: nowrap !important;
+}
+
+table .bms-action-btn-group,
+table .btn-group {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+}
+
+table .btn-sm,
+table .bms-table-action-btn {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+/* Universal Single-Line Filter Bar Enforcement across ALL Roles & Pages */
+.bms-filter-bar .d-flex {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.bms-filter-bar select,
+.bms-filter-bar .form-select,
+.bms-filter-bar .bms-filter-select {
+  width: auto !important;
+  max-width: 260px !important;
+  flex: 0 1 auto !important;
+}
+
+.bms-filter-bar .bms-search-input-pill,
+.bms-filter-bar .bms-search-input-wrapper {
+  flex: 1 1 240px !important;
+  max-width: 440px !important;
 }

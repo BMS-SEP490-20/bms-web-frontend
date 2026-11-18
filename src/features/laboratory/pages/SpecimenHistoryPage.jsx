@@ -19,7 +19,7 @@ import {
     FaFileAlt,
     FaArrowRight,
     FaWarehouse,
-    FaShieldAlt
+    FaTimes
 } from "react-icons/fa";
 import {
     fetchSpecimenHistories,
@@ -239,23 +239,23 @@ export default function SpecimenHistoryPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
-                <div className="bms-page-header-content">
-                    
+            {/* Header Card */}
+            <div className="bms-page-header-card mb-4">
+                <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        
                         <h1 className="bms-page-title">
-                            Truy Vấn Lịch Sử &amp; Vòng Đời Mẫu Bệnh Phẩm
+                            Truy vấn lịch sử &amp; Vòng đời mẫu bệnh phẩm
                         </h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Theo dõi sự kiện vòng đời mẫu bệnh phẩm, thông tin lấy mẫu và vị trí lưu trữ kho lạnh.
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3.5 py-2 fw-semibold"
+                        className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold text-nowrap"
                         style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={() => {
                             loadSpecimenDetail(activeBarcode);
@@ -263,7 +263,7 @@ export default function SpecimenHistoryPage() {
                         }}
                     >
                         <FaSync size={13} className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
-                        <span>Làm Mới</span>
+                        <span>Làm mới</span>
                     </button>
                 </div>
             </div>
@@ -271,7 +271,7 @@ export default function SpecimenHistoryPage() {
             {/* Notification Toast */}
             {toastMessage && (
                 <div
-                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4`}
+                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4 rounded-3`}
                     role="alert"
                 >
                     <div className="d-flex align-items-center">
@@ -286,60 +286,74 @@ export default function SpecimenHistoryPage() {
                 </div>
             )}
 
-            {/* Quick Barcode Scanner & Search Bar */}
-            <div className="card bms-filter-bar">
-                <div className="card-body p-3">
-                    <form onSubmit={handleSearchSubmit} className="row g-2 align-items-center">
-                        <div className="col-12 col-md-6 col-lg-7">
-                            <div className="input-group">
-                                <span className="input-group-text border-end-0 rounded-start-pill ps-3" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                                    <FaBarcode className="fs-5" />
-                                </span>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg border-start-0 rounded-end-pill font-monospace fw-bold"
-                                    style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                                    placeholder="Quét mã vạch Code 128 hoặc nhập mã mẫu (vd: SMP-261021-001)..."
-                                    value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="col-6 col-md-3 col-lg-2">
-                            <button
-                                type="submit"
-                                className="btn btn-lg w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-pill"
-                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
-                                disabled={loadingSpecimen}
-                            >
-                                <FaSearch />
-                                <span>Truy Vấn</span>
-                            </button>
-                        </div>
-
-                        {/* Quick Suggestion Chips from live API directory */}
-                        {specimenList.length > 0 && (
-                            <div className="col-12 col-md-12 col-lg-3 d-flex flex-wrap align-items-center gap-1 text-muted small">
-                                <span className="fw-semibold">Mẫu nhanh:</span>
-                                {specimenList.slice(0, 4).map((item) => (
-                                    <button
-                                        key={item.barcode}
-                                        type="button"
-                                        className={`btn btn-sm py-0 px-2 rounded-pill font-monospace ${
-                                            activeBarcode === item.barcode ? "btn-dark" : "btn-outline-secondary"
-                                        }`}
-                                        style={activeBarcode === item.barcode ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                                        onClick={() => handleSelectSpecimen(item.barcode)}
-                                    >
-                                        {item.barcode}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </form>
+            {/* Single-Line Barcode Lookup Filter Bar */}
+            <form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
+                <div className="bms-search-input-pill">
+                    <FaBarcode className="bms-search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Quét mã vạch hoặc nhập mã mẫu bệnh phẩm..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                    {searchInput && (
+                        <button
+                            type="button"
+                            className="bms-search-clear"
+                            onClick={() => setSearchInput("")}
+                        >
+                            <FaTimes size={12} />
+                        </button>
+                    )}
                 </div>
-            </div>
+
+                <button
+                    type="submit"
+                    className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-nowrap"
+                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
+                    disabled={loadingSpecimen}
+                >
+                    <FaSearch />
+                    <span>Truy vấn</span>
+                </button>
+
+                <select
+                    className="form-select"
+                    style={{ width: "auto" }}
+                    value={statusFilter}
+                    onChange={(e) => {
+                        setStatusFilter(e.target.value);
+                        setPageNumber(1);
+                    }}
+                >
+                    {STATUS_TABS.map((tab) => (
+                        <option key={tab.key} value={tab.key}>{tab.label}</option>
+                    ))}
+                </select>
+
+                {specimenList.length > 0 && (
+                    <div className="d-flex flex-wrap align-items-center gap-1 text-muted small">
+                        <span className="fw-semibold">Mẫu nhanh:</span>
+                        {specimenList.slice(0, 3).map((item) => (
+                            <button
+                                key={item.barcode}
+                                type="button"
+                                className={`btn btn-sm py-0 px-2 rounded-pill font-monospace ${
+                                    activeBarcode === item.barcode ? "btn-primary text-white" : "btn-outline-secondary"
+                                }`}
+                                style={activeBarcode === item.barcode ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
+                                onClick={() => handleSelectSpecimen(item.barcode)}
+                            >
+                                {item.barcode}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                <span className="bms-filter-meta">
+                    Tổng cộng <strong>{totalCount}</strong> mẫu
+                </span>
+            </form>
 
             {/* Error State */}
             {specimenError && (
@@ -494,65 +508,43 @@ export default function SpecimenHistoryPage() {
                 </div>
             ) : null}
 
-            {/* Specimen Master Directory Table */}
-            <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                <div className="card-header bg-white border-bottom py-3" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <div className="row g-2 align-items-center justify-content-between">
-                        <div className="col-12 col-md-auto">
-                            <h6 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#0F172A' }}>
-                                <FaFileAlt style={{ color: '#1E60E6' }} />
-                                Danh Sách Mẫu Bệnh Phẩm Toàn Viện
-                            </h6>
-                            <small className="text-muted">Tổng cộng {totalCount} mẫu bệnh phẩm được theo dõi</small>
-                        </div>
-
-                        {/* Filter Tabs */}
-                        <div className="col-12 col-md-auto d-flex flex-wrap gap-2">
-                            <div className="btn-group btn-group-sm">
-                                {STATUS_TABS.map((tab) => (
-                                    <button
-                                        key={tab.key}
-                                        type="button"
-                                        className={`btn ${statusFilter === tab.key ? "btn-primary" : "btn-outline-secondary"}`}
-                                        style={statusFilter === tab.key ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : { borderColor: 'rgba(15, 23, 42, 0.05)' }}
-                                        onClick={() => {
-                                            setStatusFilter(tab.key);
-                                            setPageNumber(1);
-                                        }}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+            {/* Specimen Master Directory Standalone Table */}
+            <section className="bms-table-standalone-section">
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h2 className="bms-table-standalone-title">Danh sách mẫu bệnh phẩm toàn viện</h2>
+                        <p className="bms-table-standalone-subtitle">Theo dõi trạng thái xử lý, kho lạnh và thời hạn lưu mẫu</p>
                     </div>
+                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5">
+                        {specimenList.length} / {totalCount} mẫu
+                    </span>
                 </div>
 
-                <div className="w-100 overflow-hidden">
+                <div className="bms-table-standalone-body">
                     <table className="table table-hover table-sm align-middle mb-0" style={{ tableLayout: "fixed", width: "100%", fontSize: "0.84rem" }}>
                         <thead className="table-light text-secondary text-uppercase" style={{ fontSize: "0.75rem" }}>
                             <tr>
-                                <th style={{ width: "14%" }}>Mã Vạch</th>
-                                <th style={{ width: "18%" }}>Bệnh Nhân</th>
-                                <th style={{ width: "13%" }}>Loại Mẫu</th>
-                                <th style={{ width: "13%" }}>Thời Gian Lấy</th>
-                                <th style={{ width: "13%" }}>Trạng Thái</th>
-                                <th style={{ width: "15%" }}>Vị Trí Lưu Trữ</th>
-                                <th style={{ width: "7%" }} className="text-center">Hạn Lưu</th>
-                                <th style={{ width: "7%" }} className="text-end">Thao Tác</th>
+                                <th className="ps-3" style={{ width: "14%" }}>Mã vạch</th>
+                                <th style={{ width: "18%" }}>Bệnh nhân</th>
+                                <th style={{ width: "13%" }}>Loại mẫu</th>
+                                <th style={{ width: "13%" }}>Thời gian lấy</th>
+                                <th style={{ width: "13%" }}>Trạng thái</th>
+                                <th style={{ width: "14%" }}>Vị trí lưu trữ</th>
+                                <th style={{ width: "7%" }} className="text-center">Hạn lưu</th>
+                                <th style={{ width: "8%" }} className="text-end pe-3">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loadingList ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-2 text-muted">
+                                    <td colSpan="8" className="text-center py-4 text-muted">
                                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>
                                         Đang tải danh sách mẫu...
                                     </td>
                                 </tr>
                             ) : specimenList.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="text-center py-2 text-muted">
+                                    <td colSpan="8" className="text-center py-4 text-muted">
                                         Không tìm thấy mẫu bệnh phẩm nào phù hợp với bộ lọc.
                                     </td>
                                 </tr>
@@ -569,7 +561,7 @@ export default function SpecimenHistoryPage() {
                                             style={{ cursor: "pointer" }}
                                             onClick={() => handleSelectSpecimen(item.barcode)}
                                         >
-                                            <td>
+                                            <td className="ps-3">
                                                 <span className="font-monospace text-primary fw-bold">
                                                     {item.barcode}
                                                 </span>
@@ -604,7 +596,7 @@ export default function SpecimenHistoryPage() {
                                             <td className="text-center">
                                                 {remDays !== undefined && remDays !== null ? (
                                                     <span
-                                                        className={`badge ${
+                                                        className={`badge rounded-pill ${
                                                             remDays <= 0
                                                                 ? "bg-danger"
                                                                 : remDays <= 2
@@ -618,10 +610,10 @@ export default function SpecimenHistoryPage() {
                                                     <span className="text-muted small">--</span>
                                                 )}
                                             </td>
-                                            <td className="text-end">
+                                            <td className="text-end pe-3">
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-xs px-2 py-1"
+                                                    className="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 d-inline-flex align-items-center gap-1 text-nowrap"
                                                     style={{ fontSize: "0.78rem" }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -639,7 +631,7 @@ export default function SpecimenHistoryPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
             {/* Modals */}
             {canEditSpecimen && (

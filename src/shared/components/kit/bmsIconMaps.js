@@ -14,7 +14,7 @@ export const uiGlyphs = {
   "hospital": "M6 21V4h12v17M3 21h18M10 21v-5h4v5M10 8h4M12 6v4M9 13h1M14 13h1",
   "map-pin": "M19 9c0 6-7 12-7 12S5 15 5 9a7 7 0 1 1 14 0Zm-4 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
   "arrow-left": "M20 12H4m6-6-6 6 6 6",
-  "insurance": "M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6ZM9 12h6M12 9v6",
+  "insurance": "M4 5h16v14H4ZM9 12h6M12 9v6",
   "list": "M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01",
   "user": "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 6 0 0 1 16 0v2",
   "eye": "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm13 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
@@ -43,7 +43,7 @@ export const uiGlyphs = {
   "info": "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM12 11v6M12 7v.01",
   "tag": "M3 3h8l10 10-8 8L3 11ZM7 7h.01",
   "chevron-down": "m5 9 7 7 7-7",
-  "shield-check": "M12 3 3.5 6v6c0 5 8.5 9 8.5 9s8.5-4 8.5-9V6ZM8 12l3 3 5-6",
+  "shield-check": "M21 11v1a9 9 0 1 1-5-8M8 11l4 4 9-10",
   "money": "M3 5h18v14H3ZM7 5c0 3-1 4-4 4m18 6c-3 0-4 1-4 4M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
   "plus": "M12 4v16M4 12h16"
 };

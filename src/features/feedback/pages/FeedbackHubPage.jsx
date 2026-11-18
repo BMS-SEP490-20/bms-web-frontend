@@ -146,11 +146,15 @@ const FeedbackHubPage = () => {
   // Handle Create Feedback Submit
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
+    if (!user?.id) {
+      setAlertMsg({ type: 'danger', text: 'Không xác định tài khoản bệnh nhân. Vui lòng đăng nhập lại.' });
+      return;
+    }
     try {
       setSubmitting(true);
       const payload = {
         ...createForm,
-        patientId: user?.id || 'PAT-DEMO',
+        patientId: user.id,
         patientName: user?.fullName || user?.username || 'Bệnh nhân',
         patientEmail: user?.email || '',
         patientPhone: user?.phone || ''
@@ -283,55 +287,51 @@ const FeedbackHubPage = () => {
   return (
     <div className="w-100">
       {/* Top Banner */}
-      <header className="bms-page-header">
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Đánh giá</h1>
+          <h1 className="bms-page-title">Đánh Giá Dịch Vụ</h1>
+          <p className="bms-page-subtitle">Ghi nhận phản hồi từ người bệnh và lời giải đáp từ Ban Quản lý</p>
         </div>
-        <div className="bms-page-actions">
-              {/* Patient quick return button */}
-              {isPatient && (
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  onClick={() => navigate('/')}
-                  className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                  style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
-                >
-                  <FaArrowLeft />
-                  <span>Quay về Trang chủ</span>
-                </Button>
-              )}
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          {isPatient && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="d-flex align-items-center gap-1.5 rounded-pill px-3"
+            >
+              <FaArrowLeft />
+              <span>Trang chủ</span>
+            </Button>
+          )}
 
-              {/* Only Patient role can create new feedback; other roles can only inspect */}
-              {isPatient && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => setShowCreateModal(true)}
-                  className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                  style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6', boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)' }}
-                >
-                  <FaPlus />
-                  <span>Gửi đánh giá mới</span>
-                </Button>
-              )}
+          {isPatient && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowCreateModal(true)}
+              className="d-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold"
+            >
+              <FaPlus />
+              <span>Gửi đánh giá mới</span>
+            </Button>
+          )}
 
-              <Button
-                variant="light"
-                size="sm"
-                onClick={fetchFeedbacks}
-                disabled={loading}
-                className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2"
-                style={{ borderRadius: 9999, borderColor: 'rgba(15, 23, 42, 0.05)' }}
-              >
-                <FaSyncAlt className={loading ? 'fa-spin' : ''} />
-                <span>Làm mới</span>
-              </Button>
-            </div>
-      </header>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={fetchFeedbacks}
+            disabled={loading}
+            className="d-flex align-items-center gap-1.5 rounded-pill px-3"
+          >
+            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+            <span>Làm mới</span>
+          </Button>
+        </div>
+      </div>
 
       {alertMsg && (
-        <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="shadow-sm" style={{ borderRadius: 14 }}>
+        <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="border-0 rounded-3">
           {alertMsg.text}
         </Alert>
       )}
@@ -340,56 +340,58 @@ const FeedbackHubPage = () => {
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} md={4}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
-              <Card.Body className="p-2 text-center d-flex flex-column justify-content-center">
-                <div className="text-muted small fw-semibold text-uppercase mb-2">Đánh giá trung bình</div>
-                <div className="display-4 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2" style={{ color: '#0f2743', fontVariantNumeric: 'tabular-nums' }}>
-                  <span>{statistics.averageRating}</span>
-                  <FaStar className="text-warning fs-3" />
-                </div>
-                <div className="mb-2">
-                  {renderStars(Math.round(statistics.averageRating))}
-                </div>
-                <div className="text-muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  Dựa trên <strong>{statistics.totalFeedbacks}</strong> lượt đánh giá từ bệnh nhân
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="bms-kpi-quad-card h-100 text-center d-flex flex-column justify-content-center">
+              <div className="bms-kpi-label mb-2">Đánh giá trung bình</div>
+              <div className="display-5 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2 text-dark">
+                <span>{statistics.averageRating}</span>
+                <FaStar className="text-warning fs-3" />
+              </div>
+              <div className="mb-2">
+                {renderStars(Math.round(statistics.averageRating))}
+              </div>
+              <div className="text-muted small">
+                Tổng <strong>{statistics.totalFeedbacks}</strong> lượt đánh giá
+              </div>
+            </div>
           </Col>
 
           <Col xs={12} md={5}>
-            <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
-              <Card.Body className="p-2">
-                <div className="text-muted small fw-semibold text-uppercase mb-3">Phân bổ xếp hạng sao</div>
-                {[5, 4, 3, 2, 1].map((star) => {
-                  const count = statistics.ratingDistribution?.[star] || 0;
-                  const pct = statistics.totalFeedbacks > 0 ? (count / statistics.totalFeedbacks) * 100 : 0;
-                  return (
-                    <div key={star} className="d-flex align-items-center gap-2 mb-2 small">
-                      <span className="fw-semibold text-dark" style={{ width: '35px' }}>{star} ★</span>
-                      <div className="flex-grow-1">
-                        <ProgressBar 
-                          now={pct} 
-                          variant={star >= 4 ? 'success' : star === 3 ? 'warning' : 'danger'} 
-                          style={{ height: '8px' }} 
-                          className="rounded-pill"
-                        />
-                      </div>
-                      <span className="text-muted text-end" style={{ width: '40px', fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+            <div className="bms-kpi-quad-card h-100">
+              <div className="bms-kpi-label mb-3">Phân bổ xếp hạng sao</div>
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = statistics.ratingDistribution?.[star] || 0;
+                const pct = statistics.totalFeedbacks > 0 ? (count / statistics.totalFeedbacks) * 100 : 0;
+                return (
+                  <div key={star} className="d-flex align-items-center gap-2 mb-2 small">
+                    <span className="fw-semibold text-dark d-inline-flex align-items-center gap-1" style={{ width: '42px' }}>
+                      {star} <FaStar className="text-warning" size={11} />
+                    </span>
+                    <div className="flex-grow-1">
+                      <ProgressBar 
+                        now={pct} 
+                        variant={star >= 4 ? 'success' : star === 3 ? 'warning' : 'danger'} 
+                        style={{ height: '8px' }} 
+                        className="rounded-pill"
+                      />
                     </div>
-                  );
-                })}
-              </Card.Body>
-            </Card>
+                    <span className="text-muted text-end" style={{ width: '40px', fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+                  </div>
+                );
+              })}
+            </div>
           </Col>
 
           <Col xs={12} md={3}>
             <Card className="border-0 shadow-sm h-100 bg-white" style={{ borderRadius: 18 }}>
               <Card.Body className="p-2 d-flex flex-column justify-content-between">
                 <div>
-                  <div className="text-muted small fw-semibold text-uppercase mb-1">Đã phản hồi (Manager Reply)</div>
+                  <div className="text-muted small fw-semibold text-uppercase mb-1">
+                    {isManagerOrAdmin ? 'Đã phản hồi (CSKH / Quản lý)' : 'Đã có phản hồi từ trung tâm'}
+                  </div>
                   <h3 className="fw-bold text-success mb-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{statistics.respondedFeedbacks}</h3>
-                  <small className="text-muted">Ban Quản Lý đã giải đáp</small>
+                  <small className="text-muted">
+                    {isManagerOrAdmin ? 'Đã giải đáp ý kiến người bệnh' : 'Trung tâm đã phản hồi ý kiến của bạn'}
+                  </small>
                 </div>
                 <hr className="my-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }} />
                 <div>
@@ -458,7 +460,7 @@ const FeedbackHubPage = () => {
                 <option value="ALL">Tất cả trạng thái</option>
                 <option value="PENDING">Chờ phản hồi</option>
                 <option value="REVIEWED">Đã xem xét</option>
-                <option value="RESPONDED">Đã có lời đáp từ Quản lý</option>
+                <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi từ trung tâm'}</option>
               </Form.Select>
             </Col>
           </Row>
@@ -672,11 +674,11 @@ const FeedbackHubPage = () => {
                 ))}
               </div>
               <div className="mt-2 fw-bold text-primary">
-                {createForm.rating === 5 && '🌟 Tuyệt vời - Rất hài lòng'}
-                {createForm.rating === 4 && '👍 Tốt - Hài lòng'}
-                {createForm.rating === 3 && '👌 Bình thường - Tạm ổn'}
-                {createForm.rating === 2 && '⚠️ Cần cải thiện dịch vụ'}
-                {createForm.rating === 1 && '👎 Rất không hài lòng'}
+                {createForm.rating === 5 && 'Tuyệt vời - Rất hài lòng'}
+                {createForm.rating === 4 && 'Tốt - Hài lòng'}
+                {createForm.rating === 3 && 'Bình thường - Tạm ổn'}
+                {createForm.rating === 2 && 'Cần cải thiện dịch vụ'}
+                {createForm.rating === 1 && 'Chưa hài lòng'}
               </div>
             </div>
 

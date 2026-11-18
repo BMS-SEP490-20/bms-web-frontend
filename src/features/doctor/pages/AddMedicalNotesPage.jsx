@@ -8,7 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaNotesMedical, FaSave, FaSearch, FaUserMd, FaHospitalUser } from 'react-icons/fa';
+import { FaNotesMedical, FaSave, FaSearch, FaUserMd, FaHospitalUser, FaTimes } from 'react-icons/fa';
 import { addMedicalNote, getMedicalNotes, medicalNoteError } from '../api/medicalNoteApi';
 import '../../../components/common/SkeletonProfile.css';
 
@@ -101,43 +101,56 @@ export default function AddMedicalNotesPage() {
   const pageSize = context?.pageSize || 20;
 
   return (
-    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Ghi chú y khoa</h1>
+    <div className="w-100 py-1">
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Ghi chú y khoa</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Bổ sung diễn biến lâm sàng, y lệnh theo dõi và dặn dò vào hồ sơ bệnh án điện tử.
+          </p>
         </div>
-        <div className="d-flex gap-2">
-          <Button as={Link} to="/doctor/console" variant="outline-secondary" size="sm" className="d-flex align-items-center gap-1 shadow-sm" style={{ borderRadius: '9999px' }}>
+        <div className="bms-page-actions">
+          <Button as={Link} to="/doctor/console" variant="outline-secondary" size="sm" className="d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap">
             <FaHospitalUser /> Bàn khám bác sĩ
           </Button>
-          <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-flex align-items-center gap-1 shadow-sm text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}>
+          <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-inline-flex align-items-center gap-1 rounded-pill px-3 text-white text-nowrap" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
             <FaUserMd /> Hồ sơ bệnh án
           </Button>
         </div>
-      </header>
+      </div>
 
-      <Card className="shadow-sm rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-        <Card.Body className="p-3">
-          <Form onSubmit={lookup}>
-            <Form.Label htmlFor="medical-note-record" className="fw-semibold text-dark mb-1">Tra cứu hồ sơ bệnh án:</Form.Label>
-            <InputGroup>
-              <Form.Control
-                id="medical-note-record"
-                placeholder="Nhập mã bệnh án EMR (VD: REC-... hoặc ID bệnh án)"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                maxLength={100}
-                required
-                disabled={saving}
-              />
-              <Button type="submit" disabled={!input.trim() || saving || loading} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '0 9999px 9999px 0' }}>
-                <FaSearch className="me-2" /> Mở Bệnh Án
-              </Button>
-            </InputGroup>
-            <Form.Text className="text-muted">Chỉ bác sĩ phụ trách điều trị được quyền xem và thêm ghi chú vào bệnh án này.</Form.Text>
-          </Form>
-        </Card.Body>
-      </Card>
+      <Form onSubmit={lookup} className="bms-filter-bar mb-3">
+        <div className="bms-search-input-pill">
+          <FaSearch className="bms-search-icon" />
+          <input
+            id="medical-note-record"
+            type="text"
+            placeholder="Nhập mã bệnh án (VD: REC-... hoặc ID bệnh án)..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            maxLength={100}
+            required
+            disabled={saving}
+          />
+          {input && !saving && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setInput('')}
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+        <Button type="submit" size="sm" className="rounded-pill px-3 text-nowrap" disabled={!input.trim() || saving || loading} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
+          <FaSearch className="me-1" /> Mở bệnh án
+        </Button>
+        <span className="bms-filter-meta">
+          {record ? <>Bệnh án: <strong>{record.recordCode || record.id}</strong> ({totalNotes} ghi chú)</> : 'Chưa mở hồ sơ'}
+        </span>
+      </Form>
 
       {success && (
         <Alert variant="success" role="status" dismissible onClose={() => setSuccess('')} className="shadow-sm rounded-3">
@@ -175,7 +188,7 @@ export default function AddMedicalNotesPage() {
                   <dd className="col-8 text-break font-monospace" style={{ color: '#1E60E6' }}>{record.patientId}</dd>
 
                   <dt className="col-4 text-muted small">Bác sĩ phụ trách</dt>
-                  <dd className="col-8">{record.doctorName || 'BS. Chuyên Khoa'}</dd>
+                  <dd className="col-8">{record.doctorName || '—'}</dd>
 
                   <dt className="col-4 text-muted small">Ngày lập</dt>
                   <dd className="col-8">{formatDate(record.createdAt)}</dd>
@@ -321,13 +334,13 @@ export default function AddMedicalNotesPage() {
         </Row>
       ) : !loadError && (
         <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Body className="text-center text-muted py-3">
-            <FaNotesMedical size={40} className="mb-3" style={{ color: '#1E60E6' }} />
-            <h5 className="fw-bold text-secondary">Chọn hoặc Nhập Mã Bệnh Án Để Bắt Đầu</h5>
-            <p className="mb-0 small">Nhập mã bệnh án EMR ở ô tìm kiếm phía trên hoặc mở trực tiếp từ phân hệ Hồ Sơ Bệnh Án EMR.</p>
+          <Card.Body className="text-center text-muted py-5">
+            <FaNotesMedical size={36} className="mb-3 opacity-50" style={{ color: '#1E60E6' }} />
+            <h6 className="fw-bold text-secondary">Chọn hoặc nhập mã bệnh án để bắt đầu</h6>
+            <p className="mb-0 small">Nhập mã bệnh án ở thanh tìm kiếm phía trên hoặc mở trực tiếp từ phân hệ Bệnh án điện tử.</p>
           </Card.Body>
         </Card>
       )}
-    </Container>
+    </div>
   );
 }

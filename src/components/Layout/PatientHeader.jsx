@@ -15,7 +15,7 @@ import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { patientService } from '../../services/patientService';
-import NotificationHistoryModal from '../../shared/components/Notification/NotificationHistoryModal';
+import NotificationHistoryModal from '../shared/NotificationHistoryModal';
 
 const PatientHeader = ({ setActiveTab }) => {
   const { user, logout, updateUser } = useAuth();

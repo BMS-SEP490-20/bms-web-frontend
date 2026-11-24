@@ -2,17 +2,21 @@
  * Notification History Modal and Bell Trigger Component
  * 
  * Displays an interactive notification bell with unread badge count.
- * Upon click, renders an itemized history of past system notifications
+ * Upon click, renders an itemized history of past real-time system notifications
  * (appointment reminders, result readiness, system alerts, billing receipts)
  * for Patient, Doctor, and Staff roles.
  * 
+ * Strict constraints:
+ * - Real-time synchronization via API, no mock or seed data injected.
+ * - Exact Vietnam local time formatting (Asia/Ho_Chi_Minh / HH:mm:ss dd/MM/yyyy).
+ * 
  * @author Blood Laboratory Management Team
- * @version 1.0.0
+ * @version 2.0.0
  * @since 2024
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, Button, Nav, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Modal, Button, Nav, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { 
   FaBell, 
   FaCalendarAlt, 
@@ -25,42 +29,72 @@ import {
   FaCheckCircle,
   FaVial
 } from 'react-icons/fa';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../shared/contexts/AuthContext';
+import { getStoredUser } from '../../constants/roles';
 import { notificationService } from '../../services/notificationService';
 
 const NotificationHistoryModal = ({ variant = 'light' }) => {
-  const { user } = useAuth();
+  const authContext = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
+  // Resolve user safely across AuthContext and storage
+  const user = useMemo(() => {
+    return authContext?.user || getStoredUser();
+  }, [authContext?.user]);
+
   const fetchNotifications = useCallback(async () => {
-    if (!user?.id) return;
+    const activeUser = user || getStoredUser();
+    const userId = activeUser?.id || activeUser?.userId || activeUser?.sub || activeUser?.accountId || activeUser?._id;
+    if (!userId) return;
+
     try {
       setLoading(true);
-      const res = await notificationService.getUserNotifications(user.id, user.role || '');
+      const roleStr = activeUser?.role || activeUser?.roleName || authContext?.userRole || '';
+      const res = await notificationService.getUserNotifications(userId, roleStr);
       if (res.success && Array.isArray(res.data)) {
-        setNotifications(res.data);
+        const normalized = res.data.map(n => ({
+          notificationId: n.notificationId || n.NotificationId || n.id,
+          title: n.title || n.Title || 'Thông báo hệ thống',
+          message: n.message || n.Message || '',
+          type: (n.type || n.Type || 'system_alert').toLowerCase(),
+          isRead: Boolean(n.isRead ?? n.IsRead ?? false),
+          createdAt: n.createdAt || n.CreatedAt || new Date().toISOString(),
+          referenceId: n.referenceId || n.ReferenceId
+        }));
+        setNotifications(normalized);
       }
-    } catch (e) {
-      // Ignore or empty
+    } catch {
+      // Ignore or empty network hiccups
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authContext?.userRole]);
 
   useEffect(() => {
     fetchNotifications();
 
-    // SIDE EFFECT: Polling interval periodically reconciles unread notification counts.
-    // The cleanup callback disposes the timer upon unmount to prevent memory leaks and zombie network calls.
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    // Responsive 15s interval for real-time background notification reconciliation
+    const interval = setInterval(fetchNotifications, 15000);
+
+    const onFocus = () => fetchNotifications();
+    const onRefresh = () => fetchNotifications();
+
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('bms:notification_refresh', onRefresh);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('bms:notification_refresh', onRefresh);
+    };
   }, [fetchNotifications]);
 
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = useMemo(() => {
+    return notifications.filter(n => !n.isRead).length;
+  }, [notifications]);
 
   const handleOpen = () => {
     fetchNotifications();
@@ -77,15 +111,21 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
       setNotifications(prev =>
         prev.map(n => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
       );
-    } catch (e) {}
+    } catch {
+      // Keep optimistic update or retry on next poll
+    }
   };
 
   const handleMarkAllAsRead = async () => {
-    if (!user?.id) return;
+    const activeUser = user || getStoredUser();
+    const userId = activeUser?.id || activeUser?.userId || activeUser?.sub || activeUser?.accountId || activeUser?._id;
+    if (!userId) return;
     try {
-      await notificationService.markAllAsRead(user.id);
+      await notificationService.markAllAsRead(userId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    } catch (e) {}
+    } catch {
+      // Retry on next poll
+    }
   };
 
   const getFilteredNotifications = () => {
@@ -133,31 +173,208 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
     }
   };
 
+  /**
+   * Formats UTC timestamps strictly into Vietnam standard time (UTC+7 / Asia/Ho_Chi_Minh).
+   */
   const formatTimestamp = (dateStr) => {
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+
+      const vnTimeFormatted = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour12: false
+      }).format(date);
+
       const now = new Date();
-      const diffMs = now - date;
+      const diffMs = now.getTime() - date.getTime();
       const diffMins = Math.floor(diffMs / (1000 * 60));
       const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
 
-      if (diffMins < 1) return 'Vừa xong';
-      if (diffMins < 60) return `${diffMins} phút trước`;
-      if (diffHours < 24) return `${diffHours} giờ trước`;
-      if (diffDays === 1) return 'Hôm qua';
-      return date.toLocaleDateString('vi-VN');
-    } catch (e) {
+      if (diffMins < 1) return `Vừa xong (${vnTimeFormatted})`;
+      if (diffMins < 60) return `${diffMins} phút trước (${vnTimeFormatted})`;
+      if (diffHours < 24) return `${diffHours} giờ trước (${vnTimeFormatted})`;
+      return vnTimeFormatted;
+    } catch {
       return dateStr;
     }
   };
 
   const filteredList = getFilteredNotifications();
 
-  return (
-    <>
-      {/* Bell Trigger Button */}
+  // Render Trigger Button depending on variant
+  const renderTrigger = () => {
+    if (variant === 'sidebar') {
+      return (
+        <button
+          onClick={handleOpen}
+          type="button"
+          style={{
+            background: '#EFF6FF',
+            border: 'none',
+            color: '#1E60E6',
+            borderRadius: '9999px',
+            width: '30px',
+            height: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative',
+            transition: 'all 0.15s ease'
+          }}
+          title={`Thông báo hệ thống (${unreadCount} chưa đọc)`}
+          aria-label="Thông báo hệ thống"
+        >
+          <FaBell size={13} />
+          {unreadCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-3px',
+                right: '-3px',
+                background: '#EF4444',
+                color: '#FFFFFF',
+                borderRadius: '9999px',
+                fontSize: '9px',
+                fontWeight: 'bold',
+                minWidth: '15px',
+                height: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 2px',
+                border: '1.5px solid #FFFFFF',
+                lineHeight: 1
+              }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      );
+    }
+
+    if (variant === 'sidebar-collapsed') {
+      return (
+        <OverlayTrigger
+          placement="right"
+          overlay={
+            <Tooltip id="tt-notifications-collapsed">
+              Thông báo {unreadCount > 0 ? `(${unreadCount} chưa đọc)` : ''}
+            </Tooltip>
+          }
+        >
+          <button
+            onClick={handleOpen}
+            type="button"
+            style={{
+              background: '#EFF6FF',
+              border: 'none',
+              color: '#1E60E6',
+              borderRadius: '9999px',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              position: 'relative',
+              transition: 'all 0.15s ease'
+            }}
+            aria-label="Thông báo hệ thống"
+          >
+            <FaBell size={13} />
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-3px',
+                  right: '-3px',
+                  background: '#EF4444',
+                  color: '#FFFFFF',
+                  borderRadius: '9999px',
+                  fontSize: '9px',
+                  fontWeight: 'bold',
+                  minWidth: '15px',
+                  height: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 2px',
+                  border: '1.5px solid #FFFFFF',
+                  lineHeight: 1
+                }}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+        </OverlayTrigger>
+      );
+    }
+
+    if (variant === 'patient-navbar') {
+      return (
+        <button
+          onClick={handleOpen}
+          type="button"
+          style={{
+            background: '#F0F9FF',
+            border: '1px solid #BAE6FD',
+            color: '#0284C7',
+            borderRadius: '9999px',
+            width: '32px',
+            height: '32px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative',
+            transition: 'all 0.15s ease',
+            marginRight: '6px'
+          }}
+          title={`Thông báo của bạn (${unreadCount} chưa đọc)`}
+          aria-label="Thông báo"
+        >
+          <FaBell size={14} />
+          {unreadCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-3px',
+                right: '-3px',
+                background: '#EF4444',
+                color: '#FFFFFF',
+                borderRadius: '9999px',
+                fontSize: '9px',
+                fontWeight: 700,
+                minWidth: '15px',
+                height: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 2px',
+                border: '1.5px solid #FFFFFF',
+                lineHeight: 1
+              }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      );
+    }
+
+    // Default trigger
+    return (
       <button
         onClick={handleOpen}
         type="button"
@@ -173,7 +390,7 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
           justifyContent: 'center',
           cursor: 'pointer'
         }}
-        title="Lịch sử thông báo hệ thống"
+        title={`Lịch sử thông báo hệ thống (${unreadCount} chưa đọc)`}
       >
         <FaBell style={{ fontSize: '1.25rem' }} />
         {unreadCount > 0 && (
@@ -185,6 +402,13 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
           </span>
         )}
       </button>
+    );
+  };
+
+  return (
+    <>
+      {/* Bell Trigger Button */}
+      {renderTrigger()}
 
       {/* Notifications History Modal */}
       <Modal show={showModal} onHide={handleClose} size="lg" centered>
@@ -326,7 +550,7 @@ const NotificationHistoryModal = ({ variant = 'light' }) => {
 
         <Modal.Footer className="bg-light py-2 border-0 d-flex justify-content-between">
           <small className="text-muted">
-            Hệ thống quản lý thông báo tự động phòng xét nghiệm
+            Hệ thống quản lý thông báo tự động phòng xét nghiệm (Thời gian: Giờ chuẩn Việt Nam GMT+7)
           </small>
           <Button variant="secondary" size="sm" onClick={handleClose}>
             Đóng

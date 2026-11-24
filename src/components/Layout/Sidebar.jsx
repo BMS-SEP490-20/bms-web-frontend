@@ -7,6 +7,7 @@
 import React, { useMemo } from 'react';
 import { OverlayTrigger, Tooltip, Badge } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import NotificationHistoryModal from '../shared/NotificationHistoryModal';
 import {
   FaTachometerAlt, FaVial, FaUserMd, FaStethoscope, FaUsersCog,
   FaShieldAlt, FaBoxOpen, FaNotesMedical, FaChevronLeft, FaChevronRight,
@@ -498,8 +499,9 @@ export default function Sidebar({
               </div>
             </div>
 
-            {/* Quick Actions: Logout & Collapse */}
+            {/* Quick Actions: Notifications, Logout & Collapse */}
             <div className="d-flex align-items-center gap-1 flex-shrink-0">
+              <NotificationHistoryModal variant="sidebar" />
               <button
                 onClick={handleLogout}
                 style={{
@@ -562,6 +564,8 @@ export default function Sidebar({
               <span className="bms-sidebar-avatar-dot" />
             </div>
           </OverlayTrigger>
+
+          <NotificationHistoryModal variant="sidebar-collapsed" />
 
           <OverlayTrigger placement="right" overlay={<Tooltip id="tt-logout-collapsed">Đăng xuất</Tooltip>}>
             <button

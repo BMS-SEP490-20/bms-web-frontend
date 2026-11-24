@@ -11,6 +11,7 @@
 import React, { useMemo, useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
+import NotificationHistoryModal from '../../../components/shared/NotificationHistoryModal';
 
 // Module-level persistent cache across route transitions
 let lastKnownPillPos = { left: 0, width: 0, initialized: false };
@@ -251,6 +252,7 @@ export default function PortalNavbar({ user: propUser = null }) {
         <div className="bms-identity-cluster">
           {isPatient ? (
             <div className="bms-user-dock">
+              <NotificationHistoryModal variant="patient-navbar" />
               <Link
                 className="bms-btn-mint-cta"
                 to="/appointments/book"

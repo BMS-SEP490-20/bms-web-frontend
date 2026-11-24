@@ -90,6 +90,8 @@ api.interceptors.request.use(
                 config.url = config.url.replace(/\/gateway\/testorder\/feedback/i, '/TestOrder/feedback');
             } else if (config.url.toLowerCase().startsWith('/gateway/testorder/qcflag')) {
                 config.url = config.url.replace(/\/gateway\/testorder\/qcflag/i, '/TestOrder/QcFlag');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/notification')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/notification/i, '/TestOrder/Notification');
             }
 
             if (config.url.startsWith('/TestOrder')) {

@@ -80,3 +80,19 @@ export const updateTestOrderStatus = async (id, statusData) => {
         throw error;
     }
 };
+
+/**
+ * Submit a draft test order to the laboratory (Draft -> PaidPendingSample).
+ * @param {string} id Order ID or order number.
+ * @param {Object} [submitData] Optional clinical/priority overrides.
+ * @returns {Promise<Object>} Submitted order data.
+ */
+export const submitDraftTestOrder = async (id, submitData = {}) => {
+    try {
+        const response = await api.post(`/testorders/${encodeURIComponent(id)}/submit`, submitData);
+        return response.data;
+    } catch (error) {
+        console.error(`Error submitting draft order ${id}:`, error);
+        throw error;
+    }
+};

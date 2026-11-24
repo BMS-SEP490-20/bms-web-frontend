@@ -243,6 +243,8 @@ export function RegisterWalkInPage({ onSuccess }) {
       phone: form.phone.trim(),
       identityNumber: form.identityNumber.trim(),
       address: (form.address || '').trim(),
+      // BE [EmailAddress] reject chuỗi rỗng — bỏ trống khi không nhập
+      email: (form.email || '').trim() || null,
       medicalHistory: [
         form.medicalHistory,
         checks.fasting ? 'Đã nhịn ăn 8-12h' : 'Chưa nhịn ăn',

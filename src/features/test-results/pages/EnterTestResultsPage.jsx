@@ -268,6 +268,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   // Feedback states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Xóa banner lỗi checklist IQC cũ còn kẹt sau HMR / lần bấm gửi trước khi gỡ ràng buộc
+  useEffect(() => {
+    setError((prev) =>
+      typeof prev === 'string' && prev.includes('checklist IQC') ? null : prev
+    );
+  }, []);
   const [result, setResult] = useState(null);
   const [sampleDetails, setSampleDetails] = useState(null);
 
@@ -428,14 +435,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       }`
     );
   };
-
-  // Danh sách kiểm soát chất lượng
-  const [checks, setChecks] = useState({
-    allRequired: false,
-    unitsOk: false,
-    qcOk: false,
-    reviewedAbnormal: false
-  });
 
   // Tải danh mục chỉ tiêu xét nghiệm chuẩn từ CSDL (test_criteria) làm fallback khi mẫu không gắn gói
   useEffect(() => {
@@ -738,12 +737,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== '' && p.value !== null && p.value !== undefined && String(p.value).trim() !== '' && p.value !== 0);
     if (validParams.length === 0) {
       setError('Vui lòng nhập ít nhất một kết quả đo chỉ số xét nghiệm.');
-      return;
-    }
-
-    // ISO 15189: nội kiểm / checklist kỹ thuật phải xác nhận trước khi chuyển Bác sĩ (không công bố BN).
-    if (!checks.allRequired || !checks.unitsOk || !checks.qcOk || !checks.reviewedAbnormal) {
-      setError('Vui lòng xác nhận đủ checklist IQC (ISO 15189) trước khi gửi kết quả cho Bác sĩ thẩm định.');
       return;
     }
 
@@ -1305,28 +1298,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
             <Card className="border-0 shadow-sm bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
-                <h6 className="fw-bold text-dark mb-2">Tiêu Chuẩn Kiểm Soát Nội Kiểm (IQC)</h6>
-                <span className="badge bg-warning-subtle text-warning-emphasis border mb-3">
-                  Bản nháp chờ duyệt
-                </span>
-                {[
-                  ['allRequired', 'Đã đo đầy đủ các thông số chỉ định'],
-                  ['unitsOk', 'Đơn vị tính và số chữ số thập phân chuẩn mực'],
-                  ['qcOk', 'Nội kiểm IQC trong ca đạt chuẩn Westgard'],
-                  ['reviewedAbnormal', 'Đã rà soát các giá trị bất thường ngoài dải']
-                ].map(([key, label]) => (
-                  <label key={key} className="d-flex align-items-center gap-2 mb-2 small text-dark" style={{ cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      className="form-check-input mt-0"
-                      checked={checks[key]}
-                      onChange={(e) => setChecks((c) => ({ ...c, [key]: e.target.checked }))}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-
-                <div className="alert alert-secondary py-2 small mt-3 mb-0">
+                <div className="alert alert-secondary py-2 small mb-0">
                   <FaLock className="me-1 text-secondary" />
                   Sau khi gửi, kết quả chuyển Bác sĩ thẩm định lâm sàng &amp; ký số trước khi bệnh nhân xem được trên cổng.
                 </div>
@@ -1523,4 +1495,5 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 }
 
 export default EnterTestResultsPage;
+
 

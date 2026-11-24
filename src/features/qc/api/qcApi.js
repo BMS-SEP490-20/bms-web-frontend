@@ -412,8 +412,26 @@ export async function signoffCorrectiveAction(runId, dto) {
             if (res.data?.success && res.data?.data) {
                 return res.data.data;
             }
-        } catch {
-            // fallback
+            const msg = res.data?.message || "Ký mở khóa QC thất bại.";
+            throw new Error(msg);
+        } catch (err) {
+            const status = err?.response?.status;
+            // 401/403: không fallback mock — che mất RBAC Manager-only của API
+            if (status === 401 || status === 403) {
+                const apiMsg = err?.response?.data?.message || err?.response?.data?.title;
+                throw new Error(
+                    apiMsg
+                    || "Chỉ Quản lý Lab (Manager) được ký duyệt khắc phục và mở khóa máy sau vi phạm Westgard."
+                );
+            }
+            if (status === 404 || status === 400) {
+                throw new Error(err?.response?.data?.message || err.message || "Không ký được mở khóa QC.");
+            }
+            // Mạng/5xx: thử mock local chỉ khi run tồn tại trong mock (dev offline)
+            const run = mockRuns.find(r => r.id === runId);
+            if (!run) {
+                throw new Error(err?.response?.data?.message || err.message || `Không tìm thấy lần chạy QC ${runId}`);
+            }
         }
     }
 

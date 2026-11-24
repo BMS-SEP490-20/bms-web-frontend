@@ -677,6 +677,26 @@ const SampleQueuePage = () => {
     }
   };
 
+  const handleCreateAliquot = async (sample) => {
+    if (!sample?.id) return;
+    setErrorMsg('');
+    try {
+      const res = await api.post(`/laboratory/samples/${encodeURIComponent(sample.id)}/aliquot`, {
+        volumeMl: 1.0,
+        targetLabRoom: dutyRoomId || sample.labRoom || 'LAB-ROOM-01',
+        notes: `Chiết mẫu phụ từ ống gốc ${sample.barcode}`
+      });
+      const created = res.data?.data;
+      setSuccessMsg(
+        res.data?.message ||
+        `Đã chiết mẫu phụ (Aliquot) ${created?.barcode || ''} từ ống gốc ${sample.barcode}.`
+      );
+      await fetchQueue();
+    } catch (err) {
+      setErrorMsg(extractApiError(err, 'Không thể chiết mẫu phụ (Aliquot).'));
+    }
+  };
+
   const openStatusUpdateModal = async (sample, targetStatus = null) => {
     const allowed = ALLOWED_TRANSITIONS[sample.status] || [];
     const defaultNext = (targetStatus && allowed.includes(targetStatus))
@@ -1024,6 +1044,11 @@ const SampleQueuePage = () => {
                         <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
                           <FaBarcode />
                           <span>{s.barcode}</span>
+                          {s.isAliquot && (
+                            <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
+                              Aliquot ({s.parentBarcode || 'Ống phụ'})
+                            </Badge>
+                          )}
                         </div>
                         <div className="text-muted" style={{ fontSize: '0.75rem' }}>
                           ID: <code>{s.id}</code>
@@ -1150,6 +1175,20 @@ const SampleQueuePage = () => {
                                   >
                                     <FaEye />
                                     <span>Xem KQ</span>
+                                  </Button>
+                                )}
+
+                                {canRecordSampleTime && !s.isAliquot && ['Collected', 'Received', 'Processing', 'Testing'].includes(st) && (
+                                  <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
+                                    style={btnStyle}
+                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích (BR-PHL-02)"
+                                    onClick={() => void handleCreateAliquot(s)}
+                                  >
+                                    <FaVial />
+                                    <span>Chiết mẫu</span>
                                   </Button>
                                 )}
 
@@ -1357,68 +1396,39 @@ const SampleQueuePage = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Label className="small fw-semibold">Người Lấy Mẫu (CSDL)</Form.Label>
-                {staffOptions.length > 0 ? (
-                  <Form.Select
-                    value={matchedCollectionStaff?.id || (collectionForm.collectorName ? `__custom__:${collectionForm.collectorName}` : '')}
-                    onChange={(e) => {
-                      const selected = staffOptions.find((s) => s.id === e.target.value);
-                      if (selected) {
-                        setCollectionForm((prev) => ({
-                          ...prev,
-                          collectorName: selected.fullName,
-                          collectedBy: selected.employeeCode || selected.id
-                        }));
-                      }
-                    }}
-                  >
-                    <option value="">-- Chọn người lấy mẫu --</option>
-                    {!matchedCollectionStaff && collectionForm.collectorName && (
-                      <option value={`__custom__:${collectionForm.collectorName}`}>
-                        {collectionForm.collectorName}
-                      </option>
-                    )}
-                    {staffOptions.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.fullName}{s.department ? ` — ${s.department}` : ''}
-                      </option>
-                    ))}
-                  </Form.Select>
-                ) : (
-                  <Form.Control
-                    type="text"
-                    placeholder={staffLoading ? 'Đang tải nhân sự từ CSDL...' : 'Họ tên ĐD/KTV'}
-                    value={collectionForm.collectorName}
-                    onChange={(e) => setCollectionForm((prev) => ({ ...prev, collectorName: e.target.value }))}
-                  />
-                )}
+                <Form.Label className="small fw-semibold">Người Lấy Mẫu (Theo ca trực)</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={
+                    matchedCollectionStaff
+                      ? `${matchedCollectionStaff.fullName}${matchedCollectionStaff.department ? ` — ${matchedCollectionStaff.department}` : ''}`
+                      : (collectionForm.collectorName || 'Đang đồng bộ từ ca trực...')
+                  }
+                  readOnly
+                  disabled
+                  className="bg-light text-dark fw-semibold"
+                />
               </Col>
 
               <Col md={6}>
-                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (CSDL)</Form.Label>
-                {labRooms.length > 0 ? (
-                  <Form.Select
-                    value={collectionForm.labRoom}
-                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
-                  >
-                    {labRooms.map(r => {
-                      const roomCode = typeof r === 'string' ? r : (r.id || r.roomNumber);
-                      const roomLabel = typeof r === 'string' ? r : (r.name ? `${roomCode} — ${r.name}` : roomCode);
-                      return (
-                        <option key={roomCode} value={roomCode}>
-                          {roomLabel}
-                        </option>
-                      );
-                    })}
-                  </Form.Select>
-                ) : (
-                  <Form.Control
-                    type="text"
-                    placeholder="VD: LAB-ROOM-01"
-                    value={collectionForm.labRoom}
-                    onChange={(e) => setCollectionForm(prev => ({ ...prev, labRoom: e.target.value }))}
-                  />
-                )}
+                <Form.Label className="small fw-semibold">Phòng Lab Tiếp Nhận (Theo ca trực)</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={(() => {
+                    const matchedRoom = labRooms.find((r) => {
+                      const code = typeof r === 'string' ? r : (r.id || r.roomNumber);
+                      return code === collectionForm.labRoom;
+                    });
+                    if (matchedRoom && typeof matchedRoom !== 'string') {
+                      const code = matchedRoom.id || matchedRoom.roomNumber;
+                      return matchedRoom.name ? `${code} — ${matchedRoom.name}` : code;
+                    }
+                    return collectionForm.labRoom || 'LAB-ROOM-01';
+                  })()}
+                  readOnly
+                  disabled
+                  className="bg-light text-dark fw-semibold"
+                />
               </Col>
 
               <Col xs={12}>

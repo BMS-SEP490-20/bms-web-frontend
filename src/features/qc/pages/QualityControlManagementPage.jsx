@@ -35,6 +35,7 @@ import {
     fetchQcDashboardSummary,
     fetchQcFlags
 } from "../api/qcApi";
+import { useAuth } from "../../../shared/contexts/AuthContext";
 
 function formatApiError(err, fallback = "Không thể thực hiện thao tác QC.") {
     return err?.response?.data?.detail
@@ -44,11 +45,23 @@ function formatApiError(err, fallback = "Không thể thực hiện thao tác QC
         || fallback;
 }
 
+function normalizeRole(role) {
+    return String(role || "").trim().toLowerCase();
+}
+
 export default function QualityControlManagementPage() {
+    const { user } = useAuth();
+    const canSignoffUnlock = useMemo(() => {
+        const roles = []
+            .concat(user?.roles || [])
+            .concat(user?.role || [])
+            .map(normalizeRole);
+        return roles.some((r) => r === "manager" || r === "admin" || r === "clinicmanager");
+    }, [user]);
+
     // Top-level states
     const [lots, setLots] = useState([]);
-    const [selectedLotId, setSelectedLotId] = useState("");
-    const [ljData, setLjData] = useState(null);
+    const [selectedLotId, setSelectedLotId] = useState("");    const [ljData, setLjData] = useState(null);
     const [qcError, setQcError] = useState("");
     const [summary, setSummary] = useState({
         activeLotsCount: 0,
@@ -65,7 +78,14 @@ export default function QualityControlManagementPage() {
     // Record Run Modal / Form State
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [measuredValue, setMeasuredValue] = useState("");
-    const [operatorName, setOperatorName] = useState("KTV. Lê Minh Tuấn");
+    const [operatorName, setOperatorName] = useState(() => user?.fullName || user?.name || user?.username || "KTV Phòng Xét Nghiệm");
+
+    useEffect(() => {
+        const resolvedName = user?.fullName || user?.name || user?.username;
+        if (resolvedName) {
+            setOperatorName(resolvedName);
+        }
+    }, [user]);
     const [recordResult, setRecordResult] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
 
@@ -737,15 +757,24 @@ export default function QualityControlManagementPage() {
                                                 </td>
                                                 <td className="text-end">
                                                     {flag.isLocked ? (
-                                                        <button
-                                                            className="btn btn-danger btn-sm d-flex align-items-center gap-1 shadow-sm ms-auto"
-                                                            onClick={() => {
-                                                                setSelectedRunForSignoff(flag);
-                                                                setShowSignoffModal(true);
-                                                            }}
-                                                        >
-                                                            <FaUserCheck /> Ký mở khóa
-                                                        </button>
+                                                        canSignoffUnlock ? (
+                                                            <button
+                                                                className="btn btn-danger btn-sm d-flex align-items-center gap-1 shadow-sm ms-auto"
+                                                                onClick={() => {
+                                                                    setSelectedRunForSignoff(flag);
+                                                                    setShowSignoffModal(true);
+                                                                }}
+                                                            >
+                                                                <FaUserCheck /> Ký mở khóa
+                                                            </button>
+                                                        ) : (
+                                                            <span
+                                                                className="badge bg-light text-danger border py-2 px-3 small"
+                                                                title="API chỉ cho phép Manager ký mở khóa sau vi phạm Westgard"
+                                                            >
+                                                                Chờ Manager ký mở khóa
+                                                            </span>
+                                                        )
                                                     ) : (
                                                         <span className="badge bg-light text-success border py-2 px-3 small">
                                                             Đã ký duyệt

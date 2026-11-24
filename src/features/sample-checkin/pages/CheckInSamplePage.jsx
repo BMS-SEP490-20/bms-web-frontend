@@ -19,8 +19,10 @@ import {
   FaSpinner,
   FaShieldAlt,
   FaSyncAlt,
-  FaLock
+  FaLock,
+  FaEye
 } from 'react-icons/fa';
+import { Modal } from 'react-bootstrap';
 import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
@@ -61,6 +63,30 @@ function findStaffMatch(list, { idOrCode, name } = {}) {
     if (byName) return byName;
   }
   return null;
+}
+
+function formatSampleStatusVi(status) {
+  const map = {
+    PendingCollection: { label: 'Chờ lấy mẫu', cls: 'bg-warning-subtle text-warning-emphasis border-warning-subtle' },
+    Collected: { label: 'Đã lấy mẫu', cls: 'bg-info-subtle text-info-emphasis border-info-subtle' },
+    InTransit: { label: 'Đang vận chuyển', cls: 'bg-primary-subtle text-primary border-primary-subtle' },
+    Received: { label: 'Đã tiếp nhận Lab', cls: 'bg-success-subtle text-success border-success-subtle' },
+    Processing: { label: 'Đang xử lý', cls: 'bg-primary-subtle text-primary border-primary-subtle' },
+    Testing: { label: 'Đang xét nghiệm', cls: 'bg-primary-subtle text-primary border-primary-subtle' },
+    Completed: { label: 'Hoàn tất phân tích', cls: 'bg-success-subtle text-success border-success-subtle' },
+    Rejected: { label: 'Đã từ chối mẫu', cls: 'bg-danger-subtle text-danger border-danger-subtle' },
+  };
+  return map[status] || { label: status || '—', cls: 'bg-secondary-subtle text-secondary border' };
+}
+
+function formatTubeColorVi(colorOrType) {
+  const key = String(colorOrType || '').toLowerCase();
+  if (key.includes('purple') || key.includes('edta')) return 'Ống Tím (EDTA)';
+  if (key.includes('gold') || key.includes('yellow') || key.includes('sst') || key.includes('serum')) return 'Ống Vàng (SST)';
+  if (key.includes('blue') || key.includes('citrate')) return 'Ống Xanh Dương (Citrate)';
+  if (key.includes('gray') || key.includes('grey') || key.includes('naf')) return 'Ống Xám (NaF)';
+  if (key.includes('green') || key.includes('heparin')) return 'Ống Xanh Lá (Heparin)';
+  return colorOrType || '—';
 }
 
 function formatStaffOption(s) {
@@ -105,9 +131,37 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   });
 
   const [handoverNote, setHandoverNote] = useState('Ống mẫu nguyên vẹn, vận chuyển đạt chuẩn nhiệt độ SOP.');
-  const [receiveTime] = useState(() => new Date().toLocaleString('vi-VN'));
+  const [receiveTime, setReceiveTime] = useState(() => new Date().toLocaleString('vi-VN'));
   const [listFilter, setListFilter] = useState('');
   const [pendingLoading, setPendingLoading] = useState(false);
+  const [detailSample, setDetailSample] = useState(null);
+  const [detailOrderInfo, setDetailOrderInfo] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  // Tự động cập nhật thời điểm hiện tại mỗi giây
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setReceiveTime(new Date().toLocaleString('vi-VN'));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const openSampleDetail = async (sample) => {
+    setDetailSample(sample);
+    setDetailOrderInfo(null);
+    const orderKey = sample?.testOrderId || sample?.orderNumber;
+    if (!orderKey) return;
+    setDetailLoading(true);
+    try {
+      const res = await api.get(`/testorders/${encodeURIComponent(orderKey)}`).catch(() => null);
+      const data = res?.data?.data || res?.data || null;
+      if (data && (data.orderNumber || data.doctorName || data.icd10Codes)) {
+        setDetailOrderInfo(data);
+      }
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   // Prioritize Lab/Manager staff for the receiving technician selector; fall back to full staff directory if empty.
   const labTechOptions = useMemo(() => {
@@ -391,7 +445,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             {current && (
               <div className="small mt-2 text-success fw-medium d-flex align-items-center gap-1">
                 <FaCheckCircle />
-                <span>Tìm thấy ống mẫu &bull; Mã: {current.barcode || current.sampleId} &bull; Trạng thái hiện tại: <strong>{current.status}</strong></span>
+                <span>Tìm thấy ống mẫu &bull; Mã: {current.barcode || current.sampleId} &bull; Trạng thái hiện tại: <strong>{formatSampleStatusVi(current.status).label}</strong></span>
               </div>
             )}
           </div>
@@ -490,25 +544,41 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                         <div className="text-muted" style={{ fontSize: '0.7rem' }}>{p.patientId || ''}</div>
                       </td>
                       <td>
-                        <span className="badge bg-light text-dark border">{p.tubeColor || p.sampleType || '—'}</span>
+                        <span className="badge bg-light text-dark border">{formatTubeColorVi(p.tubeColor || p.sampleType)}</span>
                       </td>
                       <td className="small text-truncate" style={{ maxWidth: 180 }} title={p.testPackageName || p.notes}>
                         {p.testPackageName || p.notes || '—'}
                       </td>
                       <td>
-                        <span className="badge bg-secondary-subtle text-secondary border">{p.status || '—'}</span>
+                        {(() => {
+                          const st = formatSampleStatusVi(p.status);
+                          return <span className={`badge border ${st.cls}`}>{st.label}</span>;
+                        })()}
                       </td>
                       <td className="text-end pe-3">
-                        <button
-                          type="button"
-                          className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline-primary'} rounded-pill px-3`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            selectFromList(p);
-                          }}
-                        >
-                          {active ? 'Đang chọn' : 'Chọn ống'}
-                        </button>
+                        <div className="d-inline-flex align-items-center gap-1.5">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
+                            title="Xem chi tiết bệnh nhân, bác sĩ chỉ định & y lệnh"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void openSampleDetail(p);
+                            }}
+                          >
+                            <FaEye size={12} /> Chi tiết
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline-primary'} rounded-pill px-3`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              selectFromList(p);
+                            }}
+                          >
+                            {active ? 'Đang chọn' : 'Chọn ống'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -538,58 +608,38 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận (CSDL) *</label>
-                    <select className="form-select" value={selectedRoom} onChange={(event) => setSelectedRoom(event.target.value)}>
-                      {!labRooms.some((r) => r.id === selectedRoom) && selectedRoom && (
-                        <option value={selectedRoom}>{roomLabel || selectedRoom}</option>
-                      )}
-                      {labRooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          {room.name}
-                        </option>
-                      ))}
-                    </select>
-                    {roomLabel && <div className="form-text">Ca trực phân công: {roomLabel}</div>}
+                    <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận (Theo ca trực) *</label>
+                    <input
+                      className="form-control bg-light text-dark fw-semibold"
+                      value={(() => {
+                        const matched = labRooms.find((r) => r.id === selectedRoom);
+                        if (roomLabel && roomLabel !== 'Đang tải phòng phân công…') {
+                          return selectedRoom && !roomLabel.includes(selectedRoom)
+                            ? `${selectedRoom} — ${roomLabel}`
+                            : roomLabel;
+                        }
+                        return matched ? matched.name : (selectedRoom || 'Phòng Lab (Theo ca trực)');
+                      })()}
+                      readOnly
+                      disabled
+                    />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Thời Điểm Tiếp Nhận *</label>
-                    <input className="form-control" value={receiveTime} readOnly />
+                    <label className="form-label small fw-semibold text-secondary">Thời Điểm Tiếp Nhận (Giờ hiện tại) *</label>
+                    <input className="form-control bg-light text-dark fw-semibold font-monospace" value={receiveTime} readOnly disabled />
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Người Bàn Giao (CSDL)</label>
-                    <select
-                      className="form-select"
-                      value={handoverStaffId}
-                      onChange={(event) => setHandoverStaffId(event.target.value)}
-                      disabled={staffLoading && staffOptions.length === 0}
-                    >
-                      <option value="">
-                        {staffLoading ? '-- Đang tải danh sách nhân sự từ CSDL... --' : '-- Chọn người bàn giao mẫu --'}
-                      </option>
-                      {staffOptions.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {formatStaffOption(s)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách (CSDL)</label>
-                    <select
-                      className="form-select"
-                      value={receiverTechId}
-                      onChange={(event) => setReceiverTechId(event.target.value)}
-                      disabled={staffLoading && labTechOptions.length === 0}
-                    >
-                      <option value="">
-                        {staffLoading ? '-- Đang tải danh sách KTV từ CSDL... --' : '-- Chọn KTV tiếp nhận phụ trách --'}
-                      </option>
-                      {labTechOptions.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {formatStaffOption(s)}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="col-12">
+                    <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách (Theo ca trực)</label>
+                    <input
+                      className="form-control bg-light text-dark fw-semibold"
+                      value={
+                        selectedReceiverStaff
+                          ? formatStaffOption(selectedReceiverStaff)
+                          : (technicianName || currentUser?.fullName || 'KTV đang trực ca')
+                      }
+                      readOnly
+                      disabled
+                    />
                   </div>
                 </div>
 
@@ -781,7 +831,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                   <FaClock className="text-warning" /> Tóm tắt hàng đợi
                 </h6>
                 <div className="display-6 fw-bold text-primary">{safePending.length}</div>
-                <div className="small text-muted">ống PendingCollection / Collected / InTransit</div>
+                <div className="small text-muted">ống chờ lấy mẫu / đã lấy mẫu / đang vận chuyển</div>
                 <p className="small text-muted mb-0 mt-2">
                   Dùng bảng danh sách phía trên để chọn nhanh từng ống — thuận tiện khi Lab đông buổi sáng.
                 </p>
@@ -790,6 +840,122 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
           </div>
         </div>
       </div>
+
+      {/* Modal Xem Chi Tiết Ống Mẫu, Bệnh Nhân & Bác Sĩ Chỉ Định */}
+      <Modal show={Boolean(detailSample)} onHide={() => setDetailSample(null)} centered size="lg">
+        <Modal.Header closeButton className="bg-light border-bottom">
+          <Modal.Title className="h6 fw-bold d-flex align-items-center gap-2">
+            <FaVial className="text-primary" />
+            <span>Chi Tiết Ống Mẫu &amp; Y Lệnh — </span>
+            <code className="text-primary">{detailSample?.barcode || detailSample?.id}</code>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3">
+          {detailSample && (
+            <div className="d-flex flex-column gap-3">
+              <div className="p-3 rounded-3 bg-light border">
+                <div className="small fw-bold text-uppercase text-primary mb-2">1. Thông Tin Bệnh Nhân</div>
+                <div className="row g-2 small">
+                  <div className="col-sm-6">
+                    <span className="text-muted">Họ và tên:</span>{' '}
+                    <strong className="text-dark">{detailOrderInfo?.patientName || detailSample.patientName || '—'}</strong>
+                  </div>
+                  <div className="col-sm-6">
+                    <span className="text-muted">Mã bệnh nhân:</span>{' '}
+                    <code className="fw-semibold">{detailSample.patientId || '—'}</code>
+                  </div>
+                  <div className="col-sm-6">
+                    <span className="text-muted">Giới tính / Tuổi:</span>{' '}
+                    <strong className="text-dark">
+                      {detailSample.patientGender || detailOrderInfo?.patientGender || 'Nam'} · {detailSample.patientAge || detailOrderInfo?.patientAge || '—'} tuổi
+                    </strong>
+                  </div>
+                  <div className="col-sm-6">
+                    <span className="text-muted">Trạng thái ống mẫu:</span>{' '}
+                    {(() => {
+                      const st = formatSampleStatusVi(detailSample.status);
+                      return <span className={`badge border ${st.cls}`}>{st.label}</span>;
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-3 bg-light border">
+                <div className="small fw-bold text-uppercase text-primary mb-2">2. Bác Sĩ Chỉ Định &amp; Y Lệnh Lâm Sàng</div>
+                {detailLoading ? (
+                  <div className="small text-muted py-1">
+                    <FaSpinner className="fa-spin me-2" /> Đang tải thông tin bác sĩ &amp; phiếu chỉ định...
+                  </div>
+                ) : (
+                  <div className="row g-2 small">
+                    <div className="col-sm-6">
+                      <span className="text-muted">Bác sĩ chỉ định:</span>{' '}
+                      <strong className="text-dark">{detailOrderInfo?.doctorName || detailSample.doctorName || 'BS. Chuyên Khoa'}</strong>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-muted">Mã y lệnh:</span>{' '}
+                      <code className="fw-semibold">{detailOrderInfo?.orderNumber || detailSample.testOrderId || '—'}</code>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-muted">Mã bệnh ICD-10:</span>{' '}
+                      <strong className="text-primary font-monospace">
+                        {Array.isArray(detailOrderInfo?.icd10Codes) && detailOrderInfo.icd10Codes.length > 0
+                          ? detailOrderInfo.icd10Codes.join(', ')
+                          : '—'}
+                      </strong>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-muted">Gói / Chỉ số xét nghiệm:</span>{' '}
+                      <strong className="text-dark">{detailSample.testPackageName || '—'}</strong>
+                    </div>
+                    <div className="col-12">
+                      <span className="text-muted">Chẩn đoán / Lý do chỉ định:</span>{' '}
+                      <span className="text-dark">{detailOrderInfo?.clinicalIndication || detailSample.notes || '—'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-3 rounded-3 bg-light border">
+                <div className="small fw-bold text-uppercase text-primary mb-2">3. Thông Số Ống Bệnh Phẩm</div>
+                <div className="row g-2 small">
+                  <div className="col-sm-4">
+                    <span className="text-muted">Loại ống:</span>{' '}
+                    <strong className="text-dark">{formatTubeColorVi(detailSample.tubeColor || detailSample.sampleType)}</strong>
+                  </div>
+                  <div className="col-sm-4">
+                    <span className="text-muted">Thể tích:</span>{' '}
+                    <strong className="text-dark">{detailSample.volumeMl || 2.0} mL</strong>
+                  </div>
+                  <div className="col-sm-4">
+                    <span className="text-muted">Phòng Lab:</span>{' '}
+                    <strong className="text-dark">{detailSample.labRoom || selectedRoom || '—'}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="bg-light">
+          <button
+            type="button"
+            className="btn btn-sm btn-secondary rounded-pill px-3"
+            onClick={() => setDetailSample(null)}
+          >
+            Đóng
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-primary rounded-pill px-3"
+            onClick={() => {
+              if (detailSample) selectFromList(detailSample);
+              setDetailSample(null);
+            }}
+          >
+            Chọn ống này để tiếp nhận
+          </button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

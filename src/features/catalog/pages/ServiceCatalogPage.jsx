@@ -4,7 +4,7 @@
  * Pure Flat Architecture:
  * - Zero artificial shadows, zero neon glow, zero hover jump
  * - Asymmetric Executive Spotlight Hero layout
- * - Horizontal quick-filter category pills & specimen filter
+ * - Horizontal quick-filter category pills
  * - High-contrast Geist typography and tabular numerals
  * - Clean Biomarker Specification Drawer/Modal
  * - 100% Real API integration with searchTestPackages, fetchServiceCatalog, fetchServiceById
@@ -35,14 +35,6 @@ const PRICE_FILTERS = [
   { id: 'under200', label: '< 200.000 ₫', min: '', max: 200000 },
   { id: '200to350', label: '200k – 350k ₫', min: 200000, max: 350000 },
   { id: 'over350', label: '> 350.000 ₫', min: 350000, max: '' },
-];
-
-const SAMPLE_TUBES = [
-  { value: '', label: 'Tất cả ống mẫu' },
-  { value: 'EDTA', label: 'EDTA (Nắp tím - Huyết học)' },
-  { value: 'Serum', label: 'Serum / SST (Nắp vàng/đỏ)' },
-  { value: 'Heparin', label: 'Heparin (Nắp xanh lá)' },
-  { value: 'Citrate', label: 'Citrate (Nắp xanh dương)' },
 ];
 
 /**
@@ -140,7 +132,6 @@ export default function ServiceCatalogPage() {
   const [debouncedSearch, setDebouncedSearch] = useState(initialKeyword);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState('Tất Cả Gói Khám');
-  const [sampleTube, setSampleTube] = useState('');
   const [priceFilterId, setPriceFilterId] = useState('all');
   const [sortBy, setSortBy] = useState('category');
   const [sortDir, setSortDir] = useState('asc');
@@ -194,7 +185,6 @@ export default function ServiceCatalogPage() {
       const res = await searchTestPackages({
         keyword: debouncedSearch || undefined,
         category: selectedCategory !== 'Tất Cả Gói Khám' ? selectedCategory : undefined,
-        sampleTube: sampleTube || undefined,
         minPrice: currentPriceRange.min !== '' ? currentPriceRange.min : undefined,
         maxPrice: currentPriceRange.max !== '' ? currentPriceRange.max : undefined,
         sortBy,
@@ -217,7 +207,7 @@ export default function ServiceCatalogPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, selectedCategory, sampleTube, currentPriceRange, sortBy, sortDir, page]);
+  }, [debouncedSearch, selectedCategory, currentPriceRange, sortBy, sortDir, page]);
 
   useEffect(() => {
     loadPackages();
@@ -562,7 +552,7 @@ export default function ServiceCatalogPage() {
 
             {/* Bottom row: Compact borderless inputs */}
             <Row className="g-2 align-items-center">
-              <Col md={6} lg={5}>
+              <Col md={6} lg={8}>
                 <div className="position-relative">
                   <input
                     type="text"
@@ -594,31 +584,6 @@ export default function ServiceCatalogPage() {
                 </div>
               </Col>
 
-              <Col sm={6} md={3} lg={3}>
-                <select
-                  className="form-select"
-                  value={sampleTube}
-                  onChange={(e) => {
-                    setSampleTube(e.target.value);
-                    setPage(1);
-                  }}
-                  style={{
-                    height: '35px',
-                    fontSize: '12px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: '#F1F5F9',
-                    boxShadow: 'none'
-                  }}
-                >
-                  {SAMPLE_TUBES.map((tube) => (
-                    <option key={tube.value} value={tube.value}>
-                      {tube.label}
-                    </option>
-                  ))}
-                </select>
-              </Col>
-
               <Col sm={6} md={3} lg={2}>
                 <select
                   className="form-select"
@@ -644,7 +609,7 @@ export default function ServiceCatalogPage() {
                 </select>
               </Col>
 
-              <Col sm={12} md={12} lg={2}>
+              <Col sm={6} md={3} lg={2}>
                 <select
                   className="form-select"
                   value={`${sortBy}-${sortDir}`}
@@ -723,7 +688,6 @@ export default function ServiceCatalogPage() {
                 onClick={() => {
                   setSearchInput('');
                   setSelectedCategory('Tất Cả Gói Khám');
-                  setSampleTube('');
                   setPriceFilterId('all');
                 }}
               >
@@ -899,40 +863,50 @@ export default function ServiceCatalogPage() {
                     </div>
                   </div>
 
-                  {/* Middle Dedicated Column: Specimen Standards & TAT SLA */}
+                  {/* Middle: Specimen + TAT — wrap dài, không tràn sang cột giá */}
                   <div
-                    className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
+                    className="d-none d-lg-flex flex-column justify-content-center px-3 px-xl-4 flex-shrink-0"
                     style={{
                       borderLeft: '1px solid #F1F5F9',
-                      minWidth: '220px',
-                      maxWidth: '260px'
+                      width: 'min(320px, 32%)',
+                      maxWidth: '340px',
+                      minWidth: '200px'
                     }}
                   >
                     <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
                       Quy Chuẩn Mẫu &amp; Thời Gian Trả
                     </div>
 
-                    {/* Tube Specimen */}
-                    <div className="d-flex align-items-center gap-2.5 mb-2">
+                    <div className="d-flex align-items-start gap-2 mb-2">
                       <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <FaVial style={{ color: '#1E60E6', fontSize: '12px' }} />
                       </div>
-                      <div style={{ minWidth: 0 }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Ống lấy mẫu</div>
-                        <div style={{ fontSize: '12px', fontWeight: 650, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 650, color: '#1E293B', lineHeight: 1.45, wordBreak: 'break-word' }}>
                           {pkg.sampleTube || 'Serum-Đỏ/Vàng'} {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}
                         </div>
                       </div>
                     </div>
 
-                    {/* TAT SLA */}
-                    <div className="d-flex align-items-center gap-2.5">
-                      <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div className="d-flex align-items-start gap-2">
+                      <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
                         <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
                       </div>
-                      <div style={{ minWidth: 0 }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Thời gian trả kết quả</div>
-                        <div style={{ fontSize: '12px', fontWeight: 650, color: '#0F172A', whiteSpace: 'nowrap' }}>
+                        <div
+                          title={pkg.tat || '60 – 90 phút'}
+                          style={{
+                            fontSize: '12px',
+                            fontWeight: 650,
+                            color: '#0F172A',
+                            lineHeight: 1.45,
+                            whiteSpace: 'normal',
+                            overflowWrap: 'anywhere',
+                            wordBreak: 'break-word'
+                          }}
+                        >
                           {pkg.tat || '60 – 90 phút'}
                         </div>
                       </div>

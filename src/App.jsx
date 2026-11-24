@@ -283,9 +283,10 @@ export default function App() {
                   <Route path="/patient/test-history" element={<TestHistoryPage />} />
                 </Route>
 
-                {/* UC30 view patient information: Receptionist, Doctor, Lab, Manager. Admin denied (decision 10). */}
-                <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, DOCTOR, LAB, MANAGER]} />}>
+                {/* UC30 view patient information: Admin, Manager, Receptionist, Doctor, Lab */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, RECEPTIONIST, DOCTOR, LAB]} />}>
                   <Route path="/patients" element={<CheckInPage />} />
+                  <Route path="/admin/patients" element={<CheckInPage />} />
                 </Route>
 
                 {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
@@ -477,8 +478,16 @@ export default function App() {
                 ["/laboratory/sample-trace", "/laboratory/trace"], ["/laboratory/samples/request-rerun", "/laboratory/rerun-requests"],
                 ["/laboratory/specimen-history", "/laboratory/specimens/history"], ["/specimens/history", "/laboratory/specimens/history"],
                 ["/laboratory/test-notes/add", "/laboratory/test-notes"], ["/laboratory/verification", "/laboratory/verify-results"],
+                ["/laboratory/enter-results", "/laboratory/enter-test-results"],
+                ["/admin/roles", "/roles"],
                 ["/patient/payments/checkout", "/payments/checkout"], ["/patient/results/export", "/patient/results"],
+                ["/patient/appointments", "/appointments"], ["/patient/dashboard", "/home"],
                 ["/reception/console", "/reception/checkin"], ["/reception/patients", "/patients"],
+                ["/receptionist/walk-in", "/receptionist/create-patient"], ["/reception/walk-in", "/receptionist/create-patient"],
+                ["/receptionist/register-walkin", "/receptionist/create-patient"],
+                ["/receptionist/billing", "/calculate-fees"], ["/reception/billing", "/calculate-fees"],
+                ["/receptionist/fees", "/calculate-fees"], ["/receptionist/invoices", "/invoices"],
+                ["/manager/patients", "/patients"],
                 ["/reference-intervals", "/laboratory/reference-intervals"], ["/reports", "/reports/tat"],
                 ["/shifts", "/shifts/view"], ["/users", "/admin/users"], ["/receptionist/appointments", "/appointments"], ["/reception/appointments", "/appointments"], ["/doctor/appointments", "/appointments"], ["/lab-user/appointments", "/appointments"], ["/receptionist/sample-management", "/laboratory/samples"], ["/lab-user/sample-management", "/laboratory/samples"], ["/manager/sample-management", "/laboratory/samples"], ["/receptionist/services", "/services"], ["/manager/services", "/packages"], ["/doctor/dashboard", "/dashboard"], ["/receptionist/dashboard", "/dashboard"], ["/lab-user/dashboard", "/dashboard"], ["/admin/dashboard", "/dashboard"], ["/manager/dashboard", "/dashboard"]].map(([from, to]) => (
                 <Route key={from} path={from} element={<Navigate to={to} replace />} />

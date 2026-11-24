@@ -96,6 +96,7 @@ export default function PatientHomepage() {
   if (showForgotPassword) {
     return (
       <ForgotPassword
+        showBrandLogo
         onBackToLogin={() => {
           setShowForgotPassword(false);
           setShowLogin(true);

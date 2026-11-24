@@ -86,6 +86,10 @@ api.interceptors.request.use(
                 config.url = config.url.replace(/\/gateway\/testorder\/testresult/i, '/TestOrder/TestResult');
             } else if (config.url.toLowerCase().startsWith('/gateway/testorder/auditlog')) {
                 config.url = config.url.replace(/\/gateway\/testorder\/auditlog/i, '/TestOrder/AuditLog');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/feedback')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/feedback/i, '/TestOrder/feedback');
+            } else if (config.url.toLowerCase().startsWith('/gateway/testorder/qcflag')) {
+                config.url = config.url.replace(/\/gateway\/testorder\/qcflag/i, '/TestOrder/QcFlag');
             }
 
             if (config.url.startsWith('/TestOrder')) {

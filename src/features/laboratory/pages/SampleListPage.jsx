@@ -77,12 +77,10 @@ export default function SampleListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Thiết lập đợt gom mẫu
-  const [location, setLocation] = useState("Bàn lấy mẫu số 1 - Khoa Xét nghiệm");
-  const [targetTime, setTargetTime] = useState("08:30");
-  const [batchCode, setBatchCode] = useState("");
-  const [batchConfirmed, setBatchConfirmed] = useState(false);
-  const [confirmedTubeRows, setConfirmedTubeRows] = useState([]);
+  const getCurrentHHmm = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  };
 
   // Kỹ thuật viên / Điều dưỡng lấy mẫu đang đăng nhập
   const currentUser = useMemo(() => {
@@ -100,6 +98,15 @@ export default function SampleListPage() {
   const collectorId = currentUser?.id || currentUser?._id || currentUser?.username || "LAB-001";
   const collectorName = currentUser?.fullName || currentUser?.name || currentUser?.username || "KTV đang đăng nhập";
 
+  // Thiết lập đợt gom mẫu (tự động gắn theo ca trực hiện tại & giờ hệ thống, không cho chọn tay)
+  const [location, setLocation] = useState(
+    currentUser?.roomName || currentUser?.department || "Phòng Lấy Mẫu Lab (Theo ca trực)"
+  );
+  const [targetTime, setTargetTime] = useState(getCurrentHHmm);
+  const [batchCode, setBatchCode] = useState("");
+  const [batchConfirmed, setBatchConfirmed] = useState(false);
+  const [confirmedTubeRows, setConfirmedTubeRows] = useState([]);
+
   // Thông báo phản hồi
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -110,7 +117,7 @@ export default function SampleListPage() {
   const [barcodeData, setBarcodeData] = useState(null);
   const [loadingBarcodes, setLoadingBarcodes] = useState(false);
 
-  // Tải danh sách bệnh nhân đã tiếp đón khi tải trang
+  // Tải danh sách bệnh nhân đã tiếp đón & đồng bộ phòng Lab theo ca trực của KTV đang đăng nhập
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -126,7 +133,39 @@ export default function SampleListPage() {
       }
     };
     loadData();
-  }, []);
+
+    // Tự động lấy phòng Lab được Quản lý phân công trong ca trực hôm nay
+    (async () => {
+      try {
+        const today = new Date();
+        const ymd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        const res = await fetch(`/api/shifts?date=${encodeURIComponent(ymd)}&pageSize=50`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${localStorage.getItem("bms_access_token") || sessionStorage.getItem("bms_access_token") || ""}`
+          }
+        });
+        if (!res.ok) return;
+        const body = await res.json().catch(() => null);
+        const items = body?.items || body?.data || (Array.isArray(body) ? body : []);
+        const mine = (Array.isArray(items) ? items : []).find((s) => {
+          const sid = String(s.doctorId || s.employeeId || s.userId || "").toLowerCase();
+          const uname = String(s.employeeName || "").toLowerCase();
+          const curId = String(collectorId || "").toLowerCase();
+          const curName = String(collectorName || "").toLowerCase();
+          return (curId && sid === curId) || (curName && uname && uname.includes(curName));
+        });
+        if (mine) {
+          const roomLabel = mine.roomName
+            ? (mine.roomId ? `${mine.roomId} — ${mine.roomName}` : mine.roomName)
+            : (mine.roomId || "");
+          if (roomLabel) setLocation(roomLabel);
+        }
+      } catch {
+        // non-fatal
+      }
+    })();
+  }, [collectorId, collectorName]);
 
   // Danh sách lọc với phòng thủ mảng nghiêm ngặt
   const safeAppointments = Array.isArray(appointments) ? appointments : [];
@@ -284,11 +323,20 @@ export default function SampleListPage() {
         labelsFromApi = [];
       }
     } catch (err) {
-      console.warn("API tạo đợt lỗi, fallback local:", err);
-      code = `BATCH-${new Date().toISOString().slice(2, 10).replace(/-/g, "")}-L${String(Date.now()).slice(-3)}`;
-      setBatchCode(code);
-      setBatchConfirmed(true);
-      setSuccessMessage(`Đã xác nhận đợt ${code}. In nhãn dán ống, rồi quét tiếp nhận.`);
+      console.error("API tạo đợt lấy mẫu thất bại:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.title ||
+        err?.message ||
+        "Không tạo được đợt lấy mẫu trên máy chủ.";
+      setErrorMessage(msg);
+      setBatchConfirmed(false);
+      setBatchCode("");
+      setConfirmedTubeRows([]);
+      setBarcodeData(null);
+      setShowBarcodeModal(false);
+      setLoadingBarcodes(false);
+      return;
     } finally {
       setSubmitting(false);
     }
@@ -726,26 +774,25 @@ export default function SampleListPage() {
             <div className="card-body p-4">
               <div className="row g-3 mb-4">
                 <div className="col-md-7">
-                  <label className="form-label fw-semibold text-dark small">Địa Điểm / Bàn Lấy Mẫu *</label>
-                  <select
-                    className="form-select"
+                  <label className="form-label fw-semibold text-dark small">Địa Điểm / Bàn Lấy Mẫu (Theo ca trực)</label>
+                  <input
+                    type="text"
+                    className="form-control bg-light text-dark fw-semibold"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  >
-                    <option value="Bàn lấy mẫu số 1 - Khoa Xét nghiệm">Bàn lấy mẫu số 1 - Khoa Xét nghiệm</option>
-                    <option value="Phòng Lab 01 — Khu Tiếp nhận Cấp cứu">Phòng Lab 01 — Khu Tiếp nhận Cấp cứu</option>
-                    <option value="Khu Nội trú Tầng 3 — Lấy mẫu tại giường">Khu Nội trú Tầng 3 — Lấy mẫu tại giường</option>
-                  </select>
+                    readOnly
+                    disabled
+                  />
                 </div>
                 <div className="col-md-5">
-                  <label className="form-label fw-semibold text-dark small">Khung Giờ Lấy Mẫu Dự Kiến *</label>
+                  <label className="form-label fw-semibold text-dark small">Thời Gian Lấy Mẫu (Giờ hiện tại)</label>
                   <div className="input-group">
                     <span className="input-group-text bg-light"><FaClock className="text-muted" /></span>
                     <input
                       type="time"
-                      className="form-control"
+                      className="form-control bg-light text-dark fw-semibold"
                       value={targetTime}
-                      onChange={(e) => setTargetTime(e.target.value)}
+                      readOnly
+                      disabled
                     />
                   </div>
                 </div>

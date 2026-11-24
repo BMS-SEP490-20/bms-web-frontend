@@ -4,8 +4,9 @@
  * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams, useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { Modal } from "react-bootstrap";
 import { 
     FaSearch, 
     FaVial, 
@@ -31,13 +32,59 @@ import MegaFooter from "../../home/components/MegaFooter";
 import usePageTransition from "../../../shared/hooks/usePageTransition";
 import "./TrackTestProgressPage.css";
 
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Prefer human ORD-/BC- codes; never show raw GUID as the primary label. */
+function formatTrackingCode(item) {
+    const ord = (item?.orderNumber || "").trim();
+    const bc = (item?.barcode || "").trim();
+    if (ord && !GUID_RE.test(ord)) return ord;
+    if (bc && !GUID_RE.test(bc)) return bc;
+    if (ord) return `Mẫu ${ord.slice(0, 8).toUpperCase()}`;
+    if (bc) return `Mẫu ${bc.slice(0, 8).toUpperCase()}`;
+    return "Mẫu —";
+}
+
+/** Code safe for tracking API lookup (barcode / ORD- over GUID). */
+function trackingLookupCode(item) {
+    const ord = (item?.orderNumber || "").trim();
+    const bc = (item?.barcode || "").trim();
+    if (ord && !GUID_RE.test(ord)) return ord;
+    if (bc && !GUID_RE.test(bc)) return bc;
+    return ord || bc || "";
+}
+
+/** Code for signed PDF export — prefer TRE/result id (barcode alone often 404). */
+function trackingExportCode(item) {
+    const candidates = [
+        item?.resultCode,
+        item?.testResultCode,
+        item?.testResultId,
+        item?.resultId,
+        item?.orderCode,
+        item?.orderNumber,
+        item?.barcode
+    ];
+    for (const raw of candidates) {
+        const v = (raw || "").toString().trim();
+        if (!v || GUID_RE.test(v)) continue;
+        return v;
+    }
+    return trackingLookupCode(item);
+}
+
 export default function TrackTestProgressPage() {
     const pageTransitionClass = usePageTransition();
     const [searchParams] = useSearchParams();
     const { identifier: routeIdentifier } = useParams();
     const navigate = useNavigate();
-    // Trong MainLayout (đã login) bỏ navbar/footer marketing
-    const isEmbedded = Boolean(getStoredUser());
+    const location = useLocation();
+    const storedUser = getStoredUser();
+    const isPatient = Boolean(storedUser && resolveRoleId(storedUser) === ROLES.PATIENT);
+    // Chỉ ẩn PortalNavbar/MegaFooter khi đã nằm trong PatientPortalLayout (/patient/*)
+    const isEmbedded = location.pathname.startsWith("/patient/");
+    // BN đã login: không hiện ô tìm đơn — chọn từ danh sách mẫu của mình
+    const hideManualSearch = isPatient;
 
     const [searchInput, setSearchInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -45,6 +92,25 @@ export default function TrackTestProgressPage() {
     const [myTrackings, setMyTrackings] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [hasSearched, setHasSearched] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+
+    const openTrackingDetail = (item) => {
+        if (!item) return;
+        setTrackingData(item);
+        setSearchInput(trackingLookupCode(item));
+        setErrorMessage("");
+        setHasSearched(true);
+        setShowDetailModal(true);
+    };
+
+    const closeTrackingDetail = () => {
+        setShowDetailModal(false);
+        if (hideManualSearch) {
+            setTrackingData(null);
+            setHasSearched(false);
+            navigate(isEmbedded ? "/patient/tracking" : "/tracking", { replace: true });
+        }
+    };
 
     // Tự động nạp danh sách mẫu xét nghiệm của chính bệnh nhân đang đăng nhập
     useEffect(() => {
@@ -57,11 +123,7 @@ export default function TrackTestProgressPage() {
         fetchPatientTrackings(pid).then((list) => {
             if (!active || !Array.isArray(list) || list.length === 0) return;
             setMyTrackings(list);
-            const hasUrlCode = Boolean(searchParams.get("code") || searchParams.get("barcode") || routeIdentifier);
-            if (!hasUrlCode) {
-                setTrackingData((prev) => prev || list[0]);
-                setSearchInput((prev) => prev || list[0].orderNumber || list[0].barcode || "");
-            }
+            // BN: chỉ hiện list — chi tiết mở modal khi bấm "Xem tiến trình"
         });
         return () => { active = false; };
     }, []);
@@ -92,6 +154,7 @@ export default function TrackTestProgressPage() {
                 setTrackingData(null);
             } else {
                 setTrackingData(data);
+                setShowDetailModal(true);
                 navigate(`?code=${encodeURIComponent(code)}`, { replace: true });
             }
         } catch (err) {
@@ -111,6 +174,7 @@ export default function TrackTestProgressPage() {
     const handleClearSearch = () => {
         setSearchInput("");
         setTrackingData(null);
+        setShowDetailModal(false);
         setErrorMessage("");
         setHasSearched(false);
         navigate(isEmbedded ? "/patient/tracking" : "/tracking", { replace: true });
@@ -192,20 +256,21 @@ export default function TrackTestProgressPage() {
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
                 <div className="container" style={{ maxWidth: 1180 }}>
                     
-                    {/* 1. TOP SPOTLIGHT EXECUTIVE HERO */}
+                    {/* 1. HERO — BN: không ô tìm đơn; khách: giữ form tra mã */}
                     <div className="bms-tracking-hero mb-4">
-                        <div className="row align-items-center g-4">
-                            {/* Left Column: Heading & Concise Subtitle */}
-                            <div className="col-lg-6">
+                        <div className={`row align-items-center g-4 ${hideManualSearch ? '' : ''}`}>
+                            <div className={hideManualSearch ? 'col-12' : 'col-lg-6'}>
                                 <h1 className="fw-bold mb-2" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
-                                    Tra Cứu Lộ Trình Mẫu Máu
+                                    {hideManualSearch ? 'Tiến Trình & Kết Quả Xét Nghiệm' : 'Tra Cứu Lộ Trình Mẫu Máu'}
                                 </h1>
-                                <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '480px', lineHeight: '1.6', color: '#475569' }}>
-                                    Theo dõi trực tiếp tiến trình phân tích mẫu và thời gian nhận kết quả ký số.
+                                <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '560px', lineHeight: '1.6', color: '#475569' }}>
+                                    {hideManualSearch
+                                        ? 'Chọn mẫu trong danh sách bên dưới để xem lộ trình phân tích và kết quả ký số.'
+                                        : 'Theo dõi trực tiếp tiến trình phân tích mẫu và thời gian nhận kết quả ký số.'}
                                 </p>
                             </div>
 
-                            {/* Right Column: Distinct Search Input & Action Button Side by Side */}
+                            {!hideManualSearch && (
                             <div className="col-lg-6 d-flex justify-content-lg-end">
                                 <form onSubmit={handleFormSubmit} className="d-flex align-items-center gap-2.5 w-100" style={{ maxWidth: '480px' }}>
                                     <div className="position-relative flex-grow-1">
@@ -285,51 +350,72 @@ export default function TrackTestProgressPage() {
                                     </button>
                                 </form>
                             </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* 1.5. DANH SÁCH MẪU CỦA BỆNH NHÂN ĐANG ĐĂNG NHẬP */}
+                    {/* 1.5. DANH SÁCH MẪU — layout list (không chip) */}
                     {myTrackings.length > 0 && (
-                        <div className="card border-0 shadow-sm rounded-4 bg-white mb-4">
-                            <div className="card-body p-3">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <span className="fw-bold text-dark small">
+                        <div className="bms-tracking-order-list mb-4">
+                            <div className="d-flex justify-content-between align-items-end mb-3 px-1">
+                                <div>
+                                    <div className="fw-bold text-dark" style={{ fontSize: '15px' }}>
                                         <FaVial className="text-primary me-2" />
-                                        Mẫu xét nghiệm của tôi ({myTrackings.length})
-                                    </span>
-                                    <span className="text-muted small">Nhấp để xem tiến trình &amp; kết quả</span>
+                                        Mẫu xét nghiệm của tôi
+                                    </div>
+                                    <div className="text-muted small mt-1">{myTrackings.length} mẫu — chọn một dòng để xem tiến trình</div>
                                 </div>
-                                <div className="d-flex flex-wrap gap-2">
-                                    {myTrackings.map((item) => {
-                                        const isSelected = trackingData && (trackingData.orderNumber === item.orderNumber || trackingData.barcode === item.barcode);
-                                        return (
-                                            <button
-                                                key={`${item.orderNumber}-${item.barcode}`}
-                                                type="button"
-                                                onClick={() => {
-                                                    setTrackingData(item);
-                                                    setSearchInput(item.orderNumber || item.barcode || "");
-                                                    setErrorMessage("");
-                                                }}
-                                                className={`btn btn-sm text-start rounded-3 px-3 py-2 border ${
-                                                    isSelected
-                                                        ? "btn-primary text-white border-primary shadow-sm"
-                                                        : "btn-light text-dark border-secondary-subtle"
-                                                }`}
-                                            >
-                                                <div className="d-flex align-items-center gap-2">
-                                                    <span className="font-monospace fw-bold">{item.orderNumber || item.barcode}</span>
-                                                    <span className={`badge ${item.isCompleted ? "bg-success" : "bg-warning text-dark"}`}>
-                                                        {item.isCompleted ? "Đã có kết quả" : item.currentStepName}
+                            </div>
+                            <div className="d-flex flex-column gap-2">
+                                {myTrackings.map((item) => {
+                                    const isSelected = trackingData && (trackingData.orderNumber === item.orderNumber || trackingData.barcode === item.barcode);
+                                    return (
+                                        <button
+                                            key={`${item.orderNumber}-${item.barcode}`}
+                                            type="button"
+                                            onClick={() => openTrackingDetail(item)}
+                                            className="bms-tracking-order-row text-start w-100 border-0"
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: '16px',
+                                                flexWrap: 'wrap',
+                                                background: isSelected && showDetailModal ? '#EEF4FD' : '#FFFFFF',
+                                                borderRadius: '14px',
+                                                padding: '16px 20px',
+                                                boxShadow: 'none',
+                                                outline: isSelected && showDetailModal ? '2px solid #1E60E6' : '1px solid #E2E8F0',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <div style={{ minWidth: 0, flex: '1 1 220px' }}>
+                                                <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                                    <span className="font-monospace fw-bold" style={{ fontSize: '14px', color: '#0F172A' }}>
+                                                        {formatTrackingCode(item)}
+                                                    </span>
+                                                    <span
+                                                        className="badge"
+                                                        style={{
+                                                            backgroundColor: item.isCompleted ? '#DCFCE7' : '#FEF3C7',
+                                                            color: item.isCompleted ? '#166534' : '#92400E',
+                                                            fontWeight: 650
+                                                        }}
+                                                    >
+                                                        {item.isCompleted ? 'Đã có kết quả' : (item.currentStepName || 'Đang xử lý')}
                                                     </span>
                                                 </div>
-                                                <div className={`small mt-1 ${isSelected ? "text-white-50" : "text-muted"}`}>
-                                                    {(item.testPackageNames && item.testPackageNames[0]) || "Xét nghiệm"}
+                                                <div className="text-muted" style={{ fontSize: '12.5px', lineHeight: 1.45 }}>
+                                                    {(item.testPackageNames && item.testPackageNames[0]) || 'Xét nghiệm'}
+                                                    {item.patientName ? ` · ${item.patientName}` : ''}
                                                 </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                            </div>
+                                            <div className="d-flex align-items-center gap-2 flex-shrink-0" style={{ color: '#1E60E6', fontSize: '12.5px', fontWeight: 650 }}>
+                                                Xem tiến trình <FaArrowRight style={{ fontSize: '11px' }} />
+                                            </div>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -345,8 +431,8 @@ export default function TrackTestProgressPage() {
                         </div>
                     )}
 
-                    {/* 3. DEFAULT GUIDE STATE (When no search has been performed) */}
-                    {!trackingData && !loading && (
+                    {/* 3. DEFAULT GUIDE — chỉ khách / BN chưa có mẫu (BN có list thì không hướng dẫn nhập mã) */}
+                    {!trackingData && !loading && !(hideManualSearch && myTrackings.length > 0) && (
                         <div className="bms-guide-container">
                             {/* 3 Step Guide Cards */}
                             <div className="bms-steps">
@@ -481,198 +567,210 @@ export default function TrackTestProgressPage() {
                         </div>
                     )}
 
-                    {/* 5. SEARCH RESULTS VIEW (When Tracking Data is Available) */}
-                    {trackingData && (
-                        <div className="row g-4">
-                            {/* Left Column: Specimen Overview & Patient Metadata */}
-                            <div className="col-lg-4">
-                                <div className="bms-result-meta-card sticky-top" style={{ top: 24 }}>
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <div>
-                                            <div className="text-muted small" style={{ fontSize: 12 }}>MÃ VẠCH ĐỊNH DANH</div>
-                                            <h2 className="bms-specimen-id-badge">{trackingData.orderNumber}</h2>
-                                        </div>
-                                        <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger-subtle text-danger" : "bg-primary-subtle text-primary"} rounded-pill px-2.5 py-1`}>
-                                            {trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "Cấp cứu (STAT)" : "Thường quy"}
-                                        </span>
-                                    </div>
-
-                                    <ul className="bms-specimen-detail-list">
-                                        <li className="bms-specimen-detail-item">
-                                            <span className="bms-specimen-detail-label">Bệnh nhân</span>
-                                            <span className="bms-specimen-detail-val">{trackingData.patientName}</span>
-                                        </li>
-                                        <li className="bms-specimen-detail-item">
-                                            <span className="bms-specimen-detail-label">Thông tin sinh hiệu</span>
-                                            <span className="bms-specimen-detail-val">
-                                                {trackingData.patientGender === "Male" ? "Nam" : trackingData.patientGender === "Female" ? "Nữ" : (trackingData.patientGender || "—")}{trackingData.patientAge > 0 ? ` • ${trackingData.patientAge} tuổi` : ""}
-                                            </span>
-                                        </li>
-                                        <li className="bms-specimen-detail-item">
-                                            <span className="bms-specimen-detail-label">Mã hồ sơ bệnh án</span>
-                                            <span className="bms-specimen-detail-val font-monospace text-secondary">
-                                                {trackingData.patientId || "—"}
-                                            </span>
-                                        </li>
-                                        <li className="bms-specimen-detail-item flex-column gap-1">
-                                            <span className="bms-specimen-detail-label">Gói xét nghiệm thực hiện:</span>
-                                            <div className="fw-semibold text-dark ps-2 border-start border-2 border-primary mt-1">
-                                                {trackingData.testPackageNames?.map((pkg, idx) => (
-                                                    <div key={idx} className="small py-0.5">{pkg}</div>
-                                                ))}
-                                            </div>
-                                        </li>
-                                        <li className="bms-specimen-detail-item">
-                                            <span className="bms-specimen-detail-label">Tiếp nhận lúc</span>
-                                            <span className="bms-specimen-detail-val">{formatDateTime(trackingData.orderedAt)}</span>
-                                        </li>
-                                        <li className="bms-specimen-detail-item">
-                                            <span className="bms-specimen-detail-label">Dự kiến hoàn tất</span>
-                                            <span className="bms-specimen-detail-val text-primary fw-bold">
-                                                {formatDateTime(trackingData.estimatedCompletionTime)}
-                                            </span>
-                                        </li>
-                                    </ul>
-
-                                    {/* Rejection / Rerun Alerts */}
-                                    {trackingData.isRejected && (
-                                        <div className="alert alert-danger py-2 px-3 small rounded-3 mt-3 mb-0">
-                                            <strong><FaTimesCircle className="me-1" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
-                                        </div>
-                                    )}
-
-                                    {trackingData.isRerunRequested && (
-                                        <div className="alert alert-warning py-2 px-3 small rounded-3 mt-3 mb-0">
-                                            <strong><FaExclamationTriangle className="me-1" /> Yêu cầu kiểm tra lại:</strong> {trackingData.rerunReason}
-                                        </div>
-                                    )}
-
-                                    {/* Action Buttons */}
-                                    <div className="d-grid gap-2 mt-4 pt-3 border-top">
-                                        {trackingData.isCompleted && (
-                                            <>
-                                                <Link
-                                                    to="/patient/test-history"
-                                                    className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
-                                                >
-                                                    <FaFileMedicalAlt /> Xem Chi Tiết Kết Quả Xét Nghiệm
-                                                </Link>
-                                                <Link
-                                                    to={`/patient/results/export/${encodeURIComponent(trackingData.orderNumber)}`}
-                                                    className="btn btn-success rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
-                                                >
-                                                    <FaFileMedicalAlt /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
-                                                </Link>
-                                            </>
-                                        )}
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
-                                            onClick={() => handleTrackLookup(trackingData.orderNumber)}
-                                        >
-                                            <FaRedoAlt /> Tải lại tiến trình
-                                        </button>
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-outline-secondary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
-                                            onClick={() => window.print()}
-                                        >
-                                            <FaPrint /> In phiếu lộ trình
-                                        </button>
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-link text-decoration-none text-muted small py-1"
-                                            onClick={handleClearSearch}
-                                        >
-                                            Tra cứu mã khác
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right Column: 6-Stage Interactive Stepper */}
-                            <div className="col-lg-8">
-                                <div className="bms-stepper-container">
-                                    <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
-                                        <div>
-                                            <h3 className="h5 fw-bold text-dark mb-0">Chi Tiết Tiến Trình Xét Nghiệm</h3>
-                                            <div className="text-muted small">Tuân thủ quy trình kiểm soát chất lượng mẫu ISO 15189</div>
-                                        </div>
-                                        <span className="badge bg-primary px-3 py-2 fw-semibold">
-                                            Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}
-                                        </span>
-                                    </div>
-
-                                    {/* Timeline Stepper Nodes */}
-                                    <div className="bms-stepper-timeline">
-                                        {trackingData.steps?.map((step) => {
-                                            const isCompleted = step.status === "Completed" || step.status === 2;
-                                            const isInProgress = step.status === "InProgress" || step.status === 1;
-                                            const isRejected = step.status === "Rejected" || step.status === 4;
-                                            const isWarning = step.status === "Warning" || step.status === 3;
-
-                                            let nodeClass = "pending";
-                                            if (isCompleted) nodeClass = "completed";
-                                            else if (isInProgress) nodeClass = "inprogress";
-                                            else if (isRejected) nodeClass = "rejected";
-                                            else if (isWarning) nodeClass = "warning";
-
-                                            return (
-                                                <div key={step.stepNumber} className="bms-stepper-item">
-                                                    {/* Milestone Icon Node */}
-                                                    <div className={`bms-stepper-node ${nodeClass}`}>
-                                                        {getStepIcon(step.stepNumber, step.status)}
-                                                    </div>
-
-                                                    {/* Step Information Card */}
-                                                    <div className={`bms-step-card ${isInProgress ? "active-step" : ""}`}>
-                                                        <div className="bms-step-card-header">
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <span className="text-muted small fw-bold">#{step.stepNumber}</span>
-                                                                <h4 className="bms-step-title">{step.title}</h4>
-                                                            </div>
-                                                            <div>{getStepStatusBadge(step.status)}</div>
-                                                        </div>
-
-                                                        <p className="bms-step-desc">{step.description}</p>
-
-                                                        <div className="bms-step-meta">
-                                                            <div className="bms-step-meta-item">
-                                                                <FaClock className="text-secondary" />
-                                                                <span><strong>Thời gian:</strong> {formatDateTime(step.timestamp)}</span>
-                                                            </div>
-                                                            {step.handlerName && (
-                                                                <div className="bms-step-meta-item">
-                                                                    <FaUserMd className="text-primary" />
-                                                                    <span><strong>Phụ trách:</strong> {step.handlerName}</span>
-                                                                </div>
-                                                            )}
-                                                            {step.department && (
-                                                                <div className="bms-step-meta-item">
-                                                                    <FaHospital className="text-secondary" />
-                                                                    <span>{step.department}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        {step.notes && (
-                                                            <div className="alert alert-warning py-1.5 px-2.5 small rounded-2 mt-2 mb-0 d-flex align-items-center gap-2">
-                                                                <FaExclamationTriangle className="text-warning flex-shrink-0" />
-                                                                <span>{step.notes}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                 </div>
             </main>
+
+            {/* Chi tiết tiến trình — modal khi xem từ list / tra cứu */}
+            <Modal
+                show={showDetailModal && Boolean(trackingData)}
+                onHide={closeTrackingDetail}
+                size="xl"
+                centered
+                scrollable
+                dialogClassName="bms-tracking-detail-modal"
+                contentClassName="border-0"
+            >
+                {trackingData && (
+                    <>
+                        <Modal.Header closeButton className="border-0 pb-0 px-4 pt-4">
+                            <Modal.Title className="fs-5 fw-bold text-dark">
+                                Chi tiết tiến trình · {formatTrackingCode(trackingData)}
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body className="px-4 pb-4 pt-3">
+                            <div className="row g-4">
+                                <div className="col-lg-4">
+                                    <div className="bms-result-meta-card">
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <div className="text-muted small" style={{ fontSize: 12 }}>MÃ VẠCH ĐỊNH DANH</div>
+                                                <h2 className="bms-specimen-id-badge">{formatTrackingCode(trackingData)}</h2>
+                                            </div>
+                                            <span className={`badge ${trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "bg-danger-subtle text-danger" : "bg-primary-subtle text-primary"} rounded-pill px-2.5 py-1`}>
+                                                {trackingData.priority === "Stat" || trackingData.priority === "Urgent" ? "Cấp cứu (STAT)" : "Thường quy"}
+                                            </span>
+                                        </div>
+
+                                        <ul className="bms-specimen-detail-list">
+                                            <li className="bms-specimen-detail-item">
+                                                <span className="bms-specimen-detail-label">Bệnh nhân</span>
+                                                <span className="bms-specimen-detail-val">{trackingData.patientName}</span>
+                                            </li>
+                                            <li className="bms-specimen-detail-item">
+                                                <span className="bms-specimen-detail-label">Thông tin sinh hiệu</span>
+                                                <span className="bms-specimen-detail-val">
+                                                    {trackingData.patientGender === "Male" ? "Nam" : trackingData.patientGender === "Female" ? "Nữ" : (trackingData.patientGender || "—")}{trackingData.patientAge > 0 ? ` • ${trackingData.patientAge} tuổi` : ""}
+                                                </span>
+                                            </li>
+                                            <li className="bms-specimen-detail-item">
+                                                <span className="bms-specimen-detail-label">Mã hồ sơ bệnh án</span>
+                                                <span className="bms-specimen-detail-val font-monospace text-secondary">
+                                                    {trackingData.patientId || "—"}
+                                                </span>
+                                            </li>
+                                            <li className="bms-specimen-detail-item flex-column gap-1">
+                                                <span className="bms-specimen-detail-label">Gói xét nghiệm thực hiện:</span>
+                                                <div className="fw-semibold text-dark ps-2 border-start border-2 border-primary mt-1">
+                                                    {trackingData.testPackageNames?.map((pkg, idx) => (
+                                                        <div key={idx} className="small py-0.5">{pkg}</div>
+                                                    ))}
+                                                </div>
+                                            </li>
+                                            <li className="bms-specimen-detail-item">
+                                                <span className="bms-specimen-detail-label">Tiếp nhận lúc</span>
+                                                <span className="bms-specimen-detail-val">{formatDateTime(trackingData.orderedAt)}</span>
+                                            </li>
+                                            <li className="bms-specimen-detail-item">
+                                                <span className="bms-specimen-detail-label">Dự kiến hoàn tất</span>
+                                                <span className="bms-specimen-detail-val text-primary fw-bold">
+                                                    {formatDateTime(trackingData.estimatedCompletionTime)}
+                                                </span>
+                                            </li>
+                                        </ul>
+
+                                        {trackingData.isRejected && (
+                                            <div className="alert alert-danger py-2 px-3 small rounded-3 mt-3 mb-0">
+                                                <strong><FaTimesCircle className="me-1" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
+                                            </div>
+                                        )}
+
+                                        {trackingData.isRerunRequested && (
+                                            <div className="alert alert-warning py-2 px-3 small rounded-3 mt-3 mb-0">
+                                                <strong><FaExclamationTriangle className="me-1" /> Yêu cầu kiểm tra lại:</strong> {trackingData.rerunReason}
+                                            </div>
+                                        )}
+
+                                        <div className="d-grid gap-2 mt-4 pt-3 border-top">
+                                            {trackingData.isCompleted && (
+                                                <>
+                                                    <Link
+                                                        to="/patient/test-history"
+                                                        className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                                        onClick={closeTrackingDetail}
+                                                    >
+                                                        <FaFileMedicalAlt /> Xem Chi Tiết Kết Quả Xét Nghiệm
+                                                    </Link>
+                                                    <Link
+                                                        to={`/patient/results/export/${encodeURIComponent(trackingExportCode(trackingData))}`}
+                                                        className="btn btn-success rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
+                                                        onClick={closeTrackingDetail}
+                                                    >
+                                                        <FaFileMedicalAlt /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
+                                                    </Link>
+                                                </>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                                onClick={() => handleTrackLookup(trackingLookupCode(trackingData))}
+                                            >
+                                                <FaRedoAlt /> Tải lại tiến trình
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-secondary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
+                                                onClick={() => window.print()}
+                                            >
+                                                <FaPrint /> In phiếu lộ trình
+                                            </button>
+                                            {!hideManualSearch && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-link text-decoration-none text-muted small py-1"
+                                                    onClick={handleClearSearch}
+                                                >
+                                                    Tra cứu mã khác
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="col-lg-8">
+                                    <div className="bms-stepper-container">
+                                        <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
+                                            <div>
+                                                <h3 className="h5 fw-bold text-dark mb-0">Chi Tiết Tiến Trình Xét Nghiệm</h3>
+                                                <div className="text-muted small">Tuân thủ quy trình kiểm soát chất lượng mẫu ISO 15189</div>
+                                            </div>
+                                            <span className="badge bg-primary px-3 py-2 fw-semibold">
+                                                Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}
+                                            </span>
+                                        </div>
+
+                                        <div className="bms-stepper-timeline">
+                                            {trackingData.steps?.map((step) => {
+                                                const isCompleted = step.status === "Completed" || step.status === 2;
+                                                const isInProgress = step.status === "InProgress" || step.status === 1;
+                                                const isRejected = step.status === "Rejected" || step.status === 4;
+                                                const isWarning = step.status === "Warning" || step.status === 3;
+
+                                                let nodeClass = "pending";
+                                                if (isCompleted) nodeClass = "completed";
+                                                else if (isInProgress) nodeClass = "inprogress";
+                                                else if (isRejected) nodeClass = "rejected";
+                                                else if (isWarning) nodeClass = "warning";
+
+                                                return (
+                                                    <div key={step.stepNumber} className="bms-stepper-item">
+                                                        <div className={`bms-stepper-node ${nodeClass}`}>
+                                                            {getStepIcon(step.stepNumber, step.status)}
+                                                        </div>
+                                                        <div className={`bms-step-card ${isInProgress ? "active-step" : ""}`}>
+                                                            <div className="bms-step-card-header">
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    <span className="text-muted small fw-bold">#{step.stepNumber}</span>
+                                                                    <h4 className="bms-step-title">{step.title}</h4>
+                                                                </div>
+                                                                <div>{getStepStatusBadge(step.status)}</div>
+                                                            </div>
+                                                            <p className="bms-step-desc">{step.description}</p>
+                                                            <div className="bms-step-meta">
+                                                                <div className="bms-step-meta-item">
+                                                                    <FaClock className="text-secondary" />
+                                                                    <span><strong>Thời gian:</strong> {formatDateTime(step.timestamp)}</span>
+                                                                </div>
+                                                                {step.handlerName && (
+                                                                    <div className="bms-step-meta-item">
+                                                                        <FaUserMd className="text-primary" />
+                                                                        <span><strong>Phụ trách:</strong> {step.handlerName}</span>
+                                                                    </div>
+                                                                )}
+                                                                {step.department && (
+                                                                    <div className="bms-step-meta-item">
+                                                                        <FaHospital className="text-secondary" />
+                                                                        <span>{step.department}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {step.notes && (
+                                                                <div className="alert alert-warning py-1.5 px-2.5 small rounded-2 mt-2 mb-0 d-flex align-items-center gap-2">
+                                                                    <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                                                                    <span>{step.notes}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal.Body>
+                    </>
+                )}
+            </Modal>
 
             {!isEmbedded && <MegaFooter />}
         </div>

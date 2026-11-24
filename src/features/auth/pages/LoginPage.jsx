@@ -23,7 +23,7 @@ import {
   FaIdCard
 } from "react-icons/fa";
 import api from "../../../config/api";
-import { ROLES, resolveRoleId } from "../../../constants/roles";
+import { ROLES, resolveRoleId, getHomePathForRole, isPathAllowedForRole } from "../../../constants/roles";
 import "./LoginPage.css";
 
 /**
@@ -65,7 +65,7 @@ const IS_DEV_OR_DEMO = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_L
 
 const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true" ? [
   { id: 'admin', name: 'Admin', title: 'Quản Trị Viên', username: 'admin_bms', password: 'Admin@123', desc: 'Quản trị hệ thống, danh mục, audit log' },
-  { id: 'manager', name: 'Manager', title: 'Quản Lý Lab', username: 'manager_bms', password: 'Admin@123', desc: 'Duyệt KQ, kiểm soát QC, thống kê TAT' },
+  { id: 'manager', name: 'Manager', title: 'Quản Lý Lab', username: 'manager_lananh', password: 'Admin@123', desc: 'Duyệt KQ, kiểm soát QC, thống kê TAT' },
   { id: 'doctor', name: 'Doctor', title: 'Bác Sĩ', username: 'dr_nguyenminh', password: 'Admin@123', desc: 'Chỉ định xét nghiệm, kết luận bệnh án' },
   { id: 'lab', name: 'LabTech', title: 'Kỹ Thuật Viên', username: 'tech_quochung', password: 'Admin@123', desc: 'Nhập kết quả, chạy mẫu xét nghiệm' },
   { id: 'receptionist', name: 'Receptionist', title: 'Lễ Tân', username: 'recep_lananh', password: 'Admin@123', desc: 'Tiếp đón, check-in, thu phí dịch vụ' },
@@ -97,7 +97,7 @@ const QUICK_LOGIN_ROLES = [
     roleName: "Manager",
     title: "Manager",
     roleLabel: "Quản Lý Lab",
-    username: "manager_bms",
+    username: "manager_lananh",
     password: "Admin@123",
     color: "#4F46E5",
     bg: "#EEF2FF",
@@ -273,31 +273,13 @@ export default function LoginPage({
     const normalizedUser = typeof normalizeAuthenticatedUser === "function" ? normalizeAuthenticatedUser(user) : user;
     const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
     const returnUrl = resolveSafeReturnUrl();
-    let target = "/dashboard";
-    if (returnUrl) {
+    let target = getHomePathForRole(roleId);
+    if (roleId === ROLES.PATIENT && !(normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted)) {
+      target = "/patient/medical-profile-setup";
+    }
+    // Chỉ quay lại URL cũ nếu role hiện tại được phép — tránh login xong dính 403
+    if (returnUrl && isPathAllowedForRole(roleId, returnUrl)) {
       target = returnUrl;
-    } else {
-      switch (roleId) {
-        case ROLES.ADMIN:
-        case ROLES.MANAGER:
-          target = "/dashboard";
-          break;
-        case ROLES.DOCTOR:
-          target = "/doctor/console";
-          break;
-        case ROLES.LAB:
-          target = "/lab/queue";
-          break;
-        case ROLES.RECEPTIONIST:
-          target = "/receptionist/check-in";
-          break;
-        case ROLES.PATIENT:
-          target = (normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted) ? "/home" : "/patient/medical-profile-setup";
-          break;
-        default:
-          target = "/dashboard";
-          break;
-      }
     }
 
     try {

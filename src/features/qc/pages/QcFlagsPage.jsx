@@ -23,6 +23,34 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';
+import { fetchQcFlags as fetchIqcWestgardFlags } from '../api/qcApi';
+
+/** Map IQC Westgard run violations (/qc/flags) → shape dùng bởi QcFlagsPage. */
+function mapIqcRunToFlag(run) {
+  const rules = Array.isArray(run.violatedRules) ? run.violatedRules : [];
+  const primaryRule = rules.find((r) => r !== '1_2s') || rules[0] || '1_3s';
+  const isReject = String(run.status || '').startsWith('REJECT') || !!run.isLocked;
+  return {
+    flagId: run.runId || run.id || `IQC-${run.lotId}-${run.runNumber}`,
+    flagCode: run.runId || `IQC-${run.runNumber}`,
+    analyzerId: run.instrumentId || run.lotId || 'ANL-IQC',
+    analyzerName: run.instrumentId || run.lotId || 'Máy IQC',
+    parameter: run.analyteName || run.lotId || 'IQC',
+    ruleType: `Westgard_${primaryRule}`,
+    severity: isReject ? 'CRITICAL' : 'HIGH',
+    status: isReject ? 'ACTIVE' : (String(run.status || '').includes('WARNING') ? 'ACTIVE' : 'RESOLVED'),
+    observedValue: Number(run.measuredValue ?? 0),
+    targetValue: Number(run.targetMean ?? 0),
+    lowerLimit: Number(run.lowerLimit ?? 0),
+    upperLimit: Number(run.upperLimit ?? 0),
+    unit: run.unit || '',
+    sampleBarcode: run.lotId || '',
+    triggeredAt: run.evaluatedAt,
+    triggeredBy: run.operatorName || 'IQC Westgard Engine',
+    resolutionNotes: run.message || null,
+    source: 'iqc-run',
+  };
+}
 
 const QcFlagsPage = () => {
   const { user } = useAuth();
@@ -79,20 +107,75 @@ const QcFlagsPage = () => {
     try {
       setLoading(true);
       setLoadError(null);
-      const [flagsRes, statsRes] = await Promise.all([
+      const [flagsRes, statsRes, iqcRuns] = await Promise.all([
         qcFlagService.getFlags({
           status: statusFilter,
           severity: severityFilter,
           analyzerId: analyzerFilter,
           parameter: searchTerm.trim()
         }),
-        qcFlagService.getStatistics()
+        qcFlagService.getStatistics(),
+        fetchIqcWestgardFlags().catch(() => [])
       ]);
 
-      const list = flagsRes?.data ?? flagsRes?.items ?? flagsRes;
-      setFlags(Array.isArray(list) ? list : (Array.isArray(flagsRes?.data) ? flagsRes.data : []));
+      const manualListRaw = flagsRes?.data ?? flagsRes?.items ?? flagsRes;
+      const manualList = Array.isArray(manualListRaw)
+        ? manualListRaw
+        : (Array.isArray(flagsRes?.data) ? flagsRes.data : []);
+
+      const iqcList = (Array.isArray(iqcRuns) ? iqcRuns : []).map(mapIqcRunToFlag);
+      const manualIds = new Set(manualList.map((f) => f.flagId || f.id).filter(Boolean));
+      const merged = [
+        ...manualList,
+        ...iqcList.filter((f) => !manualIds.has(f.flagId))
+      ];
+
+      // Client-side filter for IQC-sourced rows (manual API already filtered server-side)
+      const filtered = merged.filter((f) => {
+        if (statusFilter !== 'ALL' && f.status !== statusFilter) return false;
+        if (severityFilter !== 'ALL' && f.severity !== severityFilter) return false;
+        if (analyzerFilter !== 'ALL' && f.analyzerId !== analyzerFilter) return false;
+        if (searchTerm.trim()) {
+          const q = searchTerm.trim().toLowerCase();
+          const hay = `${f.parameter || ''} ${f.flagCode || ''} ${f.ruleType || ''}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      setFlags(filtered);
       if (statsRes?.success || statsRes?.data) {
-        setStatistics(statsRes.data || statsRes);
+        const base = statsRes.data || statsRes || {};
+        const totalVal = filtered.length;
+        const activeVal = filtered.filter((f) => f.status === 'ACTIVE').length;
+        const invVal = filtered.filter((f) => f.status === 'INVESTIGATING').length;
+        const resVal = filtered.filter((f) => f.status === 'RESOLVED' || f.status === 'DISMISSED').length;
+        setStatistics({
+          ...base,
+          total: totalVal,
+          totalFlags: totalVal,
+          active: activeVal,
+          activeFlags: activeVal,
+          investigating: invVal,
+          investigatingFlags: invVal,
+          resolved: resVal,
+          resolvedFlags: resVal,
+        });
+      } else {
+        const totalVal = filtered.length;
+        const activeVal = filtered.filter((f) => f.status === 'ACTIVE').length;
+        const invVal = filtered.filter((f) => f.status === 'INVESTIGATING').length;
+        const resVal = filtered.filter((f) => f.status === 'RESOLVED' || f.status === 'DISMISSED').length;
+        setStatistics({
+          total: totalVal,
+          totalFlags: totalVal,
+          active: activeVal,
+          activeFlags: activeVal,
+          investigating: invVal,
+          investigatingFlags: invVal,
+          resolved: resVal,
+          resolvedFlags: resVal,
+        });
       }
     } catch (e) {
       console.error(e);

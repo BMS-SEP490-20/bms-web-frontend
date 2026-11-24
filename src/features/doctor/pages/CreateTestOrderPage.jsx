@@ -1,15 +1,17 @@
 /**
  * @file CreateTestOrderPage.jsx
- * @description UC32 – Physician laboratory test order creation page.
- * Bác sĩ khám lâm sàng chỉ định xét nghiệm máu, tư vấn bổ sung gói/chỉ số cận lâm sàng,
- * liên kết chặt chẽ với AppointmentId, PatientId, ràng buộc ống máu ISO 15189, mã WHO ICD-10
- * và tự động điều phối tới trạm Lab theo ca trực do Quản lý phân công.
- * Conforms to: BR-DOC-01, Rule 19, Production Medical Standards & AGENTS.md.
+ * @description UC32 & UC48 – Worklist-Driven Clinical CPOE (Lịch hẹn đã gọi số -> Modal Khám Lâm Sàng & Chỉ Định -> Chuyển Lab một chiều).
+ *
+ * Quy trình chuẩn y tế:
+ *  1. Nạp danh sách bệnh nhân đã được gọi số từ Bàn khám (`currentServing` / `InProgress`) và hàng đợi `CheckedIn` (không fallback sang danh sách user rác).
+ *  2. Hiển thị Table List lịch hẹn kèm trạng thái chỉ định (`Chờ chỉ định` | `Bản nháp` | `✓ Đã chuyển Lab`).
+ *  3. Bấm "Chỉ định xét nghiệm" mở Modal cho đúng lịch hẹn: tự động nạp thông tin BN + khóa cứng gói BN đã đặt + khám sinh hiệu/ICD-10/tiền phân tích.
+ *  4. Bấm "Chuyển Xuống Phòng Lab": phát hành y lệnh (`PaidPendingSample`), tự sinh ống mẫu `SMP-...`, đồng thời ẨN nút Chuyển ngay lập tức (chống bấm đúp / fallback).
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Modal, Button as BsButton, Card, Badge, Row, Col, Alert, Spinner } from "react-bootstrap";
+import { Modal, Button as BsButton, Card, Badge, Spinner, Form, Alert } from "react-bootstrap";
 import {
   FaSearch,
   FaClipboardList,
@@ -18,89 +20,123 @@ import {
   FaSave,
   FaVial,
   FaUserInjured,
-  FaCalendarAlt,
   FaArrowLeft,
   FaClock,
-  FaInfoCircle,
-  FaFileInvoiceDollar,
   FaStethoscope,
-  FaPlus,
   FaTimes,
-  FaUserMd,
-  FaBarcode,
-  FaThLarge,
-  FaArrowRight,
-  FaExchangeAlt,
-  FaHospital,
-  FaPrint,
   FaCheck,
-  FaUserCheck,
-  FaDoorOpen
+  FaSync,
+  FaFileSignature,
+  FaHeartbeat,
+  FaBan,
+  FaLayerGroup,
+  FaPaperPlane,
+  FaBullhorn
 } from "react-icons/fa";
-import { fetchTestCatalog, createTestOrder } from "../api/testOrderApi";
-import { getPatientById, searchPatients } from "../../../services/patientService";
+import {
+  createTestOrder,
+  fetchTestOrders,
+  submitDraftTestOrder,
+  updateTestOrderStatus
+} from "../api/testOrderApi";
 import { getPackages, getTestCriteria } from "../../admin/api/packageApi";
 import { receptionApi } from "../../reception/api/receptionApi";
-import BarcodePrinterModal, { AntiCollisionRackVisualizer } from "../../laboratory/components/BarcodePrinter";
+import { getAppointments } from "../../appointment/api/appointmentApi";
+import { medicalRecordApi } from "../api/medicalRecordApi";
 
-// Standard clinical ICD-10 catalog for test requisitions
+// Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế
 const CLINICAL_ICD10_LIST = [
   { code: "E11.9", name: "Đái tháo đường typ 2 không biến chứng" },
   { code: "I10", name: "Tăng huyết áp vô căn (nguyên phát)" },
   { code: "E78.5", name: "Rối loạn chuyển hóa lipid máu (Tăng mỡ máu)" },
   { code: "D50.9", name: "Thiếu máu do thiếu sắt không đặc hiệu" },
-  { code: "K29.7", name: "Viêm dạ dày không đặc hiệu" },
-  { code: "K76.0", name: "Gan thoái hóa mỡ (Gan nhiễm mỡ / Tăng men gan)" },
-  { code: "J00", name: "Viêm mũi họng cấp (Cảm lạnh thông thường)" },
-  { code: "J20.9", name: "Viêm phế quản cấp" },
-  { code: "M10.9", name: "Bệnh Gút (Gout) không đặc hiệu" },
+  { code: "K29.7", name: "Viêm dạ dày tá tràng" },
+  { code: "K76.0", name: "Gan nhiễm mỡ / Tăng men gan" },
+  { code: "E03.9", name: "Suy giáp không đặc hiệu (Tầm soát tuyến giáp)" },
+  { code: "M10.9", name: "Bệnh Gút (Gout) / Tăng Acid Uric" },
+  { code: "N18.9", name: "Bệnh thận mạn / Đánh giá chức năng thận" },
+  { code: "J20.9", name: "Viêm phế quản cấp / Nhiễm trùng hô hấp" },
   { code: "N39.0", name: "Nhiễm trùng đường tiết niệu" },
-  { code: "R50.9", name: "Sốt không rõ nguyên nhân" },
   { code: "Z00.0", name: "Khám sức khỏe tổng quát định kỳ" }
 ];
 
 const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
 
+// Phân loại ống máu chuẩn CLSI GP41 (Thứ tự lấy máu: Citrate -> Serum -> EDTA -> Fluoride)
+const resolveTubeSpec = (rawTube, category = "") => {
+  const t = `${rawTube || ""} ${category || ""}`.toUpperCase();
+  if (t.includes("CITRATE") || t.includes("BLUE") || t.includes("ĐÔNG MÁU")) {
+    return {
+      key: "CITRATE",
+      label: "Ống Nắp Xanh Dương (Na-Citrate 3.2%)",
+      shortLabel: "Citrate · Xanh dương",
+      sampleType: "Huyết tương (2.7 mL)",
+      colorHex: "#0284c7",
+      bgHex: "#e0f2fe",
+      drawOrder: 1
+    };
+  }
+  if (t.includes("EDTA") || t.includes("PURPLE") || t.includes("TÍM") || t.includes("HUYẾT HỌC")) {
+    return {
+      key: "EDTA",
+      label: "Ống Nắp Tím (K2-EDTA Chống Đông)",
+      shortLabel: "K2-EDTA · Nắp Tím",
+      sampleType: "Máu toàn phần (2.0 mL)",
+      colorHex: "#7c3aed",
+      bgHex: "#f3e8ff",
+      drawOrder: 3
+    };
+  }
+  if (t.includes("FLUORIDE") || t.includes("NAF") || t.includes("XÁM")) {
+    return {
+      key: "FLUORIDE",
+      label: "Ống Nắp Xám (NaF / Oxalate)",
+      shortLabel: "NaF · Nắp Xám",
+      sampleType: "Huyết tương Glucose (2.0 mL)",
+      colorHex: "#475569",
+      bgHex: "#f1f5f9",
+      drawOrder: 4
+    };
+  }
+  return {
+    key: "SERUM",
+    label: "Ống Nắp Vàng / Đỏ (Serum Gel SST)",
+    shortLabel: "Serum Gel · Vàng/Đỏ",
+    sampleType: "Huyết thanh (4.0 mL)",
+    colorHex: "#d97706",
+    bgHex: "#fef3c7",
+    drawOrder: 2
+  };
+};
+
+const isOrderDispatched = (order) => {
+  if (!order) return false;
+  const st = String(order.status || "").toLowerCase();
+  return Boolean(st && st !== "draft" && st !== "cancelled" && st !== "rejected");
+};
+
+const isOrderDraft = (order) => String(order?.status || "").toLowerCase() === "draft";
+
+const formatDispatchedStatusLabel = (status) => {
+  const st = String(status || "").toLowerCase();
+  if (st === "paidpendingsample" || st === "ordered" || st === "awaitingpayment") return "Đã chuyển Lab (Chờ lấy mẫu)";
+  if (st === "samplecollected" || st === "intransit" || st === "received") return "Lab đã nhận ống mẫu";
+  if (st === "intesting" || st === "processing" || st === "testing") return "Đang chạy máy phân tích";
+  if (st === "completed" || st === "approved") return "Đã hoàn tất kết quả";
+  return "Đã chuyển Lab";
+};
+
 export default function CreateTestOrderPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // URL query params
+  // Query params khi điều hướng trực tiếp từ Bàn Khám / EMR
+  const queryAppointmentId = searchParams.get("appointmentId") || searchParams.get("encounterId") || "";
   const queryPatientId = searchParams.get("patientId") || "";
   const queryPatientName = searchParams.get("patientName") || "";
-  const queryAppointmentId = searchParams.get("appointmentId") || searchParams.get("encounterId") || "";
   const queryPackageId = searchParams.get("packageId") || "";
-  const queryPatientPhone = searchParams.get("phone") || "";
 
-  // Dynamic Patient Queue & Search states
-  const [waitingQueuePatients, setWaitingQueuePatients] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearchingPatients, setIsSearchingPatients] = useState(false);
-  const [patientSearchTerm, setPatientSearchTerm] = useState("");
-  const [patientResults, setPatientResults] = useState([]);
-  const [searchingPatients, setSearchingPatients] = useState(false);
-  const [showPatientPicker, setShowPatientPicker] = useState(!queryPatientId);
-  const [preRegisteredService, setPreRegisteredService] = useState(() =>
-    queryPackageId
-      ? { name: queryPackageId, code: queryPackageId, price: 0, locked: true }
-      : null
-  );
-
-  // Appointment & Patient binding
-  const [appointmentId, setAppointmentId] = useState(queryAppointmentId);
-  const [patient, setPatient] = useState({
-    id: queryPatientId,
-    name: queryPatientName,
-    gender: "Nam",
-    age: 35,
-    bloodType: "Chưa xác định",
-    allergies: "Không ghi nhận",
-    lastVisit: "Hôm nay",
-    lastCbc: "Bình thường",
-    activeOrders: 0
-  });
-
-  // Current logged-in doctor info
+  // Thông tin Bác sĩ đăng nhập
   const currentUser = useMemo(() => {
     try {
       const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user") || localStorage.getItem("user");
@@ -109,227 +145,105 @@ export default function CreateTestOrderPage() {
       return null;
     }
   }, []);
+  const rawDocName = currentUser?.fullName || currentUser?.name || currentUser?.username || "";
+  const doctorName = (!rawDocName || /^[0-9a-f]{24}$/i.test(rawDocName)) ? "BS. CKI Lê Hoàng Nam" : rawDocName;
+  const doctorId = currentUser?.id || currentUser?.doctorId || currentUser?._id || "dr_hoangnam";
 
-  const doctorId = currentUser?.id || currentUser?.doctorId || currentUser?._id || "dr_nguyenminh";
-  const doctorName = currentUser?.fullName || currentUser?.name || "Bác sĩ đang đăng nhập";
+  // Worklist State (Bảng lịch hẹn đã gọi số & chờ khám)
+  const [encounters, setEncounters] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loadingWorklist, setLoadingWorklist] = useState(false);
+  const [worklistError, setWorklistError] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL"); // 'ALL' | 'READY' | 'DRAFT' | 'DISPATCHED'
 
-  // Catalog & filter states
+  // Catalog State
   const [catalog, setCatalog] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
-  const [selectedCodes, setSelectedCodes] = useState(() =>
-    queryPackageId ? new Set([queryPackageId]) : new Set()
-  );
-  // Gói đã đặt/thanh toán — không cho bỏ tick (chỉ được thêm chỉ số khác).
-  const lockedPackageCodes = useMemo(() => {
-    const codes = new Set();
-    if (queryPackageId) codes.add(queryPackageId);
-    if (preRegisteredService?.code) codes.add(preRegisteredService.code);
-    return codes;
-  }, [queryPackageId, preRegisteredService]);
+  const [loadingCatalog, setLoadingCatalog] = useState(false);
 
-  // ICD-10 diagnostic coding states
+  // Modal Khám Lâm Sàng & Chỉ Định Xét Nghiệm
+  const [activeModalEncounter, setActiveModalEncounter] = useState(null);
+  const [modalSearchTerm, setModalSearchTerm] = useState("");
+  const [modalCategory, setModalCategory] = useState("Tất cả");
+  const [modalTypeFilter, setModalTypeFilter] = useState("ALL"); // 'ALL' | 'PACKAGE' | 'SINGLE'
+  const [selectedCodes, setSelectedCodes] = useState(new Set());
+  const [lockedCodes, setLockedCodes] = useState(new Set());
+  const [editingDraftId, setEditingDraftId] = useState(null);
+
+  // Form Khám Lâm Sàng trong Modal
+  const [vitals, setVitals] = useState({
+    heartRate: 76,
+    systolicBp: 120,
+    diastolicBp: 80,
+    temperature: 36.6,
+    spo2: 98
+  });
+  const [saveToEmr, setSaveToEmr] = useState(true);
   const [selectedIcdCodes, setSelectedIcdCodes] = useState(["E11.9"]);
   const [customIcdInput, setCustomIcdInput] = useState("");
   const [icdError, setIcdError] = useState("");
-
-  // Clinical order details
-  const [clinicalIndication, setClinicalIndication] = useState("Kiểm tra chỉ số sinh hóa và huyết học theo triệu chứng lâm sàng");
+  const [clinicalIndication, setClinicalIndication] = useState("");
   const [priority, setPriority] = useState("Routine");
-  const [scheduledDate, setScheduledDate] = useState(new Date().toISOString().split("T")[0]);
   const [specialInstructions, setSpecialInstructions] = useState("");
+  const [fastingConfirmed, setFastingConfirmed] = useState(true);
 
-  // Status & feedback
-  const [loading, setLoading] = useState(false);
+  // Trạng thái Submit & Khóa nút Chuyển một chiều trong Modal
   const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [orderSuccess, setOrderSuccess] = useState(null);
-  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
-  const [showRackModal, setShowRackModal] = useState(false);
+  const [modalError, setModalError] = useState("");
+  const [dispatchedOrderResult, setDispatchedOrderResult] = useState(null);
+  const [autoOpenedFromUrl, setAutoOpenedFromUrl] = useState(false);
 
-  // Chọn người bệnh từ danh sách chờ khám thực tế
-  const handleSelectPatient = (pt) => {
-    setPatient({
-      id: pt.id || pt.patientId,
-      name: pt.name || pt.patientName || pt.fullName,
-      gender: pt.gender === "Female" ? "Nữ" : "Nam",
-      age: pt.age || 30,
-      bloodType: pt.bloodType || "Chưa xác định",
-      allergies: pt.allergies || "Không ghi nhận",
-      lastVisit: pt.lastVisit || "Hôm nay",
-      lastCbc: "Bình thường",
-      activeOrders: 1
-    });
-    setAppointmentId(pt.appointmentId || pt.appointmentCode || "");
-    if (pt.prePackageCode || pt.packageCode || pt.packageId) {
-      const code = pt.prePackageCode || pt.packageCode || pt.packageId;
-      setPreRegisteredService({
-        name: pt.prePackageName || pt.packageName || code,
-        code: code,
-        price: pt.prePackagePrice || pt.packagePrice || 0
-      });
-      setSelectedCodes(new Set([code]));
-    }
-    setShowPatientPicker(false);
-    setErrorMessage("");
-  };
+  // Modal Hủy Y Lệnh (chỉ trước khi Lab lấy mẫu)
+  const [cancelTargetOrder, setCancelTargetOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState("Bác sĩ điều chỉnh chỉ định trước khi lấy mẫu");
+  const [cancelBusy, setCancelBusy] = useState(false);
 
-  // Nạp hàng đợi khám thực tế từ reception queue API
+  // 1. Nạp Catalog Gói & Chỉ số thật từ Backend
   useEffect(() => {
-    const fetchWaitingQueue = async () => {
-      try {
-        const res = await receptionApi.getQueueStatus();
-        const list = res?.data?.waitingList || res?.waitingList || [];
-        if (Array.isArray(list) && list.length > 0) {
-          const formatted = list.map((item) => ({
-            id: item.patientId,
-            name: item.patientName,
-            gender: "Chưa cập nhật",
-            age: 30,
-            bloodType: "Chưa xác định",
-            allergies: "Không ghi nhận",
-            lastVisit: "Hôm nay",
-            appointmentId: item.appointmentId || item.appointmentCode,
-            identityNumber: item.patientPhone || "",
-            phone: item.patientPhone || "",
-            prePackageName: item.packageId || "Khám & chỉ định xét nghiệm",
-            prePackageCode: item.packageId || "",
-            prePackagePrice: 0,
-            statusText: `Đã Check-in (${item.queueNumberFormatted || 'Hàng đợi'})`
-          }));
-          setWaitingQueuePatients(formatted);
-        }
-      } catch (err) {
-        console.warn("Không thể tải hàng đợi khám:", err);
-      }
-    };
-    fetchWaitingQueue();
-  }, []);
-
-  // Tra cứu bệnh nhân theo từ khóa (CCCD, tên, mã) từ cơ sở dữ liệu MongoDB
-  useEffect(() => {
-    if (!patientSearchTerm.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      setIsSearchingPatients(true);
-      try {
-        const res = await searchPatients({ search: patientSearchTerm.trim() });
-        const items = res?.items || (Array.isArray(res) ? res : res?.data || []);
-        const formatted = items.map((p) => ({
-          id: p.id || p.patientCode,
-          name: p.fullName || p.name,
-          gender: p.gender === "Female" ? "Nữ" : "Nam",
-          age: p.age || 30,
-          bloodType: p.bloodType || "Chưa xác định",
-          allergies: Array.isArray(p.allergies) ? p.allergies.join(", ") : (p.allergies || "Không ghi nhận"),
-          lastVisit: p.lastVisit ? new Date(p.lastVisit).toLocaleDateString("vi-VN") : "Hồ sơ y tế",
-          appointmentId: `APT-WALKIN-${Date.now().toString().slice(-4)}`,
-          identityNumber: p.citizenId || p.identityCardNumber || "",
-          phone: p.phoneNumber || "",
-          prePackageName: "Khám trực tiếp tại quầy",
-          prePackageCode: "",
-          prePackagePrice: 0,
-          statusText: "Hồ sơ Bệnh nhân (Đề án 06)"
-        }));
-        setSearchResults(formatted);
-      } catch (err) {
-        console.warn("Lỗi tra cứu bệnh nhân:", err);
-      } finally {
-        setIsSearchingPatients(false);
-      }
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [patientSearchTerm]);
-
-  // Load patient demographic details if patientId is provided in URL
-  useEffect(() => {
-    if (queryPatientId) {
-      getPatientById(queryPatientId)
-        .then((res) => {
-          const p = res?.data || res;
-          if (p) {
-            setPatient((prev) => ({
-              ...prev,
-              id: p.id || p.patientCode || queryPatientId,
-              name: p.fullName || queryPatientName || prev.name,
-              gender: p.gender === "Female" ? "Nữ" : "Nam",
-              age: p.age || prev.age,
-              bloodType: p.bloodType || "Chưa xác định",
-              allergies: Array.isArray(p.allergies) && p.allergies.length > 0 ? p.allergies.join(", ") : (p.allergies || "Không có"),
-              lastVisit: p.lastVisit ? new Date(p.lastVisit).toLocaleDateString("vi-VN") : "Hôm nay",
-              lastCbc: p.lastCbc || "Bình thường",
-              activeOrders: p.activeOrders || 0
-            }));
-            setShowPatientPicker(false);
-          }
-        })
-        .catch(() => {
-          if (queryPatientName) {
-            setPatient((prev) => ({ ...prev, id: queryPatientId, name: queryPatientName }));
-            setShowPatientPicker(false);
-          }
-        });
-    }
-
-    if (queryPackageId) {
-      setSelectedCodes(new Set([queryPackageId]));
-      setPreRegisteredService({
-        name: queryPackageId,
-        code: queryPackageId,
-        price: 0
-      });
-    }
-  }, [queryPatientId, queryAppointmentId, queryPatientName, queryPackageId]);
-
-  // Load dynamic laboratory catalog directly from backend MongoDB
-  useEffect(() => {
-    const loadDynamicCatalog = async () => {
-      setLoading(true);
+    let cancelled = false;
+    (async () => {
+      setLoadingCatalog(true);
       try {
         const [pkgsRes, criteriaRes] = await Promise.allSettled([
-          getPackages({ pageSize: 50 }),
+          getPackages({ pageSize: 80 }),
           getTestCriteria()
         ]);
-
         const merged = [];
+        const seen = new Set();
 
-        // 1. Add all DIAG standard packages from MongoDB
         const pkgs = pkgsRes.status === "fulfilled"
           ? (Array.isArray(pkgsRes.value) ? pkgsRes.value : (pkgsRes.value?.items || []))
           : [];
         pkgs.forEach((pkg) => {
-          const cleanCode = pkg.packageCode || pkg.code || (pkg.id ? (pkg.id.length > 12 ? `PKG-${pkg.id.slice(-6).toUpperCase()}` : pkg.id) : `PKG-${Date.now().toString().slice(-4)}`);
-          const shortTat = pkg.tat && pkg.tat.length > 25
-            ? (pkg.tat.includes("2 tiếng") ? "~2h 20p" : "~2–4h")
-            : (pkg.tat || "~2h");
+          const cleanCode = (pkg.packageCode || pkg.code || "").trim().toUpperCase();
+          if (!cleanCode || seen.has(cleanCode)) return;
+          seen.add(cleanCode);
           merged.push({
+            id: pkg.id,
             code: cleanCode,
             name: pkg.packageName || pkg.name,
-            category: pkg.category || "Gói Khám & Xét Nghiệm",
-            tubeType: pkg.sampleTube || "Chuẩn ISO 15189",
-            sampleVolumeMl: pkg.sampleVolumeMl || 4,
-            turnaroundTime: shortTat,
-            tatDetail: pkg.tat,
+            category: pkg.category || "Gói Khám Tổng Hợp",
+            tubeType: pkg.sampleTube || "Serum-Đỏ/Vàng & EDTA-Tím",
+            turnaroundTime: pkg.tat && pkg.tat.length > 25 ? "~2–4h" : (pkg.tat || "~2h"),
             preparationNotes: pkg.preparationNotes || "Nhịn ăn 8–12h theo chuẩn ISO 15189",
             price: pkg.discountPrice || pkg.price || 0,
-            originalPrice: pkg.price || 0,
-            isPackage: true,
-            tests: pkg.tests || []
+            isPackage: true
           });
         });
 
-        // 2. Add individual biomarkers / test criteria from MongoDB
         const criteria = criteriaRes.status === "fulfilled"
           ? (Array.isArray(criteriaRes.value) ? criteriaRes.value : (criteriaRes.value?.items || []))
           : [];
         criteria.forEach((c) => {
+          const cleanCode = (c.code || c.testCriteriaCode || c.criterionCode || "").trim().toUpperCase();
+          if (!cleanCode || seen.has(cleanCode)) return;
+          seen.add(cleanCode);
           merged.push({
-            code: c.code || c.testCriteriaCode,
-            name: c.name || c.testName,
+            id: c.id,
+            code: cleanCode,
+            name: c.name || c.testName || c.criterionName,
             category: c.category || "Sinh hóa",
-            tubeType: c.sampleType || "Huyết thanh / Máu",
+            tubeType: c.sampleType || "Serum-Đỏ/Vàng",
             turnaroundTime: "~1.5h",
             preparationNotes: c.preparationNotes || "Theo quy định tiền phân tích",
             price: c.price || 80000,
@@ -337,34 +251,457 @@ export default function CreateTestOrderPage() {
           });
         });
 
-        setCatalog(merged);
-
-        // If queryPackageId was passed, match its detailed name and price
-        if (queryPackageId) {
-          const matchPkg = merged.find((x) => x.code === queryPackageId);
-          if (matchPkg) {
-            setPreRegisteredService({
-              name: matchPkg.name,
-              code: matchPkg.code,
-              price: matchPkg.price
-            });
-            setSelectedCodes(new Set([matchPkg.code]));
-          }
-        }
+        if (!cancelled) setCatalog(merged);
       } catch (err) {
-        console.error("Lỗi khi tải danh mục xét nghiệm động:", err);
+        console.error("Lỗi tải danh mục xét nghiệm:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoadingCatalog(false);
       }
-    };
-    loadDynamicCatalog();
-  }, [queryPackageId]);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  // Toggle test selection — không bỏ tick gói đã đặt/thanh toán
-  const handleToggleTest = (code) => {
+  // 2. Nạp danh sách Lịch hẹn đã Gọi Số (currentServing) + Hàng đợi (CheckedIn/InProgress) + Y lệnh hiện có
+  const loadWorklist = useCallback(async () => {
+    setLoadingWorklist(true);
+    setWorklistError("");
+    try {
+      const [queueRes, aptRes, ordersData] = await Promise.all([
+        receptionApi.getQueueStatus().catch(() => null),
+        getAppointments({ pageSize: 100 }).catch(() => null),
+        fetchTestOrders({})
+      ]);
+
+      const orderList = Array.isArray(ordersData) ? ordersData : [];
+      setOrders(orderList);
+
+      const serving = queueRes?.currentServing || queueRes?.data?.currentServing || null;
+      const waitingList = queueRes?.waitingList || queueRes?.data?.waitingList || [];
+      const rawApts = aptRes?.data || aptRes?.items || (Array.isArray(aptRes) ? aptRes : []);
+
+      // Map kết nối AppointmentId -> Orders
+      const orderByKey = new Map();
+      orderList.forEach((ord) => {
+        if (String(ord.status || "").toLowerCase() === "cancelled") return;
+        const keys = [ord.appointmentId, ord.orderNumber, ord.id].filter(Boolean);
+        keys.forEach((k) => {
+          const lk = String(k).toLowerCase();
+          const prev = orderByKey.get(lk);
+          if (!prev || isOrderDispatched(ord)) {
+            orderByKey.set(lk, ord);
+          }
+        });
+      });
+
+      const encounterMap = new Map();
+
+      // Bước A: Thêm bệnh nhân ĐANG ĐƯỢC GỌI SỐ tại Bàn Khám (currentServing) lên đầu tiên
+      if (serving && (serving.appointmentId || serving.patientId)) {
+        const key = String(serving.appointmentCode || serving.appointmentId || serving.patientId).toLowerCase();
+        const rawQ = serving.queueNumberFormatted && serving.queueNumberFormatted !== "N/A"
+          ? serving.queueNumberFormatted
+          : (serving.queueNumber ? `Q-${String(serving.queueNumber).padStart(3, "0")}` : "");
+        encounterMap.set(key, {
+          key,
+          appointmentId: serving.appointmentId || serving.appointmentCode || "",
+          appointmentCode: serving.appointmentCode || serving.appointmentId || "—",
+          queueNumber: rawQ || "Đang gọi",
+          patientId: serving.patientId || "",
+          patientName: serving.patientName || "Bệnh nhân",
+          patientGender: serving.patientGender === "Female" ? "Nữ" : "Nam",
+          patientAge: serving.patientAge || 35,
+          patientPhone: serving.patientPhone || "",
+          packageCode: serving.packageId || serving.testPackageId || "",
+          packageName: serving.packageName || serving.testPackageName || "",
+          appointmentStatus: "InProgress",
+          isCurrentServing: true,
+          roomId: serving.roomId || "ROOM-101",
+          appointmentDate: serving.createdAt || new Date().toISOString()
+        });
+      }
+
+      // Bước B: Thêm các bệnh nhân trong Hàng đợi phòng khám (waitingList)
+      if (Array.isArray(waitingList)) {
+        waitingList.forEach((w) => {
+          if (!w || (!w.appointmentId && !w.patientId)) return;
+          const key = String(w.appointmentCode || w.appointmentId || w.patientId).toLowerCase();
+          const rawQ = w.queueNumberFormatted && w.queueNumberFormatted !== "N/A"
+            ? w.queueNumberFormatted
+            : (w.queueNumber ? `Q-${String(w.queueNumber).padStart(3, "0")}` : "");
+          if (!encounterMap.has(key)) {
+            encounterMap.set(key, {
+              key,
+              appointmentId: w.appointmentId || w.appointmentCode || "",
+              appointmentCode: w.appointmentCode || w.appointmentId || "—",
+              queueNumber: rawQ || "Chờ gọi",
+              patientId: w.patientId || "",
+              patientName: w.patientName || "Bệnh nhân",
+              patientGender: "Nam",
+              patientAge: 35,
+              patientPhone: w.patientPhone || "",
+              packageCode: w.packageId || "",
+              packageName: w.packageName || "",
+              appointmentStatus: w.status || "CheckedIn",
+              isCurrentServing: false,
+              roomId: w.roomId || "ROOM-101",
+              appointmentDate: w.createdAt || new Date().toISOString()
+            });
+          }
+        });
+      }
+
+      // Bước C: Hợp nhất thông tin đầy đủ từ Appointments (tên gói đã đặt, SĐT, giới tính, tuổi, trạng thái gọi số)
+      if (Array.isArray(rawApts)) {
+        rawApts.forEach((a) => {
+          const st = String(a.status || "").toLowerCase();
+          // Chỉ lấy các lịch hẹn đã Check-in / Đang gọi khám (InProgress) / Hoặc đã có y lệnh liên kết (Completed)
+          if (st === "cancelled" || st === "noshow" || st === "pending") return;
+
+          const keyCode = String(a.appointmentCode || "").toLowerCase();
+          const keyId = String(a.id || a.appointmentId || "").toLowerCase();
+          const existing = (keyCode && encounterMap.get(keyCode)) || (keyId && encounterMap.get(keyId));
+
+          const pkgCode = a.packageId || a.testPackageId || a.packageCode || existing?.packageCode || "";
+          const pkgName = a.packageName || a.testPackageName || existing?.packageName || "";
+          const aptQueueStr = a.queueNumber ? `Q-${String(a.queueNumber).padStart(3, "0")}` : "";
+
+          if (existing) {
+            existing.appointmentId = a.id || a.appointmentId || existing.appointmentId;
+            existing.appointmentCode = a.appointmentCode || existing.appointmentCode;
+            if (aptQueueStr && (!existing.queueNumber || existing.queueNumber === "N/A" || existing.queueNumber === "Đang gọi" || existing.queueNumber === "Chờ gọi")) {
+              existing.queueNumber = aptQueueStr;
+            }
+            existing.patientGender = a.patientGender === "Female" || a.patientGender === "Nữ" ? "Nữ" : existing.patientGender;
+            existing.patientAge = a.patientAge || existing.patientAge;
+            existing.patientPhone = a.patientPhone || a.phone || existing.patientPhone;
+            existing.packageCode = pkgCode;
+            existing.packageName = pkgName;
+            existing.appointmentDate = a.appointmentDate || a.scheduledAt || existing.appointmentDate;
+          } else if (st === "inprogress" || st === "checkedin" || st === "confirmed" || st === "completed") {
+            const key = keyCode || keyId;
+            if (!key) return;
+            encounterMap.set(key, {
+              key,
+              appointmentId: a.id || a.appointmentId || "",
+              appointmentCode: a.appointmentCode || a.id || "—",
+              queueNumber: aptQueueStr || (st === "inprogress" ? "Đã gọi số" : "Đã Check-in"),
+              patientId: a.patientId || "",
+              patientName: a.patientName || a.patientFullName || "Bệnh nhân",
+              patientGender: a.patientGender === "Female" || a.patientGender === "Nữ" ? "Nữ" : "Nam",
+              patientAge: a.patientAge || 35,
+              patientPhone: a.patientPhone || a.phone || "",
+              packageCode: pkgCode,
+              packageName: pkgName,
+              appointmentStatus: a.status || "CheckedIn",
+              isCurrentServing: st === "inprogress",
+              roomId: a.roomId || "ROOM-101",
+              appointmentDate: a.appointmentDate || a.scheduledAt || a.createdAt
+            });
+          }
+        });
+      }
+
+      // Gắn trạng thái Y lệnh (Order) thực tế vào từng Lịch hẹn
+      const usedOrderIds = new Set();
+      const list = Array.from(encounterMap.values()).map((enc) => {
+        let matchedOrder =
+          orderByKey.get(String(enc.appointmentId).toLowerCase()) ||
+          orderByKey.get(String(enc.appointmentCode).toLowerCase()) ||
+          orderList.find(
+            (o) =>
+              String(o.status || "").toLowerCase() !== "cancelled" &&
+              String(o.patientId || "").toLowerCase() === String(enc.patientId).toLowerCase() &&
+              (String(o.appointmentId || "").toLowerCase() === String(enc.appointmentId).toLowerCase() ||
+                String(o.appointmentId || "").toLowerCase() === String(enc.appointmentCode).toLowerCase())
+          ) ||
+          null;
+
+        // Fallback cho các đơn vừa tạo trong ngày của cùng bệnh nhân khi bản ghi cũ chưa lưu appointmentId
+        if (!matchedOrder) {
+          matchedOrder =
+            orderList.find((o) => {
+              const oid = o.orderNumber || o.id;
+              if (!oid || usedOrderIds.has(oid)) return false;
+              if (String(o.status || "").toLowerCase() === "cancelled") return false;
+              const samePatient =
+                (enc.patientId && String(o.patientId || "").toLowerCase() === String(enc.patientId).toLowerCase()) ||
+                (enc.patientName && String(o.patientName || "").toLowerCase() === String(enc.patientName).toLowerCase());
+              if (!samePatient) return false;
+              // Ưu tiên gắn cho ca đang gọi khám hoặc khớp mã gói xét nghiệm
+              const pkgCode = String(enc.packageCode || "").toUpperCase();
+              const hasSamePkg = !pkgCode || (Array.isArray(o.items) && o.items.some((it) => String(it.testCode || "").toUpperCase() === pkgCode));
+              return enc.isCurrentServing || hasSamePkg;
+            }) || null;
+        }
+
+        if (matchedOrder) {
+          usedOrderIds.add(matchedOrder.orderNumber || matchedOrder.id);
+        }
+
+        return {
+          ...enc,
+          linkedOrder: matchedOrder
+        };
+      });
+
+      // Sắp xếp: Ca đang gọi trong phòng -> Ca chưa chỉ định -> Bản nháp -> Đã chuyển Lab
+      list.sort((a, b) => {
+        if (a.isCurrentServing !== b.isCurrentServing) return a.isCurrentServing ? -1 : 1;
+        const aDisp = isOrderDispatched(a.linkedOrder) ? 1 : 0;
+        const bDisp = isOrderDispatched(b.linkedOrder) ? 1 : 0;
+        if (aDisp !== bDisp) return aDisp - bDisp;
+        return new Date(b.appointmentDate || 0).getTime() - new Date(a.appointmentDate || 0).getTime();
+      });
+
+      setEncounters(list);
+    } catch (err) {
+      setWorklistError(err?.message || "Không thể tải danh sách lịch hẹn đã gọi số.");
+    } finally {
+      setLoadingWorklist(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadWorklist();
+  }, [loadWorklist]);
+
+  // Helper đối chiếu gói đã đặt trong Catalog
+  const resolveBookedPackageInCatalog = useCallback(
+    (pkgCode, pkgName) => {
+      if (!pkgCode && !pkgName) return null;
+      const cLower = String(pkgCode || "").trim().toLowerCase();
+      const nLower = String(pkgName || "").trim().toLowerCase();
+      return (
+        catalog.find(
+          (item) =>
+            (cLower && (String(item.code).toLowerCase() === cLower || String(item.id || "").toLowerCase() === cLower)) ||
+            (nLower && String(item.name).toLowerCase() === nLower)
+        ) || null
+      );
+    },
+    [catalog]
+  );
+
+  // 3. Mở Modal Khám Lâm Sàng & Chỉ Định cho 1 Lịch hẹn
+  const handleOpenClinicalModal = useCallback(
+    async (enc) => {
+      // Nếu lịch hẹn này đã chuyển xuống Lab rồi -> không cho mở form tạo mới (chống phá nghiệp vụ)
+      if (isOrderDispatched(enc.linkedOrder)) {
+        return;
+      }
+
+      setActiveModalEncounter(enc);
+      setModalError("");
+      setDispatchedOrderResult(null);
+      setModalSearchTerm("");
+      setModalCategory("Tất cả");
+      setModalTypeFilter("ALL");
+      setIcdError("");
+      setCustomIcdInput("");
+      setPriority("Routine");
+      setSpecialInstructions("");
+      setFastingConfirmed(true);
+
+      // Nạp gói bệnh nhân đã đặt tại quầy/lịch hẹn và khóa cứng không cho bỏ chọn
+      const preSet = new Set();
+      const lockSet = new Set();
+      const matchedPkg = resolveBookedPackageInCatalog(enc.packageCode, enc.packageName);
+      if (matchedPkg) {
+        preSet.add(matchedPkg.code);
+        lockSet.add(matchedPkg.code);
+      } else if (enc.packageCode) {
+        preSet.add(String(enc.packageCode).trim().toUpperCase());
+        lockSet.add(String(enc.packageCode).trim().toUpperCase());
+      }
+
+      // Nếu lịch hẹn đang có Bản nháp (Draft) -> nạp lại toàn bộ lựa chọn từ Bản nháp
+      if (isOrderDraft(enc.linkedOrder)) {
+        const draft = enc.linkedOrder;
+        setEditingDraftId(draft.orderNumber || draft.id);
+        (Array.isArray(draft.items) ? draft.items : []).forEach((it) => {
+          if (it.testCode) preSet.add(String(it.testCode).toUpperCase());
+        });
+        setSelectedIcdCodes(
+          Array.isArray(draft.icd10Codes) && draft.icd10Codes.length > 0 ? draft.icd10Codes : ["E11.9"]
+        );
+        setClinicalIndication(draft.clinicalIndication || "Khám lâm sàng & chỉ định xét nghiệm theo lịch hẹn");
+        if (draft.priority) setPriority(draft.priority);
+      } else {
+        setEditingDraftId(null);
+        setSelectedIcdCodes(["E11.9"]);
+        setClinicalIndication(
+          matchedPkg
+            ? `Khám lâm sàng và chỉ định gói xét nghiệm đã đặt (${matchedPkg.name})`
+            : "Khám lâm sàng và chỉ định xét nghiệm cận lâm sàng theo triệu chứng"
+        );
+      }
+
+      setSelectedCodes(preSet);
+      setLockedCodes(lockSet);
+
+      // Tự động đồng bộ sinh hiệu & chẩn đoán từ Bệnh án EMR gần nhất của BN (nếu có)
+      if (enc.patientId) {
+        try {
+          const emrRes = await medicalRecordApi.getPatientRecords(enc.patientId).catch(() => null);
+          const rawList = emrRes?.data ?? emrRes?.items ?? emrRes;
+          const records = Array.isArray(rawList) ? rawList : (Array.isArray(rawList?.items) ? rawList.items : []);
+          if (records.length > 0) {
+            const latest = records[0];
+            if (latest.vitals) {
+              setVitals({
+                heartRate: latest.vitals.heartRate || 76,
+                systolicBp: latest.vitals.systolicBp || 120,
+                diastolicBp: latest.vitals.diastolicBp || 80,
+                temperature: latest.vitals.temperature || 36.6,
+                spo2: latest.vitals.spo2 || 98
+              });
+            }
+            if (latest.icd10Code && ICD10_REGEX.test(String(latest.icd10Code).toUpperCase())) {
+              const c = String(latest.icd10Code).toUpperCase();
+              setSelectedIcdCodes((prev) => (prev.includes(c) ? prev : [c, ...prev]));
+            }
+            if (!isOrderDraft(enc.linkedOrder) && (latest.diagnosis || latest.chiefComplaint)) {
+              setClinicalIndication(`Theo bệnh án EMR (${latest.recordCode || "mới nhất"}): ${latest.diagnosis || latest.chiefComplaint}`);
+            }
+          }
+        } catch {
+          // ignore EMR preload error
+        }
+      }
+    },
+    [resolveBookedPackageInCatalog]
+  );
+
+  // Auto-open modal nếu điều hướng từ Bàn Khám với ?appointmentId=... (chỉ 1 lần và chỉ khi chưa chuyển Lab)
+  useEffect(() => {
+    if (autoOpenedFromUrl || loadingWorklist || loadingCatalog) return;
+    if (!queryAppointmentId && !queryPatientId) return;
+
+    const target = encounters.find(
+      (e) =>
+        (queryAppointmentId &&
+          (String(e.appointmentId).toLowerCase() === queryAppointmentId.toLowerCase() ||
+            String(e.appointmentCode).toLowerCase() === queryAppointmentId.toLowerCase())) ||
+        (queryPatientId && String(e.patientId).toLowerCase() === queryPatientId.toLowerCase())
+    );
+
+    if (target && !isOrderDispatched(target.linkedOrder)) {
+      setAutoOpenedFromUrl(true);
+      handleOpenClinicalModal(target);
+    } else if (!target && queryAppointmentId && queryPatientId) {
+      // Nếu điều hướng trực tiếp từ Bàn Khám mà chưa có trong list fetched, dựng encounter trực tiếp từ query params (không mock)
+      setAutoOpenedFromUrl(true);
+      handleOpenClinicalModal({
+        key: queryAppointmentId.toLowerCase(),
+        appointmentId: queryAppointmentId,
+        appointmentCode: queryAppointmentId,
+        queueNumber: searchParams.get("queueNumber") || "Q-002",
+        patientId: queryPatientId,
+        patientName: queryPatientName || "Bệnh nhân đang khám",
+        patientGender: "Nam",
+        patientAge: 35,
+        patientPhone: searchParams.get("phone") || "",
+        packageCode: queryPackageId,
+        packageName: "",
+        appointmentStatus: "InProgress",
+        isCurrentServing: true,
+        linkedOrder: null
+      });
+    }
+  }, [
+    autoOpenedFromUrl,
+    loadingWorklist,
+    loadingCatalog,
+    queryAppointmentId,
+    queryPatientId,
+    queryPatientName,
+    queryPackageId,
+    searchParams,
+    encounters,
+    handleOpenClinicalModal
+  ]);
+
+  // Kiểm tra bất biến Huyết áp (Tâm thu > Tâm trương + 15)
+  const bpValid = useMemo(() => {
+    const sys = Number(vitals.systolicBp);
+    const dia = Number(vitals.diastolicBp);
+    if (!sys || !dia) return true;
+    return sys > dia + 15;
+  }, [vitals.systolicBp, vitals.diastolicBp]);
+
+  // Các xét nghiệm đang chọn trong Modal (bao gồm gói đã đặt trước nếu chưa có trong catalog)
+  const selectedTests = useMemo(() => {
+    const map = new Map();
+    catalog.forEach((c) => {
+      if (selectedCodes.has(c.code)) map.set(c.code, c);
+    });
+    // Nếu gói đã đặt chưa kịp match với catalog (ví dụ tên khác), giữ nguyên thông tin gói thật từ appointment
+    if (activeModalEncounter) {
+      lockedCodes.forEach((code) => {
+        if (!map.has(code) && selectedCodes.has(code)) {
+          map.set(code, {
+            code,
+            name: activeModalEncounter.packageName || code,
+            category: "Gói đã đặt",
+            tubeType: "Serum-Đỏ/Vàng & EDTA-Tím",
+            turnaroundTime: "~2h",
+            preparationNotes: "Theo quy chuẩn gói đặt trước",
+            price: 0,
+            isPackage: true
+          });
+        }
+      });
+    }
+    return Array.from(map.values());
+  }, [catalog, selectedCodes, lockedCodes, activeModalEncounter]);
+
+  const totalAmount = useMemo(
+    () => selectedTests.reduce((sum, t) => sum + (Number(t.price) || 0), 0),
+    [selectedTests]
+  );
+
+  const fastingInfo = useMemo(() => {
+    const hasFasting = selectedTests.some(
+      (t) =>
+        String(t.preparationNotes || "").toLowerCase().includes("nhịn") ||
+        String(t.preparationNotes || "").toLowerCase().includes("fast")
+    );
+    return { required: hasFasting, maxHours: hasFasting ? 8 : 0 };
+  }, [selectedTests]);
+
+  const autoTubeGroups = useMemo(() => {
+    const map = new Map();
+    selectedTests.forEach((t) => {
+      const spec = resolveTubeSpec(t.tubeType, t.category);
+      if (!map.has(spec.key)) map.set(spec.key, { ...spec, tests: [] });
+      map.get(spec.key).tests.push(t);
+    });
+    return Array.from(map.values()).sort((a, b) => a.drawOrder - b.drawOrder);
+  }, [selectedTests]);
+
+  // Filter danh mục trong Modal
+  const filteredModalCatalog = useMemo(() => {
+    const kw = modalSearchTerm.trim().toLowerCase();
+    return catalog.filter((item) => {
+      if (modalTypeFilter === "PACKAGE" && !item.isPackage) return false;
+      if (modalTypeFilter === "SINGLE" && item.isPackage) return false;
+
+      const matchKw = !kw || item.name.toLowerCase().includes(kw) || item.code.toLowerCase().includes(kw);
+      const cat = String(item.category || "").toLowerCase();
+      const matchCat =
+        modalCategory === "Tất cả" ||
+        (modalCategory === "Sinh hóa" && (cat.includes("biochem") || cat.includes("sinh hóa") || cat.includes("gan") || cat.includes("thận") || cat.includes("đái tháo"))) ||
+        (modalCategory === "Huyết học" && (cat.includes("hemat") || cat.includes("huyết") || cat.includes("thiếu máu"))) ||
+        (modalCategory === "Miễn dịch" && (cat.includes("immun") || cat.includes("miễn dịch") || cat.includes("giáp")));
+      return matchKw && matchCat;
+    });
+  }, [catalog, modalSearchTerm, modalCategory, modalTypeFilter]);
+
+  const handleToggleCode = (code) => {
+    if (dispatchedOrderResult) return; // Đã chuyển Lab -> khóa cứng không cho sửa
     const next = new Set(selectedCodes);
     if (next.has(code)) {
-      if (lockedPackageCodes.has(code)) return;
+      if (lockedCodes.has(code)) return; // Không cho bỏ tick gói bệnh nhân đã đặt
       next.delete(code);
     } else {
       next.add(code);
@@ -372,11 +709,10 @@ export default function CreateTestOrderPage() {
     setSelectedCodes(next);
   };
 
-  // Add ICD-10 code
-  const handleAddIcdCode = (code) => {
+  const handleAddIcd = (code) => {
     const upper = code.trim().toUpperCase();
     if (!ICD10_REGEX.test(upper)) {
-      setIcdError(`Mã ICD-10 "${upper}" không đúng định dạng chuẩn WHO (Ví dụ: E11.9, I10, J00).`);
+      setIcdError(`Mã ICD-10 "${upper}" sai định dạng chuẩn WHO (VD: E11.9, I10, Z00.0).`);
       return;
     }
     setIcdError("");
@@ -386,964 +722,972 @@ export default function CreateTestOrderPage() {
     setCustomIcdInput("");
   };
 
-  // Remove ICD-10 code
-  const handleRemoveIcdCode = (codeToRemove) => {
+  const handleRemoveIcd = (code) => {
     if (selectedIcdCodes.length <= 1) {
-      setIcdError("Phiếu chỉ định xét nghiệm bắt buộc phải có ít nhất 1 mã chẩn đoán ICD-10.");
+      setIcdError("Bắt buộc có ít nhất 1 mã bệnh WHO ICD-10.");
       return;
     }
     setIcdError("");
-    setSelectedIcdCodes(selectedIcdCodes.filter((c) => c !== codeToRemove));
+    setSelectedIcdCodes(selectedIcdCodes.filter((c) => c !== code));
   };
 
-  // Filter catalog by keyword and category
-  const filteredCatalog = useMemo(() => {
-    if (!Array.isArray(catalog)) return [];
-    return catalog.filter((item) => {
-      const name = item.name || item.testName || "";
-      const code = item.code || item.testCode || "";
-      const cat = item.category || "Biochemistry";
+  // 4. Hành động Ký & Chuyển Xuống Phòng Lab (Một chiều — Sau khi ấn sẽ ẨN nút Chuyển)
+  const handleDispatchToLab = async (isDraft = false) => {
+    if (!activeModalEncounter || dispatchedOrderResult) return;
 
-      const matchesSearch =
-        name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        code.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesCat =
-        selectedCategory === "Tất cả" ||
-        (selectedCategory === "Sinh hóa" && (cat === "Biochemistry" || cat === "Sinh hóa")) ||
-        (selectedCategory === "Huyết học" && (cat === "Hematology" || cat === "Huyết học")) ||
-        (selectedCategory === "Miễn dịch" && (cat === "Immunology" || cat === "Miễn dịch"));
-
-      return matchesSearch && matchesCat;
-    });
-  }, [catalog, searchTerm, selectedCategory]);
-
-  // Selected tests calculation
-  const selectedTests = useMemo(() => {
-    if (!Array.isArray(catalog)) return [];
-    return catalog.filter((item) => selectedCodes.has(item.code || item.testCode));
-  }, [catalog, selectedCodes]);
-
-  const totalAmount = useMemo(() => {
-    return selectedTests.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
-  }, [selectedTests]);
-
-  // Tính chi phí chênh lệch phát sinh thêm nếu người bệnh đã thanh toán gói ban đầu
-  const differentialAmount = useMemo(() => {
-    const initialPrice = preRegisteredService?.price || 0;
-    const diff = totalAmount - initialPrice;
-    return diff > 0 ? diff : 0;
-  }, [totalAmount, preRegisteredService]);
-
-  // Fasting calculation
-  const fastingInfo = useMemo(() => {
-    const fastingTests = selectedTests.filter(
-      (t) => t.fastingRequired || (t.preparationNotes && t.preparationNotes.toLowerCase().includes("fast")) || (t.preparationNotes && t.preparationNotes.toLowerCase().includes("nhịn"))
-    );
-    if (fastingTests.length === 0) return { required: false, maxHours: 0 };
-    const maxHours = Math.max(...fastingTests.map((t) => t.fastingHours || 8));
-    return { required: true, maxHours };
-  }, [selectedTests]);
-
-  // Tube breakdown calculation
-  const tubeBreakdown = useMemo(() => {
-    const tubeCounts = {};
-    selectedTests.forEach((t) => {
-      const tube = t.tubeType || "Ống nghiệm chuẩn";
-      tubeCounts[tube] = (tubeCounts[tube] || 0) + 1;
-    });
-    const distinctTubes = Object.keys(tubeCounts);
-    return {
-      count: distinctTubes.length,
-      labels: distinctTubes.join(" + "),
-      tubes: distinctTubes
-    };
-  }, [selectedTests]);
-
-  // Submit test order
-  const handleSubmitOrder = async (isDraft = false) => {
-    if (!doctorId) {
-      setErrorMessage("Vui lòng đăng nhập với tài khoản bác sĩ để tạo chỉ định xét nghiệm.");
-      return;
-    }
-    if (!patient.id || !patient.id.trim()) {
-      setErrorMessage("Thiếu thông tin người bệnh. Vui lòng chọn người bệnh từ danh sách chờ hoặc tra cứu phía trên.");
-      setShowPatientPicker(true);
+    if (!activeModalEncounter.patientId) {
+      setModalError("Thiếu định danh bệnh nhân trên lịch hẹn.");
       return;
     }
     if (selectedTests.length === 0) {
-      setErrorMessage("Vui lòng chọn ít nhất một xét nghiệm hoặc gói xét nghiệm máu.");
+      setModalError("Vui lòng chọn ít nhất một gói hoặc chỉ số xét nghiệm.");
       return;
     }
-    if (!clinicalIndication || !clinicalIndication.trim() || clinicalIndication.trim().length < 5) {
-      setErrorMessage("Lý do chỉ định xét nghiệm / Chẩn đoán lâm sàng bắt buộc tối thiểu 5 ký tự.");
+    if (!bpValid) {
+      setModalError("Sinh hiệu không hợp lệ: Huyết áp tâm thu phải lớn hơn tâm trương ít nhất 15 mmHg.");
       return;
     }
-    if (!isDraft && (!selectedIcdCodes || selectedIcdCodes.length === 0)) {
-      setErrorMessage("Quy định y khoa bắt buộc phải có ít nhất một mã chẩn đoán ICD-10 hợp lệ.");
+    if (!isDraft && (!clinicalIndication.trim() || clinicalIndication.trim().length < 5)) {
+      setModalError("Vui lòng nhập chẩn đoán lâm sàng / lý do chỉ định (tối thiểu 5 ký tự).");
+      return;
+    }
+    if (!isDraft && selectedIcdCodes.length === 0) {
+      setModalError("Vui lòng chọn ít nhất 1 mã chẩn đoán WHO ICD-10.");
+      return;
+    }
+    if (!isDraft && fastingInfo.required && priority !== "STAT" && !fastingConfirmed) {
+      setModalError("Vui lòng xác nhận sàng lọc điều kiện nhịn ăn 8–12h trước khi chuyển Lab.");
       return;
     }
 
     setSubmitting(true);
-    setErrorMessage("");
+    setModalError("");
 
     try {
-      const payload = {
-        patientId: patient.id.trim(),
-        patientName: patient.name || "Bệnh nhân",
-        patientGender: patient.gender,
-        patientAge: Number(patient.age) || 30,
-        appointmentId: appointmentId?.trim() || undefined,
-        doctorId: doctorId,
-        doctorName: doctorName,
-        icd10Codes: selectedIcdCodes,
-        icd10Code: selectedIcdCodes[0] || "E11.9",
-        priority: priority,
-        clinicalIndication: clinicalIndication.trim(),
-        specialInstructions: specialInstructions?.trim() || "",
-        scheduledDate: scheduledDate,
-        saveAsDraft: isDraft,
-        labShiftTarget: "LAB-201",
-        items: selectedTests.map((t) => ({
-          testCode: t.code || t.testCode,
-          testName: t.name || t.testName,
-          category: t.category || "Biochemistry",
-          tubeType: t.tubeType || "SST 4mL",
-          volumeMl: Number(t.volumeMl) || 4.0,
-          turnaroundTime: t.turnaroundTime || "~2h",
-          preparationNotes: t.preparationNotes || "Không yêu cầu",
-          price: Number(t.price) || 0
-        }))
-      };
+      let resData = null;
 
-      const response = await createTestOrder(payload);
-      const resData = response.data || response;
-      setOrderSuccess(resData);
+      if (!isDraft && editingDraftId) {
+        const res = await submitDraftTestOrder(editingDraftId, { icd10Codes: selectedIcdCodes });
+        resData = res?.data || res;
+      } else {
+        const payload = {
+          patientId: activeModalEncounter.patientId,
+          patientName: activeModalEncounter.patientName,
+          patientGender: activeModalEncounter.patientGender,
+          patientAge: Number(activeModalEncounter.patientAge) || 35,
+          appointmentId: activeModalEncounter.appointmentId || activeModalEncounter.appointmentCode,
+          doctorId,
+          doctorName,
+          icd10Codes: selectedIcdCodes,
+          icd10Code: selectedIcdCodes[0] || "E11.9",
+          priority,
+          clinicalIndication: clinicalIndication.trim(),
+          specialInstructions: specialInstructions.trim(),
+          scheduledDate: new Date().toISOString().split("T")[0],
+          saveAsDraft: isDraft,
+          items: selectedTests.map((t) => ({
+            testCode: t.code,
+            testName: t.name,
+            category: t.category || "Biochemistry",
+            tubeType: t.tubeType || "Serum-Đỏ/Vàng",
+            volumeMl: 4.0,
+            turnaroundTime: t.turnaroundTime || "~2h",
+            preparationNotes: t.preparationNotes || "Không yêu cầu",
+            price: Number(t.price) || 0
+          }))
+        };
+        const res = await createTestOrder(payload);
+        resData = res?.data || res;
+      }
+
+      // Lưu kèm sinh hiệu & chẩn đoán khám lâm sàng vào EMR nếu Bác sĩ bật tùy chọn (không làm fail đơn nếu EMR lỗi nhẹ)
+      if (!isDraft && saveToEmr && activeModalEncounter.patientId) {
+        const firstIcd = selectedIcdCodes[0] || "Z00.0";
+        const icdObj = CLINICAL_ICD10_LIST.find((x) => x.code === firstIcd);
+        medicalRecordApi
+          .createRecord({
+            patientId: activeModalEncounter.patientId,
+            chiefComplaint: clinicalIndication.trim(),
+            clinicalSymptoms: specialInstructions.trim() || "Khám lâm sàng và chỉ định xét nghiệm",
+            vitals: {
+              heartRate: Number(vitals.heartRate) || 75,
+              systolicBp: Number(vitals.systolicBp) || 120,
+              diastolicBp: Number(vitals.diastolicBp) || 80,
+              temperature: Number(vitals.temperature) || 36.6,
+              spo2: Number(vitals.spo2) || 98,
+              heightCm: 170,
+              weightKg: 65
+            },
+            icd10Code: firstIcd,
+            icd10Name: icdObj?.name || "Chẩn đoán lâm sàng",
+            diagnosis: clinicalIndication.trim(),
+            treatmentPlan: `Chỉ định xét nghiệm #${resData?.orderNumber || ""}: ${selectedTests.map((t) => t.name).join(", ")}`
+          })
+          .catch(() => null);
+      }
+
+      if (isDraft) {
+        // Nếu lưu bản nháp: tải lại bảng và đóng modal
+        await loadWorklist();
+        setActiveModalEncounter(null);
+      } else {
+        // Khi Bác sĩ ra phiếu chỉ định xét nghiệm -> Tự động hoàn tất lượt khám tại bàn khám luôn
+        const targetApptId = activeModalEncounter.appointmentId || activeModalEncounter.appointmentCode;
+        if (targetApptId) {
+          await receptionApi
+            .completePatient(
+              targetApptId,
+              `Đã hoàn tất khám lâm sàng và phát hành phiếu chỉ định xét nghiệm #${resData?.orderNumber || ""}`
+            )
+            .catch(() => null);
+        }
+        setDispatchedOrderResult(resData || { status: "PaidPendingSample" });
+        await loadWorklist();
+      }
     } catch (err) {
-      console.error("Lỗi khi tạo phiếu chỉ định xét nghiệm:", err);
-      const backendMsg = err?.response?.data?.message || err?.response?.data?.detail || err?.message || "Không thể phát hành y lệnh.";
-      setErrorMessage(`Lỗi phát hành y lệnh từ máy chủ: ${backendMsg}`);
-      setOrderSuccess(null);
+      const msg = err?.response?.data?.message || err?.response?.data?.detail || err?.message || "Không thể chuyển y lệnh xuống Phòng Lab.";
+      setModalError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Lọc bệnh nhân trong picker từ hàng đợi thực tế hoặc kết quả tìm kiếm DB
-  const filteredWaitingPatients = useMemo(() => {
-    if (patientSearchTerm.trim()) {
-      return searchResults;
+  // Hủy Y Lệnh (chỉ khi chưa lấy mẫu)
+  const handleConfirmCancelOrder = async () => {
+    if (!cancelTargetOrder) return;
+    setCancelBusy(true);
+    try {
+      await updateTestOrderStatus(cancelTargetOrder.orderNumber || cancelTargetOrder.id, {
+        status: "Cancelled",
+        notes: cancelReason.trim() || "Bác sĩ hủy y lệnh trước khi lấy mẫu"
+      });
+      setCancelTargetOrder(null);
+      await loadWorklist();
+    } catch (err) {
+      setWorklistError(err?.response?.data?.message || err?.message || "Không thể hủy y lệnh (mẫu có thể đã được lấy).");
+      setCancelTargetOrder(null);
+    } finally {
+      setCancelBusy(false);
     }
-    return waitingQueuePatients;
-  }, [patientSearchTerm, searchResults, waitingQueuePatients]);
+  };
+
+  // Thống kê & Lọc Table List
+  const worklistStats = useMemo(() => {
+    const total = encounters.length;
+    const dispatched = encounters.filter((e) => isOrderDispatched(e.linkedOrder)).length;
+    const draft = encounters.filter((e) => isOrderDraft(e.linkedOrder)).length;
+    const ready = total - dispatched - draft;
+    return { total, ready, draft, dispatched };
+  }, [encounters]);
+
+  const filteredEncounters = useMemo(() => {
+    const kw = searchKeyword.trim().toLowerCase();
+    return encounters.filter((enc) => {
+      const disp = isOrderDispatched(enc.linkedOrder);
+      const drf = isOrderDraft(enc.linkedOrder);
+      if (statusFilter === "READY" && (disp || drf)) return false;
+      if (statusFilter === "DRAFT" && !drf) return false;
+      if (statusFilter === "DISPATCHED" && !disp) return false;
+
+      if (!kw) return true;
+      return (
+        String(enc.appointmentCode || "").toLowerCase().includes(kw) ||
+        String(enc.patientName || "").toLowerCase().includes(kw) ||
+        String(enc.patientId || "").toLowerCase().includes(kw) ||
+        String(enc.packageName || "").toLowerCase().includes(kw) ||
+        String(enc.linkedOrder?.orderNumber || "").toLowerCase().includes(kw)
+      );
+    });
+  }, [encounters, statusFilter, searchKeyword]);
 
   return (
     <div className="w-100 py-1">
-      {/* Header chuẩn hóa */}
-      <div className="bms-page-header-card mb-4">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Ra y lệnh xét nghiệm</h1>
+            <h1 className="bms-page-title">Ra y lệnh &amp; chỉ định xét nghiệm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Chỉ định danh mục xét nghiệm cận lâm sàng, gán mã ICD-10 và chuyển y lệnh tới phòng xét nghiệm.
+            Danh sách bệnh nhân đã được gọi số từ Bàn khám &amp; Hàng đợi. Bấm <strong>Chỉ định xét nghiệm</strong> trên từng lịch hẹn để khám lâm sàng và chuyển đơn xuống Phòng Lab.
           </p>
         </div>
         <div className="bms-page-actions">
-          <Link
-            to="/doctor/console"
-            className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
+          <BsButton
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 text-nowrap"
+            onClick={loadWorklist}
+            disabled={loadingWorklist}
           >
-            <FaArrowLeft /> Bàn khám bác sĩ
-          </Link>
-          <Link
-            to="/laboratory/sample-timeline"
-            className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm rounded-pill px-3"
-          >
-            <FaVial /> Hành Trình Mẫu Lab
-          </Link>
+            <FaSync className={loadingWorklist ? "fa-spin me-1" : "me-1"} size={11} /> Làm mới
+          </BsButton>
         </div>
       </div>
 
-      {/* Stepper Quy Trình 4 Bước Cho Bác Sĩ */}
-      <div className="card shadow-sm rounded-4 p-3 mb-4 bg-white border-0">
-        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 text-center small">
-          <div className={`step-item ${patient.id ? 'text-success fw-bold' : 'text-primary fw-bold'}`}>
-            <span className={`badge rounded-circle me-1.5 ${patient.id ? 'bg-success' : 'bg-primary'} text-white`}>1</span>
-            <span>Định Danh Bệnh Nhân {patient.id ? `(${patient.name})` : ''}</span>
-          </div>
-          <FaArrowRight className="text-muted d-none d-md-inline" />
-          <div className={`step-item ${selectedTests.length > 0 ? 'text-primary fw-bold' : 'text-muted'}`}>
-            <span className={`badge rounded-circle me-1.5 ${selectedTests.length > 0 ? 'bg-primary' : 'bg-secondary'} text-white`}>2</span>
-            <span>Tư Vấn &amp; Chỉ Định ({selectedTests.length} mục)</span>
-          </div>
-          <FaArrowRight className="text-muted d-none d-md-inline" />
-          <div className={`step-item ${selectedIcdCodes.length > 0 ? 'text-primary fw-bold' : 'text-muted'}`}>
-            <span className="badge rounded-circle me-1.5 bg-primary text-white">3</span>
-            <span>Ống Nghiệm &amp; ICD-10 ({tubeBreakdown.count} loại ống)</span>
-          </div>
-          <FaArrowRight className="text-muted d-none d-md-inline" />
-          <div className="step-item text-muted">
-            <span className="badge rounded-circle me-1.5 bg-secondary text-white">4</span>
-            <span>Điều Phối Trực Ca Lab (LAB-201)</span>
-          </div>
+      {/* Thanh Lọc 1 Dòng & Pills Trạng Thái */}
+      <div className="bms-filter-bar mb-3 flex-wrap">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: "260px" }}>
+          <FaSearch className="bms-search-icon" />
+          <input
+            type="text"
+            placeholder="Tìm theo mã hẹn (APT-...), tên bệnh nhân, mã PAT-..., hoặc mã y lệnh ORD-..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+          {searchKeyword && (
+            <button type="button" className="bms-search-clear" onClick={() => setSearchKeyword("")}>
+              <FaTimes size={12} />
+            </button>
+          )}
         </div>
-      </div>
 
-      {/* Success Banner */}
-      {orderSuccess && (
-        <div className="alert alert-success shadow-sm p-4 mb-4 rounded-4" style={{ backgroundColor: "#F0FDF4", border: "1px solid #BBF7D0" }}>
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div className="d-flex align-items-center gap-3">
-              <FaCheckCircle className="fs-1 flex-shrink-0" style={{ color: "#16a34a" }} />
-              <div>
-                <div className="fw-bold fs-5 text-dark">
-                  Đã phát hành Y Lệnh Xét Nghiệm #{orderSuccess.orderNumber || orderSuccess.id}!
-                </div>
-                <div className="text-muted small mt-1">
-                  Người bệnh: <strong>{orderSuccess.patientName || patient.name}</strong> ({orderSuccess.patientId || patient.id}) ·
-                  Trạng thái: <span className="badge rounded-pill bg-success text-white ms-1">Đã chuyển Lab (LAB-201)</span> ·
-                  Ưu tiên: <span className="badge rounded-pill text-white ms-1" style={{ backgroundColor: "#1E60E6" }}>{orderSuccess.priority || priority}</span>
-                </div>
-                <div className="text-success small fw-semibold mt-1">
-                  <FaCheckCircle className="me-1" /> Y lệnh đã sẵn sàng lấy mẫu và được chuyển trực tiếp sang Phòng Lab phân tích.
-                </div>
-              </div>
-            </div>
-            <div className="d-flex flex-wrap gap-2">
+        <div className="d-flex align-items-center gap-1.5 flex-wrap">
+          {[
+            { id: "ALL", label: `Tất cả lịch hẹn (${worklistStats.total})` },
+            { id: "READY", label: `Chờ chỉ định (${worklistStats.ready})` },
+            { id: "DRAFT", label: `Bản nháp (${worklistStats.draft})` },
+            { id: "DISPATCHED", label: `Đã chuyển Lab (${worklistStats.dispatched})` }
+          ].map((tab) => {
+            const active = statusFilter === tab.id;
+            return (
               <button
+                key={tab.id}
                 type="button"
-                className="btn btn-sm btn-primary d-flex align-items-center gap-1.5 fw-semibold shadow-sm text-white"
-                style={{ backgroundColor: "#7c3aed", borderColor: "#7c3aed", borderRadius: "9999px" }}
-                onClick={() => setShowBarcodeModal(true)}
-              >
-                <FaBarcode /> In Tem Barcode Ống Máu
-              </button>
-              <Link
-                to="/laboratory/sample-timeline"
-                className="btn btn-sm btn-success d-flex align-items-center gap-1.5 fw-semibold text-white rounded-pill px-3 shadow-sm"
-              >
-                <FaVial /> Theo Dõi Mẫu Lab
-              </Link>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                onClick={() => {
-                  setOrderSuccess(null);
-                  setSelectedCodes(new Set());
-                  setShowPatientPicker(true);
+                onClick={() => setStatusFilter(tab.id)}
+                className="btn btn-sm rounded-pill px-3 fw-semibold"
+                style={{
+                  fontSize: "0.78rem",
+                  backgroundColor: active ? "#1E60E6" : "#EEF2F6",
+                  color: active ? "#FFFFFF" : "#475569",
+                  border: "none"
                 }}
               >
-                Khám Bệnh Nhân Tiếp Theo
+                {tab.label}
               </button>
-            </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {worklistError && (
+        <Alert variant="danger" dismissible onClose={() => setWorklistError("")} className="py-2 mb-3 rounded-3 small">
+          <FaExclamationTriangle className="me-2" />
+          {worklistError}
+        </Alert>
+      )}
+
+      {/* BẢNG DANH SÁCH LỊCH HẸN ĐÃ GỌI SỐ / CHỜ KHÁM (WORKLIST TABLE) */}
+      <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div className="d-flex align-items-center gap-2">
+            <FaClipboardList className="text-primary" />
+            <h6 className="fw-bold text-dark mb-0">Danh Sách Lịch Hẹn Bệnh Nhân (Từ Bàn Khám &amp; Hàng Đợi)</h6>
           </div>
-        </div>
-      )}
+          <Badge bg="light" text="dark" className="border rounded-pill px-3 py-1">
+            Hiển thị {filteredEncounters.length} ca khám
+          </Badge>
+        </Card.Header>
 
-      {/* Error alert */}
-      {errorMessage && (
-        <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-4">
-          <FaExclamationTriangle className="text-danger fs-5" />
-          <div className="fw-semibold">{errorMessage}</div>
-        </div>
-      )}
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-light small text-uppercase text-muted">
+              <tr>
+                <th className="ps-3" style={{ width: "17%" }}>STT &amp; Mã Lịch Hẹn</th>
+                <th style={{ width: "20%" }}>Bệnh Nhân</th>
+                <th style={{ width: "24%" }}>Gói Đã Đặt Tại Quầy</th>
+                <th style={{ width: "21%" }}>Trạng Thái Y Lệnh</th>
+                <th className="text-end pe-3" style={{ width: "18%" }}>Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loadingWorklist ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-5 text-muted small">
+                    <Spinner animation="border" size="sm" className="me-2 text-primary" />
+                    Đang đồng bộ danh sách bệnh nhân đã gọi số &amp; lịch hẹn từ máy chủ...
+                  </td>
+                </tr>
+              ) : filteredEncounters.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-5">
+                    <FaUserInjured className="fs-2 text-muted opacity-25 mb-2" />
+                    <div className="fw-bold text-dark mb-1">
+                      {searchKeyword || statusFilter !== "ALL"
+                        ? "Không có lịch hẹn nào khớp với bộ lọc hiện tại"
+                        : "Chưa có bệnh nhân nào được gọi số từ Bàn khám & Hàng đợi"}
+                    </div>
+                    <p className="text-muted small mb-3">
+                      Bác sĩ cần bấm <strong>Gọi Bệnh Nhân Tiếp Theo (F2)</strong> tại Bàn khám (hoặc Lễ tân Check-in bệnh nhân) để lượt hẹn xuất hiện tại đây.
+                    </p>
+                    <Link
+                      to="/doctor/console"
+                      className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold text-white"
+                      style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
+                    >
+                      <FaBullhorn className="me-1.5" /> Mở Bàn Khám &amp; Gọi Số
+                    </Link>
+                  </td>
+                </tr>
+              ) : (
+                filteredEncounters.map((enc) => {
+                  const ord = enc.linkedOrder;
+                  const dispatched = isOrderDispatched(ord);
+                  const draft = isOrderDraft(ord);
+                  const matchedPkg = resolveBookedPackageInCatalog(enc.packageCode, enc.packageName);
+                  const displayPkgName = matchedPkg?.name || enc.packageName || enc.packageCode || "Khám tư vấn trực tiếp";
 
-      {/* SECTION 1: CHỌN / ĐỔI BỆNH NHÂN (PATIENT SELECTOR BANNER) */}
-      {showPatientPicker || !patient.id ? (
-        <Card className="shadow-sm rounded-4 mb-4 bg-white overflow-hidden" style={{ border: "1px solid #E2E8F0" }}>
-          <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
-            <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2 fs-6">
-              <FaUserInjured className="text-primary" />
-              1. Chọn bệnh nhân khám &amp; Lập chỉ định xét nghiệm
-            </h5>
-            {patient.id && (
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary rounded-pill px-3 text-nowrap"
-                onClick={() => setShowPatientPicker(false)}
-              >
-                Đóng tra cứu
-              </button>
+                  return (
+                    <tr
+                      key={enc.key}
+                      style={{
+                        backgroundColor: enc.isCurrentServing && !dispatched ? "rgba(30, 96, 230, 0.04)" : undefined
+                      }}
+                    >
+                      <td className="ps-3">
+                        <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                          <span className="fw-bold font-monospace text-primary small">{enc.queueNumber}</span>
+                          {enc.isCurrentServing && (
+                            <Badge bg="primary" pill style={{ fontSize: "0.68rem" }}>
+                              ● Đang gọi khám
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="small text-muted font-monospace mt-0.5">{enc.appointmentCode}</div>
+                      </td>
+
+                      <td>
+                        <div className="fw-bold text-dark small">{enc.patientName}</div>
+                        <div className="text-muted small font-monospace">
+                          {enc.patientId || "—"} · {enc.patientGender}, {enc.patientAge}t
+                        </div>
+                      </td>
+
+                      <td>
+                        <div className="fw-semibold text-dark small">{displayPkgName}</div>
+                        {(matchedPkg?.code || enc.packageCode) && (
+                          <code className="text-primary" style={{ fontSize: "0.73rem" }}>
+                            {matchedPkg?.code || enc.packageCode}
+                          </code>
+                        )}
+                      </td>
+
+                      <td>
+                        {dispatched ? (
+                          <div>
+                            <Badge bg="success-subtle" text="success" className="border border-success-subtle rounded-pill px-2.5 py-1">
+                              ✓ {formatDispatchedStatusLabel(ord.status)}
+                            </Badge>
+                            <div className="small text-muted font-monospace mt-0.5">
+                              Y lệnh: <strong>{ord.orderNumber}</strong>
+                            </div>
+                          </div>
+                        ) : draft ? (
+                          <div>
+                            <Badge bg="warning-subtle" text="warning-emphasis" className="border border-warning-subtle rounded-pill px-2.5 py-1">
+                              ● Đã lưu bản nháp
+                            </Badge>
+                            <div className="small text-muted font-monospace mt-0.5">{ord.orderNumber}</div>
+                          </div>
+                        ) : (
+                          <Badge bg="light" text="dark" className="border rounded-pill px-2.5 py-1">
+                            Chờ bác sĩ khám &amp; chỉ định
+                          </Badge>
+                        )}
+                      </td>
+
+                      <td className="text-end pe-3">
+                        {/* CƠ CHẾ CHẶN ẨN NÚT SAU KHI CHUYỂN LAB */}
+                        {dispatched ? (
+                          <div className="d-inline-flex align-items-center gap-1.5">
+                            <span className="badge bg-success text-white rounded-pill px-2.5 py-1.5 small fw-semibold">
+                              <FaCheck className="me-1" /> Đã chuyển Lab
+                            </span>
+                            {(String(ord.status || "").toLowerCase() === "paidpendingsample" ||
+                              String(ord.status || "").toLowerCase() === "ordered") && (
+                                <BsButton
+                                  variant="outline-danger"
+                                  size="sm"
+                                  className="rounded-pill px-2 py-1"
+                                  title="Hủy y lệnh trước khi Lab lấy mẫu"
+                                  onClick={() => setCancelTargetOrder(ord)}
+                                >
+                                  <FaBan size={11} />
+                                </BsButton>
+                              )}
+                          </div>
+                        ) : (
+                          <BsButton
+                            variant="primary"
+                            size="sm"
+                            className="rounded-pill px-3 py-1.5 fw-semibold text-white text-nowrap shadow-sm"
+                            style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
+                            onClick={() => handleOpenClinicalModal(enc)}
+                          >
+                            <FaStethoscope className="me-1.5" />
+                            {draft ? "Mở bản nháp & Chuyển" : "Chỉ định xét nghiệm"}
+                          </BsButton>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* =========================================================================================
+          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (NẠP GÓI ĐẶT TRƯỚC + KHÓA NÚT CHUYỂN 1 CHIỀU)
+         ========================================================================================= */}
+      <Modal
+        show={Boolean(activeModalEncounter)}
+        onHide={() => {
+          if (!submitting) setActiveModalEncounter(null);
+        }}
+        size="xl"
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton={!submitting} className="bg-light border-bottom py-2.5 px-3">
+          <Modal.Title className="h6 fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
+            <FaStethoscope className="text-primary" />
+            <span>Khám Lâm Sàng &amp; Chỉ Định Xét Nghiệm</span>
+            {activeModalEncounter && (
+              <Badge bg="primary" pill className="font-monospace">
+                {activeModalEncounter.appointmentCode}
+              </Badge>
             )}
-          </Card.Header>
-          <Card.Body className="p-4">
-            <div className="bms-filter-bar mb-3">
-              <div className="bms-search-input-pill flex-grow-1">
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Nhập họ tên, số CCCD, số điện thoại hoặc mã bệnh nhân (PAT-...)..."
-                  value={patientSearchTerm}
-                  onChange={(e) => setPatientSearchTerm(e.target.value)}
-                />
-                {patientSearchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setPatientSearchTerm("")}
+            {editingDraftId && (
+              <Badge bg="warning" text="dark" pill>
+                Bản nháp #{editingDraftId}
+              </Badge>
+            )}
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="p-3" style={{ backgroundColor: "#F8FAFC" }}>
+          {modalError && (
+            <Alert variant="danger" dismissible onClose={() => setModalError("")} className="py-2 px-3 mb-3 rounded-3 small">
+              <FaExclamationTriangle className="me-2" />
+              {modalError}
+            </Alert>
+          )}
+
+          {/* THÔNG BÁO ĐÃ CHUYỂN LAB THÀNH CÔNG */}
+          {dispatchedOrderResult && (
+            <Alert variant="success" className="p-3 mb-3 rounded-4 border-success shadow-sm">
+              <div className="d-flex align-items-center gap-3">
+                <FaCheckCircle className="fs-2 text-success flex-shrink-0" />
+                <div>
+                  <div className="fw-bold text-dark fs-6">
+                    Đã Ký &amp; Chuyển Y Lệnh #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
+                  </div>
+                </div>
+              </div>
+            </Alert>
+          )}
+
+          {activeModalEncounter && (
+            <>
+              {/* KHỐI 1: THÔNG TIN BỆNH NHÂN & LỊCH HẸN */}
+              <div className="p-2.5 px-3 rounded-4 bg-white border mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div className="d-flex align-items-center gap-2.5 flex-wrap">
+                  <div
+                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                    style={{ width: 38, height: 38, backgroundColor: "#1E60E6" }}
                   >
-                    <FaTimes size={12} />
-                  </button>
+                    <FaUserInjured />
+                  </div>
+                  <div>
+                    <div className="fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
+                      <span>{activeModalEncounter.patientName}</span>
+                      <Badge bg="light" text="dark" className="border font-monospace rounded-pill">
+                        {activeModalEncounter.patientId}
+                      </Badge>
+                      <Badge bg="light" text="dark" className="border rounded-pill">
+                        {activeModalEncounter.patientGender} · {activeModalEncounter.patientAge} tuổi
+                      </Badge>
+                    </div>
+                    <div className="small text-muted">
+                      SĐT: <strong>{activeModalEncounter.patientPhone || "Chưa cung cấp"}</strong> ·
+                      STT: <strong className="text-primary">{activeModalEncounter.queueNumber}</strong> ·
+                      Bác sĩ khám: <strong>{doctorName}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {activeModalEncounter.packageName || activeModalEncounter.packageCode ? (
+                  <div className="px-3 py-1.5 rounded-3 bg-primary-subtle border border-primary-subtle small">
+                    <div className="text-primary fw-bold" style={{ fontSize: "0.72rem" }}>
+                      GÓI BỆNH NHÂN ĐÃ ĐẶT (TỰ ĐỘNG KHÓA):
+                    </div>
+                    <div className="fw-bold text-dark">
+                      {resolveBookedPackageInCatalog(activeModalEncounter.packageCode, activeModalEncounter.packageName)?.name ||
+                        activeModalEncounter.packageName ||
+                        activeModalEncounter.packageCode}
+                    </div>
+                  </div>
+                ) : (
+                  <Badge bg="light" text="secondary" className="border rounded-pill px-3 py-1.5">
+                    Khám trực tiếp — Chọn chỉ định bên dưới
+                  </Badge>
                 )}
               </div>
-              <span className="bms-filter-meta">
-                Hiển thị <strong>{patientResults.length}</strong> hồ sơ bệnh nhân
-              </span>
-            </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <span className="small fw-semibold text-muted">
-                {patientSearchTerm.trim()
-                  ? `Kết quả tra cứu cho "${patientSearchTerm}" (${filteredWaitingPatients.length}):`
-                  : `Danh sách bệnh nhân đã Check-in đang chờ Bác sĩ khám hôm nay (${filteredWaitingPatients.length}):`}
-              </span>
-              {isSearchingPatients && (
-                <span className="small text-primary d-flex align-items-center gap-1">
-                  <Spinner size="sm" animation="border" /> Đang tra cứu...
-                </span>
-              )}
-            </div>
-
-            {filteredWaitingPatients.length === 0 ? (
-              <div className="p-4 text-center text-muted bg-light rounded-4 border">
-                <FaUserInjured className="fs-3 text-secondary mb-2 opacity-50" />
-                <div className="fw-semibold text-dark">
-                  {patientSearchTerm.trim()
-                    ? `Không tìm thấy bệnh nhân nào khớp với từ khóa "${patientSearchTerm}".`
-                    : "Hiện chưa có bệnh nhân nào trong hàng đợi khám tiếp đón hôm nay."}
-                </div>
-                <div className="small text-muted mt-1">
-                  Bác sĩ có thể nhập tên, CCCD (12 số), mã BN (PAT-xxxx) hoặc mã lịch hẹn (APT-xxxx) ở ô tìm kiếm để tra cứu hồ sơ.
-                </div>
-              </div>
-            ) : (
               <div className="row g-3">
-                {filteredWaitingPatients.map((pt) => (
-                  <div key={pt.id} className="col-md-4">
-                    <div
-                      className="p-3 rounded-4 border h-100 position-relative shadow-sm"
-                      style={{
-                        backgroundColor: patient.id === pt.id ? '#eff6ff' : '#ffffff',
-                        borderColor: patient.id === pt.id ? '#1E60E6' : '#e2e8f0',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                      onClick={() => handleSelectPatient(pt)}
-                    >
-                      <div className="d-flex justify-content-between align-items-start mb-1">
-                        <span className="fw-bold text-dark fs-6">{pt.name}</span>
-                        <Badge bg="success" className="rounded-pill" style={{ fontSize: '10px' }}>
-                          {pt.statusText}
-                        </Badge>
+                {/* CỘT TRÁI MODAL (7 PHẦN): KHÁM LÂM SÀNG + CHỌN/BỔ SUNG XÉT NGHIỆM */}
+                <div className="col-lg-7">
+                  {/* KHỐI 2: KHÁM LÂM SÀNG CHUẨN Y TẾ (SINH HIỆU & ICD-10) */}
+                  <Card className="border-0 shadow-xs rounded-4 mb-3 bg-white">
+                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+                      <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
+                        <FaHeartbeat className="text-danger" /> 1. Khám Lâm Sàng, Sinh Hiệu &amp; Chẩn Đoán ICD-10
+                      </span>
+                      <Form.Check
+                        type="switch"
+                        id="save-emr-switch"
+                        label={<span className="small fw-semibold text-primary">Lưu vào Bệnh án EMR</span>}
+                        checked={saveToEmr}
+                        disabled={Boolean(dispatchedOrderResult)}
+                        onChange={(e) => setSaveToEmr(e.target.checked)}
+                      />
+                    </Card.Header>
+
+                    <Card.Body className="p-2.5">
+                      {/* Dấu hiệu sinh tồn */}
+                      <div className="row g-2 mb-2.5">
+                        <div className="col-6 col-sm-3">
+                          <label className="small text-muted fw-semibold mb-0.5">Mạch (bpm)</label>
+                          <Form.Control
+                            size="sm"
+                            type="number"
+                            value={vitals.heartRate}
+                            disabled={Boolean(dispatchedOrderResult)}
+                            onChange={(e) => setVitals({ ...vitals, heartRate: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-6 col-sm-3">
+                          <label className="small text-muted fw-semibold mb-0.5">HA (Tâm thu/trương)</label>
+                          <div className="d-flex align-items-center gap-1">
+                            <Form.Control
+                              size="sm"
+                              type="number"
+                              value={vitals.systolicBp}
+                              disabled={Boolean(dispatchedOrderResult)}
+                              onChange={(e) => setVitals({ ...vitals, systolicBp: e.target.value })}
+                            />
+                            <span>/</span>
+                            <Form.Control
+                              size="sm"
+                              type="number"
+                              value={vitals.diastolicBp}
+                              disabled={Boolean(dispatchedOrderResult)}
+                              onChange={(e) => setVitals({ ...vitals, diastolicBp: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-6 col-sm-3">
+                          <label className="small text-muted fw-semibold mb-0.5">Nhiệt độ (°C)</label>
+                          <Form.Control
+                            size="sm"
+                            type="number"
+                            step="0.1"
+                            value={vitals.temperature}
+                            disabled={Boolean(dispatchedOrderResult)}
+                            onChange={(e) => setVitals({ ...vitals, temperature: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-6 col-sm-3">
+                          <label className="small text-muted fw-semibold mb-0.5">SpO2 (%)</label>
+                          <Form.Control
+                            size="sm"
+                            type="number"
+                            value={vitals.spo2}
+                            disabled={Boolean(dispatchedOrderResult)}
+                            onChange={(e) => setVitals({ ...vitals, spo2: e.target.value })}
+                          />
+                        </div>
                       </div>
-                      <div className="text-muted small mb-1">
-                        Mã BN: <code className="text-primary">{pt.id}</code> · {pt.gender} · {pt.age}t
-                      </div>
-                      <div className="small text-secondary mb-2">
-                        Lịch hẹn: <strong>{pt.appointmentId}</strong>
-                      </div>
-                      <div className="p-2 rounded-3 bg-light small border">
-                        <div className="text-muted" style={{ fontSize: '11px' }}>Gói đăng ký:</div>
-                        <div className="fw-semibold text-dark text-truncate">{pt.prePackageName}</div>
-                        {pt.prePackagePrice > 0 && (
-                          <div className="text-success fw-bold font-monospace" style={{ fontSize: '12px' }}>
-                            {pt.prePackagePrice.toLocaleString('vi-VN')} đ
+
+                      {!bpValid && (
+                        <div className="text-danger small mb-2 fw-semibold">
+                          ⚠ Huyết áp tâm thu phải lớn hơn huyết áp tâm trương ít nhất 15 mmHg.
+                        </div>
+                      )}
+
+                      {/* Mã bệnh ICD-10 */}
+                      <div className="mb-2">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <label className="small fw-bold text-dark mb-0">
+                            Mã bệnh WHO ICD-10 <span className="text-danger">*</span>
+                          </label>
+                          <div className="d-flex flex-wrap gap-1">
+                            {selectedIcdCodes.map((code) => (
+                              <span
+                                key={code}
+                                className="badge d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill text-white"
+                                style={{ backgroundColor: "#1E60E6", fontSize: "0.73rem" }}
+                              >
+                                <span className="font-monospace fw-bold">{code}</span>
+                                {!dispatchedOrderResult && (
+                                  <FaTimes style={{ cursor: "pointer" }} onClick={() => handleRemoveIcd(code)} />
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {icdError && <div className="text-danger small mb-1">{icdError}</div>}
+                        {!dispatchedOrderResult && (
+                          <div className="d-flex gap-1.5">
+                            <select
+                              className="form-select form-select-sm rounded-pill"
+                              value=""
+                              onChange={(e) => {
+                                if (e.target.value) handleAddIcd(e.target.value);
+                              }}
+                            >
+                              <option value="">+ Chọn nhanh mã bệnh ICD-10...</option>
+                              {CLINICAL_ICD10_LIST.map((icd) => (
+                                <option key={icd.code} value={icd.code} disabled={selectedIcdCodes.includes(icd.code)}>
+                                  {icd.code} — {icd.name}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="input-group input-group-sm" style={{ maxWidth: "135px" }}>
+                              <input
+                                type="text"
+                                className="form-control rounded-start-pill"
+                                placeholder="Mã khác..."
+                                value={customIcdInput}
+                                onChange={(e) => setCustomIcdInput(e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary rounded-end-pill px-2"
+                                onClick={() => customIcdInput && handleAddIcd(customIcdInput)}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary w-100 rounded-pill mt-2 fw-semibold"
-                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                      >
-                        <FaStethoscope className="me-1" /> Khám &amp; Ra Y Lệnh
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card.Body>
-        </Card>
-      ) : (
-        /* Patient & Appointment Demographic Banner khi đã chọn bệnh nhân */
-        <Card className="shadow-sm mb-4 p-3 rounded-4 bg-white overflow-hidden" style={{ border: "1px solid #E2E8F0" }}>
-          <div className="row align-items-center g-3">
-            <div className="col-auto">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
-                style={{ width: "52px", height: "52px", backgroundColor: "#1E60E6", fontSize: '20px' }}
-              >
-                {(patient.name || "BN")
-                  .split(" ")
-                  .filter(Boolean)
-                  .map((w) => w[0])
-                  .slice(-2)
-                  .join("")
-                  .toUpperCase()}
-              </div>
-            </div>
-            <div className="col">
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h5 className="mb-0 fw-bold text-dark">{patient.name}</h5>
-                <span className="badge rounded-pill bg-light text-dark border">Mã BN: {patient.id}</span>
-                <span className="badge rounded-pill bg-light text-dark border">{patient.gender} · {patient.age} tuổi</span>
-                <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle">Nhóm máu: {patient.bloodType}</span>
-                <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle">Dị ứng: {patient.allergies}</span>
-              </div>
-              <div className="d-flex gap-4 mt-2 text-muted small flex-wrap">
-                <div>
-                  <span className="fw-semibold text-secondary">Lượt hẹn khám:</span>{" "}
-                  <span className="fw-bold font-monospace" style={{ color: "#1E60E6" }}>
-                    {appointmentId || "Khám vãng lai / Trực tiếp"}
-                  </span>
-                </div>
-                <div><span className="fw-semibold text-secondary">Bác sĩ khám:</span> <span className="fw-semibold text-dark">{doctorName}</span></div>
-                {preRegisteredService && (
-                  <div>
-                    <span className="fw-semibold text-success">Đã đăng ký tại quầy:</span>{" "}
-                    <strong>{preRegisteredService.name}</strong> ({preRegisteredService.price.toLocaleString('vi-VN')} đ)
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="col-auto">
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                onClick={() => setShowPatientPicker(true)}
-              >
-                <FaExchangeAlt className="me-1" /> Đổi Người Bệnh
-              </button>
-            </div>
-          </div>
-        </Card>
-      )}
 
-      {/* Main Content Grid */}
-      <div className="row g-4">
-        {/* Left Column: Test Catalog & Clinical ICD-10 Selection */}
-        <div className="col-lg-8">
-          {/* Filter bar extracted above standalone catalog table */}
-          <div className="bms-filter-bar mb-3">
-            <div className="bms-search-input-pill">
-              <FaSearch className="bms-search-icon" />
-              <input
-                type="text"
-                placeholder="Tìm tên hoặc mã xét nghiệm..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="bms-search-clear"
-                  onClick={() => setSearchTerm("")}
-                >
-                  <FaTimes size={12} />
-                </button>
-              )}
-            </div>
-            <select
-              className="form-select"
-              style={{ width: "auto" }}
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="Tất cả">Tất cả chuyên khoa</option>
-              <option value="Sinh hóa">Sinh hóa</option>
-              <option value="Huyết học">Huyết học</option>
-              <option value="Miễn dịch">Miễn dịch</option>
-            </select>
-            {(searchTerm || selectedCategory !== "Tất cả") && (
-              <button
-                type="button"
-                className="btn btn-outline-secondary btn-sm rounded-pill px-3 text-nowrap"
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("Tất cả");
-                }}
-              >
-                Đặt lại
-              </button>
-            )}
-            <span className="bms-filter-meta">
-              Hiển thị <strong>{filteredCatalog.length}</strong> dịch vụ
-            </span>
-          </div>
+                      {/* Triệu chứng & Lý do chỉ định */}
+                      <div className="row g-2">
+                        <div className="col-12">
+                          <label className="small fw-bold text-dark mb-0.5">
+                            Triệu chứng &amp; Chẩn đoán lâm sàng <span className="text-danger">*</span>
+                          </label>
+                          <Form.Control
+                            size="sm"
+                            as="textarea"
+                            rows={2}
+                            disabled={Boolean(dispatchedOrderResult)}
+                            value={clinicalIndication}
+                            onChange={(e) => setClinicalIndication(e.target.value)}
+                            placeholder="Ghi triệu chứng lâm sàng, mục tiêu chỉ định xét nghiệm..."
+                          />
+                        </div>
+                        <div className="col-6">
+                          <label className="small fw-semibold text-secondary mb-0.5">Độ ưu tiên</label>
+                          <select
+                            className="form-select form-select-sm"
+                            disabled={Boolean(dispatchedOrderResult)}
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                          >
+                            <option value="Routine">Thường quy (Routine)</option>
+                            <option value="Urgent">Khẩn (Urgent)</option>
+                            <option value="STAT">Cấp cứu (STAT)</option>
+                          </select>
+                        </div>
+                        <div className="col-6">
+                          <label className="small fw-semibold text-secondary mb-0.5">Ghi chú kỹ thuật cho Lab</label>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            disabled={Boolean(dispatchedOrderResult)}
+                            value={specialInstructions}
+                            onChange={(e) => setSpecialInstructions(e.target.value)}
+                            placeholder="Lưu ý kháng đông, lấy mẫu..."
+                          />
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
 
-          {/* Standalone Table: Select Tests from Catalog */}
-          <section className="bms-table-standalone-section mb-4">
-            <div className="bms-table-standalone-header">
-              <div>
-                <h2 className="bms-table-standalone-title">
-                  2. Danh mục gói &amp; chỉ số xét nghiệm bổ sung
-                </h2>
-                <p className="bms-table-standalone-subtitle">
-                  Chọn các gói hoặc chỉ số cận lâm sàng phù hợp với chẩn đoán
-                </p>
-              </div>
-              <Badge bg="primary-subtle" text="primary" className="rounded-pill border border-primary-subtle px-3 py-1.5">
-                Đã chọn {selectedTests.length} mục
-              </Badge>
-            </div>
-
-            <div className="bms-table-standalone-body">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light text-muted small text-uppercase">
-                  <tr>
-                    <th style={{ width: "45px" }} className="text-center">Chọn</th>
-                    <th style={{ minWidth: "220px" }} className="text-start">Tên Xét Nghiệm / Gói &amp; Thời Gian</th>
-                    <th style={{ width: "120px" }} className="text-start">Mã</th>
-                    <th style={{ width: "170px" }} className="text-start">Loại Ống Nghiệm</th>
-                    <th style={{ width: "115px" }} className="text-start">Chuẩn Bị</th>
-                    <th style={{ width: "125px" }} className="text-end pe-3 text-nowrap">Đơn Giá</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="6" className="text-center py-4 text-muted">
-                        <Spinner animation="border" size="sm" className="me-2" /> Đang nạp danh mục xét nghiệm lâm sàng...
-                      </td>
-                    </tr>
-                  ) : filteredCatalog.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="text-center py-4 text-muted">
-                        Không tìm thấy xét nghiệm nào khớp với điều kiện tìm kiếm.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCatalog.map((item) => {
-                      const itemCode = item.code || item.testCode;
-                      const itemName = item.name || item.testName;
-                      const isSelected = selectedCodes.has(itemCode);
-                      const tube = item.tubeType || "Serum Gel 4mL";
-                      const isPreSelected = preRegisteredService?.code === itemCode;
-
-                      return (
-                        <tr
-                          key={itemCode}
-                          style={{
-                            cursor: "pointer",
-                            backgroundColor: isSelected ? "rgba(30, 96, 230, 0.08)" : "transparent"
-                          }}
-                          onClick={() => handleToggleTest(itemCode)}
-                        >
-                          <td className="text-center" onClick={(e) => e.stopPropagation()}>
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              checked={isSelected}
-                              disabled={lockedPackageCodes.has(itemCode)}
-                              title={lockedPackageCodes.has(itemCode) ? 'Gói đã đặt — không bỏ chọn; chỉ được thêm chỉ số khác' : undefined}
-                              onChange={() => handleToggleTest(itemCode)}
-                              style={{ cursor: lockedPackageCodes.has(itemCode) ? 'not-allowed' : 'pointer', width: 18, height: 18 }}
-                            />
-                          </td>
-                          <td className="text-start">
-                            <div className="fw-semibold text-dark">{itemName}</div>
-                            <div className="small text-muted d-flex align-items-center gap-2 mt-0.5">
-                              <span title={item.tatDetail || item.turnaroundTime}>
-                                <FaClock className="me-1 text-secondary" />
-                                {item.turnaroundTime || "~2h"}
-                              </span>
-                              {isPreSelected && (
-                                <Badge bg="success" className="rounded-pill" style={{ fontSize: '10px' }}>
-                                  Đã đặt tại quầy
-                                </Badge>
-                              )}
-                            </div>
-                          </td>
-                          <td className="text-start">
-                            <code className="bg-light px-2 py-1 rounded small font-monospace" style={{ color: "#1E60E6" }}>
-                              {itemCode}
-                            </code>
-                          </td>
-                          <td className="text-start">
-                            <span className={`badge px-2.5 py-1.5 rounded-pill ${
-                              tube.includes("EDTA")
-                                ? "bg-purple-subtle text-purple border"
-                                : tube.includes("Citrate")
-                                ? "bg-info-subtle text-info-emphasis border border-info-subtle"
-                                : tube.includes("NaF")
-                                ? "bg-success-subtle text-success border border-success-subtle"
-                                : "bg-warning-subtle text-warning-emphasis border border-warning-subtle"
-                            }`}>
-                              <FaVial className="me-1" />
-                              {tube}
-                            </span>
-                          </td>
-                          <td className="text-start text-nowrap">
-                            {item.preparationNotes && (item.preparationNotes.toLowerCase().includes("fast") || item.preparationNotes.toLowerCase().includes("nhịn")) ? (
-                              <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle" title={item.preparationNotes}>
-                                Nhịn ăn 8–12h
-                              </span>
-                            ) : (
-                              <span className="badge rounded-pill bg-light text-secondary border">
-                                Bình thường
-                              </span>
-                            )}
-                          </td>
-                          <td className="text-end pe-3 fw-bold text-dark font-monospace text-nowrap">
-                            {Number(item.price || 0).toLocaleString("vi-VN")} đ
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* Card 2: Clinical Details & ICD-10 Coding */}
-          <div className="card shadow-sm rounded-4 border-0 bg-white overflow-hidden mb-4">
-            <div className="card-header bg-white border-bottom py-3 px-4">
-              <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                <FaStethoscope style={{ color: "#1E60E6" }} /> 3. Chẩn Đoán WHO ICD-10 &amp; Ghi Chú Y Lệnh
-              </h5>
-            </div>
-            <div className="card-body p-4">
-              {/* ICD-10 Diagnostic Picker */}
-              <div className="mb-4 p-3 rounded-4 border bg-light">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <label className="form-label fw-bold text-dark mb-0">
-                    Mã Bệnh WHO ICD-10 (Bắt buộc theo BR-DOC-01) <span className="text-danger">*</span>
-                  </label>
-                  <small className="text-muted">Căn cứ BHYT chi trả (A00 - Z99.9)</small>
-                </div>
-
-                {/* Selected ICD-10 Badges */}
-                <div className="d-flex flex-wrap gap-2 mb-3">
-                  {selectedIcdCodes.map((code) => {
-                    const info = CLINICAL_ICD10_LIST.find((x) => x.code === code);
-                    return (
-                      <span
-                        key={code}
-                        className="badge d-inline-flex align-items-center gap-2 px-3 py-2 fs-6 rounded-pill text-white shadow-sm"
-                        style={{ backgroundColor: "#1E60E6" }}
-                      >
-                        <span className="font-monospace fw-bold">{code}</span>
-                        {info && <span className="fw-normal small">({info.name})</span>}
-                        <FaTimes
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleRemoveIcdCode(code)}
-                          title="Xóa mã này"
-                        />
+                  {/* KHỐI 3: BẢNG CHỌN GÓI / CHỈ SỐ XÉT NGHIỆM BỔ SUNG */}
+                  <Card className="border-0 shadow-xs rounded-4 bg-white overflow-hidden">
+                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <span className="fw-bold small text-dark text-uppercase">
+                        2. Gói Đã Đặt &amp; Chỉ Định Bổ Sung
                       </span>
-                    );
-                  })}
-                </div>
-
-                {icdError && (
-                  <div className="text-danger small mb-2 fw-semibold">
-                    <FaExclamationTriangle className="me-1" /> {icdError}
-                  </div>
-                )}
-
-                {/* Fast ICD-10 suggestions buttons */}
-                <div className="mb-2">
-                  <small className="text-muted fw-semibold d-block mb-1">Mã ICD-10 lâm sàng phổ biến (Bấm để thêm):</small>
-                  <div className="d-flex flex-wrap gap-1">
-                    {CLINICAL_ICD10_LIST.map((icd) => {
-                      const isChosen = selectedIcdCodes.includes(icd.code);
-                      return (
-                        <button
-                          key={icd.code}
-                          type="button"
-                          className={`btn btn-sm py-0.5 px-2.5 ${
-                            isChosen ? "btn-secondary disabled opacity-50" : "btn-outline-primary"
-                          }`}
-                          style={{ borderRadius: "9999px" }}
-                          onClick={() => handleAddIcdCode(icd.code)}
-                          disabled={isChosen}
-                        >
-                          <strong>{icd.code}</strong> - {icd.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Custom ICD-10 Input */}
-                <div className="input-group input-group-sm mt-3" style={{ maxWidth: "420px" }}>
-                  <span className="input-group-text bg-white">Mã ICD-10 khác:</span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="VD: K75.0, E10.9"
-                    value={customIcdInput}
-                    onChange={(e) => setCustomIcdInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (customIcdInput) handleAddIcdCode(customIcdInput);
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => {
-                      if (customIcdInput) handleAddIcdCode(customIcdInput);
-                    }}
-                  >
-                    Thêm
-                  </button>
-                </div>
-              </div>
-
-              {/* Clinical Indication Textarea */}
-              <div className="mb-3">
-                <label className="form-label fw-semibold text-dark">
-                  Lý do chỉ định xét nghiệm / Chẩn đoán lâm sàng <span className="text-danger">*</span>
-                </label>
-                <textarea
-                  className="form-control"
-                  rows="3"
-                  placeholder="Ghi rõ lý do khám, triệu chứng lâm sàng và mục tiêu xét nghiệm..."
-                  value={clinicalIndication}
-                  onChange={(e) => setClinicalIndication(e.target.value)}
-                />
-              </div>
-
-              {/* Priority & Date */}
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold text-dark">Mức độ ưu tiên xét nghiệm</label>
-                  <select
-                    className="form-select"
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                  >
-                    <option value="Routine">Tiêu chuẩn (Routine)</option>
-                    <option value="Urgent">Ưu tiên (Urgent - Người già, phụ nữ mang thai)</option>
-                    <option value="STAT">Khẩn cấp (STAT - Cấp cứu lấy ngay)</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold text-dark">Ngày dự kiến lấy mẫu</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={scheduledDate}
-                    onChange={(e) => setScheduledDate(e.target.value)}
-                  />
-                </div>
-                <div className="col-12">
-                  <label className="form-label fw-semibold text-dark">Dặn dò phòng xét nghiệm &amp; Ghi chú kỹ thuật</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="VD: Nghi ngờ tan máu, kiểm tra kỹ hồng cầu lưới; Lưu ý người bệnh dùng kháng đông..."
-                    value={specialInstructions}
-                    onChange={(e) => setSpecialInstructions(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Order Summary, Tube Breakdown & Lab Dispatch */}
-        <div className="col-lg-4">
-          <div className="card shadow-sm rounded-4 border-0 bg-white overflow-hidden mb-4 position-sticky" style={{ top: "20px" }}>
-            <div className="card-header bg-white border-bottom py-3 px-4">
-              <h5 className="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
-                <FaFileInvoiceDollar style={{ color: "#1E60E6" }} /> 4. Tổng Hợp Y Lệnh &amp; Viện Phí
-              </h5>
-            </div>
-            <div className="card-body p-4">
-              {/* Selected Tests List */}
-              <div className="mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="small fw-bold text-muted text-uppercase">Danh mục đã chọn ({selectedTests.length}):</span>
-                  {selectedTests.length > 0 && (
-                    <button
-                      type="button"
-                      className="btn btn-link btn-sm text-danger p-0 text-decoration-none"
-                      onClick={() => setSelectedCodes(new Set(lockedPackageCodes))}
-                      title={lockedPackageCodes.size ? 'Giữ lại gói đã đặt; chỉ bỏ các chỉ số bổ sung' : 'Bỏ chọn tất cả'}
-                    >
-                      Bỏ chọn bổ sung
-                    </button>
-                  )}
-                </div>
-
-                {selectedTests.length === 0 ? (
-                  <div className="p-3 bg-light rounded-3 text-center text-muted small">
-                    Chưa có xét nghiệm nào được chọn. Vui lòng tick chọn danh mục bên trái.
-                  </div>
-                ) : (
-                  <div className="list-group list-group-flush border rounded-3 mb-3 overflow-auto" style={{ maxHeight: "200px" }}>
-                    {selectedTests.map((t) => (
-                      <div key={t.code || t.testCode} className="list-group-item d-flex justify-content-between align-items-center py-2 px-3 small">
-                        <div>
-                          <div className="fw-semibold text-dark">{t.name || t.testName}</div>
-                          <code className="text-muted" style={{ fontSize: "11px" }}>{t.code || t.testCode}</code>
-                        </div>
-                        <div className="text-end font-monospace fw-bold text-dark">
-                          {Number(t.price || 0).toLocaleString("vi-VN")} đ
-                        </div>
+                      <div className="d-flex gap-1">
+                        {[
+                          { id: "ALL", label: "Tất cả" },
+                          { id: "PACKAGE", label: "Gói" },
+                          { id: "SINGLE", label: "Chỉ số lẻ" }
+                        ].map((t) => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setModalTypeFilter(t.id)}
+                            className="btn btn-sm rounded-pill px-2.5 py-0.5 fw-semibold"
+                            style={{
+                              fontSize: "0.72rem",
+                              backgroundColor: modalTypeFilter === t.id ? "#1E60E6" : "#EEF2F6",
+                              color: modalTypeFilter === t.id ? "#FFFFFF" : "#475569",
+                              border: "none"
+                            }}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </Card.Header>
 
-              {/* Pricing Breakdown Card */}
-              <div className="p-3 bg-light rounded-4 mb-3 border">
-                <div className="d-flex justify-content-between mb-1 small">
-                  <span className="text-muted">Tổng giá trị y lệnh (BYT):</span>
-                  <span className="fw-bold font-monospace">{totalAmount.toLocaleString("vi-VN")} đ</span>
-                </div>
-                {preRegisteredService && (
-                  <div className="d-flex justify-content-between mb-1 small text-success">
-                    <span>Đã thanh toán trước tại quầy:</span>
-                    <span className="font-monospace">-{preRegisteredService.price.toLocaleString("vi-VN")} đ</span>
-                  </div>
-                )}
-                <hr className="my-2" />
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="fw-bold text-dark">Chênh lệch thu thêm (Co-pay):</span>
-                  <span className="fs-5 fw-bold font-monospace" style={{ color: "#1E60E6" }}>
-                    {differentialAmount.toLocaleString("vi-VN")} đ
-                  </span>
-                </div>
-              </div>
-
-              {/* RÀNG BUỘC CHUYÊN MÔN: ỐNG LẤY MẪU CHÂN KHÔNG (ISO 15189) */}
-              {selectedTests.length > 0 && (
-                <div className="p-3 mb-3 rounded-4 border bg-light">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <span className="small fw-bold text-dark d-flex align-items-center gap-1">
-                      <FaVial style={{ color: "#1E60E6" }} /> Ống Lấy Máu Cần Chuẩn Bị:
-                    </span>
-                    <Badge bg="primary" className="rounded-pill">
-                      {tubeBreakdown.count} loại ống
-                    </Badge>
-                  </div>
-                  <div className="small text-muted mb-2">
-                    {tubeBreakdown.tubes?.map((t, idx) => (
-                      <div key={idx} className="d-flex align-items-center gap-1.5 mb-1">
-                        <span
-                          className="rounded-circle d-inline-block"
-                          style={{
-                            width: 10,
-                            height: 10,
-                            backgroundColor: t.includes("EDTA")
-                              ? "#7c3aed"
-                              : t.includes("Citrate")
-                              ? "#0284c7"
-                              : t.includes("NaF")
-                              ? "#10b981"
-                              : "#eab308"
-                          }}
+                    <div className="p-2 border-bottom d-flex gap-2 bg-light">
+                      <div className="bms-search-input-pill flex-grow-1 bg-white">
+                        <FaSearch className="bms-search-icon" />
+                        <input
+                          type="text"
+                          placeholder="Tìm thêm gói hoặc chỉ số xét nghiệm (CBC, GLU, ANTI-TPO...)..."
+                          value={modalSearchTerm}
+                          onChange={(e) => setModalSearchTerm(e.target.value)}
                         />
-                        <span>{t}</span>
                       </div>
-                    ))}
-                  </div>
-                  {fastingInfo.required ? (
-                    <div className="alert alert-warning py-1.5 px-2 mb-0 rounded-3 small d-flex align-items-center gap-2">
-                      <FaExclamationTriangle className="text-warning-emphasis flex-shrink-0" />
-                      <div>Yêu cầu bệnh nhân nhịn ăn tối thiểu <strong>{fastingInfo.maxHours}h</strong>.</div>
+                      <select
+                        className="form-select form-select-sm rounded-pill"
+                        style={{ width: "auto" }}
+                        value={modalCategory}
+                        onChange={(e) => setModalCategory(e.target.value)}
+                      >
+                        <option value="Tất cả">Tất cả chuyên khoa</option>
+                        <option value="Huyết học">Huyết học</option>
+                        <option value="Sinh hóa">Sinh hóa</option>
+                        <option value="Miễn dịch">Miễn dịch</option>
+                      </select>
                     </div>
-                  ) : (
-                    <div className="text-success small d-flex align-items-center gap-1">
-                      <FaCheck className="text-success" /> Không bắt buộc nhịn ăn trước lấy máu.
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* ĐIỀU PHỐI LAB THEO CA TRỰC QUẢN LÝ */}
-              <div className="p-3 rounded-4 mb-4 border" style={{ background: "#f0fdf4", borderColor: "#86efac" }}>
-                <div className="small fw-bold text-success text-uppercase mb-1 d-flex align-items-center gap-1">
-                  <FaDoorOpen /> Điều phối y lệnh tự động theo ca trực
+                    <div className="table-responsive" style={{ maxHeight: "230px" }}>
+                      <table className="table table-hover table-sm align-middle mb-0">
+                        <tbody>
+                          {filteredModalCatalog.map((item) => {
+                            const isSel = selectedCodes.has(item.code);
+                            const isLocked = lockedCodes.has(item.code);
+                            const tubeSpec = resolveTubeSpec(item.tubeType, item.category);
+                            return (
+                              <tr
+                                key={item.code}
+                                onClick={() => handleToggleCode(item.code)}
+                                style={{
+                                  cursor: isLocked || dispatchedOrderResult ? "default" : "pointer",
+                                  backgroundColor: isSel ? "rgba(30, 96, 230, 0.08)" : undefined
+                                }}
+                              >
+                                <td className="ps-3 text-center" style={{ width: 38 }} onClick={(e) => e.stopPropagation()}>
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    checked={isSel}
+                                    disabled={isLocked || Boolean(dispatchedOrderResult)}
+                                    onChange={() => handleToggleCode(item.code)}
+                                  />
+                                </td>
+                                <td>
+                                  <div className="fw-semibold text-dark small d-flex align-items-center gap-1.5">
+                                    <span>{item.name}</span>
+                                    {isLocked && (
+                                      <Badge bg="success" pill style={{ fontSize: "0.66rem" }}>
+                                        Đã đặt trước (Khóa)
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="small text-muted">
+                                    <code className="text-primary me-2">{item.code}</code>
+                                    <span style={{ color: tubeSpec.colorHex }}>{tubeSpec.shortLabel}</span>
+                                  </div>
+                                </td>
+                                <td className="text-end pe-3 font-monospace fw-bold small text-nowrap">
+                                  {Number(item.price || 0).toLocaleString("vi-VN")} đ
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
                 </div>
-                <div className="small text-dark" style={{ lineHeight: 1.6 }}>
-                  <div>• <strong>Phòng Lab:</strong> LAB-201 (Trung tâm phân tích tự động)</div>
-                  <div>• <strong>Ca trực tiếp nhận:</strong> KTV trực ca hiện tại</div>
-                  <div className="d-flex align-items-center flex-wrap gap-1">
-                    <span>• <strong>Luồng tiếp theo:</strong> Quầy Thu Ngân</span>
-                    <FaArrowRight size={10} className="text-muted" />
-                    <span>Phòng Lấy Mẫu 101</span>
-                  </div>
+
+                {/* CỘT PHẢI MODAL (5 PHẦN): XEM TRƯỚC TÁCH ỐNG CLSI & SÀNG LỌC TIỀN PHÂN TÍCH */}
+                <div className="col-lg-5">
+                  <Card className="border-0 shadow-xs rounded-4 bg-white h-100">
+                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+                      <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
+                        <FaLayerGroup className="text-primary" /> 3. Tách Ống Máu &amp; Chuyển Lab
+                      </span>
+                      <Badge bg="primary" pill>{autoTubeGroups.length} ống mẫu</Badge>
+                    </Card.Header>
+
+                    <Card.Body className="p-3 d-flex flex-column justify-content-between">
+                      <div>
+                        {/* Danh sách ống máu CLSI tự tách */}
+                        <div className="mb-3">
+                          <div className="small fw-bold text-muted text-uppercase mb-1.5">
+                            Ống bệnh phẩm hệ thống sẽ tự sinh cho Lab:
+                          </div>
+                          {autoTubeGroups.length === 0 ? (
+                            <div className="p-3 rounded-3 bg-light border text-center text-muted small">
+                              Chưa có xét nghiệm nào được chọn.
+                            </div>
+                          ) : (
+                            <div className="d-flex flex-column gap-1.5">
+                              {autoTubeGroups.map((g, idx) => (
+                                <div
+                                  key={g.key}
+                                  className="p-2 rounded-3 bg-light border"
+                                  style={{ borderLeft: `4px solid ${g.colorHex}` }}
+                                >
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <span className="fw-bold small" style={{ color: g.colorHex }}>
+                                      Ống #{idx + 1}: {g.label}
+                                    </span>
+                                    <span className="badge bg-white text-dark border rounded-pill" style={{ fontSize: "0.68rem" }}>
+                                      {g.sampleType}
+                                    </span>
+                                  </div>
+                                  <div className="small text-dark mt-1">
+                                    {g.tests.map((t) => t.name).join(" • ")}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Sàng lọc nhịn ăn */}
+                        {fastingInfo.required && priority !== "STAT" && !dispatchedOrderResult && (
+                          <div className="p-2.5 rounded-3 mb-3 border border-warning bg-warning-subtle">
+                            <Form.Check
+                              type="checkbox"
+                              id="modal-fasting-check"
+                              checked={fastingConfirmed}
+                              onChange={(e) => setFastingConfirmed(e.target.checked)}
+                              label={
+                                <span className="small fw-semibold text-dark">
+                                  Xác nhận tiền phân tích: Bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h theo chuẩn ISO 15189.
+                                </span>
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tổng chi phí & Tóm tắt chuyển */}
+                      <div className="p-3 rounded-3 bg-light border">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <span className="small text-muted">Số mục xét nghiệm:</span>
+                          <strong className="text-dark small">{selectedTests.length} mục</strong>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span className="fw-bold text-dark">Tổng chi phí y lệnh:</span>
+                          <span className="fs-5 fw-bold font-monospace" style={{ color: "#1E60E6" }}>
+                            {totalAmount.toLocaleString("vi-VN")} đ
+                          </span>
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
                 </div>
               </div>
+            </>
+          )}
+        </Modal.Body>
 
-              {/* Action Buttons */}
-              <div className="d-grid gap-2">
-                {!patient.id && (
-                  <div className="alert alert-warning py-2 px-3 small rounded-3 mb-2 d-flex align-items-center gap-2">
-                    <FaExclamationTriangle className="text-warning flex-shrink-0" />
-                    <span>Vui lòng chọn hoặc tra cứu người bệnh ở Mục 1 phía trên để kích hoạt ký y lệnh.</span>
-                  </div>
+        <Modal.Footer className="bg-light border-top d-flex justify-content-between">
+          <BsButton
+            variant="secondary"
+            size="sm"
+            className="rounded-pill px-3"
+            disabled={submitting}
+            onClick={() => setActiveModalEncounter(null)}
+          >
+            {dispatchedOrderResult ? "Đóng & Quay lại danh sách" : "Đóng"}
+          </BsButton>
+
+          {/* ẨN HOÀN TOÀN NÚT CHUYỂN & LƯU NHÁP KHI ĐÃ CHUYỂN LAB THÀNH CÔNG */}
+          {!dispatchedOrderResult && (
+            <div className="d-flex align-items-center gap-2">
+              <BsButton
+                variant="outline-secondary"
+                size="sm"
+                className="rounded-pill px-3 fw-semibold"
+                disabled={submitting || selectedTests.length === 0}
+                onClick={() => handleDispatchToLab(true)}
+              >
+                <FaSave className="me-1" /> Lưu Bản Nháp
+              </BsButton>
+
+              <BsButton
+                variant="primary"
+                size="sm"
+                className="rounded-pill px-4 py-1.5 fw-bold text-white shadow-sm d-flex align-items-center gap-2"
+                style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
+                disabled={submitting || selectedTests.length === 0 || !bpValid}
+                onClick={() => handleDispatchToLab(false)}
+              >
+                {submitting ? (
+                  <>
+                    <Spinner animation="border" size="sm" />
+                    <span>Đang chuyển xuống Lab...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane />
+                    <span>Ký &amp; Chuyển Xuống Phòng Lab</span>
+                  </>
                 )}
-                <button
-                  type="button"
-                  className="btn btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm text-white"
-                  style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6", borderRadius: "9999px" }}
-                  disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
-                  onClick={() => handleSubmitOrder(false)}
-                >
-                  <FaCheckCircle /> {submitting ? "Đang phát hành y lệnh..." : "Ký & Phát Hành Y Lệnh Xét Nghiệm"}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary fw-semibold d-flex align-items-center justify-content-center gap-2"
-                  style={{ borderRadius: "9999px" }}
-                  disabled={submitting || selectedTests.length === 0 || !doctorId || !patient.id}
-                  onClick={() => handleSubmitOrder(true)}
-                >
-                  <FaSave /> Lưu Bản Nháp (Draft)
-                </button>
-              </div>
+              </BsButton>
             </div>
-          </div>
-        </div>
-      </div>
+          )}
+        </Modal.Footer>
+      </Modal>
 
-      {/* Barcode Printer Modal */}
-      <BarcodePrinterModal
-        show={showBarcodeModal}
-        onHide={() => setShowBarcodeModal(false)}
-        patient={{
-          id: orderSuccess?.patientId || patient.id,
-          name: orderSuccess?.patientName || patient.name,
-          gender: patient.gender,
-          age: patient.age
-        }}
-        orderCode={orderSuccess?.orderNumber || orderSuccess?.id || "ORD-261116-A01"}
-      />
-
-      {/* Anti-Collision Rack 3x3 Modal */}
-      <Modal show={showRackModal} onHide={() => setShowRackModal(false)} size="xl" centered>
-        <Modal.Header closeButton style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
-          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
-            <FaThLarge style={{ color: "#1E60E6" }} />
-            <span>Sơ đồ khay mẫu Rack 3x3 chống trùng lặp</span>
+      {/* MODAL XÁC NHẬN HỦY Y LỆNH TRƯỚC KHI LẤY MẪU */}
+      <Modal show={Boolean(cancelTargetOrder)} onHide={() => setCancelTargetOrder(null)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="h6 fw-bold text-danger">
+            Xác Nhận Hủy Y Lệnh #{cancelTargetOrder?.orderNumber || cancelTargetOrder?.id}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
-          <AntiCollisionRackVisualizer
-            patientsData={[
-              {
-                id: patient.id || "BN-001",
-                name: patient.name || "Bệnh nhân hiện tại",
-                gender: patient.gender,
-                age: patient.age,
-                code: orderSuccess?.orderNumber || "ORD-A01"
-              }
-            ]}
+        <Modal.Body>
+          <p className="small text-muted mb-2">
+            Bác sĩ chỉ có thể hủy y lệnh trước khi Phòng Lab lấy mẫu máu. Thao tác này sẽ được lưu vết trong Audit Log.
+          </p>
+          <Form.Control
+            as="textarea"
+            rows={2}
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            placeholder="Nhập lý do hủy y lệnh..."
           />
         </Modal.Body>
-        <Modal.Footer className="bg-light">
-          <BsButton variant="secondary" onClick={() => setShowRackModal(false)}>
+        <Modal.Footer>
+          <BsButton variant="light" size="sm" className="rounded-pill px-3" onClick={() => setCancelTargetOrder(null)}>
             Đóng
+          </BsButton>
+          <BsButton
+            variant="danger"
+            size="sm"
+            className="rounded-pill px-3 fw-semibold"
+            disabled={cancelBusy || !cancelReason.trim()}
+            onClick={handleConfirmCancelOrder}
+          >
+            {cancelBusy ? "Đang hủy..." : "Xác nhận Hủy Y Lệnh"}
           </BsButton>
         </Modal.Footer>
       </Modal>

@@ -1,9 +1,9 @@
 /**
  * @file HomePage.jsx
  * @description Master Home Controller resolving between:
- *  1. GuestHomePage: the same public landing for guests and signed-in patients.
- *  2. Staff roles leave this page and open their own workstation.
- *  3. Staff roles (Receptionist, Doctor, Lab, Manager, Admin): automatically redirected to their dedicated clinical workstations.
+ *  1. GuestHomePage for anonymous visitors.
+ *  2. PatientHomePage for signed-in patients (navbar "Trang Chủ" → /home).
+ *  3. Staff roles redirected to their clinical workstations.
  * Conforms to: Production Medical Standards ISO 15189 & RBAC Matrix.
  */
 
@@ -11,6 +11,7 @@ import React, { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
 import GuestHomePage from './GuestHomePage';
+import PatientHomePage from './PatientHomePage';
 
 export default function HomePage() {
   const user = useMemo(() => {
@@ -38,12 +39,13 @@ export default function HomePage() {
     }
   }
 
-  // Patient đã hoàn tất hồ sơ → vào bàn làm việc (lịch/KQ), không kẹt landing marketing
+  // Signed-in patient: keep /home as a real destination (PortalNavbar "Trang Chủ").
+  // Redirecting to /appointments made every home click look like a broken route.
   if (user && roleId === ROLES.PATIENT) {
     if (!user.medicalProfileCompleted) {
       return <Navigate to="/patient/medical-profile-setup" replace />;
     }
-    return <Navigate to="/appointments" replace />;
+    return <PatientHomePage user={user} />;
   }
 
   // If unauthenticated guest

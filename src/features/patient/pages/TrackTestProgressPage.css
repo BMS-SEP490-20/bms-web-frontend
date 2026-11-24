@@ -551,3 +551,29 @@
   align-items: center;
   gap: 4px;
 }
+
+/* Modal chi tiết tiến trình */
+.bms-tracking-detail-modal {
+  max-width: min(1120px, 96vw);
+}
+
+.bms-tracking-detail-modal .modal-content {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+}
+
+.bms-tracking-detail-modal .modal-body {
+  max-height: min(78vh, 820px);
+}
+
+.bms-tracking-detail-modal .bms-result-meta-card {
+  position: static;
+  top: auto;
+}
+
+@media (max-width: 991.98px) {
+  .bms-tracking-detail-modal .modal-body {
+    max-height: 85vh;
+  }
+}

@@ -191,12 +191,24 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         ) : null}
 
         {tat ? (
-          <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
-            <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="d-flex justify-content-between align-items-start" style={{ gap: '14px' }}>
+            <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <FaClock style={{ color: '#0284C7', fontSize: '11px' }} />
               Trả kết quả (TAT)
             </span>
-            <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
+            <strong
+              title={tat}
+              style={{
+                color: '#0F172A',
+                textAlign: 'right',
+                fontWeight: 650,
+                lineHeight: 1.45,
+                whiteSpace: 'normal',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+                minWidth: 0
+              }}
+            >
               {tat}
             </strong>
           </div>

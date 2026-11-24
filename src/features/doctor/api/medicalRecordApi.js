@@ -74,10 +74,23 @@ export async function deleteRecord(id, deleteReason, signal) {
   return handleResponse(res);
 }
 
+/**
+ * Retrieves all released/approved laboratory test results for a specific patient
+ * so the Doctor can review them directly inside the Clinical Conclusion Modal.
+ */
+export async function getPatientLabResults(patientId, signal) {
+  const res = await fetch(`${BASE_URL}/test-results/patient/${encodeURIComponent(patientId)}`, {
+    headers: authHeaders(),
+    signal,
+  });
+  return handleResponse(res);
+}
+
 export const medicalRecordApi = {
   getPatientRecords,
   getRecordById,
   createRecord,
   updateRecord,
   deleteRecord,
+  getPatientLabResults,
 };

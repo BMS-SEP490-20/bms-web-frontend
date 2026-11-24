@@ -45,6 +45,20 @@ export async function sendPasswordRecoveryOtp(email) {
     }
 }
 
+/**
+ * Xác thực OTP đặt lại mật khẩu (bước 2) — chưa đổi mật khẩu.
+ * @param {string} email
+ * @param {string} otp
+ */
+export async function verifyPasswordResetOtp(email, otp) {
+    const response = await authClient.post("/api/auth/verify-reset-otp", {
+        email: email.trim(),
+        otp: String(otp).trim(),
+    });
+    return response.data;
+}
+
 export default {
     sendPasswordRecoveryOtp,
+    verifyPasswordResetOtp,
 };

@@ -237,6 +237,15 @@ export default function SpecimenHistoryPage() {
     const collectionTime = currentSpecimen?.collectionTime || currentSpecimen?.collectedAt;
     const collector = currentSpecimen?.collectorName || currentSpecimen?.collectedBy || "Điều dưỡng khoa khám";
 
+    const formatClinicalDateTime = (raw, options) => {
+        if (!raw) return "--";
+        const d = new Date(raw);
+        if (!Number.isNaN(d.getTime())) {
+            return options ? d.toLocaleString("vi-VN", options) : d.toLocaleString("vi-VN");
+        }
+        return String(raw);
+    };
+
     return (
         <div className="w-100 py-1">
             {/* Header Card */}
@@ -475,7 +484,7 @@ export default function SpecimenHistoryPage() {
                                         <FaCalendarAlt className="text-warning me-1" /> Thời Gian & Người Lấy Mẫu
                                     </span>
                                     <div className="text-secondary small">
-                                        <div>Thời điểm lấy: <strong>{collectionTime ? new Date(collectionTime).toLocaleString("vi-VN") : "--"}</strong></div>
+                                        <div>Thời điểm lấy: <strong>{formatClinicalDateTime(collectionTime)}</strong></div>
                                         <div>Người lấy mẫu: <strong>{collector}</strong></div>
                                         <div>Khoa/Phòng gửi: <strong>{currentSpecimen.department || "Khoa Xét Nghiệm Trung Tâm"}</strong></div>
                                         {currentSpecimen.rejectionReason && (
@@ -576,12 +585,12 @@ export default function SpecimenHistoryPage() {
                                                 </div>
                                             </td>
                                             <td className="small text-secondary">
-                                                {collected ? new Date(collected).toLocaleString("vi-VN", {
+                                                {formatClinicalDateTime(collected, {
                                                     day: "2-digit",
                                                     month: "2-digit",
                                                     hour: "2-digit",
                                                     minute: "2-digit"
-                                                }) : "--"}
+                                                })}
                                             </td>
                                             <td>{renderStatusBadge(item.status || item.currentStatus)}</td>
                                             <td className="small font-monospace">

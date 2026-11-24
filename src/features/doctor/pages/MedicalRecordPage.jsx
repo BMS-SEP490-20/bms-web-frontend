@@ -1,9 +1,15 @@
 /**
  * @file MedicalRecordPage.jsx
- * @description UC33 – Electronic Medical Records (EMR) Clinical Workspace.
- * Quản lý bệnh án điện tử, dấu hiệu sinh tồn, chẩn đoán WHO ICD-10 và phác đồ điều trị.
- * Tuân thủ quy định khóa sửa sau 24 giờ và giải trình xóa hồ sơ phục vụ kiểm toán y tế.
- * Conforms to: Rule 19, Production Engineering Standards & AGENTS-DESIGN.md.
+ * @description UC33 – Worklist-Driven Electronic Medical Records (EMR) & Clinical Conclusion Workspace.
+ *
+ * Quy trình chuẩn y tế (Thông tư 46/2018/TT-BYT):
+ *  1. Nạp danh sách lượt khám thực tế từ Bàn khám & Hàng đợi (`currentServing`, `waitingList`), Lịch hẹn (`InProgress`/`CheckedIn`/`Confirmed`/`Completed`),
+ *     Y lệnh xét nghiệm (`fetchTestOrders`) và Kết quả xét nghiệm đã duyệt (`biochemical-results`) — TUYỆT ĐỐI KHÔNG fallback danh sách user test.
+ *  2. Hiển thị Worklist Table kèm trạng thái Cận lâm sàng (Lab) và trạng thái Bệnh án (Chưa lập | Còn hạn sửa 24h | Đã khóa >24h).
+ *  3. Bấm nút thao tác mở Modal Bệnh Án & Kết Luận (`size="xl"`):
+ *     - Tự động nạp lịch sử đợt khám trước + kết quả xét nghiệm đã duyệt của bệnh nhân để Bác sĩ đối chiếu trực tiếp.
+ *     - Nhập/cập nhật sinh hiệu (tự tính BMI, kiểm tra Tâm thu > Tâm trương + 15 mmHg), mã WHO ICD-10, chẩn đoán xác định và phác đồ điều trị.
+ *     - Tuân thủ khóa sửa sau 24 giờ (`canEdit`) và giải trình bắt buộc (>= 15 ký tự) khi hủy/xóa mềm hồ sơ.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -18,8 +24,7 @@ import {
   Form,
   Spinner,
   Alert,
-  Modal,
-  InputGroup
+  Modal
 } from 'react-bootstrap';
 import {
   FaNotesMedical,
@@ -34,94 +39,145 @@ import {
   FaExclamationTriangle,
   FaUserInjured,
   FaUserMd,
-  FaCalendarAlt,
   FaPrescriptionBottleAlt,
   FaVial,
   FaClipboardList,
-  FaTimes
+  FaSync,
+  FaEye,
+  FaBullhorn,
+  FaHistory
 } from 'react-icons/fa';
 import { medicalRecordApi } from '../api/medicalRecordApi';
+import { fetchTestOrders } from '../api/testOrderApi';
+import { receptionApi } from '../../reception/api/receptionApi';
+import { getAppointments } from '../../appointment/api/appointmentApi';
+import api from '../../../config/api';
 
-// Common WHO ICD-10 Catalog for clinical diagnosis
 const COMMON_ICD10 = [
   { code: 'E11.9', name: 'Đái tháo đường typ 2 không biến chứng' },
   { code: 'I10', name: 'Tăng huyết áp vô căn (nguyên phát)' },
+  { code: 'E78.5', name: 'Rối loạn chuyển hóa lipid máu (Tăng mỡ máu)' },
+  { code: 'D50.9', name: 'Thiếu máu do thiếu sắt' },
+  { code: 'K29.7', name: 'Viêm dạ dày tá tràng' },
+  { code: 'K76.0', name: 'Gan nhiễm mỡ / Tăng men gan' },
+  { code: 'E03.9', name: 'Suy giáp không đặc hiệu' },
+  { code: 'M10.9', name: 'Bệnh Gút (Gout)' },
+  { code: 'N18.9', name: 'Bệnh thận mạn / Đánh giá chức năng thận' },
   { code: 'J00', name: 'Viêm mũi họng cấp (Cảm lạnh)' },
   { code: 'J20.9', name: 'Viêm phế quản cấp' },
-  { code: 'K29.7', name: 'Viêm dạ dày tá tràng' },
-  { code: 'A09', name: 'Tiêu chảy và viêm dạ dày - ruột nhiễm trùng' },
-  { code: 'D50.9', name: 'Thiếu máu do thiếu sắt' },
-  { code: 'E78.5', name: 'Rối loạn chuyển hóa lipid máu (Tăng mỡ máu)' },
-  { code: 'M10.9', name: 'Bệnh Gút (Gout)' },
   { code: 'N39.0', name: 'Nhiễm trùng đường tiết niệu' },
   { code: 'R50.9', name: 'Sốt không rõ nguyên nhân' },
-  { code: 'Z00.0', name: 'Khám sức khỏe tổng quát định kỳ' },
+  { code: 'Z00.0', name: 'Khám sức khỏe tổng quát định kỳ' }
 ];
 
 const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
 
+const INITIAL_FORM = {
+  chiefComplaint: '',
+  clinicalSymptoms: '',
+  heartRate: 75,
+  systolicBp: 120,
+  diastolicBp: 80,
+  temperature: 36.5,
+  spo2: 98,
+  heightCm: 170,
+  weightKg: 65,
+  icd10Code: 'E11.9',
+  icd10Name: 'Đái tháo đường typ 2 không biến chứng',
+  diagnosis: '',
+  treatmentPlan: '',
+  prescriptionNotes: ''
+};
+
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data)) return res.data;
+  if (Array.isArray(res?.data?.items)) return res.data.items;
+  if (Array.isArray(res?.items)) return res.items;
+  if (Array.isArray(res?.results)) return res.results;
+  return [];
+};
+
+const formatDateTime = (val) => {
+  if (!val) return '—';
+  const d = new Date(val);
+  if (Number.isNaN(d.getTime())) return String(val);
+  return d.toLocaleString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
+const isTodayIso = (val) => {
+  if (!val) return false;
+  const d = new Date(val);
+  if (Number.isNaN(d.getTime())) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+};
+
 export default function MedicalRecordPage() {
   const [searchParams] = useSearchParams();
   const queryPatientId = searchParams.get('patientId') || searchParams.get('patientCode') || '';
+  const queryAppointmentId = searchParams.get('appointmentId') || '';
 
-  const canAddNotes = useMemo(() => {
+  const canWriteEmr = useMemo(() => {
     try {
-      const user = JSON.parse(localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || localStorage.getItem('user') || 'null');
+      const user = JSON.parse(
+        localStorage.getItem('bms_user') ||
+          sessionStorage.getItem('bms_user') ||
+          localStorage.getItem('user') ||
+          'null'
+      );
       return (user?.role || user?.roleName || '').toLowerCase() === 'doctor';
-    } catch { return false; }
+    } catch {
+      return false;
+    }
   }, []);
 
-  const [patientId, setPatientId] = useState(() => queryPatientId || '');
-  const [searchPatientInput, setSearchPatientInput] = useState(() => queryPatientId || '');
-  const [records, setRecords] = useState([]);
+  // Worklist states
+  const [worklist, setWorklist] = useState([]);
+  const [loadingWorklist, setLoadingWorklist] = useState(false);
+  const [worklistError, setWorklistError] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [pageBanner, setPageBanner] = useState(null);
+
+  // Modal & EMR states
+  const [showModal, setShowModal] = useState(false);
+  const [activeEncounter, setActiveEncounter] = useState(null);
+  const [patientRecords, setPatientRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [labResults, setLabResults] = useState([]);
+  const [loadingModalData, setLoadingModalData] = useState(false);
+  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState(INITIAL_FORM);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [feedbackMsg, setFeedbackMsg] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [modalError, setModalError] = useState(null);
+  const [modalSuccess, setModalSuccess] = useState(null);
+  const [bypassPendingLab, setBypassPendingLab] = useState(false);
 
-  // Soft Delete Modal state
+  // Soft Delete Audit Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
-
-  // Form State
-  const initialForm = {
-    chiefComplaint: '',
-    clinicalSymptoms: '',
-    heartRate: 75,
-    systolicBp: 120,
-    diastolicBp: 80,
-    temperature: 36.5,
-    spo2: 98,
-    heightCm: 170,
-    weightKg: 65,
-    icd10Code: 'E11.9',
-    icd10Name: 'Đái tháo đường typ 2 không biến chứng',
-    diagnosis: '',
-    treatmentPlan: '',
-    prescriptionNotes: '',
-  };
-
-  const [form, setForm] = useState(initialForm);
-
-  // Sync if queryPatientId changes
-  useEffect(() => {
-    if (queryPatientId) {
-      setPatientId(queryPatientId);
-      setSearchPatientInput(queryPatientId);
-    }
-  }, [queryPatientId]);
+  const [autoOpenedQuery, setAutoOpenedQuery] = useState(false);
 
   // Auto-calculated BMI & Category
   const { bmi, bmiCategory, bmiColor } = useMemo(() => {
     const h = Number(form.heightCm);
     const w = Number(form.weightKg);
-    if (!h || h <= 0 || !w || w <= 0) return { bmi: 0, bmiCategory: 'Chưa tính', bmiColor: 'secondary' };
-
+    if (!h || h <= 0 || !w || w <= 0) {
+      return { bmi: 0, bmiCategory: 'Chưa tính', bmiColor: 'secondary' };
+    }
     const hMeters = h / 100.0;
     const calculated = (w / (hMeters * hMeters)).toFixed(2);
     const numBmi = parseFloat(calculated);
@@ -141,133 +197,364 @@ export default function MedicalRecordPage() {
       cat = 'Béo phì';
       color = 'danger';
     }
-
     return { bmi: calculated, bmiCategory: cat, bmiColor: color };
   }, [form.heightCm, form.weightKg]);
 
-  // Blood pressure invariant check: Systolic > Diastolic + 15
+  // Blood pressure invariant: Systolic > Diastolic + 15
   const bpValidation = useMemo(() => {
     const sys = Number(form.systolicBp);
     const dia = Number(form.diastolicBp);
     if (!sys || !dia) return { valid: true };
-
     if (sys <= dia + 15) {
       return {
         valid: false,
-        message: 'Huyết áp tâm thu phải lớn hơn huyết áp tâm trương ít nhất 15 mmHg.',
+        message: 'Huyết áp tâm thu phải lớn hơn huyết áp tâm trương ít nhất 15 mmHg.'
       };
     }
     return { valid: true };
   }, [form.systolicBp, form.diastolicBp]);
 
-  // Load medical records for current patient
-  const fetchRecords = useCallback(async (pid) => {
-    if (!pid || !pid.trim()) {
-      setRecords([]);
-      setSelectedRecord(null);
-      return;
-    }
-    setLoading(true);
-    setErrorMsg(null);
+  // Load real clinical worklist (NO synthetic patient fallback)
+  const loadWorklist = useCallback(async () => {
+    setLoadingWorklist(true);
+    setWorklistError(null);
     try {
-      const res = await medicalRecordApi.getPatientRecords(pid.trim());
-      const rawList = res?.data ?? res?.items ?? res;
-      const list = Array.isArray(rawList)
-        ? rawList
-        : (Array.isArray(rawList?.items) ? rawList.items : []);
+      const [queueRes, apptRes, ordersRes, labRes] = await Promise.all([
+        receptionApi.getQueueStatus().catch(() => null),
+        getAppointments().catch(() => null),
+        fetchTestOrders().catch(() => null),
+        api.get('/biochemical-results', { params: { pageSize: 50 } }).catch(() => null)
+      ]);
 
-      setRecords(list);
-      if (list.length > 0) {
-        setSelectedRecord(list[0]);
-      } else {
-        setSelectedRecord(null);
+      const appointments = extractArray(apptRes);
+      const orders = extractArray(ordersRes);
+      const labRecords = extractArray(labRes?.data || labRes);
+
+      const apptById = new Map();
+      const apptByPatient = new Map();
+      appointments.forEach((a) => {
+        if (a.id) apptById.set(String(a.id), a);
+        if (a.appointmentCode) apptById.set(String(a.appointmentCode), a);
+        const pKey = String(a.patientCode || a.patientId || '').trim();
+        if (pKey && !apptByPatient.has(pKey)) {
+          apptByPatient.set(pKey, a);
+        }
+      });
+
+      // Map orders by appointmentId and patientId
+      const orderByAppt = new Map();
+      const orderByPatient = new Map();
+      orders.forEach((o) => {
+        if (o.appointmentId) orderByAppt.set(String(o.appointmentId), o);
+        const pKey = String(o.patientCode || o.patientId || '').trim();
+        if (pKey && !orderByPatient.has(pKey)) {
+          orderByPatient.set(pKey, o);
+        }
+      });
+
+      // Map approved lab results by patientCode/patientId & orderNumber
+      const labByPatient = new Map();
+      labRecords.forEach((r) => {
+        const pKey = String(r.patientCode || r.patientId || '').trim();
+        if (pKey) {
+          const prev = labByPatient.get(pKey) || [];
+          prev.push(r);
+          labByPatient.set(pKey, prev);
+        }
+      });
+
+      const merged = [];
+      const seenKeys = new Set();
+
+      const pushEncounter = (raw, sourceTag) => {
+        const patId = String(raw.patientCode || raw.patientId || '').trim();
+        if (!patId) return;
+        const apptId = raw.appointmentId || raw.id || '';
+        const dedupeKey = apptId ? `APT:${apptId}` : `PAT:${patId}`;
+        if (seenKeys.has(dedupeKey)) return;
+        seenKeys.add(dedupeKey);
+
+        const matchedOrder =
+          (apptId && orderByAppt.get(String(apptId))) || orderByPatient.get(patId) || null;
+        const matchedLabs = labByPatient.get(patId) || [];
+        const hasApprovedLab = matchedLabs.some(
+          (x) => String(x.status || '').toUpperCase() === 'APPROVED' || Boolean(x.approvedAt)
+        );
+        const hasPanicOrAbnormal = matchedLabs.some(
+          (x) => Boolean(x.hasPanic || x.isCritical || Number(x.abnormalCount || 0) > 0)
+        );
+
+        merged.push({
+          key: dedupeKey,
+          appointmentId: apptId,
+          appointmentCode: raw.appointmentCode || (apptId ? `APT-${String(apptId).slice(-6)}` : ''),
+          queueNumber: raw.queueNumber || raw.ticketNumber || null,
+          patientId: patId,
+          patientRawId: raw.patientRawId || raw.patientId || patId,
+          patientName: raw.patientName || raw.fullName || 'Bệnh nhân',
+          phone: raw.phoneNumber || raw.phone || '',
+          gender: raw.gender === 'Female' || raw.gender === 'Nữ' ? 'Nữ' : raw.gender === 'Male' || raw.gender === 'Nam' ? 'Nam' : '',
+          packageName: raw.packageName || matchedOrder?.packageName || '',
+          appointmentStatus: raw.status || 'InProgress',
+          sourceTag,
+          order: matchedOrder,
+          labCount: matchedLabs.length,
+          hasApprovedLab,
+          hasPanicOrAbnormal,
+          latestRecord: null // populated lazily or via patient records cache below
+        });
+      };
+
+      // 1. Bệnh nhân đang được gọi số tại Bàn Khám (ưu tiên cao nhất)
+      if (queueRes?.currentServing) {
+        const cs = queueRes.currentServing;
+        const appt = apptById.get(String(cs.appointmentId || '')) || {};
+        pushEncounter(
+          {
+            ...appt,
+            ...cs,
+            id: cs.appointmentId || appt.id,
+            patientCode: cs.patientCode || appt.patientCode || cs.patientId,
+            patientName: cs.patientName || appt.patientName,
+            status: 'InProgress'
+          },
+          'Đang gọi số'
+        );
       }
+
+      // 2. Hàng đợi đang chờ khám
+      const waitingList = Array.isArray(queueRes?.waitingList) ? queueRes.waitingList : [];
+      waitingList.forEach((w) => {
+        const appt = apptById.get(String(w.appointmentId || '')) || {};
+        pushEncounter(
+          {
+            ...appt,
+            ...w,
+            id: w.appointmentId || appt.id,
+            patientCode: w.patientCode || appt.patientCode || w.patientId,
+            patientName: w.patientName || appt.patientName,
+            status: w.status || appt.status || 'CheckedIn'
+          },
+          'Hàng đợi'
+        );
+      });
+
+      // 3. Lịch hẹn hợp lệ trong luồng khám (InProgress / CheckedIn / Confirmed / Completed)
+      const validStatuses = new Set(['InProgress', 'CheckedIn', 'Confirmed', 'Completed']);
+      appointments.forEach((a) => {
+        if (validStatuses.has(a.status)) {
+          pushEncounter(a, a.status === 'Completed' ? 'Đã hoàn tất khám' : 'Lịch hẹn hôm nay');
+        }
+      });
+
+      // 4. Nạp trước trạng thái EMR cho danh sách bệnh nhân thực tế trong worklist (tối đa 20 BN đầu)
+      const uniquePatientIds = [...new Set(merged.map((m) => m.patientId))].slice(0, 20);
+      const emrMap = new Map();
+      await Promise.all(
+        uniquePatientIds.map(async (pid) => {
+          try {
+            const res = await medicalRecordApi.getPatientRecords(pid);
+            const list = extractArray(res);
+            if (list.length > 0) {
+              emrMap.set(pid, list);
+            }
+          } catch {
+            // ignore individual lookup error
+          }
+        })
+      );
+
+      const enriched = merged.map((item) => {
+        const recs = emrMap.get(item.patientId) || [];
+        const latest = recs[0] || null;
+        return {
+          ...item,
+          recordsCount: recs.length,
+          latestRecord: latest,
+          hasTodayEmr: latest ? isTodayIso(latest.createdAt || latest.visitDate) : false
+        };
+      });
+
+      setWorklist(enriched);
     } catch (err) {
-      console.error('Failed to load patient records:', err);
-      setErrorMsg(err.message || 'Không thể tải lịch sử bệnh án của bệnh nhân.');
-      setRecords([]);
-      setSelectedRecord(null);
+      console.error('Failed to load EMR worklist:', err);
+      setWorklistError('Không thể tải danh sách lượt khám & hồ sơ bệnh án.');
     } finally {
-      setLoading(false);
+      setLoadingWorklist(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchRecords(patientId);
-  }, [fetchRecords, patientId]);
+    loadWorklist();
+  }, [loadWorklist]);
 
-  // Select a record from history list
-  const handleSelectRecord = (record) => {
-    setSelectedRecord(record);
-    setIsEditing(false);
-    setIsCreatingNew(false);
-  };
-
-  // Switch to Create New Mode
-  const handleStartCreate = () => {
-    setIsCreatingNew(true);
-    setIsEditing(false);
-    setSelectedRecord(null);
-    setForm(initialForm);
-  };
-
-  // Switch to Edit Mode
-  const handleStartEdit = (record) => {
-    if (!record.canEdit) {
-      setErrorMsg('Hồ sơ bệnh án đã quá thời hạn 24 giờ kể từ thời điểm tạo, không thể chỉnh sửa.');
+  // Helper: fill form from an existing record
+  const populateFormFromRecord = useCallback((record) => {
+    if (!record) {
+      setForm(INITIAL_FORM);
       return;
     }
-    setIsEditing(true);
-    setIsCreatingNew(false);
-    setSelectedRecord(record);
-
     setForm({
       chiefComplaint: record.chiefComplaint || '',
       clinicalSymptoms: record.clinicalSymptoms || '',
-      heartRate: record.vitals?.heartRate || 75,
-      systolicBp: record.vitals?.systolicBp || 120,
-      diastolicBp: record.vitals?.diastolicBp || 80,
-      temperature: record.vitals?.temperature || 36.5,
-      spo2: record.vitals?.spo2 || 98,
-      heightCm: record.vitals?.heightCm || 170,
-      weightKg: record.vitals?.weightKg || 65,
+      heartRate: record.vitals?.heartRate ?? 75,
+      systolicBp: record.vitals?.systolicBp ?? 120,
+      diastolicBp: record.vitals?.diastolicBp ?? 80,
+      temperature: record.vitals?.temperature ?? 36.5,
+      spo2: record.vitals?.spo2 ?? 98,
+      heightCm: record.vitals?.heightCm ?? 170,
+      weightKg: record.vitals?.weightKg ?? 65,
       icd10Code: record.icd10Code || 'E11.9',
       icd10Name: record.icd10Name || '',
       diagnosis: record.diagnosis || '',
       treatmentPlan: record.treatmentPlan || '',
-      prescriptionNotes: record.prescriptionNotes || '',
+      prescriptionNotes: record.prescriptionNotes || ''
     });
+  }, []);
+
+  // Open EMR & Clinical Conclusion Modal for an encounter
+  const handleOpenEncounterModal = useCallback(
+    async (encounter) => {
+      setActiveEncounter(encounter);
+      setShowModal(true);
+      setModalError(null);
+      setModalSuccess(null);
+      setBypassPendingLab(false);
+      setLoadingModalData(true);
+
+      try {
+        const [recRes, labRes] = await Promise.all([
+          medicalRecordApi.getPatientRecords(encounter.patientId).catch(() => null),
+          medicalRecordApi.getPatientLabResults(encounter.patientId).catch(() => null)
+        ]);
+
+        const recs = extractArray(recRes);
+        const labs = extractArray(labRes);
+
+        setPatientRecords(recs);
+        setLabResults(labs);
+
+        const latest = recs[0] || null;
+        if (latest && isTodayIso(latest.createdAt || latest.visitDate)) {
+          setSelectedRecord(latest);
+          populateFormFromRecord(latest);
+          setModalMode(latest.canEdit && canWriteEmr ? 'edit' : 'view');
+        } else {
+          setSelectedRecord(null);
+          setForm(INITIAL_FORM);
+          setModalMode(canWriteEmr ? 'create' : 'view');
+        }
+      } catch (err) {
+        console.error('Error loading encounter EMR modal:', err);
+        setModalError('Không thể tải chi tiết bệnh án hoặc kết quả xét nghiệm.');
+      } finally {
+        setLoadingModalData(false);
+      }
+    },
+    [canWriteEmr, populateFormFromRecord]
+  );
+
+  // Auto-open modal if navigated directly with ?patientId=... or ?appointmentId=...
+  useEffect(() => {
+    if (autoOpenedQuery || loadingWorklist) return;
+    if (!queryPatientId && !queryAppointmentId) return;
+
+    const match = worklist.find(
+      (w) =>
+        (queryAppointmentId && String(w.appointmentId) === String(queryAppointmentId)) ||
+        (queryPatientId && String(w.patientId).toLowerCase() === queryPatientId.toLowerCase())
+    );
+
+    if (match) {
+      setAutoOpenedQuery(true);
+      handleOpenEncounterModal(match);
+    } else if (queryPatientId) {
+      setAutoOpenedQuery(true);
+      handleOpenEncounterModal({
+        key: `PAT:${queryPatientId}`,
+        appointmentId: queryAppointmentId || '',
+        appointmentCode: queryAppointmentId ? `APT-${String(queryAppointmentId).slice(-6)}` : '',
+        patientId: queryPatientId,
+        patientName: 'Bệnh nhân theo hồ sơ',
+        sourceTag: 'Điều hướng trực tiếp'
+      });
+    }
+  }, [
+    autoOpenedQuery,
+    loadingWorklist,
+    queryPatientId,
+    queryAppointmentId,
+    worklist,
+    handleOpenEncounterModal
+  ]);
+
+  // Switch between history records inside modal
+  const handleSelectHistoryRecord = (record) => {
+    setModalError(null);
+    setModalSuccess(null);
+    if (!record) {
+      setSelectedRecord(null);
+      setForm(INITIAL_FORM);
+      setModalMode(canWriteEmr ? 'create' : 'view');
+      return;
+    }
+    setSelectedRecord(record);
+    populateFormFromRecord(record);
+    setModalMode(record.canEdit && canWriteEmr ? 'edit' : 'view');
   };
 
-  // Cancel edit or create
-  const handleCancelForm = () => {
-    setIsEditing(false);
-    setIsCreatingNew(false);
-    if (records.length > 0) {
-      setSelectedRecord(records[0]);
+  // Explicit search for an old patient by exact PAT-... code when not in today's queue
+  const handleExplicitPatientLookup = async () => {
+    const term = searchKeyword.trim();
+    if (term.length < 3) return;
+    const existing = worklist.find(
+      (w) =>
+        w.patientId.toLowerCase() === term.toLowerCase() ||
+        w.appointmentCode.toLowerCase() === term.toLowerCase()
+    );
+    if (existing) {
+      handleOpenEncounterModal(existing);
+      return;
+    }
+    if (term.toUpperCase().startsWith('PAT-')) {
+      handleOpenEncounterModal({
+        key: `PAT:${term.toUpperCase()}`,
+        appointmentId: '',
+        appointmentCode: '',
+        patientId: term.toUpperCase(),
+        patientName: `Hồ sơ ${term.toUpperCase()}`,
+        sourceTag: 'Tra cứu mã BN'
+      });
     }
   };
 
-  // Handle Form Submit (Create or Update)
-  const handleSubmitForm = async (e) => {
+  // Save (Create or Update) Medical Record
+  const handleSubmitEmr = async (e) => {
     e.preventDefault();
+    if (!activeEncounter || modalMode === 'view') return;
+
     if (!bpValidation.valid) {
-      setErrorMsg(bpValidation.message);
+      setModalError(bpValidation.message);
       return;
     }
 
     const upperIcd = form.icd10Code.trim().toUpperCase();
     if (!ICD10_REGEX.test(upperIcd)) {
-      setErrorMsg(`Mã ICD-10 "${upperIcd}" không đúng định dạng chuẩn WHO (Ví dụ: E11.9, I10).`);
+      setModalError(`Mã ICD-10 "${upperIcd}" không đúng định dạng chuẩn WHO (Ví dụ: E11.9, I10).`);
+      return;
+    }
+
+    if (!form.chiefComplaint.trim() || !form.diagnosis.trim()) {
+      setModalError('Vui lòng nhập đầy đủ Lý do khám và Chẩn đoán xác định.');
       return;
     }
 
     setSubmitLoading(true);
-    setErrorMsg(null);
-    setFeedbackMsg(null);
+    setModalError(null);
+    setModalSuccess(null);
 
     const payload = {
-      patientId: patientId.trim(),
+      patientId: activeEncounter.patientId,
       chiefComplaint: form.chiefComplaint.trim(),
       clinicalSymptoms: form.clinicalSymptoms?.trim() || '',
       vitals: {
@@ -277,788 +564,898 @@ export default function MedicalRecordPage() {
         temperature: Number(form.temperature),
         spo2: Number(form.spo2),
         heightCm: Number(form.heightCm),
-        weightKg: Number(form.weightKg),
+        weightKg: Number(form.weightKg)
       },
       icd10Code: upperIcd,
       icd10Name: form.icd10Name?.trim() || '',
       diagnosis: form.diagnosis.trim(),
       treatmentPlan: form.treatmentPlan?.trim() || '',
-      prescriptionNotes: form.prescriptionNotes?.trim() || '',
+      prescriptionNotes: form.prescriptionNotes?.trim() || ''
     };
 
     try {
-      if (isCreatingNew) {
-        const created = await medicalRecordApi.createRecord(payload);
-        setFeedbackMsg(`Tạo bệnh án thành công! Mã bệnh án: ${created.recordCode || created.id}`);
-        setIsCreatingNew(false);
-        await fetchRecords(patientId);
-      } else if (isEditing && selectedRecord) {
-        const updated = await medicalRecordApi.updateRecord(selectedRecord.id, payload);
-        setFeedbackMsg(`Cập nhật bệnh án ${updated.recordCode || selectedRecord.recordCode} thành công!`);
-        setIsEditing(false);
-        await fetchRecords(patientId);
+      let saved;
+      if (modalMode === 'create') {
+        saved = await medicalRecordApi.createRecord(payload);
+        setModalSuccess(
+          `Đã lập bệnh án & chốt chẩn đoán thành công! Mã hồ sơ: ${saved.recordCode || saved.id}`
+        );
+        setPageBanner(
+          `Đã lưu hồ sơ bệnh án ${saved.recordCode || ''} cho bệnh nhân ${activeEncounter.patientName} (${upperIcd}).`
+        );
+      } else if (modalMode === 'edit' && selectedRecord) {
+        saved = await medicalRecordApi.updateRecord(selectedRecord.id, payload);
+        setModalSuccess(
+          `Đã cập nhật hồ sơ ${saved.recordCode || selectedRecord.recordCode} thành công!`
+        );
+        setPageBanner(
+          `Đã cập nhật hồ sơ bệnh án ${saved.recordCode || selectedRecord.recordCode} cho bệnh nhân ${activeEncounter.patientName}.`
+        );
       }
+
+      // Refresh modal history & main worklist
+      const recRes = await medicalRecordApi.getPatientRecords(activeEncounter.patientId).catch(() => null);
+      const recs = extractArray(recRes);
+      setPatientRecords(recs);
+      const targetRec = recs.find((r) => r.id === saved?.id) || recs[0] || saved;
+      if (targetRec) {
+        setSelectedRecord(targetRec);
+        populateFormFromRecord(targetRec);
+        setModalMode(targetRec.canEdit && canWriteEmr ? 'edit' : 'view');
+      }
+      await loadWorklist();
     } catch (err) {
       console.error('Error saving medical record:', err);
-      setErrorMsg(err.message || 'Lỗi khi lưu bệnh án điện tử.');
+      setModalError(err.message || 'Lỗi khi lưu bệnh án điện tử.');
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  // Soft Delete Record Confirmation
+  // Soft delete confirmation
   const handleDeleteConfirm = async () => {
     if (!recordToDelete || deleteReason.trim().length < 15) {
-      setErrorMsg('Lý do xóa bắt buộc tối thiểu 15 ký tự theo quy định kiểm toán y tế.');
+      setModalError('Lý do xóa bắt buộc tối thiểu 15 ký tự theo quy định kiểm toán y tế.');
       return;
     }
 
     setSubmitLoading(true);
-    setErrorMsg(null);
+    setModalError(null);
     try {
       await medicalRecordApi.deleteRecord(recordToDelete.id, deleteReason.trim());
-      setFeedbackMsg(`Đã xóa bệnh án ${recordToDelete.recordCode} thành công.`);
       setShowDeleteModal(false);
       setRecordToDelete(null);
       setDeleteReason('');
-      await fetchRecords(patientId);
+      setModalSuccess(`Đã hủy hồ sơ bệnh án ${recordToDelete.recordCode} theo quy trình kiểm toán.`);
+
+      if (activeEncounter) {
+        const recRes = await medicalRecordApi.getPatientRecords(activeEncounter.patientId).catch(() => null);
+        const recs = extractArray(recRes);
+        setPatientRecords(recs);
+        setSelectedRecord(null);
+        setForm(INITIAL_FORM);
+        setModalMode(canWriteEmr ? 'create' : 'view');
+      }
+      await loadWorklist();
     } catch (err) {
       console.error('Delete error:', err);
-      setErrorMsg(err.message || 'Không thể xóa hồ sơ bệnh án.');
+      setModalError(err.message || 'Không thể xóa hồ sơ bệnh án.');
     } finally {
       setSubmitLoading(false);
     }
   };
 
+  // Filtered worklist
+  const filteredWorklist = useMemo(() => {
+    const kw = searchKeyword.trim().toLowerCase();
+    return worklist.filter((item) => {
+      if (kw) {
+        const hay = `${item.patientName} ${item.patientId} ${item.appointmentCode} ${item.latestRecord?.icd10Code || ''} ${item.latestRecord?.recordCode || ''}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      if (statusFilter === 'PENDING_EMR') {
+        return !item.hasTodayEmr;
+      }
+      if (statusFilter === 'LAB_READY') {
+        return item.hasApprovedLab;
+      }
+      if (statusFilter === 'EDITABLE_24H') {
+        return Boolean(item.latestRecord && item.latestRecord.canEdit);
+      }
+      if (statusFilter === 'LOCKED') {
+        return Boolean(item.latestRecord && !item.latestRecord.canEdit);
+      }
+      return true;
+    });
+  }, [worklist, searchKeyword, statusFilter]);
+
+  const counts = useMemo(() => {
+    return {
+      all: worklist.length,
+      pending: worklist.filter((w) => !w.hasTodayEmr).length,
+      labReady: worklist.filter((w) => w.hasApprovedLab).length,
+      editable: worklist.filter((w) => w.latestRecord && w.latestRecord.canEdit).length,
+      locked: worklist.filter((w) => w.latestRecord && !w.latestRecord.canEdit).length
+    };
+  }, [worklist]);
+
+  const isReadOnlyModal = modalMode === 'view';
+  const hasPendingLabGate = Boolean(
+    activeEncounter?.order &&
+      !activeEncounter?.hasApprovedLab &&
+      labResults.length === 0
+  );
+
   return (
     <div className="w-100 py-1">
       {/* Header Card */}
-      <div className="bms-page-header-card mb-4">
+      <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Bệnh án điện tử</h1>
+            <h1 className="bms-page-title">Bệnh án &amp; kết luận chẩn đoán</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Tra cứu lịch sử khám, dấu hiệu sinh tồn, chẩn đoán ICD-10 và phác đồ điều trị theo bệnh nhân.
+            Danh sách lượt khám từ Bàn khám &amp; Phòng Lab. Chọn bệnh nhân để đối chiếu kết quả xét nghiệm, chốt mã bệnh WHO ICD-10 và lưu bệnh án điện tử theo Thông tư 46/2018/TT-BYT.
           </p>
         </div>
         <div className="bms-page-actions">
           <Button
+            variant="outline-secondary"
             size="sm"
-            className="d-inline-flex align-items-center gap-2 fw-semibold text-white px-3 rounded-pill text-nowrap shadow-sm"
-            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-            disabled={!patientId.trim()}
-            onClick={handleStartCreate}
+            className="rounded-pill px-3 text-nowrap"
+            onClick={loadWorklist}
+            disabled={loadingWorklist}
           >
-            <FaPlus /> Tạo bệnh án
+            <FaSync className={loadingWorklist ? 'fa-spin me-1' : 'me-1'} size={11} /> Làm mới
           </Button>
         </div>
       </div>
 
-      {/* Patient Lookup Filter Bar */}
-      <div className="bms-filter-bar mb-3">
-        <div className="bms-search-input-pill">
+      {pageBanner && (
+        <Alert
+          variant="success"
+          dismissible
+          onClose={() => setPageBanner(null)}
+          className="rounded-4 border-0 shadow-sm mb-3 d-flex align-items-center gap-2"
+        >
+          <FaCheckCircle />
+          <span className="fw-semibold">{pageBanner}</span>
+        </Alert>
+      )}
+
+      {worklistError && (
+        <Alert variant="danger" className="rounded-4 border-0 shadow-sm mb-3">
+          {worklistError}
+        </Alert>
+      )}
+
+      {/* Filter Bar & Status Pills */}
+      <div className="bms-filter-bar mb-3 flex-wrap">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '260px' }}>
           <FaSearch className="bms-search-icon" />
           <input
             type="text"
-            placeholder="Nhập mã bệnh nhân (PAT-...) để tra cứu bệnh án..."
-            value={searchPatientInput}
-            onChange={(e) => setSearchPatientInput(e.target.value)}
+            placeholder="Tìm theo mã BN (PAT-...), tên bệnh nhân, mã hẹn (APT-...) hoặc mã ICD-10..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setPatientId(searchPatientInput.trim());
-                setIsCreatingNew(false);
-                setIsEditing(false);
-              }
+              if (e.key === 'Enter') handleExplicitPatientLookup();
             }}
           />
-          {searchPatientInput && (
-            <button
-              type="button"
-              className="bms-search-clear"
-              onClick={() => {
-                setSearchPatientInput('');
-                setPatientId('');
-                setIsCreatingNew(false);
-                setIsEditing(false);
-              }}
+          {searchKeyword.trim().toUpperCase().startsWith('PAT-') && (
+            <Button
+              size="sm"
+              variant="primary"
+              className="rounded-pill px-3 py-1 ms-2"
+              onClick={handleExplicitPatientLookup}
             >
-              <FaTimes size={12} />
-            </button>
+              Mở hồ sơ
+            </Button>
           )}
         </div>
-        <Button
-          variant="primary"
-          size="sm"
-          className="rounded-pill px-3 text-nowrap"
-          style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-          onClick={() => {
-            setPatientId(searchPatientInput.trim());
-            setIsCreatingNew(false);
-            setIsEditing(false);
-          }}
-        >
-          Tra cứu hồ sơ
-        </Button>
-        <span className="bms-filter-meta">
-          {patientId ? (
-            <>Mã BN: <strong>{patientId}</strong> ({records.length} hồ sơ)</>
-          ) : (
-            'Chưa chọn mã bệnh nhân'
-          )}
-        </span>
+
+        <div className="d-flex flex-wrap gap-2">
+          {[
+            { key: 'ALL', label: `Tất cả (${counts.all})` },
+            { key: 'PENDING_EMR', label: `Chờ lập bệnh án (${counts.pending})` },
+            { key: 'LAB_READY', label: `Đã có KQ Lab (${counts.labReady})` },
+            { key: 'EDITABLE_24H', label: `Còn hạn 24h (${counts.editable})` },
+            { key: 'LOCKED', label: `Đã khóa (>24h) (${counts.locked})` }
+          ].map((pill) => (
+            <Button
+              key={pill.key}
+              size="sm"
+              variant={statusFilter === pill.key ? 'primary' : 'light'}
+              className={`rounded-pill px-3 fw-semibold ${
+                statusFilter === pill.key ? 'text-white shadow-sm' : 'text-secondary border'
+              }`}
+              onClick={() => setStatusFilter(pill.key)}
+            >
+              {pill.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
-      {/* Alerts */}
-      {feedbackMsg && (
-        <Alert variant="success" dismissible onClose={() => setFeedbackMsg(null)} className="py-2 mb-3 shadow-sm">
-          <FaCheckCircle className="me-2" />
-          {feedbackMsg}
-        </Alert>
-      )}
+      {/* Main Worklist Table */}
+      <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+        <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center gap-2">
+            <FaClipboardList className="text-primary" />
+            <h6 className="fw-bold text-dark mb-0">
+              Danh Sách Bệnh Nhân Khám &amp; Kết Luận Bệnh Án
+            </h6>
+          </div>
+          <span className="small text-muted">
+            Hiển thị <strong>{filteredWorklist.length}</strong> lượt khám thực tế
+          </span>
+        </Card.Header>
 
-      {errorMsg && (
-        <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="py-2 mb-3 shadow-sm">
-          <FaExclamationTriangle className="me-2" />
-          {errorMsg}
-        </Alert>
-      )}
+        <Card.Body className="p-0">
+          {loadingWorklist ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+              <span className="text-muted small">Đang đồng bộ hàng đợi khám, kết quả Lab &amp; hồ sơ EMR...</span>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <Table hover className="align-middle mb-0">
+                <thead className="bg-light text-muted small text-uppercase">
+                  <tr>
+                    <th className="ps-4 py-3">STT / Mã Hẹn</th>
+                    <th>Bệnh Nhân</th>
+                    <th>Cận Lâm Sàng (Lab)</th>
+                    <th>Hồ Sơ Bệnh Án (EMR)</th>
+                    <th className="text-end pe-4">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWorklist.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="text-center py-5">
+                        <FaUserInjured size={34} className="text-muted opacity-25 mb-2" />
+                        <div className="fw-semibold text-dark">
+                          {searchKeyword
+                            ? 'Không tìm thấy bệnh nhân khớp với từ khóa'
+                            : 'Chưa có lượt khám nào trong danh sách hôm nay'}
+                        </div>
+                        <div className="small text-muted mt-1">
+                          Bác sĩ có thể gọi bệnh nhân tại Bàn khám hoặc gõ mã <code>PAT-...</code> vào thanh tìm kiếm rồi nhấn Enter để tra cứu hồ sơ cũ.
+                        </div>
+                        <div className="mt-3">
+                          <Link
+                            to="/doctor/console"
+                            className="btn btn-outline-primary btn-sm rounded-pill px-3"
+                          >
+                            <FaBullhorn className="me-1" /> Mở Bàn Khám &amp; Gọi Số
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredWorklist.map((item, idx) => {
+                      const latest = item.latestRecord;
+                      const isLocked = latest && !latest.canEdit;
+                      const isEditable = latest && latest.canEdit;
 
-      <Row className="g-4">
-        {/* Left Column: Patient Medical History Timeline */}
-        <Col lg={4}>
-          <Card className="shadow-sm rounded-4 h-100 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-            <Card.Header className="py-3 px-3 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
-              <div>
-                <h6 className="fw-bold mb-0 text-dark">Lịch sử bệnh án</h6>
-                <small className="text-muted">Bệnh nhân: <strong className="font-monospace" style={{ color: '#1E60E6' }}>{patientId || 'Chưa chọn'}</strong></small>
-              </div>
-              <Badge bg="primary-subtle" text="primary" className="rounded-pill px-3 py-1.5 border border-primary-subtle">
-                {records.length} hồ sơ
-              </Badge>
-            </Card.Header>
+                      return (
+                        <tr key={item.key}>
+                          <td className="ps-4">
+                            <div className="fw-bold text-dark">
+                              {item.queueNumber ? `#${item.queueNumber}` : `#${idx + 1}`}
+                              {item.appointmentCode ? ` · ${item.appointmentCode}` : ''}
+                            </div>
+                            <Badge
+                              bg={item.sourceTag === 'Đang gọi số' ? 'primary' : 'light'}
+                              text={item.sourceTag === 'Đang gọi số' ? 'white' : 'dark'}
+                              className="border rounded-pill mt-1 fw-normal"
+                            >
+                              {item.sourceTag}
+                            </Badge>
+                          </td>
 
-            <Card.Body className="p-2 overflow-auto" style={{ maxHeight: '720px' }}>
-              {loading ? (
-                <div className="text-center py-4">
-                  <Spinner animation="border" size="sm" style={{ color: '#1E60E6' }} />
-                  <div className="small text-muted mt-2">Đang tải hồ sơ bệnh án...</div>
-                </div>
-              ) : !patientId.trim() ? (
-                <div className="text-center py-4 text-muted">
-                  <FaUserInjured className="fs-2 mb-2 text-muted opacity-50" />
-                  <div className="fw-semibold text-dark">Chưa chọn bệnh nhân</div>
-                  <div className="small">Nhập mã bệnh nhân ở thanh tra cứu phía trên để xem bệnh án.</div>
-                </div>
-              ) : !Array.isArray(records) || records.length === 0 ? (
-                <div className="text-center py-4 text-muted">
-                  <FaClipboardList className="fs-2 mb-2 text-muted opacity-50" />
-                  <div className="fw-semibold text-dark">Chưa có hồ sơ bệnh án</div>
-                  <div className="small">Bệnh nhân chưa có lịch sử khám nào tại cơ sở y tế.</div>
-                </div>
-              ) : (
-                records.map((r) => {
-                  const isSelected = selectedRecord?.id === r.id && !isCreatingNew;
-                  const dateStr = r.createdAt
-                    ? new Date(r.createdAt).toLocaleDateString('vi-VN', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : '—';
+                          <td>
+                            <div className="fw-bold text-dark">{item.patientName}</div>
+                            <div className="small text-muted">
+                              <code>{item.patientId}</code>
+                              {item.gender ? ` · ${item.gender}` : ''}
+                              {item.phone ? ` · ${item.phone}` : ''}
+                            </div>
+                          </td>
 
-                  return (
-                    <div
-                      key={r.id}
-                      onClick={() => handleSelectRecord(r)}
-                      className={`p-3 mb-2 rounded-4 border transition-all cursor-pointer ${
-                        isSelected
-                          ? 'shadow-sm'
-                          : 'bg-white hover-bg-light'
-                      }`}
-                      style={{
-                        cursor: 'pointer',
-                        borderColor: isSelected ? '#1E60E6' : 'rgba(15, 23, 42, 0.05)',
-                        backgroundColor: isSelected ? 'rgba(30, 96, 230, 0.08)' : undefined
-                      }}
-                    >
-                      <div className="d-flex justify-content-between align-items-start mb-1">
-                        <span className="fw-bold font-monospace small" style={{ color: '#1E60E6' }}>
-                          {r.recordCode || r.id}
-                        </span>
-                        {r.canEdit ? (
-                          <Badge className="small rounded-pill text-white" style={{ backgroundColor: '#16a34a' }}>
-                            Có thể sửa
-                          </Badge>
-                        ) : (
-                          <Badge bg="secondary" className="small rounded-pill d-flex align-items-center gap-1">
-                            <FaLock size={10} /> Đã khóa sau 24h
-                          </Badge>
-                        )}
-                      </div>
+                          <td>
+                            {item.hasApprovedLab ? (
+                              <div className="d-flex flex-column gap-1 align-items-start">
+                                <Badge bg="success" className="rounded-pill px-2 py-1">
+                                  <FaCheckCircle className="me-1" /> Đã có KQ Lab duyệt
+                                </Badge>
+                                {item.hasPanicOrAbnormal && (
+                                  <Badge bg="danger" className="rounded-pill px-2 py-1">
+                                    <FaExclamationTriangle className="me-1" /> Có chỉ số bất thường
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : item.order ? (
+                              <Badge bg="warning" text="dark" className="rounded-pill px-2 py-1">
+                                <FaVial className="me-1" /> Đang chờ Lab ({item.order.status})
+                              </Badge>
+                            ) : (
+                              <span className="small text-muted">Chưa có chỉ định Lab</span>
+                            )}
+                          </td>
 
-                      <div className="fw-semibold text-dark mb-1 small text-truncate">
-                        {r.diagnosis || r.chiefComplaint}
-                      </div>
+                          <td>
+                            {!latest ? (
+                              <Badge bg="secondary" className="rounded-pill px-2 py-1 bg-opacity-75">
+                                Chưa lập bệnh án
+                              </Badge>
+                            ) : isLocked ? (
+                              <div className="d-flex flex-column align-items-start gap-1">
+                                <Badge bg="dark" className="rounded-pill px-2 py-1">
+                                  <FaLock className="me-1" /> Đã khóa (&gt; 24h)
+                                </Badge>
+                                <span className="small text-muted">
+                                  {latest.recordCode} · ICD-10: <strong>{latest.icd10Code}</strong>
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="d-flex flex-column align-items-start gap-1">
+                                <Badge bg="info" text="dark" className="rounded-pill px-2 py-1">
+                                  <FaEdit className="me-1" /> Đã lập · Còn hạn sửa 24h
+                                </Badge>
+                                <span className="small text-muted">
+                                  {latest.recordCode} · ICD-10: <strong>{latest.icd10Code}</strong>
+                                </span>
+                              </div>
+                            )}
+                          </td>
 
-                      <div className="d-flex justify-content-between align-items-center small text-muted">
-                        <span>
-                          <FaCalendarAlt className="me-1" />
-                          {dateStr}
-                        </span>
-                        <Badge bg="light" text="dark" className="border rounded-pill font-monospace">
-                          ICD: {r.icd10Code}
-                        </Badge>
-                      </div>
-                    </div>
-                  );
-                })
+                          <td className="text-end pe-4">
+                            {!item.hasTodayEmr && canWriteEmr ? (
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                className="rounded-pill px-3 fw-semibold shadow-sm"
+                                onClick={() => handleOpenEncounterModal(item)}
+                              >
+                                <FaNotesMedical className="me-1" /> Lập bệnh án &amp; Kết luận
+                              </Button>
+                            ) : isEditable && canWriteEmr ? (
+                              <Button
+                                size="sm"
+                                variant="outline-primary"
+                                className="rounded-pill px-3 fw-semibold"
+                                onClick={() => handleOpenEncounterModal(item)}
+                              >
+                                <FaEdit className="me-1" /> Xem / Cập nhật (24h)
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline-secondary"
+                                className="rounded-pill px-3 fw-semibold"
+                                onClick={() => handleOpenEncounterModal(item)}
+                              >
+                                <FaEye className="me-1" /> Xem hồ sơ
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+
+      {/* Clinical EMR & Diagnosis Conclusion Modal */}
+      <Modal
+        show={showModal}
+        onHide={() => !submitLoading && setShowModal(false)}
+        size="xl"
+        backdrop="static"
+        scrollable
+      >
+        <Modal.Header closeButton className="bg-light border-bottom px-4 py-3">
+          <div className="d-flex flex-column">
+            <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
+              <FaStethoscope className="text-primary" />
+              <span>Bệnh Án Điện Tử &amp; Kết Luận Chẩn Đoán</span>
+              {selectedRecord && (
+                <Badge bg="primary" className="rounded-pill fs-6 fw-normal px-3">
+                  {selectedRecord.recordCode}
+                </Badge>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
+              {isReadOnlyModal && selectedRecord && (
+                <Badge bg="dark" className="rounded-pill fs-6 fw-normal px-3">
+                  <FaLock className="me-1" /> Khóa pháp lý (&gt; 24h)
+                </Badge>
+              )}
+            </Modal.Title>
+            {activeEncounter && (
+              <div className="small text-muted mt-1">
+                Bệnh nhân: <strong className="text-dark">{activeEncounter.patientName}</strong> · Mã:{' '}
+                <code>{activeEncounter.patientId}</code>
+                {activeEncounter.appointmentCode ? ` · Lượt khám: ${activeEncounter.appointmentCode}` : ''}
+              </div>
+            )}
+          </div>
+        </Modal.Header>
 
-        {/* Right Column: EMR Detail Viewer or Form Editor */}
-        <Col lg={8}>
-          {isCreatingNew || isEditing ? (
-            /* CREATE / EDIT FORM */
-            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
-              <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
-                <span className="fw-bold text-uppercase fs-6 text-dark">
-                  {isCreatingNew ? 'Tạo bệnh án điện tử mới' : `Chỉnh sửa bệnh án #${selectedRecord?.recordCode}`}
-                </span>
-                <Button variant="outline-secondary" size="sm" className="rounded-pill px-3" onClick={handleCancelForm}>
-                  Hủy bỏ
-                </Button>
-              </Card.Header>
+        <Modal.Body className="p-4 bg-white">
+          {loadingModalData ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" />
+              <div className="small text-muted mt-2">
+                Đang nạp lịch sử bệnh án và kết quả xét nghiệm từ Phòng Lab...
+              </div>
+            </div>
+          ) : (
+            <Form id="emr-conclusion-form" onSubmit={handleSubmitEmr}>
+              {modalError && (
+                <Alert variant="danger" dismissible onClose={() => setModalError(null)} className="rounded-3">
+                  <FaExclamationTriangle className="me-2" />
+                  {modalError}
+                </Alert>
+              )}
 
-              <Card.Body className="p-2">
-                <Form onSubmit={handleSubmitForm}>
-                  {/* Chief Complaint */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-secondary">
-                      1. Lý do vào khám & Diễn biến cơ năng (S - Bệnh sử) <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ví dụ: Đau đầu kéo dài 3 ngày kèm sốt nhẹ, mệt mỏi..."
-                      value={form.chiefComplaint}
-                      onChange={(e) => setForm({ ...form, chiefComplaint: e.target.value })}
-                      required
-                    />
-                  </Form.Group>
+              {modalSuccess && (
+                <Alert variant="success" dismissible onClose={() => setModalSuccess(null)} className="rounded-3">
+                  <FaCheckCircle className="me-2" />
+                  {modalSuccess}
+                </Alert>
+              )}
 
-                  {/* Clinical Symptoms */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-secondary">
-                      2. Triệu chứng lâm sàng & Thăm khám thực thể (O - Khám thực thể)
-                    </Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      placeholder="Ghi nhận triệu chứng cơ năng, thực thể của bệnh nhân..."
-                      value={form.clinicalSymptoms}
-                      onChange={(e) => setForm({ ...form, clinicalSymptoms: e.target.value })}
-                    />
-                  </Form.Group>
+              {hasPendingLabGate && !isReadOnlyModal && (
+                <Alert variant="warning" className="rounded-3 border-warning">
+                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div className="small">
+                      <FaExclamationTriangle className="me-2 text-warning" />
+                      <strong>Ràng buộc liên thông Phòng Lab:</strong> Bệnh nhân đang có y lệnh{' '}
+                      <code>{activeEncounter?.order?.orderNumber || activeEncounter?.order?.id}</code>{' '}
+                      ({activeEncounter?.order?.status}) nhưng <strong>chưa có kết quả được ký duyệt SHA-256</strong>.
+                    </div>
+                    <Link
+                      to="/laboratory/biochemical-results"
+                      className="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold"
+                    >
+                      Mở Duyệt KQ Lab
+                    </Link>
+                  </div>
+                  <Form.Check
+                    type="checkbox"
+                    id="bypass-pending-lab-check"
+                    className="mt-2 small fw-semibold text-dark"
+                    label="Xác nhận chốt bệnh án lâm sàng ngay (không chờ kết quả xét nghiệm Lab)"
+                    checked={bypassPendingLab}
+                    onChange={(e) => setBypassPendingLab(e.target.checked)}
+                  />
+                </Alert>
+              )}
 
-                  {/* Vitals Box with Clinical Ranges */}
-                  <div className="p-3 rounded-4 mb-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                      <FaHeartbeat /> Dấu Hiệu Sinh Tồn & Chỉ Số BMI
-                    </h6>
-
-                    {!bpValidation.valid && (
-                      <Alert variant="danger" className="py-2 small mb-3">
-                        <FaExclamationTriangle className="me-1" />
-                        {bpValidation.message}
-                      </Alert>
+              {/* History Switcher Bar */}
+              <div className="bg-light rounded-3 p-3 mb-4 border">
+                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <div className="small fw-bold text-dark d-flex align-items-center gap-2">
+                    <FaHistory className="text-primary" />
+                    <span>Lịch sử bệnh án của bệnh nhân ({patientRecords.length} hồ sơ):</span>
+                  </div>
+                  <div className="d-flex flex-wrap gap-2">
+                    {canWriteEmr && (
+                      <Button
+                        size="sm"
+                        variant={!selectedRecord ? 'primary' : 'outline-primary'}
+                        className="rounded-pill px-3"
+                        onClick={() => handleSelectHistoryRecord(null)}
+                      >
+                        <FaPlus className="me-1" /> Lập bệnh án đợt mới
+                      </Button>
                     )}
+                    {patientRecords.map((rec) => (
+                      <Button
+                        key={rec.id}
+                        size="sm"
+                        variant={selectedRecord?.id === rec.id ? 'dark' : 'outline-secondary'}
+                        className="rounded-pill px-3"
+                        onClick={() => handleSelectHistoryRecord(rec)}
+                      >
+                        {rec.recordCode} ({rec.icd10Code}){' '}
+                        {rec.canEdit ? '· 24h' : '· Khóa'}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-                    <Row className="g-3">
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Mạch (Nhịp tim)</Form.Label>
-                        <InputGroup size="sm">
+              <Row className="g-4">
+                {/* Left Column: Lab Results Reference + Vitals */}
+                <Col lg={5}>
+                  {/* Read-only Lab Results Summary */}
+                  <Card className="border rounded-4 mb-4">
+                    <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
+                      <span className="fw-bold small text-dark">
+                        <FaVial className="text-primary me-2" />
+                        Kết Quả Xét Nghiệm Cận Lâm Sàng (Lab)
+                      </span>
+                      <Badge bg="secondary" className="rounded-pill">
+                        {labResults.length} phiếu
+                      </Badge>
+                    </Card.Header>
+                    <Card.Body className="p-3" style={{ maxHeight: '240px', overflowY: 'auto' }}>
+                      {labResults.length === 0 ? (
+                        <div className="small text-muted text-center py-3">
+                          Chưa có kết quả xét nghiệm nào được Phòng Lab phát hành cho bệnh nhân này.
+                        </div>
+                      ) : (
+                        labResults.map((res, idx) => {
+                          const params = res.parameters || res.items || res.details || [];
+                          return (
+                            <div key={res.id || idx} className="border-bottom pb-2 mb-2 last-no-border">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <strong className="small text-primary">
+                                  {res.packageName || res.testName || res.orderNumber || `Phiếu KQ #${idx + 1}`}
+                                </strong>
+                                <span className="small text-muted">
+                                  {formatDateTime(res.approvedAt || res.createdAt)}
+                                </span>
+                              </div>
+                              {params.length > 0 ? (
+                                <div className="d-flex flex-wrap gap-1">
+                                  {params.slice(0, 8).map((p, pIdx) => {
+                                    const flag = String(p.flag || p.status || '').toUpperCase();
+                                    const isAbnormal = flag === 'HIGH' || flag === 'LOW' || flag === 'PANIC' || flag === 'CRITICAL';
+                                    return (
+                                      <Badge
+                                        key={pIdx}
+                                        bg={isAbnormal ? 'danger' : 'light'}
+                                        text={isAbnormal ? 'white' : 'dark'}
+                                        className="border fw-normal"
+                                      >
+                                        {p.criterionName || p.parameterName || p.testName || p.name || p.criterionCode || p.code || p.abbreviation || 'Chỉ số'}:{' '}
+                                        <strong>
+                                          {p.value ?? p.resultValue} {p.unit || ''}
+                                        </strong>
+                                      </Badge>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <div className="small text-muted">
+                                  {res.conclusion || res.doctorNote || 'Đã có kết quả xét nghiệm.'}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </Card.Body>
+                  </Card>
+
+                  {/* Vitals & BMI */}
+                  <Card className="border rounded-4">
+                    <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
+                      <span className="fw-bold small text-dark">
+                        <FaHeartbeat className="text-danger me-2" />
+                        Dấu Hiệu Sinh Tồn &amp; Chỉ Số BMI
+                      </span>
+                      <Badge bg={bmiColor} className="rounded-pill">
+                        BMI: {bmi} ({bmiCategory})
+                      </Badge>
+                    </Card.Header>
+                    <Card.Body className="p-3">
+                      <Row className="g-2">
+                        <Col xs={6}>
+                          <Form.Label className="small fw-semibold mb-1">Mạch (bpm)</Form.Label>
                           <Form.Control
                             type="number"
-                            min={30}
-                            max={250}
+                            size="sm"
+                            disabled={isReadOnlyModal}
                             value={form.heartRate}
                             onChange={(e) => setForm({ ...form, heartRate: e.target.value })}
-                            required
                           />
-                          <InputGroup.Text>bpm</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Huyết áp tâm thu</Form.Label>
-                        <InputGroup size="sm">
-                          <Form.Control
-                            type="number"
-                            min={60}
-                            max={260}
-                            value={form.systolicBp}
-                            onChange={(e) => setForm({ ...form, systolicBp: e.target.value })}
-                            required
-                          />
-                          <InputGroup.Text>mmHg</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Huyết áp tâm trương</Form.Label>
-                        <InputGroup size="sm">
-                          <Form.Control
-                            type="number"
-                            min={40}
-                            max={150}
-                            value={form.diastolicBp}
-                            onChange={(e) => setForm({ ...form, diastolicBp: e.target.value })}
-                            required
-                          />
-                          <InputGroup.Text>mmHg</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Thân nhiệt</Form.Label>
-                        <InputGroup size="sm">
+                        </Col>
+                        <Col xs={6}>
+                          <Form.Label className="small fw-semibold mb-1">Nhiệt độ (°C)</Form.Label>
                           <Form.Control
                             type="number"
                             step="0.1"
-                            min={34.0}
-                            max={43.0}
+                            size="sm"
+                            disabled={isReadOnlyModal}
                             value={form.temperature}
                             onChange={(e) => setForm({ ...form, temperature: e.target.value })}
-                            required
                           />
-                          <InputGroup.Text>°C</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">SpO2</Form.Label>
-                        <InputGroup size="sm">
+                        </Col>
+                        <Col xs={6}>
+                          <Form.Label className="small fw-semibold mb-1">HA Tâm thu (mmHg)</Form.Label>
                           <Form.Control
                             type="number"
-                            min={50}
-                            max={100}
+                            size="sm"
+                            disabled={isReadOnlyModal}
+                            isInvalid={!bpValidation.valid}
+                            value={form.systolicBp}
+                            onChange={(e) => setForm({ ...form, systolicBp: e.target.value })}
+                          />
+                        </Col>
+                        <Col xs={6}>
+                          <Form.Label className="small fw-semibold mb-1">HA Tâm trương (mmHg)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            size="sm"
+                            disabled={isReadOnlyModal}
+                            isInvalid={!bpValidation.valid}
+                            value={form.diastolicBp}
+                            onChange={(e) => setForm({ ...form, diastolicBp: e.target.value })}
+                          />
+                        </Col>
+                        {!bpValidation.valid && (
+                          <Col xs={12}>
+                            <div className="text-danger small fw-semibold">{bpValidation.message}</div>
+                          </Col>
+                        )}
+                        <Col xs={4}>
+                          <Form.Label className="small fw-semibold mb-1">SpO2 (%)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            size="sm"
+                            disabled={isReadOnlyModal}
                             value={form.spo2}
                             onChange={(e) => setForm({ ...form, spo2: e.target.value })}
-                            required
                           />
-                          <InputGroup.Text>%</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Chiều cao</Form.Label>
-                        <InputGroup size="sm">
+                        </Col>
+                        <Col xs={4}>
+                          <Form.Label className="small fw-semibold mb-1">Cao (cm)</Form.Label>
                           <Form.Control
                             type="number"
-                            min={20}
-                            max={250}
+                            size="sm"
+                            disabled={isReadOnlyModal}
                             value={form.heightCm}
                             onChange={(e) => setForm({ ...form, heightCm: e.target.value })}
-                            required
                           />
-                          <InputGroup.Text>cm</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
-
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Cân nặng</Form.Label>
-                        <InputGroup size="sm">
+                        </Col>
+                        <Col xs={4}>
+                          <Form.Label className="small fw-semibold mb-1">Nặng (kg)</Form.Label>
                           <Form.Control
                             type="number"
-                            step="0.5"
-                            min={1}
-                            max={300}
+                            step="0.1"
+                            size="sm"
+                            disabled={isReadOnlyModal}
                             value={form.weightKg}
                             onChange={(e) => setForm({ ...form, weightKg: e.target.value })}
-                            required
                           />
-                          <InputGroup.Text>kg</InputGroup.Text>
-                        </InputGroup>
-                      </Col>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                </Col>
 
-                      {/* Automated BMI Display */}
-                      <Col md={3} sm={6}>
-                        <Form.Label className="small fw-semibold text-secondary">Chỉ số BMI (Tự động)</Form.Label>
-                        <div className="d-flex align-items-center gap-2 pt-1">
-                          <span className="fw-bold fs-6 text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{bmi}</span>
-                          <Badge bg={bmiColor} className="small rounded-pill">
-                            {bmiCategory}
-                          </Badge>
-                        </div>
-                      </Col>
-                    </Row>
-                  </div>
-
-                  {/* ICD-10 Code & Disease Name */}
-                  <Row className="g-3 mb-3">
-                    <Col md={5}>
-                      <Form.Label className="small fw-bold text-secondary">
-                        Mã chẩn đoán ICD-10 <span className="text-danger">*</span>
-                      </Form.Label>
-                      <Form.Select
-                        value={form.icd10Code}
-                        onChange={(e) => {
-                          const selected = COMMON_ICD10.find((x) => x.code === e.target.value);
-                          setForm({
-                            ...form,
-                            icd10Code: e.target.value,
-                            icd10Name: selected ? selected.name : form.icd10Name,
-                          });
-                        }}
-                        required
-                      >
-                        {COMMON_ICD10.map((icd) => (
-                          <option key={icd.code} value={icd.code}>
-                            {icd.code} - {icd.name}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Col>
-
-                    <Col md={7}>
-                      <Form.Label className="small fw-bold text-secondary">Tên bệnh lý theo chuẩn WHO</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={form.icd10Name}
-                        onChange={(e) => setForm({ ...form, icd10Name: e.target.value })}
-                        required
-                      />
-                    </Col>
-                  </Row>
-
-                  {/* Diagnosis */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-secondary">
-                      3. Chẩn đoán xác định của Bác sĩ (A - Chẩn đoán ICD-10) <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Chẩn đoán xác định bệnh..."
-                      value={form.diagnosis}
-                      onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
-                      required
-                    />
-                  </Form.Group>
-
-                  {/* Treatment Plan */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="small fw-bold text-secondary">4. Hướng xử trí & Phác đồ điều trị (P - Kế hoạch)</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      placeholder="Chỉ định xét nghiệm máu, theo dõi chế độ ăn..."
-                      value={form.treatmentPlan}
-                      onChange={(e) => setForm({ ...form, treatmentPlan: e.target.value })}
-                    />
-                  </Form.Group>
-
-                  {/* Prescription Notes */}
-                  <Form.Group className="mb-4">
-                    <Form.Label className="small fw-bold text-secondary">5. Đơn thuốc & Tư vấn dặn dò (E - Đánh giá & Hẹn khám)</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      placeholder="Đơn thuốc ngoại trú hoặc lưu ý uống thuốc..."
-                      value={form.prescriptionNotes}
-                      onChange={(e) => setForm({ ...form, prescriptionNotes: e.target.value })}
-                    />
-                  </Form.Group>
-
-                  <div className="d-flex justify-content-end gap-2 pt-2 border-top" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <Button variant="secondary" style={{ borderRadius: '9999px' }} onClick={handleCancelForm}>
-                      Hủy bỏ
-                    </Button>
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      disabled={submitLoading || !bpValidation.valid}
-                      className="px-3 fw-bold shadow-sm"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                    >
-                      {submitLoading ? (
-                        <>
-                          <Spinner animation="border" size="sm" className="me-2" />
-                          Đang lưu hồ sơ...
-                        </>
-                      ) : (
-                        'Lưu Bệnh Án'
-                      )}
-                    </Button>
-                  </div>
-                </Form>
-              </Card.Body>
-            </Card>
-          ) : selectedRecord ? (
-            /* RECORD DETAIL VIEWER */
-            <Card className="shadow-sm rounded-4 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Header className="bg-white py-3 px-3 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <div>
-                  <span className="small text-muted text-uppercase fw-bold">Chi Tiết Bệnh Án</span>
-                  <div className="h4 fw-bold font-monospace mb-0" style={{ color: '#1E60E6' }}>
-                    {selectedRecord.recordCode || selectedRecord.id}
-                  </div>
-                </div>
-
-                <div className="d-flex gap-2 flex-wrap">
-                  {/* Direct Clinical Shortcut: Chỉ định xét nghiệm */}
-                  <Button
-                    as={Link}
-                    to={`/doctor/orders/create?patientId=${encodeURIComponent(patientId)}&patientName=${encodeURIComponent(selectedRecord?.patientName || '')}`}
-                    variant="primary"
-                    size="sm"
-                    className="d-flex align-items-center gap-1 shadow-sm"
-                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                  >
-                    <FaVial /> Chỉ Định Xét Nghiệm
-                  </Button>
-
-                  {/* Direct Clinical Shortcut: Ghi chú y khoa tiến trình */}
-                  {canAddNotes && (
-                    <Button
-                      as={Link}
-                      variant="outline-primary"
-                      size="sm"
-                      to={`/doctor/medical-notes?recordId=${encodeURIComponent(selectedRecord.id)}`}
-                      className="d-flex align-items-center gap-1"
-                      style={{ borderRadius: '9999px' }}
-                    >
-                      <FaNotesMedical /> Ghi Chú Y Khoa
-                    </Button>
-                  )}
-
-                  {selectedRecord.canEdit ? (
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="d-flex align-items-center gap-1"
-                      style={{ borderRadius: '9999px' }}
-                      onClick={() => handleStartEdit(selectedRecord)}
-                    >
-                      <FaEdit /> Sửa Bệnh Án
-                    </Button>
-                  ) : (
-                    <Badge bg="secondary" className="px-3 py-2 d-flex align-items-center gap-1 rounded-pill">
-                      <FaLock /> Đã Khóa Sau 24h
-                    </Badge>
-                  )}
-
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    className="d-flex align-items-center gap-1"
-                    style={{ borderRadius: '9999px' }}
-                    onClick={() => {
-                      setRecordToDelete(selectedRecord);
-                      setShowDeleteModal(true);
-                    }}
-                  >
-                    <FaTrashAlt /> Hủy / Xóa
-                  </Button>
-                </div>
-              </Card.Header>
-
-              <Card.Body className="p-2">
-                {/* Meta header */}
-                <Row className="g-3 mb-4 p-3 rounded-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <Col sm={6}>
-                    <div className="small text-muted">Bệnh nhân</div>
-                    <div className="fw-bold fs-5 text-dark">
-                      <FaUserInjured className="me-2" style={{ color: '#1E60E6' }} />
-                      {selectedRecord.patientName || 'Bệnh nhân'} ({selectedRecord.patientId})
-                    </div>
-                  </Col>
-                  <Col sm={6}>
-                    <div className="small text-muted">Bác sĩ khám</div>
-                    <div className="fw-bold fs-6 text-dark">
-                      <FaUserMd className="text-success me-2" />
-                      {selectedRecord.doctorName || '—'}
-                    </div>
-                    <div className="small text-muted">
-                      Thời điểm khám:{' '}
-                      {selectedRecord.createdAt
-                        ? new Date(selectedRecord.createdAt).toLocaleString('vi-VN')
-                        : '—'}
-                    </div>
-                  </Col>
-                </Row>
-
-                {/* Vitals summary cards */}
-                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                  <FaHeartbeat /> Dấu Hiệu Sinh Tồn Đo Được
-                </h6>
-
-                <Row className="g-3 mb-4">
-                  <Col md={3} sm={6}>
-                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <div className="small text-muted">Mạch (Nhịp tim)</div>
-                      <div className="fs-4 fw-bold font-monospace" style={{ color: '#1E60E6', fontVariantNumeric: 'tabular-nums' }}>
-                        {selectedRecord.vitals?.heartRate ?? '—'} <small className="fs-6 text-muted">bpm</small>
+                {/* Right Column: Clinical Examination + ICD-10 + Treatment Plan */}
+                <Col lg={7}>
+                  <Card className="border rounded-4 h-100">
+                    <Card.Header className="bg-light border-bottom py-2 px-3">
+                      <span className="fw-bold small text-dark">
+                        <FaUserMd className="text-primary me-2" />
+                        Khám Lâm Sàng, Chẩn Đoán WHO ICD-10 &amp; Phác Đồ Điều Trị
+                      </span>
+                    </Card.Header>
+                    <Card.Body className="p-3 d-flex flex-column gap-3">
+                      <div>
+                        <Form.Label className="small fw-semibold mb-1">
+                          Lý do vào khám <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          required
+                          disabled={isReadOnlyModal}
+                          placeholder="Ví dụ: Khám định kỳ đường huyết, mệt mỏi, đau đầu..."
+                          value={form.chiefComplaint}
+                          onChange={(e) => setForm({ ...form, chiefComplaint: e.target.value })}
+                        />
                       </div>
-                    </div>
-                  </Col>
-                  <Col md={3} sm={6}>
-                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <div className="small text-muted">Huyết Áp</div>
-                      <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                        {selectedRecord.vitals?.systolicBp ?? '—'}/{selectedRecord.vitals?.diastolicBp ?? '—'}{' '}
-                        <small className="fs-6 text-muted">mmHg</small>
+
+                      <div>
+                        <Form.Label className="small fw-semibold mb-1">Triệu chứng &amp; Khám thực thể</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          disabled={isReadOnlyModal}
+                          placeholder="Ghi nhận triệu chứng cơ năng, thực thể..."
+                          value={form.clinicalSymptoms}
+                          onChange={(e) => setForm({ ...form, clinicalSymptoms: e.target.value })}
+                        />
                       </div>
-                    </div>
-                  </Col>
-                  <Col md={3} sm={6}>
-                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <div className="small text-muted">Thân Nhiệt & SpO2</div>
-                      <div className="fs-4 fw-bold text-dark font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                        {selectedRecord.vitals?.temperature ?? '—'}°C | {selectedRecord.vitals?.spo2 ?? '—'}%
+
+                      <Row className="g-2">
+                        <Col md={7}>
+                          <Form.Label className="small fw-semibold mb-1">Chọn nhanh mã bệnh WHO ICD-10</Form.Label>
+                          <Form.Select
+                            size="sm"
+                            disabled={isReadOnlyModal}
+                            value={COMMON_ICD10.some((x) => x.code === form.icd10Code) ? form.icd10Code : ''}
+                            onChange={(e) => {
+                              const picked = COMMON_ICD10.find((x) => x.code === e.target.value);
+                              if (picked) {
+                                setForm({
+                                  ...form,
+                                  icd10Code: picked.code,
+                                  icd10Name: picked.name
+                                });
+                              }
+                            }}
+                          >
+                            <option value="">-- Chọn mã ICD-10 phổ biến --</option>
+                            {COMMON_ICD10.map((icd) => (
+                              <option key={icd.code} value={icd.code}>
+                                {icd.code} — {icd.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Col>
+                        <Col md={5}>
+                          <Form.Label className="small fw-semibold mb-1">
+                            Mã ICD-10 <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            size="sm"
+                            required
+                            disabled={isReadOnlyModal}
+                            placeholder="VD: E11.9"
+                            value={form.icd10Code}
+                            onChange={(e) => setForm({ ...form, icd10Code: e.target.value.toUpperCase() })}
+                          />
+                        </Col>
+                      </Row>
+
+                      <div>
+                        <Form.Label className="small fw-semibold mb-1">
+                          Kết luận chẩn đoán xác định <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          required
+                          disabled={isReadOnlyModal}
+                          placeholder="Nhập kết luận chẩn đoán sau khi đối chiếu kết quả xét nghiệm & lâm sàng..."
+                          value={form.diagnosis}
+                          onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
+                        />
                       </div>
-                    </div>
-                  </Col>
-                  <Col md={3} sm={6}>
-                    <div className="border rounded-4 p-3 text-center bg-white shadow-xs" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <div className="small text-muted">Chỉ số BMI</div>
-                      <div className="fs-4 fw-bold text-success font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                        {selectedRecord.vitals?.bmi ?? '—'}{' '}
-                        {selectedRecord.vitals?.bmiCategory && (
-                          <Badge bg="success" className="fs-7 fw-normal ms-1 rounded-pill">
-                            {selectedRecord.vitals.bmiCategory}
-                          </Badge>
-                        )}
+
+                      <div>
+                        <Form.Label className="small fw-semibold mb-1">
+                          <FaPrescriptionBottleAlt className="text-success me-1" />
+                          Phác đồ điều trị &amp; Hướng xử trí
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          disabled={isReadOnlyModal}
+                          placeholder="Phác đồ điều trị, chế độ sinh hoạt, lịch hẹn tái khám..."
+                          value={form.treatmentPlan}
+                          onChange={(e) => setForm({ ...form, treatmentPlan: e.target.value })}
+                        />
                       </div>
-                    </div>
-                  </Col>
-                </Row>
 
-                {/* Diagnosis and ICD-10 */}
-                <div className="mb-4">
-                  <h6 className="fw-bold text-secondary text-uppercase small mb-2">Chẩn Đoán Bệnh</h6>
-                  <div className="p-3 rounded-4 border" style={{ backgroundColor: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                    <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                      <Badge className="font-monospace fs-6 px-3 py-1.5 rounded-pill text-white" style={{ backgroundColor: '#1E60E6' }}>
-                        ICD-10: {selectedRecord.icd10Code}
-                      </Badge>
-                      <span className="fw-semibold text-dark">{selectedRecord.icd10Name}</span>
-                    </div>
-                    <div className="fs-5 fw-bold text-dark">{selectedRecord.diagnosis}</div>
-                  </div>
-                </div>
-
-                {/* Chief Complaint & Symptoms */}
-                <div className="mb-4">
-                  <h6 className="fw-bold text-secondary text-uppercase small mb-2">Lý Do Khám & Triệu Chứng</h6>
-                  <p className="mb-1">
-                    <strong>Lý do vào khám:</strong> {selectedRecord.chiefComplaint}
-                  </p>
-                  {selectedRecord.clinicalSymptoms && (
-                    <p className="text-muted mb-0">
-                      <strong>Triệu chứng lâm sàng:</strong> {selectedRecord.clinicalSymptoms}
-                    </p>
-                  )}
-                </div>
-
-                {/* Treatment plan & prescription */}
-                <Row className="g-3">
-                  <Col md={6}>
-                    <div className="border rounded-4 p-3 h-100 bg-white" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaStethoscope style={{ color: '#1E60E6' }} /> Hướng Xử Trí & Phác Đồ
-                      </h6>
-                      <p className="text-dark mb-0 small">
-                        {selectedRecord.treatmentPlan || 'Theo dõi định kỳ theo chỉ định.'}
-                      </p>
-                    </div>
-                  </Col>
-
-                  <Col md={6}>
-                    <div className="border rounded-4 p-3 h-100 bg-white" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                      <h6 className="fw-bold text-secondary mb-2 d-flex align-items-center gap-2">
-                        <FaPrescriptionBottleAlt style={{ color: '#16a34a' }} /> Đơn Thuốc & Dặn Dò
-                      </h6>
-                      <p className="text-dark mb-0 small">
-                        {selectedRecord.prescriptionNotes || 'Tái khám sau 1 tuần hoặc khi có dấu hiệu bất thường.'}
-                      </p>
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          ) : (
-            <Card className="shadow-sm rounded-4 text-center py-5" style={{ border: '1px solid #E2E8F0' }}>
-              <div className="display-4 text-muted opacity-25 mb-3">
-                <FaNotesMedical />
-              </div>
-              <h5 className="fw-bold text-secondary mb-2">
-                {patientId.trim() ? 'Chưa chọn hồ sơ bệnh án' : 'Tra cứu mã bệnh nhân để mở bệnh án'}
-              </h5>
-              <p className="text-muted small mb-4">
-                {patientId.trim()
-                  ? 'Chọn một hồ sơ bệnh án từ danh sách bên trái hoặc nhấn "Tạo bệnh án mới" để bắt đầu ghi nhận lâm sàng.'
-                  : 'Nhập mã bệnh nhân ở thanh tra cứu phía trên hoặc mở trực tiếp từ bàn khám bác sĩ.'}
-              </p>
-              {patientId.trim() && (
-                <div>
-                  <Button
-                    variant="primary"
-                    onClick={handleStartCreate}
-                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                    className="shadow-sm rounded-pill px-4"
-                  >
-                    <FaPlus className="me-2" /> Tạo bệnh án mới
-                  </Button>
-                </div>
-              )}
-            </Card>
+                      <div>
+                        <Form.Label className="small fw-semibold mb-1">Ghi chú đơn thuốc / Lời dặn</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          disabled={isReadOnlyModal}
+                          placeholder="Chi tiết thuốc, liều dùng hoặc dặn dò bệnh nhân..."
+                          value={form.prescriptionNotes}
+                          onChange={(e) => setForm({ ...form, prescriptionNotes: e.target.value })}
+                        />
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Form>
           )}
-        </Col>
-      </Row>
+        </Modal.Body>
 
-      {/* Soft Delete Modal */}
+        <Modal.Footer className="bg-light border-top px-4 py-3 d-flex justify-content-between align-items-center">
+          <div className="small text-muted">
+            {selectedRecord ? (
+              selectedRecord.canEdit ? (
+                <span>
+                  Tạo lúc: <strong>{formatDateTime(selectedRecord.createdAt)}</strong> · Được phép chỉnh sửa trong vòng <strong>24 giờ</strong>.
+                </span>
+              ) : (
+                <span className="text-dark fw-semibold">
+                  <FaLock className="me-1" /> Hồ sơ đã khóa sửa sau 24 giờ theo Thông tư 46/2018/TT-BYT.
+                </span>
+              )
+            ) : (
+              <span>Hồ sơ bệnh án sẽ tự động khóa chỉnh sửa sau 24 giờ kể từ lúc phát hành.</span>
+            )}
+          </div>
+
+          <div className="d-flex gap-2">
+            {modalMode === 'edit' && selectedRecord && canWriteEmr && (
+              <Button
+                variant="outline-danger"
+                className="rounded-pill px-3"
+                disabled={submitLoading}
+                onClick={() => {
+                  setRecordToDelete(selectedRecord);
+                  setDeleteReason('');
+                  setShowDeleteModal(true);
+                }}
+              >
+                <FaTrashAlt className="me-1" /> Hủy hồ sơ (Audit)
+              </Button>
+            )}
+
+            <Button
+              variant="outline-secondary"
+              className="rounded-pill px-3"
+              disabled={submitLoading}
+              onClick={() => setShowModal(false)}
+            >
+              Đóng
+            </Button>
+
+            {!isReadOnlyModal && canWriteEmr && (
+              <Button
+                type="submit"
+                form="emr-conclusion-form"
+                variant="primary"
+                className="rounded-pill px-4 fw-semibold shadow-sm"
+                disabled={submitLoading || !bpValidation.valid || (hasPendingLabGate && !bypassPendingLab)}
+              >
+                {submitLoading ? (
+                  <>
+                    <Spinner animation="border" size="sm" className="me-2" /> Đang lưu...
+                  </>
+                ) : modalMode === 'create' ? (
+                  <>
+                    <FaCheckCircle className="me-1" /> Lưu Bệnh Án &amp; Chốt Chẩn Đoán
+                  </>
+                ) : (
+                  <>
+                    <FaEdit className="me-1" /> Cập Nhật Bệnh Án
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Soft Delete Audit Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title className="h5 fw-bold" style={{ color: '#dc2626' }}>Hủy / Xóa Hồ Sơ Bệnh Án</Modal.Title>
+        <Modal.Header closeButton className="bg-light">
+          <Modal.Title className="fs-6 fw-bold text-danger">
+            <FaExclamationTriangle className="me-2" /> Giải Trình Hủy Hồ Sơ Bệnh Án (Audit)
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-3">
-            Theo quy định bảo mật và toàn vẹn dữ liệu y tế, hồ sơ bệnh án chỉ được xóa mềm và bắt buộc phải giải trình lý do rõ ràng vào hệ thống kiểm toán (Audit Logs).
+          <p className="small text-muted">
+            Theo quy định kiểm toán y tế, việc hủy hồ sơ <strong>{recordToDelete?.recordCode}</strong> bắt buộc phải ghi nhận lý do rõ ràng (tối thiểu 15 ký tự).
           </p>
-
-          <Form.Group>
-            <Form.Label className="small fw-semibold text-secondary">
-              Lý do xóa / hủy bệnh án <span className="text-danger">*</span> (Tối thiểu 15 ký tự):
-            </Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              placeholder="Nhập giải trình lý do hủy hồ sơ bệnh án (tối thiểu 15 ký tự)..."
-              value={deleteReason}
-              onChange={(e) => setDeleteReason(e.target.value)}
-              required
-            />
-            <div className="text-end small text-muted mt-1">
-              Đã nhập: {deleteReason.trim().length}/15 ký tự
-            </div>
-          </Form.Group>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            placeholder="Nhập lý do hủy hồ sơ (ví dụ: Nhập nhầm lượt khám của bệnh nhân khác...)"
+            value={deleteReason}
+            onChange={(e) => setDeleteReason(e.target.value)}
+          />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" size="sm" style={{ borderRadius: '9999px' }} onClick={() => setShowDeleteModal(false)}>
-            Hủy Bỏ
+          <Button variant="outline-secondary" size="sm" onClick={() => setShowDeleteModal(false)}>
+            Hủy bỏ
           </Button>
           <Button
             variant="danger"
             size="sm"
-            onClick={handleDeleteConfirm}
             disabled={submitLoading || deleteReason.trim().length < 15}
-            style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', borderRadius: '9999px' }}
+            onClick={handleDeleteConfirm}
           >
-            {submitLoading ? 'Đang xử lý...' : 'Xác Nhận Xóa'}
+            Xác nhận hủy hồ sơ
           </Button>
         </Modal.Footer>
       </Modal>

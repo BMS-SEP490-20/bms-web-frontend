@@ -53,7 +53,7 @@ import userManagementService from "../../../services/userManagementService";
 const CATEGORIES = [
     { key: "RESULT_READY", label: "Kết quả XN sẵn sàng", defaultPriority: "High", defaultAction: "/patient/test-reports" },
     { key: "CRITICAL_PANIC", label: "Báo động Nguy kịch (Critical Panic)", defaultPriority: "Critical_Panic", defaultAction: "/doctor/medical-records" },
-    { key: "APPOINTMENT_REMINDER", label: "Nhắc nhở lịch hẹn", defaultPriority: "Normal", defaultAction: "/patient/appointments" },
+    { key: "APPOINTMENT_REMINDER", label: "Nhắc nhở lịch hẹn", defaultPriority: "Normal", defaultAction: "/appointments" },
     { key: "PAYMENT_REMINDER", label: "Nhắc thanh toán viện phí", defaultPriority: "Normal", defaultAction: "/billing/calculate-fee" },
     { key: "SYSTEM_ALERT", label: "Thông báo bảo trì hệ thống", defaultPriority: "Normal", defaultAction: "/dashboard" }
 ];

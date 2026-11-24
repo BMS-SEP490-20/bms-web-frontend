@@ -7,7 +7,6 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
@@ -73,7 +72,6 @@ function formatGenderLabel(g) {
 export default function CheckInPage() {
   // List & filter state
   const [patients, setPatients] = useState([]);
-  const navigate = useNavigate();
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -110,25 +108,18 @@ export default function CheckInPage() {
 
   // WHY: UC25 guest profiles are Receptionist-only (matrix §1.3, decision 10: Admin has no clinical access).
   // No stored user => false (the old code returned true and also let Admin in).
-  const currentUser = React.useMemo(() => getStoredUser(), []);
-  const canCreateGuest = React.useMemo(() => hasRole(currentUser, ROLES.RECEPTIONIST), [currentUser]);
-  const isDoctorViewer = React.useMemo(() => hasRole(currentUser, ROLES.DOCTOR), [currentUser]);
-  const pageTitle = isDoctorViewer
-    ? 'Hồ Sơ Bệnh Nhân Lâm Sàng'
-    : canCreateGuest
-      ? 'Quản Lý Hồ Sơ Bệnh Nhân & Tiếp Nhận Khách Vãng Lai'
-      : 'Danh Mục Hồ Sơ Bệnh Nhân';
+  const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get('action') === 'create-guest' && canCreateGuest) {
-        navigate('/receptionist/create-patient', { replace: true });
+        setShowCreateModal(true);
       }
     } catch {
       // Ignore query parse error
     }
-  }, [canCreateGuest, navigate]);
+  }, [canCreateGuest]);
 
   // Debounce search input
   useEffect(() => {
@@ -243,8 +234,11 @@ export default function CheckInPage() {
       setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
       return;
     }
-    // Unified walk-in reception workflow (UC26): redirect straight to /receptionist/create-patient
-    navigate('/receptionist/create-patient');
+    setGuestForm(INITIAL_GUEST_FORM);
+    setCreateError('');
+    setDuplicateMatches([]);
+    setIgnoreDuplicate(false);
+    setShowCreateModal(true);
   };
 
   const handleGuestFieldChange = (field, value) => {
@@ -313,13 +307,13 @@ export default function CheckInPage() {
       allergies: allergies.length > 0 ? allergies : null,
       vitals: hasVitals
         ? {
-            heightCm: guestForm.heightCm !== '' ? Number(guestForm.heightCm) : null,
-            weightKg: guestForm.weightKg !== '' ? Number(guestForm.weightKg) : null,
-            bloodPressure: guestForm.bloodPressure.trim() || null,
-            heartRateBpm: guestForm.heartRateBpm !== '' ? Number(guestForm.heartRateBpm) : null,
-            temperatureC: guestForm.temperatureC !== '' ? Number(guestForm.temperatureC) : null,
-            spo2Percent: guestForm.spo2Percent !== '' ? Number(guestForm.spo2Percent) : null,
-          }
+          heightCm: guestForm.heightCm !== '' ? Number(guestForm.heightCm) : null,
+          weightKg: guestForm.weightKg !== '' ? Number(guestForm.weightKg) : null,
+          bloodPressure: guestForm.bloodPressure.trim() || null,
+          heartRateBpm: guestForm.heartRateBpm !== '' ? Number(guestForm.heartRateBpm) : null,
+          temperatureC: guestForm.temperatureC !== '' ? Number(guestForm.temperatureC) : null,
+          spo2Percent: guestForm.spo2Percent !== '' ? Number(guestForm.spo2Percent) : null,
+        }
         : null,
     };
 
@@ -350,14 +344,14 @@ export default function CheckInPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          
+
           <div className="bms-page-title-row">
-            
+
             <h1 className="bms-page-title">
-              {pageTitle}
+              Quản Lý Hồ Sơ Bệnh Nhân &amp; Tiếp Nhận Khách Vãng Lai
             </h1>
           </div>
-          
+
         </div>
         <div className="bms-page-actions">
           {canCreateGuest && (
@@ -484,89 +478,89 @@ export default function CheckInPage() {
 
         <Card.Body className="p-0">
 
-        {/* Integrated Filter Control Strip */}
-        <div className="bms-filter-bar">
-          <Row className="g-2 align-items-center">
-            <Col xs={12} md={5}>
-              <div className="bms-search-input-pill">
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                />
-                {searchInput && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchInput('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-            </Col>
+          {/* Integrated Filter Control Strip */}
+          <div className="bms-filter-bar">
+            <Row className="g-2 align-items-center">
+              <Col xs={12} md={5}>
+                <div className="bms-search-input-pill">
+                  <FaSearch className="bms-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
+                  {searchInput && (
+                    <button
+                      type="button"
+                      className="bms-search-clear"
+                      onClick={() => setSearchInput('')}
+                      title="Xóa tìm kiếm"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  )}
+                </div>
+              </Col>
 
-            <Col xs={6} md={3}>
-              <Form.Select
-                value={guestFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setGuestFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="ALL">Tất cả loại hồ sơ</option>
-                <option value="true">Khách vãng lai (Guest Profile)</option>
-                <option value="false">Bệnh nhân có tài khoản</option>
-              </Form.Select>
-            </Col>
+              <Col xs={6} md={3}>
+                <Form.Select
+                  value={guestFilter}
+                  className="rounded-pill"
+                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+                  onChange={(e) => {
+                    setGuestFilter(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="ALL">Tất cả loại hồ sơ</option>
+                  <option value="true">Khách vãng lai (Guest Profile)</option>
+                  <option value="false">Bệnh nhân có tài khoản</option>
+                </Form.Select>
+              </Col>
 
-            <Col xs={6} md={2}>
-              <Form.Select
-                value={genderFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setGenderFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="ALL">Mọi giới tính</option>
-                <option value="Male">Nam (Male)</option>
-                <option value="Female">Nữ (Female)</option>
-                <option value="Other">Khác (Other)</option>
-              </Form.Select>
-            </Col>
+              <Col xs={6} md={2}>
+                <Form.Select
+                  value={genderFilter}
+                  className="rounded-pill"
+                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+                  onChange={(e) => {
+                    setGenderFilter(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="ALL">Mọi giới tính</option>
+                  <option value="Male">Nam (Male)</option>
+                  <option value="Female">Nữ (Female)</option>
+                  <option value="Other">Khác (Other)</option>
+                </Form.Select>
+              </Col>
 
-            <Col xs={12} md={2}>
-              <Form.Select
-                value={bloodTypeFilter}
-                className="rounded-pill"
-                style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                onChange={(e) => {
-                  setBloodTypeFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="ALL">Mọi nhóm máu</option>
-                <option value="O+">Nhóm máu O+</option>
-                <option value="A+">Nhóm máu A+</option>
-                <option value="B+">Nhóm máu B+</option>
-                <option value="AB+">Nhóm máu AB+</option>
-                <option value="O-">Nhóm máu O-</option>
-                <option value="A-">Nhóm máu A-</option>
-                <option value="B-">Nhóm máu B-</option>
-                <option value="AB-">Nhóm máu AB-</option>
-              </Form.Select>
-            </Col>
-          </Row>
-        </div>
+              <Col xs={12} md={2}>
+                <Form.Select
+                  value={bloodTypeFilter}
+                  className="rounded-pill"
+                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
+                  onChange={(e) => {
+                    setBloodTypeFilter(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="ALL">Mọi nhóm máu</option>
+                  <option value="O+">Nhóm máu O+</option>
+                  <option value="A+">Nhóm máu A+</option>
+                  <option value="B+">Nhóm máu B+</option>
+                  <option value="AB+">Nhóm máu AB+</option>
+                  <option value="O-">Nhóm máu O-</option>
+                  <option value="A-">Nhóm máu A-</option>
+                  <option value="B-">Nhóm máu B-</option>
+                  <option value="AB-">Nhóm máu AB-</option>
+                </Form.Select>
+              </Col>
+            </Row>
+          </div>
 
-        <div className="table-responsive">
+          <div className="table-responsive">
             <Table hover className="align-middle mb-0">
               <thead style={{ backgroundColor: '#F8FAFC' }}>
                 <tr>
@@ -1211,75 +1205,75 @@ export default function CheckInPage() {
                         <th className="text-end pe-3">Tổng Tiền</th>
                       </tr>
                     </thead>
-                  <tbody>
-                    {!selectedPatient.recentAppointments || selectedPatient.recentAppointments.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" className="text-center py-2 text-muted">
-                          Chưa có lịch sử đặt lịch xét nghiệm cho bệnh nhân này.
-                        </td>
-                      </tr>
-                    ) : (
-                      selectedPatient.recentAppointments.map((apt, idx) => (
-                        <tr key={apt.appointmentId || apt.id || idx}>
-                          <td className="ps-3 font-monospace fw-bold text-primary">{apt.appointmentId || apt.id}</td>
-                          <td>{formatDate(apt.appointmentDate)}</td>
-                          <td>{apt.timeSlot || apt.type || '—'}</td>
-                          <td className="fw-medium">
-                            {apt.servicePackageName ||
-                              (Array.isArray(apt.testPackages) && apt.testPackages.length > 0
-                                ? apt.testPackages.join(', ')
-                                : 'Xét nghiệm lâm sàng')}
-                          </td>
-                          <td><Badge bg="info" text="dark">{apt.status}</Badge></td>
-                          <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{apt.paymentStatus || 'Unpaid'}</Badge></td>
-                          <td className="text-end pe-3 font-monospace">
-                            {apt.totalAmount != null ? `${Number(apt.totalAmount).toLocaleString('vi-VN')} ₫` : '—'}
+                    <tbody>
+                      {!selectedPatient.recentAppointments || selectedPatient.recentAppointments.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center py-2 text-muted">
+                            Chưa có lịch sử đặt lịch xét nghiệm cho bệnh nhân này.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </Table>
-              </div>
-            )}
+                      ) : (
+                        selectedPatient.recentAppointments.map((apt, idx) => (
+                          <tr key={apt.appointmentId || apt.id || idx}>
+                            <td className="ps-3 font-monospace fw-bold text-primary">{apt.appointmentId || apt.id}</td>
+                            <td>{formatDate(apt.appointmentDate)}</td>
+                            <td>{apt.timeSlot || apt.type || '—'}</td>
+                            <td className="fw-medium">
+                              {apt.servicePackageName ||
+                                (Array.isArray(apt.testPackages) && apt.testPackages.length > 0
+                                  ? apt.testPackages.join(', ')
+                                  : 'Xét nghiệm lâm sàng')}
+                            </td>
+                            <td><Badge bg="info" text="dark">{apt.status}</Badge></td>
+                            <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{apt.paymentStatus || 'Unpaid'}</Badge></td>
+                            <td className="text-end pe-3 font-monospace">
+                              {apt.totalAmount != null ? `${Number(apt.totalAmount).toLocaleString('vi-VN')} ₫` : '—'}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
 
-            {/* Tab 3: Recent Medical Records */}
-            {activeDetailTab === 'records' && (
-              <div className="table-responsive border rounded-3">
-                <Table hover size="sm" className="align-middle mb-0">
-                  <thead className="table-light">
-                    <tr>
-                      <th className="ps-3">Mã Bệnh Án</th>
-                      <th>Ngày Khám</th>
-                      <th>Bác Sĩ Phụ Trách</th>
-                      <th>Chẩn Đoán Lâm Sàng</th>
-                      <th>Ghi Chú & Khuyến Nghị</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!selectedPatient.recentMedicalRecords || selectedPatient.recentMedicalRecords.length === 0 ? (
+              {/* Tab 3: Recent Medical Records */}
+              {activeDetailTab === 'records' && (
+                <div className="table-responsive border rounded-3">
+                  <Table hover size="sm" className="align-middle mb-0">
+                    <thead className="table-light">
                       <tr>
-                        <td colSpan="5" className="text-center py-2 text-muted">
-                          Chưa có hồ sơ bệnh án hoặc nhận định bác sĩ nào được lưu.
-                        </td>
+                        <th className="ps-3">Mã Bệnh Án</th>
+                        <th>Ngày Khám</th>
+                        <th>Bác Sĩ Phụ Trách</th>
+                        <th>Chẩn Đoán Lâm Sàng</th>
+                        <th>Ghi Chú & Khuyến Nghị</th>
                       </tr>
-                    ) : (
-                      selectedPatient.recentMedicalRecords.map((rec, idx) => (
-                        <tr key={rec.recordId || rec.id || idx}>
-                          <td className="ps-3 font-monospace fw-bold">{rec.recordId || rec.id}</td>
-                          <td>{formatDateTime(rec.visitDate || rec.createdAt)}</td>
-                          <td>{rec.doctorName || rec.doctorId || 'Bác sĩ chuyên khoa'}</td>
-                          <td className="fw-semibold text-dark">{rec.diagnosis || rec.symptoms || '—'}</td>
-                          <td className="small text-secondary">
-                            <div>{rec.clinicalNotes || rec.doctorNotes || '—'}</div>
-                            {rec.recommendations && (
-                              <div className="text-primary mt-1"><strong>Khuyến nghị:</strong> {rec.recommendations}</div>
-                            )}
+                    </thead>
+                    <tbody>
+                      {!selectedPatient.recentMedicalRecords || selectedPatient.recentMedicalRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="text-center py-2 text-muted">
+                            Chưa có hồ sơ bệnh án hoặc nhận định bác sĩ nào được lưu.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
+                      ) : (
+                        selectedPatient.recentMedicalRecords.map((rec, idx) => (
+                          <tr key={rec.recordId || rec.id || idx}>
+                            <td className="ps-3 font-monospace fw-bold">{rec.recordId || rec.id}</td>
+                            <td>{formatDateTime(rec.visitDate || rec.createdAt)}</td>
+                            <td>{rec.doctorName || rec.doctorId || 'Bác sĩ chuyên khoa'}</td>
+                            <td className="fw-semibold text-dark">{rec.diagnosis || rec.symptoms || '—'}</td>
+                            <td className="small text-secondary">
+                              <div>{rec.clinicalNotes || rec.doctorNotes || '—'}</div>
+                              {rec.recommendations && (
+                                <div className="text-primary mt-1"><strong>Khuyến nghị:</strong> {rec.recommendations}</div>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
                   </Table>
                 </div>
               )}

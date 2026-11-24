@@ -87,6 +87,7 @@ export default function ProcessPaymentPage() {
   const appointmentId = searchParams.get('appointmentId') || searchParams.get('id') || '';
   const [checkout, setCheckout] = useState(null);
   const [error, setError] = useState('');
+  const [simulateError, setSimulateError] = useState('');
   const [loading, setLoading] = useState(true);
   const [paidNotice, setPaidNotice] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -96,6 +97,7 @@ export default function ProcessPaymentPage() {
     if (!appointmentId || isSimulating) return;
     try {
       setIsSimulating(true);
+      setSimulateError('');
       const res = await api.post(`/payments/sepay/simulate/${encodeURIComponent(appointmentId)}`);
       if (res.data?.success) {
         setPaidNotice(true);
@@ -104,7 +106,7 @@ export default function ProcessPaymentPage() {
         setCheckout(full.data?.data || null);
       }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Không thể xác nhận thanh toán lúc này.');
+      setSimulateError(err?.response?.data?.message || 'Không thể xác nhận thanh toán lúc này.');
     } finally {
       setIsSimulating(false);
     }
@@ -185,6 +187,11 @@ export default function ProcessPaymentPage() {
   return (
     <div className="bms-sepay-page">
       {paidNotice ? <div className="bms-sepay-toast" role="status">Đã nhận thanh toán.</div> : null}
+      {simulateError ? (
+        <div className="alert alert-danger py-2 px-3 mb-3 small text-center" role="alert">
+          {simulateError}
+        </div>
+      ) : null}
       <Invoice
         checkout={checkout}
         onDone={() => navigate('/appointments')}

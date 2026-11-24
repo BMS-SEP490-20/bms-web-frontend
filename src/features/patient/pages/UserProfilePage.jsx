@@ -562,7 +562,7 @@ export const UserProfilePage = () => {
               </div>
               <h3 className="fw-bold mb-1 text-dark">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h3>
               <p className="text-muted small mb-0">
-                Quản lý thông tin cán bộ y tế, chức danh chuyên môn và phân công nghiệp vụ theo Đề án 06 Bộ Y Tế.
+                Quản lý thông tin cán bộ y tế và chức danh chuyên môn nội bộ.
               </p>
             </div>
             <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
@@ -618,13 +618,13 @@ export const UserProfilePage = () => {
               </Card>
             </Col>
 
-            {/* Right Column: Staff Details & Permissions */}
+            {/* Right Column: Staff Details */}
             <Col xs={12} lg={8}>
               <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                   <h5 className="mb-0 fw-bold text-dark">
                     <FaIdCard className="text-primary me-2" />
-                    Thông Tin Cán Bộ Y Tế (Chuẩn Đề án 06 Bộ Y Tế)
+                    Thông Tin Cán Bộ Y Tế
                   </h5>
                   <Badge bg="light" text="dark" className="border">
                     Dữ liệu đã xác thực CCCD
@@ -674,68 +674,6 @@ export const UserProfilePage = () => {
                       <div className="fw-bold text-dark">{user?.address || '120 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP. Hồ Chí Minh'}</div>
                     </Col>
                   </Row>
-                </Card.Body>
-              </Card>
-
-              <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
-                <Card.Header className="bg-white border-bottom py-3">
-                  <h5 className="mb-0 fw-bold text-dark">
-                    <FaShieldAlt className="text-primary me-2" />
-                    Phạm Vi Phân Công Nghiệp Vụ &amp; Quyền Hạn Hệ Thống
-                  </h5>
-                </Card.Header>
-                <Card.Body className="p-4">
-                  <div className="p-3 bg-light rounded-3 mb-3 border">
-                    <div className="fw-bold text-primary mb-2">Quyền hạn hệ thống: {staffRoleLabel}</div>
-                    <ul className="mb-0 ps-3 small text-muted">
-                      {isRecep && (
-                        <>
-                          <li className="mb-1">Tiếp đón người bệnh, xác thực căn cước công dân gắn chip (Đề án 06 Bộ Y Tế).</li>
-                          <li className="mb-1">Quét mã QR check-in hẹn trực tuyến tại quầy, cấp số thứ tự vào phòng lấy mẫu (Phòng 101).</li>
-                          <li className="mb-1">Đối soát viện phí, thu ngân và phát hành Hóa đơn điện tử VAT hợp lệ.</li>
-                          <li>Tiếp nhận và lập hồ sơ người bệnh vãng lai trực tiếp vào hệ thống BMS.</li>
-                        </>
-                      )}
-                      {isDoctor && (
-                        <>
-                          <li className="mb-1">Thăm khám lâm sàng, khai thác tiền sử bệnh án và thể trạng người bệnh.</li>
-                          <li className="mb-1">Chỉ định danh mục xét nghiệm chẩn đoán cận lâm sàng phù hợp theo phác đồ Bộ Y Tế.</li>
-                          <li className="mb-1">Đọc, giải thích kết quả xét nghiệm, tư vấn điều trị và tiên lượng lâm sàng.</li>
-                          <li>Tham gia hội chẩn chuyên môn, ký duyệt y lệnh điện tử theo chuẩn ISO 15189.</li>
-                        </>
-                      )}
-                      {isLab && (
-                        <>
-                          <li className="mb-1">Tiếp nhận bệnh phẩm máu, kiểm tra tiêu chuẩn thể tích và chất lượng ống nghiệm (ISO 15189).</li>
-                          <li className="mb-1">Vận hành, hiệu chuẩn và kiểm soát chất lượng nội kiểm (IQC) trên hệ thống máy phân tích tự động.</li>
-                          <li className="mb-1">Theo dõi cảnh báo bất thường, thực hiện chạy lại mẫu kiểm tra chéo khi phát hiện sai lệch.</li>
-                          <li>Nhập kết quả phân tích kỹ thuật trên LIS BMS và chuyển Bác sĩ điều trị thẩm định (không công bố Cổng BN).</li>
-                        </>
-                      )}
-                      {isManager && (
-                        <>
-                          <li className="mb-1">Thẩm định kỹ thuật tùy chọn (QC/Westgard); công bố kết quả cho BN chỉ do Bác sĩ ký duyệt.</li>
-                          <li className="mb-1">Xây dựng và giám sát hệ thống quản lý chất lượng phòng xét nghiệm theo tiêu chuẩn ISO 15189:2022.</li>
-                          <li className="mb-1">Phân công ca trực, phê duyệt đề xuất đổi ca của Bác sĩ và Kỹ thuật viên.</li>
-                          <li>Giám sát an toàn sinh học phòng lab và giải quyết các khiếu nại chuyên môn.</li>
-                        </>
-                      )}
-                      {isAdmin && (
-                        <>
-                          <li className="mb-1">Quản trị toàn bộ danh mục tài khoản người dùng, phân quyền truy cập RBAC y tế.</li>
-                          <li className="mb-1">Giám sát nhật ký hệ thống (Audit Logs), đảm bảo an ninh mạng theo Nghị định 13/2023/NĐ-CP.</li>
-                          <li className="mb-1">Cấu hình kết nối thiết bị xét nghiệm IoT và hệ thống lưu trữ kết quả.</li>
-                          <li>Sao lưu và phục hồi cơ sở dữ liệu định kỳ theo tiêu chuẩn bảo mật y tế.</li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center small text-muted">
-                    <span>Tên đăng nhập: <strong>{user?.username || 'recep_lananh'}</strong></span>
-                    <Badge bg="info-subtle" text="primary" className="border border-info-subtle px-3 py-1">
-                      Xác thực 2 lớp: Đã kích hoạt
-                    </Badge>
-                  </div>
                 </Card.Body>
               </Card>
             </Col>

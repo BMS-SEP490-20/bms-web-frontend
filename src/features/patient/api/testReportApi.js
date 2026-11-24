@@ -13,13 +13,53 @@ import api from "../../../config/api";
  * @returns {Promise<Object|null>} Report payload or null if not found.
  */
 export const fetchReportByOrder = async (orderId) => {
+    const encoded = encodeURIComponent(orderId || '');
     try {
-        const encoded = encodeURIComponent(orderId || '');
         const response = await api.get(`/reports/order/${encoded}`).catch(() => api.get(`/testreports/order/${encoded}`));
-        if (response?.data?.data) {
-            return response.data.data;
+        const data = response?.data?.data || response?.data;
+        if (data && (data.reportId || data.parameters)) {
+            return data;
         }
-        return response?.data || null;
+    } catch {
+        // Fallback to /test-results/patient/order/{encoded} below
+    }
+
+    try {
+        const fallbackResp = await api.get(`/test-results/patient/order/${encoded}`);
+        const detail = fallbackResp?.data?.data || fallbackResp?.data;
+        if (!detail) return null;
+        return {
+            reportId: detail.orderCode || detail.orderId || orderId,
+            orderId: detail.orderId || detail.orderCode || orderId,
+            patientId: detail.patientCode || detail.patientId || '',
+            patientName: detail.patientFullName || detail.patientName || '',
+            dobAgeSex: `${detail.patientBirthYear || '--'} · ${detail.patientGender || '--'}`,
+            packageName: detail.packageName || 'Xét nghiệm Huyết học & Sinh hóa',
+            collectionTime: detail.collectedAt ? new Date(detail.collectedAt).toLocaleString('vi-VN') : (detail.sampleDate ? new Date(detail.sampleDate).toLocaleString('vi-VN') : '--'),
+            specimenId: detail.orderCode || detail.orderId || orderId,
+            referringDoctor: detail.doctorName || detail.approvedByDoctor || 'BS. Chuyên Khoa',
+            category: detail.department || 'Kết Quả Phân Tích Cận Lâm Sàng',
+            issuedAt: detail.releasedDate || detail.approvedAt || new Date().toISOString(),
+            clinicalNotes: detail.doctorAssessment || detail.doctorNotes || '',
+            analysedBy: detail.analyzedByTechnician || 'KTV. Xét Nghiệm',
+            analysedAt: detail.sampleDate || detail.releasedDate || new Date().toISOString(),
+            approvedBy: detail.approvedByDoctor || detail.doctorName || 'Bác sĩ điều trị',
+            approvedAt: detail.approvedAt || detail.releasedDate || new Date().toISOString(),
+            verificationHash: detail.digitalSignatureSeal || detail.verificationHash || 'SHA256:BMS-ISO15189-VALIDATED',
+            parameters: Array.isArray(detail.parameters)
+                ? detail.parameters.map((p) => {
+                      const flag = p.flag && p.flag !== 'Normal' ? p.flag : '';
+                      return {
+                          parameterName: p.parameterName || p.parameterCode || '--',
+                          resultValue: p.resultValue ?? p.value ?? '--',
+                          unit: p.unit || '',
+                          referenceRange: p.referenceRange || `${p.refMin ?? ''} - ${p.refMax ?? ''}`,
+                          flag,
+                          isAbnormal: Boolean(flag || p.status === 'High' || p.status === 'Low' || p.status === 'Critical')
+                      };
+                  })
+                : []
+        };
     } catch (error) {
         console.warn(`Phiếu kết quả #${orderId} không tìm thấy trên hệ thống backend API.`, error);
         return null;

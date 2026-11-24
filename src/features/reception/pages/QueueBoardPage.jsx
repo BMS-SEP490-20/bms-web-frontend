@@ -16,7 +16,7 @@ import { queueApi } from "../api/queueApi";
 
 export default function QueueBoardPage() {
   const [loading, setLoading] = useState(true);
-  const [selectedCounter, setSelectedCounter] = useState("");
+  const [selectedCounter, setSelectedCounter] = useState("Quầy Tiếp Đón 01");
   const [data, setData] = useState({
     currentQueue: [],
     nextNumber: "",
@@ -35,6 +35,27 @@ export default function QueueBoardPage() {
 
   const [boardError, setBoardError] = useState(null);
 
+  const DEFAULT_RECEPTION_COUNTERS = [
+    {
+      counterName: "Quầy Tiếp Đón 01",
+      staffName: "Lễ tân trực chính",
+      status: "Active",
+      description: "Tiếp đón lịch hẹn & Cấp số thứ tự",
+    },
+    {
+      counterName: "Quầy Tiếp Đón 02",
+      staffName: "Lễ tân thu ngân POS",
+      status: "Available",
+      description: "Đăng ký khách vãng lai & Thu viện phí",
+    },
+    {
+      counterName: "Phòng Lấy Mẫu 101",
+      staffName: "KTV Lấy mẫu tầng 1",
+      status: "Available",
+      description: "Bàn lấy mẫu máu tĩnh mạch tiêu chuẩn ISO 15189",
+    },
+  ];
+
   const loadQueue = useCallback(async () => {
     try {
       setBoardError(null);
@@ -42,11 +63,24 @@ export default function QueueBoardPage() {
       if (res?.data) {
         const boardData = { ...res.data };
         boardData.stats = boardData.stats || {};
-        boardData.counters = Array.isArray(boardData.counters) ? boardData.counters : [];
+        const apiCounters = Array.isArray(boardData.counters) ? boardData.counters : [];
+        const mergedCounters = DEFAULT_RECEPTION_COUNTERS.map((def) => {
+          const activeMatch = apiCounters.find((c) => c.counterName === def.counterName);
+          return activeMatch ? { ...def, ...activeMatch, staffName: activeMatch.staffName || def.staffName } : def;
+        });
+        apiCounters.forEach((c) => {
+          if (c.counterName && !mergedCounters.some((m) => m.counterName === c.counterName)) {
+            mergedCounters.push(c);
+          }
+        });
+        boardData.counters = mergedCounters;
+        if (!boardData.stats.countersActive || boardData.stats.countersActive === "0") {
+          const activeCount = mergedCounters.filter((c) => c.status === "Active" || c.status === "Available").length;
+          boardData.stats.countersActive = `${activeCount} / ${mergedCounters.length}`;
+        }
         setData(boardData);
-        setSelectedCounter((prev) => prev || boardData.counters[0]?.counterName || '');
       } else {
-        setData({ waiting: [], serving: [], counters: [], stats: {} });
+        setData({ currentQueue: [], counters: DEFAULT_RECEPTION_COUNTERS, stats: {} });
       }
     } catch (err) {
       setBoardError(err?.response?.data?.message || err?.message || 'Không thể tải bảng hàng đợi tiếp đón.');
@@ -170,23 +204,22 @@ export default function QueueBoardPage() {
           </p>
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
-          {data.counters?.length > 0 && (
-            <div className="d-flex align-items-center">
-              <span className="small text-muted me-2 fw-semibold">Quầy:</span>
-              <select
-                className="form-select form-select-sm rounded-pill"
-                value={selectedCounter}
-                onChange={(e) => setSelectedCounter(e.target.value)}
-                style={{ width: "170px", backgroundColor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 1)' }}
-              >
-                {data.counters.map((c, i) => (
-                  <option key={i} value={c.counterName}>
-                    {c.counterName} {c.staffName ? `(${c.staffName})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="d-flex align-items-center">
+            <span className="small text-muted me-2 fw-semibold">Quầy phục vụ:</span>
+            <select
+              className="form-select form-select-sm rounded-pill"
+              value={selectedCounter}
+              onChange={(e) => setSelectedCounter(e.target.value)}
+              style={{ width: "220px", backgroundColor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 1)' }}
+            >
+              <option value="">-- Chọn quầy phục vụ --</option>
+              {(data.counters || []).map((c, i) => (
+                <option key={i} value={c.counterName}>
+                  {c.counterName} {c.staffName ? `(${c.staffName})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -301,21 +334,11 @@ export default function QueueBoardPage() {
                             </div>
                           )}
                         </td>
-                        <td className="text-end">
-                          {ticket.status === "Called" ? (
-                            <button
-                              onClick={() => handleStartCollecting(ticket)}
-                              disabled={!selectedCounter}
-                              title={!selectedCounter ? "Vui lòng chọn quầy trước khi cập nhật" : ""}
-                              className="btn btn-success btn-sm px-3 py-1 rounded-pill shadow-sm"
-                              style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#1A3311' }}
-                            >
-                              Vào lấy mẫu
-                            </button>
-                          ) : ticket.status === "Collecting" ? (
-                            <span className="text-muted small">Đang xử lý</span>
-                          ) : ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
-                            <span className="badge bg-secondary-subtle text-secondary border px-2 py-1">Đã xong</span>
+                        <td className="text-end pe-3">
+                          {ticket.status === "Called" || ticket.status === "Collecting" || ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
+                            <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold">
+                              <FaCheck className="me-1" /> Đã gọi số
+                            </span>
                           ) : ticket.status === "Waiting" || !ticket.status ? (
                             <button
                               onClick={() => handleCallNext(ticket)}

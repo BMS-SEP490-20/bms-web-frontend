@@ -7,12 +7,15 @@
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHome, FaSignOutAlt, FaTachometerAlt, FaLock } from 'react-icons/fa';
-import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
+import { ROLES, resolveRoleId, getStoredUser, getHomePathForRole, ROLE_LABELS } from '../../constants/roles';
 
 export default function Forbidden403({ requiredRole, userRole }) {
   const navigate = useNavigate();
   const user = useMemo(() => getStoredUser(), []);
-  const isPatient = useMemo(() => resolveRoleId(user) === ROLES.PATIENT, [user]);
+  const roleId = useMemo(() => resolveRoleId(user), [user]);
+  const isPatient = roleId === ROLES.PATIENT;
+  const homePath = getHomePathForRole(roleId);
+  const displayRole = userRole || (roleId != null ? ROLE_LABELS[roleId] : null) || user?.role || user?.roleName;
 
   const handleLogout = () => {
     localStorage.removeItem('bms_token');
@@ -20,7 +23,8 @@ export default function Forbidden403({ requiredRole, userRole }) {
     localStorage.removeItem('bms_refresh_token');
     localStorage.removeItem('bms_user');
     sessionStorage.clear();
-    navigate('/login');
+    // Không giữ ?redirect= URL bị cấm — tránh login lại rồi lại 403
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -35,33 +39,26 @@ export default function Forbidden403({ requiredRole, userRole }) {
           Tài khoản của bạn hiện không có quyền truy cập vào chức năng này theo quy định phân quyền nội bộ.
         </p>
 
-        {userRole && (
+        {displayRole && (
           <div className="p-3 bg-light border rounded-3 mb-4 text-start">
             <div className="small text-muted mb-1">Thông tin phiên làm việc:</div>
             <div className="d-flex justify-content-between align-items-center">
               <span className="fw-semibold text-dark">Vai trò hiện tại:</span>
-              <span className="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1.5 text-uppercase">{userRole}</span>
+              <span className="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1.5 text-uppercase">{displayRole}</span>
             </div>
           </div>
         )}
 
         <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
-          {isPatient ? (
-            <Link to="/home" className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-              <FaHome />
-              <span>Về Trang Chủ Bệnh Nhân</span>
-            </Link>
-          ) : (
-            <Link to="/dashboard" className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-              <FaTachometerAlt />
-              <span>Về Bảng Điều Khiển</span>
-            </Link>
-          )}
+          <Link to={homePath} className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+            {isPatient ? <FaHome /> : <FaTachometerAlt />}
+            <span>{isPatient ? 'Về Trang Chủ Bệnh Nhân' : 'Về Bảng Điều Khiển'}</span>
+          </Link>
           <Link to="/" className="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
             <FaHome />
             <span>Cổng Thông Tin</span>
           </Link>
-          <button onClick={handleLogout} className="btn btn-outline-danger rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+          <button type="button" onClick={handleLogout} className="btn btn-outline-danger rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
             <FaSignOutAlt />
             <span>Đổi Tài Khoản</span>
           </button>
@@ -69,6 +66,7 @@ export default function Forbidden403({ requiredRole, userRole }) {
 
         <div className="mt-4 pt-3 border-top text-muted small">
           Hệ Thống Quản Lý Xét Nghiệm Máu BMS
+          {requiredRole ? <> · Cần quyền: {String(requiredRole)}</> : null}
         </div>
       </div>
     </div>

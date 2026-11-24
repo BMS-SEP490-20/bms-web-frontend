@@ -83,3 +83,53 @@ export function getStoredUser() {
     return null;
   }
 }
+
+/**
+ * Default landing path after login / 403 recovery for a role.
+ * @param {number|null|undefined} roleId
+ * @returns {string}
+ */
+export function getHomePathForRole(roleId) {
+  switch (roleId) {
+    case ROLES.ADMIN:
+    case ROLES.MANAGER:
+      return '/dashboard';
+    case ROLES.DOCTOR:
+      return '/doctor/console';
+    case ROLES.LAB:
+      return '/lab/queue';
+    case ROLES.RECEPTIONIST:
+      return '/receptionist/check-in';
+    case ROLES.PATIENT:
+      return '/home';
+    default:
+      return '/login';
+  }
+}
+
+/**
+ * Coarse FE allow-check so login redirect không đẩy user vào URL rồi dính 403.
+ * Backend vẫn là boundary thật; đây chỉ UX.
+ * @param {number|null|undefined} roleId
+ * @param {string} path pathname (+ optional search)
+ * @returns {boolean}
+ */
+export function isPathAllowedForRole(roleId, path) {
+  if (roleId == null || !path) return false;
+  const pathname = String(path).split('?')[0].split('#')[0] || '/';
+  if (pathname === '/' || pathname === '/services' || pathname === '/tracking' || pathname === '/queue-board') {
+    return true;
+  }
+
+  const rules = {
+    [ROLES.ADMIN]: [/^\/dashboard/, /^\/admin\//, /^\/roles/, /^\/reports\//, /^\/packages/, /^\/shifts/, /^\/manage\//],
+    [ROLES.MANAGER]: [/^\/dashboard/, /^\/laboratory\//, /^\/lab\//, /^\/reports\//, /^\/admin\/packages/, /^\/packages/, /^\/shifts/, /^\/manage\//, /^\/patient\/test-history/],
+    [ROLES.DOCTOR]: [/^\/dashboard/, /^\/doctor\//, /^\/medical-assessments/, /^\/laboratory\/lookup-results/, /^\/appointments/, /^\/patient\//],
+    [ROLES.LAB]: [/^\/dashboard/, /^\/lab\//, /^\/laboratory\//, /^\/shifts/],
+    [ROLES.RECEPTIONIST]: [/^\/dashboard/, /^\/receptionist\//, /^\/reception\//, /^\/calculate-fees/, /^\/invoices/, /^\/appointments/, /^\/patients/],
+    [ROLES.PATIENT]: [/^\/home/, /^\/patient\//, /^\/appointments/, /^\/services/, /^\/tracking/],
+  };
+
+  const list = rules[roleId] || [];
+  return list.some((re) => re.test(pathname));
+}

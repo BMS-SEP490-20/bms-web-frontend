@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Tabs, Tab, Alert } from 'react-bootstrap';
-import { FaEdit, FaSave, FaTimes, FaLock, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaSave, FaTimes, FaInfoCircle, FaUserCheck } from 'react-icons/fa';
 
 /**
  * Unified multi-tab user detail and credential modification dialog.

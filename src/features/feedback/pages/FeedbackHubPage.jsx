@@ -100,6 +100,18 @@ const FeedbackHubPage = () => {
   const fetchFeedbacks = useCallback(async () => {
     try {
       setLoading(true);
+      if (isPatient) {
+        if (user?.id) {
+          const myRes = await patientFeedbackService.getPatientFeedbacks(user.id);
+          if (myRes.success) {
+            const list = Array.isArray(myRes.data) ? myRes.data : [];
+            setMyFeedbacks(list);
+            setFeedbacks(list);
+          }
+        }
+        return;
+      }
+
       const ratingVal = ratingFilter !== 'ALL' ? parseInt(ratingFilter) : null;
       const [feedbacksRes, statsRes] = await Promise.all([
         patientFeedbackService.getFeedbacks({
@@ -117,20 +129,12 @@ const FeedbackHubPage = () => {
       if (statsRes.success) {
         setStatistics(statsRes.data);
       }
-
-      // If user is patient, also fetch personal feedbacks
-      if (user?.id) {
-        const myRes = await patientFeedbackService.getPatientFeedbacks(user.id);
-        if (myRes.success) {
-          setMyFeedbacks(myRes.data);
-        }
-      }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [ratingFilter, categoryFilter, statusFilter, searchTerm, user]);
+  }, [ratingFilter, categoryFilter, statusFilter, searchTerm, user, isPatient]);
 
   const displayedFeedbacks = useMemo(() => {
     if (filterMyOnly && isPatient && user?.id) {

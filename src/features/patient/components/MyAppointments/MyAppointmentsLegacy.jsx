@@ -1261,7 +1261,7 @@ const MyAppointments = ({ hideHeader = false }) => {
           setShowPaymentModal(false);
           setPaymentStatus('idle');
           setPaymentStep(1);
-          navigate('/patient/appointments', { replace: true });
+          navigate('/appointments', { replace: true });
         }
       } else {
         // Payment failed or cancelled

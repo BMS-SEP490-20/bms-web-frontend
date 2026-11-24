@@ -3074,7 +3074,7 @@ const PatientDashboard = () => {
                                           <Button
                                             variant="primary"
                                             size="sm"
-                                            onClick={() => navigate('/patient/appointments')}
+                                            onClick={() => navigate('/appointments')}
                                             style={{
                                               borderRadius: '20px',
                                               padding: '6px 16px',

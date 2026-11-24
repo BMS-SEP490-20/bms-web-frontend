@@ -139,7 +139,25 @@ export default function ExportTestResultPdfPage() {
     setLoading(true);
     setErrorMessage('');
     try {
-      const data = await fetchPatientResult(id);
+      let data = await fetchPatientResult(id);
+      // Barcode / sample id often 404 on /order/{id} — resolve TRE via test-history
+      if (!data && activePatientId) {
+        try {
+          const historyData = await getTestHistory({ patientId: activePatientId, page: 1, pageSize: 50 });
+          const items = historyData?.items || historyData?.data || [];
+          const match = items.find((row) => {
+            const keys = [row.resultCode, row.id, row.sampleId, row.barcode, row.summary?.id, row.summary?.sampleId, row.summary?.resultCode];
+            return keys.some((k) => String(k || '').toLowerCase() === String(id).toLowerCase());
+          });
+          const resolved = match?.resultCode || match?.id || match?.summary?.resultCode || match?.summary?.id;
+          if (resolved && resolved !== id) {
+            data = await fetchPatientResult(resolved);
+            if (data) setActiveOrderId(resolved);
+          }
+        } catch (resolveErr) {
+          console.warn('Không resolve được mã kết quả từ lịch sử:', resolveErr);
+        }
+      }
       if (data) {
         setResult(data);
       } else {
@@ -151,7 +169,7 @@ export default function ExportTestResultPdfPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activePatientId]);
 
   useEffect(() => {
     if (activeOrderId) {
@@ -258,7 +276,7 @@ export default function ExportTestResultPdfPage() {
       {/* Top Patient Portal Navigation Bar */}
       <nav className="no-print" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/patient/dashboard')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/home')}>
             <span style={{ background: '#0284c7', color: '#ffffff', fontWeight: '800', fontSize: '13px', padding: '4px 8px', borderRadius: '4px', letterSpacing: '1px' }}>BMS</span>
             <div>
               <span style={{ fontWeight: '700', fontSize: '15px', color: '#0f172a' }}>Hệ Thống Y Khoa BMS</span>
@@ -266,8 +284,8 @@ export default function ExportTestResultPdfPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', fontSize: '13.5px', fontWeight: '500' }}>
-            <Link to="/patient/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Trang Chủ</Link>
-            <Link to="/patient/appointments" style={{ color: '#64748b', textDecoration: 'none' }}>Lịch Khám</Link>
+            <Link to="/home" style={{ color: '#64748b', textDecoration: 'none' }}>Trang Chủ</Link>
+            <Link to="/appointments" style={{ color: '#64748b', textDecoration: 'none' }}>Lịch Khám</Link>
             <Link to="/patient/test-history" style={{ color: '#0284c7', fontWeight: '700', textDecoration: 'none', borderBottom: '2px solid #0284c7', paddingBottom: '4px' }}>Kết Quả Xét Nghiệm</Link>
             <Link to="/patient/payment-history" style={{ color: '#64748b', textDecoration: 'none' }}>Viện Phí &amp; Hóa Đơn</Link>
           </div>
@@ -649,7 +667,7 @@ export default function ExportTestResultPdfPage() {
               <Link to="/patient/test-history" className="btn btn-outline-primary btn-sm px-3">
                 <FaArrowLeft className="me-1" /> Xem Lịch Sử Xét Nghiệm
               </Link>
-              <Link to="/patient/dashboard" className="btn btn-primary btn-sm px-3">
+              <Link to="/home" className="btn btn-primary btn-sm px-3">
                 Về Trang Chủ Bệnh Nhân
               </Link>
             </div>

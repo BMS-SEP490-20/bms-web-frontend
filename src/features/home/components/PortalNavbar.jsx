@@ -38,7 +38,7 @@ export default function PortalNavbar({ user: propUser = null }) {
   const hasActiveItem = useMemo(() => {
     if (currentPath === '/' || currentPath === '/home') return true;
     if (currentPath === '/services' || (currentPath.startsWith('/services/') && !currentPath.startsWith('/services/pricing'))) return true;
-    if (currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/track-progress')) return true;
+    if (currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/tracking') || currentPath.startsWith('/patient/track-progress')) return true;
     if (isPatient) {
       if (currentPath.startsWith('/appointments')) return true;
       if (currentPath.startsWith('/patient/test-history')) return true;
@@ -196,8 +196,8 @@ export default function PortalNavbar({ user: propUser = null }) {
             Gói Xét Nghiệm
           </Link>
           <Link
-            className={`bms-capsule-item ${currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/track-progress') ? 'active' : ''}`}
-            to="/tracking"
+            className={`bms-capsule-item ${currentPath.startsWith('/tracking') || currentPath.startsWith('/patient/tracking') || currentPath.startsWith('/patient/track-progress') ? 'active' : ''}`}
+            to={isPatient ? '/patient/tracking' : '/tracking'}
             style={{ position: 'relative', zIndex: 2 }}
           >
             Tiến Trình &amp; Kết Quả

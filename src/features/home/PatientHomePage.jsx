@@ -15,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaVial, FaClock } from 'react-icons/fa';
 import { fetchServiceCatalog } from '../catalog/api/catalogApi';
 import { getTestHistory } from '../patient/api/testHistoryApi';
+import api from '../../config/api';
 import MegaFooter from './components/MegaFooter';
 import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
@@ -37,8 +38,20 @@ export default function PatientHomePage({ user: propUser }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
   const [recentTest, setRecentTest] = useState(null);
+  const [resolvedPatientCode, setResolvedPatientCode] = useState(
+    () => user?.patientCode || user?.medicalRecordNumber || user?.patientId || ''
+  );
 
   useEffect(() => {
+    // Load patient profile to resolve canonical PatientCode (PID)
+    api.get('/patients/me')
+      .then(res => {
+        const profile = res?.data?.data || res?.data;
+        const code = profile?.patientCode || profile?.id;
+        if (code) setResolvedPatientCode(code);
+      })
+      .catch(() => {});
+
     // Load service packages
     fetchServiceCatalog()
       .then(res => {
@@ -68,7 +81,7 @@ export default function PatientHomePage({ user: propUser }) {
     navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book');
   };
 
-  const patientCode = user?.patientCode || user?.medicalRecordNumber || user?.patientId || 'Chờ kích hoạt tại Lễ tân';
+  const patientCode = resolvedPatientCode || user?.patientCode || user?.medicalRecordNumber || user?.patientId || 'Chờ kích hoạt tại Lễ tân';
 
   const mapOrderStatus = (status) => {
     const s = String(status || '').toLowerCase();
@@ -208,7 +221,7 @@ export default function PatientHomePage({ user: propUser }) {
             <div className="bms-appointment-soft-tile mt-3">
               <div className="d-flex justify-content-between align-items-center mb-1">
                 <span className="bms-appointment-label">Lịch Hẹn Của Bạn</span>
-                <Link to="/patient/appointments" className="small text-primary text-decoration-none">Xem tất cả</Link>
+                <Link to="/appointments" className="small text-primary text-decoration-none">Xem tất cả</Link>
               </div>
               <div className="bms-appointment-location text-muted small">
                 Tra cứu hoặc quản lý lịch hẹn khám và xét nghiệm trực tuyến.

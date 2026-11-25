@@ -39,12 +39,8 @@ export default function HomePage() {
     }
   }
 
-  // Signed-in patient: keep /home as a real destination (PortalNavbar "Trang Chủ").
-  // Redirecting to /appointments made every home click look like a broken route.
+  // Signed-in patient: always open PatientHomePage when navigating to "/" or "/home".
   if (user && roleId === ROLES.PATIENT) {
-    if (!user.medicalProfileCompleted) {
-      return <Navigate to="/patient/medical-profile-setup" replace />;
-    }
     return <PatientHomePage user={user} />;
   }
 

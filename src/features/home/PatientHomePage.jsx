@@ -115,7 +115,7 @@ export default function PatientHomePage({ user: propUser }) {
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
-      <section className="bms-hero-container-wrap" style={{ marginBottom: '56px' }}>
+      <section className="bms-hero-container-wrap">
         <div className="bms-hero-grid">
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
@@ -247,7 +247,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 2. Service Packages Catalog (Moved to Top) */}
-      <section className="bms-section-wrap" id="danh-muc" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap" id="danh-muc">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -461,7 +461,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
-      <section className="bms-section-wrap" id="quy-trinh" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap" id="quy-trinh">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
@@ -514,7 +514,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 4. Quality & Trust Pillars */}
-      <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">TIÊU CHUẨN QUỐC TẾ</div>

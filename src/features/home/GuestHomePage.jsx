@@ -224,12 +224,12 @@ export default function GuestHomePage({ user: propUser }) {
   };
 
   return (
-    <div className="bms-telehealth-page" style={{ backgroundColor: '#F4F7FB', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+    <div className="bms-telehealth-page" style={{ backgroundColor: 'var(--bg-page)', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar user={signedInUser} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
-      <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px', marginBottom: '56px' }}>
+      <section className="bms-hero-container-wrap pt-5 pb-4">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
             {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
@@ -328,7 +328,7 @@ export default function GuestHomePage({ user: propUser }) {
       </section>
 
       {/* 2. Service Packages Catalog (Spacious Horizontal Service Strips - Moved to Top) */}
-      <section className="bms-section-wrap py-5" id="danh-muc" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5" id="danh-muc">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -543,7 +543,7 @@ export default function GuestHomePage({ user: propUser }) {
       </section>
 
       {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
-      <section className="bms-section-wrap py-5" id="quy-trinh" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5" id="quy-trinh">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
@@ -628,7 +628,7 @@ export default function GuestHomePage({ user: propUser }) {
       </section>
 
       {/* 4. Complete V3.1 Clinical Narrative Sections (14 Expanded Vignettes) */}
-      <section className="bms-section-wrap py-5" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">TIÊU CHUẨN LÂM SÀNG TOÀN DIỆN</div>

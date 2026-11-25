@@ -13,7 +13,7 @@ export default function PatientPortalLayout() {
   const user = useMemo(() => getStoredUser(), []);
 
   return (
-    <div className="bms-landing-wrapper min-vh-100 d-flex flex-column" style={{ background: '#F4F7FB' }}>
+    <div className="bms-landing-wrapper min-vh-100 d-flex flex-column" style={{ background: 'var(--bg-page)' }}>
       {/* 1. Synced Patient Topbar & Navbar */}
       <PortalNavbar user={user} />
 

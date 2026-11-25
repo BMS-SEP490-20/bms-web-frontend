@@ -475,85 +475,78 @@ export default function CheckInPage() {
         <Card.Body className="p-0">
 
           {/* Integrated Filter Control Strip */}
-          <div className="bms-filter-bar">
-            <Row className="g-2 align-items-center">
-              <Col xs={12} md={5}>
-                <div className="bms-search-input-pill">
-                  <Search className="bms-search-icon"  size="1em"/>
-                  <input
-                    type="text"
-                    placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                  />
-                  {searchInput && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setSearchInput('')}
-                      title="Xóa tìm kiếm"
-                    >
-                      <LucideX size={12} />
-                    </button>
-                  )}
-                </div>
-              </Col>
-
-              <Col xs={6} md={3}>
-                <Form.Select
-                  value={guestFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setGuestFilter(e.target.value);
-                    setPage(1);
-                  }}
+          <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2">
+            <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+              <Search className="bms-search-icon" size="1em" />
+              <input
+                type="text"
+                placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  className="bms-search-clear"
+                  onClick={() => setSearchInput('')}
+                  title="Xóa tìm kiếm"
                 >
-                  <option value="ALL">Tất cả loại hồ sơ</option>
-                  <option value="true">Khách vãng lai (Guest Profile)</option>
-                  <option value="false">Bệnh nhân có tài khoản</option>
-                </Form.Select>
-              </Col>
+                  <LucideX size={12} />
+                </button>
+              )}
+            </div>
 
-              <Col xs={6} md={2}>
-                <Form.Select
-                  value={genderFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setGenderFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option value="ALL">Mọi giới tính</option>
-                  <option value="Male">Nam (Male)</option>
-                  <option value="Female">Nữ (Female)</option>
-                  <option value="Other">Khác (Other)</option>
-                </Form.Select>
-              </Col>
+            <Form.Select
+              size="sm"
+              value={guestFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '185px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setGuestFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Tất cả loại hồ sơ</option>
+              <option value="true">Khách vãng lai</option>
+              <option value="false">Bệnh nhân có tài khoản</option>
+            </Form.Select>
 
-              <Col xs={12} md={2}>
-                <Form.Select
-                  value={bloodTypeFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setBloodTypeFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option value="ALL">Mọi nhóm máu</option>
-                  <option value="O+">Nhóm máu O+</option>
-                  <option value="A+">Nhóm máu A+</option>
-                  <option value="B+">Nhóm máu B+</option>
-                  <option value="AB+">Nhóm máu AB+</option>
-                  <option value="O-">Nhóm máu O-</option>
-                  <option value="A-">Nhóm máu A-</option>
-                  <option value="B-">Nhóm máu B-</option>
-                  <option value="AB-">Nhóm máu AB-</option>
-                </Form.Select>
-              </Col>
-            </Row>
+            <Form.Select
+              size="sm"
+              value={genderFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '140px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setGenderFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi giới tính</option>
+              <option value="Male">Nam</option>
+              <option value="Female">Nữ</option>
+              <option value="Other">Khác</option>
+            </Form.Select>
+
+            <Form.Select
+              size="sm"
+              value={bloodTypeFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '145px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setBloodTypeFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi nhóm máu</option>
+              <option value="O+">Nhóm máu O+</option>
+              <option value="A+">Nhóm máu A+</option>
+              <option value="B+">Nhóm máu B+</option>
+              <option value="AB+">Nhóm máu AB+</option>
+              <option value="O-">Nhóm máu O-</option>
+              <option value="A-">Nhóm máu A-</option>
+              <option value="B-">Nhóm máu B-</option>
+              <option value="AB-">Nhóm máu AB-</option>
+            </Form.Select>
           </div>
 
           <div className="table-responsive">
@@ -673,7 +666,7 @@ export default function CheckInPage() {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
+          <Modal.Body style={{ maxHeight: '78vh', overflowY: 'auto' }}>
             <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
               <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
             </Alert>
@@ -983,7 +976,7 @@ export default function CheckInPage() {
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="p-2" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+        <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
           {detailError && (
             <Alert variant="danger" className="mb-3" style={{ borderRadius: '12px' }}>
               <AlertTriangle className="me-2"  size="1em"/>

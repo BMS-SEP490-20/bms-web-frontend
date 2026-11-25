@@ -1047,7 +1047,7 @@ export default function DoctorSchedulePage() {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {formError && (
               <Alert variant="danger" className="py-2 small">
                 <AlertTriangle className="me-2"  size="1em"/>
@@ -1367,7 +1367,7 @@ export default function DoctorSchedulePage() {
             <span>Chi Tiết Ca Làm Việc & Phân Công Nhân Sự</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {detailLoading && (
             <div className="text-center py-2 mb-3">
               <Spinner animation="border" size="sm" variant="primary" className="me-2" />
@@ -1533,7 +1533,7 @@ export default function DoctorSchedulePage() {
             <span>Xác Nhận Xoá Ca Làm Việc</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {deleteError && (
             <Alert variant="danger" className="py-2 small">
               <AlertTriangle className="me-2"  size="1em"/>

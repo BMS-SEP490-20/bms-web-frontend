@@ -346,7 +346,7 @@ const LabRoomManagementPage = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
-                    <Modal.Body className="p-2">
+                    <Modal.Body>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-semibold">Tên Phòng Xét Nghiệm <span className="text-danger">*</span></Form.Label>
                             <Form.Control

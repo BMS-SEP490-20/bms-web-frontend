@@ -420,7 +420,7 @@ const AuditLogPage = () => {
             Chi Tiết Bản Ghi Kiểm Toán An Ninh
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {selectedLog && (
             <div>
               <div className="p-3 bg-light rounded-3 mb-3 border">

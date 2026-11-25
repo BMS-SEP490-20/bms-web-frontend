@@ -562,7 +562,7 @@ export default function UserManagementPage() {
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateUser}>
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {createError && <Alert variant="danger">{createError}</Alert>}
             <Row className="g-3">
               <Col md={6}>

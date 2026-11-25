@@ -405,80 +405,74 @@ const FeedbackHubPage = () => {
         </Row>
       )}
 
-      {/* Filter Bar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-3">
-            <Col xs={12} md={4}>
-              <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <Search className="text-muted"  size="1em"/>
-                </InputGroup.Text>
-                <Form.Control
-                  placeholder="Tìm theo tiêu đề, nội dung, tên bệnh nhân, bác sĩ..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-start-0"
-                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} sm={4} md={2}>
-              <Form.Select 
-                value={ratingFilter} 
-                onChange={(e) => setRatingFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả số sao</option>
-                <option value="5">5 Sao (Tuyệt vời)</option>
-                <option value="4">4 Sao (Tốt)</option>
-                <option value="3">3 Sao (Bình thường)</option>
-                <option value="2">2 Sao (Cần cải thiện)</option>
-                <option value="1">1 Sao (Kém)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} sm={4} md={3}>
-              <Form.Select 
-                value={categoryFilter} 
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả nhóm dịch vụ</option>
-                <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
-                <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
-                <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
-                <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
-                <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
-              </Form.Select>
-            </Col>
-            <Col xs={12} sm={4} md={3}>
-              <Form.Select 
-                value={statusFilter} 
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ phản hồi</option>
-                <option value="REVIEWED">Đã xem xét</option>
-                <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi từ trung tâm'}</option>
-              </Form.Select>
-            </Col>
-          </Row>
+      {/* Single-Line Filter Bar */}
+      <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '230px' }}>
+          <Search className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Tìm theo tiêu đề, nội dung, tên bệnh nhân, bác sĩ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-          {isPatient && myFeedbacks.length > 0 && (
-            <div className="mt-3 pt-2 border-top d-flex align-items-center gap-2">
-              <Form.Check 
-                type="switch"
-                id="filter-my-only"
-                label={`Chỉ xem đánh giá của tôi (${myFeedbacks.length} bài viết)`}
-                checked={filterMyOnly}
-                onChange={(e) => setFilterMyOnly(e.target.checked)}
-                className="fw-semibold text-primary small"
-              />
-            </div>
-          )}
-        </Card.Body>
-      </Card>
+        <Form.Select
+          size="sm"
+          value={ratingFilter}
+          onChange={(e) => setRatingFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '145px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả số sao</option>
+          <option value="5">5 Sao</option>
+          <option value="4">4 Sao</option>
+          <option value="3">3 Sao</option>
+          <option value="2">2 Sao</option>
+          <option value="1">1 Sao</option>
+        </Form.Select>
+
+        <Form.Select
+          size="sm"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '185px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả nhóm dịch vụ</option>
+          <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
+          <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
+          <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
+          <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
+          <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
+        </Form.Select>
+
+        <Form.Select
+          size="sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '165px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ phản hồi</option>
+          <option value="REVIEWED">Đã xem xét</option>
+          <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi'}</option>
+        </Form.Select>
+      </div>
+
+      {isPatient && myFeedbacks.length > 0 && (
+        <div className="mb-3 d-flex align-items-center">
+          <Form.Check
+            type="switch"
+            id="filter-my-only"
+            label={`Chỉ xem đánh giá của tôi (${myFeedbacks.length})`}
+            checked={filterMyOnly}
+            onChange={(e) => setFilterMyOnly(e.target.checked)}
+            className="fw-semibold text-primary small"
+          />
+        </div>
+      )}
 
       {/* Feedbacks List */}
       {loading && displayedFeedbacks.length === 0 ? (

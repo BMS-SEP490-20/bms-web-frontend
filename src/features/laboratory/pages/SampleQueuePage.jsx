@@ -870,7 +870,7 @@ const SampleQueuePage = () => {
               className="rounded-pill px-3 fw-semibold text-white text-nowrap"
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <Clock className="me-1"  size="1em"/> Ghi nhận lấy mẫu mới
+              <Clock className="me-1" size="1em" /> Ghi nhận lấy mẫu mới
             </Button>
           )}
         </div>
@@ -933,7 +933,7 @@ const SampleQueuePage = () => {
           <label className="bms-field">
             Tìm mẫu
             <InputGroup size="sm">
-              <InputGroup.Text><LucideSearch  size="1em"/></InputGroup.Text>
+              <InputGroup.Text><LucideSearch size="1em" /></InputGroup.Text>
               <Form.Control
                 type="text"
                 placeholder="Barcode, mã mẫu, mã BN"
@@ -1014,12 +1014,12 @@ const SampleQueuePage = () => {
             </div>
           ) : sampleListSafe.length === 0 ? (
             <div className="text-center py-3 text-muted">
-              <TestTube2 className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
+              <TestTube2 className="fs-1 text-secondary opacity-50 mb-2" size="1em" />
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
               {canRecordSampleTime && (
                 <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                  <Clock className="me-1"  size="1em"/> Ghi Nhận Lấy Mẫu Ngay
+                  <Clock className="me-1" size="1em" /> Ghi Nhận Lấy Mẫu Ngay
                 </Button>
               )}
             </div>
@@ -1043,7 +1043,7 @@ const SampleQueuePage = () => {
                     <tr key={s.id}>
                       <td className="ps-3">
                         <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
-                          <LucideBarcode  size="1em"/>
+                          <LucideBarcode size="1em" />
                           <span>{s.barcode}</span>
                           {s.isAliquot && (
                             <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
@@ -1079,7 +1079,7 @@ const SampleQueuePage = () => {
                         </div>
                         {s.rejectionReason && (
                           <div className="text-danger small mt-1" style={{ fontSize: '0.72rem', wordBreak: 'break-word' }}>
-                            <AlertTriangle className="me-1"  size="1em"/>
+                            <AlertTriangle className="me-1" size="1em" />
                             Từ chối: {s.rejectionReason}
                           </div>
                         )}
@@ -1128,7 +1128,7 @@ const SampleQueuePage = () => {
                                     title="Ghi nhận lấy mẫu"
                                     onClick={() => openRecordCollectionModal(s)}
                                   >
-                                    <Clock  size="1em"/>
+                                    <Clock size="1em" />
                                     <span>Lấy Mẫu</span>
                                   </Button>
                                 )}
@@ -1142,7 +1142,7 @@ const SampleQueuePage = () => {
                                     title="Chuyển mẫu sang Đang xét nghiệm — sau đó bấm Nhập KQ"
                                     onClick={() => void handleStartTesting(s)}
                                   >
-                                    <FlaskConical  size="1em"/>
+                                    <FlaskConical size="1em" />
                                     <span>Đang xét nghiệm</span>
                                   </Button>
                                 )}
@@ -1156,7 +1156,7 @@ const SampleQueuePage = () => {
                                     title="Nhập kết quả"
                                     onClick={() => navigate(`/laboratory/enter-test-results?sampleId=${sampleKey}`)}
                                   >
-                                    <FlaskConical  size="1em"/>
+                                    <FlaskConical size="1em" />
                                     <span>Nhập KQ</span>
                                   </Button>
                                 )}
@@ -1174,7 +1174,7 @@ const SampleQueuePage = () => {
                                       )
                                     }
                                   >
-                                    <Eye  size="1em"/>
+                                    <Eye size="1em" />
                                     <span>Xem KQ</span>
                                   </Button>
                                 )}
@@ -1185,10 +1185,10 @@ const SampleQueuePage = () => {
                                     size="sm"
                                     className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
                                     style={btnStyle}
-                                    title="Chiết mẫu phụ (Aliquot)"
+                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích (BR-PHL-02)"
                                     onClick={() => void handleCreateAliquot(s)}
                                   >
-                                    <TestTube2  size="1em"/>
+                                    <TestTube2 size="1em" />
                                     <span>Chiết mẫu</span>
                                   </Button>
                                 )}
@@ -1202,7 +1202,7 @@ const SampleQueuePage = () => {
                                     title="Từ chối / hủy lấy mẫu"
                                     onClick={() => openStatusUpdateModal(s, 'Rejected')}
                                   >
-                                    <LucideX  size="1em"/>
+                                    <LucideX size="1em" />
                                   </Button>
                                 )}
                               </>
@@ -1232,7 +1232,7 @@ const SampleQueuePage = () => {
         <Form onSubmit={handleSubmitCollectionTime}>
           <Modal.Header closeButton={!collectionSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
             <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-              <Clock className="text-primary"  size="1em"/>
+              <Clock className="text-primary" size="1em" />
               <span>
                 {collectionTargetSample
                   ? `Ghi nhận thời gian lấy mẫu — ${collectionTargetSample.barcode}`
@@ -1244,7 +1244,7 @@ const SampleQueuePage = () => {
           <Modal.Body className="p-3">
             {collectionError && (
               <Alert variant="danger" className="py-2 small">
-                <AlertTriangle className="me-2"  size="1em"/>
+                <AlertTriangle className="me-2" size="1em" />
                 {collectionError}
               </Alert>
             )}
@@ -1301,7 +1301,7 @@ const SampleQueuePage = () => {
             {!collectionTargetSample && patientOptions.length > 0 && (
               <div className="mb-3">
                 <Form.Label className="small fw-semibold">
-                  <User className="me-1"  size="1em"/> Chọn bệnh nhân <span className="text-danger">*</span>
+                  <User className="me-1" size="1em" /> Chọn bệnh nhân <span className="text-danger">*</span>
                 </Form.Label>
                 <Form.Select
                   size="sm"
@@ -1476,15 +1476,15 @@ const SampleQueuePage = () => {
         <Form onSubmit={handleSubmitStatusUpdate}>
           <Modal.Header closeButton={!statusSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
             <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-              <ArrowLeftRight className="text-primary"  size="1em"/>
+              <ArrowLeftRight className="text-primary" size="1em" />
               <span>Cập nhật trạng thái mẫu bệnh phẩm</span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {statusError && (
               <Alert variant="danger" className="py-2 small">
-                <AlertTriangle className="me-2"  size="1em"/>
+                <AlertTriangle className="me-2" size="1em" />
                 {statusError}
               </Alert>
             )}
@@ -1535,7 +1535,7 @@ const SampleQueuePage = () => {
                               className="px-3 py-2 fw-semibold"
                               onClick={() => setStatusForm(prev => ({ ...prev, status: nextSt }))}
                             >
-                              {isSelected && <CheckCircle2 className="me-1"  size="1em"/>}
+                              {isSelected && <CheckCircle2 className="me-1" size="1em" />}
                               {meta.label} ({nextSt})
                             </Button>
                           );
@@ -1679,7 +1679,7 @@ const SampleQueuePage = () => {
                 <div className="mt-4 pt-3 border-top">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="small fw-bold text-secondary d-flex align-items-center gap-1">
-                      <LucideHistory  size="1em"/> Lịch Sử Chuyển Trạng Thái Mẫu (Audit Trail)
+                      <LucideHistory size="1em" /> Lịch Sử Chuyển Trạng Thái Mẫu (Audit Trail)
                     </span>
                     {statusDetailLoading && <Spinner animation="border" size="sm" variant="primary" />}
                   </div>
@@ -1736,11 +1736,11 @@ const SampleQueuePage = () => {
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger-subtle text-danger">
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <RotateCw  size="1em"/>
+            <RotateCw size="1em" />
             <span>Yêu Cầu Chạy Lại Mẫu Xét Nghiệm (Rerun)</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {selectedSample && (
             <div className="mb-3 p-3 bg-light rounded-3 border small">
               <div><strong>Mã Barcode:</strong> <code>{selectedSample.barcode}</code></div>
@@ -1783,7 +1783,7 @@ const SampleQueuePage = () => {
       >
         <Modal.Header closeButton={!resultSubmitting} className="bg-light">
           <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-            <FlaskConical className="text-warning"  size="1em"/>
+            <FlaskConical className="text-warning" size="1em" />
             <span>{viewOnlyResult ? 'Chi Tiết Kết Quả Xét Nghiệm Máu' : 'Nhập Kết Quả Xét Nghiệm Máu'}</span>
           </Modal.Title>
         </Modal.Header>
@@ -1791,7 +1791,7 @@ const SampleQueuePage = () => {
         <Modal.Body className="p-3">
           {resultError && (
             <Alert variant="danger" className="py-2 small">
-              <AlertTriangle className="me-2"  size="1em"/>
+              <AlertTriangle className="me-2" size="1em" />
               {resultError}
             </Alert>
           )}
@@ -1818,7 +1818,7 @@ const SampleQueuePage = () => {
 
               {!viewOnlyResult && (
                 <div className="alert alert-info py-2 small d-flex align-items-center gap-2 mb-3">
-                  <Info  size="1em"/>
+                  <Info size="1em" />
                   <span>
                     Kỹ thuật viên nhập các giá trị đo được vào bảng bên dưới. Hệ thống sẽ tự động đối soát với khoảng tham chiếu chuẩn.
                   </span>
@@ -1905,7 +1905,7 @@ const SampleQueuePage = () => {
                   navigate(`/laboratory/enter-test-results?sampleId=${encodeURIComponent(resultTargetSample?.barcode || resultTargetSample?.id || '')}`);
                 }}
               >
-                <FlaskConical  size="1em"/> Mở Trạm Nhập Chi Tiết
+                <FlaskConical size="1em" /> Mở Trạm Nhập Chi Tiết
               </Button>
             )}
           </div>
@@ -1928,7 +1928,7 @@ const SampleQueuePage = () => {
                   </>
                 ) : (
                   <>
-                    <Save  size="1em"/>
+                    <Save size="1em" />
                     <span>Lưu &amp; Gửi Bác Sĩ Duyệt</span>
                   </>
                 )}

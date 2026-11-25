@@ -328,50 +328,31 @@ export default function CalculateFeesPage() {
   });
 
   return (
-    <div className="calc-fees-page py-2 px-3 bg-light min-vh-100" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-      <div className="container-fluid" style={{ maxWidth: 1360 }}>
-        
-        {/* Top Header Card */}
-        <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
-          <Card.Body className="p-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div className="d-flex align-items-center gap-3">
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  backgroundColor: "#eff6ff",
-                  color: "#1E60E6",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 22
-                }}
-              >
-                <Calculator  size="1em"/>
-              </div>
-              <div>
-                <h1 className="bms-page-title fs-4 mb-1 text-dark fw-bold">
-                  Quầy Dự Toán Viện Phí &amp; Chiết Tính Đồng Chi Trả BHYT
-                </h1>
-                <div className="text-muted small">
-                  Bàn tính dự toán chuẩn Thông tư 22/2023/TT-BYT &amp; QĐ 3618/QĐ-BHXH. Hỗ trợ nạp Y lệnh Bác sĩ và xuất dự toán minh bạch.
-                </div>
-              </div>
+    <div className="calc-fees-page w-100 py-1">
+      <div className="container-fluid px-0">
+        {/* Top Page Header Card */}
+        <div className="bms-page-header-card mb-4">
+          <div className="bms-page-header-content">
+            <div className="bms-page-title-row">
+              <h1 className="bms-page-title">Dự Toán Chi Phí Xét Nghiệm</h1>
             </div>
+            <p className="text-muted small m-0 mt-1">
+              Tra cứu nhanh chi phí dự kiến theo gói xét nghiệm hoặc y lệnh bác sĩ.
+            </p>
+          </div>
 
-            <div className="d-flex gap-2">
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={() => window.print()}
-                className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill shadow-sm"
-              >
-                <Printer  size="1em"/> <span>In Bảng Dự Toán K80</span>
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
+          <div className="bms-page-actions">
+            <Button
+              variant="outline-primary"
+              size="sm"
+              onClick={() => window.print()}
+              className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
+              style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
+            >
+              <Printer size={14} /> <span>In Bảng Dự Toán</span>
+            </Button>
+          </div>
+        </div>
 
         {/* 1. Fast Importer: Doctor Order & Patient Lookup */}
         <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">

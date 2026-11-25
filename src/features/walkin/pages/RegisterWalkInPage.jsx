@@ -698,24 +698,23 @@ export function RegisterWalkInPage({ onSuccess }) {
   // MÀN HÌNH CHÍNH: BIỂU MẪU TIẾP ĐÓN & ĐĂNG KÝ KHÁCH VÃNG LAI
   // =========================================================================
   return (
-    <div className="walkin-page container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header chuẩn hóa chung dashboard lễ tân */}
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-          <h2 className="fs-4 fw-bold text-dark mb-1">
-            <IdCard className="text-primary me-2"  size="1em"/>
-            Quầy Tiếp Nhận &amp; Đăng Ký Hồ Sơ Khách Vãng Lai (Walk-in)
-          </h2>
-          <p className="text-muted mb-0 small">
+    <div className="walkin-page w-100 py-1">
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Tiếp Nhận Khách Vãng Lai (Walk-in)</h1>
+          </div>
+          <p className="text-muted mb-0 small mt-1">
             Tiếp đón bệnh nhân chưa đặt lịch, kiểm tra thông tin và cấp số thứ tự lấy mẫu.
           </p>
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" className="rounded-pill" onClick={() => navigate('/reception/queue')}>
-            <Monitor className="me-1"  size="1em"/> Bảng Gọi Số
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-1" onClick={() => navigate('/reception/queue')}>
+            <Monitor size={14} /> Bảng Gọi Số
           </Button>
-          <Button variant="outline-primary" size="sm" className="rounded-pill" onClick={() => navigate('/calculate-fees')}>
-            <Receipt className="me-1"  size="1em"/> Quầy Dự Toán
+          <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-1" onClick={() => navigate('/calculate-fees')} style={{ borderColor: '#1E60E6', color: '#1E60E6' }}>
+            <Receipt size={14} /> Dự Toán Viện Phí
           </Button>
         </div>
       </div>

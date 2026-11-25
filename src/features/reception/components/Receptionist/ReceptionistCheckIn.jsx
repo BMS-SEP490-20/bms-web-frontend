@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX } from 'lucide-react';
+import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX, Calendar, Info as LucideInfo, Stethoscope, DoorOpen, Hospital, IdCard, AlertTriangle, TestTube2, Package as LucidePackage, ClipboardCheck, Microscope } from 'lucide-react';
 import { appointmentService } from '../../../../services/appointmentService';
 import { patientService } from '../../../../services/patientService';
 import { medicalService } from '../../../../services/medicalService';
@@ -2432,7 +2432,7 @@ const ReceptionistCheckIn = () => {
       >
         <Modal.Header closeButton className="bg-primary text-white" style={{ padding: isMobile ? '0.75rem' : '1rem' }}>
           <Modal.Title style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
-            <i className="fas fa-qrcode me-2"></i>
+            <QrCode size="1em" className="me-2" />
             {isMobile ? 'Check-in QR/Mã' : 'Tiếp Đón Nhanh: Quét QR & Nhập Mã Hẹn'}
           </Modal.Title>
         </Modal.Header>
@@ -2468,7 +2468,7 @@ const ReceptionistCheckIn = () => {
         <Modal.Header closeButton className="border-bottom bg-white py-3 px-4">
           <div className="d-flex align-items-center gap-3">
             <div className="rounded-3 bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 44, height: 44 }}>
-              <i className="fas fa-file-medical-alt fs-5"></i>
+              <FileText size="1em" className="fs-5" />
             </div>
             <div>
               <Modal.Title className="fw-bold fs-5 text-dark mb-0">
@@ -2513,11 +2513,11 @@ const ReceptionistCheckIn = () => {
                       {appointmentCode}
                     </span>
                     <Badge bg="light" text="dark" className="border px-2 py-2">
-                      <i className="fas fa-calendar-day text-primary me-1"></i>
+                      <Calendar size="1em" className="text-primary me-1" />
                       {safeFormatDate(detailAppointment.appointmentDate, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </Badge>
                     <Badge bg="light" text="dark" className="border px-2 py-2">
-                      <i className="fas fa-clock text-primary me-1"></i>
+                      <Clock size="1em" className="text-primary me-1" />
                       Khung giờ: <strong className="text-dark ms-1">{slotTime}</strong>
                     </Badge>
                   </div>
@@ -2537,7 +2537,7 @@ const ReceptionistCheckIn = () => {
                   <Col xs={12} lg={4}>
                     <Card className="h-100 border shadow-sm rounded-3 text-center p-3 bg-white">
                       <div className="small fw-semibold text-muted text-uppercase mb-2">
-                        <i className="fas fa-qrcode me-1 text-primary"></i>
+                        <QrCode size="1em" className="me-1 text-primary" />
                         Mã Tiếp Đón &amp; Check-In
                       </div>
                       <div className="p-3 bg-light rounded-3 d-inline-block mx-auto mb-2 border shadow-sm">
@@ -2557,7 +2557,7 @@ const ReceptionistCheckIn = () => {
 
                       {isCheckedIn ? (
                         <div className="p-2 rounded-3 bg-success-subtle text-success small fw-semibold border border-success-subtle">
-                          <i className="fas fa-check-circle me-1"></i>
+                          <CheckCircle2 size="1em" className="me-1" />
                           Đã tiếp đón vào phòng lấy mẫu
                           {detailAppointment.checkedInAt && (
                             <div className="text-muted fw-normal mt-1" style={{ fontSize: '11px' }}>
@@ -2567,7 +2567,7 @@ const ReceptionistCheckIn = () => {
                         </div>
                       ) : (
                         <div className="p-2 rounded-3 bg-info-subtle text-primary small fw-semibold border border-info-subtle">
-                          <i className="fas fa-info-circle me-1"></i>
+                          <LucideInfo size="1em" className="me-1" />
                           Sẵn sàng quét mã tiếp đón
                         </div>
                       )}
@@ -2579,7 +2579,7 @@ const ReceptionistCheckIn = () => {
                     <Card className="h-100 border shadow-sm rounded-3 bg-white">
                       <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                         <span>
-                          <i className="fas fa-user-md text-primary me-2"></i>
+                          <Stethoscope size="1em" className="text-primary me-2" />
                           Bác Sĩ Phụ Trách &amp; Phòng Khám Chỉ Định
                         </span>
                         <span className="badge bg-light text-muted border fw-normal" style={{ fontSize: '11px' }}>
@@ -2589,7 +2589,7 @@ const ReceptionistCheckIn = () => {
                       <Card.Body className="p-3">
                         <div className="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3 border">
                           <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 56, height: 56 }}>
-                            <i className="fas fa-user-md fs-3"></i>
+                            <Stethoscope size="1em" className="fs-3" />
                           </div>
                           <div className="flex-grow-1">
                             <div className="fw-bold fs-6 text-dark">{docInfo.fullName}</div>
@@ -2610,7 +2610,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Phòng khám chuyên khoa:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-door-open text-primary me-1"></i>
+                                <DoorOpen size="1em" className="text-primary me-1" />
                                 {detailAppointment.resolvedRoom || detailAppointment.roomName || docInfo.room || 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)'}
                               </strong>
                             </div>
@@ -2619,7 +2619,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Hình thức tiếp nhận:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-hospital text-primary me-1"></i>
+                                <Hospital size="1em" className="text-primary me-1" />
                                 Khám &amp; Lấy mẫu trực tiếp tại Trung tâm BMS
                               </strong>
                             </div>
@@ -2628,7 +2628,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Thời gian hẹn:</span>
                               <strong className="text-dark font-monospace">
-                                <i className="fas fa-clock text-primary me-1"></i>
+                                <Clock size="1em" className="text-primary me-1" />
                                 {slotTime} ({safeFormatDate(detailAppointment.appointmentDate)})
                               </strong>
                             </div>
@@ -2637,7 +2637,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Quy trình chuyên môn:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-shield-alt text-primary me-1"></i>
+                                <ShieldCheck size="1em" className="text-primary me-1" />
                                 Hệ thống tiếp nhận BMS
                               </strong>
                             </div>
@@ -2652,7 +2652,7 @@ const ReceptionistCheckIn = () => {
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
-                      <i className="fas fa-id-card text-primary me-2"></i>
+                      <IdCard size="1em" className="text-primary me-2" />
                       Thông Tin Hành Chính Bệnh Nhân
                     </span>
                     <span className="badge bg-light text-muted border fw-normal" style={{ fontSize: '11px' }}>
@@ -2703,7 +2703,7 @@ const ReceptionistCheckIn = () => {
                       </Row>
                     ) : (
                       <Alert variant="warning" className="mb-0">
-                        <i className="fas fa-exclamation-triangle me-2"></i>
+                        <AlertTriangle size="1em" className="me-2" />
                         Chưa tìm thấy dữ liệu nhân khẩu học bệnh nhân.
                       </Alert>
                     )}
@@ -2714,7 +2714,7 @@ const ReceptionistCheckIn = () => {
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
-                      <i className="fas fa-vial text-primary me-2"></i>
+                      <TestTube2 size="1em" className="text-primary me-2" />
                       Y Lệnh Chỉ Định Xét Nghiệm &amp; Dịch Vụ Đã Đặt
                     </span>
                     <Badge bg="primary-subtle" className="text-primary border border-primary-subtle">
@@ -2725,7 +2725,7 @@ const ReceptionistCheckIn = () => {
                     <div className="d-flex flex-wrap justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 gap-2 border">
                       <div>
                         <div className="fw-bold text-dark fs-6">
-                          <i className="fas fa-cube text-primary me-2"></i>
+                          <LucidePackage size="1em" className="text-primary me-2" />
                           {packageInfo.name || 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)'}
                         </div>
                         <div className="text-muted small mt-1">
@@ -2742,7 +2742,7 @@ const ReceptionistCheckIn = () => {
 
                     <div className="p-2 border rounded-2 bg-light small text-muted">
                       <strong className="text-dark me-1">
-                        <i className="fas fa-clipboard-check text-success me-1"></i>
+                        <ClipboardCheck size="1em" className="text-success me-1" />
                         Dặn dò lâm sàng:
                       </strong>
                       {detailAppointment.notes || 'Phòng khám: Phòng khám Huyết học Tổng quát 1(101). Nhịn ăn sáng từ 8-12 tiếng trước khi lấy mẫu máu đối với các xét nghiệm đường huyết/mỡ máu.'}
@@ -2755,7 +2755,7 @@ const ReceptionistCheckIn = () => {
                   <Card className="border shadow-sm rounded-3 bg-white border-primary-subtle">
                     <Card.Header className="bg-primary-subtle border-bottom py-2 px-3 fw-bold text-primary d-flex justify-content-between align-items-center">
                       <span>
-                        <i className="fas fa-microscope me-2"></i>
+                        <Microscope size="1em" className="me-2" />
                         Phân Công Lấy Mẫu &amp; Phân Tích Phòng Lab
                       </span>
                       <Badge bg="success">Đã phân luồng</Badge>
@@ -2765,14 +2765,14 @@ const ReceptionistCheckIn = () => {
                         <Col sm={6}>
                           <div className="text-muted small">Kỹ thuật viên phụ trách:</div>
                           <div className="fw-bold text-dark fs-6">
-                            <i className="fas fa-user-nurse text-primary me-1"></i>
+                            <UserCheck size="1em" className="text-primary me-1" />
                             {labAssignmentInfo?.labUser?.fullName || 'KTV. Phạm Quốc Hưng'}
                           </div>
                         </Col>
                         <Col sm={6}>
                           <div className="text-muted small">Phòng xét nghiệm / lấy mẫu:</div>
                           <div className="fw-bold text-dark fs-6">
-                            <i className="fas fa-door-open text-primary me-1"></i>
+                            <DoorOpen size="1em" className="text-primary me-1" />
                             {labAssignmentInfo?.labRoom?.roomName || 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)'}
                           </div>
                         </Col>
@@ -2790,7 +2790,7 @@ const ReceptionistCheckIn = () => {
             onClick={handleCloseDetailModal}
             className="px-4 py-2 rounded-3 fw-semibold"
           >
-            <i className="fas fa-times me-2"></i>
+            <LucideX size="1em" className="me-2" />
             Đóng
           </Button>
 
@@ -2800,7 +2800,7 @@ const ReceptionistCheckIn = () => {
               onClick={handlePrintAppointmentSlip}
               className="px-4 py-2 rounded-3 fw-semibold shadow-sm"
             >
-              <i className="fas fa-print me-2"></i>
+              <Printer size="1em" className="me-2" />
               In Phiếu Tiếp Đón K80
             </Button>
 
@@ -2814,7 +2814,7 @@ const ReceptionistCheckIn = () => {
                 className="px-4 py-2 rounded-3 fw-semibold text-white shadow-sm"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
-                <i className="fas fa-check-circle me-2"></i>
+                <CheckCircle2 size="1em" className="me-2" />
                 Check-in ngay
               </Button>
             )}
@@ -2826,7 +2826,7 @@ const ReceptionistCheckIn = () => {
       <Modal show={showTicketModal} onHide={() => setShowTicketModal(false)} size="md" centered>
         <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
           <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-            <i className="fas fa-ticket-alt text-primary me-2"></i>
+            <LucideTicket size="1em" className="text-primary me-2" />
             Phiếu Tiếp Đón & Số Thứ Tự Lấy Mẫu
           </Modal.Title>
         </Modal.Header>
@@ -2847,7 +2847,7 @@ const ReceptionistCheckIn = () => {
                   {issuedTicketData.ticketNumber}
                 </div>
                 <div style={{ fontSize: '0.9rem', color: '#047857', fontWeight: '600' }}>
-                  <i className="fas fa-door-open me-1"></i> {issuedTicketData.roomName}
+                  <DoorOpen size="1em" className="me-1" /> {issuedTicketData.roomName}
                 </div>
               </div>
 
@@ -2862,13 +2862,13 @@ const ReceptionistCheckIn = () => {
                 <div>
                   <strong>Thanh toán:</strong>{' '}
                   <span className="badge bg-success" style={{ fontSize: '0.8rem' }}>
-                    <i className="fas fa-check-circle me-1"></i> {issuedTicketData.paymentStatus}
+                    <CheckCircle2 size="1em" className="me-1" /> {issuedTicketData.paymentStatus}
                   </span>
                 </div>
               </div>
 
               <div className="mt-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                <i className="fas fa-info-circle me-1"></i> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
+                <LucideInfo size="1em" className="me-1" /> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
               </div>
             </div>
           )}
@@ -2891,7 +2891,7 @@ const ReceptionistCheckIn = () => {
                 }
               }}
             >
-              <i className="fas fa-print me-1"></i> In Phiếu STT
+              <Printer size="1em" className="me-1" /> In Phiếu STT
             </Button>
             <Button
               variant="primary"
@@ -2901,7 +2901,7 @@ const ReceptionistCheckIn = () => {
               }}
               style={{ backgroundColor: '#1E60E6' }}
             >
-              <i className="fas fa-desktop me-1"></i> Đến Bảng Gọi Số
+              <Monitor size="1em" className="me-1" /> Đến Bảng Gọi Số
             </Button>
           </div>
         </Modal.Footer>

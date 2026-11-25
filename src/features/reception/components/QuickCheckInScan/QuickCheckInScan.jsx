@@ -5,6 +5,7 @@ import { appointmentService } from '../../../../services/appointmentService';
 import { doctorService } from '../../../../services/doctorService';
 import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
 import { queueApi } from '../../api/queueApi';
+import { Info, CheckCircle2, DoorOpen, RotateCw, Printer, Eye, AlertCircle, Check as LucideCheck, UserCheck, Plus, Camera as LucideCamera, Image as LucideImage, Keyboard, AlertTriangle, VideoOff, QrCode, Search, Upload } from 'lucide-react';
 
 /**
  * Quick Check-In QR Code Scanner Component.
@@ -794,7 +795,7 @@ const QuickCheckInScan = ({
     <div>
       <Alert variant="info" className="mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', background: '#F0F9FF', border: '1px solid #BAE6FD' }}>
         <div className="d-flex align-items-start gap-2">
-          <i className="fas fa-info-circle me-1 mt-1 text-primary" style={{ fontSize: '1.25rem' }}></i>
+          <Info size="1em" className="me-1 mt-1 text-primary" style={{ fontSize: '1.25rem' }} />
           <div>
             <strong className="d-block mb-1 text-dark" style={{ fontSize: '0.92rem' }}>Hướng dẫn tiếp đón nhanh tại quầy:</strong>
             <div className="small text-muted mb-0">
@@ -811,7 +812,7 @@ const QuickCheckInScan = ({
         <div className="mb-4 p-3 rounded-4 border shadow-sm" style={{ background: '#F0F9FF', borderColor: '#BAE6FD', animation: 'fadeIn 0.3s' }}>
           <div className="d-flex align-items-start gap-3">
             <div className="rounded-circle p-2 bg-info bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px', flexShrink: 0 }}>
-              <i className="fas fa-check-double fa-lg text-primary"></i>
+              <CheckCheck size={18} className="text-primary" />
             </div>
             <div className="flex-grow-1">
               <div className="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
@@ -819,7 +820,7 @@ const QuickCheckInScan = ({
                   Lịch Hẹn Đã Được Tiếp Đón Trước Đó
                 </h6>
                 <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-bold fs-7">
-                  <i className="fas fa-check-circle me-1"></i> ĐÃ TIẾP ĐÓN HOÀN TẤT
+                  <CheckCircle2 size="1em" className="me-1" /> ĐÃ TIẾP ĐÓN HOÀN TẤT
                 </span>
               </div>
               <p className="small text-muted mb-3">
@@ -850,7 +851,7 @@ const QuickCheckInScan = ({
                       <span className="badge bg-primary fs-6 px-3 py-1 fw-bold">STT #{alreadyCheckedInPatient.queueNumber}</span>
                     </div>
                     <span className="text-success small fw-semibold">
-                      <i className="fas fa-door-open me-1"></i> Phòng Lấy Mẫu 101
+                      <DoorOpen size="1em" className="me-1" /> Phòng Lấy Mẫu 101
                     </span>
                   </div>
                 </div>
@@ -866,7 +867,7 @@ const QuickCheckInScan = ({
                     setManualCode('');
                   }}
                 >
-                  <i className="fas fa-redo me-1"></i> Quét / Nhập mã khác
+                  <RotateCw size="1em" className="me-1" /> Quét / Nhập mã khác
                 </Button>
                 <Button 
                   variant="outline-primary" 
@@ -874,7 +875,7 @@ const QuickCheckInScan = ({
                   className="rounded-pill px-3 fw-semibold"
                   onClick={() => handlePrintK80Slip(alreadyCheckedInPatient)}
                 >
-                  <i className="fas fa-print me-1"></i> In Lại Phiếu K80
+                  <Printer size="1em" className="me-1" /> In Lại Phiếu K80
                 </Button>
                 {onViewDetail && (
                   <Button 
@@ -886,7 +887,7 @@ const QuickCheckInScan = ({
                       onViewDetail(alreadyCheckedInPatient.rawAppointment || alreadyCheckedInPatient);
                     }}
                   >
-                    <i className="fas fa-eye me-1"></i> Xem Chi Tiết Lịch Hẹn
+                    <Eye size="1em" className="me-1" /> Xem Chi Tiết Lịch Hẹn
                   </Button>
                 )}
               </div>
@@ -899,7 +900,7 @@ const QuickCheckInScan = ({
       {pendingCheckInPatient && !lastCheckedInPatient && !alreadyCheckedInPatient && (
         <Alert variant="warning" className="mb-3" style={{ borderRadius: '10px', animation: 'fadeIn 0.5s' }}>
           <div className="d-flex align-items-start">
-            <i className="fas fa-exclamation-circle me-2 mt-1" style={{ fontSize: '1.5rem', color: '#fd7e14' }}></i>
+            <AlertCircle size="1em" className="me-2 mt-1" style={{ fontSize: '1.5rem', color: '#fd7e14' }} />
             <div className="flex-grow-1">
               <h6 className="mb-2 fw-bold text-dark">
                 Xác nhận thông tin bệnh nhân
@@ -924,7 +925,7 @@ const QuickCheckInScan = ({
               <div className="d-flex gap-2 justify-content-end mt-2">
                 <Button variant="secondary" size="sm" onClick={cancelPendingCheckIn} disabled={isConfirming}>Hủy</Button>
                 <Button variant="primary" size="sm" onClick={handleConfirmCheckIn} disabled={isConfirming}>
-                  {isConfirming ? <Spinner size="sm" /> : <span><i className="fas fa-check me-1"></i> Xác nhận Check-in</span>}
+                  {isConfirming ? <Spinner size="sm" /> : <span><LucideCheck size="1em" className="me-1" /> Xác nhận Check-in</span>}
                 </Button>
               </div>
             </div>
@@ -937,12 +938,12 @@ const QuickCheckInScan = ({
         <Alert variant="success" className="mb-3 rounded-4 shadow-sm border-0" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', animation: 'fadeIn 0.5s' }}>
           <div className="d-flex align-items-start gap-3">
             <div className="rounded-circle p-2 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px', flexShrink: 0 }}>
-              <i className="fas fa-check-circle fa-lg text-success"></i>
+              <CheckCircle2 size="1em" className="text-success" />
             </div>
             <div className="flex-grow-1">
               <div className="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
                 <h6 className="mb-0 fw-bold text-success">
-                  <i className="fas fa-user-check me-2"></i>
+                  <UserCheck size="1em" className="me-2" />
                   Check-in Tiếp Đón Thành Công!
                 </h6>
                 {lastCheckedInPatient.queueNumber && (
@@ -990,7 +991,7 @@ const QuickCheckInScan = ({
                     setManualCode('');
                   }}
                 >
-                  <i className="fas fa-plus me-1"></i> Tiếp tục quét bệnh nhân tiếp theo
+                  <Plus size="1em" className="me-1" /> Tiếp tục quét bệnh nhân tiếp theo
                 </Button>
                 <Button
                   variant="success"
@@ -998,7 +999,7 @@ const QuickCheckInScan = ({
                   className="rounded-pill px-3 fw-bold shadow-sm"
                   onClick={() => handlePrintK80Slip(lastCheckedInPatient)}
                 >
-                  <i className="fas fa-print me-1"></i> In Phiếu Tiếp Đón K80
+                  <Printer size="1em" className="me-1" /> In Phiếu Tiếp Đón K80
                 </Button>
               </div>
             </div>
@@ -1032,7 +1033,7 @@ const QuickCheckInScan = ({
               borderRadius: '9999px 0 0 9999px'
             }}
           >
-            <i className="fas fa-camera me-2"></i>
+            <LucideCamera size="1em" className="me-2" />
             Quét Camera (QR)
           </Button>
           <Button
@@ -1061,7 +1062,7 @@ const QuickCheckInScan = ({
               fontWeight: '600'
             }}
           >
-            <i className="fas fa-file-image me-2"></i>
+            <LucideImage size="1em" className="me-2" />
             Tải File Ảnh QR
           </Button>
           <Button
@@ -1090,7 +1091,7 @@ const QuickCheckInScan = ({
               borderRadius: '0 9999px 9999px 0'
             }}
           >
-            <i className="fas fa-keyboard me-2"></i>
+            <Keyboard size="1em" className="me-2" />
             Nhập Mã Hẹn Thủ Công
           </Button>
         </div>
@@ -1101,7 +1102,7 @@ const QuickCheckInScan = ({
           {cameraError === 'permission_denied' && (
             <Alert variant="warning" className="mb-3">
               <Alert.Heading>
-                <i className="fas fa-exclamation-triangle me-2"></i>
+                <AlertTriangle size="1em" className="me-2" />
                 Chưa cấp quyền camera
               </Alert.Heading>
               <p className="mb-2">
@@ -1115,13 +1116,13 @@ const QuickCheckInScan = ({
                   <li><strong>Safari:</strong> Vào <strong>Safari → Preferences → Websites → Camera</strong> → Chọn <strong>"Allow"</strong></li>
                 </ul>
                 <p className="mb-0 text-muted small">
-                  <i className="fas fa-info-circle me-1"></i>
+                  <Info size="1em" className="me-1" />
                   Sau khi cấp quyền, nhấn nút <strong>"Thử lại"</strong> bên dưới
                 </p>
               </div>
               <div className="d-flex gap-2 flex-wrap">
                 <Button variant="warning" onClick={handleRetryCamera}>
-                  <i className="fas fa-redo me-2"></i>
+                  <RotateCw size="1em" className="me-2" />
                   Thử lại
                 </Button>
                 <Button
@@ -1131,7 +1132,7 @@ const QuickCheckInScan = ({
                     setCameraError(null);
                   }}
                 >
-                  <i className="fas fa-file-image me-2"></i>
+                  <LucideImage size="1em" className="me-2" />
                   Chuyển sang quét từ file ảnh
                 </Button>
               </div>
@@ -1141,7 +1142,7 @@ const QuickCheckInScan = ({
           {cameraError === 'no_camera' && (
             <Alert variant="danger" className="mb-3">
               <Alert.Heading>
-                <i className="fas fa-video-slash me-2"></i>
+                <VideoOff size="1em" className="me-2" />
                 Không tìm thấy camera
               </Alert.Heading>
               <p className="mb-2">
@@ -1156,7 +1157,7 @@ const QuickCheckInScan = ({
                 variant="outline-secondary"
                 onClick={() => setScanMode('file')}
               >
-                <i className="fas fa-file-image me-2"></i>
+                <LucideImage size="1em" className="me-2" />
                 Chuyển sang quét từ file ảnh
               </Button>
             </Alert>
@@ -1165,7 +1166,7 @@ const QuickCheckInScan = ({
           {cameraError === 'not_supported' && (
             <Alert variant="danger" className="mb-3">
               <Alert.Heading>
-                <i className="fas fa-exclamation-circle me-2"></i>
+                <AlertCircle size="1em" className="me-2" />
                 Trình duyệt không hỗ trợ camera
               </Alert.Heading>
               <p className="mb-2">
@@ -1180,7 +1181,7 @@ const QuickCheckInScan = ({
                 variant="outline-secondary"
                 onClick={() => setScanMode('file')}
               >
-                <i className="fas fa-file-image me-2"></i>
+                <LucideImage size="1em" className="me-2" />
                 Chuyển sang quét từ file ảnh
               </Button>
             </Alert>
@@ -1189,7 +1190,7 @@ const QuickCheckInScan = ({
           {cameraError === 'unknown' && (
             <Alert variant="danger" className="mb-3">
               <Alert.Heading>
-                <i className="fas fa-exclamation-triangle me-2"></i>
+                <AlertTriangle size="1em" className="me-2" />
                 Lỗi camera
               </Alert.Heading>
               <p className="mb-3">
@@ -1197,14 +1198,14 @@ const QuickCheckInScan = ({
               </p>
               <div className="d-flex gap-2">
                 <Button variant="warning" onClick={handleRetryCamera}>
-                  <i className="fas fa-redo me-2"></i>
+                  <RotateCw size="1em" className="me-2" />
                   Thử lại
                 </Button>
                 <Button
                   variant="outline-secondary"
                   onClick={() => setScanMode('file')}
                 >
-                  <i className="fas fa-file-image me-2"></i>
+                  <LucideImage size="1em" className="me-2" />
                   Chuyển sang quét từ file ảnh
                 </Button>
               </div>
@@ -1216,7 +1217,7 @@ const QuickCheckInScan = ({
               <Card.Body className="p-0">
                 <div className="text-center bg-light py-2 border-bottom">
                   <small className="text-muted">
-                    <i className="fas fa-qrcode me-1"></i>
+                    <QrCode size="1em" className="me-1" />
                     Đưa camera vào QR code để quét
                   </small>
                 </div>
@@ -1242,7 +1243,7 @@ const QuickCheckInScan = ({
             <Form onSubmit={handleManualSubmit}>
               <Form.Group>
                 <Form.Label className="fw-bold text-primary">
-                  <i className="fas fa-keyboard me-2"></i>
+                  <Keyboard size="1em" className="me-2" />
                   Nhập mã lịch hẹn khám / xét nghiệm
                 </Form.Label>
                 <InputGroup size="lg">
@@ -1254,7 +1255,7 @@ const QuickCheckInScan = ({
                     autoFocus
                   />
                   <Button variant="primary" type="submit" disabled={!manualCode.trim() || scanningRef.current}>
-                    {scanningRef.current ? <Spinner size="sm" /> : <span><i className="fas fa-search me-1"></i> Tra cứu &amp; Tiếp đón</span>}
+                    {scanningRef.current ? <Spinner size="sm" /> : <span><Search size="1em" className="me-1" /> Tra cứu &amp; Tiếp đón</span>}
                   </Button>
                 </InputGroup>
               </Form.Group>
@@ -1268,7 +1269,7 @@ const QuickCheckInScan = ({
           <Card.Body>
             <Form.Group>
               <Form.Label>
-                <i className="fas fa-upload me-2"></i>
+                <Upload size="1em" className="me-2" />
                 Chọn file ảnh chứa QR code
               </Form.Label>
               <Form.Control

@@ -26,6 +26,7 @@ import {
 } from 'react-bootstrap';
 import { FlaskConical, CheckCircle2, AlertTriangle, Phone, TestTube2, Microscope, Clock, Stethoscope, Save, Search, Lock, Bell, Volume2, Timer, Hospital, Eye, XCircle, RotateCw, Undo2, FileSignature } from 'lucide-react';
 import { resultApi } from '../api/resultApi';
+import { getInventory } from '../../inventory/api/inventoryApi';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
 import { canEnterTestResults, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
@@ -230,6 +231,12 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [entryMethod, setEntryMethod] = useState('manual');
   const [paramsLoading, setParamsLoading] = useState(false);
 
+  // Vật tư / Lô hóa chất sử dụng khi chạy xét nghiệm (tự động trừ tồn kho khi lưu KQ)
+  const [reagentLots, setReagentLots] = useState([]);
+  const [reagentsLoading, setReagentsLoading] = useState(false);
+  const [selectedReagentLotId, setSelectedReagentLotId] = useState('');
+  const [reagentQuantity, setReagentQuantity] = useState('1');
+
   // RÀNG BUỘC NGHIỆP VỤ: Xác nhận Báo động Bác sĩ điều trị khi có cờ CRITICAL (không prefill tên giả)
   const [confirmRerun, setConfirmRerun] = useState(false);
   const [doctorNotified, setDoctorNotified] = useState(false);
@@ -414,6 +421,29 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       }`
     );
   };
+
+  const loadUsableReagents = useCallback(async () => {
+    setReagentsLoading(true);
+    try {
+      const inv = await getInventory({ pageSize: 100 });
+      const items = Array.isArray(inv?.items) ? inv.items : [];
+      const usable = items.filter((lot) => Number(lot.quantity) > 0 && lot.expiryStatus !== 'EXPIRED');
+      setReagentLots(usable);
+    } catch {
+      setReagentLots([]);
+    } finally {
+      setReagentsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUsableReagents();
+  }, [loadUsableReagents]);
+
+  const selectedReagentLot = useMemo(
+    () => reagentLots.find((lot) => lot.id === selectedReagentLotId) || null,
+    [reagentLots, selectedReagentLotId]
+  );
 
   // Tải danh mục chỉ tiêu xét nghiệm chuẩn từ CSDL (test_criteria) làm fallback khi mẫu không gắn gói
   useEffect(() => {
@@ -719,12 +749,26 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       return;
     }
 
+    const parsedReagentQty = selectedReagentLotId ? Number(reagentQuantity) : 1;
+    if (selectedReagentLotId) {
+      if (!Number.isFinite(parsedReagentQty) || parsedReagentQty <= 0) {
+        setError('Số lượng vật tư/hóa chất tiêu hao phải lớn hơn 0.');
+        return;
+      }
+      if (selectedReagentLot && parsedReagentQty > Number(selectedReagentLot.quantity)) {
+        setError(`Lô ${selectedReagentLot.code} (${selectedReagentLot.lotNumber}) chỉ còn ${selectedReagentLot.quantity} ${selectedReagentLot.unit}, không đủ để trừ ${parsedReagentQty} ${selectedReagentLot.unit}.`);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const res = await resultApi.enter({
         sampleId: sampleId.trim(),
         appointmentId: sampleDetails?.appointmentId || undefined,
         equipmentCode: 'Bàn xét nghiệm thủ công (Manual Bench Entry)',
+        reagentCode: selectedReagentLotId || undefined,
+        quantity: selectedReagentLotId ? parsedReagentQty : 1,
         parameters: validParams,
         notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
         isPanic: hasCritical,
@@ -735,6 +779,12 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         reviewedBy: benchOperator || operatorDisplay
       });
 
+      if (selectedReagentLotId && selectedReagentLot) {
+        res.message = `${res.message} Đã trừ ${parsedReagentQty} ${selectedReagentLot.unit} từ lô ${selectedReagentLot.code} (${selectedReagentLot.lotNumber}).`;
+        setSelectedReagentLotId('');
+        setReagentQuantity('1');
+        loadUsableReagents();
+      }
       setResult(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi gửi kết quả xét nghiệm lên hệ thống.');
@@ -1167,17 +1217,60 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                     </div>
                   )}
 
-                  {/* Ghi chú kỹ thuật */}
+                  {/* Vật tư / Hóa chất tiêu hao (trừ tồn kho tự động) & Ghi chú kỹ thuật */}
                   <div className="row g-3 mt-3">
-                    <Col md={8}>
-                      <Form.Label className="small fw-semibold text-secondary">Ghi Chú Kỹ Thuật (Technical Notes)</Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={2}
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Ghi nhận tình trạng huyết thanh, độ đục, kiểm tra quang học hoặc mã báo động máy..."
-                      />
+                    <Col md={5}>
+                      <Form.Label className="small fw-semibold text-secondary">
+                        Lô Hóa Chất / Vật Tư Sử Dụng (Tự Động Trừ Kho)
+                      </Form.Label>
+                      <Form.Select
+                        value={selectedReagentLotId}
+                        onChange={(e) => setSelectedReagentLotId(e.target.value)}
+                        disabled={!allowEnter || reagentsLoading}
+                        aria-label="Chọn lô hóa chất sử dụng"
+                      >
+                        <option value="">
+                          {reagentsLoading
+                            ? 'Đang tải danh sách lô vật tư từ kho...'
+                            : '-- Chọn lô hóa chất/vật tư (Tùy chọn) --'}
+                        </option>
+                        {reagentLots.map((lot) => (
+                          <option key={lot.id} value={lot.id}>
+                            {lot.code} · {lot.lotNumber} — {lot.name} (Còn {lot.quantity} {lot.unit}
+                            {lot.expiryDate ? ` · HSD ${new Date(lot.expiryDate).toLocaleDateString('vi-VN', { timeZone: 'UTC' })}` : ''}
+                            {lot.expiryStatus === 'EXPIRING_SOON' ? ' · Sắp hết hạn' : ''})
+                          </option>
+                        ))}
+                      </Form.Select>
+                      {selectedReagentLot && selectedReagentLot.expiryStatus === 'EXPIRING_SOON' && (
+                        <div className="small text-warning mt-1 fw-medium">
+                          Lưu ý: Lô {selectedReagentLot.lotNumber} sắp hết hạn sử dụng.
+                        </div>
+                      )}
+                    </Col>
+                    <Col md={3}>
+                      <Form.Label className="small fw-semibold text-secondary">
+                        Số Lượng Tiêu Hao {selectedReagentLot ? `(${selectedReagentLot.unit})` : ''}
+                      </Form.Label>
+                      <InputGroup>
+                        <Form.Control
+                          type="number"
+                          min="0.1"
+                          step="0.1"
+                          value={reagentQuantity}
+                          onChange={(e) => setReagentQuantity(e.target.value)}
+                          disabled={!allowEnter || !selectedReagentLotId}
+                          aria-label="Số lượng vật tư tiêu hao"
+                        />
+                        {selectedReagentLot?.unit && (
+                          <InputGroup.Text className="bg-light small text-muted">{selectedReagentLot.unit}</InputGroup.Text>
+                        )}
+                      </InputGroup>
+                      {selectedReagentLot && (
+                        <div className={`small mt-1 ${Number(reagentQuantity) > Number(selectedReagentLot.quantity) ? 'text-danger fw-semibold' : 'text-muted'}`}>
+                          Tồn khả dụng: {selectedReagentLot.quantity} {selectedReagentLot.unit}
+                        </div>
+                      )}
                     </Col>
                     <Col md={4}>
                       <Form.Label className="small fw-semibold text-secondary">Phương Thức Đo &amp; Nhập</Form.Label>
@@ -1186,6 +1279,16 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         disabled
                         value="Kỹ thuật viên đo & nhập kết quả thủ công"
                         className="bg-light fw-medium text-dark small"
+                      />
+                    </Col>
+                    <Col md={12}>
+                      <Form.Label className="small fw-semibold text-secondary">Ghi Chú Kỹ Thuật (Technical Notes)</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={2}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Ghi nhận tình trạng huyết thanh, độ đục, kiểm tra quang học hoặc mã báo động máy..."
                       />
                     </Col>
                   </div>

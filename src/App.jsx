@@ -104,6 +104,7 @@ const InitialMedicalProfileSetup = lazy(() => import("./features/patient/pages/I
 const UserManagementPage = lazy(() => import("./features/users/pages/UserManagementPage.jsx"));
 const RolesManagementPage = lazy(() => import("./features/user-management/pages/RolesManagementPage"));
 const ServicePackagesPage = lazy(() => import("./features/admin/pages/ServicePackagesPage.jsx"));
+const BhytSettingsPage = lazy(() => import("./features/admin/pages/BhytSettingsPage.jsx"));
 const BackupManagementPage = lazy(() => import("./features/backup/pages/BackupManagementPage.jsx"));
 const AuditLogPage = lazy(() => import("./features/audit/pages/AuditLogPage.jsx"));
 const TatStatisticsDashboardPage = lazy(() => import("./features/reports/pages/TatStatisticsDashboardPage.jsx"));
@@ -399,10 +400,15 @@ export default function App() {
                   <Route path="/schedule/personal" element={<Navigate to="/shifts/view" replace />} />
                 </Route>
 
-                {/* UC68 IoT alerts: Lab, Manager */}
-                <Route element={<ProtectedRoute allowedRoles={[LAB, MANAGER]} />}>
+                {/* UC68 IoT alerts: Lab, Manager, Admin (Admin views & simulates drills) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, LAB, MANAGER]} />}>
                   <Route path="/iot/alerts" element={<AlertThresholdViolationPage />} />
                   <Route path="/laboratory/iot-alerts" element={<AlertThresholdViolationPage />} />
+                </Route>
+
+                {/* Billing BHYT & priority discount settings: Admin & Manager */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
+                  <Route path="/admin/bhyt-settings" element={<BhytSettingsPage />} />
                 </Route>
 
                 {/* UC63 TAT, UC78 revenue: Manager ONLY */}

@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Alert } from "react-bootstrap";
 import IotNavigationTabs from "../components/IotNavigationTabs";
-import { getStoredUser } from "../../../constants/roles";
+import { ROLES, getStoredUser, resolveRoleId } from "../../../constants/roles";
 import { Bell, AlertTriangle, CheckCircle2, RefreshCw, Filter as LucideFilter, Volume2, VolumeX, Wrench, Search, Thermometer, Droplet, Zap, History, UserCheck, Play as LucidePlay, Info, X as LucideX } from 'lucide-react';
 import {
     fetchAlerts,
@@ -192,6 +192,12 @@ export default function AlertThresholdViolationPage() {
         }
     };
 
+    const currentRoleId = useMemo(() => resolveRoleId(getStoredUser()), []);
+    const isAdminUser = currentRoleId === ROLES.ADMIN;
+    const canSimulateAlert = currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER;
+    const canAcknowledgeAlert = currentRoleId === ROLES.LAB || currentRoleId === ROLES.MANAGER;
+    const canResolveAlert = currentRoleId === ROLES.MANAGER || currentRoleId === ROLES.LAB;
+
     const isCriticalHealth = summary.systemHealthStatus === "CRITICAL";
     const isWarningHealth = summary.systemHealthStatus === "WARNING";
     const hasActiveFilters = selectedStatus !== "All" || selectedSeverity !== "All" || searchQuery.trim() !== "";
@@ -221,7 +227,7 @@ export default function AlertThresholdViolationPage() {
                         <span>{soundEnabled ? "Chuông: BẬT" : "Chuông: TẮT"}</span>
                     </button>
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
+                        className={`btn btn-outline-primary btn-sm align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill ${canSimulateAlert ? 'd-flex' : 'd-none'}`}
                         style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
                         onClick={() => {
                             setActionFeedback(null);
@@ -244,7 +250,7 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            <IotNavigationTabs />
+            {!isAdminUser && <IotNavigationTabs />}
 
             {actionFeedback && !actionType && (
                 <Alert
@@ -268,11 +274,11 @@ export default function AlertThresholdViolationPage() {
                 <div className="d-flex align-items-center gap-3">
                     <div className="fs-3">
                         {isCriticalHealth ? (
-                            <AlertTriangle style={{ color: '#ef4444' }}  size="1em"/>
+                            <AlertTriangle style={{ color: '#ef4444' }} size="1em" />
                         ) : isWarningHealth ? (
-                            <AlertTriangle style={{ color: '#b48316' }}  size="1em"/>
+                            <AlertTriangle style={{ color: '#b48316' }} size="1em" />
                         ) : (
-                            <CheckCircle2 style={{ color: '#2b8a3e' }}  size="1em"/>
+                            <CheckCircle2 style={{ color: '#2b8a3e' }} size="1em" />
                         )}
                     </div>
                     <div>
@@ -280,8 +286,8 @@ export default function AlertThresholdViolationPage() {
                             {isCriticalHealth
                                 ? "Phát hiện sự cố vượt ngưỡng môi trường khẩn cấp"
                                 : isWarningHealth
-                                ? "Có thiết bị cảm biến đang cần kiểm tra môi trường"
-                                : "Hệ thống môi trường kho lạnh và phòng xét nghiệm hoạt động an toàn"}
+                                    ? "Có thiết bị cảm biến đang cần kiểm tra môi trường"
+                                    : "Hệ thống môi trường kho lạnh và phòng xét nghiệm hoạt động an toàn"}
                         </h6>
                         <p className="mb-0 small text-muted mt-1">
                             {isCriticalHealth
@@ -308,7 +314,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Đang chờ nhân viên tiếp nhận</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                            <Bell  size="1em"/>
+                            <Bell size="1em" />
                         </div>
                     </div>
                 </div>
@@ -321,7 +327,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Vượt xa ngưỡng bảo quản an toàn</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                            <Zap  size="1em"/>
+                            <Zap size="1em" />
                         </div>
                     </div>
                 </div>
@@ -334,7 +340,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Kỹ thuật viên đã tiếp nhận</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                            <UserCheck  size="1em"/>
+                            <UserCheck size="1em" />
                         </div>
                     </div>
                 </div>
@@ -347,7 +353,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Thời gian xử lý TB: {summary.averageResolutionMinutes} phút</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                            <CheckCircle2  size="1em"/>
+                            <CheckCircle2 size="1em" />
                         </div>
                     </div>
                 </div>
@@ -356,7 +362,7 @@ export default function AlertThresholdViolationPage() {
             {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <Search className="bms-search-icon"  size="1em"/>
+                    <Search className="bms-search-icon" size="1em" />
                     <input
                         type="text"
                         placeholder="Tìm mã thiết bị, vị trí tủ lưu trữ hoặc ghi chú xử lý..."
@@ -429,7 +435,7 @@ export default function AlertThresholdViolationPage() {
                 <div className="bms-table-standalone-header">
                     <div>
                         <h5 className="bms-table-standalone-title">
-                            <Bell style={{ color: '#1E60E6' }}  size="1em"/>
+                            <Bell style={{ color: '#1E60E6' }} size="1em" />
                             <span>Danh Sách Cảnh Báo Vượt Ngưỡng Môi Trường</span>
                         </h5>
                         <div className="bms-table-standalone-subtitle">
@@ -448,7 +454,7 @@ export default function AlertThresholdViolationPage() {
                         </div>
                     ) : filteredAlerts.length === 0 ? (
                         <div className="text-center py-3 text-muted">
-                            <CheckCircle2 className="fs-1 mb-2" style={{ color: '#10B981' }}  size="1em"/>
+                            <CheckCircle2 className="fs-1 mb-2" style={{ color: '#10B981' }} size="1em" />
                             <p className="mb-0 fw-semibold">Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</p>
                         </div>
                     ) : (
@@ -477,8 +483,8 @@ export default function AlertThresholdViolationPage() {
                                         const sevColor = alert.severity === "Danger_Emergency"
                                             ? "#dc2626"
                                             : alert.severity === "Critical"
-                                            ? "#b48316"
-                                            : "#1E60E6";
+                                                ? "#b48316"
+                                                : "#1E60E6";
 
                                         return (
                                             <tr key={alert.id} style={{ borderBottom: '1px solid #EEF2F6' }}>
@@ -488,7 +494,7 @@ export default function AlertThresholdViolationPage() {
                                                 </td>
                                                 <td>
                                                     <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '9999px' }}>
-                                                        {isTemp ? <Thermometer className="text-danger me-1"  size="1em"/> : <Droplet className="text-info me-1"  size="1em"/>}
+                                                        {isTemp ? <Thermometer className="text-danger me-1" size="1em" /> : <Droplet className="text-info me-1" size="1em" />}
                                                         {alert.sensorType}
                                                     </span>
                                                 </td>
@@ -535,7 +541,7 @@ export default function AlertThresholdViolationPage() {
                                                 </td>
                                                 <td className="text-end pe-3">
                                                     <div className="d-flex justify-content-end gap-1">
-                                                        {isAct && (
+                                                        {isAct && canAcknowledgeAlert && (
                                                             <button
                                                                 className="btn btn-sm d-flex align-items-center gap-1 text-white rounded-pill text-nowrap"
                                                                 style={{ backgroundColor: '#B45309', borderColor: '#B45309', fontWeight: 600, padding: '4px 12px' }}
@@ -546,10 +552,10 @@ export default function AlertThresholdViolationPage() {
                                                                     setActionNotes("");
                                                                 }}
                                                             >
-                                                                <UserCheck  size="1em"/> Tiếp nhận
+                                                                <UserCheck size="1em" /> Tiếp nhận
                                                             </button>
                                                         )}
-                                                        {(isAct || isAck) && (
+                                                        {(isAct || isAck) && canResolveAlert && (
                                                             <button
                                                                 className="btn btn-sm d-flex align-items-center gap-1 text-white rounded-pill text-nowrap"
                                                                 style={{ backgroundColor: '#10B981', borderColor: '#10B981', fontWeight: 600, padding: '4px 12px' }}
@@ -560,7 +566,7 @@ export default function AlertThresholdViolationPage() {
                                                                     setActionNotes("");
                                                                 }}
                                                             >
-                                                                <Wrench  size="1em"/> Khắc phục
+                                                                <Wrench size="1em" /> Khắc phục
                                                             </button>
                                                         )}
                                                         {isRes && (
@@ -681,7 +687,7 @@ export default function AlertThresholdViolationPage() {
                         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '20px', overflow: 'hidden' }}>
                             <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
                                 <h5 className="modal-title fw-bold" style={{ color: '#1E60E6' }}>
-                                    <LucidePlay className="me-2"  size="1em"/> Kích Hoạt Diễn Tập Cảnh Báo Vượt Ngưỡng Môi Trường
+                                    <LucidePlay className="me-2" size="1em" /> Kích Hoạt Diễn Tập Cảnh Báo Vượt Ngưỡng Môi Trường
                                 </h5>
                                 <button
                                     type="button"

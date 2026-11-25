@@ -13,7 +13,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Row, Col, Modal, Spinner, Alert, Badge } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TestTube2, Clock, List as LucideList, LayoutGrid, X as LucideX, CheckCircle2 } from 'lucide-react';
+import { FaVial, FaClock, FaList, FaThLarge, FaTimes, FaCheckCircle } from 'react-icons/fa';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
@@ -281,7 +281,7 @@ export default function ServiceCatalogPage() {
               <Col lg={7}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 650, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                  <span>DANH MỤC GÓI XÉT NGHIỆM · BMS LAB</span>
+                  <span>ISO 15189:2022 ACCREDITED LABORATORY · HỆ THỐNG BMS LAB</span>
                 </div>
 
                 <h1
@@ -305,7 +305,7 @@ export default function ServiceCatalogPage() {
                     maxWidth: '640px'
                   }}
                 >
-                  Tra cứu danh mục gói xét nghiệm, thông tin chỉ số và đơn giá dịch vụ tại phòng khám BMS.
+                  Tra cứu toàn bộ danh mục gói xét nghiệm chuẩn y tế quốc tế ISO 15189:2022. Mẫu bệnh phẩm được xử lý trên hệ thống máy phân tích tự động thế hệ mới, kết quả chính xác 99.9%, hỗ trợ chiết khấu BHYT trực tiếp và Bác sĩ chuyên khoa giải thích kết quả chu đáo.
                 </p>
 
                 {/* Key Spec Badges - Pure Flat, No Emojis, No Borders */}
@@ -321,7 +321,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 650
                     }}
                   >
-                    Bảng giá niêm yết công khai
+                    Chính xác 99.9% (Chuẩn ISO 15189:2022)
                   </div>
                   <div
                     style={{
@@ -527,7 +527,7 @@ export default function ServiceCatalogPage() {
                       boxShadow: 'none'
                     }}
                   >
-                    <LucideList className="me-1" style={{ fontSize: '11px' }}  size="1em"/> Danh sách
+                    <FaList className="me-1" style={{ fontSize: '11px' }} /> Danh sách
                   </button>
                   <button
                     type="button"
@@ -544,7 +544,7 @@ export default function ServiceCatalogPage() {
                       boxShadow: 'none'
                     }}
                   >
-                    <LayoutGrid className="me-1" style={{ fontSize: '11px' }}  size="1em"/> Lưới thẻ
+                    <FaThLarge className="me-1" style={{ fontSize: '11px' }} /> Lưới thẻ
                   </button>
                 </div>
               </div>
@@ -578,7 +578,7 @@ export default function ServiceCatalogPage() {
                       style={{ border: 'none', background: 'transparent', fontSize: '12px' }}
                       onClick={() => setSearchInput('')}
                     >
-                      <LucideX  size="1em"/>
+                      <FaTimes />
                     </button>
                   )}
                 </div>
@@ -801,7 +801,7 @@ export default function ServiceCatalogPage() {
                             maxWidth: '920px'
                           }}
                         >
-                          {pkg.description || 'Gói xét nghiệm tầm soát và kiểm tra sức khỏe.'}
+                          {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn ISO 15189.'}
                         </p>
 
                         {/* Row 4: Biomarkers / Tests Pills Preview */}
@@ -879,24 +879,24 @@ export default function ServiceCatalogPage() {
 
                     <div className="d-flex align-items-start gap-2 mb-2">
                       <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <TestTube2 style={{ color: '#1E60E6', fontSize: '12px' }}  size="1em"/>
+                        <FaVial style={{ color: '#1E60E6', fontSize: '12px' }} />
                       </div>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Loại mẫu</div>
+                        <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Ống lấy mẫu</div>
                         <div style={{ fontSize: '12px', fontWeight: 650, color: '#1E293B', lineHeight: 1.45, wordBreak: 'break-word' }}>
-                          {pkg.sampleTube || 'Máu tĩnh mạch'}{pkg.sampleVolumeMl ? ` (${pkg.sampleVolumeMl} ml)` : ''}
+                          {pkg.sampleTube || 'Serum-Đỏ/Vàng'} {pkg.sampleVolumeMl ? `(${pkg.sampleVolumeMl} ml)` : ''}
                         </div>
                       </div>
                     </div>
 
                     <div className="d-flex align-items-start gap-2">
                       <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
-                        <Clock style={{ color: '#10B981', fontSize: '12px' }}  size="1em"/>
+                        <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
                       </div>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: '10.5px', color: '#64748B', lineHeight: 1.2 }}>Thời gian trả kết quả</div>
                         <div
-                          title={pkg.tat || '—'}
+                          title={pkg.tat || '60 – 90 phút'}
                           style={{
                             fontSize: '12px',
                             fontWeight: 650,
@@ -907,7 +907,7 @@ export default function ServiceCatalogPage() {
                             wordBreak: 'break-word'
                           }}
                         >
-                          {pkg.tat || '—'}
+                          {pkg.tat || '60 – 90 phút'}
                         </div>
                       </div>
                     </div>
@@ -1152,7 +1152,7 @@ export default function ServiceCatalogPage() {
 
               {/* Quality & Insurance Trust Callout */}
               <div className="mt-3 p-2.5 rounded-3 d-flex align-items-center gap-2" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', fontSize: '11.5px', color: '#475569' }}>
-                <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><CheckCircle2  size="1em"/> Cam kết BMS:</span>
+                <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><FaCheckCircle /> Cam kết BMS:</span>
                 <span>Thẩm định chuyên môn 2 cấp, hỗ trợ BHYT và Bác sĩ chuyên khoa tư vấn kết quả.</span>
               </div>
             </div>

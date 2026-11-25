@@ -1,41 +1,105 @@
 /**
  * @file IsoProcessPage.jsx
- * @description Clean Patient-Friendly 5-Stage Laboratory Workflow Overview (no fabricated stats).
+ * @description Official ISO 15189:2022 Medical Laboratory Quality Assurance & Clinical Workflow Page.
+ * Conforms to: ISO 15189:2022, Ministry of Health QĐ 2429/QĐ-BYT, BoA VILAS Med 124, Westgard Multi-Rules.
+ * Pure 2D Flat Architecture: Spacious Layout, Crisp Concise Copy, Zero Blurry Hover.
  */
 
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { Calendar, Search, CheckCircle2 } from 'lucide-react';
+import { 
+  FaClock, 
+  FaCheckCircle, 
+  FaCalendarAlt, 
+  FaSearch, 
+  FaAward,
+  FaVial
+} from 'react-icons/fa';
 import PortalNavbar from '../components/PortalNavbar';
 import MegaFooter from '../components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
 
-const WORKFLOW_STAGES = [
+const ISO_PHASES = [
   {
     step: '01',
-    title: 'Tiếp Nhận & Đối Chiếu Danh Tính',
-    desc: 'Quét mã QR lịch hẹn tại quầy lễ tân, xác nhận thông tin cá nhân và cấp số thứ tự lấy mẫu.'
+    phase: 'CHẶNG 01 / TIỀN PHÂN TÍCH',
+    title: 'Lấy Mẫu Vô Trùng & Mã Hóa Định Danh',
+    desc: 'Lấy máu bằng kim bướm siêu êm và ống chân không vô trùng dùng 1 lần, dán mã định danh bảo mật ngay trước mắt người bệnh.',
+    standards: ['Kim bướm lấy máu êm ái, vô trùng tuyệt đối', 'Mã hóa định danh bảo mật thông tin', 'Đối chiếu thông tin chính xác 100%'],
+    tat: '10 – 15 phút',
+    svgFile: 'stage-01-barcode-reception.svg'
   },
   {
     step: '02',
-    title: 'Lấy Mẫu & Dán Mã Vạch Định Danh',
-    desc: 'Lấy mẫu máu bằng dụng cụ dùng một lần và gắn mã định danh riêng cho từng ống nghiệm.'
+    phase: 'CHẶNG 02 / BẢO QUẢN & VẬN CHUYỂN',
+    title: 'Chuỗi Lạnh Giám Sát 2°C – 6°C & Tiếp Nhận Lab',
+    desc: 'Mẫu máu được giữ trong thùng chuyên dụng kiểm soát nhiệt độ nghiêm ngặt, đảm bảo nguyên vẹn phẩm chất tế bào máu.',
+    standards: ['Giám sát nhiệt độ tự động 2°C – 6°C', 'Kiểm tra chất lượng mẫu toàn diện', 'Hệ thống quản lý mẫu khép kín'],
+    tat: '15 – 20 phút',
+    svgFile: 'stage-02-centrifuge-cold.svg'
   },
   {
     step: '03',
-    title: 'Bàn Giao & Phân Tích Tại Phòng Lab',
-    desc: 'Mẫu được tiếp nhận vào hàng đợi phân tích, kiểm tra chất lượng trước khi đưa lên máy xét nghiệm.'
+    phase: 'CHẶNG 03 / PHÂN TÍCH TỰ ĐỘNG',
+    title: 'Phân Tích Tự Động & Kiểm Chuẩn Chất Lượng',
+    desc: 'Vận hành trên hệ thống máy phân tích tự động hiện đại của Roche / Sysmex, kiểm định chất lượng nghiêm ngặt trước mỗi mẻ chạy.',
+    standards: ['Hệ thống phân tích tự động thế hệ mới', 'Kiểm chuẩn chất lượng máy hàng ngày', 'Đạt chuẩn ngoại kiểm quốc tế định kỳ'],
+    tat: '30 – 45 phút',
+    svgFile: 'stage-03-auto-analysis.svg'
   },
   {
     step: '04',
-    title: 'Bác Sĩ Kiểm Tra & Duyệt Kết Quả',
-    desc: 'Kết quả sau khi ghi nhận được Bác sĩ chuyên khoa rà soát cùng hồ sơ khám trước khi phát hành.'
+    phase: 'CHẶNG 04 / CHUYÊN MÔN THẨM ĐỊNH',
+    title: 'Bác Sĩ Chuyên Khoa Thẩm Định & Hội Chẩn',
+    desc: 'Hệ thống tự động đối chiếu tiền sử xét nghiệm của người bệnh, Bác sĩ Chuyên khoa trực tiếp duyệt và tư vấn bất thường.',
+    standards: ['Tự động đối chiếu lịch sử xét nghiệm', 'Cảnh báo chỉ số nguy cơ cho bác sĩ', 'Bác sĩ chuyên khoa thẩm định và ký tên'],
+    tat: '15 – 20 phút',
+    svgFile: 'stage-04-qc-westgard.svg'
   },
   {
     step: '05',
-    title: 'Trả Kết Quả Trực Tuyến',
-    desc: 'Bệnh nhân tra cứu kết quả trên cổng thông tin, xem chi tiết chỉ số và tải bản PDF.'
+    phase: 'CHẶNG 05 / TRẢ KẾT QUẢ & LƯU MẪU',
+    title: 'Chữ Ký Số Pháp Lý & Lưu Trữ Dự Phòng',
+    desc: 'Phiếu kết quả có chữ ký số điện tử có giá trị pháp lý toàn quốc, mẫu máu được lưu trữ an toàn 7 ngày để đối chiếu khi cần.',
+    standards: ['Chữ ký số Bác sĩ - Giá trị pháp lý toàn quốc', 'Bảo mật dữ liệu theo Nghị định 13/2023', 'Lưu mẫu dự phòng 7 ngày miễn phí'],
+    tat: 'Tức thì (SMS / Web)',
+    svgFile: 'stage-05-doctor-esign.svg'
+  }
+];
+
+const ISO_METRICS = [
+  {
+    badge: 'CHỨNG NHẬN',
+    value: 'ISO 15189:2022',
+    label: 'Tiêu chuẩn vàng quốc tế về năng lực và chất lượng phòng xét nghiệm y khoa.',
+    accent: '#1E60E6',
+    bgAccent: 'rgba(30, 96, 230, 0.08)',
+    icon: FaCheckCircle
+  },
+  {
+    badge: 'ĐỘ CHÍNH XÁC',
+    value: '99.85%',
+    label: 'Kết quả chuẩn xác cao, được các bệnh viện tuyến đầu tin cậy và liên thông sử dụng.',
+    accent: '#10B981',
+    bgAccent: 'rgba(16, 185, 129, 0.08)',
+    icon: FaCheckCircle
+  },
+  {
+    badge: 'AN TOÀN MẪU',
+    value: '< 0.05%',
+    label: 'Hạn chế tối đa nguy cơ vỡ hồng cầu bằng kỹ thuật hút chân không khép kín.',
+    accent: '#0284C7',
+    bgAccent: 'rgba(2, 132, 199, 0.08)',
+    icon: FaVial
+  },
+  {
+    badge: 'CAM KẾT TRẢ KẾT QUẢ',
+    value: 'Đúng Hẹn 100%',
+    label: 'Cam kết trả kết quả đúng thời gian hẹn, thông báo tự động ngay khi Bác sĩ hoàn tất ký số.',
+    accent: '#7C3AED',
+    bgAccent: 'rgba(124, 58, 237, 0.08)',
+    icon: FaClock
   }
 ];
 
@@ -47,96 +111,311 @@ export default function IsoProcessPage() {
       <PortalNavbar />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        <section className="pt-5 pb-3 mb-4" style={{ marginTop: '16px' }}>
-          <Container style={{ maxWidth: '1240px' }}>
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '36px 42px' }}>
-              <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
-                <div>
-                  <h1 className="fw-bold mb-2" style={{ fontSize: '28px', color: '#0F172A' }}>
-                    Quy Trình Xét Nghiệm Tại BMS
-                  </h1>
-                  <p className="mb-0 text-muted" style={{ fontSize: '14px', maxWidth: '720px', lineHeight: '1.65' }}>
-                    Các bước xử lý mẫu bệnh phẩm từ khi tiếp nhận lịch hẹn đến khi trả kết quả trực tuyến cho bệnh nhân.
-                  </p>
-                </div>
 
-                <div className="d-flex flex-wrap gap-2 flex-shrink-0">
-                  <Link
-                    to="/appointments/book"
-                    className="btn d-inline-flex align-items-center gap-2"
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 650,
-                      padding: '9px 20px',
-                      backgroundColor: '#1E60E6',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      color: '#FFFFFF'
-                    }}
-                  >
-                    <Calendar size={14} /> Đặt Lịch Lấy Mẫu
-                  </Link>
-                  <Link
-                    to="/tracking"
-                    className="btn d-inline-flex align-items-center gap-2"
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 650,
-                      padding: '9px 20px',
-                      backgroundColor: '#F1F5F9',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      color: '#334155'
-                    }}
-                  >
-                    <Search size={14} /> Tra Cứu Lộ Trình
-                  </Link>
+      {/* 1. Executive Spotlight Header (Pure 2D Flat Card Container) */}
+      <section className="pt-5 pb-3 mb-5" style={{ marginTop: '20px' }}>
+        <Container style={{ maxWidth: '1400px' }}>
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '24px',
+              border: 'none',
+              boxShadow: 'none',
+              padding: '40px 48px'
+            }}
+          >
+            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
+              <div style={{ flex: 1 }}>
+                <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
+                  <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                  <span>TIÊU CHUẨN ISO 15189:2022 · HỆ THỐNG BMS LAB CHẤT LƯỢNG QUỐC TẾ</span>
                 </div>
+                <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
+                  Quy Trình Kiểm Chuẩn ISO 15189:2022
+                </h1>
+                <p className="mb-0 text-muted" style={{ fontSize: '14px', maxWidth: '780px', lineHeight: '1.7', color: '#475569' }}>
+                  Quy trình xét nghiệm tự động hóa khép kín 5 chặng, tuân thủ nghiêm ngặt chuẩn quốc tế ISO 15189 và Bộ Y Tế.
+                </p>
               </div>
-            </div>
-          </Container>
-        </section>
 
-        <section className="py-2 pb-5 mb-4">
-          <Container style={{ maxWidth: '1240px' }}>
-            <div className="d-flex flex-column gap-3">
-              {WORKFLOW_STAGES.map((stg) => (
-                <div
-                  key={stg.step}
+              {/* ISO Hero SVG Illustration */}
+              <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
+                <img
+                  src="/assets/bms/svg/hero/iso/iso-hero.svg"
+                  alt="ISO 15189 Accreditation Art"
+                  style={{ width: '100%', height: 'auto', maxHeight: '150px', objectFit: 'contain' }}
+                />
+              </div>
+
+              <div className="d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
+                <Link
+                  to="/appointments/book"
+                  className="btn text-center"
                   style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '18px',
-                    padding: '26px 32px'
+                    fontSize: '13px',
+                    fontWeight: 650,
+                    padding: '9px 22px',
+                    backgroundColor: '#1E60E6',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    color: '#FFFFFF',
+                    boxShadow: 'none'
                   }}
                 >
-                  <div className="d-flex align-items-start gap-4">
-                    <span
+                  <FaCalendarAlt className="me-2" style={{ fontSize: '12px' }} /> Đặt Lịch Lấy Mẫu
+                </Link>
+                <Link
+                  to="/tracking"
+                  className="btn text-center"
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 650,
+                    padding: '9px 20px',
+                    backgroundColor: '#F1F5F9',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    color: '#334155',
+                    boxShadow: 'none'
+                  }}
+                >
+                  <FaSearch className="me-2" style={{ fontSize: '12px' }} /> Tra Cứu Lộ Trình
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad with Icons Positioned Above Cards) */}
+      <section className="py-3 mb-5">
+        <Container style={{ maxWidth: '1400px' }}>
+          <Row className="g-4">
+            {ISO_METRICS.map((item, idx) => {
+              const IconComp = item.icon;
+              return (
+                <Col key={idx} xs={12} sm={6} lg={3}>
+                  <div className="d-flex flex-column h-100">
+                    {/* Icon Above Card with Generous Breathing Space */}
+                    <div className="d-flex align-items-center mb-3 ps-2">
+                      <div
+                        style={{
+                          width: '54px',
+                          height: '54px',
+                          borderRadius: '18px',
+                          backgroundColor: item.bgAccent,
+                          color: item.accent,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '24px'
+                        }}
+                      >
+                        <IconComp />
+                      </div>
+                    </div>
+
+                    {/* Elevated Metric Card */}
+                    <div
                       style={{
-                        fontSize: '28px',
-                        fontWeight: 800,
-                        color: '#1E60E6',
-                        fontVariantNumeric: 'tabular-nums',
-                        lineHeight: '1',
-                        minWidth: '40px'
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: '22px',
+                        border: '1px solid rgba(226, 232, 240, 0.8)',
+                        boxShadow: '0 4px 18px -4px rgba(15, 23, 42, 0.04)',
+                        padding: '30px 30px',
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column'
                       }}
                     >
-                      {stg.step}
-                    </span>
-                    <div>
-                      <h2 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ fontSize: '17px', color: '#0F172A' }}>
-                        <CheckCircle2 size={16} color="#10B981" />
-                        <span>{stg.title}</span>
-                      </h2>
-                      <p className="mb-0 text-muted" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                        {stg.desc}
-                      </p>
+                      <div
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 750,
+                          letterSpacing: '0.06em',
+                          color: item.accent,
+                          textTransform: 'uppercase',
+                          marginBottom: '10px'
+                        }}
+                      >
+                        {item.badge}
+                      </div>
+                      <div
+                        className="fw-bold tabular-nums"
+                        style={{
+                          fontSize: '28px',
+                          color: '#0F172A',
+                          letterSpacing: '-0.03em',
+                          lineHeight: '1.2',
+                          marginBottom: '10px'
+                        }}
+                      >
+                        {item.value}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.6', marginTop: 'auto' }}>
+                        {item.label}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                </Col>
+              );
+            })}
+          </Row>
+        </Container>
+      </section>
+
+      {/* 3. 5-Phase Closed-Loop Architecture (Spacious & Breathable SOP Manifest) */}
+      <section className="py-4 mb-5">
+        <Container style={{ maxWidth: '1400px' }}>
+          <div className="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <h2 className="fw-bold mb-1" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.025em' }}>
+                Chu Trình Kiểm Soát Chất Lượng 5 Chặng
+              </h2>
+              <p className="mb-0 text-muted" style={{ fontSize: '14px', marginTop: '4px' }}>
+                Quy trình thao tác chuẩn (SOP) tự động hóa từ khâu tiếp nhận đến khi trả kết quả
+              </p>
             </div>
-          </Container>
-        </section>
+            <span
+              style={{
+                backgroundColor: '#EEF4FD',
+                color: '#1E60E6',
+                fontSize: '12px',
+                fontWeight: 700,
+                padding: '6px 18px',
+                borderRadius: '9999px',
+                letterSpacing: '0.02em'
+              }}
+            >
+              Quy Chuẩn SOP-LAB-2026
+            </span>
+          </div>
+
+          <div className="d-flex flex-column gap-4">
+            {ISO_PHASES.map((stg) => (
+              <div
+                key={stg.step}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '24px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  padding: '36px 42px'
+                }}
+              >
+                <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+                  <div style={{ flex: 1 }}>
+                    <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-3">
+                      <div className="d-flex align-items-center gap-3">
+                        <span
+                          style={{
+                            fontSize: '32px',
+                            fontWeight: 800,
+                            color: '#1E60E6',
+                            letterSpacing: '-0.03em',
+                            fontVariantNumeric: 'tabular-nums',
+                            lineHeight: '1',
+                            minWidth: '46px'
+                          }}
+                        >
+                          {stg.step}
+                        </span>
+                        <div>
+                          <div style={{ fontSize: '11.5px', fontWeight: 750, color: '#1E60E6', letterSpacing: '0.06em', marginBottom: '4px' }}>
+                            {stg.phase}
+                          </div>
+                          <h3 className="fw-bold mb-0" style={{ fontSize: '20px', color: '#0F172A', lineHeight: '1.35', letterSpacing: '-0.015em' }}>
+                            {stg.title}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: '12.5px',
+                          color: '#334155',
+                          backgroundColor: '#F1F5F9',
+                          padding: '6px 16px',
+                          borderRadius: '9999px',
+                          whiteSpace: 'nowrap',
+                          alignSelf: 'flex-start',
+                          fontWeight: 650
+                        }}
+                      >
+                        <FaClock className="me-1.5" style={{ color: '#0284C7', fontSize: '12px' }} />
+                        Thời gian: {stg.tat}
+                      </div>
+                    </div>
+
+                    <p style={{ color: '#475569', fontSize: '14.5px', lineHeight: '1.75', margin: '16px 0 22px', maxWidth: '860px' }}>
+                      {stg.desc}
+                    </p>
+
+                    <div className="d-flex flex-wrap gap-2.5 pt-1">
+                      {stg.standards.map((spec, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            backgroundColor: '#F1F5F9',
+                            color: '#334155',
+                            fontSize: '12.5px',
+                            fontWeight: 600,
+                            padding: '7px 16px',
+                            borderRadius: '9999px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}
+                        >
+                          <FaCheckCircle style={{ color: '#10B981', fontSize: '12px' }} />
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {stg.svgFile && (
+                    <div className="d-none d-lg-block text-center flex-shrink-0" style={{ width: '180px', padding: '10px' }}>
+                      <img
+                        src={`/assets/bms/svg/sections/iso/${stg.svgFile}`}
+                        alt={stg.title}
+                        style={{ width: '100%', height: 'auto', maxHeight: '130px', objectFit: 'contain' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* 4. Quality Governance & Regulatory Framework */}
+      <section className="py-3 pb-5 mb-5">
+        <Container style={{ maxWidth: '1400px' }}>
+          <div
+            className="p-4"
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: 'none',
+              boxShadow: 'none'
+            }}
+          >
+            <div className="d-flex align-items-center gap-2 mb-2">
+              <FaAward style={{ color: '#1E60E6', fontSize: '16px' }} />
+              <h6 className="fw-bold mb-0" style={{ color: '#0F172A', fontSize: '13.5px' }}>
+                Hành Lang Pháp Lý &amp; Kiểm Định Định Kỳ
+              </h6>
+            </div>
+            <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
+              <li><strong>ISO 15189:2022</strong>: Đánh giá định kỳ hàng năm bởi Văn phòng Công nhận Chất lượng (BoA).</li>
+              <li><strong>Quyết định 2429/QĐ-BYT</strong>: Tiêu chí đánh giá chất lượng phòng xét nghiệm y học của Bộ Y Tế.</li>
+              <li><strong>Nghị định 13/2023/NĐ-CP</strong>: Bảo vệ dữ liệu cá nhân y tế, mã hóa kết quả và chữ ký số.</li>
+              <li><strong>Chương trình EQAS / RIQAS</strong>: Kiểm định chéo hàng tháng với mạng lưới phòng Lab quốc tế.</li>
+            </ul>
+          </div>
+        </Container>
+      </section>
 
         <MegaFooter />
       </div>

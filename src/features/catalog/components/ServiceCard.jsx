@@ -8,7 +8,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TestTube2, Clock, AlertCircle } from 'lucide-react';
+import { FaVial, FaClock, FaExclamationCircle } from 'react-icons/fa';
 import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
 
@@ -181,7 +181,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         {sampleTube ? (
           <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px' }}>
             <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <TestTube2 style={{ color: '#1E60E6', fontSize: '11px' }}  size="1em"/>
+              <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
               Mẫu bệnh phẩm
             </span>
             <strong style={{ color: '#0F172A', textAlign: 'right', fontWeight: 650 }}>
@@ -193,7 +193,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         {tat ? (
           <div className="d-flex justify-content-between align-items-start" style={{ gap: '14px' }}>
             <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-              <Clock style={{ color: '#0284C7', fontSize: '11px' }}  size="1em"/>
+              <FaClock style={{ color: '#0284C7', fontSize: '11px' }} />
               Trả kết quả (TAT)
             </span>
             <strong
@@ -223,7 +223,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         {fastRule ? (
           <div className="d-flex justify-content-between align-items-center" style={{ gap: '14px', paddingTop: '4px' }}>
             <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <AlertCircle style={{ color: '#D97706', fontSize: '11px' }}  size="1em"/>
+              <FaExclamationCircle style={{ color: '#D97706', fontSize: '11px' }} />
               Lưu ý
             </span>
             <strong style={{ color: '#B45309', textAlign: 'right', fontWeight: 650 }}>

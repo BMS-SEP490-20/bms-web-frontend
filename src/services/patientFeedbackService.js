@@ -168,5 +168,52 @@ export const patientFeedbackService = {
         message: error.response?.data?.message || error.message || 'Lỗi xóa đánh giá'
       };
     }
+  },
+
+  checkEligibility: async () => {
+    try {
+      const response = await api.get('/gateway/testorder/feedback/eligibility');
+      return {
+        success: true,
+        data: response.data?.data || { isEligible: false }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: { isEligible: false, reason: error.response?.data?.message || 'Không thể kiểm tra điều kiện đánh giá.' }
+      };
+    }
+  },
+
+  requestAdminDelete: async (id, reason) => {
+    try {
+      const response = await api.post(`/gateway/testorder/feedback/${id}/request-delete`, { reason });
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Đã gửi yêu cầu xóa đến bệnh nhân.'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi gửi yêu cầu xóa'
+      };
+    }
+  },
+
+  respondDeleteConsent: async (id, approved) => {
+    try {
+      const response = await api.post(`/gateway/testorder/feedback/${id}/consent-delete`, { approved });
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Đã cập nhật xác nhận.'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi xác nhận'
+      };
+    }
   }
 };

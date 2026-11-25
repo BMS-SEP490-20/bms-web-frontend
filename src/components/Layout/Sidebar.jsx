@@ -37,7 +37,8 @@ const MENU_SECTIONS = [
       { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: FaDatabase, roles: [ADMIN] },
       { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: FaShieldAlt, roles: [ADMIN] },
       { id: 'admin-shifts', path: '/manage/schedule', label: 'Phân Bổ Lịch Ca Trực', icon: FaClock, roles: [ADMIN] },
-      { id: 'admin-view-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Toàn Viện', icon: FaClock, roles: [ADMIN] }
+      { id: 'admin-view-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Toàn Viện', icon: FaClock, roles: [ADMIN] },
+      { id: 'admin-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân ', icon: FaStar, roles: [ADMIN] }
     ]
   },
 
@@ -50,7 +51,8 @@ const MENU_SECTIONS = [
       { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: FaChartBar, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FaFlask, roles: [MANAGER] },
       { id: 'mgr-westgard', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [MANAGER] },
-      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [MANAGER] }
+      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [MANAGER] },
+      { id: 'mgr-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [MANAGER] }
     ]
   },
   {
@@ -99,7 +101,8 @@ const MENU_SECTIONS = [
     items: [
       { id: 'lab-timeline', path: '/laboratory/sample-timeline', label: 'Tra Cứu Tiến Trình Mẫu Máu', icon: FaHistory, roles: [LAB] },
       { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [LAB] },
-      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] }
+      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] },
+      { id: 'lab-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [LAB] }
     ]
   },
 
@@ -120,7 +123,8 @@ const MENU_SECTIONS = [
     items: [
       { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: FaCalendarAlt, roles: [DOCTOR] },
       { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [DOCTOR] },
-      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [DOCTOR] }
+      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [DOCTOR] },
+      { id: 'doc-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [DOCTOR] }
     ]
   },
 
@@ -148,7 +152,8 @@ const MENU_SECTIONS = [
     items: [
       { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn Khám (Quầy)', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
       { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] },
-      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST] }
+      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST] },
+      { id: 'rec-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [RECEPTIONIST] }
     ]
   },
 

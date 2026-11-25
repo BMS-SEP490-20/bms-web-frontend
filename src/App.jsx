@@ -223,8 +223,8 @@ export default function App() {
                   <Route path="/notifications/dispatch" element={<PushNotificationCenterPage />} />
                 </Route>
 
-                {/* UC79 feedback: Patient submits, Manager reviews */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER, PATIENT]} />}>
+                {/* UC79 feedback: Patient CRUD, related roles Read-only, Admin Delete with Patient consent */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST, PATIENT]} />}>
                   <Route path="/feedback" element={<FeedbackHubPage />} />
                   <Route path="/patient/feedback" element={<FeedbackHubPage />} />
                 </Route>

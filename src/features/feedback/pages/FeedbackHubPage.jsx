@@ -56,6 +56,8 @@ const FeedbackHubPage = () => {
   const [loading, setLoading] = useState(true);
   const [alertMsg, setAlertMsg] = useState(null);
   const [filterMyOnly, setFilterMyOnly] = useState(false);
+  const [eligibility, setEligibility] = useState({ isEligible: true, reason: '', completedReferenceCodes: [] });
+  const [adminDeleteReason, setAdminDeleteReason] = useState('');
 
   // Filters
   const [ratingFilter, setRatingFilter] = useState('ALL');
@@ -100,20 +102,8 @@ const FeedbackHubPage = () => {
   const fetchFeedbacks = useCallback(async () => {
     try {
       setLoading(true);
-      if (isPatient) {
-        if (user?.id) {
-          const myRes = await patientFeedbackService.getPatientFeedbacks(user.id);
-          if (myRes.success) {
-            const list = Array.isArray(myRes.data) ? myRes.data : [];
-            setMyFeedbacks(list);
-            setFeedbacks(list);
-          }
-        }
-        return;
-      }
-
       const ratingVal = ratingFilter !== 'ALL' ? parseInt(ratingFilter) : null;
-      const [feedbacksRes, statsRes] = await Promise.all([
+      const requests = [
         patientFeedbackService.getFeedbacks({
           rating: ratingVal,
           category: categoryFilter,
@@ -121,13 +111,25 @@ const FeedbackHubPage = () => {
           searchTerm: searchTerm.trim()
         }),
         patientFeedbackService.getStatistics()
-      ]);
-
-      if (feedbacksRes.success) {
-        setFeedbacks(feedbacksRes.data);
+      ];
+      if (isPatient) {
+        requests.push(patientFeedbackService.checkEligibility());
       }
-      if (statsRes.success) {
+
+      const [feedbacksRes, statsRes, eligRes] = await Promise.all(requests);
+
+      if (feedbacksRes?.success) {
+        const list = Array.isArray(feedbacksRes.data) ? feedbacksRes.data : [];
+        setFeedbacks(list);
+        if (isPatient && user?.id) {
+          setMyFeedbacks(list.filter(f => f.patientId === user.id));
+        }
+      }
+      if (statsRes?.success) {
         setStatistics(statsRes.data);
+      }
+      if (isPatient && eligRes?.data) {
+        setEligibility(eligRes.data);
       }
     } catch (e) {
       console.error(e);
@@ -233,18 +235,43 @@ const FeedbackHubPage = () => {
     }
   };
 
-  // Handle Delete Submit
+  // Handle Delete Submit (Patient deletes own, or Admin requests delete with patient consent)
   const handleDeleteSubmit = async () => {
     if (!selectedFeedback) return;
     try {
       setSubmitting(true);
-      const res = await patientFeedbackService.deleteFeedback(selectedFeedback.feedbackId);
+      const res = isAdmin
+        ? await patientFeedbackService.requestAdminDelete(selectedFeedback.feedbackId, adminDeleteReason)
+        : await patientFeedbackService.deleteFeedback(selectedFeedback.feedbackId);
       if (res.success) {
-        setAlertMsg({ type: 'success', text: 'Đã xóa bản ghi đánh giá thành công!' });
+        setAlertMsg({
+          type: 'success',
+          text: isAdmin
+            ? 'Đã gửi yêu cầu ẩn/xóa tới bệnh nhân. Feedback chỉ được ẩn khi bệnh nhân đồng ý!'
+            : 'Đã xóa đánh giá của bạn thành công!'
+        });
         setShowDeleteModal(false);
+        setAdminDeleteReason('');
         fetchFeedbacks();
       } else {
-        setAlertMsg({ type: 'danger', text: res.message || 'Lỗi xóa' });
+        setAlertMsg({ type: 'danger', text: res.message || 'Lỗi thao tác' });
+      }
+    } catch (err) {
+      setAlertMsg({ type: 'danger', text: err.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleConsentDelete = async (fb, approved) => {
+    try {
+      setSubmitting(true);
+      const res = await patientFeedbackService.respondDeleteConsent(fb.feedbackId, approved);
+      if (res.success) {
+        setAlertMsg({ type: approved ? 'info' : 'success', text: res.message });
+        fetchFeedbacks();
+      } else {
+        setAlertMsg({ type: 'danger', text: res.message || 'Lỗi xác nhận' });
       }
     } catch (err) {
       setAlertMsg({ type: 'danger', text: err.message });
@@ -313,7 +340,16 @@ const FeedbackHubPage = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => {
+                if (!eligibility.isEligible) {
+                  setAlertMsg({
+                    type: 'warning',
+                    text: `⚠️ Chưa đủ điều kiện gửi đánh giá: ${eligibility.reason || 'Bạn cần hoàn thành ít nhất 1 lịch khám / đơn xét nghiệm thành công để gửi đánh giá. Các đơn đã hủy hoặc hoàn tiền không được tính.'}`,
+                  });
+                } else {
+                  setShowCreateModal(true);
+                }
+              }}
               className="d-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold"
             >
               <FaPlus />
@@ -333,6 +369,22 @@ const FeedbackHubPage = () => {
           </Button>
         </div>
       </div>
+
+      {isPatient && !loading && !eligibility.isEligible && (
+        <Alert variant="info" className="border-0 rounded-3 mb-3 d-flex align-items-start gap-2" style={{ background: '#EFF6FF', borderLeft: '4px solid #3B82F6 !important' }}>
+          <div style={{ fontSize: '1.4rem', lineHeight: 1 }}>📋</div>
+          <div>
+            <strong>Điều kiện gửi đánh giá:</strong> Bạn cần hoàn thành ít nhất <strong>1 lịch khám / đơn xét nghiệm thành công</strong> trước khi có thể gửi đánh giá.
+            {eligibility.reason && <div className="mt-1 text-muted small">{eligibility.reason}</div>}
+            <div className="mt-2">
+              <Button variant="outline-primary" size="sm" className="rounded-pill px-3" onClick={() => navigate('/appointments')}>
+                📅 Đặt lịch khám ngay
+              </Button>
+              <span className="ms-2 text-muted small">Bạn vẫn có thể xem các đánh giá bên dưới.</span>
+            </div>
+          </div>
+        </Alert>
+      )}
 
       {alertMsg && (
         <Alert variant={alertMsg.type} dismissible onClose={() => setAlertMsg(null)} className="border-0 rounded-3">
@@ -551,53 +603,85 @@ const FeedbackHubPage = () => {
 
                     {/* Action buttons */}
                     <div className="d-flex align-items-center gap-2">
-                      {/* Clinic Manager reply button */}
-                      {isManagerOrAdmin && fb.status !== 'DELETED' && (
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
-                          onClick={() => openResponseModal(fb)}
-                        >
-                          <FaReply />
-                          <span>{fb.managerResponse ? 'Sửa phản hồi' : 'Phản hồi bệnh nhân'}</span>
-                        </Button>
+                      {/* Patient full CRUD on their own feedback */}
+                      {isPatient && isOwn && fb.status !== 'HIDDEN_BY_ADMIN' && fb.status !== 'DELETED' && (
+                        <>
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                            onClick={() => openEditModal(fb)}
+                          >
+                            <FaEdit />
+                            <span>Chỉnh sửa</span>
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                            onClick={() => {
+                              setSelectedFeedback(fb);
+                              setShowDeleteModal(true);
+                            }}
+                          >
+                            <FaTrashAlt />
+                            <span>Xóa</span>
+                          </Button>
+                        </>
                       )}
 
-                      {/* Only Patient can edit their own feedback */}
-                      {isPatient && isOwn && fb.status !== 'DELETED' && (
-                        <Button
-                          variant="outline-secondary"
-                          size="sm"
-                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
-                          onClick={() => openEditModal(fb)}
-                        >
-                          <FaEdit />
-                          <span>Chỉnh sửa</span>
-                        </Button>
-                      )}
-
-                      {/* Only Admin has permission to delete feedback */}
-                      {isAdmin && fb.status !== 'DELETED' && (
+                      {/* Only Admin can request delete (requires patient consent) */}
+                      {isAdmin && fb.status !== 'HIDDEN_BY_ADMIN' && fb.status !== 'DELETED' && !fb.adminDeleteRequested && (
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          className="rounded-circle p-1"
-                          style={{ width: '30px', height: '30px' }}
+                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                           onClick={() => {
                             setSelectedFeedback(fb);
+                            setAdminDeleteReason('');
                             setShowDeleteModal(true);
                           }}
-                          title="Xóa đánh giá (Chỉ dành cho Admin)"
+                          title="Gửi yêu cầu xóa đánh giá (Cần sự đồng ý của bệnh nhân)"
                         >
                           <FaTrashAlt style={{ fontSize: '0.75rem' }} />
+                          <span>Yêu cầu xóa</span>
                         </Button>
+                      )}
+                      {isAdmin && fb.adminDeleteRequested && fb.status !== 'HIDDEN_BY_ADMIN' && (
+                        <Badge bg="warning" text="dark" className="px-2 py-1 rounded-pill">
+                          Đang chờ bệnh nhân đồng ý xóa
+                        </Badge>
                       )}
                     </div>
                   </div>
 
+                  {/* Admin delete consent prompt for Patient owner */}
+                  {isPatient && isOwn && fb.adminDeleteRequested && fb.status !== 'HIDDEN_BY_ADMIN' && (
+                    <div className="mt-3 p-3 bg-warning-subtle border border-warning rounded-3 small">
+                      <div className="fw-bold text-dark mb-1">
+                        ⚠️ Admin đã gửi yêu cầu ẩn/xóa góp ý này
+                      </div>
+                      <div className="text-secondary mb-2">
+                        Lý do: <strong>{fb.AdminDeleteReason || fb.adminDeleteReason || 'Cần rà soát nội dung'}</strong>. Bạn có đồng ý ẩn góp ý này không?
+                      </div>
+                      <div className="d-flex gap-2">
+                        <Button size="sm" variant="danger" disabled={submitting} onClick={() => handleConsentDelete(fb, true)}>
+                          Đồng ý ẩn/xóa
+                        </Button>
+                        <Button size="sm" variant="outline-secondary" disabled={submitting} onClick={() => handleConsentDelete(fb, false)}>
+                          Từ chối
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Review Content */}
-                  {fb.status === 'DELETED' ? (
+                  {fb.status === 'HIDDEN_BY_ADMIN' || fb.hiddenByAdminWithConsent ? (
+                    <div className="mt-3 p-3 bg-secondary-subtle border border-secondary-subtle rounded-3 text-secondary d-flex align-items-center gap-2">
+                      <FaTrashAlt className="flex-shrink-0" />
+                      <span className="fw-semibold fst-italic">feedback được ẩn bởi admin theo sự đồng ý của patient</span>
+                    </div>
+                  ) : fb.status === 'DELETED' ? (
                     <div className="mt-3 p-3 bg-danger-subtle border border-danger-subtle rounded-3 text-danger d-flex align-items-center gap-2">
                       <FaTrashAlt className="flex-shrink-0" />
                       <span className="fw-semibold">Feedback đã bị admin xóa</span>
@@ -865,24 +949,44 @@ const FeedbackHubPage = () => {
         </Form>
       </Modal>
 
-      {/* Delete Confirmation Modal (Admin only) */}
+      {/* Delete Confirmation Modal (Patient delete own OR Admin request delete with Patient consent) */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">
             <FaTrashAlt />
-            Xác Nhận Xóa Đánh Giá (Admin)
+            {isAdmin ? 'Gửi Yêu Cầu Xóa Đánh Giá (Admin)' : 'Xác Nhận Xóa Đánh Giá'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-3">
-          Bạn có chắc chắn muốn xóa đánh giá <strong>"{selectedFeedback?.title}"</strong> này không?
-          <div className="alert alert-warning mt-3 mb-0 small">
-            Thao tác này chỉ dành riêng cho Admin. Đánh giá sẽ được lưu lại với trạng thái <strong>"Feedback đã bị admin xóa"</strong> để phục vụ truy vết kiểm toán.
-          </div>
+          {isAdmin ? (
+            <>
+              <p>
+                Bạn muốn gửi yêu cầu ẩn/xóa đánh giá <strong>"{selectedFeedback?.title}"</strong>?
+              </p>
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-semibold">Lý do yêu cầu ẩn/xóa (gửi cho bệnh nhân xem)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  placeholder="Ví dụ: Nội dung chứa thông tin cá nhân cần bảo mật..."
+                  value={adminDeleteReason}
+                  onChange={(e) => setAdminDeleteReason(e.target.value)}
+                />
+              </Form.Group>
+              <div className="alert alert-info mb-0 small">
+                Theo quy định, feedback chỉ được ẩn khi <strong>bệnh nhân chủ feedback đồng ý</strong>. Khi bệnh nhân đồng ý, hệ thống sẽ hiển thị: <em>"feedback được ẩn bởi admin theo sự đồng ý của patient"</em>.
+              </div>
+            </>
+          ) : (
+            <>
+              Bạn có chắc chắn muốn xóa đánh giá <strong>"{selectedFeedback?.title}"</strong> của mình không?
+            </>
+          )}
         </Modal.Body>
         <Modal.Footer className="border-0">
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Hủy</Button>
           <Button variant="danger" onClick={handleDeleteSubmit} disabled={submitting}>
-            {submitting ? 'Đang xóa...' : 'Xác nhận xóa'}
+            {submitting ? 'Đang xử lý...' : (isAdmin ? 'Gửi yêu cầu đến bệnh nhân' : 'Xác nhận xóa')}
           </Button>
         </Modal.Footer>
       </Modal>

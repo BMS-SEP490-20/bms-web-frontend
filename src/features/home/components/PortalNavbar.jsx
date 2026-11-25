@@ -251,24 +251,48 @@ export default function PortalNavbar({ user: propUser = null }) {
         <div className="bms-identity-cluster">
           {isPatient ? (
             <div className="bms-user-dock">
-              <Link
-                className="bms-btn-mint-cta"
-                to="/appointments/book"
-                style={{
-                  height: '32px',
-                  padding: '6px 14px',
-                  fontSize: '12px',
-                  fontWeight: 650,
-                  borderRadius: '9999px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  whiteSpace: 'nowrap',
-                  lineHeight: '1'
-                }}
-              >
-                Đặt Lịch Khám
-              </Link>
+              <div className="d-flex flex-column align-items-stretch" style={{ gap: '4px' }}>
+                <Link
+                  className="bms-btn-mint-cta"
+                  to="/appointments/book"
+                  style={{
+                    height: '28px',
+                    padding: '4px 14px',
+                    fontSize: '12px',
+                    fontWeight: 650,
+                    borderRadius: '9999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    whiteSpace: 'nowrap',
+                    lineHeight: '1'
+                  }}
+                >
+                  Đặt Lịch Khám
+                </Link>
+                <Link
+                  to="/feedback"
+                  style={{
+                    height: '24px',
+                    padding: '2px 12px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    borderRadius: '9999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    whiteSpace: 'nowrap',
+                    lineHeight: '1',
+                    textDecoration: 'none',
+                    color: currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? '#ffffff' : '#1E60E6',
+                    backgroundColor: currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? '#1E60E6' : '#E8EFFE',
+                    border: '1px solid rgba(30, 96, 230, 0.25)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  Đóng góp ý kiến
+                </Link>
+              </div>
               <Link className="bms-user-profile-tile" to="/profile" title="Xem hồ sơ y tế">
                 <div className="bms-avatar-circle">{initial}</div>
                 <div className="bms-user-text">

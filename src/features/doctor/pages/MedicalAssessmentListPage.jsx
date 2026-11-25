@@ -399,7 +399,7 @@ export default function MedicalAssessmentListPage() {
                 <Stethoscope className="text-primary"  size="1em"/> Phiếu đánh giá y khoa lâm sàng: {selectedAssessment.assessmentCode}
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-2" id="printable-assessment">
+            <Modal.Body id="printable-assessment">
               <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                 <div>
                   <h5 className="fw-bold mb-1">{selectedAssessment.patientName}</h5>

@@ -14,7 +14,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Button, Form, Row, Col, Alert, Badge, Spinner, InputGroup, Nav, Table } from "react-bootstrap";
-import { ShieldCheck, IdCard, Clock, TestTube2, List, Plus, Trash2, CheckCircle2, User, FileText, Info, FileHeart } from 'lucide-react';
+import { ShieldCheck, IdCard, Clock, TestTube2, List, Plus, Trash2, CheckCircle2, User, FileText, Info, FileHeart, AlertTriangle } from 'lucide-react';
 import { createPackage, updatePackage } from "../api/packageApi.jsx";
 
 export const STATUS_OPTIONS = [
@@ -313,7 +313,7 @@ export default function PackageFormModal({
         {error && (
           <div className="p-3">
             <Alert variant="danger" dismissible onClose={() => setError("")} className="py-2 small mb-0">
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+              <AlertTriangle size="1em" className="me-2" />
               <strong>Lỗi:</strong> {error}
             </Alert>
           </div>

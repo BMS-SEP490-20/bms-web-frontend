@@ -10,7 +10,7 @@ import {
   Alert,
   Table
 } from 'react-bootstrap';
-import { Receipt, Search, X as LucideX, Plus, Printer, CreditCard, Banknote, QrCode } from 'lucide-react';
+import { Receipt, Search, X as LucideX, Plus, Printer, CreditCard, Banknote, QrCode, AlertTriangle, CheckCircle2, Hourglass, RefreshCw, Inbox, Circle, IdCard, ClipboardList, Landmark } from 'lucide-react';
 import {
   getInvoices,
   createInvoice,
@@ -292,13 +292,13 @@ export default function BillingInvoicesPage() {
       {/* Notifications */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm py-2 px-3 mb-3">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          <AlertTriangle size="1em" className="me-2" />
           {error}
         </Alert>
       )}
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg(null)} className="rounded-3 shadow-sm py-2 px-3 mb-3">
-          <i className="bi bi-check-circle-fill me-2"></i>
+          <CheckCircle2 size="1em" className="me-2" />
           {successMsg}
         </Alert>
       )}
@@ -328,7 +328,7 @@ export default function BillingInvoicesPage() {
               </div>
             </div>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-              <i className="bi bi-hourglass-split"></i>
+              <Hourglass size="1em" />
             </div>
           </div>
         </Col>
@@ -342,7 +342,7 @@ export default function BillingInvoicesPage() {
               </div>
             </div>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-              <i className="bi bi-receipt"></i>
+              <Receipt size="1em" />
             </div>
           </div>
         </Col>
@@ -405,7 +405,7 @@ export default function BillingInvoicesPage() {
                 className="rounded-pill px-3"
                 style={{ height: '36px' }}
               >
-                <i className="bi bi-arrow-clockwise"></i>
+                <RefreshCw size="1em" />
               </Button>
             </div>
           </div>
@@ -437,7 +437,7 @@ export default function BillingInvoicesPage() {
                 ) : filteredInvoices.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center py-5 text-muted">
-                      <i className="bi bi-inbox fs-2 d-block mb-2 text-slate-300"></i>
+                      <Inbox size="1em" className="fs-2 d-block mb-2 text-slate-300" />
                       Không có hóa đơn nào phù hợp với điều kiện tra cứu.
                     </td>
                   </tr>
@@ -509,7 +509,7 @@ export default function BillingInvoicesPage() {
                               color: isPaid ? '#166534' : '#92400e'
                             }}
                           >
-                            <i className="bi bi-circle-fill" style={{ fontSize: '6px' }}></i>
+                            <Circle size="1em" style={{ fontSize: '6px' }} />
                             {isPaid ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
                           </span>
                         </td>
@@ -660,7 +660,7 @@ export default function BillingInvoicesPage() {
             {/* 1. Thông Tin Người Bệnh */}
             <div className="mb-4">
               <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
-                <i className="bi bi-person-badge-fill text-primary"></i>
+                <IdCard size="1em" className="text-primary" />
                 1. Thông Tin Định Danh Người Bệnh
               </h6>
               <Row className="g-3">
@@ -711,7 +711,7 @@ export default function BillingInvoicesPage() {
             {/* 2. Chỉ Định Dịch Vụ & Viện Phí */}
             <div className="mb-4">
               <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
-                <i className="bi bi-card-checklist text-primary"></i>
+                <ClipboardList size="1em" className="text-primary" />
                 2. Chỉ Định Gói Xét Nghiệm &amp; Chính Sách Giá
               </h6>
 
@@ -840,7 +840,7 @@ export default function BillingInvoicesPage() {
                 </>
               ) : (
                 <>
-                  <i className="bi bi-check2-circle"></i>
+                  <CheckCircle2 size="1em" />
                   <span>Tạo Hóa Đơn Thu Phí</span>
                 </>
               )}
@@ -911,7 +911,7 @@ export default function BillingInvoicesPage() {
                     { id: 1, label: 'Tiền mặt (Cash)', icon: <Banknote className="text-success me-2"  size="1em"/> },
                     { id: 4, label: 'Thẻ POS (Visa / Mastercard / Napas)', icon: <CreditCard className="text-primary me-2"  size="1em"/> },
                     { id: 2, label: 'VietQR / Chuyển khoản quét mã', icon: <QrCode className="text-info me-2"  size="1em"/> },
-                    { id: 3, label: 'Chuyển khoản Ngân hàng', icon: <i className="bi bi-bank me-2 text-warning"></i> }
+                    { id: 3, label: 'Chuyển khoản Ngân hàng', icon: <Landmark size="1em" className="me-2 text-warning" /> }
                   ].map((item) => (
                     <div
                       key={item.id}
@@ -965,7 +965,7 @@ export default function BillingInvoicesPage() {
               </>
             ) : (
               <>
-                <i className="bi bi-check2-circle"></i>
+                <CheckCircle2 size="1em" />
                 <span>Xác Nhận Đã Thu Tiền</span>
               </>
             )}

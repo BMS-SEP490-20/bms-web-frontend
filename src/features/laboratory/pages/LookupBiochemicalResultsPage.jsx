@@ -332,7 +332,7 @@ export default function LookupBiochemicalResultsPage() {
             <h1 className="bms-page-title">Duyệt kết quả xét nghiệm &amp; ký số</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Kiểm tra chỉ số xét nghiệm từ Phòng Lab, ghi nhận định và duyệt phát hành kết quả.
+            Thẩm định tính hợp lệ của chỉ số xét nghiệm từ Phòng Lab, ghi nhận nhận định cận lâm sàng và ký số SHA-256 phát hành kết quả (chẩn đoán bệnh &amp; kê đơn thực hiện tại Bệnh án EMR).
           </p>
         </div>
         <div className="bms-page-actions">
@@ -372,7 +372,7 @@ export default function LookupBiochemicalResultsPage() {
       <div className="bms-filter-bar mb-3 flex-wrap">
         <Form onSubmit={handleSearchSubmit} className="d-flex align-items-center gap-2 flex-grow-1" style={{ minWidth: '280px' }}>
           <div className="bms-search-input-pill flex-grow-1">
-            <Barcode className="bms-search-icon"  size="1em"/>
+            <Barcode className="bms-search-icon" size="1em" />
             <input
               type="text"
               placeholder="Tìm mã ống mẫu (SMP-...), mã kết quả (TRE-...), tên hoặc mã bệnh nhân (PAT-...)..."
@@ -400,7 +400,7 @@ export default function LookupBiochemicalResultsPage() {
             className="rounded-pill px-3 fw-semibold text-white text-nowrap"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            {loading ? <Spinner animation="border" size="sm" /> : <><LucideSearch className="me-1"  size="1em"/> Tra cứu</>}
+            {loading ? <Spinner animation="border" size="sm" /> : <><LucideSearch className="me-1" size="1em" /> Tra cứu</>}
           </Button>
         </Form>
 
@@ -435,7 +435,7 @@ export default function LookupBiochemicalResultsPage() {
 
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="py-2 mb-3 rounded-3">
-          <AlertTriangle className="me-2"  size="1em"/>
+          <AlertTriangle className="me-2" size="1em" />
           {errorMsg}
         </Alert>
       )}
@@ -470,7 +470,7 @@ export default function LookupBiochemicalResultsPage() {
             {hasPanicValues && (
               <Alert variant="danger" className="py-2 px-3 mb-3 rounded-3 border-danger d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div className="small">
-                  <AlertTriangle className="me-2"  size="1em"/>
+                  <AlertTriangle className="me-2" size="1em" />
                   <strong>CẢNH BÁO CHỈ SỐ NGUY KỊCH (PANIC VALUE):</strong> Phát hiện thông số vượt ngưỡng an toàn sinh mạng. Bác sĩ cần kiểm tra đối chiếu lâm sàng hoặc yêu cầu Lab chạy kiểm tra lại trước khi ký số.
                 </div>
               </Alert>
@@ -481,7 +481,7 @@ export default function LookupBiochemicalResultsPage() {
               <Col xs={12} lg={4}>
                 <div className="p-3 rounded-4 border h-100" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
                   <h6 className="fw-bold text-dark mb-2.5 d-flex align-items-center gap-2 small text-uppercase">
-                    <User className="text-primary"  size="1em"/> Thông Tin Bệnh Phẩm &amp; Pháp Lý
+                    <User className="text-primary" size="1em" /> Thông Tin Bệnh Phẩm &amp; Pháp Lý
                   </h6>
                   <div className="small mb-2 pb-2 border-bottom">
                     <div className="d-flex justify-content-between mb-1">
@@ -520,7 +520,7 @@ export default function LookupBiochemicalResultsPage() {
                     {currentResult.digitalSignature && (
                       <div className="p-2 rounded-3 bg-white border mb-2 small">
                         <div className="fw-semibold text-success d-flex align-items-center gap-1">
-                          <ShieldCheck  size="1em"/> Chữ ký số SHA-256 (Đã khóa bất biến):
+                          <ShieldCheck size="1em" /> Chữ ký số SHA-256 (Đã khóa bất biến):
                         </div>
                         <code className="text-break text-muted" style={{ fontSize: '0.72rem' }}>
                           {currentResult.digitalSignature}
@@ -538,7 +538,7 @@ export default function LookupBiochemicalResultsPage() {
                             onClick={handleApproveResult}
                             className="rounded-pill px-3 py-1.5 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-sm"
                           >
-                            <FileSignature  size="1em"/> Phê Duyệt &amp; Ký Số SHA-256
+                            <FileSignature size="1em" /> Phê Duyệt &amp; Ký Số SHA-256
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -547,7 +547,7 @@ export default function LookupBiochemicalResultsPage() {
                             onClick={() => setShowRerunBox((v) => !v)}
                             className="rounded-pill px-3 py-1.5 fw-semibold text-nowrap"
                           >
-                            <Undo2 className="me-1"  size="1em"/> Chạy lại
+                            <Undo2 className="me-1" size="1em" /> Chạy lại
                           </Button>
                         </div>
 
@@ -588,7 +588,7 @@ export default function LookupBiochemicalResultsPage() {
                 <div className="border rounded-4 overflow-hidden h-100 bg-white">
                   <div className="py-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                     <span className="fw-bold small text-dark d-flex align-items-center gap-1.5 text-uppercase">
-                      <Microscope className="text-primary"  size="1em"/> Bảng Chỉ Số Đo Cận Lâm Sàng
+                      <Microscope className="text-primary" size="1em" /> Bảng Chỉ Số Đo Cận Lâm Sàng
                     </span>
                     <Badge bg="primary" pill>{resultParameters.length} chỉ số</Badge>
                   </div>
@@ -657,7 +657,7 @@ export default function LookupBiochemicalResultsPage() {
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div className="d-flex align-items-center gap-2">
-            <History className="text-primary"  size="1em"/>
+            <History className="text-primary" size="1em" />
             <h6 className="fw-bold text-dark mb-0">Danh Sách Kết Quả Xét Nghiệm Cận Lâm Sàng</h6>
             <span className="text-muted small">• Bấm vào dòng bất kỳ để mở bảng chỉ số &amp; ký duyệt</span>
           </div>

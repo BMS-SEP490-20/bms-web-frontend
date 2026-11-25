@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
-import { Download, Share2, ArrowLeft, CheckCircle2, AlertTriangle, Printer, ShieldCheck, Stethoscope, Barcode as LucideBarcode, TestTube2, FileText, Check, Copy, Info } from 'lucide-react';
+import { Download, Share2, ArrowLeft, CheckCircle2, AlertTriangle, Printer, ShieldCheck, Stethoscope, Barcode as LucideBarcode, TestTube2, FileText, Check, Copy, Info, ChevronRight } from 'lucide-react';
 import { fetchPatientResult, exportResultPdf, shareResultWithDoctor, fetchPatientResultsList } from '../api/patientResultApi';
 import { getTestHistory } from '../api/testHistoryApi';
 import { getMyPatientInformation } from '../../../services/patientService';
@@ -289,9 +289,9 @@ export default function ExportTestResultPdfPage() {
               <div>
                 <div style={{ fontSize: '12.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                   <Link to="/patient/test-history" style={{ color: '#0284c7', textDecoration: 'none' }}>Lịch Sử Xét Nghiệm</Link>
-                  <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
+                  <ChevronRight size="1em" style={{ fontSize: '10px' }} />
                   <span style={{ color: '#0f172a', fontWeight: '600' }}>{result.OrderCode || result.OrderId || activeOrderId}</span>
-                  <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
+                  <ChevronRight size="1em" style={{ fontSize: '10px' }} />
                   <span>Bản Ký Số Điện Tử</span>
                 </div>
                 <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>

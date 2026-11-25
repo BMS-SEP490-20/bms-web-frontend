@@ -10,7 +10,7 @@ import '../view-shifts.css';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Badge, Spinner, Modal, Button, Card } from 'react-bootstrap';
-import { Calendar, Clock, CheckCircle2, Stethoscope, DoorOpen, Users, ArrowRight, Plus, CalendarCheck, Hospital, Info as LucideInfo, X as LucideX, UserCheck, FlaskConical, List } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, Stethoscope, DoorOpen, Users, ArrowRight, Plus, CalendarCheck, Hospital, Info as LucideInfo, X as LucideX, UserCheck, FlaskConical, List, Circle, Hourglass, Ban } from 'lucide-react';
 import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr, getShiftRoleCategory } from '../../schedule/components/WeeklyShiftTimetable';
 import { resolveStaffProfileMOH } from '../../schedule/utils/shiftStaffUtils';
 import { viewShiftApi } from '../api/viewShiftApi';
@@ -138,35 +138,35 @@ export function ViewShiftsPage() {
     if (st === 'approved' || st === 'đã phê duyệt') {
       return (
         <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
-          <i className="fas fa-check-circle me-1"></i> Đã phê duyệt
+          <CheckCircle2 size="1em" className="me-1" /> Đã phê duyệt
         </span>
       );
     }
     if (st === 'active' || st === 'đang diễn ra' || st === 'đang hoạt động') {
       return (
         <span className="badge bg-success text-white px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
-          <i className="fas fa-circle me-1" style={{ fontSize: '8px' }}></i> Đang diễn ra
+          <Circle size="1em" className="me-1" style={{ fontSize: '8px' }} /> Đang diễn ra
         </span>
       );
     }
     if (st === 'scheduled' || st === 'đã lên lịch') {
       return (
         <span className="badge bg-info-subtle text-primary border border-info-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
-          <i className="fas fa-clock me-1"></i> Đã lên lịch
+          <Clock size="1em" className="me-1" /> Đã lên lịch
         </span>
       );
     }
     if (st === 'pending' || st === 'chờ duyệt') {
       return (
         <span className="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
-          <i className="fas fa-hourglass-half me-1"></i> Chờ duyệt
+          <Hourglass size="1em" className="me-1" /> Chờ duyệt
         </span>
       );
     }
     if (st === 'cancelled' || st === 'đã hủy') {
       return (
         <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1 rounded-pill fw-semibold" style={{ fontSize: '12px' }}>
-          <i className="fas fa-ban me-1"></i> Đã hủy
+          <Ban size="1em" className="me-1" /> Đã hủy
         </span>
       );
     }

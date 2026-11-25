@@ -9,7 +9,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from "react-bootstrap";
-import { ExternalLink, Search, X as LucideX } from 'lucide-react';
+import { ExternalLink, Search, X as LucideX, PlusCircle, AlertTriangle, Inbox, Lock as LucideLock, Circle, Eye, Pencil, Trash2 } from 'lucide-react';
 import {
     getPackages,
     getTestCriteria,
@@ -275,7 +275,7 @@ export default function ServicePackagesPage({ onBack }) {
                             className="text-white fw-semibold d-flex align-items-center gap-2 rounded-pill px-3"
                             style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
                         >
-                            <i className="bi bi-plus-circle-fill"></i>
+                            <PlusCircle size="1em" />
                             Thêm Gói Mới
                         </Button>
                     )}
@@ -290,7 +290,7 @@ export default function ServicePackagesPage({ onBack }) {
                     className="mb-4"
                     style={{ borderRadius: 14 }}
                 >
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    <AlertTriangle size="1em" className="me-2" />
                     {error}
                 </Alert>
             )}
@@ -371,7 +371,7 @@ export default function ServicePackagesPage({ onBack }) {
                             ) : visible.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="text-center py-3 text-muted">
-                                        <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                                        <Inbox size="1em" className="fs-2 d-block mb-2 text-muted" />
                                         Không tìm thấy gói dịch vụ nào phù hợp với bộ lọc tìm kiếm.
                                     </td>
                                 </tr>
@@ -385,7 +385,7 @@ export default function ServicePackagesPage({ onBack }) {
                                             <div className="fw-bold" style={{ color: '#0f2743' }}>{pkg.name}</div>
                                             {pkg.code?.startsWith('BIOCHEM') || pkg.code?.startsWith('CBC') || pkg.code?.startsWith('COAG') || pkg.code?.startsWith('HEPA') || pkg.code?.startsWith('LIPID') ? (
                                                 <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px", borderRadius: 9999 }}>
-                                                    <i className="bi bi-lock-fill me-1"></i>Gói Mặc Định ISO
+                                                    <LucideLock size="1em" className="me-1" />Gói Mặc Định
                                                 </Badge>
                                             ) : null}
                                         </td>
@@ -415,7 +415,7 @@ export default function ServicePackagesPage({ onBack }) {
                                         </td>
                                         <td className="bms-align-center">
                                             <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>
-                                                <i className="bi bi-circle-fill" style={{ fontSize: "7px" }}></i>
+                                                <Circle size="1em" style={{ fontSize: "7px" }} />
                                                 {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
                                             </span>
                                         </td>
@@ -428,7 +428,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                     onClick={() => setDetailPkg(pkg)}
                                                     style={{ borderRadius: 9999 }}
                                                 >
-                                                    <i className="bi bi-eye"></i>
+                                                    <Eye size="1em" />
                                                 </Button>
                                                 <Button
                                                     variant="outline-primary"
@@ -438,7 +438,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                     disabled={!canManage}
                                                     style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                                                 >
-                                                    <i className="bi bi-pencil"></i>
+                                                    <Pencil size="1em" />
                                                 </Button>
                                                 <Button
                                                     variant="outline-danger"
@@ -448,7 +448,7 @@ export default function ServicePackagesPage({ onBack }) {
                                                     disabled={!canManage}
                                                     style={{ borderRadius: 9999 }}
                                                 >
-                                                    <i className="bi bi-trash"></i>
+                                                    <Trash2 size="1em" />
                                                 </Button>
                                             </div>
                                         </td>

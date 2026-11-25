@@ -258,65 +258,59 @@ const ValidateSample = () => {
 
   return (
     <Container fluid className="py-2 px-md-4">
-      {/* Tiêu đề trang chuẩn y khoa */}
-      <header className="bms-page-header">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Kiểm tra chất lượng mẫu bệnh phẩm trước khi đưa vào phân tích
+          </p>
         </div>
 
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-1 shadow-sm">
-            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/>
+        <div className="bms-page-actions">
+          <Button variant="outline-primary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold" style={{ borderColor: '#1E60E6', color: '#1E60E6' }}>
+            <RefreshCw className={loading ? 'fa-spin' : ''} size={14} />
             <span>Làm mới</span>
           </Button>
         </div>
-      </header>
+      </div>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
-          <AlertTriangle className="me-2"  size="1em"/>
+          <AlertTriangle className="me-2" size="1em" />
           {error}
         </Alert>
       )}
 
-      {/* Thanh lọc và tìm kiếm */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-2 align-items-center">
-            <Col xs={12} md={6}>
-              <InputGroup size="sm">
-                <InputGroup.Text className="bg-light border-end-0">
-                  <Search className="text-muted"  size="1em"/>
-                </InputGroup.Text>
-                <Form.Control
-                  className="bg-light border-start-0"
-                  placeholder="Tìm theo Mã mẫu, Barcode, Mã bệnh nhân hoặc Họ tên..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ kiểm chuẩn (Collected / Received)</option>
-                <option value="validated">Đã kiểm chuẩn đạt (Validated)</option>
-                <option value="rejected">Bị từ chối / Khóa (Rejected)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} md={3} className="text-end">
-              <span className="small text-muted">
-                Hiển thị: <strong className="text-primary">{filteredSamples.length}</strong> / {safeSamples.length} ống mẫu
-              </span>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      {/* Single-Line Filter Bar */}
+      <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+          <Search className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Tìm theo Mã mẫu, Barcode, Mã bệnh nhân hoặc Họ tên..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Form.Select
+          size="sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '210px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ kiểm chuẩn</option>
+          <option value="validated">Đã kiểm chuẩn đạt</option>
+          <option value="rejected">Đã từ chối</option>
+        </Form.Select>
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{filteredSamples.length}</strong> / {safeSamples.length} mẫu
+        </span>
+      </div>
 
       {/* Bảng danh sách mẫu kiểm chuẩn */}
       <Card className="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
@@ -468,7 +462,7 @@ const ValidateSample = () => {
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {selectedSample && (
               <div className="p-3 bg-light rounded-3 border mb-3">
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">

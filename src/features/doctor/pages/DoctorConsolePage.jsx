@@ -249,8 +249,8 @@ export default function DoctorConsolePage() {
             const cleanPid = patient?.patientCode || (!isHexObjectId(rawPid) && !isUuid(rawPid) && rawPid ? rawPid : '—');
             const cleanPatientName =
               (r.patientName && r.patientName !== 'Bệnh nhân') ? r.patientName :
-              (sample?.patientName && sample?.patientName !== 'Bệnh nhân') ? sample.patientName :
-              (patient?.fullName || patient?.name || '—');
+                (sample?.patientName && sample?.patientName !== 'Bệnh nhân') ? sample.patientName :
+                  (patient?.fullName || patient?.name || '—');
 
             const params = Array.isArray(r.parameters) && r.parameters.length > 0
               ? r.parameters
@@ -879,14 +879,14 @@ export default function DoctorConsolePage() {
           className="d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-sm mb-3 border border-success border-opacity-25"
         >
           <div className="d-flex align-items-center gap-3">
-            <CheckCircle2 className="fs-3 text-success flex-shrink-0"  size="1em"/>
+            <CheckCircle2 className="fs-3 text-success flex-shrink-0" size="1em" />
             <div className="flex-grow-1">
               <div className="fw-bold text-success d-flex align-items-center gap-2">
                 <span>KẾT QUẢ LAB SẴN SÀNG — CHỜ BÁC SĨ THẨM ĐỊNH</span>
                 <Badge bg="success">Chờ ký duyệt lâm sàng</Badge>
               </div>
               <div className="small text-dark mt-1">
-                Mẫu <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của <strong>{verifiedAlert.patientName}</strong> đã có kết quả. Mở hồ sơ để bác sĩ xem và duyệt kết quả.
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (ISO 15189 / QĐ 2429).
               </div>
             </div>
           </div>
@@ -896,7 +896,7 @@ export default function DoctorConsolePage() {
             className="fw-bold px-3 py-1.5 shadow-sm text-white text-nowrap ms-auto"
             onClick={() => handleOpenConsultationModal(verifiedAlert)}
           >
-            <Stethoscope className="me-1"  size="1em"/> Thẩm Định &amp; Tư Vấn Ngay
+            <Stethoscope className="me-1" size="1em" /> Thẩm Định &amp; Tư Vấn Ngay
           </Button>
         </Alert>
       )}
@@ -910,7 +910,7 @@ export default function DoctorConsolePage() {
         >
           <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div className="d-flex align-items-center gap-2">
-              <Calendar className="fs-3 text-warning-emphasis flex-shrink-0"  size="1em"/>
+              <Calendar className="fs-3 text-warning-emphasis flex-shrink-0" size="1em" />
               <div>
                 <strong className="text-warning-emphasis">ĐÃ CẤP PHIẾU HOÃN &amp; HẸN LẠI NGÀY LẤY MẪU XÉT NGHIỆM:</strong>
                 <div className="small text-dark mt-0.5">
@@ -926,7 +926,7 @@ export default function DoctorConsolePage() {
               className="fw-semibold d-flex align-items-center gap-1 shadow-sm"
               onClick={() => window.print()}
             >
-              <LucidePrinter  size="1em"/> In Phiếu Hẹn Lại
+              <LucidePrinter size="1em" /> In Phiếu Hẹn Lại
             </Button>
           </div>
         </Alert>
@@ -934,14 +934,14 @@ export default function DoctorConsolePage() {
 
       {message && (
         <Alert variant="success" dismissible onClose={() => setMessage(null)} className="py-2 mb-3 shadow-sm">
-          <CheckCircle2 className="me-2"  size="1em"/>
+          <CheckCircle2 className="me-2" size="1em" />
           {message}
         </Alert>
       )}
 
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="py-2 mb-3 shadow-sm">
-          <XCircle className="me-2"  size="1em"/>
+          <XCircle className="me-2" size="1em" />
           {errorMsg}
         </Alert>
       )}
@@ -955,7 +955,7 @@ export default function DoctorConsolePage() {
                 Bệnh Nhân Đang Khám
               </span>
               <Badge bg="light" text="dark" className="fw-bold px-3 py-1.5 rounded-pill">
-                <DoorOpen className="me-1"  size="1em"/> {roomId || 'Tất cả phòng'}
+                <DoorOpen className="me-1" size="1em" /> {roomId || 'Tất cả phòng'}
               </Badge>
             </Card.Header>
 
@@ -977,7 +977,7 @@ export default function DoctorConsolePage() {
                     <div className="text-end">
                       <div className="small text-secondary fw-semibold">Thời gian khám</div>
                       <div className="fs-3 fw-bold text-dark font-monospace d-flex align-items-center gap-1 justify-content-end">
-                        <Clock className="fs-5" style={{ color: '#0284c7' }}  size="1em"/>
+                        <Clock className="fs-5" style={{ color: '#0284c7' }} size="1em" />
                         {formatTimer(elapsedSeconds)}
                       </div>
                       {currentServing.recallCount > 0 && (
@@ -994,7 +994,7 @@ export default function DoctorConsolePage() {
                       <Col sm={6}>
                         <div className="small text-muted">Họ và tên bệnh nhân</div>
                         <div className="fw-bold fs-5 text-dark d-flex align-items-center gap-2">
-                          <User style={{ color: '#0284c7' }}  size="1em"/>
+                          <User style={{ color: '#0284c7' }} size="1em" />
                           {currentServing.patientName}
                         </div>
                         {currentServing.patientId && (
@@ -1020,7 +1020,7 @@ export default function DoctorConsolePage() {
                       onClick={handleRecall}
                       disabled={actionLoading || currentServing.recallCount >= 3}
                     >
-                      <Volume2  size="1em"/> Gọi Lại (F3)
+                      <Volume2 size="1em" /> Gọi Lại (F3)
                     </Button>
 
                     <Button
@@ -1029,7 +1029,7 @@ export default function DoctorConsolePage() {
                       onClick={() => setShowSkipModal(true)}
                       disabled={actionLoading}
                     >
-                      <XCircle  size="1em"/> Bỏ Qua (F4)
+                      <XCircle size="1em" /> Bỏ Qua (F4)
                     </Button>
 
                     <Button
@@ -1039,14 +1039,14 @@ export default function DoctorConsolePage() {
                       className="d-flex align-items-center gap-2 px-3 fw-bold shadow-sm ms-auto text-white"
                       style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     >
-                      <FileText  size="1em"/> Khám &amp; Chỉ Định Xét Nghiệm
+                      <FileText size="1em" /> Khám &amp; Chỉ Định Xét Nghiệm
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="text-center py-4 my-auto">
                   <div className="fs-1 text-muted opacity-25 mb-2">
-                    <User  size="1em"/>
+                    <User size="1em" />
                   </div>
                   <h5 className="fw-bold text-dark mb-1">Phòng khám đang sẵn sàng tiếp nhận</h5>
                   <p className="text-muted small mb-3" style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -1061,7 +1061,7 @@ export default function DoctorConsolePage() {
                       onClick={handleCallNext}
                       disabled={actionLoading || waitingCount === 0}
                     >
-                      <Megaphone  size="1em"/>
+                      <Megaphone size="1em" />
                       <span>{actionLoading ? 'Đang gọi số...' : 'Gọi Bệnh Nhân Tiếp Theo (F2)'}</span>
                       {waitingCount > 0 && (
                         <Badge bg="light" text="dark" className="rounded-pill ms-1">
@@ -1076,7 +1076,7 @@ export default function DoctorConsolePage() {
                       size="sm"
                       className="rounded-pill px-3.5 py-2 fw-semibold d-inline-flex align-items-center gap-1.5"
                     >
-                      <FileText  size="1em"/> Ra Y Lệnh &amp; Chỉ Định Xét Nghiệm
+                      <FileText size="1em" /> Ra Y Lệnh &amp; Chỉ Định Xét Nghiệm
                     </Button>
                   </div>
                 </div>
@@ -1092,7 +1092,7 @@ export default function DoctorConsolePage() {
                     onClick={handleCallNext}
                     disabled={actionLoading || waitingCount === 0}
                   >
-                    <Megaphone  size="1em"/>
+                    <Megaphone size="1em" />
                     <span>GỌI BỆNH NHÂN TIẾP THEO (F2)</span>
                     {waitingCount > 0 && (
                       <Badge bg="light" text="dark" className="ms-1 rounded-pill">
@@ -1175,7 +1175,7 @@ export default function DoctorConsolePage() {
         <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div>
             <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-              <FileHeart className="text-primary"  size="1em"/>
+              <FileHeart className="text-primary" size="1em" />
               <span>Hàng Đợi Kết Quả Xét Nghiệm — Thẩm Định &amp; Tư Vấn Lâm Sàng</span>
               <Badge bg="primary" pill>{approvedResultsList.length}</Badge>
             </h6>
@@ -1300,7 +1300,7 @@ export default function DoctorConsolePage() {
                           style={!(saved || isSigned) ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : undefined}
                           onClick={() => handleOpenConsultationModal(item)}
                         >
-                          <Stethoscope className="me-1"  size="1em"/>
+                          <Stethoscope className="me-1" size="1em" />
                           {saved || isSigned ? 'Xem / Sửa kết luận' : 'Thẩm Định & Tư Vấn'}
                         </Button>
                       </td>
@@ -1379,7 +1379,7 @@ export default function DoctorConsolePage() {
       <Modal show={showPreAnalyticsModal} onHide={() => setShowPreAnalyticsModal(false)} size="lg" centered>
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
-            <Calendar style={{ color: "#1E60E6" }}  size="1em"/>
+            <Calendar style={{ color: "#1E60E6" }} size="1em" />
             <span>Sàng Lọc Tiền Phân Tích &amp; Dời Lịch Xét Nghiệm Máu (Bộ Y Tế)</span>
           </Modal.Title>
         </Modal.Header>
@@ -1612,8 +1612,8 @@ export default function DoctorConsolePage() {
       <Modal show={showConsultationModal} onHide={() => setShowConsultationModal(false)} size="xl" centered>
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
-            <Stethoscope style={{ color: "#1E60E6" }}  size="1em"/>
-            <span>Xem &amp; Duyệt Kết Quả Xét Nghiệm</span>
+            <Stethoscope style={{ color: "#1E60E6" }} size="1em" />
+            <span>Thẩm Định Kết Quả Xét Nghiệm &amp; Tư Vấn Bệnh Nhân (Quy Trình Khép Kín ISO 15189)</span>
           </Modal.Title>
         </Modal.Header>
 
@@ -1624,7 +1624,7 @@ export default function DoctorConsolePage() {
               <Col sm={6}>
                 <div className="small text-muted">Bệnh nhân hội chẩn:</div>
                 <div className="fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                  <User style={{ color: "#1E60E6" }}  size="1em"/>
+                  <User style={{ color: "#1E60E6" }} size="1em" />
                   {consultationData?.patientName || "Bệnh nhân"}
                 </div>
                 <div className="small text-muted font-monospace">
@@ -1634,9 +1634,9 @@ export default function DoctorConsolePage() {
               <Col sm={6} className="text-sm-end">
                 <div className="small text-muted">Xác nhận kỹ thuật Lab (không thay duyệt lâm sàng):</div>
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
-                  <ShieldCheck  size="1em"/> {consultationResult?.reviewedBy || consultationData?.technicianName || consultationData?.verifiedByName || 'KTV đã xác nhận kỹ thuật'}
+                  <ShieldCheck size="1em" /> {consultationResult?.reviewedBy || consultationData?.technicianName || consultationData?.verifiedByName || 'KTV đã xác nhận kỹ thuật'}
                 </div>
-                <div className="small text-muted">Chờ bác sĩ duyệt trước khi trả kết quả</div>
+                <div className="small text-muted">Chờ bác sĩ duyệt + ký số mới trả BN · ISO 15189:2022</div>
               </Col>
             </Row>
           </div>
@@ -1718,7 +1718,7 @@ export default function DoctorConsolePage() {
           <Card className="border-0 shadow-sm rounded-3 bg-white mb-3">
             <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center">
               <span className="fw-bold small text-uppercase text-dark d-flex align-items-center gap-1.5">
-                <Stethoscope style={{ color: "#1E60E6" }}  size="1em"/> Tư Vấn Lâm Sàng, Chẩn Đoán &amp; Ký Số Trả Kết Quả Cho Người Bệnh
+                <Stethoscope style={{ color: "#1E60E6" }} size="1em" /> Tư Vấn Lâm Sàng, Chẩn Đoán &amp; Ký Số Trả Kết Quả Cho Người Bệnh
               </span>
               <Button
                 variant="outline-primary"
@@ -1726,7 +1726,7 @@ export default function DoctorConsolePage() {
                 className="d-flex align-items-center gap-1 fw-semibold rounded-pill px-3"
                 onClick={handleCallPatientConsultation}
               >
-                <Megaphone  size="1em"/> Phát Loa Mời Bệnh Nhân Vào Bàn Tư Vấn
+                <Megaphone size="1em" /> Phát Loa Mời Bệnh Nhân Vào Bàn Tư Vấn
               </Button>
             </Card.Header>
 
@@ -1794,7 +1794,7 @@ export default function DoctorConsolePage() {
                 <Alert variant="success" className="py-2.5 mb-0 rounded-3 shadow-sm border-success">
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div className="d-flex align-items-center gap-2">
-                      <CheckCircle2 className="fs-4 text-success flex-shrink-0"  size="1em"/>
+                      <CheckCircle2 className="fs-4 text-success flex-shrink-0" size="1em" />
                       <div>
                         <strong>KẾT QUẢ ĐÃ ĐƯỢC KÝ SỐ &amp; PHÁT HÀNH THÀNH CÔNG:</strong>
                         <div className="small text-dark mt-0.5">
@@ -1808,7 +1808,7 @@ export default function DoctorConsolePage() {
                       className="d-flex align-items-center gap-1 shadow-sm"
                       onClick={() => window.print()}
                     >
-                      <LucidePrinter  size="1em"/> In Phiếu Kết Quả Xét Nghiệm (PDF)
+                      <LucidePrinter size="1em" /> In Phiếu Kết Quả Xét Nghiệm (PDF)
                     </Button>
                   </div>
                 </Alert>
@@ -1825,7 +1825,7 @@ export default function DoctorConsolePage() {
                 className="d-flex align-items-center gap-1.5 fw-semibold"
                 onClick={() => setShowReturnRerunModal(true)}
               >
-                <Undo2  size="1em"/> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
+                <Undo2 size="1em" /> Trả Về Lab Yêu Cầu Chạy Lại (Clinical Discordance)
               </Button>
             )}
           </div>
@@ -1852,7 +1852,7 @@ export default function DoctorConsolePage() {
               className="d-flex align-items-center gap-2 fw-bold text-white px-3 shadow-sm"
               style={{ backgroundColor: '#059669', borderColor: '#059669' }}
             >
-              <FileSignature  size="1em"/>
+              <FileSignature size="1em" />
               {savedConsultations[consultationData?.specimenId]
                 ? 'Cập Nhật Kết Luận Lâm Sàng'
                 : 'Lưu Kết Luận & Trả Kết Quả Cho Bệnh Nhân'}
@@ -1865,7 +1865,7 @@ export default function DoctorConsolePage() {
       <Modal show={showReturnRerunModal} onHide={() => setShowReturnRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger text-white">
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <Undo2  size="1em"/>
+            <Undo2 size="1em" />
             <span>Bác Sĩ Trả Về Yêu Cầu Xét Nghiệm Lại</span>
           </Modal.Title>
         </Modal.Header>

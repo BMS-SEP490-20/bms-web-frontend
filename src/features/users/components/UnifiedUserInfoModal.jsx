@@ -47,7 +47,7 @@ const UnifiedUserInfoModal = ({
         }
       } else if (activeTab === 'password') {
         if (!passwordForm.newPassword || passwordForm.newPassword.length < 8) {
-          setError('Mật khẩu mới phải có tối thiểu 8 ký tự.');
+          setError('Mật khẩu mới phải có tối thiểu 8 ký tự (chuẩn an toàn BR-IAM-01).');
           return;
         }
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -153,7 +153,7 @@ const UnifiedUserInfoModal = ({
           <Tab eventKey="password" title="Cấp Lại Mật Khẩu">
             <Alert variant="info" className="py-2 mb-3 small d-flex align-items-center gap-2">
               <Info className="fs-5 flex-shrink-0" size="1em" />
-              <span>Cấp lại mật khẩu mới cho tài khoản (tối thiểu 8 ký tự).</span>
+              <span>Quản trị viên có quyền cấp lại mật khẩu an toàn cho nhân sự (tối thiểu 8 ký tự, tuân thủ BR-IAM-01).</span>
             </Alert>
             <Form>
               <Row className="g-3">

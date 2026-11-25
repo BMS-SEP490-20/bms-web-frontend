@@ -1177,8 +1177,8 @@ export default function ServiceCatalogPage() {
                 </div>
               )}
 
-              {/* Quality & Insurance Trust Callout */}
-              <div className="mt-3 p-2.5 rounded-3 d-flex align-items-center gap-2" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', fontSize: '11.5px', color: '#475569' }}>
+              {/* Quality & Insurance Trust Note */}
+              <div className="mt-3 d-flex align-items-center flex-wrap gap-1" style={{ fontSize: '11.5px', color: '#475569' }}>
                 <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><FaCheckCircle /> Cam kết BMS:</span>
                 <span>Thẩm định chuyên môn 2 cấp, hỗ trợ BHYT và Bác sĩ chuyên khoa tư vấn kết quả.</span>
               </div>

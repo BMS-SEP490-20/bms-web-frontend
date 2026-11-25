@@ -1,9 +1,9 @@
 /**
  * @fileoverview API client for UC16 – View Doctor Schedule & Shifts CRUD (View, Create, Update, Delete Shifts).
  */
-import api, { getToken } from '../../../config/api';
+import api, { API_ROOT, getToken } from '../../../config/api';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = API_ROOT;
 
 /**
  * Fetches the doctor schedule day-view grid.

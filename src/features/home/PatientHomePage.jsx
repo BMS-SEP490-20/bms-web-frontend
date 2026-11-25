@@ -87,7 +87,7 @@ export default function PatientHomePage({ user: propUser }) {
 
   const handleBookClick = (pkg) => {
     const pkgId = pkg?.packageCode || pkg?.id || '';
-    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book');
+    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/services');
   };
 
   const patientCode = resolvedPatientCode || user?.patientCode || user?.medicalRecordNumber || user?.patientId || 'Chờ kích hoạt tại Lễ tân';
@@ -220,9 +220,9 @@ export default function PatientHomePage({ user: propUser }) {
             ) : (
               <div className="bms-recent-result-dock text-center p-3">
                 <div className="text-muted small mb-2">Chưa ghi nhận kết quả xét nghiệm gần đây</div>
-                <a href="/appointments/book" className="bms-btn-mint-cta w-100">
+                <Link to="/services" className="bms-btn-mint-cta w-100">
                   Đặt Lịch Xét Nghiệm Mới
-                </a>
+                </Link>
               </div>
             )}
 

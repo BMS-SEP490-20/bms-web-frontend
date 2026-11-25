@@ -76,6 +76,13 @@ export function BookAppointmentPage({
   const preselectedPkgId = searchParams.get('packageId') || searchParams.get('id') || '';
   const preselectedName = searchParams.get('packageName') || '';
   const hasPreselectedFromUrl = Boolean(preselectedPkgId || preselectedName);
+  const needsCatalogRedirect = !isReceptionist && !hasPreselectedFromUrl && initialPackageIds.length === 0;
+
+  useEffect(() => {
+    if (needsCatalogRedirect) {
+      navigate('/services', { replace: true });
+    }
+  }, [needsCatalogRedirect, navigate]);
 
   const packageMatchesSelection = (pkg, selectedId, selectedName) => {
     const id = String(selectedId || '').trim().toLowerCase();
@@ -95,7 +102,7 @@ export function BookAppointmentPage({
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [packageSearch, setPackageSearch] = useState('');
   const [packageCategoryFilter, setPackageCategoryFilter] = useState('ALL');
-  const [showPackagePicker, setShowPackagePicker] = useState(() => !(hasPreselectedFromUrl && !isReceptionist));
+  const [showPackagePicker, setShowPackagePicker] = useState(() => isReceptionist);
 
   const [selectedPackageId, setSelectedPackageId] = useState(() => {
     if (preselectedPkgId) return preselectedPkgId;
@@ -454,10 +461,10 @@ export function BookAppointmentPage({
       setSelectedPackageId(match.packageId);
       setShowPackagePicker(false);
     } else if (!packagesLoading) {
-      // Fallback to picker if URL packageId does not match any active package
-      setShowPackagePicker(true);
+      // Redirect patient back to /services if URL packageId does not match any active package
+      navigate('/services', { replace: true });
     }
-  }, [hasPreselectedFromUrl, isReceptionist, preselectedPkgId, preselectedName, packages, packagesLoading]);
+  }, [hasPreselectedFromUrl, isReceptionist, preselectedPkgId, preselectedName, packages, packagesLoading, navigate]);
 
   // Load Doctor Shifts & Assigned Rooms for selected date
   const loadDoctorShifts = useCallback(async () => {
@@ -744,10 +751,14 @@ export function BookAppointmentPage({
           <button type="button" onClick={() => navigate('/appointments')}>
             {isReceptionist ? 'Xem sổ lịch hẹn' : 'Xem lịch của tôi'}
           </button>
-          <button type="button" onClick={reset}>Đặt lịch khác</button>
+          <button type="button" onClick={() => (isReceptionist ? reset() : navigate('/services'))}>Đặt lịch khác</button>
         </div>
       </div>
     );
+  }
+
+  if (needsCatalogRedirect) {
+    return null;
   }
 
   return (
@@ -1156,7 +1167,7 @@ export function BookAppointmentPage({
                         type="button"
                         className="btn btn-link btn-sm p-0 text-decoration-none fw-semibold"
                         style={{ color: 'var(--primary)', fontSize: 'var(--fs-xs)' }}
-                        onClick={() => setShowPackagePicker(true)}
+                        onClick={() => navigate('/services')}
                       >
                         Đổi gói
                       </button>

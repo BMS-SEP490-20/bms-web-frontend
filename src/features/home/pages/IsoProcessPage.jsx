@@ -149,7 +149,7 @@ export default function IsoProcessPage() {
 
               <div className="d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
                 <Link
-                  to="/appointments/book"
+                  to="/services"
                   className="btn text-center"
                   style={{
                     fontSize: '13px',

@@ -253,7 +253,7 @@ export default function PortalNavbar({ user: propUser = null }) {
             <div className="bms-user-dock">
               <Link
                 className="bms-btn-mint-cta"
-                to="/appointments/book"
+                to="/services"
                 style={{
                   height: '32px',
                   padding: '6px 14px',
@@ -324,7 +324,7 @@ export default function PortalNavbar({ user: propUser = null }) {
             <div className="bms-guest-actions">
               <Link
                 className="bms-btn-mint-cta"
-                to="/appointments/book"
+                to="/services"
                 style={{
                   height: '32px',
                   padding: '6px 14px',

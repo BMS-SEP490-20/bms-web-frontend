@@ -13,8 +13,12 @@
 }
 
 .bms-tracking-main {
+  padding: 20px 0 12px 0;
+}
+
+.bms-tracking-page .bms-ft {
+  margin-top: 24px;
   flex: 1;
-  padding: 24px 0 48px 0;
 }
 
 /* ==========================================================================
@@ -27,7 +31,7 @@
   border-radius: 20px;
   box-shadow: none !important;
   padding: 28px 36px;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
 }
 
 .bms-hero-search-wrapper {
@@ -209,13 +213,13 @@
   border: none !important;
   border-radius: 16px;
   padding: 22px 26px;
-  margin-top: 24px;
-  margin-bottom: 48px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   box-shadow: none !important;
 }
 
 .bms-guide-container {
-  margin-bottom: 48px;
+  margin-bottom: 0;
 }
 
 .bms-stages-overview-title {

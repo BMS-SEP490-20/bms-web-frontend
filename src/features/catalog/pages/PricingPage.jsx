@@ -106,7 +106,7 @@ export default function PricingPage() {
               <div style={{ flex: 1 }}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                  <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
+                  <span>CHUẨN Y KHOA · NIÊM YẾT MINH BẠCH 100%</span>
                 </div>
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
                   Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm

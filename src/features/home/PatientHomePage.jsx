@@ -111,7 +111,7 @@ export default function PatientHomePage({ user: propUser }) {
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
             <div className="bms-status-chip">
-              TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB
+              CHUẨN Y KHOA QUỐC GIA · HỆ THỐNG BMS LAB
             </div>
 
             <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
@@ -440,7 +440,7 @@ export default function PatientHomePage({ user: propUser }) {
             <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
             <h2 className="bms-section-h2">Xét Nghiệm Máu Dễ Dàng Chỉ Với 4 Bước</h2>
             <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy trình xét nghiệm khép kín chuẩn y tế.
             </p>
           </div>
 
@@ -480,7 +480,7 @@ export default function PatientHomePage({ user: propUser }) {
 
           <div className="text-center mt-4">
             <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+              Khám Phá Chi Tiết Quy Trình Xét Nghiệm &rarr;
             </Link>
           </div>
         </div>

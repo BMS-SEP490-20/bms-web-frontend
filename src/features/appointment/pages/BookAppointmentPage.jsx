@@ -1163,75 +1163,95 @@ export function BookAppointmentPage({
                     )}
                   </div>
                 </div>
-                <div className="card-body p-2">
+                <div className="card-body">
+                  <div style={{ padding: '6px 8px' }}>
                   {packagesLoading && !selectedPackage ? (
                     <div className="small text-muted py-3 d-flex align-items-center gap-2">
                       <span className="spinner-border spinner-border-sm text-primary" role="status" />
                       <span>Đang tải thông tin gói xét nghiệm...</span>
                     </div>
                   ) : selectedPackage ? (
-                    <div className="mb-3 pb-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <div className="d-flex align-items-start gap-2">
-                        <span className="bms-pkg-icon flex-shrink-0" style={{ width: '36px', height: '36px' }}>
-                          <BmsPackageIcon name={packageIconKey(selectedPackage)} size={36} />
+                    <div style={{ paddingBottom: '20px', marginBottom: '20px', borderBottom: '1px solid #E2E8F0' }}>
+                      {/* Package header: icon + code + category + title */}
+                      <div className="d-flex align-items-start gap-3">
+                        <span className="bms-pkg-icon flex-shrink-0" style={{ width: '42px', height: '42px' }}>
+                          <BmsPackageIcon name={packageIconKey(selectedPackage)} size={42} />
                         </span>
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <div className="d-flex align-items-center flex-wrap gap-1 mb-1">
+                          <div className="d-flex align-items-center flex-wrap gap-2 mb-1">
                             {selectedPackage.packageCode && (
-                              <span className="badge bg-primary-subtle text-primary font-monospace" style={{ fontSize: '11px' }}>
+                              <span className="badge bg-primary-subtle text-primary font-monospace" style={{ fontSize: '11.5px', fontWeight: 700 }}>
                                 {selectedPackage.packageCode}
                               </span>
                             )}
                             {selectedPackage.category && (
-                              <span className="small text-muted fw-semibold">
+                              <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--ink-secondary)' }}>
                                 {selectedPackage.category}
                               </span>
                             )}
                           </div>
-                          <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: 'var(--fs-md)', lineHeight: 1.35 }}>
+                          <div style={{ color: 'var(--ink)', fontSize: '16.5px', fontWeight: 750, lineHeight: 1.38, letterSpacing: '-0.015em', marginTop: '4px' }}>
                             {selectedPackage.packageName}
                           </div>
                         </div>
                       </div>
 
+                      {/* Description & target audience with generous breathing room */}
                       {selectedPackage.description && (
-                        <p className="mb-0 mt-2" style={{ color: 'var(--ink-secondary)', fontSize: 'var(--fs-xs)', lineHeight: 1.6 }}>
+                        <p className="mb-0" style={{ marginTop: '14px', color: 'var(--ink-secondary)', fontSize: '13px', lineHeight: 1.65 }}>
                           {selectedPackage.description}
                         </p>
                       )}
 
                       {selectedPackage.targetAudience && (
-                        <div className="mt-2 small text-muted" style={{ lineHeight: 1.5 }}>
-                          <strong style={{ color: 'var(--ink)' }}>Đối tượng:</strong> {selectedPackage.targetAudience}
+                        <div style={{ marginTop: '10px', fontSize: '12.5px', color: 'var(--ink-secondary)', lineHeight: 1.6 }}>
+                          <span style={{ fontWeight: 650, color: 'var(--ink)' }}>Đối tượng:</span> {selectedPackage.targetAudience}
                         </div>
                       )}
 
+                      {/* Structured 2-col specs + prep note in flat surface */}
                       {(selectedPackage.sampleTube || selectedPackage.tat || selectedPackage.fastingRule) && (
                         <div
-                          className="mt-3 p-2 d-flex flex-column gap-2"
-                          style={{ backgroundColor: 'var(--bg-page)', borderRadius: 'var(--r-md)' }}
+                          style={{
+                            marginTop: '16px',
+                            padding: '14px 16px',
+                            backgroundColor: 'var(--bg-page)',
+                            borderRadius: 'var(--r-md)'
+                          }}
                         >
-                          {selectedPackage.sampleTube && (
-                            <div className="bms-field" style={{ gap: '1px' }}>
-                              <span className="bms-field-label">Ống lấy mẫu</span>
-                              <span className="bms-field-value" style={{ fontSize: 'var(--fs-xs)' }}>
-                                {selectedPackage.sampleTube}
-                                {selectedPackage.sampleVolumeMl ? ` (${selectedPackage.sampleVolumeMl} ml)` : ''}
-                              </span>
-                            </div>
-                          )}
-                          {selectedPackage.tat && (
-                            <div className="bms-field" style={{ gap: '1px' }}>
-                              <span className="bms-field-label">Thời gian trả kết quả</span>
-                              <span className="bms-field-value" style={{ fontSize: 'var(--fs-xs)' }}>
-                                {selectedPackage.tat}
-                              </span>
+                          {(selectedPackage.sampleTube || selectedPackage.tat) && (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px 16px' }}>
+                              {selectedPackage.sampleTube && (
+                                <div className="bms-field" style={{ gap: '3px' }}>
+                                  <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Ống lấy mẫu</span>
+                                  <span className="bms-field-value" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--ink)' }}>
+                                    {selectedPackage.sampleTube}
+                                    {selectedPackage.sampleVolumeMl ? ` (${selectedPackage.sampleVolumeMl} ml)` : ''}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedPackage.tat && (
+                                <div className="bms-field" style={{ gap: '3px' }}>
+                                  <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Trả kết quả</span>
+                                  <span className="bms-field-value" style={{ fontSize: '13.5px', fontWeight: 700, color: '#047857' }}>
+                                    {selectedPackage.tat}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                           {selectedPackage.fastingRule && (
-                            <div className="bms-field" style={{ gap: '1px' }}>
-                              <span className="bms-field-label">Lưu ý chuẩn bị</span>
-                              <span className="bms-field-value" style={{ fontSize: 'var(--fs-xs)', fontWeight: 500 }}>
+                            <div
+                              className="bms-field"
+                              style={{
+                                gap: '3px',
+                                marginTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '12px' : 0,
+                                paddingTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '12px' : 0,
+                                borderTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '1px solid #E2E8F0' : 'none'
+                              }}
+                            >
+                              <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Lưu ý chuẩn bị</span>
+                              <span className="bms-field-value" style={{ fontSize: '13px', fontWeight: 550, color: 'var(--ink)', lineHeight: 1.5 }}>
                                 {selectedPackage.fastingRule}
                               </span>
                             </div>
@@ -1239,17 +1259,25 @@ export function BookAppointmentPage({
                         </div>
                       )}
 
+                      {/* Biomarker criteria chips */}
                       {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
-                        <div className="mt-3">
-                          <div className="small text-muted mb-1">
-                            Chỉ số xét nghiệm ({selectedPackage.criteria.length}):
+                        <div style={{ marginTop: '16px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-secondary)', marginBottom: '8px' }}>
+                            Chỉ số xét nghiệm ({selectedPackage.criteria.length})
                           </div>
-                          <div className="d-flex flex-wrap gap-1">
+                          <div className="d-flex flex-wrap" style={{ gap: '6px' }}>
                             {selectedPackage.criteria.map((c, idx) => (
                               <span
                                 key={`${c.code || c.name}-${idx}`}
-                                className="badge bg-light text-dark fw-medium"
-                                style={{ fontSize: '11px' }}
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '4px 10px',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  color: 'var(--ink)',
+                                  backgroundColor: 'var(--bg-muted)',
+                                  borderRadius: '6px'
+                                }}
                                 title={c.name || c.code}
                               >
                                 {c.code || c.name}
@@ -1259,12 +1287,19 @@ export function BookAppointmentPage({
                         </div>
                       )}
 
-                      <div className="d-flex align-items-baseline justify-content-between gap-2 mt-3 pt-2" style={{ borderTop: '1px solid #F1F5F9' }}>
-                        <span className="small text-muted">Đơn giá niêm yết</span>
-                        <div className="fw-bold tabular-nums" style={{ color: 'var(--primary)', fontSize: 'var(--fs-lg)' }}>
+                      {/* Listed Price: 1.5x larger font + airy separation from section above */}
+                      <div
+                        className="d-flex align-items-baseline justify-content-between gap-2 flex-wrap"
+                        style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #E2E8F0' }}
+                      >
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-secondary)' }}>Đơn giá niêm yết</span>
+                        <div
+                          className="fw-bold tabular-nums"
+                          style={{ color: 'var(--primary)', fontSize: '26px', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.15 }}
+                        >
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.price)}
                           {selectedPackage.originalPrice && (
-                            <span className="ms-2 small text-muted text-decoration-line-through fw-normal">
+                            <span className="ms-2 text-muted text-decoration-line-through fw-normal" style={{ fontSize: '13px' }}>
                               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.originalPrice)}
                             </span>
                           )}
@@ -1273,24 +1308,26 @@ export function BookAppointmentPage({
                     </div>
                   ) : null}
 
-                  <div className="mb-3 pb-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <div className="small text-muted mb-1">Thời gian &amp; Ca khám:</div>
-                    <div className="fw-semibold text-dark">
+                  <div style={{ paddingBottom: '14px', marginBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div className="small text-muted mb-1">Thời gian &amp; Ca khám</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14.5px' }}>
                       {selectedShiftId === 'Morning' ? 'Ca Sáng' : selectedShiftId === 'Afternoon' ? 'Ca Chiều' : 'Ca Tối'} · {slotTime || '--:--'}
                     </div>
-                    <div className="small text-muted">{date}</div>
+                    <div className="small text-muted mt-1">{date}</div>
                   </div>
 
-                  <div className="mb-3 pb-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <div className="small text-muted mb-1">Bác sĩ tiếp nhận:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
-                    <div className="small text-muted">{activeShiftData?.specialty || ''}</div>
+                  <div style={{ paddingBottom: '14px', marginBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div className="small text-muted mb-1">Bác sĩ tiếp nhận</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14px' }}>{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
+                    {activeShiftData?.specialty && (
+                      <div className="small text-muted mt-1">{activeShiftData.specialty}</div>
+                    )}
                   </div>
 
-                  <div className="mb-3">
-                    <div className="small text-muted mb-1">Phòng khám &amp; Lấy mẫu:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
-                    <div className="small text-muted">
+                  <div style={{ marginBottom: '18px' }}>
+                    <div className="small text-muted mb-1">Phòng khám &amp; Lấy mẫu</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14px' }}>{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
+                    <div className="small text-muted mt-1">
                       {[
                         activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
                         activeShiftData?.floor || ''
@@ -1299,10 +1336,11 @@ export function BookAppointmentPage({
                   </div>
 
                   <div className="p-3" style={{ backgroundColor: 'var(--bg-page)', borderRadius: 'var(--r-md)' }}>
-                    <div className="small fw-bold text-dark mb-1">Quy định tiếp nhận:</div>
-                    <div className="small text-muted">
+                    <div className="small fw-bold text-dark mb-1">Quy định tiếp nhận</div>
+                    <div className="small text-muted" style={{ lineHeight: 1.6 }}>
                       Quý khách vui lòng có mặt trước 10 phút. Xuất trình tin nhắn SMS hoặc mã cuộc hẹn tại quầy Lễ tân BMS để được phát số tự động vào phòng Lab.
                     </div>
+                  </div>
                   </div>
                 </div>
               </div>

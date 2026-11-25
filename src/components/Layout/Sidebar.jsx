@@ -480,7 +480,6 @@ export default function Sidebar({
                   >
                     {currentRole}
                   </span>
-                  <span style={{ fontSize: '10px', color: '#10B981', fontWeight: 600 }}>● ISO 15189</span>
                 </div>
               </div>
             </div>
@@ -540,7 +539,7 @@ export default function Sidebar({
               <Tooltip id="tt-user-collapsed">
                 <strong>{displayName}</strong>
                 <div>{currentRole}</div>
-                <div className="text-success small">● ISO 15189 Lab Hoạt Động</div>
+                <div className="text-success small">● Đang hoạt động</div>
               </Tooltip>
             }
           >

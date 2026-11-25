@@ -377,11 +377,15 @@ export default function App() {
                   <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                 </Route>
 
-                {/* UC56 inventory & IoT monitor/thresholds: Admin, Manager & Lab */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, LAB]} />}>
+                {/* UC56 inventory: Admin (CRUD) & Manager (read-only) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/inventory" element={<InventoryPage />} />
                   <Route path="/manager/inventory-management" element={<InventoryPage />} />
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
+                </Route>
+
+                {/* IoT monitor & thresholds: Admin, Manager & Lab */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, LAB]} />}>
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                   <Route path="/laboratory/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                   <Route path="/iot/monitor" element={<IotMonitorPage />} />

@@ -29,8 +29,8 @@ export default function InventoryPage() {
   const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [success, setSuccess] = useState('');
-  // WHY: UC56 ruling 30/10 — write = Manager, Lab (WarehouseStaff merged into Lab); Admin reads only.
-  const canManage = hasRole(getStoredUser(), ROLES.MANAGER, ROLES.LAB);
+  // Admin performs inventory CRUD; Manager views read-only.
+  const canManage = hasRole(getStoredUser(), ROLES.ADMIN);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
   const [data, setData] = useState(null);

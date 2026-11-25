@@ -22,7 +22,7 @@ import {
   Pagination,
   InputGroup
 } from 'react-bootstrap';
-import { Calendar, Clock, Stethoscope, Search, Filter as LucideFilter, RotateCw, Eye, XCircle, AlertTriangle, MapPin, TestTube2, User, FileText, QrCode, Lock, Banknote, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, Stethoscope, Search, Filter as LucideFilter, RotateCw, Eye, XCircle, AlertTriangle, MapPin, TestTube2, User, FileText, QrCode, Lock, Banknote, CheckCircle2, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
@@ -601,6 +601,23 @@ export default function AppointmentListPage() {
                               }}
                             >
                               <Banknote  size="1em"/> Thanh toán
+                            </Button>
+                          )}
+                          {isPatient && ['COMPLETED', 'INPROGRESS', 'CHECKEDIN', '4', '3', '2'].includes(String(apt.status).toUpperCase()) && (
+                            <Button
+                              variant="outline-warning"
+                              size="sm"
+                              className="rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 fw-semibold text-dark"
+                              onClick={() => {
+                                const q = new URLSearchParams();
+                                q.set('appointmentId', apt.appointmentCode || apt.id || '');
+                                if (apt.packageId) q.set('packageId', apt.packageId);
+                                if (apt.packageCode) q.set('packageCode', apt.packageCode);
+                                navigate(`/feedback?${q.toString()}`);
+                              }}
+                              title="Đánh giá gói xét nghiệm đã sử dụng"
+                            >
+                              <Star size="1em" className="text-warning" /> Đánh giá
                             </Button>
                           )}
                           <Button

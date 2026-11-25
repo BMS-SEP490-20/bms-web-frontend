@@ -114,11 +114,10 @@ const MENU_SECTIONS = [
     ]
   },
   {
-    category: 'Truy Vết, Kho & Thiết Bị IoT',
+    category: 'Truy Vết & Thiết Bị IoT',
     roles: [LAB],
     items: [
       { id: 'lab-specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử & Truy Vết Mẫu Máu', icon: History, roles: [LAB] },
-      { id: 'lab-inventory', path: '/inventory', label: 'Kho Hóa Chất & Thuốc Thử', icon: Package, roles: [LAB] },
       { id: 'lab-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ IoT', icon: HeartPulse, roles: [LAB] },
       { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: Bell, roles: [LAB] },
       { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [LAB] }

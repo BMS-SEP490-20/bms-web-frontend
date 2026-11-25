@@ -21,6 +21,8 @@ import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 import usePageTransition from '../../shared/hooks/usePageTransition';
 import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
+import { patientFeedbackService, buildPackageRatingsMap, lookupPackageRating } from '../../services/patientFeedbackService';
+import PackageRatingPill from '../catalog/components/PackageRatingPill';
 import './landing-sections.css';
 
 const LANDING_SECTIONS = [
@@ -185,6 +187,7 @@ export default function GuestHomePage({ user: propUser }) {
   const signedInUser = propUser !== undefined ? propUser : getStoredUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
+  const [ratingsMap, setRatingsMap] = useState({});
   const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
 
@@ -199,6 +202,12 @@ export default function GuestHomePage({ user: propUser }) {
       .catch(() => {
         setPackages([]);
       });
+
+    patientFeedbackService.getPackageRatings()
+      .then(res => {
+        if (res.success) setRatingsMap(buildPackageRatingsMap(res.data));
+      })
+      .catch(() => {});
   }, []);
 
   const handleBookClick = (pkg) => {
@@ -363,8 +372,8 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      {/* Row 1: Badges */}
-                      <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
+                      {/* Row 1: Category & Code + Patient Rating */}
+                      <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span
                           style={{
                             fontSize: '10.5px',
@@ -392,6 +401,7 @@ export default function GuestHomePage({ user: propUser }) {
                         >
                           {pkg.packageCode || pkg.id || 'BMS'}
                         </span>
+                        <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                       </div>
 
                       {/* Row 2: Full Package Title */}
@@ -480,25 +490,42 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    style={{
-                      backgroundColor: '#10B981',
-                      color: '#FFFFFF',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '8px 22px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                      boxShadow: 'none',
-                      transition: 'background-color 0.15s ease'
-                    }}
-                    onClick={() => handleBookClick(pkg)}
-                  >
-                    Đặt Lịch Xét Nghiệm
-                  </button>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link
+                      to={`/services?detail=${encodeURIComponent(pkg.packageCode || pkg.id || '')}`}
+                      style={{
+                        backgroundColor: '#F1F5F9',
+                        color: '#334155',
+                        borderRadius: '9999px',
+                        padding: '8px 14px',
+                        fontSize: '12px',
+                        fontWeight: 650,
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none'
+                      }}
+                    >
+                      Chi tiết &amp; Đánh giá
+                    </Link>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: '#10B981',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '9999px',
+                        padding: '8px 20px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                        transition: 'background-color 0.15s ease'
+                      }}
+                      onClick={() => handleBookClick(pkg)}
+                    >
+                      Đặt Lịch Xét Nghiệm
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -12,18 +12,20 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, ProgressBar, Alert 
 } from 'react-bootstrap';
-import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft } from 'lucide-react';
+import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, resolveRoleId } from '../../../constants/roles';
 import { patientFeedbackService } from '../../../services/patientFeedbackService';
+import { fetchServiceCatalog } from '../../catalog/api/catalogApi';
 
 const FeedbackHubPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, userRole, userRoleId } = useAuth();
 
   // The server is the authoritative boundary for authorization and MongoDB operations.
@@ -56,8 +58,11 @@ const FeedbackHubPage = () => {
   // Filters
   const [ratingFilter, setRatingFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [packageFilter, setPackageFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [eligiblePackages, setEligiblePackages] = useState([]);
+  const [catalogPackages, setCatalogPackages] = useState([]);
 
   // Modals & Forms
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -70,10 +75,13 @@ const FeedbackHubPage = () => {
   // Create Form State
   const [createForm, setCreateForm] = useState({
     rating: 5,
-    serviceCategory: 'Tư vấn bác sĩ',
+    serviceCategory: 'Đánh giá gói xét nghiệm',
     title: '',
     comment: '',
     appointmentId: '',
+    servicePackageId: '',
+    servicePackageCode: '',
+    servicePackageName: '',
     doctorName: '',
     isAnonymous: false
   });
@@ -98,11 +106,17 @@ const FeedbackHubPage = () => {
       setLoading(true);
       if (isPatient) {
         if (user?.id) {
-          const myRes = await patientFeedbackService.getPatientFeedbacks(user.id);
+          const [myRes, eligibleRes] = await Promise.all([
+            patientFeedbackService.getPatientFeedbacks(user.id),
+            patientFeedbackService.getMyEligiblePackages()
+          ]);
           if (myRes.success) {
             const list = Array.isArray(myRes.data) ? myRes.data : [];
             setMyFeedbacks(list);
             setFeedbacks(list);
+          }
+          if (eligibleRes.success) {
+            setEligiblePackages(Array.isArray(eligibleRes.data) ? eligibleRes.data : []);
           }
         }
         return;
@@ -114,6 +128,7 @@ const FeedbackHubPage = () => {
           rating: ratingVal,
           category: categoryFilter,
           status: statusFilter,
+          servicePackageId: packageFilter !== 'ALL' ? packageFilter : undefined,
           searchTerm: searchTerm.trim()
         }),
         patientFeedbackService.getStatistics()
@@ -130,7 +145,69 @@ const FeedbackHubPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [ratingFilter, categoryFilter, statusFilter, searchTerm, user, isPatient]);
+  }, [ratingFilter, categoryFilter, packageFilter, statusFilter, searchTerm, user, isPatient]);
+
+  useEffect(() => {
+    fetchServiceCatalog()
+      .then((res) => {
+        if (Array.isArray(res?.packages)) setCatalogPackages(res.packages);
+      })
+      .catch(() => {});
+  }, []);
+
+  const queryAutoOpenedRef = React.useRef('');
+  useEffect(() => {
+    if (!isPatient) return;
+    const qApt = searchParams.get('appointmentId') || '';
+    const qPkgId = searchParams.get('packageId') || '';
+    const qPkgCode = searchParams.get('packageCode') || '';
+    const signature = `${qApt}|${qPkgId}|${qPkgCode}`;
+    if ((!qApt && !qPkgId && !qPkgCode) || queryAutoOpenedRef.current === signature) return;
+
+    const matchedEligible = eligiblePackages.find(
+      (item) =>
+        (qApt && (String(item.appointmentCode).toLowerCase() === qApt.toLowerCase() || String(item.appointmentId).toLowerCase() === qApt.toLowerCase())) ||
+        (qPkgId && String(item.servicePackageId).toLowerCase() === qPkgId.toLowerCase()) ||
+        (qPkgCode && String(item.servicePackageCode).toLowerCase() === qPkgCode.toLowerCase())
+    );
+    const matchedCatalog = catalogPackages.find(
+      (p) =>
+        (qPkgId && String(p.id).toLowerCase() === qPkgId.toLowerCase()) ||
+        (qPkgCode && String(p.packageCode).toLowerCase() === qPkgCode.toLowerCase()) ||
+        (qPkgId && String(p.packageCode).toLowerCase() === qPkgId.toLowerCase())
+    );
+
+    if (matchedEligible?.alreadyReviewed && matchedEligible?.existingFeedbackId) {
+      const existingFb = myFeedbacks.find((f) => f.feedbackId === matchedEligible.existingFeedbackId);
+      if (existingFb) {
+        queryAutoOpenedRef.current = signature;
+        setSelectedFeedback(existingFb);
+        setEditForm({
+          rating: existingFb.rating,
+          serviceCategory: existingFb.serviceCategory,
+          title: existingFb.title,
+          comment: existingFb.comment,
+          isAnonymous: existingFb.isAnonymous
+        });
+        setShowEditModal(true);
+        return;
+      }
+    }
+
+    if (matchedEligible || matchedCatalog || qApt || qPkgId || qPkgCode) {
+      queryAutoOpenedRef.current = signature;
+      setCreateForm((prev) => ({
+        ...prev,
+        serviceCategory: 'Đánh giá gói xét nghiệm',
+        appointmentId: matchedEligible?.appointmentCode || qApt || '',
+        servicePackageId: matchedEligible?.servicePackageId || matchedCatalog?.id || qPkgId || '',
+        servicePackageCode: matchedEligible?.servicePackageCode || matchedCatalog?.packageCode || qPkgCode || '',
+        servicePackageName: matchedEligible?.servicePackageName || matchedCatalog?.packageName || '',
+        doctorName: matchedEligible?.doctorName || prev.doctorName || ''
+      }));
+      setShowCreateModal(true);
+    }
+  }, [isPatient, searchParams, eligiblePackages, catalogPackages, myFeedbacks]);
 
   const displayedFeedbacks = useMemo(() => {
     if (filterMyOnly && isPatient && user?.id) {
@@ -166,13 +243,17 @@ const FeedbackHubPage = () => {
         setShowCreateModal(false);
         setCreateForm({
           rating: 5,
-          serviceCategory: 'Tư vấn bác sĩ',
+          serviceCategory: 'Đánh giá gói xét nghiệm',
           title: '',
           comment: '',
           appointmentId: '',
+          servicePackageId: '',
+          servicePackageCode: '',
+          servicePackageName: '',
           doctorName: '',
           isAnonymous: false
         });
+        if (searchParams.toString()) setSearchParams({}, { replace: true });
         fetchFeedbacks();
       } else {
         setAlertMsg({ type: 'danger', text: res.message || 'Lỗi gửi đánh giá' });
@@ -440,12 +521,30 @@ const FeedbackHubPage = () => {
           style={{ width: 'auto', minWidth: '185px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
         >
           <option value="ALL">Tất cả nhóm dịch vụ</option>
+          <option value="Đánh giá gói xét nghiệm">Đánh giá gói xét nghiệm</option>
           <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
           <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
           <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
           <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
           <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
         </Form.Select>
+
+        {isManagerOrAdmin && catalogPackages.length > 0 && (
+          <Form.Select
+            size="sm"
+            value={packageFilter}
+            onChange={(e) => setPackageFilter(e.target.value)}
+            className="rounded-pill"
+            style={{ width: 'auto', maxWidth: '250px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+          >
+            <option value="ALL">Tất cả gói dịch vụ</option>
+            {catalogPackages.map((pkg) => (
+              <option key={pkg.id || pkg.packageCode} value={pkg.id || pkg.packageCode}>
+                {pkg.packageCode ? `[${pkg.packageCode}] ` : ''}{pkg.packageName}
+              </option>
+            ))}
+          </Form.Select>
+        )}
 
         <Form.Select
           size="sm"
@@ -512,6 +611,15 @@ const FeedbackHubPage = () => {
                           <Badge bg="primary-subtle" className="text-primary border border-primary-subtle px-2 py-1 rounded-pill fw-normal" style={{ fontSize: '0.75rem' }}>
                             {fb.serviceCategory}
                           </Badge>
+                          {(fb.servicePackageName || fb.servicePackageCode) && (
+                            <Badge bg="success-subtle" className="text-success border border-success-subtle px-2 py-1 rounded-pill fw-semibold d-inline-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
+                              <Package size={11} />
+                              <span>
+                                Gói DV: {fb.servicePackageName || fb.servicePackageCode}
+                                {fb.servicePackageName && fb.servicePackageCode ? ` (${fb.servicePackageCode})` : ''}
+                              </span>
+                            </Badge>
+                          )}
                           {fb.status === 'DELETED' && (
                             <Badge bg="danger-subtle" className="text-danger border border-danger-subtle px-2 py-1 rounded-pill fw-semibold" style={{ fontSize: '0.75rem' }}>
                               Feedback đã bị admin xóa
@@ -677,6 +785,78 @@ const FeedbackHubPage = () => {
             </div>
 
             <Row className="g-3">
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Gói dịch vụ / Lịch hẹn bạn đã sử dụng</Form.Label>
+                  <Form.Select
+                    value={createForm.appointmentId || createForm.servicePackageId || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          appointmentId: '',
+                          servicePackageId: '',
+                          servicePackageCode: '',
+                          servicePackageName: ''
+                        }));
+                        return;
+                      }
+                      const usedItem = eligiblePackages.find(
+                        (item) => item.appointmentCode === val || item.appointmentId === val || item.servicePackageId === val
+                      );
+                      if (usedItem) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          serviceCategory: 'Đánh giá gói xét nghiệm',
+                          appointmentId: usedItem.appointmentCode || usedItem.appointmentId || '',
+                          servicePackageId: usedItem.servicePackageId || '',
+                          servicePackageCode: usedItem.servicePackageCode || '',
+                          servicePackageName: usedItem.servicePackageName || '',
+                          doctorName: usedItem.doctorName || prev.doctorName
+                        }));
+                        return;
+                      }
+                      const catPkg = catalogPackages.find((p) => (p.id || p.packageCode) === val);
+                      if (catPkg) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          serviceCategory: 'Đánh giá gói xét nghiệm',
+                          appointmentId: '',
+                          servicePackageId: catPkg.id || '',
+                          servicePackageCode: catPkg.packageCode || '',
+                          servicePackageName: catPkg.packageName || ''
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="">-- Góp ý chung không gắn gói cụ thể --</option>
+                    {eligiblePackages.length > 0 && (
+                      <optgroup label="Lịch hẹn / Gói dịch vụ bạn đã sử dụng">
+                        {eligiblePackages.map((item) => (
+                          <option
+                            key={item.appointmentId}
+                            value={item.appointmentCode || item.appointmentId}
+                            disabled={item.alreadyReviewed}
+                          >
+                            {item.servicePackageName} ({item.servicePackageCode || item.appointmentCode}) · {new Date(item.appointmentDate).toLocaleDateString('vi-VN')}
+                            {item.alreadyReviewed ? ' [Đã đánh giá]' : ''}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {catalogPackages.length > 0 && (
+                      <optgroup label="Chọn gói xét nghiệm khác trong danh mục">
+                        {catalogPackages.map((pkg) => (
+                          <option key={pkg.id || pkg.packageCode} value={pkg.id || pkg.packageCode}>
+                            {pkg.packageCode ? `[${pkg.packageCode}] ` : ''}{pkg.packageName}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="small fw-semibold">Bộ phận / Dịch vụ bạn muốn đánh giá</Form.Label>
@@ -684,6 +864,7 @@ const FeedbackHubPage = () => {
                     value={createForm.serviceCategory}
                     onChange={(e) => setCreateForm({ ...createForm, serviceCategory: e.target.value })}
                   >
+                    <option value="Đánh giá gói xét nghiệm">Đánh giá gói xét nghiệm</option>
                     <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân (Reception)</option>
                     <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Phòng xét nghiệm</option>
                     <option value="Tư vấn bác sĩ">Tư vấn bác sĩ (Doctor consultation)</option>

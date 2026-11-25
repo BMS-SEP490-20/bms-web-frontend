@@ -336,7 +336,7 @@ export default function ExportTestResultPdfPage() {
                         BMS LAB
                       </span>
                       <span className="fw-bold text-dark" style={{ fontSize: '15px' }}>
-                        HỆ THỐNG PHÒNG XÉT NGHIỆM Y KHOA TIÊU CHUẨN ISO 15189:2022
+                        HỆ THỐNG PHÒNG XÉT NGHIỆM Y KHOA BMS MEDLAB
                       </span>
                     </div>
                     <div className="text-secondary small">
@@ -519,7 +519,7 @@ export default function ExportTestResultPdfPage() {
                 </div>
 
                 <div className="small text-muted mt-2 ps-1">
-                  * Ghi chú: Khoảng tham chiếu sinh học được thiết lập theo quần thể người trưởng thành Việt Nam và tiêu chuẩn kiểm chuẩn ISO 15189:2022.
+                  * Ghi chú: Khoảng tham chiếu sinh học mang tính tham khảo theo độ tuổi và giới tính của bệnh nhân.
                 </div>
               </div>
 

@@ -662,7 +662,6 @@ export default function TrackTestProgressPage() {
                                         <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
                                             <div>
                                                 <h3 className="h5 fw-bold text-dark mb-0">Chi Tiết Tiến Trình Xét Nghiệm</h3>
-                                                <div className="text-muted small">Tuân thủ quy trình kiểm soát chất lượng mẫu ISO 15189</div>
                                             </div>
                                             <span className="badge bg-primary px-3 py-2 fw-semibold">
                                                 Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}

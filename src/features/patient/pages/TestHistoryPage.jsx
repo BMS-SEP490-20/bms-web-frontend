@@ -447,83 +447,80 @@ export default function TestHistoryPage() {
         </div>
       </header>
 
-      {/* 2. Filter Toolbar */}
-      <div className="bms-filter-bar">
-        <div className="bms-pay-filter-group w-100 flex-wrap">
-          <div className="position-relative flex-grow-1" style={{ minWidth: 240 }}>
-            <Form.Label htmlFor="history-search" className="visually-hidden">
-              Tìm theo mã kết quả, mã mẫu hoặc gói khám
-            </Form.Label>
+      {/* 2. Compact Inline Filter Bar */}
+      <div className="bms-history-filter-strip">
+        <div className="bms-history-search-box">
+          <Search size={14} className="bms-history-search-icon" aria-hidden="true" />
+          <label htmlFor="history-search" className="visually-hidden">
+            Tìm theo mã kết quả, mã mẫu hoặc gói khám
+          </label>
+          <input
+            type="text"
+            id="history-search"
+            aria-label="Tìm theo mã kết quả, mã mẫu hoặc gói khám"
+            className="bms-history-input"
+            placeholder="Tìm theo mã kết quả, mã mẫu hoặc gói khám..."
+            value={search}
+            maxLength={100}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search && (
+            <button
+              type="button"
+              className="bms-history-clear-x"
+              onClick={() => setSearch('')}
+              aria-label="Xóa từ khóa tìm kiếm"
+            >
+              <LucideX size={13} />
+            </button>
+          )}
+        </div>
+
+        <div className="bms-history-filter-controls">
+          {!isPatient && (
             <input
               type="text"
-              id="history-search"
-              aria-label="Tìm theo mã kết quả, mã mẫu hoặc gói khám"
-              className="bms-pay-search-input w-100"
-              placeholder="Tìm theo mã kết quả, mã mẫu hoặc gói khám..."
-              value={search}
+              id="history-patient"
+              aria-label="Mã bệnh nhân"
+              className="bms-history-compact-input"
+              placeholder="Mã BN..."
+              value={filters.patientId}
               maxLength={100}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => change('patientId', e.target.value)}
+              style={{ width: 140 }}
             />
-          </div>
-
-          {!isPatient && (
-            <div className="position-relative" style={{ minWidth: 160, maxWidth: 220 }}>
-              <Form.Label htmlFor="history-patient" className="visually-hidden">
-                Mã bệnh nhân
-              </Form.Label>
-              <input
-                type="text"
-                id="history-patient"
-                aria-label="Mã bệnh nhân"
-                className="bms-pay-search-input w-100"
-                placeholder="ID bệnh nhân..."
-                value={filters.patientId}
-                maxLength={100}
-                onChange={(e) => change('patientId', e.target.value)}
-                style={{ height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
-              />
-            </div>
           )}
 
-          <div className="d-flex align-items-center gap-1.5">
-            <Form.Label htmlFor="history-from" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
-              Từ:
-            </Form.Label>
-            <Form.Control
+          <div className="bms-history-date-group">
+            <label htmlFor="history-from">Từ</label>
+            <input
               id="history-from"
               aria-label="Ngày ghi nhận từ"
               type="date"
-              size="sm"
+              className="bms-history-date-input"
               value={filters.fromDate}
               onChange={(e) => change('fromDate', e.target.value)}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
             />
-          </div>
-
-          <div className="d-flex align-items-center gap-1.5">
-            <Form.Label htmlFor="history-to" className="small text-muted fw-semibold mb-0" style={{ fontSize: 12 }}>
-              Đến:
-            </Form.Label>
-            <Form.Control
+            <span className="bms-history-date-sep" aria-hidden="true">–</span>
+            <label htmlFor="history-to">Đến</label>
+            <input
               id="history-to"
               aria-label="Đến ngày"
               type="date"
-              size="sm"
+              className="bms-history-date-input"
               value={filters.toDate}
               onChange={(e) => change('toDate', e.target.value)}
-              style={{ width: 136, height: 38, borderRadius: 8, fontSize: 13, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}
             />
           </div>
 
           {(search || filters.patientId || filters.fromDate || filters.toDate) && (
-            <Button
-              variant="outline-secondary"
-              size="sm"
+            <button
+              type="button"
+              className="bms-history-reset-btn"
               onClick={clear}
-              style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
             >
               Đặt lại
-            </Button>
+            </button>
           )}
         </div>
       </div>

@@ -107,8 +107,8 @@ export default function UserManagementPage() {
       if (usersRes?.success) {
         let rawList = usersRes.data;
         if (!Array.isArray(rawList)) {
-          rawList = Array.isArray(rawList?.items)
-            ? rawList.items
+          rawList = Array.isArray(rawList?.items) 
+            ? rawList.items 
             : (Array.isArray(rawList?.data) ? rawList.data : []);
         }
         setUsers(rawList);
@@ -226,7 +226,7 @@ export default function UserManagementPage() {
       return;
     }
     if (!createForm.password || createForm.password.length < 8) {
-      setCreateError('Mật khẩu nhân viên phải có độ dài tối thiểu 8 ký tự theo chuẩn an toàn BR-IAM-01.');
+      setCreateError('Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
       return;
     }
     const hasUpper = /[A-Z]/.test(createForm.password);
@@ -319,14 +319,14 @@ export default function UserManagementPage() {
       {/* 1. Master Luxury Page Header Card */}
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-
+          
           <div className="bms-page-title-row">
-
+            
             <h1 className="bms-page-title">
               Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
             </h1>
           </div>
-
+          
         </div>
         <div className="bms-page-actions">
           <Button
@@ -368,7 +368,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value">{stats.total || safeUsers.length}</div>
               <div className="bms-kpi-sub text-muted">Toàn viện đang quản lý</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><LucideUser size="1em" /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><LucideUser  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -378,7 +378,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value text-success">{stats.active || safeUsers.filter(u => u.isActive).length}</div>
               <div className="bms-kpi-sub text-success">100% xác thực hợp lệ</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><LucideUnlock size="1em" /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><LucideUnlock  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -388,7 +388,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value text-danger">{stats.inactive || safeUsers.filter(u => !u.isActive).length}</div>
               <div className="bms-kpi-sub text-danger">Chặn truy cập trái phép</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><LucideLock size="1em" /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><LucideLock  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -398,7 +398,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value">{countClinicalStaff(stats.byRole, safeUsers)}</div>
               <div className="bms-kpi-sub text-primary">Nhân lực chuyên môn y tế</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><UserCog size="1em" /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><UserCog  size="1em"/></div>
           </div>
         </Col>
       </Row>
@@ -461,7 +461,7 @@ export default function UserManagementPage() {
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-3 text-muted">
-              <LucideUser className="fs-1 text-secondary opacity-50 mb-3" size="1em" />
+              <LucideUser className="fs-1 text-secondary opacity-50 mb-3"  size="1em"/>
               <div>Không tìm thấy tài khoản nào phù hợp với bộ lọc.</div>
             </div>
           ) : (
@@ -558,11 +558,11 @@ export default function UserManagementPage() {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered size="lg">
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-5">
-            <Plus className="text-primary me-2" size="1em" /> Tạo Tài Khoản Nhân Viên / Người Dùng Mới
+            <Plus className="text-primary me-2"  size="1em"/> Tạo Tài Khoản Nhân Viên / Người Dùng Mới
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateUser}>
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {createError && <Alert variant="danger">{createError}</Alert>}
             <Row className="g-3">
               <Col md={6}>
@@ -662,7 +662,7 @@ export default function UserManagementPage() {
           <Modal.Footer className="bg-light">
             <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>Hủy Bỏ</Button>
             <Button variant="primary" type="submit" disabled={createLoading} className="fw-semibold">
-              {createLoading ? <Spinner size="sm" animation="border" className="me-2" /> : <LucideSave className="me-1" size="1em" />}
+              {createLoading ? <Spinner size="sm" animation="border" className="me-2" /> : <LucideSave className="me-1"  size="1em"/>}
               Lưu Tài Khoản
             </Button>
           </Modal.Footer>
@@ -673,7 +673,7 @@ export default function UserManagementPage() {
       <Modal show={Boolean(userToToggle)} onHide={() => setUserToToggle(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-5">
-            {userToToggle?.isActive ? <LucideLock className="text-warning me-2" size="1em" /> : <LucideUnlock className="text-success me-2" size="1em" />}
+            {userToToggle?.isActive ? <LucideLock className="text-warning me-2"  size="1em"/> : <LucideUnlock className="text-success me-2"  size="1em"/>}
             Xác Nhận Thay Đổi Trạng Thái Tài Khoản
           </Modal.Title>
         </Modal.Header>
@@ -699,7 +699,7 @@ export default function UserManagementPage() {
       <Modal show={Boolean(userToDelete)} onHide={() => setUserToDelete(null)} centered>
         <Modal.Header closeButton className="bg-danger bg-opacity-10 text-danger">
           <Modal.Title className="fs-5">
-            <Trash2 className="me-2" size="1em" /> Xác Nhận Xóa Tài Khoản
+            <Trash2 className="me-2"  size="1em"/> Xác Nhận Xóa Tài Khoản
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

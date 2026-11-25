@@ -1613,7 +1613,7 @@ export default function DoctorConsolePage() {
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
             <Stethoscope style={{ color: "#1E60E6" }} size="1em" />
-            <span>Thẩm Định Kết Quả Xét Nghiệm &amp; Tư Vấn Bệnh Nhân (Quy Trình Khép Kín ISO 15189)</span>
+            <span>Thẩm Định Kết Quả Xét Nghiệm &amp; Tư Vấn Bệnh Nhân</span>
           </Modal.Title>
         </Modal.Header>
 
@@ -1636,7 +1636,7 @@ export default function DoctorConsolePage() {
                 <div className="fw-bold text-success fs-6 d-flex align-items-center justify-content-sm-end gap-1">
                   <ShieldCheck size="1em" /> {consultationResult?.reviewedBy || consultationData?.technicianName || consultationData?.verifiedByName || 'KTV đã xác nhận kỹ thuật'}
                 </div>
-                <div className="small text-muted">Chờ bác sĩ duyệt + ký số mới trả BN · ISO 15189:2022</div>
+                <div className="small text-muted">Chờ bác sĩ duyệt để trả kết quả cho bệnh nhân</div>
               </Col>
             </Row>
           </div>

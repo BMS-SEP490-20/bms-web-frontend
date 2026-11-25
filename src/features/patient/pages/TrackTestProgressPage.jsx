@@ -519,10 +519,28 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* Support Strip */}
+                            {/* Explainer Patient Journey Row (Guest / public tracking) */}
+                            {!hideManualSearch && (
+                                <div className="bms-stages-overview my-3 text-center" style={{ padding: '24px' }}>
+                                    <h4 className="bms-stages-overview-title mb-1">Hành Trình Xét Nghiệm Khép Kín Chuẩn Y Tế BMS</h4>
+                                    <p className="bms-stages-overview-subtitle mb-3">
+                                        Minh họa toàn diện từ thời điểm tiếp nhận mẫu đến khi cấp chứng thư chữ ký số
+                                    </p>
+                                    <img
+                                        src="/assets/bms/svg/sections/landing/sec-09-patient-journey.svg"
+                                        alt="Hành trình xét nghiệm bệnh nhân"
+                                        style={{ width: '100%', maxWidth: '440px', height: 'auto', margin: '0 auto', display: 'block' }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Trust & Support Strip */}
                             <div className="bms-trust-box">
                                 <div className="bms-trust-item">
-                                    <span>Tổng đài hỗ trợ kết quả: <strong>1900 6868</strong> (07:00 - 20:30 hàng ngày)</span>
+                                    <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Thông tin cá nhân của người bệnh được bảo vệ và ẩn danh khi tra cứu trực tuyến).</span>
+                                </div>
+                                <div className="bms-trust-item">
+                                    <span>Tổng đài hỗ trợ kết quả: <strong>1900 8686</strong> (06:00 - 20:30 hàng ngày)</span>
                                 </div>
                             </div>
                         </div>

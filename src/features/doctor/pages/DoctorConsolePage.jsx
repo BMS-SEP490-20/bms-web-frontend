@@ -946,7 +946,7 @@ export default function DoctorConsolePage() {
         </Alert>
       )}
 
-      <Row className="g-3">
+      <Row className="g-3 mb-4">
         {/* Left Column: Active Patient Console */}
         <Col lg={7}>
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
@@ -1050,7 +1050,7 @@ export default function DoctorConsolePage() {
                   </div>
                   <h5 className="fw-bold text-dark mb-1">Phòng khám đang sẵn sàng tiếp nhận</h5>
                   <p className="text-muted small mb-3" style={{ maxWidth: '400px', margin: '0 auto' }}>
-                    Bấm <strong>Gọi Số Tiếp Theo (F2)</strong> bên dưới để mời bệnh nhân đã check-in vào bàn khám, hoặc mở trực tiếp màn hình Ra Y Lệnh.
+                    Bấm <strong>Gọi Số Tiếp Theo (F2)</strong> bên dưới để mời bệnh nhân đã check-in vào bàn khám, hoặc mở trực tiếp màn hình Chỉ Định Xét Nghiệm.
                   </p>
                   <div className="d-flex justify-content-center gap-2 flex-wrap">
                     <Button
@@ -1076,7 +1076,7 @@ export default function DoctorConsolePage() {
                       size="sm"
                       className="rounded-pill px-3.5 py-2 fw-semibold d-inline-flex align-items-center gap-1.5"
                     >
-                      <FileText size="1em" /> Ra Y Lệnh &amp; Chỉ Định Xét Nghiệm
+                      <FileText size="1em" /> Chỉ Định Xét Nghiệm
                     </Button>
                   </div>
                 </div>

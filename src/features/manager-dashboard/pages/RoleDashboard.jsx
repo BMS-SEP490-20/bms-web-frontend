@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Badge, Button, Alert, Spinner } from 'react-bootstrap';
-import { CheckCircle2, AlertTriangle, TestTube2, ClipboardCheck, Timer, Thermometer, DoorOpen, SlidersHorizontal, Banknote, ArrowRight, RefreshCw, HeartPulse, Stethoscope, FileText, FlaskConical, QrCode, UserPlus, Clock, Receipt, Database, UserCog, Users, Server, History } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, TestTube2, ClipboardCheck, Timer, Thermometer, DoorOpen, SlidersHorizontal, Banknote, ArrowRight, RefreshCw, HeartPulse, Stethoscope, FileText, FlaskConical, QrCode, UserPlus, Clock, CalendarCheck, Receipt, Database, UserCog, Users, Server, History } from 'lucide-react';
 import api from '../../../config/api';
 import { fetchVerificationQueue } from '../../laboratory/api/testResultVerificationApi';
 import { getAdminOps } from '../../admin/services/adminOpsService';
@@ -961,31 +961,31 @@ export default function RoleBasedDashboard() {
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
-              <Link to="/invoices" className="bms-quick-tile">
+              <Link to="/reception/queue" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><Receipt  size="1em"/></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><Clock size="1em"/></div>
                   <div>
-                    <h6 className="fw-semibold mb-0">Quầy Thu Viện Phí</h6>
-                    <small className="text-muted">Hóa đơn và biên lai K80</small>
+                    <h6 className="fw-semibold mb-0">Điều Phối Hàng Đợi</h6>
+                    <small className="text-muted">Theo dõi STT và gọi bệnh nhân</small>
                   </div>
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                  <span>Mở quầy thu</span>
+                  <span>Mở hàng đợi</span>
                   <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
-              <Link to="/calculate-fees" className="bms-quick-tile">
+              <Link to="/appointments" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><Banknote  size="1em"/></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><CalendarCheck size="1em"/></div>
                   <div>
-                    <h6 className="fw-semibold mb-0">Dự Toán BHYT</h6>
-                    <small className="text-muted">Chiết tính đồng chi trả</small>
+                    <h6 className="fw-semibold mb-0">Sổ Lịch Hẹn Khám</h6>
+                    <small className="text-muted">Quản lý lịch hẹn tại quầy</small>
                   </div>
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                  <span>Mở bảng tính</span>
+                  <span>Xem lịch hẹn</span>
                   <ArrowRight size={11} />
                 </div>
               </Link>

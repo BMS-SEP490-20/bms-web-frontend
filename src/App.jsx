@@ -267,7 +267,7 @@ export default function App() {
                   <Route path="/admin/patients" element={<CheckInPage />} />
                 </Route>
 
-                {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
+                {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28) - Receptionist only */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
                   <Route path="/reception/checkin" element={<ReceptionistCheckIn />} />
                   <Route path="/reception/check-in" element={<ReceptionistCheckIn />} />
@@ -277,15 +277,10 @@ export default function App() {
                   <Route path="/reception/register-walkin" element={<RegisterWalkInPatientPage />} />
                   <Route path="/reception/queue" element={<QueueBoardPage />} />
                   <Route path="/queue" element={<QueueBoardPage />} />
-                  {/* WHY: UC53 is Receptionist-only (matrix §1.8, §3.3); these URLs used to be public. */}
-                  <Route path="/calculate-fees" element={<CalculateFeesPage />} />
-                  <Route path="/fee-calculator" element={<CalculateFeesPage />} />
-                  <Route path="/billing/calculate-fee" element={<CalculateFeesPage />} />
-                  <Route path="/patient/fee-calculator" element={<CalculateFeesPage />} />
                 </Route>
 
-                {/* UC18 & UC54 Billing Invoices Management: Staff only (Receptionist, Manager) */}
-                <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, MANAGER]} />}>
+                {/* UC18 & UC54 Billing Invoices Management: Manager only (removed from Receptionist) */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
                   <Route path="/invoices" element={<BillingInvoicesPage />} />
                   <Route path="/billing/invoices" element={<BillingInvoicesPage />} />
                 </Route>
@@ -472,8 +467,6 @@ export default function App() {
                 ["/reception/console", "/reception/checkin"], ["/reception/patients", "/patients"],
                 ["/receptionist/walk-in", "/receptionist/create-patient"], ["/reception/walk-in", "/receptionist/create-patient"],
                 ["/receptionist/register-walkin", "/receptionist/create-patient"],
-                ["/receptionist/billing", "/calculate-fees"], ["/reception/billing", "/calculate-fees"],
-                ["/receptionist/fees", "/calculate-fees"], ["/receptionist/invoices", "/invoices"],
                 ["/manager/patients", "/patients"],
                 ["/reference-intervals", "/laboratory/reference-intervals"], ["/reports", "/reports/tat"],
                 ["/shifts", "/shifts/view"], ["/users", "/admin/users"], ["/receptionist/appointments", "/appointments"], ["/reception/appointments", "/appointments"], ["/doctor/appointments", "/appointments"], ["/lab-user/appointments", "/appointments"], ["/receptionist/sample-management", "/laboratory/samples"], ["/lab-user/sample-management", "/laboratory/samples"], ["/manager/sample-management", "/laboratory/samples"], ["/receptionist/services", "/services"], ["/manager/services", "/packages"], ["/doctor/dashboard", "/dashboard"], ["/receptionist/dashboard", "/dashboard"], ["/lab-user/dashboard", "/dashboard"], ["/admin/dashboard", "/dashboard"], ["/manager/dashboard", "/dashboard"]].map(([from, to]) => (

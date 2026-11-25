@@ -47,6 +47,13 @@
   margin: 20px 0 !important;
 }
 
+/* Keep table cards placed inside Bootstrap multi-column rows flush with sibling columns */
+.bms-app-layout .bms-page-content .row > [class*="col-"] > .card:has(table):not(:has(.bms-vat-table)),
+.bms-app-layout .bms-page-content .row > [class*="col-"] > .card:has(.table):not(:has(.bms-vat-table)) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
 .bms-app-layout .bms-page-content .bms-table-standalone-section .table-responsive,
 .bms-app-layout .bms-page-content .card:has(table) .table-responsive,
 .bms-app-layout .bms-page-content .card:has(.table) .table-responsive {

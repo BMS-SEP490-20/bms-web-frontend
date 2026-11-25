@@ -876,7 +876,7 @@ export default function CreateTestOrderPage() {
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Ra y lệnh &amp; chỉ định xét nghiệm</h1>
+            <h1 className="bms-page-title">Chỉ định xét nghiệm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
             Chọn bệnh nhân từ danh sách chờ để khám và chỉ định xét nghiệm.
@@ -901,7 +901,7 @@ export default function CreateTestOrderPage() {
           <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
-            placeholder="Tìm theo mã hẹn (APT-...), tên bệnh nhân, mã PAT-..., hoặc mã y lệnh ORD-..."
+            placeholder="Tìm theo mã hẹn (APT-...), tên bệnh nhân, mã PAT-..., hoặc mã chỉ định ORD-..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
           />
@@ -966,7 +966,7 @@ export default function CreateTestOrderPage() {
                 <th className="ps-3" style={{ width: "17%" }}>STT &amp; Mã Lịch Hẹn</th>
                 <th style={{ width: "20%" }}>Bệnh Nhân</th>
                 <th style={{ width: "24%" }}>Gói Đã Đặt Tại Quầy</th>
-                <th style={{ width: "21%" }}>Trạng Thái Y Lệnh</th>
+                <th style={{ width: "21%" }}>Trạng Thái Chỉ Định</th>
                 <th className="text-end pe-3" style={{ width: "18%" }}>Thao Tác</th>
               </tr>
             </thead>
@@ -1049,7 +1049,7 @@ export default function CreateTestOrderPage() {
                               ✓ {formatDispatchedStatusLabel(ord.status)}
                             </Badge>
                             <div className="small text-muted font-monospace mt-0.5">
-                              Y lệnh: <strong>{ord.orderNumber}</strong>
+                              Chỉ định: <strong>{ord.orderNumber}</strong>
                             </div>
                           </div>
                         ) : draft ? (
@@ -1079,7 +1079,7 @@ export default function CreateTestOrderPage() {
                                   variant="outline-danger"
                                   size="sm"
                                   className="rounded-pill px-2 py-1"
-                                  title="Hủy y lệnh trước khi Lab lấy mẫu"
+                                  title="Hủy chỉ định trước khi Lab lấy mẫu"
                                   onClick={() => setCancelTargetOrder(ord)}
                                 >
                                   <Ban size={11} />
@@ -1152,7 +1152,7 @@ export default function CreateTestOrderPage() {
                 <CheckCircle2 className="fs-2 text-success flex-shrink-0"  size="1em"/>
                 <div>
                   <div className="fw-bold text-dark fs-6">
-                    Đã Ký &amp; Chuyển Y Lệnh #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
+                    Đã Ký &amp; Chuyển Chỉ Định #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
                   </div>
                 </div>
               </div>
@@ -1564,7 +1564,7 @@ export default function CreateTestOrderPage() {
                           <strong className="text-dark small">{selectedTests.length} mục</strong>
                         </div>
                         <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-bold text-dark">Tổng chi phí y lệnh:</span>
+                          <span className="fw-bold text-dark">Tổng chi phí chỉ định:</span>
                           <span className="fs-5 fw-bold font-monospace" style={{ color: "#1E60E6" }}>
                             {totalAmount.toLocaleString("vi-VN")} đ
                           </span>
@@ -1627,23 +1627,23 @@ export default function CreateTestOrderPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* MODAL XÁC NHẬN HỦY Y LỆNH TRƯỚC KHI LẤY MẪU */}
+      {/* MODAL XÁC NHẬN HỦY CHỈ ĐỊNH TRƯỚC KHI LẤY MẪU */}
       <Modal show={Boolean(cancelTargetOrder)} onHide={() => setCancelTargetOrder(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="h6 fw-bold text-danger">
-            Xác Nhận Hủy Y Lệnh #{cancelTargetOrder?.orderNumber || cancelTargetOrder?.id}
+            Xác Nhận Hủy Chỉ Định #{cancelTargetOrder?.orderNumber || cancelTargetOrder?.id}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p className="small text-muted mb-2">
-            Bác sĩ chỉ có thể hủy y lệnh trước khi Phòng Lab lấy mẫu máu. Thao tác này sẽ được lưu vết trong Audit Log.
+            Bác sĩ chỉ có thể hủy chỉ định trước khi Phòng Lab lấy mẫu máu. Thao tác này sẽ được lưu vết trong Audit Log.
           </p>
           <Form.Control
             as="textarea"
             rows={2}
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
-            placeholder="Nhập lý do hủy y lệnh..."
+            placeholder="Nhập lý do hủy chỉ định..."
           />
         </Modal.Body>
         <Modal.Footer>
@@ -1657,7 +1657,7 @@ export default function CreateTestOrderPage() {
             disabled={cancelBusy || !cancelReason.trim()}
             onClick={handleConfirmCancelOrder}
           >
-            {cancelBusy ? "Đang hủy..." : "Xác nhận Hủy Y Lệnh"}
+            {cancelBusy ? "Đang hủy..." : "Xác nhận Hủy Chỉ Định"}
           </BsButton>
         </Modal.Footer>
       </Modal>

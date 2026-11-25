@@ -274,3 +274,132 @@
   color: #64748B;
   box-shadow: none !important;
 }
+
+/* Compact inline filter bar dedicated to TestHistoryPage */
+.bms-history-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+}
+
+.bms-history-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 280px;
+  min-width: 220px;
+}
+
+.bms-history-search-icon {
+  position: absolute;
+  left: 11px;
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.bms-history-input {
+  width: 100% !important;
+  height: 36px !important;
+  padding: 0 30px 0 32px !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 9px !important;
+  background: #F8FAFC !important;
+  font-size: 13px !important;
+  color: #0F172A !important;
+  outline: none !important;
+}
+
+.bms-history-input:focus,
+.bms-history-compact-input:focus,
+.bms-history-date-input:focus {
+  background: #FFFFFF !important;
+  border-color: #1E60E6 !important;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.14) !important;
+}
+
+.bms-history-clear-x {
+  position: absolute;
+  right: 8px;
+  border: 0;
+  background: transparent;
+  color: #94A3B8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  cursor: pointer;
+}
+
+.bms-history-filter-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.bms-history-compact-input {
+  height: 36px !important;
+  padding: 0 10px !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 9px !important;
+  background: #F8FAFC !important;
+  font-size: 12.5px !important;
+  color: #0F172A !important;
+  outline: none !important;
+}
+
+.bms-history-date-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bms-history-date-group label {
+  margin: 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748B !important;
+  white-space: nowrap;
+}
+
+.bms-history-date-sep {
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+.bms-history-date-input {
+  width: 134px !important;
+  height: 36px !important;
+  padding: 0 9px !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 9px !important;
+  background: #F8FAFC !important;
+  font-size: 12.5px !important;
+  color: #0F172A !important;
+  outline: none !important;
+}
+
+.bms-history-reset-btn {
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: #F1F5F9;
+  color: #334155;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bms-history-reset-btn:hover {
+  background: #E2E8F0;
+}

@@ -130,7 +130,7 @@ const MENU_SECTIONS = [
     roles: [DOCTOR],
     items: [
       { id: 'doc-console', path: '/doctor/console', label: 'Bàn Khám & Hàng Đợi Bệnh Nhân', icon: Stethoscope, roles: [DOCTOR] },
-      { id: 'doc-order', path: '/doctor/orders/create', label: 'Ra Y Lệnh & Chỉ Định Xét Nghiệm', icon: FileText, roles: [DOCTOR] },
+      { id: 'doc-order', path: '/doctor/orders/create', label: 'Chỉ Định Xét Nghiệm', icon: FileText, roles: [DOCTOR] },
       { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Duyệt Kết Quả Xét Nghiệm & Ký Số', icon: CheckCircle2, roles: [DOCTOR] },
       { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án & Kết Luận Chẩn Đoán', icon: FileHeart, roles: [DOCTOR] }
     ]
@@ -154,14 +154,6 @@ const MENU_SECTIONS = [
       { id: 'rec-checkin', path: '/receptionist/check-in', label: 'Tiếp Đón & Check-in (QR/Mã)', icon: QrCode, roles: [RECEPTIONIST] },
       { id: 'rec-create-pt', path: '/receptionist/create-patient', label: 'Đăng Ký Khách Vãng Lai', icon: UserPlus, roles: [RECEPTIONIST] },
       { id: 'rec-queue', path: '/reception/queue', label: 'Điều Phối Hàng Đợi Tiếp Đón', icon: Clock, roles: [RECEPTIONIST] }
-    ]
-  },
-  {
-    category: 'Thu Phí & Hóa Đơn',
-    roles: [RECEPTIONIST],
-    items: [
-      { id: 'rec-fees', path: '/calculate-fees', label: 'Tính Viện Phí', icon: Receipt, roles: [RECEPTIONIST] },
-      { id: 'rec-invoices', path: '/invoices', label: 'Hóa Đơn / Biên Lai', icon: Receipt, roles: [RECEPTIONIST] }
     ]
   },
   {

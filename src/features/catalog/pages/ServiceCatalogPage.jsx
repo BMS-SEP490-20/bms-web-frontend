@@ -19,6 +19,9 @@ import MegaFooter from '../../home/components/MegaFooter';
 import ServiceCard from '../components/ServiceCard';
 import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
+import PackageRatingPill from '../components/PackageRatingPill';
+import PackageReviewsSection from '../components/PackageReviewsSection';
+import { patientFeedbackService, buildPackageRatingsMap, lookupPackageRating } from '../../../services/patientFeedbackService';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
 import { fetchServiceCatalog, searchTestPackages, fetchServiceById } from '../api/catalogApi';
 
@@ -145,6 +148,8 @@ export default function ServiceCatalogPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [ratingsMap, setRatingsMap] = useState({});
+  const openedDetailParamRef = React.useRef('');
 
   // Detail Modal State
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -160,7 +165,7 @@ export default function ServiceCatalogPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Load distinct categories once
+  // Load distinct categories and public package ratings once
   useEffect(() => {
     fetchServiceCatalog()
       .then((res) => {
@@ -168,6 +173,13 @@ export default function ServiceCatalogPage() {
           const distinct = ['Tất Cả Gói Khám', ...res.categories.filter((c) => c && c !== 'Tất Cả Gói Khám')];
           setCategories(distinct);
         }
+      })
+      .catch(() => {});
+
+    patientFeedbackService
+      .getPackageRatings()
+      .then((res) => {
+        if (res.success) setRatingsMap(buildPackageRatingsMap(res.data));
       })
       .catch(() => {});
   }, []);
@@ -212,6 +224,19 @@ export default function ServiceCatalogPage() {
   useEffect(() => {
     loadPackages();
   }, [loadPackages]);
+
+  // Open detail modal automatically when navigated with ?detail=<packageCodeOrId>
+  useEffect(() => {
+    const detailParam = searchParams.get('detail');
+    if (!detailParam || openedDetailParamRef.current === detailParam) return;
+    openedDetailParamRef.current = detailParam;
+    const match = packages.find(
+      (p) =>
+        String(p.id).toLowerCase() === detailParam.toLowerCase() ||
+        String(p.packageCode).toLowerCase() === detailParam.toLowerCase()
+    );
+    handleOpenDetail(match || { id: detailParam, packageCode: detailParam, packageName: 'Chi tiết gói xét nghiệm' });
+  }, [searchParams, packages]);
 
   // Handle open details modal
   const handleOpenDetail = async (pkg) => {
@@ -774,6 +799,7 @@ export default function ServiceCatalogPage() {
                               Phổ Biến
                             </span>
                           )}
+                          <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                         </div>
 
                         {/* Row 2: Full Package Title (Full Horizontal Width, No Ellipsis Truncation) */}
@@ -975,6 +1001,7 @@ export default function ServiceCatalogPage() {
                 <Col key={pkg.id} xs={12} md={6} lg={4}>
                   <ServiceCard
                     pkg={pkg}
+                    ratingSummary={lookupPackageRating(ratingsMap, pkg)}
                     onSelectDetail={handleOpenDetail}
                     onBook={handleBook}
                   />
@@ -1155,6 +1182,12 @@ export default function ServiceCatalogPage() {
                 <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><FaCheckCircle /> Cam kết BMS:</span>
                 <span>Thẩm định chuyên môn 2 cấp, hỗ trợ BHYT và Bác sĩ chuyên khoa tư vấn kết quả.</span>
               </div>
+
+              {/* Package Patient Reviews & Rating Distribution */}
+              <PackageReviewsSection
+                pkg={selectedPackage}
+                onCloseModal={() => setShowDetailModal(false)}
+              />
             </div>
           ) : null}
         </Modal.Body>

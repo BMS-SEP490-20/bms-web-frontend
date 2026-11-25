@@ -18,7 +18,7 @@ import {
 
 export default function ConfigureIotThresholdsPage() {
     const navigate = useNavigate();
-    const isManager = hasRole(getStoredUser(), ROLES.MANAGER);
+    const isAdmin = hasRole(getStoredUser(), ROLES.ADMIN);
 
     const [thresholds, setThresholds] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -131,7 +131,7 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
 
                 <div className="bms-page-actions">
-                    {isManager ? (
+                    {isAdmin ? (
                         <>
                             <button
                                 type="button"
@@ -156,7 +156,7 @@ export default function ConfigureIotThresholdsPage() {
                     ) : (
                         <span className="badge d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style={{ backgroundColor: '#F1F5F9', color: '#475569', fontSize: '12px', fontWeight: 600 }}>
                             <LucideLock size={13} />
-                            Chỉ xem (Chỉ Quản lý phòng Lab được thay đổi ngưỡng)
+                            Chỉ xem (Chỉ Quản trị viên hệ thống được thay đổi ngưỡng)
                         </span>
                     )}
                 </div>
@@ -238,7 +238,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
-                                                    disabled={!isManager}
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.lowAlert}
@@ -249,7 +249,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
-                                                    disabled={!isManager}
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.highAlert}
@@ -260,7 +260,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="1"
-                                                    disabled={!isManager}
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-center"
                                                     style={{ width: '70px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.intervalSeconds}

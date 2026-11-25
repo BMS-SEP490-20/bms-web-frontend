@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import { FaVial, FaClock, FaExclamationCircle } from 'react-icons/fa';
 import BmsPackageIcon from '../../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../../shared/components/kit/bmsIconMaps';
+import PackageRatingPill from './PackageRatingPill';
 
 /**
  * Formats numeric price into standard Vietnamese currency string.
@@ -50,7 +51,7 @@ function getCategoryBadge(category) {
   return { accent: '#1E60E6', label: category || 'Gói Xét Nghiệm Tiêu Chuẩn', bg: '#EEF4FD', tubeColor: '#1E60E6' };
 }
 
-export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelectDetail, onBook }) {
+export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSummary, onSelectDetail, onBook }) {
   const pkg = directPkg || pkgProp || {};
   const badge = getCategoryBadge(pkg.category);
   const sampleTube = pkg.sampleTube || '';
@@ -106,20 +107,25 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, onSelect
         <div style={{ width: '56px', height: '56px', flexShrink: 0 }}>
           <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={56} />
         </div>
-        <h3
-          className="fw-bold m-0"
-          style={{
-            fontSize: '17px',
-            lineHeight: '1.35',
-            color: '#0F172A',
-            letterSpacing: '-0.02em',
-            minHeight: '46px',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          {pkg.packageName}
-        </h3>
+        <div className="min-w-0 flex-grow-1">
+          <h3
+            className="fw-bold m-0"
+            style={{
+              fontSize: '17px',
+              lineHeight: '1.35',
+              color: '#0F172A',
+              letterSpacing: '-0.02em',
+              minHeight: '46px',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            {pkg.packageName}
+          </h3>
+          <div className="mt-1">
+            <PackageRatingPill ratingSummary={ratingSummary} compact />
+          </div>
+        </div>
       </div>
 
       {/* Health Value Proposition */}
@@ -306,6 +312,7 @@ ServiceCard.propTypes = {
     criteria: PropTypes.array
   }),
   pkg: PropTypes.object,
+  ratingSummary: PropTypes.object,
   onSelectDetail: PropTypes.func,
   onBook: PropTypes.func.isRequired
 };

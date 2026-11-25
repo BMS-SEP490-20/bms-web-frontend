@@ -176,10 +176,9 @@ export default function App() {
               {/* --- 4. Authenticated Medical Modules (MainLayout). Role lists follow ROLE-PERMISSION-MATRIX §1. --- */}
               <Route element={<MainLayout />}>
 
-                {/* Profile, password, own notifications & medical intake */}
+                {/* Profile, password & own notifications */}
                 <Route element={<ProtectedRoute allowedRoles={ALL_ROLES} />}>
                   <Route path="/profile" element={<UserProfilePage />} />
-                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
                   <Route path="/change-password" element={<ChangePassword />} />
                   <Route path="/notifications" element={<PushNotificationCenterPage />} />
                   <Route path="/notifications/center" element={<PushNotificationCenterPage />} />
@@ -289,8 +288,9 @@ export default function App() {
                   <Route path="/billing/invoices" element={<BillingInvoicesPage />} />
                 </Route>
 
-                {/* Patient Payment History: Patient only */}
+                {/* Patient Payment History & Medical Intake: Patient only */}
                 <Route element={<ProtectedRoute allowedRoles={[PATIENT]} />}>
+                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
                   <Route path="/patient/payments" element={<PatientPaymentHistoryPage />} />
                   <Route path="/patient/payment-history" element={<PatientPaymentHistoryPage />} />
                 </Route>

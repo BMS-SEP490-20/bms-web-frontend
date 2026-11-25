@@ -148,8 +148,6 @@ export default function MainLayout() {
               &copy; {new Date().getFullYear()} <strong>BMS Health</strong> — Clinical Laboratory Diagnostics Platform.
             </div>
             <div className="d-flex align-items-center gap-3" style={{ fontSize: '12px' }}>
-              <span className="text-muted">ISO 15189 Quality System</span>
-              <span className="text-secondary">•</span>
               <span style={{ color: '#0F3D1A', backgroundColor: '#EEF8EB', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600 }}>v1.0 Production</span>
             </div>
           </div>

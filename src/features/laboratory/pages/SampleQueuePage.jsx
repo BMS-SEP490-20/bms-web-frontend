@@ -1185,7 +1185,7 @@ const SampleQueuePage = () => {
                                     size="sm"
                                     className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
                                     style={btnStyle}
-                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích (BR-PHL-02)"
+                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích"
                                     onClick={() => void handleCreateAliquot(s)}
                                   >
                                     <TestTube2 size="1em" />

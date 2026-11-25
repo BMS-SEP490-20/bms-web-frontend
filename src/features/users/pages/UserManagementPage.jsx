@@ -13,9 +13,7 @@ import {
   Container, Row, Col, Card, Button, Table, Modal, Form,
   Alert, Badge, Spinner, InputGroup
 } from 'react-bootstrap';
-import {
-  FaUserCog, FaKey, FaLock, FaUnlock, FaTrash, FaPlus, FaSave, FaUser, FaSearch, FaFilter, FaShieldAlt, FaTimes
-} from 'react-icons/fa';
+import { UserCog, Key, Lock as LucideLock, Unlock as LucideUnlock, Trash2, Plus, Save as LucideSave, User as LucideUser, Search as LucideSearch, Filter, ShieldCheck, X as LucideX } from 'lucide-react';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import { userManagementService } from '../../../services/userManagementService';
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../../constants/roles';
@@ -228,7 +226,7 @@ export default function UserManagementPage() {
       return;
     }
     if (!createForm.password || createForm.password.length < 8) {
-      setCreateError('Mật khẩu nhân viên phải có độ dài tối thiểu 8 ký tự theo chuẩn an toàn BR-IAM-01.');
+      setCreateError('Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
       return;
     }
     const hasUpper = /[A-Z]/.test(createForm.password);
@@ -343,7 +341,7 @@ export default function UserManagementPage() {
               fontSize: '14px'
             }}
           >
-            <FaPlus size={13} />
+            <Plus size={13} />
             <span>Thêm Tài Khoản Mới</span>
           </Button>
         </div>
@@ -370,7 +368,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value">{stats.total || safeUsers.length}</div>
               <div className="bms-kpi-sub text-muted">Toàn viện đang quản lý</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUser /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><LucideUser  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -380,7 +378,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value text-success">{stats.active || safeUsers.filter(u => u.isActive).length}</div>
               <div className="bms-kpi-sub text-success">100% xác thực hợp lệ</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUnlock /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><LucideUnlock  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -390,7 +388,7 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value text-danger">{stats.inactive || safeUsers.filter(u => !u.isActive).length}</div>
               <div className="bms-kpi-sub text-danger">Chặn truy cập trái phép</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaLock /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><LucideLock  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -400,61 +398,54 @@ export default function UserManagementPage() {
               <div className="bms-kpi-value">{countClinicalStaff(stats.byRole, safeUsers)}</div>
               <div className="bms-kpi-sub text-primary">Nhân lực chuyên môn y tế</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserCog /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><UserCog  size="1em"/></div>
           </div>
         </Col>
       </Row>
 
-      <div className="bms-filter-bar">
-        <Row className="g-2 align-items-center">
-            <Col xs={12} md={6}>
-              <div className="bms-search-input-pill">
-                <FaSearch className="bms-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="bms-search-clear"
-                    onClick={() => setSearchTerm('')}
-                    title="Xóa tìm kiếm"
-                  >
-                    <FaTimes size={12} />
-                  </button>
-                )}
-              </div>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={selectedRole}
-                onChange={e => setSelectedRole(e.target.value)}
-                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
-              >
-                <option value="all">-- Tất cả vai trò --</option>
-                {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
-              </Form.Select>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.target.value)}
-                style={{ borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF' }}
-              >
-                <option value="all">-- Tất cả trạng thái --</option>
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Đang bị khóa</option>
-              </Form.Select>
-            </Col>
-          </Row>
+      <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+          <LucideSearch className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Tìm theo họ tên, email, tên đăng nhập hoặc số điện thoại..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="bms-search-clear"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm"
+            >
+              <LucideX size={12} />
+            </button>
+          )}
+        </div>
+        <Form.Select
+          size="sm"
+          value={selectedRole}
+          onChange={e => setSelectedRole(e.target.value)}
+          style={{ width: 'auto', minWidth: '190px', borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="all">-- Tất cả vai trò --</option>
+          {ALL_ROLES.map(id => <option key={id} value={id}>{VIETNAMESE_ROLES[id] || ROLE_LABELS[id]}</option>)}
+        </Form.Select>
+        <Form.Select
+          size="sm"
+          value={selectedStatus}
+          onChange={e => setSelectedStatus(e.target.value)}
+          style={{ width: 'auto', minWidth: '175px', borderRadius: '9999px', borderColor: 'rgba(203, 213, 225, 0.8)', fontSize: '13px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="all">-- Tất cả trạng thái --</option>
+          <option value="active">Đang hoạt động</option>
+          <option value="inactive">Đang bị khóa</option>
+        </Form.Select>
         <Button
           variant="outline-secondary"
           size="sm"
+          className="rounded-pill px-3 py-2 flex-shrink-0"
           onClick={() => { setSearchTerm(''); setSelectedRole('all'); setSelectedStatus('all'); }}
         >
           Xóa bộ lọc
@@ -470,7 +461,7 @@ export default function UserManagementPage() {
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-3 text-muted">
-              <FaUser className="fs-1 text-secondary opacity-50 mb-3" />
+              <LucideUser className="fs-1 text-secondary opacity-50 mb-3"  size="1em"/>
               <div>Không tìm thấy tài khoản nào phù hợp với bộ lọc.</div>
             </div>
           ) : (
@@ -529,7 +520,7 @@ export default function UserManagementPage() {
                             className="rounded-pill px-2.5 py-1"
                             style={{ fontSize: '12px' }}
                           >
-                            {user.isActive ? <FaLock size={12} /> : <FaUnlock size={12} />}
+                            {user.isActive ? <LucideLock size={12} /> : <LucideUnlock size={12} />}
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -539,7 +530,7 @@ export default function UserManagementPage() {
                             className="rounded-pill px-2.5 py-1"
                             style={{ fontSize: '12px' }}
                           >
-                            <FaTrash size={12} />
+                            <Trash2 size={12} />
                           </Button>
                         </div>
                       </td>
@@ -558,12 +549,8 @@ export default function UserManagementPage() {
           show={showDetailModal}
           onHide={() => { setShowDetailModal(false); setSelectedUser(null); }}
           user={selectedUser}
-          labRooms={labRooms}
           onSaveAccount={handleSaveAccount}
-          onSaveProfile={() => { setSuccess('Cập nhật hồ sơ chuyên môn thành công.'); loadData(); }}
           onSavePassword={handleSavePassword}
-          profileData={profileData}
-          profileLoading={profileLoading}
         />
       )}
 
@@ -571,7 +558,7 @@ export default function UserManagementPage() {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered size="lg">
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-5">
-            <FaPlus className="text-primary me-2" /> Tạo Tài Khoản Nhân Viên / Người Dùng Mới
+            <Plus className="text-primary me-2"  size="1em"/> Tạo Tài Khoản Nhân Viên / Người Dùng Mới
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateUser}>
@@ -675,7 +662,7 @@ export default function UserManagementPage() {
           <Modal.Footer className="bg-light">
             <Button variant="outline-secondary" onClick={() => setShowCreateModal(false)}>Hủy Bỏ</Button>
             <Button variant="primary" type="submit" disabled={createLoading} className="fw-semibold">
-              {createLoading ? <Spinner size="sm" animation="border" className="me-2" /> : <FaSave className="me-1" />}
+              {createLoading ? <Spinner size="sm" animation="border" className="me-2" /> : <LucideSave className="me-1"  size="1em"/>}
               Lưu Tài Khoản
             </Button>
           </Modal.Footer>
@@ -686,7 +673,7 @@ export default function UserManagementPage() {
       <Modal show={Boolean(userToToggle)} onHide={() => setUserToToggle(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-5">
-            {userToToggle?.isActive ? <FaLock className="text-warning me-2" /> : <FaUnlock className="text-success me-2" />}
+            {userToToggle?.isActive ? <LucideLock className="text-warning me-2"  size="1em"/> : <LucideUnlock className="text-success me-2"  size="1em"/>}
             Xác Nhận Thay Đổi Trạng Thái Tài Khoản
           </Modal.Title>
         </Modal.Header>
@@ -712,7 +699,7 @@ export default function UserManagementPage() {
       <Modal show={Boolean(userToDelete)} onHide={() => setUserToDelete(null)} centered>
         <Modal.Header closeButton className="bg-danger bg-opacity-10 text-danger">
           <Modal.Title className="fs-5">
-            <FaTrash className="me-2" /> Xác Nhận Xóa Tài Khoản
+            <Trash2 className="me-2"  size="1em"/> Xác Nhận Xóa Tài Khoản
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

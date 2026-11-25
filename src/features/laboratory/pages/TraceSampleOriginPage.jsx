@@ -7,22 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import {
-    FaSearch,
-    FaBarcode,
-    FaArrowRight,
-    FaArrowDown,
-    FaDownload,
-    FaClock,
-    FaCheckCircle,
-    FaExclamationTriangle,
-    FaVial,
-    FaUserMd,
-    FaUser,
-    FaFlask,
-    FaHistory,
-    FaTimes
-} from "react-icons/fa";
+import { Search as LucideSearch, Barcode, ArrowRight, ArrowDown, Download, Clock, CheckCircle2, AlertTriangle, TestTube2, Stethoscope, User, FlaskConical, History, X } from 'lucide-react';
 import {
     fetchSampleOriginTrace,
     fetchRecentTraceableSpecimens,
@@ -170,7 +155,7 @@ export default function TraceSampleOriginPage() {
                         to="/lab/queue"
                         className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 text-nowrap"
                     >
-                        <FaVial /> Hàng đợi mẫu
+                        <TestTube2  size="1em"/> Hàng đợi mẫu
                     </Link>
                     {traceData && (
                         <button
@@ -179,7 +164,7 @@ export default function TraceSampleOriginPage() {
                             onClick={handleExportPdf}
                             disabled={exporting || loading}
                         >
-                            <FaDownload />
+                            <Download  size="1em"/>
                             {exporting ? "Đang tạo báo cáo..." : "Xuất báo cáo truy xuất"}
                         </button>
                     )}
@@ -189,7 +174,7 @@ export default function TraceSampleOriginPage() {
             {/* Single-Line Search Filter Bar */}
             <form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaBarcode className="bms-search-icon" />
+                    <Barcode className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Quét mã vạch hoặc nhập mã mẫu bệnh phẩm..."
@@ -207,7 +192,7 @@ export default function TraceSampleOriginPage() {
                                 setSearchParams({});
                             }}
                         >
-                            <FaTimes size={12} />
+                            <X size={12} />
                         </button>
                     )}
                 </div>
@@ -216,7 +201,7 @@ export default function TraceSampleOriginPage() {
                     style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                     type="submit"
                 >
-                    <FaSearch /> Truy xuất
+                    <LucideSearch  size="1em"/> Truy xuất
                 </button>
 
                 {recentSpecimens.length > 0 && (
@@ -247,7 +232,7 @@ export default function TraceSampleOriginPage() {
             {/* Alert Notification */}
             {alertMessage && (
                 <div className={`alert alert-${alertMessage.type} alert-dismissible fade show d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm`} role="alert">
-                    {alertMessage.type === "success" ? <FaCheckCircle /> : <FaExclamationTriangle />}
+                    {alertMessage.type === "success" ? <CheckCircle2  size="1em"/> : <AlertTriangle  size="1em"/>}
                     <div>{alertMessage.text}</div>
                     <button type="button" className="btn-close" onClick={() => setAlertMessage(null)}></button>
                 </div>
@@ -261,7 +246,7 @@ export default function TraceSampleOriginPage() {
                 </div>
             ) : !traceData ? (
                 <div className="card shadow-sm rounded-4 p-5 text-center" style={{ border: "1px solid #E2E8F0" }}>
-                    <FaFlask className="text-muted opacity-50 fs-1 mx-auto mb-3" />
+                    <FlaskConical className="text-muted opacity-50 fs-1 mx-auto mb-3"  size="1em"/>
                     <h5 className="fw-bold text-secondary mb-2">Chưa có dữ liệu truy xuất mẫu</h5>
                     <p className="text-muted small mb-0">
                         Vui lòng quét mã vạch hoặc nhập mã mẫu bệnh phẩm ở thanh tìm kiếm phía trên để xem sơ đồ hành trình và chuỗi bảo quản.
@@ -274,7 +259,7 @@ export default function TraceSampleOriginPage() {
                         <div className="card shadow-sm h-100 rounded-4" style={{ border: "1px solid #E2E8F0" }}>
                             <div className="card-header py-3 px-4 border-bottom d-flex align-items-center justify-content-between" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
                                 <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                    <FaFlask className="text-primary" />
+                                    <FlaskConical className="text-primary"  size="1em"/>
                                     Sơ đồ hành trình mẫu — <span className="font-monospace text-primary">{traceData.specimenId || currentSpecimenId}</span>
                                 </h5>
                                 {traceData.orderId && (
@@ -311,7 +296,7 @@ export default function TraceSampleOriginPage() {
                                                     </div>
                                                 </div>
                                                 {index < firstRowNodes.length - 1 && (
-                                                    <FaArrowRight className="text-muted d-none d-md-block" style={{ fontSize: 14 }} />
+                                                    <ArrowRight className="text-muted d-none d-md-block" style={{ fontSize: 14 }}  size="1em"/>
                                                 )}
                                             </React.Fragment>
                                         );
@@ -321,7 +306,7 @@ export default function TraceSampleOriginPage() {
                                 {secondRowNodes.length > 0 && (
                                     <>
                                         <div className="text-center py-2 text-muted">
-                                            <FaArrowDown style={{ fontSize: 18 }} />
+                                            <ArrowDown style={{ fontSize: 18 }}  size="1em"/>
                                         </div>
 
                                         <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
@@ -349,7 +334,7 @@ export default function TraceSampleOriginPage() {
                                                             </div>
                                                         </div>
                                                         {index < secondRowNodes.length - 1 && (
-                                                            <FaArrowRight className="text-muted d-none d-md-block" style={{ fontSize: 14 }} />
+                                                            <ArrowRight className="text-muted d-none d-md-block" style={{ fontSize: 14 }}  size="1em"/>
                                                         )}
                                                     </React.Fragment>
                                                 );
@@ -366,7 +351,7 @@ export default function TraceSampleOriginPage() {
                         <div className="card shadow-sm h-100 rounded-4" style={{ border: "1px solid #E2E8F0" }}>
                             <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
                                 <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                    <FaCheckCircle className="text-primary" />
+                                    <CheckCircle2 className="text-primary"  size="1em"/>
                                     Chuỗi bảo quản &amp; Kiểm soát mẫu
                                 </h5>
                             </div>
@@ -419,7 +404,7 @@ export default function TraceSampleOriginPage() {
                                     onClick={handleExportPdf}
                                     disabled={exporting || loading}
                                 >
-                                    <FaDownload />
+                                    <Download  size="1em"/>
                                     {exporting ? "Đang tạo chứng thư..." : "Xuất báo cáo truy xuất (PDF)"}
                                 </button>
                             </div>

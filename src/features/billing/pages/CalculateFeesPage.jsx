@@ -22,27 +22,7 @@ import {
   Alert,
   Table
 } from "react-bootstrap";
-import {
-  FaCalculator,
-  FaFileInvoiceDollar,
-  FaShieldAlt,
-  FaHome,
-  FaClinicMedical,
-  FaTag,
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaPrint,
-  FaArrowRight,
-  FaUserCheck,
-  FaReceipt,
-  FaVial,
-  FaSearch,
-  FaTimes,
-  FaUserMd,
-  FaNotesMedical,
-  FaCheck,
-  FaTrashAlt
-} from "react-icons/fa";
+import { Calculator, Receipt, ShieldCheck, Home, Hospital, Tag, CheckCircle2, AlertCircle, Printer, ArrowRight, UserCheck, TestTube2, Search as LucideSearch, X as LucideX, Stethoscope, FileText, Check as LucideCheck, Trash2 } from 'lucide-react';
 import { calculateFee, validateVoucherCode } from "../api/feeCalculationApi";
 import { medicalService } from "../../../services/medicalService";
 import { appointmentService } from "../../../services/appointmentService";
@@ -368,7 +348,7 @@ export default function CalculateFeesPage() {
                   fontSize: 22
                 }}
               >
-                <FaCalculator />
+                <Calculator  size="1em"/>
               </div>
               <div>
                 <h1 className="bms-page-title fs-4 mb-1 text-dark fw-bold">
@@ -387,7 +367,7 @@ export default function CalculateFeesPage() {
                 onClick={() => window.print()}
                 className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill shadow-sm"
               >
-                <FaPrint /> <span>In Bảng Dự Toán K80</span>
+                <Printer  size="1em"/> <span>In Bảng Dự Toán K80</span>
               </Button>
             </div>
           </Card.Body>
@@ -415,7 +395,7 @@ export default function CalculateFeesPage() {
               <div className="p-3 rounded-4 border d-flex flex-wrap justify-content-between align-items-center gap-3" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
                 <div className="d-flex align-items-center gap-3">
                   <div className="rounded-circle bg-success text-white p-2 d-flex align-items-center justify-content-center" style={{ width: 40, height: 40 }}>
-                    <FaCheck size={18} />
+                    <LucideCheck size={18} />
                   </div>
                   <div>
                     <div className="fw-bold text-dark fs-6">
@@ -423,14 +403,14 @@ export default function CalculateFeesPage() {
                       <span className="badge bg-light text-dark border ms-2 font-monospace">Mã: {loadedOrderInfo.appointmentCode || loadedOrderInfo.id}</span>
                     </div>
                     <div className="text-muted small mt-1">
-                      <FaUserMd className="text-primary me-1" /> Bác sĩ chỉ định: <strong>{loadedOrderInfo.doctorName || "Chưa ghi nhận"}</strong>
+                      <Stethoscope className="text-primary me-1"  size="1em"/> Bác sĩ chỉ định: <strong>{loadedOrderInfo.doctorName || "Chưa ghi nhận"}</strong>
                       <span className="mx-2">•</span>
-                      <FaNotesMedical className="text-danger me-1" /> Gói chỉ định: <strong>{loadedOrderInfo.packageName || "Huyết học & Sinh hóa"}</strong>
+                      <FileText className="text-danger me-1"  size="1em"/> Gói chỉ định: <strong>{loadedOrderInfo.packageName || "Huyết học & Sinh hóa"}</strong>
                     </div>
                   </div>
                 </div>
                 <Button variant="outline-danger" size="sm" onClick={handleClearLoadedOrder} className="rounded-pill px-3">
-                  <FaTrashAlt className="me-1" /> Hủy nạp / Chọn thủ công
+                  <Trash2 className="me-1"  size="1em"/> Hủy nạp / Chọn thủ công
                 </Button>
               </div>
             ) : (
@@ -439,7 +419,7 @@ export default function CalculateFeesPage() {
                   <Col xs={12} md={8}>
                     <InputGroup>
                       <InputGroup.Text className="bg-white border-end-0">
-                        <FaSearch className="text-muted" />
+                        <LucideSearch className="text-muted"  size="1em"/>
                       </InputGroup.Text>
                       <Form.Control
                         type="text"
@@ -460,7 +440,7 @@ export default function CalculateFeesPage() {
                       className="w-100 rounded-pill py-2 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2"
                       style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     >
-                      {searchingOrder ? <Spinner animation="border" size="sm" /> : <FaNotesMedical />}
+                      {searchingOrder ? <Spinner animation="border" size="sm" /> : <FileText  size="1em"/>}
                       <span>Nạp Y Lệnh Chỉ Định</span>
                     </Button>
                   </Col>
@@ -500,13 +480,13 @@ export default function CalculateFeesPage() {
 
         {errorMsg && (
           <Alert variant="danger" dismissible onClose={() => setErrorMsg("")} className="d-flex align-items-center gap-2 shadow-sm mb-4 rounded-3">
-            <FaExclamationCircle className="fs-5 flex-shrink-0" />
+            <AlertCircle className="fs-5 flex-shrink-0"  size="1em"/>
             <span>{errorMsg}</span>
           </Alert>
         )}
         {successMsg && (
           <Alert variant="success" dismissible onClose={() => setSuccessMsg("")} className="d-flex align-items-center gap-2 shadow-sm mb-4 rounded-3">
-            <FaCheckCircle className="fs-5 flex-shrink-0" />
+            <CheckCircle2 className="fs-5 flex-shrink-0"  size="1em"/>
             <span>{successMsg}</span>
           </Alert>
         )}
@@ -536,7 +516,7 @@ export default function CalculateFeesPage() {
                 {/* Search & Category Filter Strip */}
                 <div className="d-flex flex-wrap gap-2 mb-3">
                   <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
-                    <FaSearch className="bms-search-icon" />
+                    <LucideSearch className="bms-search-icon"  size="1em"/>
                     <input
                       type="text"
                       placeholder="Tìm theo mã hoặc tên xét nghiệm (Gan, CBC, Sinh hóa, Máu)..."
@@ -550,7 +530,7 @@ export default function CalculateFeesPage() {
                         onClick={() => setCatalogSearch('')}
                         title="Xóa tìm kiếm"
                       >
-                        <FaTimes size={12} />
+                        <LucideX size={12} />
                       </button>
                     )}
                   </div>
@@ -585,7 +565,7 @@ export default function CalculateFeesPage() {
                       const code = pkg.code || pkg.package_code || pkg.Code || pkg.id;
                       const name = pkg.name || pkg.package_name || pkg.Name || "Gói xét nghiệm";
                       const price = pkg.price || 0;
-                      const tube = pkg.tube || pkg.sample_tube || "Chuẩn ISO 15189";
+                      const tube = pkg.tube || pkg.sample_tube || "—";
                       const category = pkg.category || "Xét nghiệm tổng quát";
                       const checked = selectedPackageCodes.includes(code);
 
@@ -626,7 +606,7 @@ export default function CalculateFeesPage() {
                               <span>Chuyên khoa: {category}</span>
                               <span>•</span>
                               <Badge bg="info" text="white">
-                                <FaVial className="me-1" />
+                                <TestTube2 className="me-1"  size="1em"/>
                                 Ống: {tube}
                               </Badge>
                             </div>
@@ -653,7 +633,7 @@ export default function CalculateFeesPage() {
                     onClick={() => setServiceType('Clinic')}
                     style={{ fontSize: '13px' }}
                   >
-                    <FaClinicMedical className="me-1" /> Tại Quầy Khám (Phòng 101)
+                    <Hospital className="me-1"  size="1em"/> Tại Quầy Khám (Phòng 101)
                   </button>
                   <button
                     type="button"
@@ -661,7 +641,7 @@ export default function CalculateFeesPage() {
                     onClick={() => setServiceType('HomeCollection')}
                     style={{ fontSize: '13px' }}
                   >
-                    <FaHome className="me-1" /> Hotline Lấy Mẫu Tận Nơi (+150k)
+                    <Home className="me-1"  size="1em"/> Hotline Lấy Mẫu Tận Nơi (+150k)
                   </button>
                 </div>
               </div>
@@ -686,7 +666,7 @@ export default function CalculateFeesPage() {
                   </Form.Label>
                   <InputGroup>
                     <InputGroup.Text className="bg-light text-muted">
-                      <FaShieldAlt />
+                      <ShieldCheck  size="1em"/>
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
@@ -763,7 +743,7 @@ export default function CalculateFeesPage() {
                 <div className="d-flex gap-2 mb-2">
                   <InputGroup>
                     <InputGroup.Text className="bg-light text-muted">
-                      <FaTag />
+                      <Tag  size="1em"/>
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
@@ -819,7 +799,7 @@ export default function CalculateFeesPage() {
             <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden sticky-top" style={{ top: 20 }}>
               <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2">
-                  <FaFileInvoiceDollar className="text-primary fs-5" />
+                  <Receipt className="text-primary fs-5"  size="1em"/>
                   <h5 className="mb-0 fw-bold text-dark fs-6">
                     Bảng Chiết Tính Viện Phí &amp; Đồng Chi Trả BHYT
                   </h5>
@@ -876,7 +856,7 @@ export default function CalculateFeesPage() {
 
                       <div className="d-flex justify-content-between py-1.5 text-success fw-semibold border-top pt-2">
                         <span className="d-flex align-items-center gap-1">
-                          <FaShieldAlt /> Quỹ BHYT chi trả ({calculation?.insuranceCoveragePercent || 0}%):
+                          <ShieldCheck  size="1em"/> Quỹ BHYT chi trả ({calculation?.insuranceCoveragePercent || 0}%):
                         </span>
                         <span>-{formatVnd(calculation?.insuranceDeduction || 0)}</span>
                       </div>
@@ -896,7 +876,7 @@ export default function CalculateFeesPage() {
                       {calculation?.voucherDiscount > 0 && (
                         <div className="d-flex justify-content-between py-1.5 text-primary fw-semibold">
                           <span className="d-flex align-items-center gap-1">
-                            <FaTag /> Ưu đãi voucher ({calculation.voucherCode}):
+                            <Tag  size="1em"/> Ưu đãi voucher ({calculation.voucherCode}):
                           </span>
                           <span>-{formatVnd(calculation.voucherDiscount)}</span>
                         </div>
@@ -905,7 +885,7 @@ export default function CalculateFeesPage() {
                       {calculation?.priorityDiscount > 0 && (
                         <div className="d-flex justify-content-between py-1.5 text-indigo fw-semibold">
                           <span className="d-flex align-items-center gap-1">
-                            <FaUserCheck /> Ưu đãi đối tượng KCB 2023:
+                            <UserCheck  size="1em"/> Ưu đãi đối tượng KCB 2023:
                           </span>
                           <span>-{formatVnd(calculation.priorityDiscount)}</span>
                         </div>
@@ -946,9 +926,9 @@ export default function CalculateFeesPage() {
                         className="py-3 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2"
                         style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                       >
-                        <FaReceipt />
+                        <Receipt  size="1em"/>
                         <span>Quầy Thu Viện Phí &amp; Hóa Đơn VAT</span>
-                        <FaArrowRight className="small" />
+                        <ArrowRight className="small"  size="1em"/>
                       </Button>
                     </div>
 

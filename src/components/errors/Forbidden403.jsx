@@ -6,7 +6,7 @@
 
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaHome, FaSignOutAlt, FaTachometerAlt, FaLock } from 'react-icons/fa';
+import { Home, LogOut, Gauge, Lock } from 'lucide-react';
 import { ROLES, resolveRoleId, getStoredUser, getHomePathForRole, ROLE_LABELS } from '../../constants/roles';
 
 export default function Forbidden403({ requiredRole, userRole }) {
@@ -31,7 +31,7 @@ export default function Forbidden403({ requiredRole, userRole }) {
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light p-3">
       <div className="card border rounded-4 text-center p-4 p-md-5 shadow-none" style={{ maxWidth: 560, borderColor: '#EAEEF4' }}>
         <div className="d-inline-flex p-3 rounded-circle bg-danger-subtle text-danger mb-4 mx-auto" style={{ width: 80, height: 80, fontSize: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <FaLock />
+          <Lock  size="1em"/>
         </div>
 
         <h2 className="fw-bold text-dark mb-2">Truy Cập Bị Từ Chối (403)</h2>
@@ -51,15 +51,15 @@ export default function Forbidden403({ requiredRole, userRole }) {
 
         <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
           <Link to={homePath} className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            {isPatient ? <FaHome /> : <FaTachometerAlt />}
+            {isPatient ? <Home  size="1em"/> : <Gauge  size="1em"/>}
             <span>{isPatient ? 'Về Trang Chủ Bệnh Nhân' : 'Về Bảng Điều Khiển'}</span>
           </Link>
           <Link to="/" className="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            <FaHome />
+            <Home  size="1em"/>
             <span>Cổng Thông Tin</span>
           </Link>
           <button type="button" onClick={handleLogout} className="btn btn-outline-danger rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            <FaSignOutAlt />
+            <LogOut  size="1em"/>
             <span>Đổi Tài Khoản</span>
           </button>
         </div>

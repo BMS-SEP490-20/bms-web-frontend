@@ -20,19 +20,7 @@ import {
   InputGroup
 } from 'react-bootstrap';
 import { canValidateSampleQc, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
-import {
-  FaVial,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaTimes,
-  FaSyncAlt,
-  FaLock,
-  FaSearch,
-  FaRedoAlt,
-  FaShieldAlt,
-  FaFlask,
-  FaEye
-} from 'react-icons/fa';
+import { TestTube2, CheckCircle2, AlertTriangle, X as LucideX, RefreshCw, Lock, Search, RotateCw, ShieldCheck, FlaskConical, Eye } from 'lucide-react';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
 import { sampleService } from '../../../services/sampleService';
 import api from '../../../config/api';
@@ -139,7 +127,7 @@ const ValidateSample = () => {
     } else if (defaultAssessment === 'CLOTTED') {
       setNotes('Mẫu có sợi huyết đông dây (Clotted). Khóa phân tích, từ chối chạy máy để bảo vệ kim hút.');
     } else {
-      setNotes('Mẫu đạt chuẩn thể tích và chất lượng tiền phân tích ISO 15189.');
+      setNotes('Mẫu đạt yêu cầu thể tích và chất lượng.');
     }
 
     setShowModal(true);
@@ -175,7 +163,7 @@ const ValidateSample = () => {
       if (isHemolysis) {
         try {
           await api.post(`/laboratory/samples/${encodeURIComponent(sampleId)}/rerun`, {
-            reason: `Mẫu tán huyết (Hemolysis) vi phạm tiêu chuẩn tiền phân tích ISO 15189: ${notes}`,
+            reason: `Mẫu tán huyết (Hemolysis) không đạt yêu cầu: ${notes}`,
             requestedBy: labUserName
           });
         } catch {
@@ -278,7 +266,7 @@ const ValidateSample = () => {
 
         <div className="d-flex gap-2">
           <Button variant="outline-secondary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-1 shadow-sm">
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/>
             <span>Làm mới</span>
           </Button>
         </div>
@@ -286,7 +274,7 @@ const ValidateSample = () => {
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {error}
         </Alert>
       )}
@@ -298,7 +286,7 @@ const ValidateSample = () => {
             <Col xs={12} md={6}>
               <InputGroup size="sm">
                 <InputGroup.Text className="bg-light border-end-0">
-                  <FaSearch className="text-muted" />
+                  <Search className="text-muted"  size="1em"/>
                 </InputGroup.Text>
                 <Form.Control
                   className="bg-light border-start-0"
@@ -357,7 +345,7 @@ const ValidateSample = () => {
                 ) : filteredSamples.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="text-center py-3 text-muted">
-                      <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
+                      <TestTube2 className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
                       <div className="fw-semibold">Không tìm thấy mẫu xét nghiệm nào cần kiểm chuẩn</div>
                     </td>
                   </tr>
@@ -402,7 +390,7 @@ const ValidateSample = () => {
                           <div className="small text-muted text-truncate" style={{ maxWidth: '280px' }} title={sample.notes || 'Chưa ghi chú'}>
                             {sample.rejectionReason ? (
                               <span className="text-danger fw-semibold">
-                                <FaExclamationTriangle className="me-1" />
+                                <AlertTriangle className="me-1"  size="1em"/>
                                 {sample.rejectionReason}
                               </span>
                             ) : sample.notes ? (
@@ -425,7 +413,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'PASSED')}
                                   title="Xác nhận mẫu đạt chuẩn đưa vào phân tích"
                                 >
-                                  <FaCheckCircle />
+                                  <CheckCircle2  size="1em"/>
                                   <span>Đạt chuẩn</span>
                                 </Button>
                                 <Button
@@ -436,7 +424,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'HEMOLYSIS')}
                                   title="Báo mẫu tán huyết: Khóa phân tích & Lấy lại mẫu"
                                 >
-                                  <FaLock />
+                                  <Lock  size="1em"/>
                                   <span>Tán huyết</span>
                                 </Button>
                                 <Button
@@ -447,7 +435,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'CLOTTED')}
                                   title="Báo mẫu đông dây / vón cục"
                                 >
-                                  <FaExclamationTriangle />
+                                  <AlertTriangle  size="1em"/>
                                   <span>Đông dây</span>
                                 </Button>
                               </>
@@ -475,8 +463,8 @@ const ValidateSample = () => {
         <Form onSubmit={handleSubmitAssessment}>
           <Modal.Header closeButton={!submitting} className="bg-light">
             <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-              <FaShieldAlt className="text-primary" />
-              <span>Kiểm Chuẩn Chất Lượng Tiền Phân Tích (ISO 15189:2022)</span>
+              <ShieldCheck className="text-primary"  size="1em"/>
+              <span>Kiểm Tra Chất Lượng Mẫu Trước Phân Tích</span>
             </Modal.Title>
           </Modal.Header>
 
@@ -523,7 +511,7 @@ const ValidateSample = () => {
                         } else if (opt.id === 'CLOTTED') {
                           setNotes('Mẫu có sợi huyết đông dây (Clotted). Khóa phân tích, từ chối chạy máy để bảo vệ kim hút.');
                         } else if (opt.id === 'PASSED') {
-                          setNotes('Mẫu đạt chuẩn thể tích và chất lượng tiền phân tích ISO 15189.');
+                          setNotes('Mẫu đạt yêu cầu thể tích và chất lượng.');
                         }
                       }}
                     >
@@ -551,9 +539,9 @@ const ValidateSample = () => {
             {/* CẢNH BÁO RÀNG BUỘC NGHIỆP VỤ TÁN HUYẾT */}
             {assessmentType === 'HEMOLYSIS' && (
               <Alert variant="danger" className="d-flex align-items-center gap-2 rounded-3 border-danger">
-                <FaLock className="fs-3 text-danger flex-shrink-0" />
+                <Lock className="fs-3 text-danger flex-shrink-0"  size="1em"/>
                 <div className="small">
-                  <strong>RÀNG BUỘC NGHIỆP VỤ BẮT BUỘC (ISO 15189):</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>. 
+                  <strong>LƯU Ý:</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>, cần từ chối và lấy lại. 
                   Hệ thống sẽ ngay lập tức <strong>Khóa phân tích mẫu này trên máy tự động</strong> và tự động chuyển yêu cầu 
                   <strong> Lấy lại mẫu mới (Recollect / Rerun)</strong> đến khoa phòng chỉ định.
                 </div>
@@ -563,7 +551,7 @@ const ValidateSample = () => {
             {/* CẢNH BÁO RÀNG BUỘC ĐÔNG DÂY */}
             {assessmentType === 'CLOTTED' && (
               <Alert variant="warning" className="d-flex align-items-center gap-2 rounded-3 border-warning">
-                <FaExclamationTriangle className="fs-3 text-warning-emphasis flex-shrink-0" />
+                <AlertTriangle className="fs-3 text-warning-emphasis flex-shrink-0"  size="1em"/>
                 <div className="small text-dark">
                   <strong>CẢNH BÁO AN TOÀN THIẾT BỊ:</strong> Mẫu bị <strong>Đông dây / Vón cục (Clotted)</strong>. 
                   Khóa phân tích để ngăn ngừa tắc kim hút và hỏng cảm biến máy phân tích tự động. Yêu cầu lấy lại mẫu.
@@ -604,17 +592,17 @@ const ValidateSample = () => {
                 </>
               ) : activeOption.isHemolysis ? (
                 <>
-                  <FaLock />
+                  <Lock  size="1em"/>
                   <span>Xác Nhận Tán Huyết &amp; Khóa Phân Tích</span>
                 </>
               ) : activeOption.status === 'rejected' ? (
                 <>
-                  <FaTimes />
+                  <LucideX  size="1em"/>
                   <span>Từ Chối Mẫu &amp; Yêu Cầu Lấy Lại</span>
                 </>
               ) : (
                 <>
-                  <FaCheckCircle />
+                  <CheckCircle2  size="1em"/>
                   <span>Xác Nhận Đạt Chuẩn Phân Tích</span>
                 </>
               )}

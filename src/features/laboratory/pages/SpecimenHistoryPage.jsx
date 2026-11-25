@@ -6,21 +6,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-    FaBarcode,
-    FaSearch,
-    FaVial,
-    FaHistory,
-    FaUser,
-    FaCalendarAlt,
-    FaSync,
-    FaExclamationCircle,
-    FaCheckCircle,
-    FaFileAlt,
-    FaArrowRight,
-    FaWarehouse,
-    FaTimes
-} from "react-icons/fa";
+import { Barcode as LucideBarcode, Search as LucideSearch, TestTube2, History as LucideHistory, User, Calendar, RefreshCw, AlertCircle, CheckCircle2, FileText, ArrowRight, Warehouse, X as LucideX } from 'lucide-react';
 import {
     fetchSpecimenHistories,
     fetchSpecimenHistoryByBarcode,
@@ -196,7 +182,7 @@ export default function SpecimenHistoryPage() {
 
         return (
             <span className="badge rounded-pill px-2 py-1 shadow-xs fw-semibold" style={bgStyle}>
-                <FaVial className="me-1" />
+                <TestTube2 className="me-1"  size="1em"/>
                 {colorName || "Ống tiêu chuẩn"} {tubeType ? `(${tubeType})` : ""}
             </span>
         );
@@ -271,7 +257,7 @@ export default function SpecimenHistoryPage() {
                             loadSpecimenDirectory();
                         }}
                     >
-                        <FaSync size={13} className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
                         <span>Làm mới</span>
                     </button>
                 </div>
@@ -284,7 +270,7 @@ export default function SpecimenHistoryPage() {
                     role="alert"
                 >
                     <div className="d-flex align-items-center">
-                        <FaCheckCircle className="me-2 fs-5" />
+                        <CheckCircle2 className="me-2 fs-5"  size="1em"/>
                         <div>{toastMessage.text}</div>
                     </div>
                     <button
@@ -298,7 +284,7 @@ export default function SpecimenHistoryPage() {
             {/* Single-Line Barcode Lookup Filter Bar */}
             <form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaBarcode className="bms-search-icon" />
+                    <LucideBarcode className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Quét mã vạch hoặc nhập mã mẫu bệnh phẩm..."
@@ -311,7 +297,7 @@ export default function SpecimenHistoryPage() {
                             className="bms-search-clear"
                             onClick={() => setSearchInput("")}
                         >
-                            <FaTimes size={12} />
+                            <LucideX size={12} />
                         </button>
                     )}
                 </div>
@@ -322,7 +308,7 @@ export default function SpecimenHistoryPage() {
                     style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
                     disabled={loadingSpecimen}
                 >
-                    <FaSearch />
+                    <LucideSearch  size="1em"/>
                     <span>Truy vấn</span>
                 </button>
 
@@ -367,7 +353,7 @@ export default function SpecimenHistoryPage() {
             {/* Error State */}
             {specimenError && (
                 <div className="alert alert-danger shadow-sm mb-4 d-flex align-items-center gap-3">
-                    <FaExclamationCircle className="fs-3 flex-shrink-0" />
+                    <AlertCircle className="fs-3 flex-shrink-0"  size="1em"/>
                     <div>
                         <h6 className="fw-bold mb-1">Không thể hiển thị thông tin bệnh phẩm</h6>
                         <p className="mb-0 small">{specimenError}</p>
@@ -387,7 +373,7 @@ export default function SpecimenHistoryPage() {
                         <div className="row g-3 align-items-center justify-content-between">
                             <div className="col-12 col-md-auto d-flex align-items-center gap-3">
                                 <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
-                                    <FaBarcode className="display-6" />
+                                    <LucideBarcode className="display-6"  size="1em"/>
                                 </div>
                                 <div>
                                     <div className="d-flex align-items-center gap-2 mb-1">
@@ -423,7 +409,7 @@ export default function SpecimenHistoryPage() {
                                         style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                                         onClick={() => setShowStorageModal(true)}
                                     >
-                                        <FaWarehouse />
+                                        <Warehouse  size="1em"/>
                                         <span>Đổi Vị Trí Tủ Lạnh</span>
                                     </button>
                                     <button
@@ -432,7 +418,7 @@ export default function SpecimenHistoryPage() {
                                         style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
                                         onClick={() => setShowEventModal(true)}
                                     >
-                                        <FaHistory />
+                                        <LucideHistory  size="1em"/>
                                         <span>Ghi Nhận Sự Kiện</span>
                                     </button>
                                 </div>
@@ -447,7 +433,7 @@ export default function SpecimenHistoryPage() {
                             <div className="col-12 col-md-6 col-lg-4">
                                 <div className="p-3 bg-white rounded border h-100 shadow-xs">
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <FaUser className="text-primary me-1" /> Thông Tin Bệnh Nhân
+                                        <User className="text-primary me-1"  size="1em"/> Thông Tin Bệnh Nhân
                                     </span>
                                     <h6 className="fw-bold text-dark mb-1">{currentSpecimen.patientName}</h6>
                                     <div className="text-secondary small">
@@ -464,7 +450,7 @@ export default function SpecimenHistoryPage() {
                             <div className="col-12 col-md-6 col-lg-4">
                                 <div className="p-3 bg-white rounded border h-100 shadow-xs">
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <FaVial className="text-info me-1" /> Đặc Tính Ống Mẫu & Thuốc Thử
+                                        <TestTube2 className="text-info me-1"  size="1em"/> Đặc Tính Ống Mẫu & Thuốc Thử
                                     </span>
                                     <div className="mb-2">
                                         {renderTubeBadge(currentSpecimen.tubeColor, currentSpecimen.sampleType)}
@@ -481,7 +467,7 @@ export default function SpecimenHistoryPage() {
                             <div className="col-12 col-md-12 col-lg-4">
                                 <div className="p-3 bg-white rounded border h-100 shadow-xs">
                                     <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <FaCalendarAlt className="text-warning me-1" /> Thời Gian & Người Lấy Mẫu
+                                        <Calendar className="text-warning me-1"  size="1em"/> Thời Gian & Người Lấy Mẫu
                                     </span>
                                     <div className="text-secondary small">
                                         <div>Thời điểm lấy: <strong>{formatClinicalDateTime(collectionTime)}</strong></div>
@@ -630,7 +616,7 @@ export default function SpecimenHistoryPage() {
                                                     }}
                                                 >
                                                     <span>Xem</span>
-                                                    <FaArrowRight size={9} />
+                                                    <ArrowRight size={9} />
                                                 </button>
                                             </td>
                                         </tr>

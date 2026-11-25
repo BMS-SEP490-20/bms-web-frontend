@@ -45,7 +45,7 @@ export const fetchReportByOrder = async (orderId) => {
             analysedAt: detail.sampleDate || detail.releasedDate || new Date().toISOString(),
             approvedBy: detail.approvedByDoctor || detail.doctorName || 'Bác sĩ điều trị',
             approvedAt: detail.approvedAt || detail.releasedDate || new Date().toISOString(),
-            verificationHash: detail.digitalSignatureSeal || detail.verificationHash || 'SHA256:BMS-ISO15189-VALIDATED',
+            verificationHash: detail.digitalSignatureSeal || detail.verificationHash || '',
             parameters: Array.isArray(detail.parameters)
                 ? detail.parameters.map((p) => {
                       const flag = p.flag && p.flag !== 'Normal' ? p.flag : '';

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserLock, FaLock, FaFileMedicalAlt, FaCheckCircle, FaHospitalUser, FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
+import { UserLock, Lock, FileHeart, CheckCircle2, UserCheck, Phone, Mail } from 'lucide-react';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
               }}
             >
               <div className="d-flex align-items-center gap-2 mb-2.5" style={{ fontSize: '12px', color: '#10B981', fontWeight: 700, letterSpacing: '0.04em' }}>
-                <FaCheckCircle style={{ fontSize: '15px' }} />
+                <CheckCircle2 style={{ fontSize: '15px' }}  size="1em"/>
                 <span>CHÍNH SÁCH BẢO MẬT &amp; DỮ LIỆU Y TẾ · NGHỊ ĐỊNH 13/2023/NĐ-CP</span>
               </div>
               <h1 className="fw-bold mb-3" style={{ fontSize: '30px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
                 Tại BMS, quyền riêng tư và bí mật y khoa của người bệnh là ưu tiên tối thượng. Mọi thông tin sức khỏe và kết quả xét nghiệm được bảo vệ nghiêm ngặt theo Nghị định 13/2023/NĐ-CP về Bảo vệ dữ liệu cá nhân và tiêu chuẩn an toàn y tế quốc tế.
               </p>
               <div className="mt-3 text-muted" style={{ fontSize: '12px' }}>
-                Cập nhật lần cuối: Ngày 01 tháng 11 năm 2026 · Phiên bản: v2.4 (Tuân thủ ND13 &amp; ISO 15189:2022)
+                Cập nhật lần cuối: Ngày 01/11/2026 · Phiên bản v2.4
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
                   <div className="col-md-6">
                     <div style={{ background: '#F8FAFC', padding: '18px 20px', borderRadius: '16px', border: '1px solid #E2E8F0', height: '100%' }}>
                       <div className="d-flex align-items-center gap-2 mb-2" style={{ fontWeight: 600, color: '#1E60E6', fontSize: '14px' }}>
-                        <FaUserLock />
+                        <UserLock  size="1em"/>
                         <span>Dữ liệu định danh cá nhân</span>
                       </div>
                       <ul className="mb-0 ps-3 text-muted" style={{ fontSize: '13px', lineHeight: 1.6 }}>
@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
                   <div className="col-md-6">
                     <div style={{ background: '#F8FAFC', padding: '18px 20px', borderRadius: '16px', border: '1px solid #E2E8F0', height: '100%' }}>
                       <div className="d-flex align-items-center gap-2 mb-2" style={{ fontWeight: 600, color: '#10B981', fontSize: '14px' }}>
-                        <FaFileMedicalAlt />
+                        <FileHeart  size="1em"/>
                         <span>Dữ liệu y tế nhạy cảm</span>
                       </div>
                       <ul className="mb-0 ps-3 text-muted" style={{ fontSize: '13px', lineHeight: 1.6 }}>
@@ -115,25 +115,25 @@ export default function PrivacyPolicyPage() {
                 </h2>
                 <div className="d-flex flex-column gap-2">
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Thực hiện xét nghiệm y khoa:</strong> Phục vụ trực tiếp việc đo đạc chỉ số, phân tích máu và lập phiếu kết quả chẩn đoán.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Tư vấn và hỗ trợ chuyên môn:</strong> Bác sĩ chuyên khoa của BMS liên hệ người bệnh để giải thích ý nghĩa các chỉ số xét nghiệm và cảnh báo bất thường.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Giám định BHYT &amp; Tài chính:</strong> Xuất hóa đơn điện tử VAT hợp pháp và hỗ trợ thủ tục chi trả theo quy định bảo hiểm y tế.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Giao nhận và tra cứu điện tử:</strong> Cung cấp tính năng tra cứu trực tuyến bằng mã phiếu xét nghiệm và gửi thông báo SMS/Zalo khi có kết quả.
                     </span>
@@ -215,15 +215,15 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <div className="d-flex flex-wrap gap-4 mt-2">
                   <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
-                    <FaEnvelope style={{ color: '#1E60E6' }} />
+                    <Mail style={{ color: '#1E60E6' }}  size="1em"/>
                     <span>Email: <strong>privacy@bmslab.vn</strong></span>
                   </div>
                   <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
-                    <FaPhoneAlt style={{ color: '#10B981' }} />
-                    <span>Hotline Bảo Mật: <strong>1900 8686 (Nhánh 3)</strong></span>
+                    <Phone style={{ color: '#10B981' }}  size="1em"/>
+                    <span>Hotline Bảo Mật: <strong>1900 6868 (Nhánh 3)</strong></span>
                   </div>
                   <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
-                    <FaHospitalUser style={{ color: '#6366F1' }} />
+                    <UserCheck style={{ color: '#6366F1' }}  size="1em"/>
                     <span>Trụ sở chính: BMS Lab Tower, Tầng 3, Phòng Thanh tra Dữ liệu Y tế</span>
                   </div>
                 </div>

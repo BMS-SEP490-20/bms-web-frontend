@@ -8,7 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaNotesMedical, FaSave, FaSearch, FaUserMd, FaHospitalUser, FaTimes } from 'react-icons/fa';
+import { FileText, Save, Search, Stethoscope, UserCheck, X as LucideX } from 'lucide-react';
 import { addMedicalNote, getMedicalNotes, medicalNoteError } from '../api/medicalNoteApi';
 import '../../../components/common/SkeletonProfile.css';
 
@@ -113,17 +113,17 @@ export default function AddMedicalNotesPage() {
         </div>
         <div className="bms-page-actions">
           <Button as={Link} to="/doctor/console" variant="outline-secondary" size="sm" className="d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap">
-            <FaHospitalUser /> Bàn khám bác sĩ
+            <UserCheck  size="1em"/> Bàn khám bác sĩ
           </Button>
           <Button as={Link} to="/doctor/emr" variant="primary" size="sm" className="d-inline-flex align-items-center gap-1 rounded-pill px-3 text-white text-nowrap" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
-            <FaUserMd /> Hồ sơ bệnh án
+            <Stethoscope  size="1em"/> Hồ sơ bệnh án
           </Button>
         </div>
       </div>
 
       <Form onSubmit={lookup} className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             id="medical-note-record"
             type="text"
@@ -140,12 +140,12 @@ export default function AddMedicalNotesPage() {
               className="bms-search-clear"
               onClick={() => setInput('')}
             >
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
         <Button type="submit" size="sm" className="rounded-pill px-3 text-nowrap" disabled={!input.trim() || saving || loading} style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}>
-          <FaSearch className="me-1" /> Mở bệnh án
+          <Search className="me-1"  size="1em"/> Mở bệnh án
         </Button>
         <span className="bms-filter-meta">
           {record ? <>Bệnh án: <strong>{record.recordCode || record.id}</strong> ({totalNotes} ghi chú)</> : 'Chưa mở hồ sơ'}
@@ -287,7 +287,7 @@ export default function AddMedicalNotesPage() {
                       style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
                       className="shadow-sm text-white"
                     >
-                      <FaSave className="me-2" />{saving ? 'Đang lưu…' : 'Lưu Ghi Chú'}
+                      <Save className="me-2"  size="1em"/>{saving ? 'Đang lưu…' : 'Lưu Ghi Chú'}
                     </Button>
                   </div>
                 </Form>
@@ -304,7 +304,7 @@ export default function AddMedicalNotesPage() {
               <Card.Body>
                 {!notes.length ? (
                   <div className="text-center text-muted py-3">
-                    <FaNotesMedical size={36} className="mb-3 text-secondary" />
+                    <FileText size={36} className="mb-3 text-secondary" />
                     <h6>Chưa có ghi chú bổ sung nào</h6>
                     <p className="mb-0 small">Bác sĩ nhập ghi chú đầu tiên trong biểu mẫu bên trái.</p>
                   </div>
@@ -313,7 +313,7 @@ export default function AddMedicalNotesPage() {
                     <article key={note.id} className="border rounded-4 p-3 mb-3 bg-white" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                       <div className="d-flex flex-wrap justify-content-between gap-2 border-bottom pb-2 mb-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                         <span className="fw-semibold text-dark">
-                          <FaUserMd className="me-2" style={{ color: '#1E60E6' }} />{note.authorName || 'Bác sĩ phụ trách'}
+                          <Stethoscope className="me-2" style={{ color: '#1E60E6' }}  size="1em"/>{note.authorName || 'Bác sĩ phụ trách'}
                         </span>
                         <time className="text-muted small" dateTime={note.createdAt}>{formatDate(note.createdAt)}</time>
                       </div>
@@ -335,7 +335,7 @@ export default function AddMedicalNotesPage() {
       ) : !loadError && (
         <Card className="shadow-sm rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body className="text-center text-muted py-5">
-            <FaNotesMedical size={36} className="mb-3 opacity-50" style={{ color: '#1E60E6' }} />
+            <FileText size={36} className="mb-3 opacity-50" style={{ color: '#1E60E6' }} />
             <h6 className="fw-bold text-secondary">Chọn hoặc nhập mã bệnh án để bắt đầu</h6>
             <p className="mb-0 small">Nhập mã bệnh án ở thanh tìm kiếm phía trên hoặc mở trực tiếp từ phân hệ Bệnh án điện tử.</p>
           </Card.Body>

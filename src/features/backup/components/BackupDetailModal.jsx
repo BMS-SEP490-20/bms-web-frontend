@@ -5,17 +5,7 @@
  */
 
 import React, { useState } from "react";
-import {
-    FaDatabase,
-    FaDownload,
-    FaCheckCircle,
-    FaCopy,
-    FaClock,
-    FaUser,
-    FaHdd,
-    FaCalendarCheck,
-    FaExclamationCircle
-} from "react-icons/fa";
+import { Database, Download, CheckCircle2, Copy, Clock, User, HardDrive, CalendarCheck, AlertCircle } from 'lucide-react';
 import { getBackupDownloadUrl, downloadBackupArchive } from "../api/backupApi";
 
 export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigger }) {
@@ -58,7 +48,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                 <div className="modal-content shadow border-0" style={{ borderRadius: 18, overflow: 'hidden' }}>
                     <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaDatabase className="fs-5" style={{ color: '#1E60E6' }} />
+                            <Database className="fs-5" style={{ color: '#1E60E6' }}  size="1em"/>
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Chi Tiết Bản Sao Lưu Dữ Liệu Xét Nghiệm
                             </h5>
@@ -80,7 +70,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                                 </div>
                             </div>
                             <span className="badge rounded-pill px-3 py-2" style={{ background: 'rgba(145, 222, 131, 0.2)', color: '#2E7D32' }}>
-                                <FaCheckCircle className="me-1" /> {backup.status}
+                                <CheckCircle2 className="me-1"  size="1em"/> {backup.status}
                             </span>
                         </div>
 
@@ -110,7 +100,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </div>
                             <div className="col-6 col-md-3">
                                 <div className="p-3 bg-light rounded text-center">
-                                    <span className="text-muted small d-block mb-1">Chuẩn ISO 15189</span>
+                                    <span className="text-muted small d-block mb-1">Phạm vi lưu trữ</span>
                                     <strong className="fs-6 text-success d-block">Lưu 10 Năm</strong>
                                 </div>
                             </div>
@@ -120,14 +110,14 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                         <div className="p-3 bg-light rounded border mb-4">
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <span className="small fw-bold text-dark text-uppercase d-flex align-items-center gap-1">
-                                    <FaCheckCircle className="text-primary" /> Mã Băm Toàn Vẹn SHA-256 (Tamper-evident Hash)
+                                    <CheckCircle2 className="text-primary"  size="1em"/> Mã Băm Toàn Vẹn SHA-256 (Tamper-evident Hash)
                                 </span>
                                 <button
                                     type="button"
                                     className="btn btn-outline-secondary btn-sm py-0 px-2"
                                     onClick={handleCopyChecksum}
                                 >
-                                    <FaCopy className="me-1" />
+                                    <Copy className="me-1"  size="1em"/>
                                     {copied ? "Đã Sao Chép!" : "Sao Chép"}
                                 </button>
                             </div>
@@ -182,21 +172,21 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </span>
                             <div className="row g-2 small text-secondary">
                                 <div className="col-12 col-md-6">
-                                    <FaClock className="me-1" /> Tạo lúc:{" "}
+                                    <Clock className="me-1"  size="1em"/> Tạo lúc:{" "}
                                     <strong>{new Date(backup.createdAt).toLocaleString("vi-VN")}</strong>
                                 </div>
                                 <div className="col-12 col-md-6">
-                                    <FaUser className="me-1" /> Người tạo:{" "}
+                                    <User className="me-1"  size="1em"/> Người tạo:{" "}
                                     <strong>{backup.createdBy}</strong>
                                 </div>
                                 {backup.lastRestoredAt && (
                                     <>
                                         <div className="col-12 col-md-6 text-danger">
-                                            <FaClock className="me-1" /> Lần khôi phục gần nhất:{" "}
+                                            <Clock className="me-1"  size="1em"/> Lần khôi phục gần nhất:{" "}
                                             <strong>{new Date(backup.lastRestoredAt).toLocaleString("vi-VN")}</strong>
                                         </div>
                                         <div className="col-12 col-md-6 text-danger">
-                                            <FaUser className="me-1" /> Người khôi phục:{" "}
+                                            <User className="me-1"  size="1em"/> Người khôi phục:{" "}
                                             <strong>{backup.lastRestoredBy || "Quản trị viên hệ thống"}</strong>
                                         </div>
                                     </>
@@ -216,7 +206,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             {isDownloading ? (
                                 <div className="spinner-border spinner-border-sm" role="status"></div>
                             ) : (
-                                <FaDownload />
+                                <Download  size="1em"/>
                             )}
                             <span>Tải Tệp Sao Lưu (.json)</span>
                         </button>

@@ -10,17 +10,7 @@ import {
   Alert,
   Table
 } from 'react-bootstrap';
-import {
-  FaReceipt,
-  FaSearch,
-  FaTimes,
-  FaPlus,
-  FaPrint,
-  FaFileInvoice,
-  FaCreditCard,
-  FaMoneyBillWave,
-  FaQrcode
-} from 'react-icons/fa';
+import { Receipt, Search, X as LucideX, Plus, Printer, CreditCard, Banknote, QrCode } from 'lucide-react';
 import {
   getInvoices,
   createInvoice,
@@ -259,7 +249,7 @@ export default function BillingInvoicesPage() {
             fontSize: 22,
             boxShadow: '0 2px 8px rgba(29, 78, 216, 0.15)'
           }}>
-            <FaReceipt />
+            <Receipt  size="1em"/>
           </div>
           <div>
             <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -270,7 +260,7 @@ export default function BillingInvoicesPage() {
                 Nghị Định 123/2020/NĐ-CP
               </span>
               <span className="badge rounded-pill" style={{ background: '#ecfdf5', color: '#065f46', fontSize: '11px', fontWeight: '700' }}>
-                Chuẩn ISO 15189
+                Tại quầy thu ngân
               </span>
             </div>
             <p className="text-muted small mb-0 mt-1">
@@ -293,7 +283,7 @@ export default function BillingInvoicesPage() {
               fontSize: '13.5px'
             }}
           >
-            <FaPlus size={12} />
+            <Plus size={12} />
             <span>Tạo Hóa Đơn Thu Viện Phí</span>
           </Button>
         </div>
@@ -324,7 +314,7 @@ export default function BillingInvoicesPage() {
               </div>
             </div>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-              <FaMoneyBillWave />
+              <Banknote  size="1em"/>
             </div>
           </div>
         </Col>
@@ -364,7 +354,7 @@ export default function BillingInvoicesPage() {
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
             <div>
               <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2" style={{ fontSize: '16px' }}>
-                <FaReceipt style={{ color: '#1E60E6' }} />
+                <Receipt style={{ color: '#1E60E6' }}  size="1em"/>
                 Sổ Hóa Đơn &amp; Biên Lai Viện Phí
                 <span className="badge rounded-pill bg-light text-primary border ms-1" style={{ fontSize: '12px' }}>
                   {filteredInvoices.length}
@@ -377,7 +367,7 @@ export default function BillingInvoicesPage() {
 
             <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
               <div className="bms-search-input-pill" style={{ minWidth: '280px' }}>
-                <FaSearch className="bms-search-icon" />
+                <Search className="bms-search-icon"  size="1em"/>
                 <input
                   type="text"
                   placeholder="Tìm theo mã HĐ, tên người bệnh, SĐT..."
@@ -391,7 +381,7 @@ export default function BillingInvoicesPage() {
                     onClick={() => setSearchTerm('')}
                     title="Xóa tìm kiếm"
                   >
-                    <FaTimes size={12} />
+                    <LucideX size={12} />
                   </button>
                 )}
               </div>
@@ -569,7 +559,7 @@ export default function BillingInvoicesPage() {
                                 }}
                                 title="Xác nhận thu viện phí trực tiếp qua POS / Tiền mặt"
                               >
-                                <FaCreditCard size={11} />
+                                <CreditCard size={11} />
                                 <span>Thu Tiền POS</span>
                               </Button>
                             ) : (
@@ -590,7 +580,7 @@ export default function BillingInvoicesPage() {
                                   }}
                                   title="In biên lai thu phí khổ nhiệt K80 (máy in POS 80mm)"
                                 >
-                                  <FaPrint size={11} />
+                                  <Printer size={11} />
                                   <span>In Biên Lai</span>
                                 </Button>
 
@@ -610,7 +600,7 @@ export default function BillingInvoicesPage() {
                                   }}
                                   title="Xem & phát hành hóa đơn điện tử VAT chuẩn Nghị định 123/2020/NĐ-CP"
                                 >
-                                  <FaFileInvoice size={11} />
+                                  <Receipt size={11} />
                                   <span>HĐ VAT</span>
                                 </Button>
                               </>
@@ -653,14 +643,14 @@ export default function BillingInvoicesPage() {
                 justifyContent: 'center',
                 fontSize: 20
               }}>
-                <FaReceipt />
+                <Receipt  size="1em"/>
               </div>
               <div>
                 <Modal.Title as="h5" className="fw-bold mb-0 text-dark" style={{ fontSize: '17px' }}>
                   Tạo Hóa Đơn &amp; Biên Lai Thu Viện Phí Mới
                 </Modal.Title>
                 <small className="text-muted">
-                  Lập phiếu thu viện phí trực tiếp tại quầy theo bảng giá xét nghiệm chuẩn ISO 15189
+                  Lập phiếu thu viện phí trực tiếp tại quầy theo bảng giá dịch vụ
                 </small>
               </div>
             </div>
@@ -706,7 +696,7 @@ export default function BillingInvoicesPage() {
                     <Form.Label className="small fw-semibold text-secondary">Số CCCD / Định Danh Y Tế (VNeID)</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="VD: 079203004321 (Tùy chọn - đối soát hồ sơ Đề án 06)"
+                      placeholder="Số CCCD 12 số (tùy chọn)"
                       value={newPatientCccd}
                       onChange={(e) => setNewPatientCccd(e.target.value)}
                       style={{ borderRadius: 8, padding: '9px 12px', fontSize: '14px' }}
@@ -883,7 +873,7 @@ export default function BillingInvoicesPage() {
               justifyContent: 'center',
               fontSize: 18
             }}>
-              <FaCreditCard />
+              <CreditCard  size="1em"/>
             </div>
             <div>
               <Modal.Title as="h5" className="fw-bold mb-0 text-dark" style={{ fontSize: '16.5px' }}>
@@ -918,9 +908,9 @@ export default function BillingInvoicesPage() {
                 <Form.Label className="small fw-semibold text-secondary">Hình thức thanh toán:</Form.Label>
                 <div className="d-grid gap-2">
                   {[
-                    { id: 1, label: 'Tiền mặt (Cash)', icon: <FaMoneyBillWave className="text-success me-2" /> },
-                    { id: 4, label: 'Thẻ POS (Visa / Mastercard / Napas)', icon: <FaCreditCard className="text-primary me-2" /> },
-                    { id: 2, label: 'VietQR / Chuyển khoản quét mã', icon: <FaQrcode className="text-info me-2" /> },
+                    { id: 1, label: 'Tiền mặt (Cash)', icon: <Banknote className="text-success me-2"  size="1em"/> },
+                    { id: 4, label: 'Thẻ POS (Visa / Mastercard / Napas)', icon: <CreditCard className="text-primary me-2"  size="1em"/> },
+                    { id: 2, label: 'VietQR / Chuyển khoản quét mã', icon: <QrCode className="text-info me-2"  size="1em"/> },
                     { id: 3, label: 'Chuyển khoản Ngân hàng', icon: <i className="bi bi-bank me-2 text-warning"></i> }
                   ].map((item) => (
                     <div

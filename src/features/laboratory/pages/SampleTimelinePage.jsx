@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
-import { FaClock, FaEye, FaRedo, FaSearch, FaTimes } from 'react-icons/fa';
+import { Clock, Eye, RotateCw, Search as LucideSearch, X } from 'lucide-react';
 import { getTimelineSamples, timelineError } from '../api/sampleTimelineApi';
 import SampleTimelineDrawer, { TimelineSkeleton, timelineDate, timelineStatus } from '../components/SampleTimelineDrawer';
 import '../../../components/common/SkeletonProfile.css';
@@ -50,14 +50,14 @@ export default function SampleTimelinePage() {
         </div>
         <div className="bms-page-actions">
           <Button variant="outline-primary" size="sm" className="rounded-pill px-3 text-nowrap" disabled={loading} onClick={() => setRefresh((v) => v + 1)}>
-            <FaRedo className="me-1" size={12} /> Làm mới
+            <RotateCw className="me-1" size={12} /> Làm mới
           </Button>
         </div>
       </div>
 
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <LucideSearch className="bms-search-icon"  size="1em"/>
           <input
             id="timeline-search"
             type="text"
@@ -68,7 +68,7 @@ export default function SampleTimelinePage() {
           />
           {search && (
             <button type="button" className="bms-search-clear" onClick={() => setSearch('')}>
-              <FaTimes size={12} />
+              <X size={12} />
             </button>
           )}
         </div>
@@ -130,7 +130,7 @@ export default function SampleTimelinePage() {
                     </td>
                     <td className="text-center pe-3">
                       <Button size="sm" variant="outline-primary" className="rounded-pill px-2.5 text-nowrap" aria-label={`Xem hành trình mẫu ${sample.barcode || sample.id}`} onClick={() => setParams({ sample: sample.id })}>
-                        <FaEye className="me-1" /> Xem
+                        <Eye className="me-1"  size="1em"/> Xem
                       </Button>
                     </td>
                   </tr>
@@ -149,7 +149,7 @@ export default function SampleTimelinePage() {
             </div>
           </> : !error && !invalid && (
             <div className="text-center text-muted py-5">
-              <FaClock size={28} className="mb-2 opacity-50" style={{ color: '#1E60E6' }} />
+              <Clock size={28} className="mb-2 opacity-50" style={{ color: '#1E60E6' }} />
               <div className="fw-semibold text-dark">Chưa có mẫu phù hợp</div>
             </div>
           )}

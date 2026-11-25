@@ -11,22 +11,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Form, Button, Alert, Row, Col, InputGroup, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  FaUser,
-  FaMapMarkerAlt,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaIdCard,
-  FaPhoneAlt,
-  FaEnvelope,
-  FaCalendarAlt,
-  FaArrowRight,
-  FaArrowLeft,
-  FaCheck
-} from 'react-icons/fa';
+import { User, MapPin, Lock, Eye, EyeOff, CheckCircle2, XCircle, IdCard, Phone as LucidePhone, Mail, Calendar, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import api from '../../config/api';
 import OtpInputGroup from '../../components/common/OtpInputGroup';
 import './styles/RegisterWizard.css';
@@ -99,10 +84,10 @@ const FALLBACK_PROVINCES = [
 ];
 
 const WIZARD_STEPS = [
-  { step: 1, title: 'Thông tin cá nhân', desc: 'Định danh & CCCD', icon: FaUser },
-  { step: 2, title: 'Địa chỉ thường trú', desc: 'Phân cấp hành chính', icon: FaMapMarkerAlt },
-  { step: 3, title: 'Mật khẩu bảo mật', desc: 'Quy chuẩn BR-IAM-01', icon: FaLock },
-  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: FaCheckCircle }
+  { step: 1, title: 'Thông tin cá nhân', desc: 'Định danh & CCCD', icon: User },
+  { step: 2, title: 'Địa chỉ thường trú', desc: 'Phân cấp hành chính', icon: MapPin },
+  { step: 3, title: 'Mật khẩu bảo mật', desc: 'Tối thiểu 8 ký tự', icon: Lock },
+  { step: 4, title: 'Xác thực OTP', desc: 'Kích hoạt hồ sơ', icon: CheckCircle2 }
 ];
 
 export default function Register() {
@@ -523,7 +508,7 @@ export default function Register() {
     setFieldErrors((prev) => ({ ...prev, ...newErrors }));
 
     if (Object.keys(newErrors).length > 0) {
-      setErrorMsg('Vui lòng thiết lập mật khẩu bảo mật theo đúng quy chuẩn BR-IAM-01.');
+      setErrorMsg('Mật khẩu chưa đạt yêu cầu bảo mật tối thiểu.');
       return false;
     }
     setErrorMsg('');
@@ -598,7 +583,7 @@ export default function Register() {
     }
 
     if (otpAttempts >= 3) {
-      setOtpError('Bạn đã nhập sai quá 3 lần (BR-IAM-03). Vui lòng yêu cầu gửi lại mã OTP mới.');
+      setOtpError('Bạn đã nhập sai OTP quá 3 lần. Vui lòng yêu cầu mã mới.');
       return;
     }
 
@@ -719,7 +704,7 @@ export default function Register() {
                         }}
                       >
                         <div className="bms-step-circle">
-                          {isCompleted ? <FaCheck /> : s.step}
+                          {isCompleted ? <Check  size="1em"/> : s.step}
                         </div>
                         <div className="bms-step-title">{s.title}</div>
                         <div className="bms-step-desc d-none d-md-block">{s.desc}</div>
@@ -737,14 +722,14 @@ export default function Register() {
                   onClose={() => setErrorMsg('')}
                   className="d-flex align-items-center gap-2 mb-4"
                 >
-                  <FaTimesCircle className="flex-shrink-0" />
+                  <XCircle className="flex-shrink-0"  size="1em"/>
                   <span>{errorMsg}</span>
                 </Alert>
               )}
 
               {successMsg && (
                 <Alert variant="success" className="d-flex align-items-center gap-2 mb-4">
-                  <FaCheckCircle className="flex-shrink-0" />
+                  <CheckCircle2 className="flex-shrink-0"  size="1em"/>
                   <span>{successMsg}</span>
                 </Alert>
               )}
@@ -757,7 +742,7 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <FaUser className="fs-6" /> Bước 1: Thông Tin Định Danh Bệnh Nhân
+                        <User className="fs-6"  size="1em"/> Bước 1: Thông Tin Định Danh Bệnh Nhân
                       </h5>
                       <span className="text-muted small">
                         Vui lòng nhập chính xác họ tên và số CCCD để khớp dữ liệu bảo hiểm và hồ sơ lâm sàng.
@@ -800,7 +785,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <FaIdCard className="text-muted" />
+                            <IdCard className="text-muted"  size="1em"/>
                           </InputGroup.Text>
                           <Form.Control
                             type="text"
@@ -829,7 +814,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <FaPhoneAlt className="text-muted" />
+                            <LucidePhone className="text-muted"  size="1em"/>
                           </InputGroup.Text>
                           <Form.Control
                             type="tel"
@@ -858,7 +843,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <FaEnvelope className="text-muted" />
+                            <Mail className="text-muted"  size="1em"/>
                           </InputGroup.Text>
                           <Form.Control
                             type="email"
@@ -935,7 +920,7 @@ export default function Register() {
                       onClick={handleNextToStep2}
                     >
                       <span>Tiếp Tục: Nhập Địa Chỉ</span>
-                      <FaArrowRight />
+                      <ArrowRight  size="1em"/>
                     </Button>
                   </div>
                 </div>
@@ -949,7 +934,7 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <FaMapMarkerAlt className="fs-6" /> Bước 2: Địa Chỉ Thường Trú (Phân Cấp Hành Chính Việt Nam)
+                        <MapPin className="fs-6"  size="1em"/> Bước 2: Địa Chỉ Thường Trú (Phân Cấp Hành Chính Việt Nam)
                       </h5>
                       <span className="text-muted small">
                         Chuẩn hóa địa chỉ theo Tiêu chí 3.1 QĐ 2429/QĐ-BYT với danh mục 63 Tỉnh/Thành phố toàn quốc.
@@ -1087,7 +1072,7 @@ export default function Register() {
                     {fullAddressPreview && (
                       <Col md={12}>
                         <div className="p-3 bg-light rounded-3 border d-flex align-items-center gap-2">
-                          <FaMapMarkerAlt className="text-primary flex-shrink-0 fs-5" />
+                          <MapPin className="text-primary flex-shrink-0 fs-5"  size="1em"/>
                           <div className="small">
                             <span className="text-muted">Địa chỉ đăng ký đầy đủ: </span>
                             <strong className="text-dark">{fullAddressPreview}</strong>
@@ -1106,7 +1091,7 @@ export default function Register() {
                         setCurrentStep(1);
                       }}
                     >
-                      <FaArrowLeft />
+                      <ArrowLeft  size="1em"/>
                       <span>Quay Lại: Thông Tin Cá Nhân</span>
                     </Button>
                     <Button
@@ -1115,7 +1100,7 @@ export default function Register() {
                       onClick={handleNextToStep3}
                     >
                       <span>Tiếp Tục: Thiết Lập Mật Khẩu</span>
-                      <FaArrowRight />
+                      <ArrowRight  size="1em"/>
                     </Button>
                   </div>
                 </div>
@@ -1129,10 +1114,10 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <FaLock className="fs-6" /> Bước 3: Thiết Lập Mật Khẩu Bảo Mật
+                        <Lock className="fs-6"  size="1em"/> Bước 3: Thiết Lập Mật Khẩu Bảo Mật
                       </h5>
                       <span className="text-muted small">
-                        Tuân thủ tiêu chuẩn an toàn định danh y tế quốc tế NIST SP 800-63B &amp; BR-IAM-01.
+                        Bảo mật thông tin tài khoản và xác thực OTP qua email.
                       </span>
                     </div>
                     <Badge bg="primary" className="px-3 py-2 rounded-pill">
@@ -1165,7 +1150,7 @@ export default function Register() {
                             type="button"
                             aria-label="Ẩn hiện mật khẩu"
                           >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
                           </Button>
                           <Form.Control.Feedback type="invalid">
                             {fieldErrors.password}
@@ -1198,7 +1183,7 @@ export default function Register() {
                             type="button"
                             aria-label="Ẩn hiện xác nhận mật khẩu"
                           >
-                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showConfirmPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
                           </Button>
                           <Form.Control.Feedback type="invalid">
                             {fieldErrors.confirmPassword}
@@ -1214,27 +1199,27 @@ export default function Register() {
                         <Row className="g-2">
                           <Col sm={6} md={4}>
                             <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.length ? 'text-success fw-medium' : 'text-muted'}`}>
-                              <FaCheckCircle size={12} /> Tối thiểu 8 ký tự
+                              <CheckCircle2 size={12} /> Tối thiểu 8 ký tự
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
                             <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.upper && passwordRules.lower ? 'text-success fw-medium' : 'text-muted'}`}>
-                              <FaCheckCircle size={12} /> Chữ hoa &amp; chữ thường
+                              <CheckCircle2 size={12} /> Chữ hoa &amp; chữ thường
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
                             <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.number ? 'text-success fw-medium' : 'text-muted'}`}>
-                              <FaCheckCircle size={12} /> Ít nhất 1 chữ số (0-9)
+                              <CheckCircle2 size={12} /> Ít nhất 1 chữ số (0-9)
                             </span>
                           </Col>
                           <Col sm={6} md={4}>
                             <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.special ? 'text-success fw-medium' : 'text-muted'}`}>
-                              <FaCheckCircle size={12} /> Ít nhất 1 ký tự đặc biệt
+                              <CheckCircle2 size={12} /> Ít nhất 1 ký tự đặc biệt
                             </span>
                           </Col>
                           <Col sm={6} md={8}>
                             <span className={`d-inline-flex align-items-center gap-1.5 ${passwordRules.match ? 'text-success fw-medium' : 'text-muted'}`}>
-                              <FaCheckCircle size={12} /> Mật khẩu xác nhận trùng khớp
+                              <CheckCircle2 size={12} /> Mật khẩu xác nhận trùng khớp
                             </span>
                           </Col>
                         </Row>
@@ -1245,7 +1230,7 @@ export default function Register() {
                     <Col md={12}>
                       <div className="bms-review-card mt-2">
                         <div className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
-                          <FaIdCard />
+                          <IdCard  size="1em"/>
                           <span>Đối soát thông tin hồ sơ y tế trước khi nhận mã OTP</span>
                         </div>
                         <div className="bms-review-row">
@@ -1282,7 +1267,7 @@ export default function Register() {
                       }}
                       disabled={loading}
                     >
-                      <FaArrowLeft />
+                      <ArrowLeft  size="1em"/>
                       <span>Quay Lại: Nhập Địa Chỉ</span>
                     </Button>
                     <Button
@@ -1299,7 +1284,7 @@ export default function Register() {
                       ) : (
                         <>
                           <span>Đăng Ký &amp; Nhận Mã OTP</span>
-                          <FaArrowRight />
+                          <ArrowRight  size="1em"/>
                         </>
                       )}
                     </Button>
@@ -1318,7 +1303,7 @@ export default function Register() {
                         className="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3"
                         style={{ width: 68, height: 68 }}
                       >
-                        <FaCheckCircle className="fs-2" />
+                        <CheckCircle2 className="fs-2"  size="1em"/>
                       </div>
                       <h4 className="fw-bold mb-1 text-dark">Bước 4: Xác Thực Tài Khoản (Mã OTP)</h4>
                       <p className="text-muted small mb-0">
@@ -1328,7 +1313,7 @@ export default function Register() {
 
                       <div className="p-2 bg-light rounded-3 border text-start mt-2" style={{ fontSize: '12px' }}>
                         <div className="fw-semibold text-dark mb-1">
-                          <FaEnvelope className="text-primary me-1" /> Hướng dẫn kiểm tra hộp thư y tế:
+                          <Mail className="text-primary me-1"  size="1em"/> Hướng dẫn kiểm tra hộp thư y tế:
                         </div>
                         <ul className="ps-3 mb-0 text-muted" style={{ lineHeight: '1.5' }}>
                           <li>Email gửi từ: <strong>bms.mec.lab@gmail.com</strong> (Hệ Thống Xét Nghiệm Y Khoa BMS).</li>
@@ -1340,7 +1325,7 @@ export default function Register() {
 
                     {otpError && (
                       <Alert variant="danger" className="py-2 small d-flex align-items-center gap-2 mb-3">
-                        <FaTimesCircle className="flex-shrink-0" />
+                        <XCircle className="flex-shrink-0"  size="1em"/>
                         <span>{otpError}</span>
                       </Alert>
                     )}
@@ -1393,7 +1378,7 @@ export default function Register() {
                           </>
                         ) : (
                           <>
-                            <FaCheckCircle />
+                            <CheckCircle2  size="1em"/>
                             <span>Xác Nhận OTP &amp; Hoàn Tất Đăng Ký</span>
                           </>
                         )}

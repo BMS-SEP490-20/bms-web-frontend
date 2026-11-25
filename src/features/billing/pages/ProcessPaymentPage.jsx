@@ -4,13 +4,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../../config/api';
+import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 import './ProcessPaymentPage.css';
 
 function money(value) {
   return `${new Intl.NumberFormat('vi-VN').format(value || 0)} đ`;
 }
 
-function Invoice({ checkout, onDone, onBack, onSimulatePay, isSimulating }) {
+function Invoice({ checkout, onDone, onBack, onSimulatePay, isSimulating, allowSimulate }) {
   return (
     <section className="bms-sepay-card">
       <header className="bms-sepay-head">
@@ -46,7 +47,7 @@ function Invoice({ checkout, onDone, onBack, onSimulatePay, isSimulating }) {
         <div className="is-amount"><dt>Số tiền</dt><dd>{money(checkout.amount)}</dd></div>
       </dl>
 
-      {!checkout.paid ? (
+      {!checkout.paid && allowSimulate ? (
         <button
           type="button"
           className="bms-sepay-simulate-btn"
@@ -85,6 +86,7 @@ export default function ProcessPaymentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const appointmentId = searchParams.get('appointmentId') || searchParams.get('id') || '';
+  const allowSimulate = resolveRoleId(getStoredUser()) !== ROLES.PATIENT;
   const [checkout, setCheckout] = useState(null);
   const [error, setError] = useState('');
   const [simulateError, setSimulateError] = useState('');
@@ -198,6 +200,7 @@ export default function ProcessPaymentPage() {
         onBack={() => navigate(-1)}
         onSimulatePay={handleSimulatePay}
         isSimulating={isSimulating}
+        allowSimulate={allowSimulate}
       />
     </div>
   );

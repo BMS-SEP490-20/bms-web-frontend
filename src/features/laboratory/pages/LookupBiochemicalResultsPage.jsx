@@ -9,11 +9,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card, Row, Col, Table, Badge, Button, Form, Alert, Spinner
 } from 'react-bootstrap';
-import {
-  FaSearch, FaBarcode, FaUserInjured, FaCheckCircle,
-  FaExclamationTriangle, FaPrint, FaHistory, FaBell,
-  FaSync, FaShieldAlt, FaMicroscope, FaTimes, FaUndo, FaFileSignature
-} from 'react-icons/fa';
+import { Search as LucideSearch, Barcode, User, CheckCircle2, AlertTriangle, Printer, History, Bell, RefreshCw, ShieldCheck, Microscope, X as LucideX, Undo2, FileSignature } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
 import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
@@ -40,7 +36,7 @@ export default function LookupBiochemicalResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = getStoredUser();
   const canNotify = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
-  const canApprove = hasRole(currentUser, ROLES.DOCTOR, ROLES.MANAGER);
+  const canApprove = hasRole(currentUser, ROLES.DOCTOR);
   const [actionBusy, setActionBusy] = useState(false);
   const [actionMsg, setActionMsg] = useState('');
 
@@ -336,7 +332,7 @@ export default function LookupBiochemicalResultsPage() {
             <h1 className="bms-page-title">Duyệt kết quả xét nghiệm &amp; ký số</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Thẩm định tính hợp lệ của chỉ số xét nghiệm từ Phòng Lab, ghi nhận nhận định cận lâm sàng và ký số SHA-256 phát hành kết quả (chẩn đoán bệnh &amp; kê đơn thực hiện tại Bệnh án EMR).
+            Kiểm tra chỉ số xét nghiệm từ Phòng Lab, ghi nhận định và duyệt phát hành kết quả.
           </p>
         </div>
         <div className="bms-page-actions">
@@ -347,7 +343,7 @@ export default function LookupBiochemicalResultsPage() {
             onClick={loadRecentResults}
             disabled={loadingRecent}
           >
-            <FaSync className={loadingRecent ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+            <RefreshCw className={loadingRecent ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
           </Button>
           {currentResult && (
             <Button
@@ -356,7 +352,7 @@ export default function LookupBiochemicalResultsPage() {
               className="rounded-pill px-3 text-nowrap"
               onClick={() => window.print()}
             >
-              <FaPrint className="me-1" size={12} /> In phiếu KQ
+              <Printer className="me-1" size={12} /> In phiếu KQ
             </Button>
           )}
           {canNotify && (
@@ -366,7 +362,7 @@ export default function LookupBiochemicalResultsPage() {
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               onClick={() => navigate('/laboratory/notifications')}
             >
-              <FaBell className="me-1" size={12} /> Thông báo
+              <Bell className="me-1" size={12} /> Thông báo
             </Button>
           )}
         </div>
@@ -376,7 +372,7 @@ export default function LookupBiochemicalResultsPage() {
       <div className="bms-filter-bar mb-3 flex-wrap">
         <Form onSubmit={handleSearchSubmit} className="d-flex align-items-center gap-2 flex-grow-1" style={{ minWidth: '280px' }}>
           <div className="bms-search-input-pill flex-grow-1">
-            <FaBarcode className="bms-search-icon" />
+            <Barcode className="bms-search-icon"  size="1em"/>
             <input
               type="text"
               placeholder="Tìm mã ống mẫu (SMP-...), mã kết quả (TRE-...), tên hoặc mã bệnh nhân (PAT-...)..."
@@ -393,7 +389,7 @@ export default function LookupBiochemicalResultsPage() {
                   setSearchParams({});
                 }}
               >
-                <FaTimes size={12} />
+                <LucideX size={12} />
               </button>
             )}
           </div>
@@ -404,7 +400,7 @@ export default function LookupBiochemicalResultsPage() {
             className="rounded-pill px-3 fw-semibold text-white text-nowrap"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-1" /> Tra cứu</>}
+            {loading ? <Spinner animation="border" size="sm" /> : <><LucideSearch className="me-1"  size="1em"/> Tra cứu</>}
           </Button>
         </Form>
 
@@ -439,7 +435,7 @@ export default function LookupBiochemicalResultsPage() {
 
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="py-2 mb-3 rounded-3">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {errorMsg}
         </Alert>
       )}
@@ -466,7 +462,7 @@ export default function LookupBiochemicalResultsPage() {
               className="rounded-pill px-2.5 py-0.5 small"
               onClick={() => setCurrentResult(null)}
             >
-              <FaTimes className="me-1" size={11} /> Đóng chi tiết
+              <LucideX className="me-1" size={11} /> Đóng chi tiết
             </Button>
           </Card.Header>
 
@@ -474,7 +470,7 @@ export default function LookupBiochemicalResultsPage() {
             {hasPanicValues && (
               <Alert variant="danger" className="py-2 px-3 mb-3 rounded-3 border-danger d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div className="small">
-                  <FaExclamationTriangle className="me-2" />
+                  <AlertTriangle className="me-2"  size="1em"/>
                   <strong>CẢNH BÁO CHỈ SỐ NGUY KỊCH (PANIC VALUE):</strong> Phát hiện thông số vượt ngưỡng an toàn sinh mạng. Bác sĩ cần kiểm tra đối chiếu lâm sàng hoặc yêu cầu Lab chạy kiểm tra lại trước khi ký số.
                 </div>
               </Alert>
@@ -485,7 +481,7 @@ export default function LookupBiochemicalResultsPage() {
               <Col xs={12} lg={4}>
                 <div className="p-3 rounded-4 border h-100" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
                   <h6 className="fw-bold text-dark mb-2.5 d-flex align-items-center gap-2 small text-uppercase">
-                    <FaUserInjured className="text-primary" /> Thông Tin Bệnh Phẩm &amp; Pháp Lý
+                    <User className="text-primary"  size="1em"/> Thông Tin Bệnh Phẩm &amp; Pháp Lý
                   </h6>
                   <div className="small mb-2 pb-2 border-bottom">
                     <div className="d-flex justify-content-between mb-1">
@@ -524,7 +520,7 @@ export default function LookupBiochemicalResultsPage() {
                     {currentResult.digitalSignature && (
                       <div className="p-2 rounded-3 bg-white border mb-2 small">
                         <div className="fw-semibold text-success d-flex align-items-center gap-1">
-                          <FaShieldAlt /> Chữ ký số SHA-256 (Đã khóa bất biến):
+                          <ShieldCheck  size="1em"/> Chữ ký số SHA-256 (Đã khóa bất biến):
                         </div>
                         <code className="text-break text-muted" style={{ fontSize: '0.72rem' }}>
                           {currentResult.digitalSignature}
@@ -542,7 +538,7 @@ export default function LookupBiochemicalResultsPage() {
                             onClick={handleApproveResult}
                             className="rounded-pill px-3 py-1.5 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-sm"
                           >
-                            <FaFileSignature /> Phê Duyệt &amp; Ký Số SHA-256
+                            <FileSignature  size="1em"/> Phê Duyệt &amp; Ký Số SHA-256
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -551,7 +547,7 @@ export default function LookupBiochemicalResultsPage() {
                             onClick={() => setShowRerunBox((v) => !v)}
                             className="rounded-pill px-3 py-1.5 fw-semibold text-nowrap"
                           >
-                            <FaUndo className="me-1" /> Chạy lại
+                            <Undo2 className="me-1"  size="1em"/> Chạy lại
                           </Button>
                         </div>
 
@@ -592,7 +588,7 @@ export default function LookupBiochemicalResultsPage() {
                 <div className="border rounded-4 overflow-hidden h-100 bg-white">
                   <div className="py-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                     <span className="fw-bold small text-dark d-flex align-items-center gap-1.5 text-uppercase">
-                      <FaMicroscope className="text-primary" /> Bảng Chỉ Số Đo Cận Lâm Sàng
+                      <Microscope className="text-primary"  size="1em"/> Bảng Chỉ Số Đo Cận Lâm Sàng
                     </span>
                     <Badge bg="primary" pill>{resultParameters.length} chỉ số</Badge>
                   </div>
@@ -661,7 +657,7 @@ export default function LookupBiochemicalResultsPage() {
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div className="d-flex align-items-center gap-2">
-            <FaHistory className="text-primary" />
+            <History className="text-primary"  size="1em"/>
             <h6 className="fw-bold text-dark mb-0">Danh Sách Kết Quả Xét Nghiệm Cận Lâm Sàng</h6>
             <span className="text-muted small">• Bấm vào dòng bất kỳ để mở bảng chỉ số &amp; ký duyệt</span>
           </div>

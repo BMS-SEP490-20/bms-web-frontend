@@ -6,15 +6,7 @@
  */
 
 import React, { useState } from "react";
-import {
-    FaDatabase,
-    FaCheckCircle,
-    FaTimes,
-    FaVial,
-    FaNotesMedical,
-    FaUserInjured,
-    FaFileMedicalAlt
-} from "react-icons/fa";
+import { Database, CheckCircle2, X as LucideX, TestTube2, FileText, User, FileHeart } from 'lucide-react';
 import { createBackup } from "../api/backupApi";
 
 export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
@@ -26,7 +18,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
     const [includeBloodSamples, setIncludeBloodSamples] = useState(true);
     const [includePatientRecords, setIncludePatientRecords] = useState(true);
     const [includeClinicalAssessments, setIncludeClinicalAssessments] = useState(true);
-    const [notes, setNotes] = useState("Lưu trữ hồ sơ xét nghiệm lâm sàng và mẫu bệnh phẩm phục vụ đối soát ISO 15189.");
+    const [notes, setNotes] = useState("Sao lưu dữ liệu hệ thống định kỳ.");
 
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
@@ -83,7 +75,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                 <div className="modal-content shadow border-0" style={{ borderRadius: 18, overflow: 'hidden' }}>
                     <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaDatabase className="fs-5" style={{ color: '#1E60E6' }} />
+                            <Database className="fs-5" style={{ color: '#1E60E6' }}  size="1em"/>
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Tạo Bản Sao Lưu & Lưu Trữ Dữ Liệu Xét Nghiệm
                             </h5>
@@ -206,7 +198,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                     onChange={(e) => setIncludeTestResults(e.target.checked)}
                                                 />
                                                 <label className="form-check-label small" htmlFor="chkTestResults">
-                                                    <FaVial className="text-primary me-1" /> Kết quả xét nghiệm máu (Cobas)
+                                                    <TestTube2 className="text-primary me-1"  size="1em"/> Kết quả xét nghiệm máu (Cobas)
                                                 </label>
                                             </div>
                                         </div>
@@ -221,7 +213,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                     onChange={(e) => setIncludeBloodSamples(e.target.checked)}
                                                 />
                                                 <label className="form-check-label small" htmlFor="chkSamples">
-                                                    <FaNotesMedical className="text-info me-1" /> Mẫu bệnh phẩm & mã Barcode
+                                                    <FileText className="text-info me-1"  size="1em"/> Mẫu bệnh phẩm & mã Barcode
                                                 </label>
                                             </div>
                                         </div>
@@ -236,7 +228,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                     onChange={(e) => setIncludePatientRecords(e.target.checked)}
                                                 />
                                                 <label className="form-check-label small" htmlFor="chkOrders">
-                                                    <FaUserInjured className="text-success me-1" /> Đơn chỉ định xét nghiệm
+                                                    <User className="text-success me-1"  size="1em"/> Đơn chỉ định xét nghiệm
                                                 </label>
                                             </div>
                                         </div>
@@ -251,7 +243,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                                     onChange={(e) => setIncludeClinicalAssessments(e.target.checked)}
                                                 />
                                                 <label className="form-check-label small" htmlFor="chkAssessments">
-                                                    <FaFileMedicalAlt className="text-warning me-1" /> Đánh giá y khoa (ICD-10)
+                                                    <FileHeart className="text-warning me-1"  size="1em"/> Đánh giá y khoa (ICD-10)
                                                 </label>
                                             </div>
                                         </div>
@@ -261,7 +253,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
 
                             {/* Cryptographic Protection Notice */}
                             <div className="p-3 bg-info-subtle border border-info rounded mb-3 d-flex align-items-center gap-3">
-                                <FaCheckCircle className="text-primary fs-3 flex-shrink-0" />
+                                <CheckCircle2 className="text-primary fs-3 flex-shrink-0"  size="1em"/>
                                 <div className="small text-dark">
                                     <strong>Cơ Chế Bảo Vệ & Tính Toàn Vẹn SHA-256:</strong>
                                     <p className="mb-0 text-secondary">
@@ -308,7 +300,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                     </>
                                 ) : (
                                     <>
-                                        <FaCheckCircle />
+                                        <CheckCircle2  size="1em"/>
                                         <span>Khởi Tạo Bản Sao Lưu</span>
                                     </>
                                 )}

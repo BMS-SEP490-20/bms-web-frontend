@@ -6,21 +6,7 @@
 
 import React, { useMemo } from 'react';
 import './WeeklyShiftTimetable.css';
-import {
-  FaBook,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaClock,
-  FaMapMarkerAlt,
-  FaUserAlt,
-  FaChevronLeft,
-  FaChevronRight,
-  FaCalendarDay,
-  FaPlus,
-  FaWifi,
-  FaHospitalAlt,
-  FaSpinner
-} from 'react-icons/fa';
+import { BookOpen, CheckCircle2, XCircle, Clock, MapPin, User, ChevronLeft, ChevronRight, CalendarDays, Plus, Wifi, Hospital, Loader2 } from 'lucide-react';
 
 export const DEFAULT_SLOTS = [
   { id: 1, name: '1', label: 'Ca Sáng', timeWindow: '07h00 - 11h30', startHour: 7, endHour: 11.5 },
@@ -228,7 +214,7 @@ export function WeeklyShiftTimetable({
     if (st === 'cancelled' || st === 'đã hủy' || st === 'rejected' || st === 'từ chối') {
       return (
         <div className="timetable-card-status absent">
-          <FaTimesCircle className="flex-shrink-0" />
+          <XCircle className="flex-shrink-0"  size="1em"/>
           <span>Vắng mặt</span>
         </div>
       );
@@ -236,7 +222,7 @@ export function WeeklyShiftTimetable({
     if (st === 'active' || st === 'đang diễn ra' || st === 'đang trực') {
       return (
         <div className="timetable-card-status active">
-          <FaClock className="flex-shrink-0" />
+          <Clock className="flex-shrink-0"  size="1em"/>
           <span>Đang trực</span>
         </div>
       );
@@ -244,14 +230,14 @@ export function WeeklyShiftTimetable({
     if (st === 'pending' || st === 'chờ duyệt') {
       return (
         <div className="timetable-card-status pending">
-          <FaClock className="flex-shrink-0" />
+          <Clock className="flex-shrink-0"  size="1em"/>
           <span>Chờ duyệt</span>
         </div>
       );
     }
     return (
       <div className="timetable-card-status present">
-        <FaCheckCircle className="flex-shrink-0" />
+        <CheckCircle2 className="flex-shrink-0"  size="1em"/>
         <span>Có mặt</span>
       </div>
     );
@@ -280,7 +266,7 @@ export function WeeklyShiftTimetable({
             onClick={handlePrevWeek}
             title="Xem tuần trước"
           >
-            <FaChevronLeft size={11} /> Tuần trước
+            <ChevronLeft size={11} /> Tuần trước
           </button>
           <button
             type="button"
@@ -289,7 +275,7 @@ export function WeeklyShiftTimetable({
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             title="Về tuần hiện tại"
           >
-            <FaCalendarDay size={11} /> Tuần này
+            <CalendarDays size={11} /> Tuần này
           </button>
           <button
             type="button"
@@ -297,7 +283,7 @@ export function WeeklyShiftTimetable({
             onClick={handleNextWeek}
             title="Xem tuần tiếp theo"
           >
-            Tuần sau <FaChevronRight size={11} />
+            Tuần sau <ChevronRight size={11} />
           </button>
 
           <span className="timetable-current-range">
@@ -316,7 +302,7 @@ export function WeeklyShiftTimetable({
           />
           {loading && (
             <div className="d-flex align-items-center text-primary ms-2 small fw-semibold">
-              <FaSpinner className="fa-spin me-1" /> Đang tải...
+              <Loader2 className="fa-spin me-1"  size="1em"/> Đang tải...
             </div>
           )}
         </div>
@@ -380,7 +366,7 @@ export function WeeklyShiftTimetable({
                             >
                               {/* Line 1: Title */}
                               <div className="timetable-card-title text-truncate">
-                                <FaBook className="card-icon" />
+                                <BookOpen className="card-icon"  size="1em"/>
                                 <span className="text-truncate">{getShiftTitle(shift)}</span>
                               </div>
 
@@ -388,22 +374,22 @@ export function WeeklyShiftTimetable({
 
                               {/* Line 3: Time & Mode */}
                               <div className="timetable-card-time">
-                                <FaClock size={11} className="flex-shrink-0" />
+                                <Clock size={11} className="flex-shrink-0" />
                                 <span>{timeStr}</span>
                                 <span className="badge-mode">
-                                  <FaHospitalAlt size={9} className="me-1 opacity-75" /> Tại viện
+                                  <Hospital size={9} className="me-1 opacity-75" /> Tại viện
                                 </span>
                               </div>
 
                               {/* Line 4: Location */}
                               <div className="timetable-card-room text-truncate">
-                                <FaMapMarkerAlt size={11} className="flex-shrink-0 text-muted" />
+                                <MapPin size={11} className="flex-shrink-0 text-muted" />
                                 <span className="text-truncate">{roomStr}</span>
                               </div>
 
                               {/* Line 5: Staff */}
                               <div className="timetable-card-staff text-truncate">
-                                <FaUserAlt size={10} className="flex-shrink-0 text-muted" />
+                                <User size={10} className="flex-shrink-0 text-muted" />
                                 <span className="text-truncate">{staffStr}</span>
                               </div>
                             </div>
@@ -425,7 +411,7 @@ export function WeeklyShiftTimetable({
                               })}
                               title={`Xếp ca trực ${slot.label} ngày ${day.dayMonthStr}`}
                             >
-                              <FaPlus size={9} /> Thêm ca
+                              <Plus size={9} /> Thêm ca
                             </button>
                           )}
                         </div>
@@ -443,7 +429,7 @@ export function WeeklyShiftTimetable({
       <div className="d-flex flex-wrap align-items-center justify-content-between mt-3 text-muted small px-1">
         <div className="d-flex align-items-center gap-3">
           <span className="d-flex align-items-center gap-1 text-primary fw-semibold">
-            <FaClock className="text-primary" /> Khung giờ ca: Slot 1 (Sáng: 07h00 - 11h30) • Slot 2 (Chiều: 13h00 - 17h00) • Slot 3 (Tối: 17h30 - 20h30)
+            <Clock className="text-primary"  size="1em"/> Khung giờ ca: Slot 1 (Sáng: 07h00 - 11h30) • Slot 2 (Chiều: 13h00 - 17h00) • Slot 3 (Tối: 17h30 - 20h30)
           </span>
         </div>
         <div>

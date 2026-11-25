@@ -5,13 +5,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import {
-    FaUndo,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaTimes,
-    FaDatabase
-} from "react-icons/fa";
+import { Undo2, AlertTriangle, CheckCircle2, X as LucideX, Database } from 'lucide-react';
 import { validateRestoreDryRun, executeRestore } from "../api/backupApi";
 
 export default function RestoreConfirmationModal({
@@ -94,7 +88,7 @@ export default function RestoreConfirmationModal({
                 <div className="modal-content shadow border-0" style={{ borderRadius: 18, overflow: 'hidden' }}>
                     <div className="modal-header py-3" style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                         <div className="d-flex align-items-center gap-2">
-                            <FaUndo className="fs-5" style={{ color: '#EF4444' }} />
+                            <Undo2 className="fs-5" style={{ color: '#EF4444' }}  size="1em"/>
                             <h5 className="modal-title fw-bold mb-0" style={{ color: '#0f2743' }}>
                                 Quy Trình Khôi Phục Dữ Liệu Xét Nghiệm
                             </h5>
@@ -135,7 +129,7 @@ export default function RestoreConfirmationModal({
                         {step === 1 && (
                             <div>
                                 <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-                                    <FaCheckCircle className="text-primary" />
+                                    <CheckCircle2 className="text-primary"  size="1em"/>
                                     Bước 1: Kiểm Tra Toàn Vẹn Trước Khôi Phục (Pre-flight Validation)
                                 </h6>
 
@@ -150,7 +144,7 @@ export default function RestoreConfirmationModal({
                                     <div className="space-y-3">
                                         <div className="p-3 bg-success-subtle border border-success rounded mb-3">
                                             <div className="d-flex align-items-center gap-2 text-success fw-bold mb-1">
-                                                <FaCheckCircle />
+                                                <CheckCircle2  size="1em"/>
                                                 <span>Xác Thực Toàn Vẹn Mã Băm SHA-256 Thành Công</span>
                                             </div>
                                             <div className="small text-secondary font-monospace text-truncate">
@@ -180,7 +174,7 @@ export default function RestoreConfirmationModal({
                                         {validationResult.warnings && validationResult.warnings.length > 0 && (
                                             <div className="p-3 bg-warning-subtle border border-warning rounded mb-3">
                                                 <div className="d-flex align-items-center gap-2 text-warning-emphasis fw-bold small mb-1">
-                                                    <FaExclamationTriangle />
+                                                    <AlertTriangle  size="1em"/>
                                                     <span>LƯU Ý QUAN TRỌNG:</span>
                                                 </div>
                                                 <ul className="small text-secondary mb-0 ps-3">
@@ -200,7 +194,7 @@ export default function RestoreConfirmationModal({
                             <div>
                                 <div className="p-3 bg-danger-subtle border border-danger rounded mb-4">
                                     <div className="d-flex align-items-start gap-2">
-                                        <FaExclamationTriangle className="text-danger fs-4 flex-shrink-0 mt-1" />
+                                        <AlertTriangle className="text-danger fs-4 flex-shrink-0 mt-1"  size="1em"/>
                                         <div>
                                             <h6 className="fw-bold text-danger mb-1">
                                                 CẢNH BÁO: HÀNH ĐỘNG GHI ĐÈ DỮ LIỆU
@@ -288,7 +282,7 @@ export default function RestoreConfirmationModal({
                                         </>
                                     ) : (
                                         <>
-                                            <FaUndo />
+                                            <Undo2  size="1em"/>
                                             <span>Thực Thi Khôi Phục Ngay</span>
                                         </>
                                     )}

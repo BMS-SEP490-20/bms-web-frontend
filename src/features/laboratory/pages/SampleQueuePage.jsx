@@ -17,11 +17,7 @@ import {
   Card, Table, Badge, Button, Form, Row, Col,
   Modal, Spinner, InputGroup, Alert
 } from 'react-bootstrap';
-import {
-  FaVial, FaClock, FaExchangeAlt, FaRedoAlt, FaSearch,
-  FaSyncAlt, FaBarcode, FaCheckCircle, FaExclamationTriangle,
-  FaHistory, FaUserInjured, FaFlask, FaTimes, FaEye, FaSave, FaInfoCircle, FaArrowRight
-} from 'react-icons/fa';
+import { TestTube2, Clock, ArrowLeftRight, RotateCw, Search as LucideSearch, RefreshCw, Barcode as LucideBarcode, CheckCircle2, AlertTriangle, History as LucideHistory, User, FlaskConical, X as LucideX, Eye, Save, Info, ArrowRight } from 'lucide-react';
 import api from '../../../config/api';
 import PageHeader from '../../../components/ui/PageHeader';
 import StatRow from '../../../components/ui/StatRow';
@@ -256,7 +252,12 @@ const SampleQueuePage = () => {
     });
   };
 
-  const openResultEntryModal = async (sample) => {
+  const openResultEntryModal = (sample) => {
+    const targetId = sample?.barcode || sample?.id || '';
+    navigate(`/laboratory/enter-test-results?sampleId=${encodeURIComponent(targetId)}`);
+  };
+
+  const _legacyOpenResultModalUnused = async (sample) => {
     setResultTargetSample(sample);
     setViewOnlyResult(false);
     setResultError('');
@@ -859,7 +860,7 @@ const SampleQueuePage = () => {
         </div>
         <div className="bms-page-actions">
           <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3 text-nowrap">
-            <FaSyncAlt className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+            <RefreshCw className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
           </Button>
           {canRecordSampleTime && (
             <Button
@@ -869,7 +870,7 @@ const SampleQueuePage = () => {
               className="rounded-pill px-3 fw-semibold text-white text-nowrap"
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <FaClock className="me-1" /> Ghi nhận lấy mẫu mới
+              <Clock className="me-1"  size="1em"/> Ghi nhận lấy mẫu mới
             </Button>
           )}
         </div>
@@ -891,7 +892,7 @@ const SampleQueuePage = () => {
         <Col sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
             <div className="bms-kpi-quad-top">
-              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial size={18} /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><TestTube2 size={18} /></div>
             </div>
             <div className="bms-kpi-quad-value">{totalCount}</div>
             <div className="bms-kpi-quad-title">Tổng mẫu trong hàng đợi</div>
@@ -900,7 +901,7 @@ const SampleQueuePage = () => {
         <Col sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
             <div className="bms-kpi-quad-top">
-              <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaClock size={18} /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><Clock size={18} /></div>
             </div>
             <div className="bms-kpi-quad-value">{collectedCount}</div>
             <div className="bms-kpi-quad-title">Đã lấy mẫu / Tiếp nhận</div>
@@ -909,7 +910,7 @@ const SampleQueuePage = () => {
         <Col sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
             <div className="bms-kpi-quad-top">
-              <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaFlask size={18} /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FlaskConical size={18} /></div>
             </div>
             <div className="bms-kpi-quad-value">{processingCount}</div>
             <div className="bms-kpi-quad-title">Đang xử lý / Chạy máy</div>
@@ -918,7 +919,7 @@ const SampleQueuePage = () => {
         <Col sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
             <div className="bms-kpi-quad-top">
-              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle size={18} /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><CheckCircle2 size={18} /></div>
             </div>
             <div className="bms-kpi-quad-value">{completedCount}</div>
             <div className="bms-kpi-quad-title">Đã hoàn thành kết quả</div>
@@ -932,7 +933,7 @@ const SampleQueuePage = () => {
           <label className="bms-field">
             Tìm mẫu
             <InputGroup size="sm">
-              <InputGroup.Text><FaSearch /></InputGroup.Text>
+              <InputGroup.Text><LucideSearch  size="1em"/></InputGroup.Text>
               <Form.Control
                 type="text"
                 placeholder="Barcode, mã mẫu, mã BN"
@@ -1013,12 +1014,12 @@ const SampleQueuePage = () => {
             </div>
           ) : sampleListSafe.length === 0 ? (
             <div className="text-center py-3 text-muted">
-              <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
+              <TestTube2 className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
               <div className="fw-semibold">Không tìm thấy mẫu bệnh phẩm nào trong hàng đợi</div>
               <div className="small mb-3">Bạn có thể ghi nhận mẫu mới bằng nút &ldquo;Ghi Nhận Thời Gian Lấy Mẫu Mới&rdquo;.</div>
               {canRecordSampleTime && (
                 <Button variant="primary" size="sm" onClick={() => openRecordCollectionModal(null)}>
-                  <FaClock className="me-1" /> Ghi Nhận Lấy Mẫu Ngay
+                  <Clock className="me-1"  size="1em"/> Ghi Nhận Lấy Mẫu Ngay
                 </Button>
               )}
             </div>
@@ -1042,7 +1043,7 @@ const SampleQueuePage = () => {
                     <tr key={s.id}>
                       <td className="ps-3">
                         <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
-                          <FaBarcode />
+                          <LucideBarcode  size="1em"/>
                           <span>{s.barcode}</span>
                           {s.isAliquot && (
                             <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
@@ -1078,7 +1079,7 @@ const SampleQueuePage = () => {
                         </div>
                         {s.rejectionReason && (
                           <div className="text-danger small mt-1" style={{ fontSize: '0.72rem', wordBreak: 'break-word' }}>
-                            <FaExclamationTriangle className="me-1" />
+                            <AlertTriangle className="me-1"  size="1em"/>
                             Từ chối: {s.rejectionReason}
                           </div>
                         )}
@@ -1127,7 +1128,7 @@ const SampleQueuePage = () => {
                                     title="Ghi nhận lấy mẫu"
                                     onClick={() => openRecordCollectionModal(s)}
                                   >
-                                    <FaClock />
+                                    <Clock  size="1em"/>
                                     <span>Lấy Mẫu</span>
                                   </Button>
                                 )}
@@ -1141,7 +1142,7 @@ const SampleQueuePage = () => {
                                     title="Chuyển mẫu sang Đang xét nghiệm — sau đó bấm Nhập KQ"
                                     onClick={() => void handleStartTesting(s)}
                                   >
-                                    <FaFlask />
+                                    <FlaskConical  size="1em"/>
                                     <span>Đang xét nghiệm</span>
                                   </Button>
                                 )}
@@ -1155,7 +1156,7 @@ const SampleQueuePage = () => {
                                     title="Nhập kết quả"
                                     onClick={() => navigate(`/laboratory/enter-test-results?sampleId=${sampleKey}`)}
                                   >
-                                    <FaFlask />
+                                    <FlaskConical  size="1em"/>
                                     <span>Nhập KQ</span>
                                   </Button>
                                 )}
@@ -1173,7 +1174,7 @@ const SampleQueuePage = () => {
                                       )
                                     }
                                   >
-                                    <FaEye />
+                                    <Eye  size="1em"/>
                                     <span>Xem KQ</span>
                                   </Button>
                                 )}
@@ -1184,10 +1185,10 @@ const SampleQueuePage = () => {
                                     size="sm"
                                     className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
                                     style={btnStyle}
-                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích (BR-PHL-02)"
+                                    title="Chiết mẫu phụ (Aliquot)"
                                     onClick={() => void handleCreateAliquot(s)}
                                   >
-                                    <FaVial />
+                                    <TestTube2  size="1em"/>
                                     <span>Chiết mẫu</span>
                                   </Button>
                                 )}
@@ -1201,7 +1202,7 @@ const SampleQueuePage = () => {
                                     title="Từ chối / hủy lấy mẫu"
                                     onClick={() => openStatusUpdateModal(s, 'Rejected')}
                                   >
-                                    <FaTimes />
+                                    <LucideX  size="1em"/>
                                   </Button>
                                 )}
                               </>
@@ -1231,7 +1232,7 @@ const SampleQueuePage = () => {
         <Form onSubmit={handleSubmitCollectionTime}>
           <Modal.Header closeButton={!collectionSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
             <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-              <FaClock className="text-primary" />
+              <Clock className="text-primary"  size="1em"/>
               <span>
                 {collectionTargetSample
                   ? `Ghi nhận thời gian lấy mẫu — ${collectionTargetSample.barcode}`
@@ -1243,7 +1244,7 @@ const SampleQueuePage = () => {
           <Modal.Body className="p-3">
             {collectionError && (
               <Alert variant="danger" className="py-2 small">
-                <FaExclamationTriangle className="me-2" />
+                <AlertTriangle className="me-2"  size="1em"/>
                 {collectionError}
               </Alert>
             )}
@@ -1300,7 +1301,7 @@ const SampleQueuePage = () => {
             {!collectionTargetSample && patientOptions.length > 0 && (
               <div className="mb-3">
                 <Form.Label className="small fw-semibold">
-                  <FaUserInjured className="me-1" /> Chọn bệnh nhân <span className="text-danger">*</span>
+                  <User className="me-1"  size="1em"/> Chọn bệnh nhân <span className="text-danger">*</span>
                 </Form.Label>
                 <Form.Select
                   size="sm"
@@ -1475,7 +1476,7 @@ const SampleQueuePage = () => {
         <Form onSubmit={handleSubmitStatusUpdate}>
           <Modal.Header closeButton={!statusSubmitting} style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
             <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-              <FaExchangeAlt className="text-primary" />
+              <ArrowLeftRight className="text-primary"  size="1em"/>
               <span>Cập nhật trạng thái mẫu bệnh phẩm</span>
             </Modal.Title>
           </Modal.Header>
@@ -1483,7 +1484,7 @@ const SampleQueuePage = () => {
           <Modal.Body className="p-2">
             {statusError && (
               <Alert variant="danger" className="py-2 small">
-                <FaExclamationTriangle className="me-2" />
+                <AlertTriangle className="me-2"  size="1em"/>
                 {statusError}
               </Alert>
             )}
@@ -1534,7 +1535,7 @@ const SampleQueuePage = () => {
                               className="px-3 py-2 fw-semibold"
                               onClick={() => setStatusForm(prev => ({ ...prev, status: nextSt }))}
                             >
-                              {isSelected && <FaCheckCircle className="me-1" />}
+                              {isSelected && <CheckCircle2 className="me-1"  size="1em"/>}
                               {meta.label} ({nextSt})
                             </Button>
                           );
@@ -1678,7 +1679,7 @@ const SampleQueuePage = () => {
                 <div className="mt-4 pt-3 border-top">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="small fw-bold text-secondary d-flex align-items-center gap-1">
-                      <FaHistory /> Lịch Sử Chuyển Trạng Thái Mẫu (Audit Trail)
+                      <LucideHistory  size="1em"/> Lịch Sử Chuyển Trạng Thái Mẫu (Audit Trail)
                     </span>
                     {statusDetailLoading && <Spinner animation="border" size="sm" variant="primary" />}
                   </div>
@@ -1689,7 +1690,7 @@ const SampleQueuePage = () => {
                         <div key={i} className="small py-1 border-bottom last-border-0 d-flex justify-content-between gap-2">
                           <div>
                             <Badge bg="secondary" className="me-1">{h.fromStatus || 'Khởi tạo'}</Badge>
-                            <FaArrowRight size={10} className="mx-1 text-muted" />
+                            <ArrowRight size={10} className="mx-1 text-muted" />
                             <Badge bg="primary" className="ms-1 me-2">{h.toStatus}</Badge>
                             <span className="text-dark">{h.notes || ''}</span>
                           </div>
@@ -1735,7 +1736,7 @@ const SampleQueuePage = () => {
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger-subtle text-danger">
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <FaRedoAlt />
+            <RotateCw  size="1em"/>
             <span>Yêu Cầu Chạy Lại Mẫu Xét Nghiệm (Rerun)</span>
           </Modal.Title>
         </Modal.Header>
@@ -1782,7 +1783,7 @@ const SampleQueuePage = () => {
       >
         <Modal.Header closeButton={!resultSubmitting} className="bg-light">
           <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-            <FaFlask className="text-warning" />
+            <FlaskConical className="text-warning"  size="1em"/>
             <span>{viewOnlyResult ? 'Chi Tiết Kết Quả Xét Nghiệm Máu' : 'Nhập Kết Quả Xét Nghiệm Máu'}</span>
           </Modal.Title>
         </Modal.Header>
@@ -1790,7 +1791,7 @@ const SampleQueuePage = () => {
         <Modal.Body className="p-3">
           {resultError && (
             <Alert variant="danger" className="py-2 small">
-              <FaExclamationTriangle className="me-2" />
+              <AlertTriangle className="me-2"  size="1em"/>
               {resultError}
             </Alert>
           )}
@@ -1817,7 +1818,7 @@ const SampleQueuePage = () => {
 
               {!viewOnlyResult && (
                 <div className="alert alert-info py-2 small d-flex align-items-center gap-2 mb-3">
-                  <FaInfoCircle />
+                  <Info  size="1em"/>
                   <span>
                     Kỹ thuật viên nhập các giá trị đo được vào bảng bên dưới. Hệ thống sẽ tự động đối soát với khoảng tham chiếu chuẩn.
                   </span>
@@ -1904,7 +1905,7 @@ const SampleQueuePage = () => {
                   navigate(`/laboratory/enter-test-results?sampleId=${encodeURIComponent(resultTargetSample?.barcode || resultTargetSample?.id || '')}`);
                 }}
               >
-                <FaFlask /> Mở Trạm Nhập Chi Tiết
+                <FlaskConical  size="1em"/> Mở Trạm Nhập Chi Tiết
               </Button>
             )}
           </div>
@@ -1927,7 +1928,7 @@ const SampleQueuePage = () => {
                   </>
                 ) : (
                   <>
-                    <FaSave />
+                    <Save  size="1em"/>
                     <span>Lưu &amp; Gửi Bác Sĩ Duyệt</span>
                   </>
                 )}

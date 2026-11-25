@@ -1,21 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  FaThermometerHalf as Thermometer,
-  FaTint as Droplets,
-  FaWifi as Wifi,
-  FaExclamationCircle as WifiOff,
-  FaExclamationTriangle as AlertTriangle,
-  FaSync as RefreshCw,
-  FaDownload as Download,
-  FaSlidersH as Sliders,
-  FaSearch as Search,
-  FaDatabase as Database,
-  FaHeartbeat as Activity,
-  FaEye as Eye,
-  FaHistory as History,
-  FaTimes
-} from 'react-icons/fa';
+import { Thermometer, Droplet as Droplets, Wifi, AlertCircle as WifiOff, AlertTriangle, RefreshCw, Download, SlidersHorizontal as Sliders, Search, Database, HeartPulse as Activity, Eye, History, X as LucideX } from 'lucide-react';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
   getIotMonitorDashboard,
@@ -1056,7 +1041,7 @@ export default function IotMonitorPage() {
             aria-label="Đóng"
             style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: 'inherit' }}
           >
-            <FaTimes size={13} />
+            <LucideX size={13} />
           </button>
         </div>
       )}
@@ -1420,7 +1405,7 @@ export default function IotMonitorPage() {
               onClick={() => setSearchInput('')}
               title="Xóa tìm kiếm"
             >
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -1691,7 +1676,7 @@ export default function IotMonitorPage() {
                 aria-label="Đóng"
                 style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: '#475569' }}
               >
-                <FaTimes />
+                <LucideX  size="1em"/>
               </button>
             </div>
 
@@ -1891,7 +1876,7 @@ export default function IotMonitorPage() {
                 aria-label="Đóng"
                 style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', color: '#475569' }}
               >
-                <FaTimes />
+                <LucideX  size="1em"/>
               </button>
             </div>
 

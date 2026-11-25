@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaHeartbeat, FaSave, FaTimes, FaExclamationTriangle, FaCheckCircle, FaBan } from 'react-icons/fa';
+import { HeartPulse, Save, X as LucideX, AlertTriangle, CheckCircle2, Ban } from 'lucide-react';
 import testCriterionService from '../../../services/testCriterionService';
 import referenceIntervalService from '../../../services/referenceIntervalService';
 
@@ -335,7 +335,7 @@ export default function ReferenceIntervalModal({
     <Modal show={isOpen} onHide={onClose} size="lg" centered backdrop="static">
       <Modal.Header closeButton className="bg-light py-3">
         <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2 text-primary">
-          <FaHeartbeat />
+          <HeartPulse  size="1em"/>
           {mode === 'create' ? 'Cấu Hình Khoảng Tham Chiếu Mới' : 'Cập Nhật Khoảng Tham Chiếu Sinh Học'}
         </Modal.Title>
       </Modal.Header>
@@ -344,7 +344,7 @@ export default function ReferenceIntervalModal({
         <Modal.Body className="p-3">
           {isFullyConfigured && mode === 'create' && (
             <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3">
-              <FaExclamationTriangle className="text-warning flex-shrink-0 fs-5" />
+              <AlertTriangle className="text-warning flex-shrink-0 fs-5"  size="1em"/>
               <div>
                 <strong>Chỉ số đã đủ 2 khoảng tham chiếu:</strong> Chỉ số{' '}
                 <Badge bg="warning" text="dark" className="fs-6 me-1">
@@ -357,7 +357,7 @@ export default function ReferenceIntervalModal({
 
           {isDuplicateGenderOnCreate && !isFullyConfigured && (
             <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3">
-              <FaExclamationTriangle className="text-warning flex-shrink-0 fs-5" />
+              <AlertTriangle className="text-warning flex-shrink-0 fs-5"  size="1em"/>
               <div>
                 <strong>Giới tính đã được cấu hình:</strong> Chỉ số{' '}
                 <Badge bg="info" className="fs-6 me-1">
@@ -370,7 +370,7 @@ export default function ReferenceIntervalModal({
 
           {validationError && (
             <Alert variant="danger" className="py-2 mb-3">
-              <FaExclamationTriangle className="me-2" />
+              <AlertTriangle className="me-2"  size="1em"/>
               {validationError}
             </Alert>
           )}
@@ -580,7 +580,7 @@ export default function ReferenceIntervalModal({
               <Col md={6}>
                 <div className="p-3 bg-white rounded border border-danger border-opacity-50">
                   <span className="fw-semibold text-danger d-block mb-2">
-                    Ngưỡng Báo Động Nguy Kịch PANIC (BR-LAB-03)
+                    Ngưỡng Báo Động Nguy Kịch (PANIC)
                   </span>
                   <Row className="g-2">
                     <Col sm={6}>
@@ -667,7 +667,7 @@ export default function ReferenceIntervalModal({
 
         <Modal.Footer className="bg-light py-2">
           <Button variant="secondary" onClick={onClose} disabled={submitting}>
-            <FaTimes className="me-1" /> Hủy bỏ
+            <LucideX className="me-1"  size="1em"/> Hủy bỏ
           </Button>
           <Button variant="primary" type="submit" disabled={submitting || isDuplicate}>
             {submitting ? (
@@ -676,15 +676,15 @@ export default function ReferenceIntervalModal({
               </>
             ) : isFullyConfigured && mode === 'create' ? (
               <>
-                <FaBan className="me-1" /> Đã đủ 2 khoảng (1 Nam, 1 Nữ)
+                <Ban className="me-1"  size="1em"/> Đã đủ 2 khoảng (1 Nam, 1 Nữ)
               </>
             ) : isDuplicate ? (
               <>
-                <FaBan className="me-1" /> Giới tính này đã có cấu hình
+                <Ban className="me-1"  size="1em"/> Giới tính này đã có cấu hình
               </>
             ) : (
               <>
-                <FaSave className="me-1" /> Lưu Cấu Hình
+                <Save className="me-1"  size="1em"/> Lưu Cấu Hình
               </>
             )}
           </Button>

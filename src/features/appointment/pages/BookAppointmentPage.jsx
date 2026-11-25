@@ -1,23 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  FaCalendarAlt,
-  FaClock,
-  FaUserMd,
-  FaHospital,
-  FaCheckCircle,
-  FaVial,
-  FaInfoCircle,
-  FaArrowRight,
-  FaCalendarCheck,
-  FaIdCard,
-  FaPhoneAlt,
-  FaFileMedical,
-  FaMapMarkerAlt,
-  FaNotesMedical,
-  FaExclamationTriangle,
-  FaSearch
-} from 'react-icons/fa';
+import { Calendar, Clock, Stethoscope, Hospital as LucideHospital, CheckCircle2, TestTube2, Info, ArrowRight, CalendarCheck, IdCard, Phone, FileHeart, MapPin, FileText, AlertTriangle, Search } from 'lucide-react';
 import '../appointment.css';
 import api from '../../../config/api';
 import { useBookAppointment } from '../hooks/useBookAppointment';
@@ -827,7 +810,7 @@ export function BookAppointmentPage({
                 <div className="card-header bg-white border-bottom py-3 px-3">
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                      <FaVial className="text-primary" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
+                      <TestTube2 className="text-primary"  size="1em"/> 2. Chọn Gói Xét Nghiệm Khám Bệnh
                     </h5>
                     {isReceptionist && (
                       <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style={{ fontSize: '11px' }}>
@@ -842,7 +825,7 @@ export function BookAppointmentPage({
                       <div className="col-md-7">
                         <div className="input-group input-group-sm">
                           <span className="input-group-text bg-white text-muted border-end-0">
-                            <FaSearch size={12} />
+                            <Search size={12} />
                           </span>
                           <input
                             type="text"
@@ -1002,7 +985,7 @@ export function BookAppointmentPage({
 
                   {showFastingWarning && (
                     <div className="alert alert-warning border-0 rounded-3 p-2.5 my-3 d-flex align-items-start gap-2 text-dark" style={{ backgroundColor: '#fef3c7', fontSize: '12.5px' }}>
-                      <FaInfoCircle className="text-warning mt-0.5 flex-shrink-0" />
+                      <Info className="text-warning mt-0.5 flex-shrink-0"  size="1em"/>
                       <div>
                         <strong>Dặn dò lâm sàng:</strong> Gói xét nghiệm này có chỉ định nhịn ăn 8 – 12 giờ. Nếu chọn ca Chiều hoặc Tối, quý khách vui lòng đảm bảo đã nhịn ăn đủ thời gian, hoặc khuyến nghị chuyển sang <strong>Ca Sáng</strong> để kết quả đạt độ chính xác tối đa.
                       </div>
@@ -1012,7 +995,7 @@ export function BookAppointmentPage({
                   {(!activeShiftData || shiftSlots.length === 0) && (
                     <div className="alert alert-warning border rounded-3 p-3 my-3" style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
                       <div className="d-flex align-items-center gap-2 fw-bold text-dark small mb-1">
-                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                         <span>
                           {!activeShiftData
                             ? `Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} hiện chưa có Bác sĩ chuyên khoa ${selectedPackage?.category || ''} trực tiếp nhận.`
@@ -1047,7 +1030,7 @@ export function BookAppointmentPage({
                       </span>
                     ) : !activeShiftData ? (
                       <div className="py-2 text-muted small d-flex align-items-center gap-2">
-                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                         <span>Ca này hiện chưa có Bác sĩ chuyên khoa {selectedPackage?.category || ''} trực tiếp nhận. Quý khách vui lòng chọn ca khác hoặc ngày khác.</span>
                       </div>
                     ) : (
@@ -1057,7 +1040,7 @@ export function BookAppointmentPage({
                           <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
                             <strong className="text-dark mb-0">{activeShiftData.doctorName || 'Bác sĩ Phụ trách'}</strong>
                             <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style={{ fontSize: '11px', borderRadius: '999px' }}>
-                              <FaCheckCircle className="me-1" /> Điều phối tự động
+                              <CheckCircle2 className="me-1"  size="1em"/> Điều phối tự động
                             </span>
                           </div>
                           <span className="text-primary fw-medium" style={{ fontSize: '12.5px' }}>
@@ -1113,7 +1096,7 @@ export function BookAppointmentPage({
 
               {(validationError || error) && (
                 <div className="alert alert-danger border rounded-3 p-3 mb-3 d-flex align-items-center gap-2 text-dark small" style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca' }}>
-                  <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                  <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                   <span>{validationError || error}</span>
                 </div>
               )}
@@ -1131,7 +1114,7 @@ export function BookAppointmentPage({
               <div className="card border-0 shadow-sm rounded-3 mb-4 sticky-top" style={{ top: '90px' }}>
                 <div className="card-header bg-white border-bottom py-3 px-3">
                   <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaFileMedical className="text-primary" /> Tóm Tắt Phiếu Hẹn
+                    <FileHeart className="text-primary"  size="1em"/> Tóm Tắt Phiếu Hẹn
                   </h6>
                 </div>
                 <div className="card-body p-2">

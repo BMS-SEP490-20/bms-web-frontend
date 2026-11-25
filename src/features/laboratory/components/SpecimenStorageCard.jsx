@@ -5,15 +5,7 @@
  */
 
 import React from "react";
-import {
-    FaSnowflake,
-    FaThermometerHalf,
-    FaCalendarAlt,
-    FaCheckCircle,
-    FaExclamationTriangle,
-    FaEdit,
-    FaWarehouse
-} from "react-icons/fa";
+import { Snowflake, Thermometer, Calendar, CheckCircle2, AlertTriangle, SquarePen, Warehouse } from 'lucide-react';
 
 export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick, canEdit = true }) {
     if (!storageInfo) {
@@ -21,12 +13,12 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
             <div className="card shadow-sm border-0 h-100">
                 <div className="card-header bg-white border-bottom py-3">
                     <h6 className="mb-0 fw-bold text-dark">
-                        <FaSnowflake className="text-info me-2" />
+                        <Snowflake className="text-info me-2"  size="1em"/>
                         Thông Tin Lưu Trữ Lạnh & Tồn Trữ
                     </h6>
                 </div>
                 <div className="card-body text-center py-3 text-muted">
-                    <FaWarehouse className="display-6 mb-3 text-secondary opacity-50" />
+                    <Warehouse className="display-6 mb-3 text-secondary opacity-50"  size="1em"/>
                     <p className="mb-3">Mẫu bệnh phẩm chưa được gán vị trí lưu trữ trong tủ lạnh/kho bảo quản.</p>
                     {canEdit && onUpdateStorageClick && (
                         <button
@@ -76,7 +68,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
         <div className="card shadow-sm border-0 h-100">
             <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <h6 className="mb-0 fw-bold text-dark">
-                    <FaSnowflake className="text-info me-2" />
+                    <Snowflake className="text-info me-2"  size="1em"/>
                     Vị Trí Lưu Trữ & Giám Sát Chuỗi Lạnh
                 </h6>
                 {canEdit && onUpdateStorageClick && (
@@ -85,7 +77,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                         className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 shadow-xs"
                         onClick={onUpdateStorageClick}
                     >
-                        <FaEdit />
+                        <SquarePen  size="1em"/>
                         <span>Cập nhật vị trí</span>
                     </button>
                 )}
@@ -98,7 +90,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                         <div className="p-3 bg-light rounded border">
                             <div className="d-flex align-items-center justify-content-between mb-1">
                                 <span className="text-secondary small fw-bold text-uppercase d-flex align-items-center gap-1">
-                                    <FaWarehouse className="text-primary" /> Tủ bảo quản
+                                    <Warehouse className="text-primary"  size="1em"/> Tủ bảo quản
                                 </span>
                                 <span className="badge bg-primary-subtle text-primary border border-primary">
                                     {storageStatus}
@@ -127,16 +119,16 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                     <div className="card-body p-3">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <span className="fw-bold small text-dark d-flex align-items-center gap-1">
-                                <FaThermometerHalf className="text-danger" />
+                                <Thermometer className="text-danger"  size="1em"/>
                                 Giám Sát Nhiệt Độ Tủ Lạnh
                             </span>
                             {isCompliant ? (
                                 <span className="badge bg-success-subtle text-success border border-success">
-                                    <FaCheckCircle className="me-1" /> Đạt chuẩn
+                                    <CheckCircle2 className="me-1"  size="1em"/> Đạt chuẩn
                                 </span>
                             ) : (
                                 <span className="badge bg-danger-subtle text-danger border border-danger">
-                                    <FaExclamationTriangle className="me-1" /> Vượt ngưỡng cảnh báo
+                                    <AlertTriangle className="me-1"  size="1em"/> Vượt ngưỡng cảnh báo
                                 </span>
                             )}
                         </div>
@@ -159,7 +151,7 @@ export default function SpecimenStorageCard({ storageInfo, onUpdateStorageClick,
                 <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-1">
                         <span className="small text-secondary fw-semibold d-flex align-items-center gap-1">
-                            <FaCalendarAlt className="text-primary" />
+                            <Calendar className="text-primary"  size="1em"/>
                             Thời Hạn Lưu Trữ Mẫu
                         </span>
                         <span className={`badge ${retentionBadgeClass}`}>{retentionText}</span>

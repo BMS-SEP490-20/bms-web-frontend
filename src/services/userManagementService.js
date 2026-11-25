@@ -213,7 +213,7 @@ export const userManagementService = {
       data: {
         totalEmployees: users.filter(u => u.role !== 'patient').length,
         doctors: users.filter(u => u.role === 'doctor').length,
-        labTechs: users.filter(u => u.role === 'lab_user').length,
+        labTechs: users.filter(u => u.role === 'lab' || u.role === 'lab_user').length,
         receptionists: users.filter(u => u.role === 'receptionist').length,
         managers: users.filter(u => u.role === 'manager' || u.role === 'admin').length,
         patients: users.filter(u => u.role === 'patient').length,

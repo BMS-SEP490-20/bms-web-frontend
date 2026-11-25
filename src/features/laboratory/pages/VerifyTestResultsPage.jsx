@@ -7,16 +7,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import {
-    FaCheckCircle,
-    FaExclamationTriangle,
-    FaVial,
-    FaSyncAlt,
-    FaUndo,
-    FaFileSignature,
-    FaAward,
-    FaClipboardCheck
-} from "react-icons/fa";
+import { CheckCircle2, AlertTriangle, TestTube2, RefreshCw, Undo2, FileSignature, Award, ClipboardCheck } from 'lucide-react';
 import {
     fetchVerificationQueue,
     fetchVerificationDetails,
@@ -52,7 +43,7 @@ export default function VerifyTestResultsPage() {
 
     // Form thẩm định
     const [verifierComment, setVerifierComment] = useState(
-        "Kết quả xét nghiệm đã được thẩm định kỹ thuật đầy đủ. Chỉ số nằm trong khoảng tham chiếu kiểm soát, biểu đồ Westgard/Levey-Jennings đạt chuẩn ISO 15189. Đã ký số điện tử và chuyển Bác sĩ điều trị hội chẩn."
+        "Kết quả xét nghiệm đã được kiểm tra kỹ thuật và chuyển Bác sĩ phụ trách duyệt."
     );
 
     // Modal trả mẫu yêu cầu hiệu chỉnh
@@ -371,7 +362,7 @@ export default function VerifyTestResultsPage() {
                             title="Tải lại danh sách chờ duyệt"
                             onClick={handleRefreshAll}
                         >
-                            <FaSyncAlt />
+                            <RefreshCw  size="1em"/>
                         </button>
                     </div>
                 </div>
@@ -383,7 +374,7 @@ export default function VerifyTestResultsPage() {
                     <div className="card-body p-3">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <span className="fw-bold text-dark small d-flex align-items-center gap-2">
-                                <FaClipboardCheck className="text-primary" />
+                                <ClipboardCheck className="text-primary"  size="1em"/>
                                 Hàng đợi kết quả KTV gửi lên chờ Trưởng Khoa thẩm định ({queue.length} mẫu)
                             </span>
                             <span className="text-muted small">Nhấp vào một mẫu để xem chỉ số đo và ký duyệt</span>
@@ -403,7 +394,7 @@ export default function VerifyTestResultsPage() {
                                         }`}
                                     >
                                         <div className="d-flex align-items-center gap-2">
-                                            <FaVial className={isActive ? "text-white" : "text-primary"} />
+                                            <TestTube2 className={isActive ? "text-white" : "text-primary"}  size="1em"/>
                                             <span className="font-monospace fw-bold">{item.specimenId}</span>
                                             {item.priority === "Urgent" && (
                                                 <span className="badge bg-danger">PANIC</span>
@@ -426,7 +417,7 @@ export default function VerifyTestResultsPage() {
             {/* Thông báo Alert */}
             {alertMessage && (
                 <div className={`alert alert-${alertMessage.type} alert-dismissible fade show d-flex align-items-center gap-2 mb-4 shadow-sm rounded-3`} role="alert">
-                    {alertMessage.type === "success" ? <FaCheckCircle className="fs-5 flex-shrink-0" /> : <FaExclamationTriangle className="fs-5 flex-shrink-0" />}
+                    {alertMessage.type === "success" ? <CheckCircle2 className="fs-5 flex-shrink-0"  size="1em"/> : <AlertTriangle className="fs-5 flex-shrink-0"  size="1em"/>}
                     <div>{alertMessage.text}</div>
                     <button type="button" className="btn-close" onClick={() => setAlertMessage(null)}></button>
                 </div>
@@ -435,14 +426,14 @@ export default function VerifyTestResultsPage() {
             {/* Trạng thái trống khi chưa có kết quả nào chờ duyệt */}
             {!queueLoading && !selectedSpecimenId && (
                 <div className="card border-0 shadow-sm rounded-4 bg-white text-center py-5 px-3">
-                    <FaCheckCircle className="fs-1 text-success opacity-75 mx-auto mb-3" />
+                    <CheckCircle2 className="fs-1 text-success opacity-75 mx-auto mb-3"  size="1em"/>
                     <h5 className="fw-bold text-dark">Hiện chưa có kết quả xét nghiệm nào đang chờ duyệt</h5>
                     <p className="text-muted small mb-3">
                         Khi Kỹ thuật viên nhập và gửi kết quả xét nghiệm (trạng thái <code>waiting_review</code>), mẫu sẽ tự động xuất hiện tại đây để Trưởng Khoa thẩm định kỹ thuật và chuyển Bác sĩ.
                     </p>
                     <div>
                         <button type="button" className="btn btn-outline-primary btn-sm rounded-pill px-3" onClick={handleRefreshAll}>
-                            <FaSyncAlt className="me-1" /> Làm mới hàng đợi
+                            <RefreshCw className="me-1"  size="1em"/> Làm mới hàng đợi
                         </button>
                     </div>
                 </div>
@@ -480,15 +471,15 @@ export default function VerifyTestResultsPage() {
                                     <span className="text-muted small d-block">Trạng thái phê duyệt</span>
                                     {isVerified ? (
                                         <span className="badge bg-success px-3 py-2 fs-6">
-                                            <FaCheckCircle className="me-1" /> Đã Ký Số &amp; Thẩm Định
+                                            <CheckCircle2 className="me-1"  size="1em"/> Đã Ký Số &amp; Thẩm Định
                                         </span>
                                     ) : isReturned ? (
                                         <span className="badge bg-warning text-dark px-3 py-2 fs-6">
-                                            <FaExclamationTriangle className="me-1" /> Yêu Cầu KTV Hiệu Chỉnh
+                                            <AlertTriangle className="me-1"  size="1em"/> Yêu Cầu KTV Hiệu Chỉnh
                                         </span>
                                     ) : (
                                         <span className="badge bg-info text-dark px-3 py-2 fs-6">
-                                            <FaFileSignature className="me-1" /> Chờ thẩm định kỹ thuật (tùy chọn)
+                                            <FileSignature className="me-1"  size="1em"/> Chờ thẩm định kỹ thuật (tùy chọn)
                                         </span>
                                     )}
                                 </div>
@@ -605,7 +596,7 @@ export default function VerifyTestResultsPage() {
                         <div className="w-100">
                             {isVerified && (
                                 <div className="alert alert-success d-flex align-items-center gap-3 mb-4 shadow-sm">
-                                    <FaAward className="fs-1 text-success flex-shrink-0" />
+                                    <Award className="fs-1 text-success flex-shrink-0"  size="1em"/>
                                     <div>
                                         <h6 className="fw-bold mb-1">CHỨNG THƯ KÝ SỐ Y TẾ ĐIỆN TỬ HỢP LỆ</h6>
                                         <div className="small text-muted">
@@ -644,7 +635,7 @@ export default function VerifyTestResultsPage() {
                                         onClick={handleVerify}
                                         disabled={submitting || isVerified || isReturned}
                                     >
-                                        <FaFileSignature />
+                                        <FileSignature  size="1em"/>
                                         {isVerified ? "Đã chuyển Bác sĩ thẩm định" : isReturned ? "Đã trả về KTV" : "Ký kỹ thuật & Chuyển Bác sĩ"}
                                     </button>
 
@@ -659,7 +650,7 @@ export default function VerifyTestResultsPage() {
                                         }}
                                         disabled={submitting || isVerified || isReturned}
                                     >
-                                        <FaUndo className="text-warning" />
+                                        <Undo2 className="text-warning"  size="1em"/>
                                         Trả về KTV yêu cầu chạy lại / hiệu chỉnh
                                     </button>
                                 </div>
@@ -676,7 +667,7 @@ export default function VerifyTestResultsPage() {
                         <div className="modal-content shadow border-0">
                             <div className="modal-header bg-warning bg-opacity-25 border-bottom">
                                 <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaExclamationTriangle className="text-warning" />
+                                    <AlertTriangle className="text-warning"  size="1em"/>
                                     Yêu Cầu Hiệu Chỉnh / Chạy Lại Mẫu Xét Nghiệm
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setShowReturnModal(false)}></button>

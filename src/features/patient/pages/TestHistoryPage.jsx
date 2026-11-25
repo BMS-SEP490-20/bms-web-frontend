@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Badge, Breadcrumb, Button, Col, Form, Offcanvas, Row, Table, Spinner } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaHistory, FaEye, FaShieldAlt, FaSyncAlt, FaSearch, FaCheckCircle, FaClock, FaExclamationTriangle, FaTimes, FaUserMd, FaDownload, FaPhoneAlt, FaStethoscope, FaCalendarCheck } from 'react-icons/fa';
+import { History as LucideHistory, Eye, ShieldCheck, RefreshCw, Search, CheckCircle2, Clock, AlertTriangle, X as LucideX, Stethoscope, Download, Phone, CalendarCheck } from 'lucide-react';
 import { getTestHistory, getTestHistoryDetail, testHistoryError } from '../api/testHistoryApi';
 import { ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 import './PatientPaymentHistoryPage.css';
@@ -91,7 +91,7 @@ function HistoryDetail({ id, onClose }) {
     >
       <Offcanvas.Header closeButton className="border-bottom px-3 py-3 bg-light">
         <Offcanvas.Title className="fs-6 fw-bold text-dark d-flex align-items-center gap-2">
-          <FaShieldAlt className="text-primary" /> Chi Tiết Kết Quả Xét Nghiệm
+          <ShieldCheck className="text-primary"  size="1em"/> Chi Tiết Kết Quả Xét Nghiệm
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body className="p-2">
@@ -113,11 +113,11 @@ function HistoryDetail({ id, onClose }) {
                 </h5>
                 {(data.summary?.available || data.summary?.approvedAt || data.approvedAt || data.digitalSignature) ? (
                   <span className="badge bg-success-subtle text-success border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
-                    <FaCheckCircle className="me-1" /> Đã duyệt và ký số
+                    <CheckCircle2 className="me-1"  size="1em"/> Đã duyệt và ký số
                   </span>
                 ) : (
                   <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
-                    <FaClock className="me-1" /> Đang phân tích
+                    <Clock className="me-1"  size="1em"/> Đang phân tích
                   </span>
                 )}
               </div>
@@ -215,7 +215,7 @@ function HistoryDetail({ id, onClose }) {
                 <div className="p-3 bg-white border rounded-3 mb-3" style={{ borderLeft: '4px solid #10b981' }}>
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                     <div className="d-flex align-items-center gap-2">
-                      <FaUserMd className="text-success fs-5" />
+                      <Stethoscope className="text-success fs-5"  size="1em"/>
                       <div>
                         <div className="fw-bold text-dark small">
                           {data.approvingDoctorName || data.reviewedBy || data.doctorName
@@ -226,7 +226,7 @@ function HistoryDetail({ id, onClose }) {
                     </div>
                     {(data.digitalSignature || data.signedAt || data.approvedAt || data.summary?.approvedAt || data.summary?.available) ? (
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
-                        <FaCheckCircle className="me-1" /> Đã ký duyệt
+                        <CheckCircle2 className="me-1"  size="1em"/> Đã ký duyệt
                       </span>
                     ) : (
                       <span className="badge bg-secondary-subtle text-secondary border px-2 py-1 small fw-semibold">
@@ -236,7 +236,7 @@ function HistoryDetail({ id, onClose }) {
                   </div>
                   <div className="d-flex align-items-center justify-content-between text-muted" style={{ fontSize: 11.5 }}>
                     <span>CCHN: <strong>{data.licenseNumber || data.doctorLicense || '—'}</strong></span>
-                    <span>Quy chuẩn: <strong>ISO 15189:2022 · SHA-256</strong></span>
+                    <span>Mã KQ: <strong>{data.summary?.resultCode || data.summary?.id || '—'}</strong></span>
                   </div>
                 </div>
 
@@ -251,7 +251,7 @@ function HistoryDetail({ id, onClose }) {
                         <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderLeft: '4px solid #0284c7' }}>
                           <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                             <div className="d-flex align-items-center gap-2 text-primary fw-bold" style={{ fontSize: 13.5 }}>
-                              <FaStethoscope /> Chẩn Đoán Cuối Cùng Của Bác Sĩ
+                              <Stethoscope  size="1em"/> Chẩn Đoán Cuối Cùng Của Bác Sĩ
                             </div>
                             {data.icd10Code && (
                               <span className="badge bg-primary text-white font-monospace px-2 py-1" style={{ fontSize: 11 }}>
@@ -295,7 +295,7 @@ function HistoryDetail({ id, onClose }) {
 
                           {data.followUpDate && (
                             <div className="d-flex align-items-center gap-2 mt-2 pt-2 border-top small text-dark">
-                              <FaCalendarCheck className="text-primary" />
+                              <CalendarCheck className="text-primary"  size="1em"/>
                               <span className="text-muted">Hẹn tái khám:</span>
                               <strong>{data.followUpDate}</strong>
                             </div>
@@ -322,7 +322,7 @@ function HistoryDetail({ id, onClose }) {
                 }) && (
                   <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a' }}>
                     <div className="d-flex align-items-center gap-2 mb-1 text-warning-emphasis fw-bold small">
-                      <FaExclamationTriangle /> Lưu Ý Chỉ Số Ngoài Khoảng Tham Chiếu
+                      <AlertTriangle  size="1em"/> Lưu Ý Chỉ Số Ngoài Khoảng Tham Chiếu
                     </div>
                     <p className="mb-0 text-dark small" style={{ lineHeight: 1.6, fontSize: 12.5 }}>
                       Kết quả có một số chỉ số nằm ngoài khoảng tham chiếu sinh học. Quý khách vui lòng trao đổi trực tiếp với bác sĩ điều trị hoặc liên hệ tổng đài y khoa để được tư vấn cụ thể theo tình trạng lâm sàng.
@@ -337,14 +337,14 @@ function HistoryDetail({ id, onClose }) {
                     className="btn btn-primary btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                     style={{ backgroundColor: '#1E60E6', borderRadius: '8px' }}
                   >
-                    <FaDownload /> Tải Phiếu Kết Quả Ký Số (PDF)
+                    <Download  size="1em"/> Tải Phiếu Kết Quả Ký Số (PDF)
                   </Link>
                   <a
-                    href="tel:19008686"
+                    href="tel:19006868"
                     className="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                     style={{ borderRadius: '8px' }}
                   >
-                    <FaPhoneAlt /> Bác Sĩ Tư Vấn Miễn Phí (1900 8686)
+                    <Phone  size="1em"/> Tổng đài hỗ trợ (1900 6868)
                   </a>
                 </div>
               </>
@@ -355,7 +355,7 @@ function HistoryDetail({ id, onClose }) {
                 Thời gian hiển thị theo chuẩn giờ Việt Nam (UTC+7).
               </span>
               <Button variant="outline-primary" size="sm" onClick={() => setRetry((v) => v + 1)} style={{ borderRadius: 6, fontSize: 12 }}>
-                <FaSyncAlt className="me-1" /> Làm mới
+                <RefreshCw className="me-1"  size="1em"/> Làm mới
               </Button>
             </div>
           </div>
@@ -442,7 +442,7 @@ export default function TestHistoryPage() {
             onClick={() => setRefresh((v) => v + 1)}
             style={{ height: 38, borderRadius: 8, fontSize: 12.5, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
         </div>
       </header>
@@ -530,7 +530,7 @@ export default function TestHistoryPage() {
 
       {invalid && (
         <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-3 border-0 bg-warning-subtle text-dark">
-          <FaExclamationTriangle className="text-warning flex-shrink-0" />
+          <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
           <span className="small">Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.</span>
         </Alert>
       )}
@@ -591,11 +591,11 @@ export default function TestHistoryPage() {
                     <td className="text-center">
                       {row.available ? (
                         <span className="badge bg-success-subtle text-success border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                          <FaCheckCircle className="me-1" /> Đã Phát Hành
+                          <CheckCircle2 className="me-1"  size="1em"/> Đã Phát Hành
                         </span>
                       ) : (
                         <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-2.5 py-1 fw-semibold" style={{ borderRadius: 9999, fontSize: 11.5 }}>
-                          <FaClock className="me-1" /> Đang Phân Tích
+                          <Clock className="me-1"  size="1em"/> Đang Phân Tích
                         </span>
                       )}
                     </td>
@@ -608,7 +608,7 @@ export default function TestHistoryPage() {
                         aria-label={`Xem kết quả ${row.resultCode || row.id}`}
                         onClick={() => setParams({ result: row.id })}
                       >
-                        <FaEye className="me-1" /> Xem Kết Quả
+                        <Eye className="me-1"  size="1em"/> Xem Kết Quả
                       </Button>
                     </td>
                   </tr>
@@ -616,7 +616,7 @@ export default function TestHistoryPage() {
               ) : !error && !invalid ? (
                 <tr>
                   <td colSpan={6} className="text-center py-3 text-muted">
-                    <FaHistory size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
+                    <LucideHistory size={32} className="d-block mx-auto mb-2 opacity-40 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có kết quả xét nghiệm phù hợp</div>
                     <div className="small text-muted mt-1">Vui lòng thay đổi bộ lọc hoặc kiểm tra hồ sơ xét nghiệm.</div>
                   </td>

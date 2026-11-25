@@ -9,7 +9,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from "react-bootstrap";
-import { FaExternalLinkAlt, FaSearch, FaTimes } from "react-icons/fa";
+import { ExternalLink, Search, X as LucideX } from 'lucide-react';
 import {
     getPackages,
     getTestCriteria,
@@ -265,7 +265,7 @@ export default function ServicePackagesPage({ onBack }) {
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                     >
                         <span>Xem Cổng Bệnh Nhân</span>
-                        <FaExternalLinkAlt size={11} />
+                        <ExternalLink size={11} />
                     </Button>
 
                     {canManage && (
@@ -298,7 +298,7 @@ export default function ServicePackagesPage({ onBack }) {
             {/* Single-Line Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaSearch className="bms-search-icon" />
+                    <Search className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Tìm theo mã, tên gói, chỉ số..."
@@ -312,7 +312,7 @@ export default function ServicePackagesPage({ onBack }) {
                             onClick={() => setSearch('')}
                             title="Xóa tìm kiếm"
                         >
-                            <FaTimes size={12} />
+                            <LucideX size={12} />
                         </button>
                     )}
                 </div>

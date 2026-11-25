@@ -26,27 +26,7 @@ import {
   Alert,
   Modal
 } from 'react-bootstrap';
-import {
-  FaNotesMedical,
-  FaHeartbeat,
-  FaStethoscope,
-  FaPlus,
-  FaEdit,
-  FaTrashAlt,
-  FaSearch,
-  FaLock,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaUserInjured,
-  FaUserMd,
-  FaPrescriptionBottleAlt,
-  FaVial,
-  FaClipboardList,
-  FaSync,
-  FaEye,
-  FaBullhorn,
-  FaHistory
-} from 'react-icons/fa';
+import { FileText, HeartPulse, Stethoscope, Plus, SquarePen, Trash2, Search, Lock, CheckCircle2, AlertTriangle, User, Pill, TestTube2, ClipboardList, RefreshCw, Eye, Megaphone, History as LucideHistory } from 'lucide-react';
 import { medicalRecordApi } from '../api/medicalRecordApi';
 import { fetchTestOrders } from '../api/testOrderApi';
 import { receptionApi } from '../../reception/api/receptionApi';
@@ -695,7 +675,7 @@ export default function MedicalRecordPage() {
             <h1 className="bms-page-title">Bệnh án &amp; kết luận chẩn đoán</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Danh sách lượt khám từ Bàn khám &amp; Phòng Lab. Chọn bệnh nhân để đối chiếu kết quả xét nghiệm, chốt mã bệnh WHO ICD-10 và lưu bệnh án điện tử theo Thông tư 46/2018/TT-BYT.
+            Chọn bệnh nhân để xem kết quả xét nghiệm, cập nhật chẩn đoán ICD-10 và lưu bệnh án.
           </p>
         </div>
         <div className="bms-page-actions">
@@ -706,7 +686,7 @@ export default function MedicalRecordPage() {
             onClick={loadWorklist}
             disabled={loadingWorklist}
           >
-            <FaSync className={loadingWorklist ? 'fa-spin me-1' : 'me-1'} size={11} /> Làm mới
+            <RefreshCw className={loadingWorklist ? 'fa-spin me-1' : 'me-1'} size={11} /> Làm mới
           </Button>
         </div>
       </div>
@@ -718,7 +698,7 @@ export default function MedicalRecordPage() {
           onClose={() => setPageBanner(null)}
           className="rounded-4 border-0 shadow-sm mb-3 d-flex align-items-center gap-2"
         >
-          <FaCheckCircle />
+          <CheckCircle2  size="1em"/>
           <span className="fw-semibold">{pageBanner}</span>
         </Alert>
       )}
@@ -732,7 +712,7 @@ export default function MedicalRecordPage() {
       {/* Filter Bar & Status Pills */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '260px' }}>
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo mã BN (PAT-...), tên bệnh nhân, mã hẹn (APT-...) hoặc mã ICD-10..."
@@ -781,7 +761,7 @@ export default function MedicalRecordPage() {
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
         <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">
-            <FaClipboardList className="text-primary" />
+            <ClipboardList className="text-primary"  size="1em"/>
             <h6 className="fw-bold text-dark mb-0">
               Danh Sách Bệnh Nhân Khám &amp; Kết Luận Bệnh Án
             </h6>
@@ -813,7 +793,7 @@ export default function MedicalRecordPage() {
                   {filteredWorklist.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="text-center py-5">
-                        <FaUserInjured size={34} className="text-muted opacity-25 mb-2" />
+                        <User size={34} className="text-muted opacity-25 mb-2" />
                         <div className="fw-semibold text-dark">
                           {searchKeyword
                             ? 'Không tìm thấy bệnh nhân khớp với từ khóa'
@@ -827,7 +807,7 @@ export default function MedicalRecordPage() {
                             to="/doctor/console"
                             className="btn btn-outline-primary btn-sm rounded-pill px-3"
                           >
-                            <FaBullhorn className="me-1" /> Mở Bàn Khám &amp; Gọi Số
+                            <Megaphone className="me-1"  size="1em"/> Mở Bàn Khám &amp; Gọi Số
                           </Link>
                         </div>
                       </td>
@@ -867,17 +847,17 @@ export default function MedicalRecordPage() {
                             {item.hasApprovedLab ? (
                               <div className="d-flex flex-column gap-1 align-items-start">
                                 <Badge bg="success" className="rounded-pill px-2 py-1">
-                                  <FaCheckCircle className="me-1" /> Đã có KQ Lab duyệt
+                                  <CheckCircle2 className="me-1"  size="1em"/> Đã có KQ Lab duyệt
                                 </Badge>
                                 {item.hasPanicOrAbnormal && (
                                   <Badge bg="danger" className="rounded-pill px-2 py-1">
-                                    <FaExclamationTriangle className="me-1" /> Có chỉ số bất thường
+                                    <AlertTriangle className="me-1"  size="1em"/> Có chỉ số bất thường
                                   </Badge>
                                 )}
                               </div>
                             ) : item.order ? (
                               <Badge bg="warning" text="dark" className="rounded-pill px-2 py-1">
-                                <FaVial className="me-1" /> Đang chờ Lab ({item.order.status})
+                                <TestTube2 className="me-1"  size="1em"/> Đang chờ Lab ({item.order.status})
                               </Badge>
                             ) : (
                               <span className="small text-muted">Chưa có chỉ định Lab</span>
@@ -892,7 +872,7 @@ export default function MedicalRecordPage() {
                             ) : isLocked ? (
                               <div className="d-flex flex-column align-items-start gap-1">
                                 <Badge bg="dark" className="rounded-pill px-2 py-1">
-                                  <FaLock className="me-1" /> Đã khóa (&gt; 24h)
+                                  <Lock className="me-1"  size="1em"/> Đã khóa (&gt; 24h)
                                 </Badge>
                                 <span className="small text-muted">
                                   {latest.recordCode} · ICD-10: <strong>{latest.icd10Code}</strong>
@@ -901,7 +881,7 @@ export default function MedicalRecordPage() {
                             ) : (
                               <div className="d-flex flex-column align-items-start gap-1">
                                 <Badge bg="info" text="dark" className="rounded-pill px-2 py-1">
-                                  <FaEdit className="me-1" /> Đã lập · Còn hạn sửa 24h
+                                  <SquarePen className="me-1"  size="1em"/> Đã lập · Còn hạn sửa 24h
                                 </Badge>
                                 <span className="small text-muted">
                                   {latest.recordCode} · ICD-10: <strong>{latest.icd10Code}</strong>
@@ -918,7 +898,7 @@ export default function MedicalRecordPage() {
                                 className="rounded-pill px-3 fw-semibold shadow-sm"
                                 onClick={() => handleOpenEncounterModal(item)}
                               >
-                                <FaNotesMedical className="me-1" /> Lập bệnh án &amp; Kết luận
+                                <FileText className="me-1"  size="1em"/> Lập bệnh án &amp; Kết luận
                               </Button>
                             ) : isEditable && canWriteEmr ? (
                               <Button
@@ -927,7 +907,7 @@ export default function MedicalRecordPage() {
                                 className="rounded-pill px-3 fw-semibold"
                                 onClick={() => handleOpenEncounterModal(item)}
                               >
-                                <FaEdit className="me-1" /> Xem / Cập nhật (24h)
+                                <SquarePen className="me-1"  size="1em"/> Xem / Cập nhật (24h)
                               </Button>
                             ) : (
                               <Button
@@ -936,7 +916,7 @@ export default function MedicalRecordPage() {
                                 className="rounded-pill px-3 fw-semibold"
                                 onClick={() => handleOpenEncounterModal(item)}
                               >
-                                <FaEye className="me-1" /> Xem hồ sơ
+                                <Eye className="me-1"  size="1em"/> Xem hồ sơ
                               </Button>
                             )}
                           </td>
@@ -962,7 +942,7 @@ export default function MedicalRecordPage() {
         <Modal.Header closeButton className="bg-light border-bottom px-4 py-3">
           <div className="d-flex flex-column">
             <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-              <FaStethoscope className="text-primary" />
+              <Stethoscope className="text-primary"  size="1em"/>
               <span>Bệnh Án Điện Tử &amp; Kết Luận Chẩn Đoán</span>
               {selectedRecord && (
                 <Badge bg="primary" className="rounded-pill fs-6 fw-normal px-3">
@@ -971,7 +951,7 @@ export default function MedicalRecordPage() {
               )}
               {isReadOnlyModal && selectedRecord && (
                 <Badge bg="dark" className="rounded-pill fs-6 fw-normal px-3">
-                  <FaLock className="me-1" /> Khóa pháp lý (&gt; 24h)
+                  <Lock className="me-1"  size="1em"/> Khóa pháp lý (&gt; 24h)
                 </Badge>
               )}
             </Modal.Title>
@@ -997,14 +977,14 @@ export default function MedicalRecordPage() {
             <Form id="emr-conclusion-form" onSubmit={handleSubmitEmr}>
               {modalError && (
                 <Alert variant="danger" dismissible onClose={() => setModalError(null)} className="rounded-3">
-                  <FaExclamationTriangle className="me-2" />
+                  <AlertTriangle className="me-2"  size="1em"/>
                   {modalError}
                 </Alert>
               )}
 
               {modalSuccess && (
                 <Alert variant="success" dismissible onClose={() => setModalSuccess(null)} className="rounded-3">
-                  <FaCheckCircle className="me-2" />
+                  <CheckCircle2 className="me-2"  size="1em"/>
                   {modalSuccess}
                 </Alert>
               )}
@@ -1013,7 +993,7 @@ export default function MedicalRecordPage() {
                 <Alert variant="warning" className="rounded-3 border-warning">
                   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div className="small">
-                      <FaExclamationTriangle className="me-2 text-warning" />
+                      <AlertTriangle className="me-2 text-warning"  size="1em"/>
                       <strong>Ràng buộc liên thông Phòng Lab:</strong> Bệnh nhân đang có y lệnh{' '}
                       <code>{activeEncounter?.order?.orderNumber || activeEncounter?.order?.id}</code>{' '}
                       ({activeEncounter?.order?.status}) nhưng <strong>chưa có kết quả được ký duyệt SHA-256</strong>.
@@ -1040,7 +1020,7 @@ export default function MedicalRecordPage() {
               <div className="bg-light rounded-3 p-3 mb-4 border">
                 <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                   <div className="small fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaHistory className="text-primary" />
+                    <LucideHistory className="text-primary"  size="1em"/>
                     <span>Lịch sử bệnh án của bệnh nhân ({patientRecords.length} hồ sơ):</span>
                   </div>
                   <div className="d-flex flex-wrap gap-2">
@@ -1051,7 +1031,7 @@ export default function MedicalRecordPage() {
                         className="rounded-pill px-3"
                         onClick={() => handleSelectHistoryRecord(null)}
                       >
-                        <FaPlus className="me-1" /> Lập bệnh án đợt mới
+                        <Plus className="me-1"  size="1em"/> Lập bệnh án đợt mới
                       </Button>
                     )}
                     {patientRecords.map((rec) => (
@@ -1077,7 +1057,7 @@ export default function MedicalRecordPage() {
                   <Card className="border rounded-4 mb-4">
                     <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark">
-                        <FaVial className="text-primary me-2" />
+                        <TestTube2 className="text-primary me-2"  size="1em"/>
                         Kết Quả Xét Nghiệm Cận Lâm Sàng (Lab)
                       </span>
                       <Badge bg="secondary" className="rounded-pill">
@@ -1138,7 +1118,7 @@ export default function MedicalRecordPage() {
                   <Card className="border rounded-4">
                     <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark">
-                        <FaHeartbeat className="text-danger me-2" />
+                        <HeartPulse className="text-danger me-2"  size="1em"/>
                         Dấu Hiệu Sinh Tồn &amp; Chỉ Số BMI
                       </span>
                       <Badge bg={bmiColor} className="rounded-pill">
@@ -1236,7 +1216,7 @@ export default function MedicalRecordPage() {
                   <Card className="border rounded-4 h-100">
                     <Card.Header className="bg-light border-bottom py-2 px-3">
                       <span className="fw-bold small text-dark">
-                        <FaUserMd className="text-primary me-2" />
+                        <Stethoscope className="text-primary me-2"  size="1em"/>
                         Khám Lâm Sàng, Chẩn Đoán WHO ICD-10 &amp; Phác Đồ Điều Trị
                       </span>
                     </Card.Header>
@@ -1325,7 +1305,7 @@ export default function MedicalRecordPage() {
 
                       <div>
                         <Form.Label className="small fw-semibold mb-1">
-                          <FaPrescriptionBottleAlt className="text-success me-1" />
+                          <Pill className="text-success me-1"  size="1em"/>
                           Phác đồ điều trị &amp; Hướng xử trí
                         </Form.Label>
                         <Form.Control
@@ -1366,7 +1346,7 @@ export default function MedicalRecordPage() {
                 </span>
               ) : (
                 <span className="text-dark fw-semibold">
-                  <FaLock className="me-1" /> Hồ sơ đã khóa sửa sau 24 giờ theo Thông tư 46/2018/TT-BYT.
+                  <Lock className="me-1"  size="1em"/> Hồ sơ đã khóa sửa sau 24 giờ theo Thông tư 46/2018/TT-BYT.
                 </span>
               )
             ) : (
@@ -1386,7 +1366,7 @@ export default function MedicalRecordPage() {
                   setShowDeleteModal(true);
                 }}
               >
-                <FaTrashAlt className="me-1" /> Hủy hồ sơ (Audit)
+                <Trash2 className="me-1"  size="1em"/> Hủy hồ sơ (Audit)
               </Button>
             )}
 
@@ -1413,11 +1393,11 @@ export default function MedicalRecordPage() {
                   </>
                 ) : modalMode === 'create' ? (
                   <>
-                    <FaCheckCircle className="me-1" /> Lưu Bệnh Án &amp; Chốt Chẩn Đoán
+                    <CheckCircle2 className="me-1"  size="1em"/> Lưu Bệnh Án &amp; Chốt Chẩn Đoán
                   </>
                 ) : (
                   <>
-                    <FaEdit className="me-1" /> Cập Nhật Bệnh Án
+                    <SquarePen className="me-1"  size="1em"/> Cập Nhật Bệnh Án
                   </>
                 )}
               </Button>
@@ -1430,7 +1410,7 @@ export default function MedicalRecordPage() {
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-6 fw-bold text-danger">
-            <FaExclamationTriangle className="me-2" /> Giải Trình Hủy Hồ Sơ Bệnh Án (Audit)
+            <AlertTriangle className="me-2"  size="1em"/> Giải Trình Hủy Hồ Sơ Bệnh Án (Audit)
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

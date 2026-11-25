@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { FaWarehouse, FaCheck } from "react-icons/fa";
+import { Warehouse, Check } from 'lucide-react';
 
 const STORAGE_UNITS = [
     { name: "Tủ Mát Bảo Quản REF-01 (Kho Lab Chính)", temp: 4.0, min: 2.0, max: 8.0, days: 7, method: "Bảo quản lạnh 2°C - 8°C" },
@@ -91,7 +91,7 @@ export default function UpdateStorageModal({ show, onHide, barcode, currentStora
                 <div className="modal-content shadow border-0">
                     <div className="modal-header border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
                         <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2 fs-6">
-                            <FaWarehouse className="text-primary" />
+                            <Warehouse className="text-primary"  size="1em"/>
                             Cập nhật vị trí lưu trữ lạnh
                         </h5>
                         <button
@@ -241,7 +241,7 @@ export default function UpdateStorageModal({ show, onHide, barcode, currentStora
                                     </>
                                 ) : (
                                     <>
-                                        <FaCheck />
+                                        <Check  size="1em"/>
                                         <span>Cập Nhật Vị Trí</span>
                                     </>
                                 )}

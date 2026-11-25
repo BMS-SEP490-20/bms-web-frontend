@@ -43,6 +43,7 @@ export default function PortalNavbar({ user: propUser = null }) {
       if (currentPath.startsWith('/appointments')) return true;
       if (currentPath.startsWith('/patient/test-history')) return true;
       if (currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices')) return true;
+      if (currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback')) return true;
     } else {
       if (currentPath.startsWith('/pricing') || currentPath.startsWith('/catalog')) return true;
       if (currentPath.startsWith('/iso-process')) return true;
@@ -224,7 +225,14 @@ export default function PortalNavbar({ user: propUser = null }) {
                 to="/patient/payment-history"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Lịch Sử Thanh Toán
+                Thanh Toán
+              </Link>
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? 'active' : ''}`}
+                to="/feedback"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
+                Đánh Giá
               </Link>
             </>
           ) : (
@@ -234,14 +242,14 @@ export default function PortalNavbar({ user: propUser = null }) {
                 to="/pricing"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Bảng Giá Niêm Yết
+                Bảng Giá Dịch Vụ
               </Link>
               <Link
                 className={`bms-capsule-item ${currentPath.startsWith('/iso-process') ? 'active' : ''}`}
                 to="/iso-process"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Quy Trình ISO
+                Quy Trình
               </Link>
             </>
           )}

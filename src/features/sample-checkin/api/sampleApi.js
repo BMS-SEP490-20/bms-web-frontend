@@ -92,8 +92,8 @@ export const sampleApi = {
       });
       const list = res.data?.data || [];
       if (!Array.isArray(list)) return [];
-      // Filter samples awaiting reception
-      return list.filter(s => s.status === 'Collected' || s.status === 'InTransit' || s.status === 'PendingCollection');
+      // Filter samples awaiting reception (only Collected or InTransit per workflow rules)
+      return list.filter(s => s.status === 'Collected' || s.status === 'InTransit');
     } catch {
       return [];
     }

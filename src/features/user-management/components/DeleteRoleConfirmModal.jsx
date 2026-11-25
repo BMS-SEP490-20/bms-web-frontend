@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
-import { FaLock, FaUsers, FaTrash, FaTimes, FaCheckCircle } from 'react-icons/fa';
+import { Lock, Users, Trash2, X as LucideX, CheckCircle2 } from 'lucide-react';
 import { deleteRole } from '../../../services/roleService';
 
 export const DeleteRoleConfirmModal = ({
@@ -51,7 +51,7 @@ export const DeleteRoleConfirmModal = ({
     <Modal show={show} onHide={onHide} centered backdrop="static">
       <Modal.Header closeButton className="bg-danger text-white">
         <Modal.Title className="h5 fw-bold m-0 d-flex align-items-center gap-2">
-          <FaCheckCircle />
+          <CheckCircle2  size="1em"/>
           Xác Nhận Xóa Vai Trò Hệ Thống (RBAC)
         </Modal.Title>
       </Modal.Header>
@@ -66,16 +66,16 @@ export const DeleteRoleConfirmModal = ({
         {isSystemRole ? (
           <Alert variant="warning" className="small mb-3 border-warning">
             <h6 className="fw-bold mb-1 d-flex align-items-center gap-2">
-              <FaLock className="text-warning" />
-              Vai Trò Hệ Thống Cốt Lõi (BR-ROLE-01)
+              <Lock className="text-warning"  size="1em"/>
+              Vai Trò Hệ Thống Mặc Định
             </h6>
             Mã vai trò <strong>{roleToDelete.roleCode}</strong> là vai trò mặc định của hệ thống y tế. Nhằm đảm bảo an toàn vận hành và quy chuẩn phân quyền, vai trò này không được phép xóa.
           </Alert>
         ) : hasUsers ? (
           <Alert variant="warning" className="small mb-3 border-warning">
             <h6 className="fw-bold mb-1 d-flex align-items-center gap-2">
-              <FaUsers className="text-warning" />
-              Đang Có Nhân Sự Được Phân Quyền (BR-ROLE-02)
+              <Users className="text-warning"  size="1em"/>
+              Vai Trò Đang Có Nhân Sự Sử Dụng
             </h6>
             Vai trò này hiện đang được gán cho <strong>{roleToDelete.userCount} tài khoản nhân sự</strong>. Quý quản trị viên vui lòng điều chuyển phân quyền cho các tài khoản trên trước khi xóa.
           </Alert>

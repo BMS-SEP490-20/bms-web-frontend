@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Form, Modal, Table } from 'react-bootstrap';
-import { FaEye, FaPlus, FaRedo, FaSearch, FaTimes, FaUsersCog } from 'react-icons/fa';
+import { Eye, Plus, RotateCw, Search, X as LucideX, UserCog } from 'lucide-react';
 import { getLabProfile, getLabProfileRooms, getLabProfiles, labProfileError } from '../api/labProfileApi';
 import '../../../components/common/SkeletonProfile.css';
 import LabProfileFormModal from '../components/LabProfileFormModal';
@@ -78,14 +78,14 @@ export default function LabProfilesPage() {
         </p>
       </div>
       <div className="bms-page-actions">
-        <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading} onClick={() => setRefresh((v) => v + 1)} style={{ borderColor: '#1E60E6', color: '#1E60E6' }}><FaRedo size={12} /><span>Làm mới</span></Button>
-        <Button size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading || !rooms.length} onClick={() => setCreating(true)} style={{ background: '#1E60E6', borderColor: '#1E60E6' }}><FaPlus size={12} /><span>Thêm hồ sơ</span></Button>
+        <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading} onClick={() => setRefresh((v) => v + 1)} style={{ borderColor: '#1E60E6', color: '#1E60E6' }}><RotateCw size={12} /><span>Làm mới</span></Button>
+        <Button size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading || !rooms.length} onClick={() => setCreating(true)} style={{ background: '#1E60E6', borderColor: '#1E60E6' }}><Plus size={12} /><span>Thêm hồ sơ</span></Button>
       </div>
     </div>
 
     <div className="bms-filter-bar mb-3">
       <div className="bms-search-input-pill">
-        <FaSearch className="bms-search-icon" />
+        <Search className="bms-search-icon"  size="1em"/>
         <input
           id="lab-profile-search"
           type="text"
@@ -96,7 +96,7 @@ export default function LabProfilesPage() {
         />
         {search && (
           <button type="button" className="bms-search-clear" onClick={() => setSearch('')} title="Xóa tìm kiếm">
-            <FaTimes size={12} />
+            <LucideX size={12} />
           </button>
         )}
       </div>
@@ -157,7 +157,7 @@ export default function LabProfilesPage() {
                   <td className="text-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(row.createdAt)}</td>
                   <td className="text-end pe-4">
                     <Button variant="outline-primary" size="sm" className="rounded-pill text-nowrap" aria-label={`Xem hồ sơ ${row.fullName}`} onClick={() => setSelectedId(row.id)}>
-                      <FaEye className="me-1" /> Xem
+                      <Eye className="me-1"  size="1em"/> Xem
                     </Button>
                   </td>
                 </tr>
@@ -172,10 +172,10 @@ export default function LabProfilesPage() {
               <Button size="sm" variant="outline-primary" className="rounded-pill px-3" disabled={data.page >= data.totalPages} onClick={() => setFilters((v) => ({ ...v, page: v.page + 1 }))}>Sau</Button>
             </div>
           </div>
-        </> : !error && !invalidDates && <div className="text-center text-muted py-4"><FaUsersCog size={36} className="mb-3" style={{ color: '#1E60E6', opacity: 0.5 }} /><h5>Chưa có hồ sơ phù hợp</h5><p className="small">Không có dữ liệu hoặc cần thay đổi bộ lọc tìm kiếm.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
+        </> : !error && !invalidDates && <div className="text-center text-muted py-4"><UserCog size={36} className="mb-3" style={{ color: '#1E60E6', opacity: 0.5 }} /><h5>Chưa có hồ sơ phù hợp</h5><p className="small">Không có dữ liệu hoặc cần thay đổi bộ lọc tìm kiếm.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
       </div>
     </div>
-    <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="lg" scrollable centered><Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}><Modal.Title className="h5 fw-bold" style={{ color: '#0f2743' }}><FaUsersCog className="me-2" style={{ color: '#1E60E6' }} />Chi tiết hồ sơ Lab</Modal.Title></Modal.Header><Modal.Body className="p-2">
+    <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="lg" scrollable centered><Modal.Header closeButton style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}><Modal.Title className="h5 fw-bold" style={{ color: '#0f2743' }}><UserCog className="me-2" style={{ color: '#1E60E6' }}  size="1em"/>Chi tiết hồ sơ Lab</Modal.Title></Modal.Header><Modal.Body className="p-2">
       {detailLoading ? skeleton : detailError ? <Alert variant="danger" style={{ borderRadius: 14 }}>{detailError} <Button variant="outline-danger" size="sm" onClick={() => setDetailRefresh((v) => v + 1)} style={{ borderRadius: 9999 }}>Thử lại</Button></Alert> : detail && <>
         <h5 className="fw-bold" style={{ color: '#1E60E6' }}>{detail.fullName}</h5><dl className="row mb-0"><dt className="col-sm-4 text-muted">ID tài khoản liên kết</dt><dd className="col-sm-8 font-monospace text-break" style={{ color: '#1E60E6' }}>{detail.id}</dd><dt className="col-sm-4 text-muted">Trình độ chuyên môn</dt><dd className="col-sm-8" style={{ whiteSpace: 'pre-wrap' }}>{detail.qualification || 'Chưa ghi nhận'}</dd><dt className="col-sm-4 text-muted">Phòng mặc định</dt><dd className="col-sm-8"><span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600 }}>{detail.roomName || 'Chưa phân phòng'}</span></dd><dt className="col-sm-4 text-muted">Ngày tạo</dt><dd className="col-sm-8" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(detail.createdAt)}</dd><dt className="col-sm-4 text-muted">Cập nhật gần nhất</dt><dd className="col-sm-8" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(detail.updatedAt)}</dd></dl>
         <p className="small text-muted mt-3 mb-0" style={{ background: '#EEF2F6', padding: '8px 12px', borderRadius: 10 }}>Đây là hồ sơ chuyên môn; thông tin đăng nhập và phân công theo ca được quản lý riêng.</p>

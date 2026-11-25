@@ -3,12 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  FaIdCard, FaUser, FaPhone, FaCalendarAlt, FaCheckCircle, FaSearch,
-  FaUserCheck, FaTicketAlt, FaPrint, FaDesktop, FaCashRegister,
-  FaClipboardCheck, FaExclamationTriangle, FaHospital, FaArrowRight,
-  FaFileInvoiceDollar, FaShieldAlt, FaClock, FaDoorOpen, FaUndo
-} from 'react-icons/fa';
+import { IdCard, User, Phone as LucidePhone, Calendar, CheckCircle2, Search, UserCheck, Ticket as LucideTicket, Printer, Monitor, Banknote, ClipboardCheck, AlertTriangle, Hospital, ArrowRight, Receipt, ShieldCheck, Clock, DoorOpen, Undo2 } from 'lucide-react';
 import { useRegisterWalkIn } from '../hooks/useRegisterWalkIn';
 import { walkInApi } from '../api/walkInApi';
 import { queueApi } from '../../reception/api/queueApi';
@@ -58,8 +53,8 @@ export function RegisterWalkInPage({ onSuccess }) {
       if (!val) return 'Họ và tên bệnh nhân không được để trống.';
     }
     if (key === 'identityNumber') {
-      if (!val) return 'Số CCCD không được để trống (12 chữ số theo Đề án 06 BYT).';
-      if (val.length !== 12) return 'Số CCCD phải gồm đúng 12 chữ số theo Đề án 06 Bộ Y Tế.';
+      if (!val) return 'Số CCCD không được để trống.';
+      if (val.length !== 12) return 'Số CCCD phải gồm đúng 12 chữ số.';
     }
     if (key === 'dateOfBirth') {
       if (!val) return 'Ngày sinh không được để trống.';
@@ -124,7 +119,7 @@ export function RegisterWalkInPage({ onSuccess }) {
     const cccd = (form.identityNumber || '').trim();
     if (!cccd) {
       setLookupStatus('error');
-      setLookupMsg('Vui lòng nhập số CCCD (12 chữ số theo Đề án 06 Bộ Y Tế).');
+      setLookupMsg('Vui lòng nhập số CCCD (12 chữ số).');
       return;
     }
     if (cccd.length !== 12 && cccd.length !== 9) {
@@ -221,7 +216,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!checks.identity || !checks.consent) {
-      setCheckError('Bắt buộc xác nhận đối chiếu CCCD và đồng thuận lấy mẫu (ISO 15189) trước khi đăng ký.');
+      setCheckError('Vui lòng xác nhận thông tin định danh và đồng thuận lấy mẫu trước khi đăng ký.');
       return;
     }
     setCheckError(null);
@@ -387,14 +382,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                   className="rounded-circle d-flex align-items-center justify-content-center bg-white text-success shadow-sm"
                   style={{ width: 48, height: 48, fontSize: '24px' }}
                 >
-                  <FaCheckCircle />
+                  <CheckCircle2  size="1em"/>
                 </div>
                 <div>
                   <h4 className="fw-bold mb-1 text-white">
                     {pt.isExisting ? 'Xác Nhận Tiếp Đón Khách Vãng Lai' : 'Tiếp Nhận & Đăng Ký Hồ Sơ Thành Công'}
                   </h4>
                   <p className="mb-0 text-white-50 small">
-                    Hồ sơ hợp lệ theo quy chuẩn ISO 15189:2022 &amp; Đề án 06 Bộ Y Tế
+                    Hồ sơ hợp lệ
                   </p>
                 </div>
               </div>
@@ -471,7 +466,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   style={{ background: '#f0fdf4', border: '2px solid #86efac' }}
                 >
                   <div className="text-success fw-bold small text-uppercase letter-spacing-1">
-                    <FaCheckCircle className="me-1" /> ĐÃ CẤP SỐ THỨ TỰ LẤY MẪU MÁU
+                    <CheckCircle2 className="me-1"  size="1em"/> ĐÃ CẤP SỐ THỨ TỰ LẤY MẪU MÁU
                   </div>
                   <div
                     style={{ fontSize: '3.6rem', fontWeight: '900', color: '#059669', lineHeight: 1.1, margin: '8px 0' }}
@@ -479,7 +474,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                     {issuedTicket.ticketNumber}
                   </div>
                   <div className="fw-semibold text-dark fs-6 mb-2">
-                    <FaDoorOpen className="me-1 text-primary" /> Phòng Lấy Mẫu Máu 101 (Tầng 1 - Trạm lấy mẫu trung tâm)
+                    <DoorOpen className="me-1 text-primary"  size="1em"/> Phòng Lấy Mẫu Máu 101 (Tầng 1 - Trạm lấy mẫu trung tâm)
                   </div>
                   <p className="text-muted small mb-3">
                     Người bệnh đã được đưa vào hàng đợi điện tử. Dữ liệu đồng bộ tự động với màn hình gọi số của Kỹ thuật viên.
@@ -490,14 +485,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                       className="rounded-pill px-4 fw-bold shadow-sm"
                       onClick={() => setShowK80Modal(true)}
                     >
-                      <FaPrint className="me-2" /> In Phiếu Tiếp Đón K80
+                      <Printer className="me-2"  size="1em"/> In Phiếu Tiếp Đón K80
                     </Button>
                     <Button
                       variant="outline-primary"
                       className="rounded-pill px-4 fw-semibold"
                       onClick={() => navigate('/reception/queue')}
                     >
-                      <FaDesktop className="me-2" /> Bảng Điều Phối Hàng Đợi
+                      <Monitor className="me-2"  size="1em"/> Bảng Điều Phối Hàng Đợi
                     </Button>
                   </div>
                 </div>
@@ -508,7 +503,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 >
                   <div>
                     <h6 className="fw-bold text-primary mb-1">
-                      <FaTicketAlt className="me-2" /> Bước tiếp theo: Cấp số thứ tự lấy mẫu
+                      <LucideTicket className="me-2"  size="1em"/> Bước tiếp theo: Cấp số thứ tự lấy mẫu
                     </h6>
                     <p className="text-muted small mb-0">
                       Đưa người bệnh vào luồng lấy mẫu máu tại <strong>Phòng Lấy Mẫu 101</strong> và in phiếu K80 điều hướng.
@@ -527,7 +522,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       </>
                     ) : (
                       <>
-                        <FaTicketAlt className="me-2" /> Cấp STT Lấy Mẫu Ngay
+                        <LucideTicket className="me-2"  size="1em"/> Cấp STT Lấy Mẫu Ngay
                       </>
                     )}
                   </Button>
@@ -537,7 +532,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Các thao tác chuyển tiếp */}
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top">
                 <Button variant="outline-secondary" className="rounded-pill px-3" onClick={handleResetAll}>
-                  <FaUndo className="me-1" /> Tiếp nhận người bệnh tiếp theo
+                  <Undo2 className="me-1"  size="1em"/> Tiếp nhận người bệnh tiếp theo
                 </Button>
                 <div className="d-flex gap-2 flex-wrap">
                   <Button
@@ -545,14 +540,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                     className="rounded-pill px-3 fw-semibold"
                     onClick={() => navigate(`/appointments/book?patientId=${encodeURIComponent(pt.patientId)}`)}
                   >
-                    <FaCalendarAlt className="me-1" /> Tạo Lịch Hẹn &amp; Chọn Gói XN
+                    <Calendar className="me-1"  size="1em"/> Tạo Lịch Hẹn &amp; Chọn Gói XN
                   </Button>
                   <Button
                     variant="outline-primary"
                     className="rounded-pill px-3 fw-semibold"
                     onClick={() => navigate(`/calculate-fees?patientId=${pt.patientId}`)}
                   >
-                    <FaFileInvoiceDollar className="me-1" /> Quầy Dự Toán Viện Phí &amp; BHYT
+                    <Receipt className="me-1"  size="1em"/> Quầy Dự Toán Viện Phí &amp; BHYT
                   </Button>
                   <Button
                     variant="primary"
@@ -560,7 +555,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                     style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     onClick={() => navigate('/invoices')}
                   >
-                    <FaCashRegister className="me-1" /> Quầy Thu Ngân
+                    <Banknote className="me-1"  size="1em"/> Quầy Thu Ngân
                   </Button>
                 </div>
               </div>
@@ -572,7 +567,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         <Modal show={showK80Modal} onHide={() => setShowK80Modal(false)} size="md" centered>
           <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
             <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-              <FaPrint className="text-primary me-2" /> Xem Trước &amp; In Phiếu Tiếp Đón K80
+              <Printer className="text-primary me-2"  size="1em"/> Xem Trước &amp; In Phiếu Tiếp Đón K80
             </Modal.Title>
           </Modal.Header>
           <Modal.Body style={{ padding: '24px' }}>
@@ -598,7 +593,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 HỆ THỐNG XÉT NGHIỆM BMS MEDLAB
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '8px' }}>
-                Đề án 06 BYT • Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868
+                BMS MedLab • Hotline: 1900 6868
               </div>
               <div style={{ borderBottom: '1px dashed #cbd5e1', margin: '8px 0' }} />
 
@@ -629,7 +624,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   {issuedTicket?.ticketNumber || 'B01'}
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#047857', fontWeight: '600' }}>
-                  <FaDoorOpen className="me-1" /> Phòng Lấy Mẫu 101 (Tầng 1)
+                  <DoorOpen className="me-1"  size="1em"/> Phòng Lấy Mẫu 101 (Tầng 1)
                 </div>
               </div>
 
@@ -691,7 +686,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               Đóng
             </Button>
             <Button variant="success" className="px-4 fw-bold" onClick={handlePrintK80}>
-              <FaPrint className="me-2" /> In Phiếu K80
+              <Printer className="me-2"  size="1em"/> In Phiếu K80
             </Button>
           </Modal.Footer>
         </Modal>
@@ -708,19 +703,19 @@ export function RegisterWalkInPage({ onSuccess }) {
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
           <h2 className="fs-4 fw-bold text-dark mb-1">
-            <FaIdCard className="text-primary me-2" />
+            <IdCard className="text-primary me-2"  size="1em"/>
             Quầy Tiếp Nhận &amp; Đăng Ký Hồ Sơ Khách Vãng Lai (Walk-in)
           </h2>
           <p className="text-muted mb-0 small">
-            Tiếp đón người bệnh chưa đặt lịch, xác thực CCCD gắn chip (Đề án 06 Bộ Y Tế), sàng lọc tiêu chuẩn tiền phân tích (ISO 15189:2022) và cấp số thứ tự vào phòng lấy mẫu.
+            Tiếp đón bệnh nhân chưa đặt lịch, kiểm tra thông tin và cấp số thứ tự lấy mẫu.
           </p>
         </div>
         <div className="d-flex gap-2">
           <Button variant="outline-secondary" size="sm" className="rounded-pill" onClick={() => navigate('/reception/queue')}>
-            <FaDesktop className="me-1" /> Bảng Gọi Số
+            <Monitor className="me-1"  size="1em"/> Bảng Gọi Số
           </Button>
           <Button variant="outline-primary" size="sm" className="rounded-pill" onClick={() => navigate('/calculate-fees')}>
-            <FaFileInvoiceDollar className="me-1" /> Quầy Dự Toán
+            <Receipt className="me-1"  size="1em"/> Quầy Dự Toán
           </Button>
         </div>
       </div>
@@ -731,7 +726,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
             <Card.Header className="bg-white border-bottom py-3 px-4">
               <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                <FaClipboardCheck className="text-primary" />
+                <ClipboardCheck className="text-primary"  size="1em"/>
                 Hồ Sơ Tiếp Đón Khách Vãng Lai Tại Quầy
               </h5>
             </Card.Header>
@@ -740,7 +735,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Alert lỗi trực quan ngay cạnh nút bấm */}
               {error && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                  <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                   <div>
                     <strong>Lỗi:</strong> {error}
                   </div>
@@ -755,8 +750,8 @@ export function RegisterWalkInPage({ onSuccess }) {
                 >
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                     <div className="d-flex align-items-center gap-2 text-success fw-bold">
-                      <FaUserCheck className="fs-5" />
-                      <span>ĐÃ CÓ HỒ SƠ Y TẾ TẠI BMS MEDLAB (ĐỀ ÁN 06 KHỚP)</span>
+                      <UserCheck className="fs-5"  size="1em"/>
+                      <span>ĐÃ CÓ HỒ SƠ BỆNH NHÂN TRONG HỆ THỐNG</span>
                     </div>
                     <Badge bg="success" className="px-2 py-1">
                       Mã BN: {existingPatient.patientId}
@@ -782,7 +777,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                         </>
                       ) : (
                         <>
-                          <FaTicketAlt className="me-1" /> Cấp STT Lấy Mẫu Ngay (Phòng 101)
+                          <LucideTicket className="me-1"  size="1em"/> Cấp STT Lấy Mẫu Ngay (Phòng 101)
                         </>
                       )}
                     </Button>
@@ -808,14 +803,14 @@ export function RegisterWalkInPage({ onSuccess }) {
 
               {lookupStatus === 'not_found' && (
                 <Alert variant="info" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaCheckCircle className="text-info flex-shrink-0" />
+                  <CheckCircle2 className="text-info flex-shrink-0"  size="1em"/>
                   <div className="small">{lookupMsg}</div>
                 </Alert>
               )}
 
               {lookupStatus === 'error' && (
                 <Alert variant="warning" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                  <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                   <div className="small">{lookupMsg}</div>
                 </Alert>
               )}
@@ -823,7 +818,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Alert lỗi bỏ trống thông tin bắt buộc */}
               {Object.values(fieldErrors).some(Boolean) && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-start gap-2">
-                  <FaExclamationTriangle className="text-danger mt-1 flex-shrink-0" />
+                  <AlertTriangle className="text-danger mt-1 flex-shrink-0"  size="1em"/>
                   <div>
                     <strong>Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc:</strong>
                     <ul className="mb-0 ps-3 small mt-1">
@@ -839,7 +834,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* 1. THÔNG TIN ĐỊNH DANH (ĐỀ ÁN 06 BYT) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                    <FaIdCard /> 1. Thông Tin Định Danh Người Bệnh (Chuẩn Đề án 06 Bộ Y Tế)
+                    <IdCard size="1em"/> 1. Thông Tin Định Danh Người Bệnh
                   </h6>
                   <Row className="g-3">
                     <Col md={7}>
@@ -909,7 +904,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                             </>
                           ) : (
                             <>
-                              <FaSearch className="me-1" /> Đối soát CCCD
+                              <Search className="me-1"  size="1em"/> Đối soát CCCD
                             </>
                           )}
                         </Button>
@@ -992,7 +987,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* 2. SÀNG LỌC TIỀN PHÂN TÍCH (ISO 15189:2022) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                    <FaShieldAlt /> 2. Tiêu Chuẩn Tiền Phân Tích &amp; An Toàn Xét Nghiệm (ISO 15189:2022)
+                    <ShieldCheck size="1em"/> 2. Sàng Lọc Trước Lấy Mẫu
                   </h6>
                   <div className="bg-light p-3 rounded-3 mb-3">
                     {[
@@ -1065,7 +1060,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                                 {/* Alert lỗi trực quan ngay cạnh nút bấm */}
                 {error && (
                   <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                    <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                    <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                     <div>
                       <strong>Lỗi:</strong> {error}
                     </div>
@@ -1075,7 +1070,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* Footer form buttons */}
                 <div className="d-flex justify-content-between align-items-center pt-3 border-top">
                   <span className="text-muted small">
-                    <FaCheckCircle className="text-success me-1" /> Hồ sơ sau khi xác nhận sẽ tự động liên kết máy cấp STT.
+                    <CheckCircle2 className="text-success me-1"  size="1em"/> Hồ sơ sau khi xác nhận sẽ tự động liên kết máy cấp STT.
                   </span>
                   <Button
                     type="submit"
@@ -1090,7 +1085,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       </>
                     ) : (
                       <>
-                        <FaUserCheck className="me-2" /> Xác Nhận Tiếp Nhận &amp; Cấp Hồ Sơ
+                        <UserCheck className="me-2"  size="1em"/> Xác Nhận Tiếp Nhận &amp; Cấp Hồ Sơ
                       </>
                     )}
                   </Button>
@@ -1106,8 +1101,8 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                <FaShieldAlt className="text-success" />
-                Quy Chuẩn Tiền Phân Tích (ISO 15189)
+                <ShieldCheck className="text-success"  size="1em"/>
+                Điều Kiện Trước Lấy Mẫu
               </h6>
               <p className="small text-muted mb-2">
                 70% sai sót kết quả xét nghiệm bắt nguồn từ khâu tiền phân tích:
@@ -1124,7 +1119,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
             <Card.Body className="p-3">
               <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
-                <FaFileInvoiceDollar />
+                <Receipt  size="1em"/>
                 Chính Sách Viện Phí &amp; Hóa Đơn Điện Tử
               </h6>
               <p className="small text-muted mb-2">
@@ -1142,7 +1137,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                <FaHospital className="text-secondary" />
+                <Hospital className="text-secondary"  size="1em"/>
                 Luồng Tiếp Đón Khách Vãng Lai
               </h6>
               <div className="small text-muted">

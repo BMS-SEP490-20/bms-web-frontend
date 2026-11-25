@@ -7,26 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-    FaClock,
-    FaCheckCircle,
-    FaExclamationTriangle,
-    FaChartLine,
-    FaChartBar,
-    FaFilter,
-    FaDownload,
-    FaSync,
-    FaFlask,
-    FaVial,
-    FaLayerGroup,
-    FaBolt,
-    FaCalendarAlt,
-    FaSearch,
-    FaArrowUp,
-    FaArrowDown,
-    FaInfoCircle,
-    FaCheck
-} from "react-icons/fa";
+import { Clock, CheckCircle2, AlertTriangle, TrendingUp, BarChart3, Filter as LucideFilter, Download, RefreshCw, FlaskConical, TestTube2, Layers, Zap, Calendar, Search, ArrowUp, ArrowDown, Info, Check } from 'lucide-react';
 import {
     fetchTatReport,
     exportTatCsv
@@ -154,7 +135,7 @@ export default function TatStatisticsDashboardPage() {
                         disabled={isExporting}
                         id="btn-export-tat-csv"
                     >
-                        <FaDownload size={13} />
+                        <Download size={13} />
                         <span>{isExporting ? "Đang xuất..." : "Xuất File CSV"}</span>
                     </button>
                     <button
@@ -163,7 +144,7 @@ export default function TatStatisticsDashboardPage() {
                         onClick={loadData}
                         disabled={isLoading}
                     >
-                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={isLoading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                 </div>
@@ -236,7 +217,7 @@ export default function TatStatisticsDashboardPage() {
                             <div className="bms-kpi-sub text-muted">Trung vị P50: {summary.medianTatFormatted || "0m"} • P90: {summary.p90TatFormatted || "0m"}</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                            <FaClock />
+                            <Clock  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -249,7 +230,7 @@ export default function TatStatisticsDashboardPage() {
                             <div className="bms-kpi-sub text-muted">Hoàn tất trong thời gian mục tiêu</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                            <FaCheckCircle />
+                            <CheckCircle2  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -262,7 +243,7 @@ export default function TatStatisticsDashboardPage() {
                             <div className="bms-kpi-sub text-muted">Đã phê duyệt kết quả xét nghiệm</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
-                            <FaVial />
+                            <TestTube2  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -275,7 +256,7 @@ export default function TatStatisticsDashboardPage() {
                             <div className="bms-kpi-sub text-muted">Cần rà soát điểm nghẽn xử lý</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                            <FaExclamationTriangle />
+                            <AlertTriangle  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -284,11 +265,11 @@ export default function TatStatisticsDashboardPage() {
             {/* Navigation Pill Tabs (No Outer Box-in-Box Card) */}
             <div className="d-flex flex-wrap gap-2 mb-3 bg-white p-2 rounded-4" style={{ border: '1px solid #e2e8f0' }}>
                 {[
-                    { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: FaBolt },
-                    { key: "PHASES", label: "Phân Rã 3 Giai Đoạn", icon: FaLayerGroup },
-                    { key: "DEPARTMENTS", label: "Theo Chuyên Khoa Lab", icon: FaFlask },
-                    { key: "TRENDS", label: "Biểu Đồ Xu Hướng Ngày", icon: FaChartLine },
-                    { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: FaExclamationTriangle }
+                    { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: Zap },
+                    { key: "PHASES", label: "Phân Rã 3 Giai Đoạn", icon: Layers },
+                    { key: "DEPARTMENTS", label: "Theo Chuyên Khoa Lab", icon: FlaskConical },
+                    { key: "TRENDS", label: "Biểu Đồ Xu Hướng Ngày", icon: TrendingUp },
+                    { key: "VIOLATIONS", label: `Cảnh Báo Trễ (${summary.violationCount || 0})`, icon: AlertTriangle }
                 ].map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.key;
@@ -423,7 +404,7 @@ export default function TatStatisticsDashboardPage() {
                                     {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
                                         <tr key={d.department}>
                                             <td className="fw-bold text-dark ps-3">
-                                                <FaFlask className="me-2" style={{ color: '#1E60E6' }} />
+                                                <FlaskConical className="me-2" style={{ color: '#1E60E6' }}  size="1em"/>
                                                 {d.department === "Biochemistry" ? "Sinh Hóa (Biochemistry)" :
                                                  d.department === "Hematology" ? "Huyết Học (Hematology)" :
                                                  d.department === "Immunology" ? "Miễn Dịch (Immunology)" :
@@ -454,11 +435,11 @@ export default function TatStatisticsDashboardPage() {
                                             <td className="text-end pe-3">
                                                 {d.complianceRate >= 90 ? (
                                                     <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
-                                                        <FaCheckCircle className="me-1" /> Đạt chuẩn SLA
+                                                        <CheckCircle2 className="me-1"  size="1em"/> Đạt chuẩn SLA
                                                     </span>
                                                 ) : (
                                                     <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
-                                                        <FaExclamationTriangle className="me-1" /> Cần cải tiến
+                                                        <AlertTriangle className="me-1"  size="1em"/> Cần cải tiến
                                                     </span>
                                                 )}
                                             </td>
@@ -501,7 +482,7 @@ export default function TatStatisticsDashboardPage() {
                 <div className="bms-table-standalone-section">
                     <div className="bms-table-standalone-header">
                         <h5 className="bms-table-standalone-title">
-                            <FaExclamationTriangle className="text-danger" /> Danh Sách Mẫu Vượt Ngưỡng Thời Gian
+                            <AlertTriangle className="text-danger"  size="1em"/> Danh Sách Mẫu Vượt Ngưỡng Thời Gian
                         </h5>
                         <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
                             {(Array.isArray(report.recentViolations) ? report.recentViolations : []).length} trường hợp phát hiện
@@ -511,7 +492,7 @@ export default function TatStatisticsDashboardPage() {
                     <div className="bms-table-standalone-body">
                         {(!Array.isArray(report.recentViolations) || report.recentViolations.length === 0) ? (
                             <div className="text-center py-4 text-muted">
-                                <FaCheckCircle className="fs-2 mb-2" style={{ color: '#10B981' }} />
+                                <CheckCircle2 className="fs-2 mb-2" style={{ color: '#10B981' }}  size="1em"/>
                                 <p className="mb-0 fw-semibold">Không ghi nhận mẫu nào vượt ngưỡng thời gian cam kết.</p>
                             </div>
                         ) : (

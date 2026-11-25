@@ -28,7 +28,9 @@ const MENU_SECTIONS = [
       { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: ShieldCheck, roles: [ADMIN] },
       { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: Database, roles: [ADMIN] },
       { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: History, roles: [ADMIN] },
-      { id: 'admin-notifs', path: '/admin/notifications', label: 'Thông Báo Hệ Thống', icon: Bell, roles: [ADMIN] }
+      { id: 'admin-notifs', path: '/admin/notifications', label: 'Thông Báo Hệ Thống', icon: Bell, roles: [ADMIN] },
+      { id: 'admin-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT', icon: Receipt, roles: [ADMIN] },
+      { id: 'admin-iot-alerts', path: '/iot/alerts', label: 'Diễn Tập Cảnh Báo IoT', icon: AlertTriangle, roles: [ADMIN] }
     ]
   },
 
@@ -43,7 +45,8 @@ const MENU_SECTIONS = [
       { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FlaskConical, roles: [MANAGER] },
       { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả XN', icon: Bell, roles: [MANAGER] },
-      { id: 'mgr-feedback', path: '/manager/feedback', label: 'Phản Hồi Bệnh Nhân', icon: Star, roles: [MANAGER] }
+      { id: 'mgr-feedback', path: '/manager/feedback', label: 'Phản Hồi Bệnh Nhân', icon: Star, roles: [MANAGER] },
+      { id: 'mgr-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT & Ưu Đãi', icon: Receipt, roles: [MANAGER] }
     ]
   },
   {

@@ -339,11 +339,39 @@ export default function Register() {
     return error;
   };
 
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
+  const checkEmailAvailability = async (rawEmail) => {
+    const emailTrimmed = (rawEmail || '').trim();
+    if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      return { available: true };
+    }
+    setCheckingEmail(true);
+    try {
+      const res = await api.get('/auth/check-email', { params: { email: emailTrimmed } });
+      const exists = Boolean(res.data?.exists);
+      if (exists) {
+        const msg = res.data?.message || 'Email này đã được sử dụng trong hệ thống.';
+        setFieldErrors((prev) => ({ ...prev, email: msg }));
+        return { available: false, message: msg };
+      }
+      return { available: true };
+    } catch {
+      // Allow server-side RegisterAsync to enforce if availability probe fails
+      return { available: true };
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
   const handleBlur = (e) => {
     const { name, value } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
     const err = validateSingleField(name, value, formData);
     setFieldErrors((prev) => ({ ...prev, [name]: err }));
+    if (name === 'email' && !err) {
+      void checkEmailAvailability(value);
+    }
   };
 
   const handleChange = (e) => {
@@ -516,13 +544,18 @@ export default function Register() {
   };
 
   // Step navigation handlers
-  const handleNextToStep2 = (e) => {
+  const handleNextToStep2 = async (e) => {
     e?.preventDefault();
     setErrorMsg('');
-    if (validateStep1()) {
-      setCurrentStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!validateStep1()) return;
+    const emailCheck = await checkEmailAvailability(formData.email);
+    if (!emailCheck.available) {
+      setTouched((prev) => ({ ...prev, email: true }));
+      setErrorMsg(emailCheck.message || 'Email này đã được sử dụng trong hệ thống.');
+      return;
     }
+    setCurrentStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNextToStep3 = (e) => {
@@ -660,21 +693,11 @@ export default function Register() {
               className="py-4 px-4 border-bottom text-center"
               style={{ backgroundColor: '#F8FAFC', borderColor: '#EAEEF4' }}
             >
-              <div
-                className="d-inline-flex align-items-center justify-content-center bg-white rounded-3 p-1 mb-2 border"
-                style={{ width: 52, height: 52, borderColor: '#EAEEF4', overflow: 'hidden' }}
-              >
-                <img
-                  src="/assets/bms-logo.png"
-                  alt="BMS Logo"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                />
-              </div>
               <h3 className="fw-bold mb-1 text-dark" style={{ fontSize: '22px' }}>
                 Mở Hồ Sơ Sức Khỏe Điện Tử BMS
               </h3>
               <p className="mb-0 text-muted small">
-                Lưu trữ lịch sử xét nghiệm, nhận kết quả ký số trực tuyến và đặt lịch khám nhanh chóng
+                Lưu trữ lịch sử xét nghiệm, nhận kết quả trực tuyến và đặt lịch khám nhanh chóng
               </p>
             </Card.Header>
 
@@ -704,7 +727,7 @@ export default function Register() {
                         }}
                       >
                         <div className="bms-step-circle">
-                          {isCompleted ? <Check  size="1em"/> : s.step}
+                          {isCompleted ? <Check size="1em" /> : s.step}
                         </div>
                         <div className="bms-step-title">{s.title}</div>
                         <div className="bms-step-desc d-none d-md-block">{s.desc}</div>
@@ -722,14 +745,14 @@ export default function Register() {
                   onClose={() => setErrorMsg('')}
                   className="d-flex align-items-center gap-2 mb-4"
                 >
-                  <XCircle className="flex-shrink-0"  size="1em"/>
+                  <XCircle className="flex-shrink-0" size="1em" />
                   <span>{errorMsg}</span>
                 </Alert>
               )}
 
               {successMsg && (
                 <Alert variant="success" className="d-flex align-items-center gap-2 mb-4">
-                  <CheckCircle2 className="flex-shrink-0"  size="1em"/>
+                  <CheckCircle2 className="flex-shrink-0" size="1em" />
                   <span>{successMsg}</span>
                 </Alert>
               )}
@@ -742,7 +765,7 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <User className="fs-6"  size="1em"/> Bước 1: Thông Tin Định Danh Bệnh Nhân
+                        <User className="fs-6" size="1em" /> Bước 1: Thông Tin Định Danh Bệnh Nhân
                       </h5>
                       <span className="text-muted small">
                         Vui lòng nhập chính xác họ tên và số CCCD để khớp dữ liệu bảo hiểm và hồ sơ lâm sàng.
@@ -785,7 +808,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <IdCard className="text-muted"  size="1em"/>
+                            <IdCard className="text-muted" size="1em" />
                           </InputGroup.Text>
                           <Form.Control
                             type="text"
@@ -814,7 +837,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <LucidePhone className="text-muted"  size="1em"/>
+                            <LucidePhone className="text-muted" size="1em" />
                           </InputGroup.Text>
                           <Form.Control
                             type="tel"
@@ -843,7 +866,7 @@ export default function Register() {
                         </Form.Label>
                         <InputGroup hasValidation>
                           <InputGroup.Text className="bg-light">
-                            <Mail className="text-muted"  size="1em"/>
+                            <Mail className="text-muted" size="1em" />
                           </InputGroup.Text>
                           <Form.Control
                             type="email"
@@ -920,7 +943,7 @@ export default function Register() {
                       onClick={handleNextToStep2}
                     >
                       <span>Tiếp Tục: Nhập Địa Chỉ</span>
-                      <ArrowRight  size="1em"/>
+                      <ArrowRight size="1em" />
                     </Button>
                   </div>
                 </div>
@@ -934,7 +957,7 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <MapPin className="fs-6"  size="1em"/> Bước 2: Địa Chỉ Thường Trú (Phân Cấp Hành Chính Việt Nam)
+                        <MapPin className="fs-6" size="1em" /> Bước 2: Địa Chỉ Thường Trú (Phân Cấp Hành Chính Việt Nam)
                       </h5>
                       <span className="text-muted small">
                         Chuẩn hóa địa chỉ theo Tiêu chí 3.1 QĐ 2429/QĐ-BYT với danh mục 63 Tỉnh/Thành phố toàn quốc.
@@ -1072,7 +1095,7 @@ export default function Register() {
                     {fullAddressPreview && (
                       <Col md={12}>
                         <div className="p-3 bg-light rounded-3 border d-flex align-items-center gap-2">
-                          <MapPin className="text-primary flex-shrink-0 fs-5"  size="1em"/>
+                          <MapPin className="text-primary flex-shrink-0 fs-5" size="1em" />
                           <div className="small">
                             <span className="text-muted">Địa chỉ đăng ký đầy đủ: </span>
                             <strong className="text-dark">{fullAddressPreview}</strong>
@@ -1091,7 +1114,7 @@ export default function Register() {
                         setCurrentStep(1);
                       }}
                     >
-                      <ArrowLeft  size="1em"/>
+                      <ArrowLeft size="1em" />
                       <span>Quay Lại: Thông Tin Cá Nhân</span>
                     </Button>
                     <Button
@@ -1100,7 +1123,7 @@ export default function Register() {
                       onClick={handleNextToStep3}
                     >
                       <span>Tiếp Tục: Thiết Lập Mật Khẩu</span>
-                      <ArrowRight  size="1em"/>
+                      <ArrowRight size="1em" />
                     </Button>
                   </div>
                 </div>
@@ -1114,7 +1137,7 @@ export default function Register() {
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
                     <div>
                       <h5 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <Lock className="fs-6"  size="1em"/> Bước 3: Thiết Lập Mật Khẩu Bảo Mật
+                        <Lock className="fs-6" size="1em" /> Bước 3: Thiết Lập Mật Khẩu Bảo Mật
                       </h5>
                       <span className="text-muted small">
                         Bảo mật thông tin tài khoản và xác thực OTP qua email.
@@ -1150,7 +1173,7 @@ export default function Register() {
                             type="button"
                             aria-label="Ẩn hiện mật khẩu"
                           >
-                            {showPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
+                            {showPassword ? <EyeOff size="1em" /> : <Eye size="1em" />}
                           </Button>
                           <Form.Control.Feedback type="invalid">
                             {fieldErrors.password}
@@ -1183,7 +1206,7 @@ export default function Register() {
                             type="button"
                             aria-label="Ẩn hiện xác nhận mật khẩu"
                           >
-                            {showConfirmPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
+                            {showConfirmPassword ? <EyeOff size="1em" /> : <Eye size="1em" />}
                           </Button>
                           <Form.Control.Feedback type="invalid">
                             {fieldErrors.confirmPassword}
@@ -1230,7 +1253,7 @@ export default function Register() {
                     <Col md={12}>
                       <div className="bms-review-card mt-2">
                         <div className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
-                          <IdCard  size="1em"/>
+                          <IdCard size="1em" />
                           <span>Đối soát thông tin hồ sơ y tế trước khi nhận mã OTP</span>
                         </div>
                         <div className="bms-review-row">
@@ -1267,7 +1290,7 @@ export default function Register() {
                       }}
                       disabled={loading}
                     >
-                      <ArrowLeft  size="1em"/>
+                      <ArrowLeft size="1em" />
                       <span>Quay Lại: Nhập Địa Chỉ</span>
                     </Button>
                     <Button
@@ -1284,7 +1307,7 @@ export default function Register() {
                       ) : (
                         <>
                           <span>Đăng Ký &amp; Nhận Mã OTP</span>
-                          <ArrowRight  size="1em"/>
+                          <ArrowRight size="1em" />
                         </>
                       )}
                     </Button>
@@ -1303,7 +1326,7 @@ export default function Register() {
                         className="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3"
                         style={{ width: 68, height: 68 }}
                       >
-                        <CheckCircle2 className="fs-2"  size="1em"/>
+                        <CheckCircle2 className="fs-2" size="1em" />
                       </div>
                       <h4 className="fw-bold mb-1 text-dark">Bước 4: Xác Thực Tài Khoản (Mã OTP)</h4>
                       <p className="text-muted small mb-0">
@@ -1313,7 +1336,7 @@ export default function Register() {
 
                       <div className="p-2 bg-light rounded-3 border text-start mt-2" style={{ fontSize: '12px' }}>
                         <div className="fw-semibold text-dark mb-1">
-                          <Mail className="text-primary me-1"  size="1em"/> Hướng dẫn kiểm tra hộp thư y tế:
+                          <Mail className="text-primary me-1" size="1em" /> Hướng dẫn kiểm tra hộp thư y tế:
                         </div>
                         <ul className="ps-3 mb-0 text-muted" style={{ lineHeight: '1.5' }}>
                           <li>Email gửi từ: <strong>bms.mec.lab@gmail.com</strong> (Hệ Thống Xét Nghiệm Y Khoa BMS).</li>
@@ -1325,7 +1348,7 @@ export default function Register() {
 
                     {otpError && (
                       <Alert variant="danger" className="py-2 small d-flex align-items-center gap-2 mb-3">
-                        <XCircle className="flex-shrink-0"  size="1em"/>
+                        <XCircle className="flex-shrink-0" size="1em" />
                         <span>{otpError}</span>
                       </Alert>
                     )}
@@ -1378,7 +1401,7 @@ export default function Register() {
                           </>
                         ) : (
                           <>
-                            <CheckCircle2  size="1em"/>
+                            <CheckCircle2 size="1em" />
                             <span>Xác Nhận OTP &amp; Hoàn Tất Đăng Ký</span>
                           </>
                         )}

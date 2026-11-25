@@ -40,14 +40,15 @@ const resolveDoctorDisplay = (apt) => {
   return 'Chưa phân công';
 };
 
-/** Paid/confirmed enough to unlock QR — excludes Completed/Cancelled so quầy không nhầm “còn chờ tiếp đón”. */
+/** Paid/confirmed/checked-in/completed appointments retain their QR slip; only Pending, Cancelled, and NoShow hide it. */
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
   const s = String(rawStatus).toUpperCase();
   return (
     s === 'CONFIRMED' || s === '1' ||
     s === 'CHECKEDIN' || s === 'CHECKED_IN' || s === '2' ||
-    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3'
+    s === 'INPROGRESS' || s === 'IN_PROGRESS' || s === '3' ||
+    s === 'COMPLETED' || s === '4'
   );
 };
 
@@ -61,6 +62,12 @@ const isCancelled = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
   const s = String(rawStatus).toUpperCase();
   return s === 'CANCELLED' || s === '5';
+};
+
+const isNoShow = (rawStatus) => {
+  if (!rawStatus && rawStatus !== 0) return false;
+  const s = String(rawStatus).toUpperCase();
+  return s === 'NOSHOW' || s === 'NO_SHOW' || s === '6';
 };
 
 const getRemainingSeconds = (createdAt, now = Date.now()) => {
@@ -570,6 +577,10 @@ export default function AppointmentListPage() {
                         ) : isCancelled(apt.status) ? (
                           <Badge bg="light" text="muted" className="rounded-pill px-2 py-1">
                             Đã hủy
+                          </Badge>
+                        ) : isNoShow(apt.status) ? (
+                          <Badge bg="light" text="muted" className="rounded-pill px-2 py-1">
+                            Vắng mặt
                           </Badge>
                         ) : (
                           <Badge bg="light" text="muted" className="rounded-pill px-2 py-1">

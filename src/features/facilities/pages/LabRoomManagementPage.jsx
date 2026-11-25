@@ -16,7 +16,8 @@ const LabRoomManagementPage = () => {
     const { user, userRoleId, userRole } = useAuth();
     const { showSuccess, showError } = useNotificationContext();
     const isAdmin = userRoleId === 1 || userRole === 'admin' || user?.role === 'Administrator';
-    const isManagerOrAdmin = isAdmin || userRoleId === 6 || userRole === 'manager' || user?.role === 'Manager' || userRole === 'lab_manager';
+    // Admin manages rooms (add/edit/delete); Manager views read-only
+    const isManagerOrAdmin = isAdmin;
 
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(false);

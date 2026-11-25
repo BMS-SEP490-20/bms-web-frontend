@@ -18,58 +18,78 @@ const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
  * Internal developer codes (UCxx) have been removed in favor of clean consumer-grade labeling.
  */
 const MENU_SECTIONS = [
-  // ================= ADMIN SECTIONS (PURE SYSTEM & IAM) =================
+  // ================= ADMIN SECTIONS (FULL GOVERNANCE, CATALOG, INVENTORY & MONITORING) =================
   {
-    category: 'Quản Trị Hệ Thống',
+    category: 'Quản Trị Hệ Thống & Bảo Mật',
     roles: [ADMIN],
     items: [
       { id: 'admin-dash', path: '/dashboard', label: 'Bảng Điều Khiển Admin', icon: Gauge, roles: [ADMIN] },
       { id: 'admin-users', path: '/admin/user-management', label: 'Quản Lý Tài Khoản (IAM)', icon: UserCog, roles: [ADMIN] },
       { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: ShieldCheck, roles: [ADMIN] },
-      { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: Database, roles: [ADMIN] },
       { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: History, roles: [ADMIN] },
-      { id: 'admin-notifs', path: '/admin/notifications', label: 'Thông Báo Hệ Thống', icon: Bell, roles: [ADMIN] },
-      { id: 'admin-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT', icon: Receipt, roles: [ADMIN] },
-      { id: 'admin-iot-alerts', path: '/iot/alerts', label: 'Diễn Tập Cảnh Báo IoT', icon: AlertTriangle, roles: [ADMIN] }
+      { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: Database, roles: [ADMIN] },
+      { id: 'admin-notifs', path: '/admin/notifications', label: 'Thông Báo Hệ Thống', icon: Bell, roles: [ADMIN] }
+    ]
+  },
+  {
+    category: 'Quản Lý Danh Mục & Vật Tư Y Tế',
+    roles: [ADMIN],
+    items: [
+      { id: 'admin-packages', path: '/admin/packages', label: 'Danh Mục Gói Dịch Vụ', icon: Package, roles: [ADMIN] },
+      { id: 'admin-inventory', path: '/inventory', label: 'Kho Vật Tư Y Tế & Hóa Chất', icon: TestTube2, roles: [ADMIN] },
+      { id: 'admin-rooms', path: '/admin/lab-rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: DoorOpen, roles: [ADMIN] },
+      { id: 'admin-lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Chuyên Môn KTV', icon: Users, roles: [ADMIN] },
+      { id: 'admin-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FileText, roles: [ADMIN] },
+      { id: 'admin-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [ADMIN] },
+      { id: 'admin-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT', icon: Receipt, roles: [ADMIN] }
+    ]
+  },
+  {
+    category: 'Báo Cáo, Phản Hồi & Giám Sát IoT',
+    roles: [ADMIN],
+    items: [
+      { id: 'admin-feedback', path: '/admin/feedback', label: 'Phản Hồi Khách Hàng (Gói DV)', icon: Star, roles: [ADMIN] },
+      { id: 'admin-revenue', path: '/admin/revenue-report', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [ADMIN] },
+      { id: 'admin-tat', path: '/admin/tat-statistics', label: 'Thống Kê Hiệu Suất TAT', icon: BarChart3, roles: [ADMIN] },
+      { id: 'admin-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Cảm Biến IoT', icon: HeartPulse, roles: [ADMIN] },
+      { id: 'admin-iot-thresholds', path: '/manager/iot-thresholds', label: 'Cấu Hình Ngưỡng An Toàn IoT', icon: ShieldCheck, roles: [ADMIN] },
+      { id: 'admin-iot-alerts', path: '/iot/alerts', label: 'Diễn Tập & Cảnh Báo IoT', icon: AlertTriangle, roles: [ADMIN] }
     ]
   },
 
-  // ================= MANAGER SECTIONS (TRƯỞNG LAB / QUẢN LÝ) =================
+  // ================= MANAGER SECTIONS (ĐIỀU HÀNH CHUYÊN MÔN LAB — TRA CỨU CHỈ XEM DANH MỤC MASTER) =================
   {
-    category: 'Điều Hành & Phê Duyệt Kỹ Thuật',
+    category: 'Điều Hành Chuyên Môn Lab',
     roles: [MANAGER],
     items: [
       { id: 'mgr-dash', path: '/dashboard', label: 'Tổng Quan Điều Hành', icon: Gauge, roles: [MANAGER] },
       { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Thẩm Định Kỹ Thuật', icon: CheckCircle2, roles: [MANAGER] },
-      { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: BarChart3, roles: [MANAGER] },
-      { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FlaskConical, roles: [MANAGER] },
       { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả XN', icon: Bell, roles: [MANAGER] },
-      { id: 'mgr-feedback', path: '/manager/feedback', label: 'Phản Hồi Bệnh Nhân', icon: Star, roles: [MANAGER] },
-      { id: 'mgr-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT & Ưu Đãi', icon: Receipt, roles: [MANAGER] }
-    ]
-  },
-  {
-    category: 'Danh Mục Y Tế & Tài Nguyên Lab',
-    roles: [MANAGER],
-    items: [
-      { id: 'mgr-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FileText, roles: [MANAGER] },
-      { id: 'mgr-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [MANAGER] },
-      { id: 'mgr-packages', path: '/admin/packages', label: 'Danh Mục Gói Dịch Vụ', icon: Package, roles: [MANAGER] },
-      { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: DoorOpen, roles: [MANAGER] },
-      { id: 'mgr-inventory', path: '/inventory', label: 'Kho Hóa Chất & Vật Tư', icon: TestTube2, roles: [MANAGER] },
-      { id: 'mgr-lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Chuyên Môn KTV', icon: Users, roles: [MANAGER] },
+      { id: 'mgr-schedule', path: '/manage/schedule', label: 'Phân Bổ & Xếp Lịch Ca Trực', icon: Clock, roles: [MANAGER] },
       { id: 'mgr-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: Users, roles: [MANAGER] }
     ]
   },
   {
-    category: 'Vận Hành, Ca Trực & IoT',
+    category: 'Vật Tư, Báo Cáo & Phản Hồi',
     roles: [MANAGER],
     items: [
-      { id: 'mgr-schedule', path: '/manage/schedule', label: 'Phân Bổ & Xếp Lịch Ca Trực', icon: Clock, roles: [MANAGER] },
-      { id: 'mgr-shifts', path: '/shifts/view', label: 'Xem Lịch Ca Trực', icon: Clock, roles: [MANAGER] },
+      { id: 'mgr-inventory', path: '/inventory', label: 'Kho Vật Tư Y Tế & Hóa Chất', icon: TestTube2, roles: [MANAGER] },
+      { id: 'mgr-feedback', path: '/manager/feedback', label: 'Phản Hồi Khách Hàng', icon: Star, roles: [MANAGER] },
+      { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: BarChart3, roles: [MANAGER] },
+      { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [MANAGER] },
       { id: 'mgr-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Cảm Biến IoT', icon: HeartPulse, roles: [MANAGER] },
       { id: 'mgr-iot-alerts', path: '/iot/alerts', label: 'Cảnh Báo Ngưỡng IoT', icon: AlertTriangle, roles: [MANAGER] }
+    ]
+  },
+  {
+    category: 'Tra Cứu Danh Mục Y Tế (Chỉ Xem)',
+    roles: [MANAGER],
+    items: [
+      { id: 'mgr-packages', path: '/packages', label: 'Danh Mục Gói Dịch Vụ', icon: Package, roles: [MANAGER] },
+      { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: DoorOpen, roles: [MANAGER] },
+      { id: 'mgr-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FileText, roles: [MANAGER] },
+      { id: 'mgr-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [MANAGER] }
     ]
   },
 
@@ -105,22 +125,22 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= DOCTOR SECTIONS (BÁC SĨ LÂM SÀNG) =================
+  // ================= DOCTOR SECTIONS (BÁC SĨ LÂM SÀNG — LUỒNG KHÁM DEMO) =================
   {
-    category: 'Khám Bệnh & Y Lệnh Điều Trị',
+    category: 'Khám Bệnh & Xử Lý Kết Quả',
     roles: [DOCTOR],
     items: [
       { id: 'doc-console', path: '/doctor/console', label: 'Bàn Khám & Hàng Đợi Bệnh Nhân', icon: Stethoscope, roles: [DOCTOR] },
       { id: 'doc-order', path: '/doctor/orders/create', label: 'Ra Y Lệnh & Chỉ Định Xét Nghiệm', icon: FileText, roles: [DOCTOR] },
-      { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án & Kết Luận Chẩn Đoán', icon: FileHeart, roles: [DOCTOR] },
-      { id: 'doc-assessments', path: '/medical-assessments', label: 'Đánh Giá Lâm Sàng (ICD-10)', icon: ClipboardCheck, roles: [DOCTOR] },
-      { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Duyệt Kết Quả Xét Nghiệm & Ký Số', icon: CheckCircle2, roles: [DOCTOR] }
+      { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Duyệt Kết Quả Xét Nghiệm & Ký Số', icon: CheckCircle2, roles: [DOCTOR] },
+      { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án & Kết Luận Chẩn Đoán', icon: FileHeart, roles: [DOCTOR] }
     ]
   },
   {
-    category: 'Lịch Làm Việc & Người Bệnh',
+    category: 'Hồ Sơ, Đánh Giá & Lịch Làm Việc',
     roles: [DOCTOR],
     items: [
+      { id: 'doc-assessments', path: '/medical-assessments', label: 'Đánh Giá Lâm Sàng (ICD-10)', icon: ClipboardCheck, roles: [DOCTOR] },
       { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: Calendar, roles: [DOCTOR] },
       { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: Users, roles: [DOCTOR] },
       { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [DOCTOR] }

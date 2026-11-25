@@ -122,8 +122,8 @@ export function isPathAllowedForRole(roleId, path) {
   }
 
   const rules = {
-    [ROLES.ADMIN]: [/^\/dashboard/, /^\/admin\//, /^\/roles/, /^\/backup/, /^\/profile/, /^\/change-password/, /^\/notifications/],
-    [ROLES.MANAGER]: [/^\/dashboard/, /^\/laboratory\//, /^\/lab\//, /^\/qc\//, /^\/iot\//, /^\/criteria/, /^\/reports\//, /^\/admin\/packages/, /^\/packages/, /^\/shifts/, /^\/manage\//, /^\/patients/, /^\/inventory/, /^\/manager\//, /^\/invoices/, /^\/patient\/test-history/, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.ADMIN]: [/^\/dashboard/, /^\/admin\//, /^\/roles/, /^\/backup/, /^\/inventory/, /^\/feedback/, /^\/packages/, /^\/criteria/, /^\/laboratory\//, /^\/reports\//, /^\/iot\//, /^\/manager\//, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.MANAGER]: [/^\/dashboard/, /^\/laboratory\//, /^\/lab\//, /^\/qc\//, /^\/iot\//, /^\/criteria/, /^\/reports\//, /^\/admin\/packages/, /^\/packages/, /^\/shifts/, /^\/manage\//, /^\/patients/, /^\/inventory/, /^\/manager\//, /^\/feedback/, /^\/invoices/, /^\/patient\/test-history/, /^\/profile/, /^\/change-password/, /^\/notifications/],
     [ROLES.DOCTOR]: [/^\/dashboard/, /^\/doctor\//, /^\/medical-assessments/, /^\/medical-records/, /^\/laboratory\/biochemical-results/, /^\/laboratory\/lookup-results/, /^\/appointments/, /^\/patients/, /^\/shifts/, /^\/patient\//, /^\/results/, /^\/reports\//, /^\/profile/, /^\/change-password/, /^\/notifications/],
     [ROLES.LAB]: [/^\/dashboard/, /^\/lab\//, /^\/lab-user\//, /^\/laboratory\//, /^\/qc\//, /^\/iot\//, /^\/inventory/, /^\/shifts/, /^\/patients/, /^\/profile/, /^\/change-password/, /^\/notifications/],
     [ROLES.RECEPTIONIST]: [/^\/dashboard/, /^\/receptionist\//, /^\/reception\//, /^\/queue/, /^\/calculate-fees/, /^\/fee-calculator/, /^\/billing\//, /^\/invoices/, /^\/payments\//, /^\/appointments/, /^\/patients/, /^\/shifts/, /^\/profile/, /^\/change-password/, /^\/notifications/],

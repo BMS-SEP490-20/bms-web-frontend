@@ -8,12 +8,14 @@ import { getLabProfile, getLabProfileRooms, getLabProfiles, labProfileError } fr
 import '../../../components/common/SkeletonProfile.css';
 import LabProfileFormModal from '../components/LabProfileFormModal';
 import DeleteLabProfileModal from '../components/DeleteLabProfileModal';
+import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 
 const defaults = { search: '', roomId: '', createdFrom: '', createdTo: '', page: 1, pageSize: 20 };
 const date = (value) => value ? new Date(value).toLocaleString('vi-VN') : 'Chưa ghi nhận';
 
 /** Displays existing staff professional profiles, never credentials or fabricated records. */
 export default function LabProfilesPage() {
+  const canManage = hasRole(getStoredUser(), ROLES.ADMIN);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
   const [rooms, setRooms] = useState([]);
@@ -79,7 +81,7 @@ export default function LabProfilesPage() {
       </div>
       <div className="bms-page-actions">
         <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading} onClick={() => setRefresh((v) => v + 1)} style={{ borderColor: '#1E60E6', color: '#1E60E6' }}><RotateCw size={12} /><span>Làm mới</span></Button>
-        <Button size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading || !rooms.length} onClick={() => setCreating(true)} style={{ background: '#1E60E6', borderColor: '#1E60E6' }}><Plus size={12} /><span>Thêm hồ sơ</span></Button>
+        {canManage && <Button size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading || !rooms.length} onClick={() => setCreating(true)} style={{ background: '#1E60E6', borderColor: '#1E60E6' }}><Plus size={12} /><span>Thêm hồ sơ</span></Button>}
       </div>
     </div>
 
@@ -180,7 +182,7 @@ export default function LabProfilesPage() {
         <h5 className="fw-bold" style={{ color: '#1E60E6' }}>{detail.fullName}</h5><dl className="row mb-0"><dt className="col-sm-4 text-muted">ID tài khoản liên kết</dt><dd className="col-sm-8 font-monospace text-break" style={{ color: '#1E60E6' }}>{detail.id}</dd><dt className="col-sm-4 text-muted">Trình độ chuyên môn</dt><dd className="col-sm-8" style={{ whiteSpace: 'pre-wrap' }}>{detail.qualification || 'Chưa ghi nhận'}</dd><dt className="col-sm-4 text-muted">Phòng mặc định</dt><dd className="col-sm-8"><span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600 }}>{detail.roomName || 'Chưa phân phòng'}</span></dd><dt className="col-sm-4 text-muted">Ngày tạo</dt><dd className="col-sm-8" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(detail.createdAt)}</dd><dt className="col-sm-4 text-muted">Cập nhật gần nhất</dt><dd className="col-sm-8" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(detail.updatedAt)}</dd></dl>
         <p className="small text-muted mt-3 mb-0" style={{ background: '#EEF2F6', padding: '8px 12px', borderRadius: 10 }}>Đây là hồ sơ chuyên môn; thông tin đăng nhập và phân công theo ca được quản lý riêng.</p>
       </>}
-    </Modal.Body><Modal.Footer style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>{detail?.id === selectedId && <><Button variant="outline-danger" disabled={detailLoading} onClick={() => { setDeleting(detail); setSelectedId(null); }} style={{ borderRadius: 9999 }}>Xóa hồ sơ</Button><Button disabled={detailLoading} onClick={() => { setEditing(detail); setSelectedId(null); }} style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6' }}>Chỉnh sửa hồ sơ</Button></>}<Button variant="secondary" onClick={() => setSelectedId(null)} style={{ borderRadius: 9999 }}>Đóng</Button></Modal.Footer></Modal>
+    </Modal.Body><Modal.Footer style={{ borderTop: '1px solid rgba(15, 23, 42, 0.05)' }}>{canManage && detail?.id === selectedId && <><Button variant="outline-danger" disabled={detailLoading} onClick={() => { setDeleting(detail); setSelectedId(null); }} style={{ borderRadius: 9999 }}>Xóa hồ sơ</Button><Button disabled={detailLoading} onClick={() => { setEditing(detail); setSelectedId(null); }} style={{ borderRadius: 9999, background: '#1E60E6', borderColor: '#1E60E6' }}>Chỉnh sửa hồ sơ</Button></>}<Button variant="secondary" onClick={() => setSelectedId(null)} style={{ borderRadius: 9999 }}>Đóng</Button></Modal.Footer></Modal>
     {creating && <LabProfileFormModal rooms={rooms} onClose={() => setCreating(false)} onSaved={saved} />}
     {editing && <LabProfileFormModal profile={editing} rooms={rooms} onClose={() => setEditing(null)} onSaved={saved} onReload={() => reload(editing.id)} />}
     {deleting && <DeleteLabProfileModal profile={deleting} onClose={() => setDeleting(null)} onDeleted={saved} onReload={() => reload(deleting.id)} />}

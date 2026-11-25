@@ -200,13 +200,14 @@ export default function App() {
                   <Route path="/notifications/dispatch" element={<PushNotificationCenterPage />} />
                 </Route>
 
-                {/* UC79 feedback: Patient submits, Manager reviews */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER, PATIENT]} />}>
+                {/* UC79 feedback: Patient submits, Admin & Manager review/respond (Admin can moderate/delete) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, PATIENT]} />}>
                   <Route path="/feedback" element={<FeedbackHubPage />} />
                   <Route path="/patient/feedback" element={<FeedbackHubPage />} />
                 </Route>
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/manager/feedback" element={<FeedbackHubPage />} />
+                  <Route path="/admin/feedback" element={<FeedbackHubPage />} />
                 </Route>
 
                 {/* UC23 view appointments: Receptionist, Manager, Doctor (assigned), Patient (own) */}
@@ -362,22 +363,22 @@ export default function App() {
                   <Route path="/laboratory/trace/:specimenId" element={<TraceSampleOriginPage />} />
                 </Route>
 
-                {/* UC18 criteria, UC57 reference intervals: Master laboratory technical catalog (Manager ONLY) */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                {/* UC18 criteria, UC57 reference intervals: Admin manages master data; Manager views */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/reference-intervals" element={<ConfigureReferenceIntervalsPage />} />
                 </Route>
 
-                {/* UC34 lab rooms, UC61 lab profiles: Manager ONLY */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                {/* UC34 lab rooms, UC61 lab profiles: Admin manages master data; Manager views */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/laboratory/rooms" element={<LabRoomManagement />} />
                   <Route path="/admin/lab-rooms" element={<LabRoomManagement />} />
                   <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                 </Route>
 
-                {/* UC56 inventory & IoT monitor/thresholds: Manager & Lab (Admin excluded from lab ops) */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER, LAB]} />}>
+                {/* UC56 inventory & IoT monitor/thresholds: Admin, Manager & Lab */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, LAB]} />}>
                   <Route path="/inventory" element={<InventoryPage />} />
                   <Route path="/manager/inventory-management" element={<InventoryPage />} />
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
@@ -411,8 +412,8 @@ export default function App() {
                   <Route path="/admin/bhyt-settings" element={<BhytSettingsPage />} />
                 </Route>
 
-                {/* UC63 TAT, UC78 revenue: Manager ONLY */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                {/* UC63 TAT, UC78 revenue: Admin & Manager */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/reports/revenue" element={<RevenueReportPage />} />
                   <Route path="/admin/revenue-report" element={<RevenueReportPage />} />
                   <Route path="/manager/revenue" element={<RevenueReportPage />} />
@@ -423,8 +424,8 @@ export default function App() {
                   <Route path="/admin/tat-statistics" element={<TatStatisticsDashboardPage />} />
                 </Route>
 
-                {/* UC15/UC19 package management: Manager ONLY */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                {/* UC15/UC19 package management: Admin edits; Manager views */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/packages" element={<ServicePackagesPage />} />
                   <Route path="/admin/packages" element={<ServicePackagesPage />} />
                 </Route>
@@ -447,7 +448,7 @@ export default function App() {
 
               {/* Legacy URLs whose role-prefixed copies gave the wrong roles access; redirect so the canonical
                   route's guard decides (no 404 for old bookmarks). */}
-              {[["/doctor/feedback", "/feedback"], ["/receptionist/feedback", "/feedback"], ["/admin/feedback", "/feedback"],
+              {[["/doctor/feedback", "/feedback"], ["/receptionist/feedback", "/feedback"],
                 ["/admin/invoices", "/invoices"], ["/admin/qc-flags", "/laboratory/qc-flags"], ["/lab-user/lab-rooms", "/laboratory/rooms"],
                 ["/manager/audit-logs", "/admin/audit-logs"], ["/admin/shift-assignment", "/manager/shift-assignment"],
                 ["/admin/iot-alerts", "/iot/alerts"],

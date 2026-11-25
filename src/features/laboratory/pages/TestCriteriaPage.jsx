@@ -16,7 +16,7 @@ import './TestCriteriaPage.css';
 export default function TestCriteriaPage() {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
-  const canManage = hasRole(currentUser, ROLES.MANAGER, ROLES.ADMIN);
+  const canManage = hasRole(currentUser, ROLES.ADMIN);
   const [criteria, setCriteria] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,

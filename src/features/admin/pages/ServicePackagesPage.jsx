@@ -104,7 +104,7 @@ export default function ServicePackagesPage({ onBack }) {
     const [detailPkg, setDetailPkg] = useState(null);
 
     // WHY: UC15/UC19 write = Admin + Manager (Quy trình DOT2 follow-up 2); missing user or role => read-only; the API enforces the same set.
-    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
+    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN), []);
 
     const load = useCallback(async () => {
         try {
@@ -430,26 +430,28 @@ export default function ServicePackagesPage({ onBack }) {
                                                 >
                                                     <Eye size="1em" />
                                                 </Button>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    title="Chỉnh sửa gói dịch vụ"
-                                                    onClick={() => openEdit(pkg)}
-                                                    disabled={!canManage}
-                                                    style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
-                                                >
-                                                    <Pencil size="1em" />
-                                                </Button>
-                                                <Button
-                                                    variant="outline-danger"
-                                                    size="sm"
-                                                    title="Xóa gói dịch vụ"
-                                                    onClick={() => setDeleting(pkg)}
-                                                    disabled={!canManage}
-                                                    style={{ borderRadius: 9999 }}
-                                                >
-                                                    <Trash2 size="1em" />
-                                                </Button>
+                                                {canManage && (
+                                                    <>
+                                                        <Button
+                                                            variant="outline-primary"
+                                                            size="sm"
+                                                            title="Chỉnh sửa gói dịch vụ"
+                                                            onClick={() => openEdit(pkg)}
+                                                            style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
+                                                        >
+                                                            <Pencil size="1em" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            title="Xóa gói dịch vụ"
+                                                            onClick={() => setDeleting(pkg)}
+                                                            style={{ borderRadius: 9999 }}
+                                                        >
+                                                            <Trash2 size="1em" />
+                                                        </Button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -493,7 +495,7 @@ export default function ServicePackagesPage({ onBack }) {
             <PackageDetailModal
                 pkg={detailPkg}
                 onClose={() => setDetailPkg(null)}
-                onEdit={openEdit}
+                onEdit={canManage ? openEdit : undefined}
             />
 
             <PackageFormModal

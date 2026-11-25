@@ -250,7 +250,7 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            {!isAdminUser && <IotNavigationTabs />}
+            <IotNavigationTabs />
 
             {actionFeedback && !actionType && (
                 <Alert

@@ -63,6 +63,8 @@ export default function PushNotificationCenterPage() {
     const navigate = useNavigate();
     const currentRoleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(userRoleId), [user, userRoleId]);
     const isPatient = useMemo(() => currentRoleId === ROLES.PATIENT || userRole === "patient", [currentRoleId, userRole]);
+    const canViewLogs = useMemo(() => currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER, [currentRoleId]);
+    const canViewUsers = useMemo(() => currentRoleId === ROLES.ADMIN, [currentRoleId]);
     const [patientFilter, setPatientFilter] = useState("ALL");
 
     // Audit logs state
@@ -131,7 +133,7 @@ export default function PushNotificationCenterPage() {
     }, []);
 
     const fetchLogs = useCallback(async () => {
-        if (isPatient) {
+        if (!canViewLogs) {
             setIsLoading(false);
             return;
         }
@@ -165,7 +167,7 @@ export default function PushNotificationCenterPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [isPatient, activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
+    }, [canViewLogs, activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
 
     const targetUserId = useMemo(() => {
         if (isPatient) return user?.id || user?._id || user?.sub || "";
@@ -206,7 +208,7 @@ export default function PushNotificationCenterPage() {
     );
 
     useEffect(() => {
-        if (isPatient) return;
+        if (!canViewUsers) return;
         userManagementService.getAllUsers({ params: { pageSize: 50 } })
             .then(res => {
                 const list = res?.success && Array.isArray(res.data) ? res.data : [];
@@ -219,7 +221,7 @@ export default function PushNotificationCenterPage() {
                 }
             })
             .catch(() => setAvailableUsers([]));
-    }, [isPatient]);
+    }, [canViewUsers]);
 
     const handleSelectRecipient = (selectedId) => {
         setFormUserId(selectedId);
@@ -992,7 +994,7 @@ export default function PushNotificationCenterPage() {
                                                                         type="button"
                                                                         className="btn btn-outline-warning btn-sm rounded-pill px-2 py-1"
                                                                         title="Gửi lại"
-                                                                        onClick={() => handleResend(log.id)}
+                                                                        onClick={() => handleResend(log.notificationId || log.id)}
                                                                     >
                                                                         <RotateCw size={13} />
                                                                     </button>

@@ -18,6 +18,7 @@ import {
   EyeOff,
   ShieldCheck,
   AlertCircle,
+  CheckCircle2,
   Stethoscope,
   FlaskConical,
   IdCard,
@@ -507,7 +508,7 @@ export default function LoginPage({
         {/* Notifications & Feedback */}
         {successNotice && (
           <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
-            <FaCheckCircle className="flex-shrink-0" style={{ color: '#16A34A' }} />
+            <CheckCircle2 size={16} className="flex-shrink-0" style={{ color: '#16A34A' }} />
             <span style={{ fontSize: '13px' }}>{successNotice}</span>
           </Alert>
         )}

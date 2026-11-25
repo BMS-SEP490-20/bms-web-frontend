@@ -72,33 +72,35 @@
 }
 
 .bms-appt-list .bms-appt-table th {
-  padding: 5px 14px !important;
-  font-size: 12px !important;
+  padding: 15px 18px !important;
+  font-size: 12.5px !important;
   font-weight: 700 !important;
+  line-height: 1.4 !important;
   color: #475569 !important;
-  background: #f8fafc !important;
+  background: #F8FAFC !important;
   border: 0 !important;
-  border-bottom: 1px solid #e6eef8 !important;
+  border-bottom: 1.5px solid #E2E8F0 !important;
   text-align: left;
   white-space: nowrap;
 }
 
 .bms-appt-list .bms-appt-table td {
-  padding: 12px 14px !important;
-  font-size: 13px !important;
-  color: #0f2744 !important;
-  background: #ffffff !important;
+  padding: 14px 18px !important;
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: #0F172A !important;
+  background: #FFFFFF !important;
   border: 0 !important;
-  border-bottom: 1px solid #e6eef8 !important;
+  border-bottom: 1px solid #F1F5F9 !important;
   vertical-align: middle !important;
 }
 
 .bms-appt-list .bms-appt-table tbody tr:nth-child(even) td {
-  background: #f5f9ff !important;
+  background: #FFFFFF !important;
 }
 
 .bms-appt-list .bms-appt-table tbody tr:hover td {
-  background: #e8f2ff !important;
+  background: #F8FAFC !important;
 }
 
 .bms-appt-list .bms-appt-table tbody tr:has(td[colspan]) td,

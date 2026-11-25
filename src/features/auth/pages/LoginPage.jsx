@@ -211,9 +211,6 @@ export default function LoginPage({
     const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
     const returnUrl = resolveSafeReturnUrl();
     let target = getHomePathForRole(roleId);
-    if (roleId === ROLES.PATIENT && !(normalizedUser?.medicalProfileCompleted || user?.medicalProfileCompleted)) {
-      target = "/patient/medical-profile-setup";
-    }
     // Chỉ quay lại URL cũ nếu role hiện tại được phép — tránh login xong dính 403
     if (returnUrl && isPathAllowedForRole(roleId, returnUrl)) {
       target = returnUrl;

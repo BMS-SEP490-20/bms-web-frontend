@@ -1,305 +1,232 @@
-.bms-chart-page {
+/* Clean, professional medical intake form */
+
+.bms-intake-page {
   width: 100%;
-  padding: 0 0 20px;
+  min-height: 100vh;
+  background: #f4f7f9;
+  padding: 28px 16px 56px;
 }
 
-.bms-chart-toast {
-  position: fixed;
-  top: 88px;
-  left: 50%;
-  z-index: 1080;
-  transform: translateX(-50%);
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: #14532d;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
-  box-shadow: none;
-}
-
-.bms-chart {
-  max-width: 760px;
+.bms-intake-container {
+  max-width: 920px;
   margin: 0 auto;
-  padding: 20px 22px 18px;
+}
+
+.bms-intake-card {
   background: #ffffff;
-  border: 0;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
 }
 
-.bms-chart-head h1 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: #0f2744;
-}
-
-.bms-chart-head p {
-  margin: 4px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #64748b;
-}
-
-.bms-chart-section {
-  margin-top: 18px;
-  padding-top: 0;
-  border: 0;
-}
-
-.bms-chart-section h2,
-.bms-chart-section header h2 {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0 0 10px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: #0f2744;
-}
-
-.bms-chart-section h2 span {
-  color: #1e40af;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.bms-chart-section header {
+.bms-intake-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.bms-chart-section header h2 {
+.bms-intake-card-title {
   margin: 0;
-}
-
-.bms-chart-section header label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #475569;
-}
-
-.bms-chart-identity,
-.bms-chart-grid {
-  display: grid;
-  gap: 12px 14px;
-}
-
-.bms-chart-identity {
-  grid-template-columns: 1.4fr 1fr;
-  margin-bottom: 12px;
-  padding: 0;
-  background: transparent;
-}
-
-.bms-chart-grid {
-  grid-template-columns: 1.2fr 0.8fr 1fr;
-}
-
-.bms-chart-grid .is-wide {
-  grid-column: 1 / -1;
-}
-
-.bms-chart-grid.is-vitals {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: end;
-}
-
-.bms-chart-identity label,
-.bms-chart-grid label {
-  display: block;
-  margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0;
-  color: #64748b;
-}
-
-.bms-chart-page .bms-chart input.form-control,
-.bms-chart-page .bms-chart select.form-select,
-.bms-chart-page .bms-chart .form-select,
-.bms-chart-page .bms-chart .bms-chart-identity-input {
-  box-sizing: border-box !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  padding: 0 12px !important;
-  border: 0 !important;
-  border-radius: 8px !important;
-  background: #f3f6fa !important;
-  box-shadow: none !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  line-height: 36px !important;
-  letter-spacing: 0 !important;
-  color: #0f2744 !important;
-}
-
-.bms-chart-page .bms-chart input.form-control::placeholder {
-  line-height: 36px !important;
-}
-
-.bms-chart textarea.form-control {
-  height: auto !important;
-  min-height: 56px !important;
-  margin-top: 8px;
-  padding: 8px 10px !important;
-  line-height: 1.45 !important;
-}
-
-.bms-chart .form-control:focus,
-.bms-chart .form-select:focus {
-  background: #e7eef6 !important;
-  outline: none;
-}
-
-.bms-chart-identity-input.is-mono {
-  font-variant-numeric: tabular-nums;
-}
-
-.bms-chart small,
-.bms-chart-error {
-  display: block;
-  margin-top: 4px;
-  color: #b91c1c;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.bms-abo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
-}
-
-.bms-abo p {
-  margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #94a3b8;
-}
-
-.bms-abo div > div {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.bms-abo button,
-.bms-abo-unknown,
-.bms-chart-picks button {
-  height: 30px;
-  border: 0;
-  border-radius: 8px;
-  background: #f3f6fa;
-  color: #334155;
-  font-size: 13px;
-  font-weight: 650;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.bms-abo button.is-on,
-.bms-abo-unknown.is-on,
-.bms-chart-picks button.is-on {
-  background: #0f2744;
-  color: #ffffff;
-}
-
-.bms-abo-unknown {
-  margin-top: 8px;
-  padding: 0 12px;
-}
-
-.bms-chart-bmi span,
-.bms-chart-bmi em {
-  display: block;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #64748b;
-}
-
-.bms-chart-bmi strong {
-  display: block;
-  margin: 2px 0;
   font-size: 16px;
   font-weight: 700;
-  line-height: 1.2;
-  color: #0f2744;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.bms-chart-picks {
+.bms-intake-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1e60e6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bms-intake-card-sub {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.bms-intake-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.bms-intake-page .form-control,
+.bms-intake-page .form-select {
+  height: 42px;
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bms-intake-page textarea.form-control {
+  height: auto;
+  min-height: 76px;
+  padding: 10px 14px;
+  line-height: 1.5;
+}
+
+.bms-intake-page .form-control:focus,
+.bms-intake-page .form-select:focus {
+  border-color: #1e60e6;
+  box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.1);
+}
+
+.bms-intake-err {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+/* Blood type selector */
+.bms-intake-blood-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bms-intake-blood-btn {
+  height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bms-intake-blood-btn:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.bms-intake-blood-btn.is-active {
+  background: #eff6ff;
+  border-color: #1e60e6;
+  color: #1d4ed8;
+}
+
+.bms-intake-blood-unknown {
+  margin-top: 12px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bms-intake-blood-unknown.is-active {
+  background: #eff6ff;
+  border-color: #1e60e6;
+  color: #1d4ed8;
+}
+
+/* BMI box */
+.bms-intake-bmi-box {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Clinical history rows */
+.bms-intake-history-item {
+  padding: 18px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bms-intake-history-item:first-child {
+  padding-top: 0;
+}
+
+.bms-intake-history-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.bms-intake-history-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bms-intake-history-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.bms-intake-picks {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  margin-top: 12px;
   margin-bottom: 10px;
 }
 
-.bms-chart-picks button {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+.bms-intake-pick-btn {
+  padding: 7px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bms-intake-pick-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.bms-intake-pick-btn.is-active {
+  background: #eff6ff;
+  border-color: #1e60e6;
+  color: #1d4ed8;
   font-weight: 600;
 }
 
-.bms-chart-consent {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 16px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #475569;
-}
-
-.bms-chart-consent input {
-  margin-top: 2px;
-}
-
-.bms-chart-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
-}
-
-.bms-chart-actions button {
-  height: 34px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 8px;
-  background: #1e40af;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.bms-chart-actions button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-@media (max-width: 720px) {
-  .bms-chart-identity,
-  .bms-chart-grid,
-  .bms-chart-grid.is-vitals,
-  .bms-abo {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .bms-intake-card {
+    padding: 20px;
+  }
+  .bms-intake-blood-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

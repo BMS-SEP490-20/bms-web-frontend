@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner, Modal } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleAuthConfig } from "../../../shared/contexts/GoogleConfigContext";
 import {
   User,
   Lock,
@@ -93,6 +94,7 @@ export default function LoginPage({
   onRegister,
   onForgotPassword }) {
   const navigate = useNavigate();
+  const { googleEnabled } = useGoogleAuthConfig();
   const location = useLocation();
 
   const [identifier, setIdentifier] = useState("");
@@ -766,8 +768,8 @@ export default function LoginPage({
           </div>
         )}
 
-        {/* Google OAuth 2.0 Single Sign-On Button (Lockout & Loading Protected) */}
-        {Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID) && (
+        {/* Google OAuth 2.0 Single Sign-On Button (Auto-configured from Backend Google__ClientId) */}
+        {googleEnabled && (
           <>
             {/* OR Divider with Generous Breathing Room */}
             <div className="d-flex align-items-center" style={{ marginTop: '30px', marginBottom: '30px' }}>

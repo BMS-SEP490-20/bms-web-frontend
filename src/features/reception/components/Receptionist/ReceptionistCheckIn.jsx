@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX, Calendar, Info as LucideInfo, Stethoscope, DoorOpen, Hospital, IdCard, AlertTriangle, TestTube2, Package as LucidePackage, ClipboardCheck, Microscope } from 'lucide-react';
+import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX, Calendar, Info as LucideInfo, Stethoscope, DoorOpen, Hospital, IdCard, AlertTriangle, TestTube2, Package as LucidePackage, ClipboardCheck, Microscope, Monitor } from 'lucide-react';
 import { appointmentService } from '../../../../services/appointmentService';
 import { patientService } from '../../../../services/patientService';
 import { medicalService } from '../../../../services/medicalService';

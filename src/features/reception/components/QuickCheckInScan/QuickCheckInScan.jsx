@@ -5,7 +5,7 @@ import { appointmentService } from '../../../../services/appointmentService';
 import { doctorService } from '../../../../services/doctorService';
 import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
 import { queueApi } from '../../api/queueApi';
-import { Info, CheckCircle2, DoorOpen, RotateCw, Printer, Eye, AlertCircle, Check as LucideCheck, UserCheck, Plus, Camera as LucideCamera, Image as LucideImage, Keyboard, AlertTriangle, VideoOff, QrCode, Search, Upload } from 'lucide-react';
+import { Info, CheckCircle2, CheckCheck, DoorOpen, RotateCw, Printer, Eye, AlertCircle, Check as LucideCheck, UserCheck, Plus, Camera as LucideCamera, Image as LucideImage, Keyboard, AlertTriangle, VideoOff, QrCode, Search, Upload } from 'lucide-react';
 
 /**
  * Quick Check-In QR Code Scanner Component.

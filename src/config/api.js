@@ -92,7 +92,7 @@ api.interceptors.request.use(
                 config.url = config.url.replace(/\/gateway\/testorder\/qcflag/i, '/TestOrder/QcFlag');
             }
 
-            if (config.url.startsWith('/TestOrder')) {
+            if (/^\/TestOrder(\/|$)/.test(config.url)) {
                 config.baseURL = API_URL.replace(/\/api\/?$/, '');
             }
         }

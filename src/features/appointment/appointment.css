@@ -152,6 +152,7 @@
 .bms-pkg-list {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .bms-pkg-item {
@@ -161,27 +162,62 @@
   gap: 12px;
   width: 100%;
   margin: 0;
-  padding: 12px 8px;
-  border: 0;
-  border-bottom: 1px solid #eef2f6;
-  background: transparent;
+  padding: 12px 14px;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+  background: #ffffff;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease !important;
 }
 
-.bms-pkg-item:last-child {
-  border-bottom: 0;
+.bms-pkg-item:hover:not(.is-selected) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  filter: none !important;
 }
 
-.bms-pkg-item:hover,
+.bms-pkg-item:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22) !important;
+}
+
 .bms-pkg-item.is-selected {
-  background: transparent;
+  background: #ecfdf5;
+  border-color: #10b981;
+  filter: none !important;
 }
 
-.bms-pkg-item.is-selected .bms-pkg-name,
+.bms-pkg-item.is-selected:hover,
+.bms-pkg-item.is-selected:active {
+  background: #d1fae5;
+  border-color: #059669;
+  filter: none !important;
+}
+
+.bms-pkg-item.is-selected .bms-pkg-name {
+  color: #065f46;
+}
+
 .bms-pkg-item.is-selected .bms-pkg-note,
 .bms-pkg-item.is-selected .bms-pkg-price {
-  color: #15803d;
+  color: #047857;
+}
+
+.bms-pkg-item.is-selected .badge {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.bms-pkg-selected-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
 }
 
 .bms-pkg-icon {

@@ -900,13 +900,19 @@ export function BookAppointmentPage({
                               ) : null}
                             </span>
                             <span className="bms-pkg-price text-end">
-                              <span>
+                              <span className="d-block">
                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
                               </span>
                               {pkg.originalPrice && (
                                 <small className="d-block text-muted text-decoration-line-through fw-normal" style={{ fontSize: '11px' }}>
                                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.originalPrice)}
                                 </small>
+                              )}
+                              {isSelected && (
+                                <span className="bms-pkg-selected-tag">
+                                  <CheckCircle2 size={12} />
+                                  Đã chọn
+                                </span>
                               )}
                             </span>
                           </button>

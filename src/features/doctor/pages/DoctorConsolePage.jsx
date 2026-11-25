@@ -886,7 +886,7 @@ export default function DoctorConsolePage() {
                 <Badge bg="success">Chờ ký duyệt lâm sàng</Badge>
               </div>
               <div className="small text-dark mt-1">
-                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (ISO 15189 / QĐ 2429).
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (Chuẩn chuyên môn Y khoa).
               </div>
             </div>
           </div>

@@ -281,7 +281,7 @@ export default function ServiceCatalogPage() {
               <Col lg={7}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '11.5px', color: '#64748B', fontWeight: 650, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                  <span>ISO 15189:2022 ACCREDITED LABORATORY · HỆ THỐNG BMS LAB</span>
+                  <span>PHÒNG XÉT NGHIỆM CHUẨN Y KHOA · HỆ THỐNG BMS LAB</span>
                 </div>
 
                 <h1
@@ -305,7 +305,7 @@ export default function ServiceCatalogPage() {
                     maxWidth: '640px'
                   }}
                 >
-                  Tra cứu toàn bộ danh mục gói xét nghiệm chuẩn y tế quốc tế ISO 15189:2022. Mẫu bệnh phẩm được xử lý trên hệ thống máy phân tích tự động thế hệ mới, kết quả chính xác 99.9%, hỗ trợ chiết khấu BHYT trực tiếp và Bác sĩ chuyên khoa giải thích kết quả chu đáo.
+                  Tra cứu toàn bộ danh mục gói xét nghiệm chuẩn y khoa hiện đại. Mẫu bệnh phẩm được xử lý trên hệ thống máy phân tích tự động thế hệ mới, kết quả chính xác 99.9%, hỗ trợ chiết khấu BHYT trực tiếp và Bác sĩ chuyên khoa giải thích kết quả chu đáo.
                 </p>
 
                 {/* Key Spec Badges - Pure Flat, No Emojis, No Borders */}
@@ -321,7 +321,7 @@ export default function ServiceCatalogPage() {
                       fontWeight: 650
                     }}
                   >
-                    Chính xác 99.9% (Chuẩn ISO 15189:2022)
+                    Chính xác 99.9% (Kiểm chuẩn 2 lớp)
                   </div>
                   <div
                     style={{
@@ -801,7 +801,7 @@ export default function ServiceCatalogPage() {
                             maxWidth: '920px'
                           }}
                         >
-                          {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn ISO 15189.'}
+                          {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn y tế.'}
                         </p>
 
                         {/* Row 4: Biomarkers / Tests Pills Preview */}

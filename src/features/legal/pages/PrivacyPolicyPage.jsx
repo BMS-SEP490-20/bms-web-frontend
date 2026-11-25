@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
                 Tại BMS, quyền riêng tư và bí mật y khoa của người bệnh là ưu tiên tối thượng. Mọi thông tin sức khỏe và kết quả xét nghiệm được bảo vệ nghiêm ngặt theo Nghị định 13/2023/NĐ-CP về Bảo vệ dữ liệu cá nhân và tiêu chuẩn an toàn y tế quốc tế.
               </p>
               <div className="mt-3 text-muted" style={{ fontSize: '12px' }}>
-                Cập nhật lần cuối: Ngày 01 tháng 11 năm 2026 · Phiên bản: v2.4 (Tuân thủ ND13 &amp; ISO 15189:2022)
+                Cập nhật lần cuối: Ngày 01 tháng 11 năm 2026 · Phiên bản: v2.4 (Tuân thủ Nghị định 13/2023/NĐ-CP &amp; Chuẩn Bảo Mật Y Tế)
               </div>
             </div>
           </div>

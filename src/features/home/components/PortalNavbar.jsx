@@ -241,7 +241,7 @@ export default function PortalNavbar({ user: propUser = null }) {
                 to="/iso-process"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Quy Trình ISO
+                Quy Trình Xét Nghiệm
               </Link>
             </>
           )}

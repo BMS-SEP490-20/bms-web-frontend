@@ -124,9 +124,9 @@ const LANDING_SECTIONS = [
     ]
   },
   {
-    num: '10 / CHỨNG NHẬN QUỐC TẾ',
-    title: 'Chuẩn Chất Lượng ISO 15189:2022',
-    desc: 'Phòng Lab đáp ứng tiêu chí đánh giá nghiêm ngặt theo ISO 15189 và QĐ 2429/QĐ-BYT.',
+    num: '10 / CHỨNG NHẬN CHẤT LƯỢNG',
+    title: 'Chuẩn Chất Lượng Y Khoa',
+    desc: 'Phòng Lab đáp ứng tiêu chí kiểm soát chất lượng nghiêm ngặt của Bộ Y Tế.',
     svg: '/assets/bms/svg/sections/landing/sec-10-accreditation-wall.svg',
     bullets: [
       'Văn phòng Công nhận Chất lượng (BoA) đánh giá',
@@ -227,7 +227,7 @@ export default function GuestHomePage({ user: propUser }) {
             <div className="bms-hero-narrative">
               <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-2.5">
                 <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                <span>TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB</span>
+                <span>CHUẨN Y KHOA QUỐC GIA · HỆ THỐNG BMS LAB</span>
               </div>
 
               <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
@@ -248,7 +248,7 @@ export default function GuestHomePage({ user: propUser }) {
               </h1>
 
               <p className="bms-hero-lead mb-4" style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.65', maxWidth: '520px' }}>
-                Trung tâm xét nghiệm máu kỹ thuật cao chuẩn quốc tế ISO 15189:2022. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
+                Trung tâm xét nghiệm máu kỹ thuật cao chuẩn y khoa hiện đại. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
               </p>
 
               {/* Search Pill Capsule */}
@@ -277,7 +277,7 @@ export default function GuestHomePage({ user: propUser }) {
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
                   <div>
                     <div className="metric-number" style={{ fontSize: '18px' }}>Chính Xác 99.9%</div>
-                    <div className="metric-label">Chuẩn chất lượng ISO 15189</div>
+                    <div className="metric-label">Chuẩn chất lượng y khoa</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
@@ -522,7 +522,7 @@ export default function GuestHomePage({ user: propUser }) {
             <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
             <h2 className="bms-section-h2 mt-2 mb-2">Bốn Bước Đơn Giản, Một Hành Trình An Tâm</h2>
             <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy trình xét nghiệm khép kín chuẩn y tế.
             </p>
           </div>
 
@@ -594,7 +594,7 @@ export default function GuestHomePage({ user: propUser }) {
 
           <div className="text-center mt-4">
             <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+              Khám Phá Chi Tiết Quy Trình Xét Nghiệm &rarr;
             </Link>
           </div>
         </div>

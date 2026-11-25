@@ -7,23 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import {
-    FaDatabase,
-    FaUndo,
-    FaDownload,
-    FaCheckCircle,
-    FaExclamationTriangle,
-    FaSync,
-    FaSearch,
-    FaPlus,
-    FaEye,
-    FaHdd,
-    FaCalendarAlt,
-    FaHistory,
-    FaTrashAlt,
-    FaCheck,
-    FaTimes
-} from "react-icons/fa";
+import { Database as LucideDatabase, Undo2, Download, CheckCircle2, AlertTriangle, RefreshCw, Search, Plus, Eye, HardDrive, Calendar, History, Trash2, Check, X as LucideX } from 'lucide-react';
 import {
     fetchBackups,
     fetchBackupStats,
@@ -41,7 +25,7 @@ const TABS = [
     { key: "ALL", label: "Tất Cả Bản Sao Lưu" },
     { key: "PATIENT", label: "Dữ Liệu Xét Nghiệm Bệnh Nhân", badgeClass: "bg-primary" },
     { key: "FULL", label: "Toàn Bộ Cơ Sở Dữ Liệu" },
-    { key: "HISTORY", label: "Lịch Sử Khôi Phục Dữ Liệu", icon: FaHistory }
+    { key: "HISTORY", label: "Lịch Sử Khôi Phục Dữ Liệu", icon: History }
 ];
 
 export default function BackupManagementPage() {
@@ -223,11 +207,11 @@ export default function BackupManagementPage() {
     const renderStatusBadge = (status) => {
         switch (status) {
             case "Completed":
-                return <span className="badge bg-success"><FaCheckCircle className="me-1" /> Toàn Vẹn</span>;
+                return <span className="badge bg-success"><CheckCircle2 className="me-1"  size="1em"/> Toàn Vẹn</span>;
             case "Restored":
-                return <span className="badge bg-primary"><FaUndo className="me-1" /> Đã Khôi Phục</span>;
+                return <span className="badge bg-primary"><Undo2 className="me-1"  size="1em"/> Đã Khôi Phục</span>;
             case "Corrupted":
-                return <span className="badge bg-danger"><FaExclamationTriangle className="me-1" /> Hư Hỏng</span>;
+                return <span className="badge bg-danger"><AlertTriangle className="me-1"  size="1em"/> Hư Hỏng</span>;
             case "Failed":
                 return <span className="badge bg-danger">Thất Bại</span>;
             default:
@@ -257,7 +241,7 @@ export default function BackupManagementPage() {
                         onClick={loadData}
                         style={{ borderColor: '#1E60E6', color: '#1E60E6' }}
                     >
-                        <FaSync className={loading ? "fa-spin" : ""} />
+                        <RefreshCw className={loading ? "fa-spin" : ""}  size="1em"/>
                         <span>Làm Mới</span>
                     </button>
                     {isAdmin && (
@@ -267,7 +251,7 @@ export default function BackupManagementPage() {
                             onClick={() => setShowCreateModal(true)}
                             style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
                         >
-                            <FaPlus />
+                            <Plus  size="1em"/>
                             <span>Sao Lưu Dữ Liệu Mới</span>
                         </button>
                     )}
@@ -282,7 +266,7 @@ export default function BackupManagementPage() {
                     style={{ borderRadius: 14 }}
                 >
                     <div className="d-flex align-items-center">
-                        <FaCheckCircle className="me-2 fs-5" />
+                        <CheckCircle2 className="me-2 fs-5"  size="1em"/>
                         <div>{toastMessage.text}</div>
                     </div>
                     <button
@@ -305,7 +289,7 @@ export default function BackupManagementPage() {
                             </div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                            <FaDatabase />
+                            <LucideDatabase  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -320,7 +304,7 @@ export default function BackupManagementPage() {
                             </div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-cyan">
-                            <FaHdd />
+                            <HardDrive  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -335,7 +319,7 @@ export default function BackupManagementPage() {
                             </div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                            <FaCheckCircle />
+                            <CheckCircle2  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -350,9 +334,39 @@ export default function BackupManagementPage() {
                             </div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                            <FaCalendarAlt />
+                            <Calendar  size="1em"/>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* External Tab Bar (separated cleanly from table container) */}
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                    {TABS.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                className="btn btn-sm d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
+                                onClick={() => {
+                                    setActiveTab(tab.key);
+                                    setCurrentPage(1);
+                                }}
+                                style={{
+                                    background: isActive ? '#1E60E6' : '#FFFFFF',
+                                    color: isActive ? '#FFFFFF' : '#475569',
+                                    border: isActive ? '1px solid #1E60E6' : '1px solid #E2E8F0',
+                                    fontSize: '13px'
+                                }}
+                            >
+                                {Icon && <Icon size={14} />}
+                                <span>{tab.label}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -360,7 +374,7 @@ export default function BackupManagementPage() {
             {activeTab !== "HISTORY" && (
                 <div className="bms-filter-bar mb-3">
                     <div className="bms-search-input-pill">
-                        <FaSearch className="bms-search-icon" />
+                        <Search className="bms-search-icon" size="1em" />
                         <input
                             type="text"
                             placeholder="Tìm theo tên, mã sao lưu hoặc người tạo..."
@@ -374,7 +388,7 @@ export default function BackupManagementPage() {
                                 onClick={() => setSearchTerm('')}
                                 title="Xóa tìm kiếm"
                             >
-                                <FaTimes size={12} />
+                                <LucideX size={12} />
                             </button>
                         )}
                     </div>
@@ -385,38 +399,17 @@ export default function BackupManagementPage() {
             )}
 
             <div className="bms-table-standalone-section">
-                <div className="bms-table-tabs">
-                    <ul className="nav nav-pills gap-1 mb-0">
-                        {TABS.map((tab) => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.key;
-                            return (
-                                <li className="nav-item" key={tab.key}>
-                                    <button
-                                        type="button"
-                                        className={`nav-link btn-sm d-flex align-items-center gap-2 ${
-                                            isActive ? "active" : "text-secondary"
-                                        }`}
-                                        onClick={() => {
-                                            setActiveTab(tab.key);
-                                            setCurrentPage(1);
-                                        }}
-                                        style={{
-                                            borderRadius: 9999,
-                                            background: isActive ? '#1E60E6' : 'transparent',
-                                            color: isActive ? '#fff' : '#64748b',
-                                            fontWeight: 600,
-                                            padding: '6px 14px',
-                                            fontSize: '13px'
-                                        }}
-                                    >
-                                        {Icon && <Icon size={13} />}
-                                        <span>{tab.label}</span>
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                <div className="bms-table-standalone-header">
+                    <div>
+                        <h5 className="bms-table-standalone-title">
+                            {activeTab === "HISTORY" ? (
+                                <History size={16} style={{ color: '#1E60E6' }} />
+                            ) : (
+                                <LucideDatabase size={16} style={{ color: '#1E60E6' }} />
+                            )}
+                            <span>{TABS.find(t => t.key === activeTab)?.label || "Danh Sách Bản Sao Lưu"}</span>
+                        </h5>
+                    </div>
                 </div>
 
                 {/* Standalone Table Body */}
@@ -468,7 +461,7 @@ export default function BackupManagementPage() {
                                                 <td className="fw-bold text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>{log.totalRecordsRestored ?? 0} bản ghi</td>
                                                 <td>
                                                     <span className="bms-pill-badge bms-pill-success">
-                                                        <FaCheck className="me-1" /> Khớp 100%
+                                                        <Check className="me-1"  size="1em"/> Khớp 100%
                                                     </span>
                                                 </td>
                                                 <td className="small text-secondary" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -565,7 +558,7 @@ export default function BackupManagementPage() {
                                                             {verifyingId === item.backupId ? (
                                                                 <div className="spinner-border spinner-border-sm" role="status"></div>
                                                             ) : (
-                                                                <FaCheckCircle size={12} />
+                                                                <CheckCircle2 size={12} />
                                                             )}
                                                         </button>
                                                         <button
@@ -578,7 +571,7 @@ export default function BackupManagementPage() {
                                                             {downloadingId === (item.backupId || item.id) ? (
                                                                 <div className="spinner-border spinner-border-sm" role="status"></div>
                                                             ) : (
-                                                                <FaDownload size={12} />
+                                                                <Download size={12} />
                                                             )}
                                                         </button>
                                                         <button
@@ -590,7 +583,7 @@ export default function BackupManagementPage() {
                                                                 setShowDetailModal(true);
                                                             }}
                                                         >
-                                                            <FaEye size={12} />
+                                                            <Eye size={12} />
                                                         </button>
                                                         {isAdmin && (
                                                             <>
@@ -603,7 +596,7 @@ export default function BackupManagementPage() {
                                                                         setShowRestoreModal(true);
                                                                     }}
                                                                 >
-                                                                    <FaUndo size={12} />
+                                                                    <Undo2 size={12} />
                                                                 </button>
                                                                 <button
                                                                     type="button"
@@ -611,7 +604,7 @@ export default function BackupManagementPage() {
                                                                     title="Xóa bản sao lưu"
                                                                     onClick={() => handleDeleteBackup(item)}
                                                                 >
-                                                                    <FaTrashAlt size={12} />
+                                                                    <Trash2 size={12} />
                                                                 </button>
                                                             </>
                                                         )}

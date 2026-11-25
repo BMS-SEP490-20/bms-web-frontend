@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Modal, Button, Alert, Badge, Card, Spinner } from 'react-bootstrap';
-import { FaExclamationTriangle, FaTimes, FaCheckCircle } from 'react-icons/fa';
+import { AlertTriangle, X as LucideX, CheckCircle2 } from 'lucide-react';
 
 export default function DeactivateCriterionModal({ isOpen, criterion, onClose, onConfirm }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,11 +37,11 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
       <Modal.Header closeButton className="bg-danger bg-opacity-10 border-danger border-opacity-25 py-3 px-3">
         <div>
           <Modal.Title className="h6 fw-bold mb-0 text-danger d-flex align-items-center gap-2">
-            <FaExclamationTriangle />
+            <AlertTriangle  size="1em"/>
             Ngưng Sử Dụng Chỉ Số Xét Nghiệm
           </Modal.Title>
           <small className="text-danger opacity-75">
-            Bảo toàn lịch sử hồ sơ bệnh án theo tiêu chuẩn ISO 15189:2022
+            Giữ nguyên dữ liệu lịch sử xét nghiệm đã phát hành
           </small>
         </div>
       </Modal.Header>
@@ -71,7 +71,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
         </Card>
 
         <Alert variant="warning" className="small mb-0 d-flex align-items-start gap-2">
-          <FaCheckCircle className="mt-1 flex-shrink-0 text-warning" />
+          <CheckCircle2 className="mt-1 flex-shrink-0 text-warning"  size="1em"/>
           <div>
             <strong>Lưu ý bảo mật y tế:</strong> Chỉ số sẽ chuyển sang trạng thái <em>Ngưng Hoạt Động (Inactive)</em> và không xuất hiện khi chỉ định mới. Toàn bộ kết quả xét nghiệm lịch sử của bệnh nhân vẫn được bảo toàn nguyên vẹn 100%.
           </div>
@@ -80,7 +80,7 @@ export default function DeactivateCriterionModal({ isOpen, criterion, onClose, o
 
       <Modal.Footer className="bg-light py-2 px-3 border-top">
         <Button variant="secondary" size="sm" onClick={onClose} disabled={isSubmitting}>
-          <FaTimes className="me-1" /> Hủy Bỏ
+          <LucideX className="me-1"  size="1em"/> Hủy Bỏ
         </Button>
         <Button variant="danger" size="sm" onClick={handleConfirm} disabled={isSubmitting}>
           {isSubmitting ? (

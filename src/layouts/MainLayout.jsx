@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import PatientPortalLayout from './PatientPortalLayout';
 import { ROLES, resolveRoleId, getStoredUser } from '../constants/roles';
 import { Outlet } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa';
+import { Menu } from 'lucide-react';
 import Sidebar from '../components/Layout/Sidebar.jsx';
 
 /**
@@ -127,7 +127,7 @@ export default function MainLayout() {
               style={{ width: 36, height: 36, background: '#EEF2F6', border: 'none' }}
               aria-label="Mở menu"
             >
-              <FaBars size={16} style={{ color: '#475569' }} />
+              <Menu size={16} style={{ color: '#475569' }} />
             </button>
             <div className="d-flex align-items-center gap-2">
               <span className="fw-bold fs-6" style={{ color: '#1E60E6' }}>BMS Clinical Lab</span>

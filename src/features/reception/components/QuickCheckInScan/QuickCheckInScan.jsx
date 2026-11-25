@@ -83,9 +83,8 @@ const QuickCheckInScan = ({
       return name;
     }
     const cleanId = String(pid || name || '').replace(/^(PAT-)+/gi, '').replace(/^(USR-)+/gi, '');
-    if (cleanId.includes('079201') || cleanId.includes('AN') || cleanId.includes('009988')) return 'Trần Văn An';
-    if (cleanId) return `Bệnh nhân (BN-${cleanId.slice(-4)})`;
-    return 'Trần Văn An';
+    if (cleanId) return `Bệnh nhân (${cleanId.slice(-4)})`;
+    return 'Chưa cập nhật';
   };
 
   if (!containerIdRef.current) {
@@ -166,7 +165,7 @@ const QuickCheckInScan = ({
         <body>
           <div class="ticket">
             <div style="font-weight: 800; font-size: 13px; text-transform: uppercase;">HỆ THỐNG XÉT NGHIỆM BMS MEDLAB</div>
-            <div style="font-size: 10px; color: #555;">Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868</div>
+            <div style="font-size: 10px; color: #555;">BMS MedLab • Hotline: 1900 6868</div>
             <div class="dashed"></div>
             <div style="font-size: 11px; font-weight: bold; margin-top: 4px;">PHIẾU TIẾP ĐÓN & SỐ THỨ TỰ LẤY MẪU</div>
             <div style="margin: 8px 0; padding: 8px; border: 2px solid #000; border-radius: 8px;">
@@ -797,7 +796,7 @@ const QuickCheckInScan = ({
         <div className="d-flex align-items-start gap-2">
           <i className="fas fa-info-circle me-1 mt-1 text-primary" style={{ fontSize: '1.25rem' }}></i>
           <div>
-            <strong className="d-block mb-1 text-dark" style={{ fontSize: '0.92rem' }}>Quy trình tiếp đón nhanh tại quầy (ISO 15189:2022):</strong>
+            <strong className="d-block mb-1 text-dark" style={{ fontSize: '0.92rem' }}>Hướng dẫn tiếp đón nhanh tại quầy:</strong>
             <div className="small text-muted mb-0">
               <span className="me-3">1️⃣ <strong>Quét QR</strong> từ phiếu hẹn hoặc <strong>Nhập mã</strong> hẹn (VD: <code>APT-261127-0001</code>)</span>
               <span className="me-3">2️⃣ <strong>Đối chiếu CCCD</strong> và y lệnh xét nghiệm</span>
@@ -851,7 +850,7 @@ const QuickCheckInScan = ({
                       <span className="badge bg-primary fs-6 px-3 py-1 fw-bold">STT #{alreadyCheckedInPatient.queueNumber}</span>
                     </div>
                     <span className="text-success small fw-semibold">
-                      <i className="fas fa-door-open me-1"></i> Phòng Lấy Mẫu 101 • Chuẩn ISO 15189
+                      <i className="fas fa-door-open me-1"></i> Phòng Lấy Mẫu 101
                     </span>
                   </div>
                 </div>

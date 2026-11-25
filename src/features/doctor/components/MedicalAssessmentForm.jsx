@@ -22,22 +22,7 @@ import {
   ListGroup,
   Modal
 } from 'react-bootstrap';
-import {
-  FaUserInjured,
-  FaHeartbeat,
-  FaStethoscope,
-  FaNotesMedical,
-  FaFilePrescription,
-  FaCalendarCheck,
-  FaCheckCircle,
-  FaSave,
-  FaLock,
-  FaExclamationTriangle,
-  FaSearch,
-  FaTimes,
-  FaExchangeAlt,
-  FaVials
-} from 'react-icons/fa';
+import { User, HeartPulse, Stethoscope, FileText, CalendarCheck, CheckCircle2, Save, Lock, AlertTriangle, Search as LucideSearch, X as LucideX, ArrowLeftRight, TestTube2 } from 'lucide-react';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 import { searchPatients, getPatientById } from '../../../services/patientService';
 import { getPackages } from '../../admin/api/packageApi.jsx';
@@ -427,7 +412,7 @@ export default function MedicalAssessmentForm({
       <Card.Header className="py-3 px-4 d-flex justify-content-between align-items-center border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
         <div>
           <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2 fs-6">
-            <FaStethoscope className="text-primary" /> {isEditMode ? 'Cập nhật đánh giá y khoa' : 'Biểu mẫu đánh giá y khoa lâm sàng'}
+            <Stethoscope className="text-primary"  size="1em"/> {isEditMode ? 'Cập nhật đánh giá y khoa' : 'Biểu mẫu đánh giá y khoa lâm sàng'}
           </h5>
           <small className="text-muted">
             Ghi nhận khám lâm sàng và mã chẩn đoán WHO ICD-10
@@ -443,14 +428,14 @@ export default function MedicalAssessmentForm({
       <Card.Body className="p-2 bg-light bg-opacity-25">
         {errorMessage && (
           <Alert variant="danger" dismissible onClose={() => setErrorMessage(null)} className="d-flex align-items-center gap-2 rounded-3">
-            <FaExclamationTriangle />
+            <AlertTriangle  size="1em"/>
             <div>{errorMessage}</div>
           </Alert>
         )}
 
         {successMessage && (
           <Alert variant="success" dismissible onClose={() => setSuccessMessage(null)} className="d-flex align-items-center gap-2 rounded-3">
-            <FaCheckCircle />
+            <CheckCircle2  size="1em"/>
             <div>{successMessage}</div>
           </Alert>
         )}
@@ -461,7 +446,7 @@ export default function MedicalAssessmentForm({
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <div>
                 <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                  <FaUserInjured /> 1. Thông Tin Bệnh Nhân (Hồ Sơ Điện Tử) & Lượt Khám
+                  <User  size="1em"/> 1. Thông Tin Bệnh Nhân (Hồ Sơ Điện Tử) & Lượt Khám
                 </h6>
                 <small className="text-muted">
                   Thông tin hành chính được đồng bộ trực tiếp từ CSDL Hồ sơ bệnh nhân (Chỉ xem - Không điền tay).
@@ -469,7 +454,7 @@ export default function MedicalAssessmentForm({
               </div>
               <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
                 <Badge bg="secondary-subtle" className="text-secondary border d-flex align-items-center gap-1 px-2.5 py-1 rounded-pill">
-                  <FaLock size={11} /> Dữ liệu hồ sơ gốc (Chỉ xem)
+                  <Lock size={11} /> Dữ liệu hồ sơ gốc (Chỉ xem)
                 </Badge>
                 {!isEditMode && (
                   <Button
@@ -482,7 +467,7 @@ export default function MedicalAssessmentForm({
                       fetchPatientList('');
                     }}
                   >
-                    <FaExchangeAlt size={11} /> Đổi bệnh nhân
+                    <ArrowLeftRight size={11} /> Đổi bệnh nhân
                   </Button>
                 )}
               </div>
@@ -602,7 +587,7 @@ export default function MedicalAssessmentForm({
           {/* SECTION 2: Chief Complaint & Symptoms */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-              <FaNotesMedical /> 2. Diễn Biến Bệnh & Triệu Chứng Lâm Sàng
+              <FileText  size="1em"/> 2. Diễn Biến Bệnh & Triệu Chứng Lâm Sàng
             </h6>
             <Row className="g-3">
               <Col md={12}>
@@ -639,7 +624,7 @@ export default function MedicalAssessmentForm({
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                <FaHeartbeat /> 3. Dấu Hiệu Sinh Tồn (Vitals) & Khám Thực Thể
+                <HeartPulse  size="1em"/> 3. Dấu Hiệu Sinh Tồn (Vitals) & Khám Thực Thể
               </h6>
               {bmi > 0 && (
                 <Badge bg={bmiColor} className="fs-6 py-1 px-3 rounded-pill" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -746,7 +731,7 @@ export default function MedicalAssessmentForm({
 
             {!bpValidation.valid && (
               <Alert variant="warning" className="py-2 small mb-3">
-                <FaExclamationTriangle className="me-2" />
+                <AlertTriangle className="me-2"  size="1em"/>
                 {bpValidation.message}
               </Alert>
             )}
@@ -770,7 +755,7 @@ export default function MedicalAssessmentForm({
           {/* SECTION 4: Diagnosis & WHO ICD-10 */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-              <FaStethoscope /> 4. Chẩn Đoán Y Khoa & Mã Bệnh WHO ICD-10 (Bắt buộc theo BR-DOC-01)
+              <Stethoscope  size="1em"/> 4. Chẩn Đoán & Mã Bệnh ICD-10
             </h6>
             <Row className="g-3">
               <Col md={4} className="position-relative">
@@ -791,7 +776,7 @@ export default function MedicalAssessmentForm({
                       onClick={() => setShowIcdSuggestions(!showIcdSuggestions)}
                       title="Chọn nhanh mã ICD-10 phổ biến"
                     >
-                      <FaSearch />
+                      <LucideSearch  size="1em"/>
                     </Button>
                   </InputGroup>
                 </Form.Group>
@@ -802,7 +787,7 @@ export default function MedicalAssessmentForm({
                     <Card.Header className="py-2 px-3 bg-light d-flex justify-content-between align-items-center">
                       <span className="small fw-bold">Danh mục ICD-10 phổ biến</span>
                       <Button variant="link" size="sm" className="p-0 text-muted" onClick={() => setShowIcdSuggestions(false)}>
-                        <FaTimes />
+                        <LucideX  size="1em"/>
                       </Button>
                     </Card.Header>
                     <div className="p-2">
@@ -930,13 +915,13 @@ export default function MedicalAssessmentForm({
           {/* SECTION 5: Treatment Plan & Test Orders (DYNAMIC SERVICE PACKAGES FROM DB) */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-              <FaFilePrescription /> 5. Kế hoạch xử trí &amp; Đề xuất chỉ định xét nghiệm
+              <FileText  size="1em"/> 5. Kế hoạch xử trí &amp; Đề xuất chỉ định xét nghiệm
             </h6>
 
             <div className="mb-3">
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <Form.Label className="fw-semibold mb-0 d-flex align-items-center gap-2">
-                  <FaVials style={{ color: '#1E60E6' }} />
+                  <TestTube2 style={{ color: '#1E60E6' }}  size="1em"/>
                   Đề Xuất Chỉ Định Xét Nghiệm Cận Lâm Sàng
                 </Form.Label>
                 <small className="text-muted">Nguồn: Quản lý gói dịch vụ xét nghiệm (CSDL)</small>
@@ -965,7 +950,7 @@ export default function MedicalAssessmentForm({
                         style={selected ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
                         onClick={() => handleTogglePackage(pkgTitle)}
                       >
-                        {selected && <FaCheckCircle size={12} />}
+                        {selected && <CheckCircle2 size={12} />}
                         <span>{pkgTitle}</span>
                         {pkg.price ? (
                           <Badge
@@ -1049,7 +1034,7 @@ export default function MedicalAssessmentForm({
                 className="d-flex align-items-center gap-2"
                 style={{ borderRadius: '9999px' }}
               >
-                {submitting ? <Spinner size="sm" animation="border" /> : <FaSave />}
+                {submitting ? <Spinner size="sm" animation="border" /> : <Save  size="1em"/>}
                 Lưu Bản Nháp
               </Button>
               <Button
@@ -1059,7 +1044,7 @@ export default function MedicalAssessmentForm({
                 className="d-flex align-items-center gap-2 px-3 shadow-sm text-white"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
               >
-                {submitting ? <Spinner size="sm" animation="border" /> : <FaLock />}
+                {submitting ? <Spinner size="sm" animation="border" /> : <Lock  size="1em"/>}
                 Hoàn Tất & Khóa Hồ Sơ
               </Button>
             </div>
@@ -1071,12 +1056,12 @@ export default function MedicalAssessmentForm({
       <Modal show={showPatientSelectorModal} onHide={() => setShowPatientSelectorModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-6 fw-bold text-primary d-flex align-items-center gap-2">
-            <FaUserInjured /> Chọn Hồ Sơ Bệnh Nhân (Cơ Sở Dữ Liệu BMS)
+            <User  size="1em"/> Chọn Hồ Sơ Bệnh Nhân (Cơ Sở Dữ Liệu BMS)
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <InputGroup className="mb-3">
-            <InputGroup.Text><FaSearch /></InputGroup.Text>
+            <InputGroup.Text><LucideSearch  size="1em"/></InputGroup.Text>
             <Form.Control
               placeholder="Tìm theo tên, mã bệnh nhân, SĐT hoặc CCCD..."
               value={patientSearchKeyword}

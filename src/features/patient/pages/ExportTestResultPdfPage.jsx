@@ -8,23 +8,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
-import {
-  FaDownload,
-  FaShareAlt,
-  FaArrowLeft,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaPrint,
-  FaShieldAlt,
-  FaStethoscope,
-  FaUserMd,
-  FaBarcode,
-  FaVial,
-  FaFilePdf,
-  FaCheck,
-  FaCopy,
-  FaInfoCircle
-} from 'react-icons/fa';
+import { Download, Share2, ArrowLeft, CheckCircle2, AlertTriangle, Printer, ShieldCheck, Stethoscope, Barcode as LucideBarcode, TestTube2, FileText, Check, Copy, Info } from 'lucide-react';
 import { fetchPatientResult, exportResultPdf, shareResultWithDoctor, fetchPatientResultsList } from '../api/patientResultApi';
 import { getTestHistory } from '../api/testHistoryApi';
 import { getMyPatientInformation } from '../../../services/patientService';
@@ -273,43 +257,18 @@ export default function ExportTestResultPdfPage() {
 
   return (
     <div className="bms-patient-portal-page" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
-      {/* Top Patient Portal Navigation Bar */}
-      <nav className="no-print" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/home')}>
-            <span style={{ background: '#0284c7', color: '#ffffff', fontWeight: '800', fontSize: '13px', padding: '4px 8px', borderRadius: '4px', letterSpacing: '1px' }}>BMS</span>
-            <div>
-              <span style={{ fontWeight: '700', fontSize: '15px', color: '#0f172a' }}>Hệ Thống Y Khoa BMS</span>
-              <small style={{ display: 'block', fontSize: '10px', color: '#64748b', marginTop: '-2px' }}>Cổng Thông Tin Bệnh Nhân</small>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '13.5px', fontWeight: '500' }}>
-            <Link to="/home" style={{ color: '#64748b', textDecoration: 'none' }}>Trang Chủ</Link>
-            <Link to="/appointments" style={{ color: '#64748b', textDecoration: 'none' }}>Lịch Khám</Link>
-            <Link to="/patient/test-history" style={{ color: '#0284c7', fontWeight: '700', textDecoration: 'none', borderBottom: '2px solid #0284c7', paddingBottom: '4px' }}>Kết Quả Xét Nghiệm</Link>
-            <Link to="/patient/payment-history" style={{ color: '#64748b', textDecoration: 'none' }}>Viện Phí &amp; Hóa Đơn</Link>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="small text-muted d-none d-md-inline">Xin chào, <b>{patientNameDisplay}</b></span>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', color: '#0369a1', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-            {patientNameDisplay.charAt(0)}
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content Area */}
-      <div style={{ maxWidth: '1020px', margin: '24px auto', padding: '0 16px' }}>
+      <div style={{ maxWidth: '1020px', margin: '12px auto 24px', padding: '0 16px' }}>
         {/* Notification Alerts */}
         {errorMessage && (
           <div className="alert alert-danger d-flex align-items-center no-print" role="alert" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
-            <FaExclamationTriangle className="me-2 flex-shrink-0" />
+            <AlertTriangle className="me-2 flex-shrink-0"  size="1em"/>
             <div>{errorMessage}</div>
           </div>
         )}
         {successMessage && (
           <div className="alert alert-success d-flex align-items-center no-print" role="alert" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
-            <FaCheckCircle className="me-2 flex-shrink-0" />
+            <CheckCircle2 className="me-2 flex-shrink-0"  size="1em"/>
             <div>{successMessage}</div>
           </div>
         )}
@@ -320,7 +279,7 @@ export default function ExportTestResultPdfPage() {
               <span className="visually-hidden">Đang tải phiếu kết quả xét nghiệm...</span>
             </div>
             <div className="text-muted mt-2" style={{ fontSize: '13.5px' }}>
-              Đang tải phiếu kết quả xét nghiệm y khoa chính thức từ cơ sở dữ liệu ISO 15189...
+              Đang tải phiếu kết quả xét nghiệm...
             </div>
           </div>
         ) : result ? (
@@ -351,7 +310,7 @@ export default function ExportTestResultPdfPage() {
                   onClick={handleShare}
                   disabled={sharing}
                 >
-                  <FaShareAlt className="text-primary" /> {sharing ? 'Đang tạo link...' : 'Chia sẻ Bác sĩ'}
+                  <Share2 className="text-primary"  size="1em"/> {sharing ? 'Đang tạo link...' : 'Chia sẻ Bác sĩ'}
                 </button>
 
                 <button
@@ -361,7 +320,7 @@ export default function ExportTestResultPdfPage() {
                   onClick={handleExportPdf}
                   disabled={exporting}
                 >
-                  <FaPrint /> {exporting ? 'Đang chuẩn bị PDF...' : 'In / Xuất PDF (A4)'}
+                  <Printer  size="1em"/> {exporting ? 'Đang chuẩn bị PDF...' : 'In / Xuất PDF (A4)'}
                 </button>
               </div>
             </div>
@@ -377,7 +336,7 @@ export default function ExportTestResultPdfPage() {
                         BMS LAB
                       </span>
                       <span className="fw-bold text-dark" style={{ fontSize: '15px' }}>
-                        HỆ THỐNG PHÒNG XÉT NGHIỆM Y KHOA TIÊU CHUẨN ISO 15189:2022
+                        PHÒNG XÉT NGHIỆM Y KHOA BMS MEDLAB
                       </span>
                     </div>
                     <div className="text-secondary small">
@@ -387,7 +346,7 @@ export default function ExportTestResultPdfPage() {
 
                   <div className="text-end">
                     <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 fw-bold mb-1 d-inline-block" style={{ fontSize: '11.5px' }}>
-                      <FaShieldAlt className="me-1" /> ĐÃ KÝ SỐ ĐIỆN TỬ HỢP CHUẨN
+                      <ShieldCheck className="me-1"  size="1em"/> ĐÃ KÝ SỐ ĐIỆN TỬ HỢP CHUẨN
                     </span>
                     <div className="text-muted font-monospace small">
                       Mã phiếu: <b>{result.OrderCode || result.OrderId || activeOrderId}</b>
@@ -424,7 +383,7 @@ export default function ExportTestResultPdfPage() {
                     <div className="d-flex gap-2 py-1">
                       <span className="text-muted" style={{ minWidth: 130 }}>Barcode mẫu máu:</span>
                       <span className="badge bg-light text-dark border font-monospace px-2 py-1 fw-bold d-inline-flex align-items-center gap-1">
-                        <FaBarcode className="text-primary" /> {barcodeDisplay}
+                        <LucideBarcode className="text-primary"  size="1em"/> {barcodeDisplay}
                       </span>
                     </div>
                   </div>
@@ -568,7 +527,7 @@ export default function ExportTestResultPdfPage() {
               <div className="p-3 border-top bg-light">
                 <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                   <div className="d-flex align-items-center gap-2">
-                    <FaStethoscope className="text-primary" />
+                    <Stethoscope className="text-primary"  size="1em"/>
                     <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: '700', color: '#0f172a' }}>
                       Chẩn Đoán Cuối Cùng &amp; Nhận Định Lâm Sàng Của Bác Sĩ
                     </h4>
@@ -631,7 +590,7 @@ export default function ExportTestResultPdfPage() {
                     <div className="text-muted small mb-1">BÁC SĨ ĐIỀU TRỊ (KÝ SỐ TRẢ KẾT QUẢ)</div>
                     <div style={{ height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                        <FaShieldAlt className="me-1" /> KÝ SỐ BỞI: {labHeadDisplay}
+                        <ShieldCheck className="me-1"  size="1em"/> KÝ SỐ BỞI: {labHeadDisplay}
                       </span>
                       <small className="text-muted font-monospace mt-1" style={{ fontSize: '10px' }}>
                         Thời gian ký: {releasedDateDisplay}
@@ -642,22 +601,20 @@ export default function ExportTestResultPdfPage() {
                   </div>
                 </div>
 
-                {/* Digital Integrity SHA-256 Footer */}
-                <div className="text-center text-muted mt-4 pt-3 border-top" style={{ fontSize: '11px' }}>
-                  <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
-                    <FaShieldAlt className="text-success" />
-                    <span>Chứng thư số điện tử được cấp bởi Ban Cơ yếu Chính phủ / Viettel-CA • Tiêu chuẩn ISO 15189:2022</span>
+                {/* Verification Footer */}
+                {verificationHashDisplay && (
+                  <div className="text-center text-muted mt-4 pt-3 border-top" style={{ fontSize: '11px' }}>
+                    <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>
+                      Mã xác thực kết quả: <strong>{verificationHashDisplay}</strong>
+                    </div>
                   </div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>
-                    Mã băm chữ ký số SHA-256: <strong>{verificationHashDisplay}</strong>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </>
         ) : (
           <div className="card p-3 text-center text-muted shadow-sm border-0" style={{ borderRadius: '10px' }}>
-            <FaVial size={48} className="mx-auto mb-3 text-secondary opacity-50" />
+            <TestTube2 size={48} className="mx-auto mb-3 text-secondary opacity-50" />
             <h5 className="text-dark fw-bold">Chưa Có Phiếu Kết Quả Xét Nghiệm Đã Ký Số</h5>
             <p className="small text-secondary mx-auto" style={{ maxWidth: '480px' }}>
               Hiện chưa có phiếu kết quả xét nghiệm nào đã được Bác sĩ điều trị ký duyệt và trả kết quả cho hồ sơ của bạn.
@@ -665,7 +622,7 @@ export default function ExportTestResultPdfPage() {
             </p>
             <div className="mt-3 d-flex justify-content-center gap-2">
               <Link to="/patient/test-history" className="btn btn-outline-primary btn-sm px-3">
-                <FaArrowLeft className="me-1" /> Xem Lịch Sử Xét Nghiệm
+                <ArrowLeft className="me-1"  size="1em"/> Xem Lịch Sử Xét Nghiệm
               </Link>
               <Link to="/home" className="btn btn-primary btn-sm px-3">
                 Về Trang Chủ Bệnh Nhân
@@ -682,7 +639,7 @@ export default function ExportTestResultPdfPage() {
             <div className="modal-content" style={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
               <div className="modal-header border-0 pb-0">
                 <h5 className="modal-title d-flex align-items-center gap-2" style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>
-                  <FaShieldAlt className="text-primary" /> Chia Sẻ Kết Quả Cho Bác Sĩ Điều Trị
+                  <ShieldCheck className="text-primary"  size="1em"/> Chia Sẻ Kết Quả Cho Bác Sĩ Điều Trị
                 </h5>
                 <button type="button" className="btn-close" onClick={() => setShowShareModal(false)}></button>
               </div>
@@ -707,13 +664,13 @@ export default function ExportTestResultPdfPage() {
                       onClick={handleCopyShareLink}
                       style={{ fontSize: '12.5px', fontWeight: '600' }}
                     >
-                      {copied ? <><FaCheck className="me-1" /> Đã sao chép!</> : <><FaCopy className="me-1" /> Sao chép</>}
+                      {copied ? <><Check className="me-1"  size="1em"/> Đã sao chép!</> : <><Copy className="me-1"  size="1em"/> Sao chép</>}
                     </button>
                   </div>
                 </div>
 
                 <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '10px 12px', fontSize: '12px', color: '#166534' }}>
-                  <FaInfoCircle className="me-1" /> Mọi lượt truy cập xem kết quả đều được ghi nhận vào nhật ký kiểm toán y tế (Audit Log) theo tiêu chuẩn bảo mật y tế.
+                  <Info className="me-1"  size="1em"/> Mọi lượt truy cập xem kết quả đều được ghi nhận vào nhật ký kiểm toán y tế (Audit Log) theo tiêu chuẩn bảo mật y tế.
                 </div>
               </div>
               <div className="modal-footer border-0 pt-0">

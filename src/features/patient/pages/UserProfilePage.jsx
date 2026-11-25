@@ -13,25 +13,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Row, Col, Badge, Button, Alert, Form, Table, Spinner, ProgressBar } from 'react-bootstrap';
-import {
-  FaUserInjured,
-  FaIdCard,
-  FaHeartbeat,
-  FaTint,
-  FaAllergies,
-  FaPills,
-  FaPhoneAlt,
-  FaEdit,
-  FaSave,
-  FaTimes,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaCalendarAlt,
-  FaNotesMedical,
-  FaShieldAlt,
-  FaFileInvoiceDollar,
-  FaClipboardList
-} from 'react-icons/fa';
+import { User, IdCard, HeartPulse, Droplet, AlertCircle, Pill, Phone, SquarePen, Save, X as LucideX, CheckCircle2, AlertTriangle, Calendar, FileText, ShieldCheck, Receipt, ClipboardList } from 'lucide-react';
 
 function profilePhoto(value) {
   const src = typeof value === 'string' ? value.trim() : '';
@@ -362,7 +344,7 @@ export const UserProfilePage = () => {
       return;
     }
     if (!formData.identityNumber || formData.identityNumber.trim().length !== 12) {
-      setErrorMessage('Số CCCD (Căn cước công dân) phải gồm đúng 12 chữ số theo quy định Đề án 06.');
+      setErrorMessage('Số CCCD phải gồm đúng 12 chữ số.');
       return;
     }
     if (!formData.phoneNumber.trim()) {
@@ -458,20 +440,20 @@ export const UserProfilePage = () => {
     const staffRoleLabel = {
       receptionist: 'Lễ Tân & Điều Phối Tiếp Đón',
       doctor: 'Bác Sĩ Khám Lâm Sàng & Chỉ Định Xét Nghiệm',
-      lab: 'Kỹ Thuật Viên Xét Nghiệm Y Học (ISO 15189)',
-      lab_tech: 'Kỹ Thuật Viên Xét Nghiệm Y Học (ISO 15189)',
-      manager: 'Trưởng Khoa Xét Nghiệm & Quản Lý Chất Lượng',
+      lab: 'Kỹ Thuật Viên Xét Nghiệm',
+      lab_tech: 'Kỹ Thuật Viên Xét Nghiệm',
+      manager: 'Quản Lý Phòng Xét Nghiệm',
       admin: 'Quản Trị Viên Hệ Thống BMS'
     }[roleKey] || userRoleName || 'Cán Bộ Y Tế BMS';
 
     const staffDept = {
-      receptionist: 'Khoa Tiếp Nhận & Hướng Dẫn Người Bệnh',
-      doctor: 'Khoa Huyết Học & Thăm Khám Lâm Sàng',
-      lab: 'Trung Tâm Phân Tích Tự Động Hóa (Tầng 2)',
-      lab_tech: 'Trung Tâm Phân Tích Tự Động Hóa (Tầng 2)',
-      manager: 'Ban Quản Lý Chất Lượng Xét Nghiệm ISO 15189',
-      admin: 'Phòng Công Nghệ Thông Tin & Quản Trị Hệ Thống'
-    }[roleKey] || 'Cơ sở 1 BMS MedLab';
+      receptionist: 'Bộ Phận Tiếp Nhận & Hướng Dẫn Người Bệnh',
+      doctor: 'Khoa Khám Bệnh & Chỉ Định Xét Nghiệm',
+      lab: 'Phòng Xét Nghiệm',
+      lab_tech: 'Phòng Xét Nghiệm',
+      manager: 'Quản Lý Phòng Xét Nghiệm',
+      admin: 'Quản Trị Hệ Thống'
+    }[roleKey] || 'Hệ thống BMS';
 
     const staffEmpCode = (() => {
       const explicit = user?.employeeCode || user?.EmployeeCode;
@@ -497,16 +479,7 @@ export const UserProfilePage = () => {
     const staffCccd = (() => {
       const explicit = user?.identityCardNumber || user?.IdentityCardNumber || user?.identityNumber;
       if (explicit && !explicit.match(/^[0-9a-f]{24}$/i) && explicit !== 'Chưa cập nhật') return explicit;
-      const uname = String(user?.username || '').toLowerCase();
-      if (uname.includes('lananh')) return '079195000007';
-      if (uname.includes('minh')) return '079185000002';
-      if (uname.includes('hung')) return '079190000004';
-      if (uname.includes('thimai')) return '079196000006';
-      if (uname.includes('thuha')) return '079197000008';
-      if (uname.includes('thanh')) return '079186000003';
-      if (uname.includes('hoa')) return '079180000005';
-      if (uname.includes('admin')) return '079188000001';
-      return '079195000007';
+      return '—';
     })();
 
     const staffDob = (() => {
@@ -514,60 +487,45 @@ export const UserProfilePage = () => {
         const d = new Date(user.dateOfBirth);
         if (!isNaN(d.getTime())) return d.toLocaleDateString('vi-VN');
       }
-      const uname = String(user?.username || '').toLowerCase();
-      if (uname.includes('lananh')) return '20/10/1995';
-      if (uname.includes('minh')) return '15/05/1985';
-      if (uname.includes('hung')) return '12/08/1990';
-      if (uname.includes('thimai')) return '15/03/1996';
-      if (uname.includes('thuha')) return '22/07/1997';
-      if (uname.includes('thanh')) return '18/09/1986';
-      if (uname.includes('hoa')) return '10/04/1980';
-      if (uname.includes('admin')) return '10/10/1988';
-      return '20/10/1995';
+      return '—';
     })();
 
-    const staffGender = user?.gender || (() => {
-      const uname = String(user?.username || '').toLowerCase();
-      if (uname.includes('lananh') || uname.includes('mai') || uname.includes('ha') || uname.includes('trang') || uname.includes('linh') || uname.includes('ngoc') || uname.includes('phuong') || uname.includes('nhi')) return 'Nữ';
-      if (isRecep) return 'Nữ';
-      return 'Nam';
-    })();
+    const staffGender = user?.gender || '—';
 
-    const staffLicense = user?.licenseNumber || user?.LicenseNumber || (() => {
-      const uname = String(user?.username || '').toLowerCase();
-      if (uname.includes('minh')) return 'CCHN-008912/HCM';
-      if (uname.includes('thanh')) return 'CCHN-009451/HCM';
-      if (uname.includes('hung')) return 'CCHN-KTV-003411/HCM';
-      if (uname.includes('hoa')) return 'CCHN-003211/HCM';
-      if (isDoctor) return 'CCHN-008912/HCM';
-      if (isLab) return 'CCHN-KTV-003411/HCM';
-      return null;
-    })();
+    const staffLicense = user?.licenseNumber || user?.LicenseNumber || null;
 
     const staffSpecialty = user?.specialty || user?.Specialty || (() => {
-      if (isDoctor) return 'Khám bệnh, chữa bệnh chuyên khoa Huyết học - Truyền máu';
-      if (isLab) return 'Kỹ thuật Xét nghiệm Y học (Hóa sinh - Miễn dịch)';
-      if (isManager) return 'Quản lý Chất lượng Phòng xét nghiệm ISO 15189';
-      if (isRecep) return 'Tiếp đón, Điều phối Hàng đợi & Thu viện phí';
-      return 'Quản trị Hạ tầng Y tế BMS';
+      if (isDoctor) return 'Khám bệnh & Chỉ định xét nghiệm';
+      if (isLab) return 'Kỹ thuật xét nghiệm y học';
+      if (isManager) return 'Quản lý phòng xét nghiệm';
+      if (isRecep) return 'Tiếp đón & Thu viện phí';
+      return 'Quản trị hệ thống';
     })();
 
     return (
-      <div className="bms-profile-page py-2">
+      <div className="bms-profile-page py-1">
         <div className="container-xl">
-          <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
-            <div>
-              <div className="text-muted small">
+          <div className="bms-page-header-card mb-4">
+            <div className="bms-page-header-content">
+              <div className="text-muted small mb-1">
                 BMS / <strong className="text-primary">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</strong>
               </div>
-              <h3 className="fw-bold mb-1 text-dark">Hồ Sơ Nhân Sự Y Tế BMS MedLab</h3>
-              <p className="text-muted small mb-0">
-                Quản lý thông tin cán bộ y tế và chức danh chuyên môn nội bộ.
+              <div className="bms-page-title-row">
+                <h1 className="bms-page-title">Hồ Sơ Nhân Sự &amp; Tài Khoản Nội Bộ</h1>
+              </div>
+              <p className="text-muted small mb-0 mt-1">
+                Thông tin tài khoản đăng nhập, vai trò và đơn vị công tác trên hệ thống BMS.
               </p>
             </div>
-            <Badge bg="success" className="px-3 py-2 fs-6 fw-normal shadow-sm">
-              <FaCheckCircle className="me-1" /> Đang Trong Ca Trực (Active)
-            </Badge>
+            <div className="bms-page-actions">
+              <Badge
+                bg={user?.isActive === false ? 'secondary' : 'success'}
+                className="px-3 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-1"
+              >
+                <CheckCircle2 size={14} />
+                <span>{user?.isActive === false ? 'Tạm Khóa' : 'Đang Hoạt Động'}</span>
+              </Badge>
+            </div>
           </div>
 
           <Row className="g-4">
@@ -578,7 +536,7 @@ export const UserProfilePage = () => {
                   <AvatarFace src={user?.avatarUrl || user?.avatar} alt={user?.fullName || 'Ảnh đại diện'} />
                 </div>
 
-                <h4 className="fw-bold mb-1 text-dark">{user?.fullName || 'Lễ tân Đỗ Lan Anh'}</h4>
+                <h4 className="fw-bold mb-1 text-dark">{user?.fullName || user?.username || '—'}</h4>
                 <p className="text-muted small mb-2">
                   Mã nhân viên: <strong className="text-primary font-monospace fs-6">{staffEmpCode}</strong>
                 </p>
@@ -590,27 +548,31 @@ export const UserProfilePage = () => {
                 </div>
 
                 <div className="p-3 bg-light rounded-3 text-start mb-3 small border">
-                  <div className="d-flex justify-content-between py-1 border-bottom">
+                  <div className="d-flex justify-content-between py-1 border-bottom gap-2">
                     <span className="text-muted">Đơn vị công tác:</span>
-                    <strong className="text-dark">{user?.department || staffDept}</strong>
+                    <strong className="text-dark text-end">{user?.department || staffDept}</strong>
                   </div>
-                  <div className="d-flex justify-content-between py-1 border-bottom">
-                    <span className="text-muted">Cơ sở y tế:</span>
-                    <strong className="text-dark">BMS Cơ sở 1 (Trung tâm)</strong>
+                  <div className="d-flex justify-content-between py-1 border-bottom gap-2">
+                    <span className="text-muted">Tên đăng nhập:</span>
+                    <strong className="text-dark font-monospace text-end">{user?.username || '—'}</strong>
                   </div>
-                  <div className="d-flex justify-content-between py-1 border-bottom">
-                    <span className="text-muted">Ca trực hôm nay:</span>
-                    <strong className="text-success">Ca sáng (07:00 - 15:00)</strong>
-                  </div>
+                  {(user?.shiftName || user?.branchName) && (
+                    <div className="d-flex justify-content-between py-1 border-bottom gap-2">
+                      <span className="text-muted">{user?.shiftName ? 'Ca trực:' : 'Cơ sở:'}</span>
+                      <strong className="text-dark text-end">{user?.shiftName || user?.branchName}</strong>
+                    </div>
+                  )}
                   <div className="d-flex justify-content-between py-1">
-                    <span className="text-muted">Trạng thái công tác:</span>
-                    <Badge bg="success">Chính thức</Badge>
+                    <span className="text-muted">Trạng thái:</span>
+                    <Badge bg={user?.isActive === false ? 'secondary' : 'success'}>
+                      {user?.isActive === false ? 'Tạm khóa' : 'Đang hoạt động'}
+                    </Badge>
                   </div>
                 </div>
 
                 <Button
                   variant="outline-primary"
-                  className="w-100 rounded-3 fw-bold shadow-sm"
+                  className="w-100 rounded-pill fw-semibold"
                   onClick={() => window.location.href = '/change-password'}
                 >
                   Đổi Mật Khẩu Đăng Nhập
@@ -622,19 +584,21 @@ export const UserProfilePage = () => {
             <Col xs={12} lg={8}>
               <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0 fw-bold text-dark">
-                    <FaIdCard className="text-primary me-2" />
-                    Thông Tin Cán Bộ Y Tế
+                  <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <IdCard className="text-primary" size="1em" />
+                    <span>Thông Tin Tài Khoản &amp; Liên Hệ</span>
                   </h5>
-                  <Badge bg="light" text="dark" className="border">
-                    Dữ liệu đã xác thực CCCD
-                  </Badge>
+                  {staffCccd !== '—' && (
+                    <Badge bg="light" text="dark" className="border">
+                      Đã cập nhật CCCD
+                    </Badge>
+                  )}
                 </Card.Header>
                 <Card.Body className="p-4">
                   <Row className="g-3">
                     <Col md={6}>
-                      <div className="text-muted small">Họ và tên cán bộ:</div>
-                      <div className="fw-bold text-dark fs-6">{user?.fullName || 'Lễ tân Đỗ Lan Anh'}</div>
+                      <div className="text-muted small">Họ và tên:</div>
+                      <div className="fw-bold text-dark fs-6">{user?.fullName || '—'}</div>
                     </Col>
                     <Col md={6}>
                       <div className="text-muted small">Mã định danh công dân (CCCD):</div>
@@ -649,12 +613,12 @@ export const UserProfilePage = () => {
                       <div className="fw-bold text-dark font-monospace">{staffDob}</div>
                     </Col>
                     <Col md={6}>
-                      <div className="text-muted small">Số điện thoại liên hệ nội bộ:</div>
-                      <div className="fw-bold text-dark font-monospace">{user?.phoneNumber || '0906000007'}</div>
+                      <div className="text-muted small">Số điện thoại liên hệ:</div>
+                      <div className="fw-bold text-dark font-monospace">{user?.phoneNumber || user?.phone || '—'}</div>
                     </Col>
                     <Col md={6}>
-                      <div className="text-muted small">Email công vụ BMS:</div>
-                      <div className="fw-bold text-primary font-monospace">{user?.email || 'lananh.recep@bms.health.vn'}</div>
+                      <div className="text-muted small">Email công vụ:</div>
+                      <div className="fw-bold text-primary font-monospace">{user?.email || '—'}</div>
                     </Col>
 
                     {staffLicense && (
@@ -665,14 +629,16 @@ export const UserProfilePage = () => {
                     )}
 
                     <Col md={staffLicense ? 6 : 12}>
-                      <div className="text-muted small">Phạm vi hoạt động chuyên môn:</div>
+                      <div className="text-muted small">Phạm vi phụ trách:</div>
                       <div className="fw-bold text-dark">{staffSpecialty}</div>
                     </Col>
 
-                    <Col md={12}>
-                      <div className="text-muted small">Địa chỉ công tác thường trú:</div>
-                      <div className="fw-bold text-dark">{user?.address || '120 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP. Hồ Chí Minh'}</div>
-                    </Col>
+                    {user?.address && (
+                      <Col md={12}>
+                        <div className="text-muted small">Địa chỉ công tác:</div>
+                        <div className="fw-bold text-dark">{user.address}</div>
+                      </Col>
+                    )}
                   </Row>
                 </Card.Body>
               </Card>
@@ -689,13 +655,13 @@ export const UserProfilePage = () => {
         {/* Alerts */}
         {errorMessage && (
           <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 border-0 rounded-4">
-            <FaExclamationTriangle className="me-2" />
+            <AlertTriangle className="me-2"  size="1em"/>
             {errorMessage}
           </Alert>
         )}
         {successMessage && (
           <Alert variant="success" dismissible onClose={() => setSuccessMessage('')} className="mb-4 border-0 rounded-4">
-            <FaCheckCircle className="me-2" />
+            <CheckCircle2 className="me-2"  size="1em"/>
             {successMessage}
           </Alert>
         )}
@@ -714,7 +680,7 @@ export const UserProfilePage = () => {
 
               <div className="mb-3">
                 <span className="bms-status-chip">
-                  <FaUserInjured className="me-1" /> Bệnh Nhân Đăng Ký
+                  <User className="me-1"  size="1em"/> Bệnh Nhân Đăng Ký
                 </span>
               </div>
 
@@ -723,9 +689,9 @@ export const UserProfilePage = () => {
                 <div className="d-flex align-items-center justify-content-between mb-1">
                   <span className="small fw-bold">
                     {isProfileComplete ? (
-                      <span className="text-success"><FaCheckCircle className="me-1" /> Hồ Sơ Đạt Chuẩn Y Tế</span>
+                      <span className="text-success"><CheckCircle2 className="me-1" size="1em" /> Hồ Sơ Đã Đầy Đủ</span>
                     ) : (
-                      <span className="text-warning text-dark"><FaExclamationTriangle className="me-1 text-warning" /> Hồ Sơ Chưa Hoàn Tất</span>
+                      <span className="text-warning text-dark"><AlertTriangle className="me-1 text-warning" size="1em" /> Hồ Sơ Chưa Đầy Đủ</span>
                     )}
                   </span>
                   <span className="badge bg-white text-dark small" style={{ borderRadius: '999px' }}>{isProfileComplete ? '100%' : '65%'}</span>
@@ -738,8 +704,8 @@ export const UserProfilePage = () => {
                 />
                 <p className="small text-muted mb-0" style={{ fontSize: '0.78rem', lineHeight: '1.4' }}>
                   {isProfileComplete
-                    ? 'Hồ sơ đã đầy đủ nhóm máu, thể trạng và liên hệ khẩn cấp để đặt lịch và xét nghiệm.'
-                    : 'Bắt buộc cập nhật Nhóm máu, Chiều cao, Cân nặng và Liên hệ khẩn cấp trước khi đặt lịch xét nghiệm.'}
+                    ? 'Hồ sơ đã có đủ thông tin để đặt lịch xét nghiệm.'
+                    : 'Vui lòng cập nhật Nhóm máu, Chiều cao, Cân nặng và Liên hệ khẩn cấp.'}
                 </p>
               </div>
 
@@ -747,11 +713,11 @@ export const UserProfilePage = () => {
               <div className="d-grid gap-2">
                 {!isEditing ? (
                   <button type="button" className="bms-btn-pill-primary w-100" onClick={() => setIsEditing(true)}>
-                    <FaEdit className="me-2" /> Chỉnh Sửa Hồ Sơ Y Tế
+                    <SquarePen className="me-2"  size="1em"/> Chỉnh Sửa Hồ Sơ Y Tế
                   </button>
                 ) : (
                   <button type="button" className="bms-btn-pill-secondary w-100" onClick={() => setIsEditing(false)}>
-                    <FaTimes className="me-2" /> Hủy Bỏ Chỉnh Sửa
+                    <LucideX className="me-2"  size="1em"/> Hủy Bỏ Chỉnh Sửa
                   </button>
                 )}
               </div>
@@ -760,14 +726,14 @@ export const UserProfilePage = () => {
             {/* Quick Summary Card: Vitals & Blood Type */}
             <div className="bms-profile-card">
               <h6 className="bms-profile-section-title mb-3">
-                <FaHeartbeat className="text-danger" /> Tóm Tắt Chỉ Số Y Tế
+                <HeartPulse className="text-danger"  size="1em"/> Tóm Tắt Chỉ Số Y Tế
               </h6>
 
               <div className="bms-summary-grid">
                 <div className="bms-summary-tile">
                   <span className="bms-summary-label">Nhóm máu ABO/Rh:</span>
                   <span className="bms-blood-pill">
-                    <FaTint size={10} />{' '}
+                    <Droplet size={10} />{' '}
                     {formData.bloodType === 'Unknown'
                       ? 'Chưa rõ (Định nhóm tại Lab)'
                       : formData.bloodType}
@@ -830,9 +796,9 @@ export const UserProfilePage = () => {
                   <Link
                     to="/patient/medical-profile-setup"
                     className="bms-btn-pill-outline text-decoration-none"
-                    title="Mở biểu mẫu khai báo lâm sàng toàn diện theo chuẩn Bộ Y Tế"
+                    title="Mở biểu mẫu khai báo nhanh"
                   >
-                    <FaClipboardList className="me-1" /> Biểu Mẫu Toàn Diện
+                    <ClipboardList className="me-1" size="1em" /> Khai Báo Nhanh
                   </Link>
                   {!isEditing ? (
                     <button
@@ -840,7 +806,7 @@ export const UserProfilePage = () => {
                       className="bms-btn-pill-primary"
                       onClick={() => setIsEditing(true)}
                     >
-                      <FaEdit className="me-1" /> Chỉnh sửa
+                      <SquarePen className="me-1"  size="1em"/> Chỉnh sửa
                     </button>
                   ) : (
                     <span className="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">
@@ -854,7 +820,7 @@ export const UserProfilePage = () => {
                 {/* Section 1: Demographics & Identity */}
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
-                    <FaIdCard className="text-primary" /> Thông Tin Định Danh Bệnh Nhân
+                    <IdCard className="text-primary"  size="1em"/> Thông Tin Định Danh Bệnh Nhân
                   </h6>
                   <Row className="g-3">
                     <Col md={6}>
@@ -931,7 +897,12 @@ export const UserProfilePage = () => {
                             <option value="Other">Khác</option>
                           </Form.Select>
                         ) : (
-                          <div className="bms-profile-readonly-box">{formData.gender === 'Female' ? 'Nữ' : 'Nam'}</div>
+                          <div className="bms-profile-readonly-box">
+                            {(formData.gender === 'Female' || formData.gender === 'Nữ') ? 'Nữ'
+                              : (formData.gender === 'Other' || formData.gender === 'Khác') ? 'Khác'
+                              : (formData.gender === 'Male' || formData.gender === 'Nam') ? 'Nam'
+                              : '—'}
+                          </div>
                         )}
                       </Form.Group>
                     </Col>
@@ -996,7 +967,7 @@ export const UserProfilePage = () => {
                 {/* Section 2: Clinical Vitals & Blood Compatibility */}
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
-                    <FaHeartbeat className="text-primary" /> Chỉ Số Huyết Học &amp; Thể Trạng
+                    <HeartPulse className="text-primary"  size="1em"/> Chỉ Số Huyết Học &amp; Thể Trạng
                   </h6>
 
                   {isEditing && (
@@ -1007,18 +978,18 @@ export const UserProfilePage = () => {
                         </label>
                         {formData.bloodType && formData.bloodType !== 'Unknown' ? (
                           <div className="bms-blood-selected-banner py-1 px-2">
-                            <FaCheckCircle size={11} />
+                            <CheckCircle2 size={11} />
                             <span>Đã chọn: <strong>Nhóm máu {formData.bloodType}</strong></span>
                           </div>
                         ) : formData.bloodType === 'Unknown' ? (
                           <div className="bms-blood-selected-banner py-1 px-2 bg-light border text-secondary">
-                            <FaCheckCircle size={11} className="text-secondary" />
+                            <CheckCircle2 size={11} className="text-secondary" />
                             <span>Đã chọn: <strong>Chưa rõ (Định nhóm tại Lab)</strong></span>
                           </div>
                         ) : null}
                       </div>
 
-                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>YẾU TỐ RHESUS DƯƠNG (Rh+ · PHỔ BIẾN)</div>
+                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>NHÓM MÁU Rh+</div>
                       <div className="bms-blood-matrix-grid mb-2">
                         {BLOOD_TYPES_RH_POS.map((bt) => {
                           const isActive = formData.bloodType === bt.code;
@@ -1034,13 +1005,13 @@ export const UserProfilePage = () => {
                                 <div className="bms-blood-code">{bt.label}</div>
                                 <div className="bms-blood-meta">{bt.sub}</div>
                               </div>
-                              {isActive && <FaCheckCircle size={13} className="text-white flex-shrink-0" />}
+                              {isActive && <CheckCircle2 size={13} className="text-white flex-shrink-0" />}
                             </div>
                           );
                         })}
                       </div>
 
-                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>YẾU TỐ RHESUS ÂM (Rh- · NHÓM MÁU HIẾM)</div>
+                      <div className="small text-muted mb-1" style={{ fontSize: '11px', fontWeight: 600 }}>NHÓM MÁU Rh-</div>
                       <div className="bms-blood-matrix-grid mb-2">
                         {BLOOD_TYPES_RH_NEG.map((bt) => {
                           const isActive = formData.bloodType === bt.code;
@@ -1056,7 +1027,7 @@ export const UserProfilePage = () => {
                                 <div className="bms-blood-code">{bt.label}</div>
                                 <div className="bms-blood-meta">{bt.sub}</div>
                               </div>
-                              {isActive && <FaCheckCircle size={13} className="text-white flex-shrink-0" />}
+                              {isActive && <CheckCircle2 size={13} className="text-white flex-shrink-0" />}
                             </div>
                           );
                         })}
@@ -1069,7 +1040,7 @@ export const UserProfilePage = () => {
                           role="button"
                           tabIndex={0}
                         >
-                          {formData.bloodType === 'Unknown' ? <FaCheckCircle size={11} className="me-1" /> : null}
+                          {formData.bloodType === 'Unknown' ? <CheckCircle2 size={11} className="me-1" /> : null}
                           Chưa rõ nhóm máu (Định nhóm tại Lab)
                         </div>
                       </div>
@@ -1083,7 +1054,7 @@ export const UserProfilePage = () => {
                           <Form.Label className="small fw-semibold text-muted">Nhóm máu hệ ABO / Rh <span className="text-danger">*</span></Form.Label>
                           <div className="pt-1">
                             <span className="bms-blood-pill">
-                              <FaTint size={11} />{' '}
+                              <Droplet size={11} />{' '}
                               {formData.bloodType === 'Unknown'
                                 ? 'Chưa rõ (Định nhóm tại Lab)'
                                 : `Nhóm máu ${formData.bloodType}`}
@@ -1162,7 +1133,7 @@ export const UserProfilePage = () => {
                 {/* Section 3: Specialized Blood Test Medical History */}
                 <div className="mb-5">
                   <h6 className="bms-profile-section-title">
-                    <FaPills className="text-primary" /> Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu
+                    <Pill className="text-primary"  size="1em"/> Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu
                   </h6>
                   <Row className="g-4">
                     <Col md={12}>
@@ -1192,7 +1163,7 @@ export const UserProfilePage = () => {
                                     className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
                                     onClick={() => setFormData((prev) => ({ ...prev, coagulationDisorders: opt }))}
                                   >
-                                    {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                    {isSelected && <CheckCircle2 size={10} className="me-1 text-white" />}
                                     {opt}
                                   </div>
                                 );
@@ -1258,7 +1229,7 @@ export const UserProfilePage = () => {
                                       className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
                                       onClick={() => toggleConditionInProfile(cond)}
                                     >
-                                      {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                      {isSelected && <CheckCircle2 size={10} className="me-1 text-white" />}
                                       {cond}
                                     </div>
                                   );
@@ -1322,7 +1293,7 @@ export const UserProfilePage = () => {
                                       className={`fast-tag-item ${isSelected ? 'selected' : ''}`}
                                       onClick={() => toggleAllergyInProfile(alg)}
                                     >
-                                      {isSelected && <FaCheckCircle size={10} className="me-1 text-white" />}
+                                      {isSelected && <CheckCircle2 size={10} className="me-1 text-white" />}
                                       {alg}
                                     </div>
                                   );
@@ -1382,7 +1353,7 @@ export const UserProfilePage = () => {
                 {/* Section 4: Emergency Contacts */}
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
-                    <FaPhoneAlt className="text-primary" /> Thông Tin Người Liên Hệ Khẩn Cấp
+                    <Phone className="text-primary"  size="1em"/> Thông Tin Người Liên Hệ Khẩn Cấp
                   </h6>
                   <Row className="g-3">
                     <Col md={5}>
@@ -1470,7 +1441,7 @@ export const UserProfilePage = () => {
                         </>
                       ) : (
                         <>
-                          <FaSave className="me-2" /> Lưu Hồ Sơ Bệnh Án Y Tế
+                          <Save className="me-2" size="1em" /> Lưu Hồ Sơ
                         </>
                       )}
                     </button>

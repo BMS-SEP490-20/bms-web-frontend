@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaKey, FaEnvelope, FaLock, FaCheckCircle, FaExclamationCircle, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { Key, Mail, Lock, CheckCircle2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { sendPasswordRecoveryOtp, verifyPasswordResetOtp } from "../api/authApi";
 import api from "../../../config/api";
 import OtpInputGroup from "../../../components/common/OtpInputGroup";
@@ -174,7 +174,7 @@ export default function ForgotPassword({
       <section className="card border rounded-4 p-4 p-md-5 shadow-none w-100 mx-auto" style={{ maxWidth: "460px", borderColor: "#EAEEF4", backgroundColor: "#FFFFFF" }} aria-label="Khôi phục mật khẩu">
         <div className="bms-form-inner">
           <div className="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style={{ width: 44, height: 44, backgroundColor: "#EFF6FF", color: "#1E60E6" }}>
-            <FaKey />
+            <Key  size="1em"/>
           </div>
 
           <div className="small fw-semibold text-primary text-uppercase mb-1" style={{ fontSize: "11.5px", letterSpacing: "0.04em" }}>
@@ -185,7 +185,7 @@ export default function ForgotPassword({
 
           {error && (
             <div className="alert alert-danger border-0 rounded-3 d-flex align-items-start gap-2 small py-2.5 px-3 mb-3" role="alert">
-              <FaExclamationCircle className="flex-shrink-0 mt-0.5 text-danger" />
+              <AlertCircle className="flex-shrink-0 mt-0.5 text-danger"  size="1em"/>
               <div>
                 <span>{error}</span>
                 {error.includes("không tồn tại") && (
@@ -201,7 +201,7 @@ export default function ForgotPassword({
 
           {message && (
             <div className="alert alert-success border-0 rounded-3 d-flex align-items-center gap-2 small py-2.5 px-3 mb-3" role="status">
-              <FaCheckCircle className="flex-shrink-0 text-success" />
+              <CheckCircle2 className="flex-shrink-0 text-success"  size="1em"/>
               <span>{message}</span>
             </div>
           )}
@@ -213,7 +213,7 @@ export default function ForgotPassword({
                   Địa chỉ Email đăng ký <span aria-hidden="true" className="text-danger">*</span>
                 </label>
                 <div className="bms-input-wrap">
-                  <FaEnvelope className="text-muted" />
+                  <Mail className="text-muted"  size="1em"/>
                   <input
                     id="recovery-email"
                     name="email"
@@ -307,7 +307,7 @@ export default function ForgotPassword({
               <div className="bms-field mb-2">
                 <label htmlFor="new-password">Mật khẩu mới (Tối thiểu 8 ký tự) <span className="text-danger">*</span></label>
                 <div className="bms-input-wrap d-flex align-items-center">
-                  <FaLock className="text-muted ms-2" />
+                  <Lock className="text-muted ms-2"  size="1em"/>
                   <input
                     id="new-password"
                     type={showNewPassword ? "text" : "password"}
@@ -324,7 +324,7 @@ export default function ForgotPassword({
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     aria-label="Ẩn hiện mật khẩu mới"
                   >
-                    {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                    {showNewPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
                   </button>
                 </div>
               </div>
@@ -332,7 +332,7 @@ export default function ForgotPassword({
               <div className="bms-field mb-3">
                 <label htmlFor="confirm-password">Xác nhận mật khẩu mới <span className="text-danger">*</span></label>
                 <div className="bms-input-wrap d-flex align-items-center">
-                  <FaLock className="text-muted ms-2" />
+                  <Lock className="text-muted ms-2"  size="1em"/>
                   <input
                     id="confirm-password"
                     type={showConfirmPassword ? "text" : "password"}
@@ -349,7 +349,7 @@ export default function ForgotPassword({
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     aria-label="Ẩn hiện xác nhận mật khẩu"
                   >
-                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    {showConfirmPassword ? <EyeOff  size="1em"/> : <Eye  size="1em"/>}
                   </button>
                 </div>
               </div>
@@ -373,7 +373,7 @@ export default function ForgotPassword({
               type="button"
               onClick={onBackToLogin || (() => (window.location.href = "/login"))}
             >
-              <FaArrowLeft className="me-1" /> Về Đăng Nhập
+              <ArrowLeft className="me-1"  size="1em"/> Về Đăng Nhập
             </button>
             <button
               className="bms-text-link bms-muted-link"

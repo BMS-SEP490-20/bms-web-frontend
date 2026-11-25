@@ -7,11 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  FaQrcode, FaCalendarCheck, FaUserCheck, FaSearch, FaTimes,
-  FaFileCsv, FaPrint, FaShieldAlt, FaClock, FaUsers,
-  FaTicketAlt, FaEye, FaCheckCircle, FaUserFriends, FaCalendarTimes, FaUserTimes
-} from 'react-icons/fa';
+import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX } from 'lucide-react';
 import { appointmentService } from '../../../../services/appointmentService';
 import { patientService } from '../../../../services/patientService';
 import { medicalService } from '../../../../services/medicalService';
@@ -1991,7 +1987,7 @@ const ReceptionistCheckIn = () => {
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
             <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
-              <FaQrcode size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 1: TIẾP ĐÓN &amp; CẤP STT
+              <QrCode size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 1: TIẾP ĐÓN &amp; CẤP STT
             </span>
             <div className="bms-page-title-row">
               <h1 className="bms-page-title">
@@ -1999,7 +1995,7 @@ const ReceptionistCheckIn = () => {
               </h1>
             </div>
             <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
-              Dành cho bệnh nhân đã đặt hẹn online: Quét mã QR hoặc Nhập mã hẹn, đối chiếu CCCD (Đề án 06 BYT), xác nhận y lệnh và cấp số thứ tự K80 vào phòng lấy mẫu máu (ISO 15189:2022).
+              Quét mã QR hoặc nhập mã hẹn để đối chiếu thông tin và cấp số thứ tự tiếp đón.
             </p>
           </div>
           <div className="bms-page-actions">
@@ -2015,7 +2011,7 @@ const ReceptionistCheckIn = () => {
                 fontSize: '14px'
               }}
             >
-              <FaQrcode size={15} />
+              <QrCode size={15} />
               <span>Quét QR / Nhập Mã Tiếp Đón</span>
             </Button>
           </div>
@@ -2030,7 +2026,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value">{confirmedList.length}</div>
                 <div className="bms-kpi-sub text-muted">Hôm nay theo phân ca</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaCalendarCheck /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><CalendarCheck  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2040,7 +2036,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value text-primary">{filteredAppointments.length}</div>
                 <div className="bms-kpi-sub text-primary">Cần tiếp đón ngay</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><Clock  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2050,7 +2046,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value text-success">{checkedInAppointments.length}</div>
                 <div className="bms-kpi-sub text-success">Đã cấp STT lấy mẫu</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCheck /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><UserCheck  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2060,7 +2056,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value">10 - 14</div>
                 <div className="bms-kpi-sub text-muted">Hẹn / khung giờ (2 bàn)</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaUsers /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><Users  size="1em"/></div>
             </div>
           </Col>
         </Row>
@@ -2071,7 +2067,7 @@ const ReceptionistCheckIn = () => {
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
               <div>
                 <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaCalendarCheck style={{ color: '#1E60E6' }} />
+                  <CalendarCheck style={{ color: '#1E60E6' }}  size="1em"/>
                   Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
                 </h5>
                 <div className="text-muted small">
@@ -2081,7 +2077,7 @@ const ReceptionistCheckIn = () => {
 
               <div className="d-flex align-items-center ms-auto">
                 <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
-                  <FaSearch className="bms-search-icon" />
+                  <Search className="bms-search-icon"  size="1em"/>
                   <input
                     type="text"
                     placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
@@ -2095,7 +2091,7 @@ const ReceptionistCheckIn = () => {
                       onClick={() => setSearchTerm('')}
                       title="Xóa tìm kiếm"
                     >
-                      <FaTimes size={12} />
+                      <LucideX size={12} />
                     </button>
                   )}
                 </div>
@@ -2107,7 +2103,7 @@ const ReceptionistCheckIn = () => {
           <div className="px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC' }}>
             <div className="d-flex flex-wrap align-items-center gap-2">
               <span className="fw-semibold text-dark small">
-                <FaClock className="me-1" style={{ color: '#1E60E6' }} /> Phân bổ khung ca sáng:
+                <Clock className="me-1" style={{ color: '#1E60E6' }}  size="1em"/> Phân bổ khung ca sáng:
               </span>
               <div className="btn-group btn-group-sm" role="group">
                 <button
@@ -2145,7 +2141,7 @@ const ReceptionistCheckIn = () => {
               </div>
             </div>
             <div className="small text-muted">
-              <FaUserFriends className="me-1" style={{ color: '#1E60E6' }} /> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+              <Users className="me-1" style={{ color: '#1E60E6' }}  size="1em"/> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
             </div>
           </div>
 
@@ -2215,14 +2211,14 @@ const ReceptionistCheckIn = () => {
                               {timeFormatted}
                             </div>
                             <Badge bg={timeStatus.color} className="mt-1" style={{ fontSize: '0.78rem', fontWeight: '500' }}>
-                              <FaClock className="me-1" />
+                              <Clock className="me-1"  size="1em"/>
                               {timeStatus.message}
                             </Badge>
                           </td>
                           <td className="text-center d-none d-sm-table-cell">
                             {isPaid ? (
                               <Badge bg="success" style={{ fontSize: '0.8rem', padding: '6px 10px', fontWeight: '500' }}>
-                                <FaCheckCircle className="me-1" /> Đã TT (VNPAY)
+                                <CheckCircle2 className="me-1"  size="1em"/> Đã TT (VNPAY)
                               </Badge>
                             ) : (
                               getStatusBadge(apt.status)
@@ -2244,7 +2240,7 @@ const ReceptionistCheckIn = () => {
                                 }}
                                 disabled={!['scheduled', 'confirmed', 'paid', '1'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, '')) || ['checkedin', '2'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, ''))}
                               >
-                                <FaTicketAlt size={12} />
+                                <LucideTicket size={12} />
                                 <span>Check-in &amp; Cấp STT</span>
                               </Button>
                               <Button
@@ -2260,7 +2256,7 @@ const ReceptionistCheckIn = () => {
                                   borderColor: '#1E60E6'
                                 }}
                               >
-                                <FaEye size={12} /> <span>Chi tiết</span>
+                                <Eye size={12} /> <span>Chi tiết</span>
                               </Button>
                             </div>
                           </td>
@@ -2272,7 +2268,7 @@ const ReceptionistCheckIn = () => {
               </div>
             ) : (
               <div className="text-center py-3">
-                <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }} />
+                <CalendarX className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }}  size="1em"/>
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h5>
                 <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
               </div>
@@ -2286,7 +2282,7 @@ const ReceptionistCheckIn = () => {
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
               <div>
                 <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaUserCheck style={{ color: '#16a34a' }} />
+                  <UserCheck style={{ color: '#16a34a' }}  size="1em"/>
                   Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
                 </h5>
                 <div className="text-muted small">
@@ -2303,7 +2299,7 @@ const ReceptionistCheckIn = () => {
                   disabled={checkedInAppointments.length === 0}
                   style={{ fontSize: '13px' }}
                 >
-                  <FaFileCsv />
+                  <FileText  size="1em"/>
                   <span>Xuất CSV</span>
                 </Button>
                 <Button
@@ -2314,7 +2310,7 @@ const ReceptionistCheckIn = () => {
                   disabled={checkedInAppointments.length === 0}
                   style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
                 >
-                  <FaPrint />
+                  <Printer  size="1em"/>
                   <span>In danh sách</span>
                 </Button>
               </div>
@@ -2398,7 +2394,7 @@ const ReceptionistCheckIn = () => {
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              <FaEye size={12} />
+                              <Eye size={12} />
                               <span>Chi tiết</span>
                             </Button>
                           </td>
@@ -2410,7 +2406,7 @@ const ReceptionistCheckIn = () => {
               </div>
             ) : (
               <div className="text-center py-3">
-                <FaUserTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }} />
+                <UserX className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }}  size="1em"/>
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Chưa có bệnh nhân nào check-in</h5>
                 <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
               </div>
@@ -2479,7 +2475,7 @@ const ReceptionistCheckIn = () => {
                 Hồ Sơ Chi Tiết Lịch Hẹn Khám &amp; Xét Nghiệm
               </Modal.Title>
               <div className="text-muted small">
-                Tiếp đón người bệnh theo tiêu chuẩn ISO 15189:2022 &amp; Đề án 06 Bộ Y Tế
+                Tiếp đón người bệnh tại quầy lễ tân
               </div>
             </div>
           </div>
@@ -2490,16 +2486,15 @@ const ReceptionistCheckIn = () => {
               || getPatientInfo(detailAppointment.patientId)
               || getPatientInfo(detailAppointment.patient_id)
               || getPatientInfo(detailAppointment.userId)
-              || (patients && patients.length > 0 ? patients[0] : null)
               || {
-              fullName: detailAppointment.patientName || 'Trần Văn An',
-              identityCardNumber: '079195000792',
-              dateOfBirth: '1995-08-15',
-              gender: 'Nam',
-              phone: '0909 123 456',
-              email: 'an.tran@gmail.com',
-              address: 'Số 123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. HCM',
-              patientCode: 'BN-2026-0792'
+              fullName: detailAppointment.patientName || 'Chưa cập nhật',
+              identityCardNumber: detailAppointment.identityCardNumber || '—',
+              dateOfBirth: null,
+              gender: '—',
+              phone: detailAppointment.patientPhone || '—',
+              email: detailAppointment.patientEmail || '—',
+              address: '—',
+              patientCode: detailAppointment.patientCode || '—'
             };
             const appointmentCode = getAppointmentCode(detailAppointment);
             const docInfo = resolveDoctorInfo(detailAppointment);
@@ -2643,7 +2638,7 @@ const ReceptionistCheckIn = () => {
                               <span className="text-muted d-block">Quy trình chuyên môn:</span>
                               <strong className="text-dark">
                                 <i className="fas fa-shield-alt text-primary me-1"></i>
-                                Quản lý chất lượng ISO 15189:2022
+                                Hệ thống tiếp nhận BMS
                               </strong>
                             </div>
                           </div>
@@ -2658,7 +2653,7 @@ const ReceptionistCheckIn = () => {
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
                       <i className="fas fa-id-card text-primary me-2"></i>
-                      Thông Tin Hành Chính Bệnh Nhân (Chuẩn Đề án 06 Bộ Y Tế)
+                      Thông Tin Hành Chính Bệnh Nhân
                     </span>
                     <span className="badge bg-light text-muted border fw-normal" style={{ fontSize: '11px' }}>
                       Mã BN: {patient?.patientCode || patient?.id || 'BN-2026-0792'}
@@ -2842,7 +2837,7 @@ const ReceptionistCheckIn = () => {
                 Hệ Thống Xét Nghiệm BMS MedLab
               </div>
               <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '16px' }}>
-                Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868
+                BMS MedLab • Hotline: 1900 6868
               </div>
 
               {/* Big Ticket Number */}

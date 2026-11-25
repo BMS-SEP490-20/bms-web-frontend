@@ -11,17 +11,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Alert, Spinner, Modal } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
-import { 
-  FaUser, 
-  FaLock, 
-  FaEye, 
-  FaEyeSlash, 
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaUserMd,
-  FaFlask,
-  FaIdCard
-} from "react-icons/fa";
+import {
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  AlertCircle,
+  Stethoscope,
+  FlaskConical,
+  IdCard,
+  Briefcase
+} from "lucide-react";
 import api from "../../../config/api";
 import { ROLES, resolveRoleId, getHomePathForRole, isPathAllowedForRole } from "../../../constants/roles";
 import "./LoginPage.css";
@@ -73,81 +74,17 @@ const DEMO_ROLES = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN
 ] : [];
 
 /**
- * 5 Core Clinical & Administrative Roles for 1-Click Fast Login:
- * 1. Admin (Quản trị viên) - admin_bms
- * 2. Doctor (Bác sĩ khám bệnh) - dr_nguyenminh
- * 3. Lab (Kỹ thuật viên xét nghiệm) - tech_quochung
- * 4. Receptionist (Tiếp đón & Lễ tân) - recep_lananh
- * 5. Patient (Cổng bệnh nhân) - patient_tranvanan
+ * 6 Canonical System Roles for 1-Click Dev/Demo Login:
+ * 1=Admin, 6=Manager, 2=Doctor, 3=Lab, 4=Receptionist, 5=Patient.
  */
-const QUICK_LOGIN_ROLES = [
-  {
-    id: "admin",
-    roleName: "Admin",
-    title: "Admin",
-    roleLabel: "Quản Trị Viên",
-    username: "admin_bms",
-    password: "Admin@123",
-    color: "#2563EB",
-    bg: "#EFF6FF",
-    border: "#BFDBFE",
-    icon: FaCheckCircle },
-  {
-    id: "manager",
-    roleName: "Manager",
-    title: "Manager",
-    roleLabel: "Quản Lý Lab",
-    username: "manager_lananh",
-    password: "Admin@123",
-    color: "#4F46E5",
-    bg: "#EEF2FF",
-    border: "#C7D2FE",
-    icon: FaCheckCircle },
-  {
-    id: "doctor",
-    roleName: "Doctor",
-    title: "Bác Sĩ",
-    roleLabel: "Bác Sĩ Khám Bệnh",
-    username: "dr_nguyenminh",
-    password: "Admin@123",
-    color: "#0D9488",
-    bg: "#F0FDFA",
-    border: "#99F6E4",
-    icon: FaUserMd },
-  {
-    id: "lab",
-    roleName: "Lab",
-    title: "KTV Lab",
-    roleLabel: "Kỹ Thuật Viên Lab",
-    username: "tech_quochung",
-    password: "Admin@123",
-    color: "#16A34A",
-    bg: "#F0FDF4",
-    border: "#BBF7D0",
-    icon: FaFlask },
-  {
-    id: "receptionist",
-    roleName: "Receptionist",
-    title: "Lễ Tân",
-    roleLabel: "Tiếp Đón & Lễ Tân",
-    username: "recep_lananh",
-    password: "Admin@123",
-    color: "#D97706",
-    bg: "#FFFBEB",
-    border: "#FDE68A",
-    icon: FaIdCard },
-  {
-    id: "patient",
-    roleName: "Patient",
-    title: "Bệnh Nhân",
-    roleLabel: "Cổng Bệnh Nhân",
-    username: "patient_tranvanan",
-    password: "Admin@123",
-    color: "#7C3AED",
-    bg: "#F5F3FF",
-    border: "#DDD6FE",
-    icon: FaUser },
-];
+const QUICK_LOGIN_ROLES = IS_DEV_OR_DEMO ? [
+  { id: "admin", roleName: "Admin", title: "Admin", username: "admin_bms", password: "Admin@123", color: "#2563EB", icon: ShieldCheck },
+  { id: "manager", roleName: "Manager", title: "Quản Lý", username: "manager_lananh", password: "Admin@123", color: "#4F46E5", icon: Briefcase },
+  { id: "doctor", roleName: "Doctor", title: "Bác Sĩ", username: "dr_nguyenminh", password: "Admin@123", color: "#0D9488", icon: Stethoscope },
+  { id: "lab", roleName: "Lab", title: "KTV Lab", username: "tech_quochung", password: "Admin@123", color: "#16A34A", icon: FlaskConical },
+  { id: "receptionist", roleName: "Receptionist", title: "Lễ Tân", username: "recep_lananh", password: "Admin@123", color: "#D97706", icon: IdCard },
+  { id: "patient", roleName: "Patient", title: "Bệnh Nhân", username: "patient_tranvanan", password: "Admin@123", color: "#7C3AED", icon: User },
+] : [];
 
 export default function LoginPage({
   onBack,
@@ -381,7 +318,7 @@ export default function LoginPage({
             const lockUntil = Date.now() + 15 * 60 * 1000;
             setLockoutTime(lockUntil);
             localStorage.setItem("bms_login_lockout_until", lockUntil.toString());
-            setError("Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu 5 lần liên tiếp (Quy chuẩn BR-IAM-03).");
+            setError("Tài khoản bị tạm khóa 15 phút do nhập sai mật khẩu quá 5 lần.");
             return;
           }
         }
@@ -580,7 +517,7 @@ export default function LoginPage({
 
         {error && (
           <Alert variant="danger" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>
-            <FaExclamationCircle className="flex-shrink-0" style={{ color: '#DC2626' }} />
+            <AlertCircle size={16} className="flex-shrink-0" style={{ color: '#DC2626' }} />
             <span style={{ fontSize: '13px' }}>{error}</span>
           </Alert>
         )}
@@ -594,15 +531,15 @@ export default function LoginPage({
               Tên đăng nhập hoặc Email <span className="text-danger">*</span>
             </label>
             <div className="position-relative d-flex align-items-center">
-              <FaUser 
+              <User
+                size={16}
                 style={{
                   position: 'absolute',
                   left: '16px',
                   color: focusedInput === 'email' ? '#1E60E6' : '#94A3B8',
-                  fontSize: '15px',
                   pointerEvents: 'none',
                   transition: 'color 0.15s ease'
-                }} 
+                }}
               />
               <input
                 id="login-email"
@@ -652,15 +589,15 @@ export default function LoginPage({
               </button>
             </div>
             <div className="position-relative d-flex align-items-center">
-              <FaLock 
+              <Lock
+                size={16}
                 style={{
                   position: 'absolute',
                   left: '16px',
                   color: focusedInput === 'password' ? '#1E60E6' : '#94A3B8',
-                  fontSize: '15px',
                   pointerEvents: 'none',
                   transition: 'color 0.15s ease'
-                }} 
+                }}
               />
               <input
                 id="login-password"
@@ -702,10 +639,11 @@ export default function LoginPage({
                   color: '#94A3B8',
                   cursor: 'pointer',
                   padding: '6px',
-                  fontSize: '15px'
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
@@ -752,128 +690,83 @@ export default function LoginPage({
           </button>
         </form>
 
-        {/* ======================================================================
-            QUICK 1-CLICK ROLE LOGIN: 5 System Roles (Admin, Bác Sĩ, KTV Lab, Lễ Tân, Bệnh Nhân)
-            ====================================================================== */}
-        <div style={{ marginTop: '24px', marginBottom: '8px' }}>
-          <div className="d-flex align-items-center justify-content-between mb-2.5">
-            <span 
-              style={{ 
-                fontSize: '12px', 
-                fontWeight: 700, 
-                color: '#64748B', 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.04em' 
-              }}
-            >
-              Đăng nhập nhanh theo vai trò
-            </span>
-            <span 
-              className="badge rounded-pill" 
-              style={{ 
-                backgroundColor: '#EFF6FF', 
-                color: '#2563EB', 
-                fontSize: '11px', 
-                fontWeight: 600,
-                border: '1px solid #BFDBFE',
-                padding: '3px 8px'
-              }}
-            >
-              5 Roles (1-Click)
-            </span>
-          </div>
+        {/* Clean & Compact Quick Role Login (Dev/Demo only) */}
+        {IS_DEV_OR_DEMO && QUICK_LOGIN_ROLES.length > 0 && (
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748B' }}>
+                Đăng nhập nhanh (Dev)
+              </span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#1E60E6', background: '#EFF6FF', padding: '2px 8px', borderRadius: '999px' }}>
+                6 vai trò
+              </span>
+            </div>
 
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '8px' }}
-          >
-            {QUICK_LOGIN_ROLES.map((r, idx) => {
-              const isFullWidth = idx === QUICK_LOGIN_ROLES.length - 1 && QUICK_LOGIN_ROLES.length % 2 !== 0;
-              const isSelectedLoading = activeQuickRole === r.id;
-              const IconComponent = r.icon;
-
-              return (
-                <button
-                  key={r.id}
-                  type="button"
-                  onClick={() => handleQuickDemoFill(r.roleName, r.username, r.password, r.id)}
-                  disabled={loading || isLocked}
-                  className="btn text-start d-flex align-items-center gap-2.5 p-2"
-                  style={{
-                    gridColumn: isFullWidth ? 'span 2' : 'span 1',
-                    backgroundColor: r.bg,
-                    border: `1.5px solid ${r.border}`,
-                    borderRadius: '12px',
-                    color: '#0F172A',
-                    transition: 'all 0.18s ease',
-                    cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
-                    opacity: loading && !isSelectedLoading ? 0.6 : 1,
-                    minHeight: '48px' }}
-                  onMouseEnter={(e) => {
-                    if (!loading && !isLocked) {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = `0 3px 10px ${r.color}25`;
-                      e.currentTarget.style.borderColor = r.color;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = r.border;
-                  }}
-                  title={`Đăng nhập nhanh với vai trò ${r.roleLabel} (${r.username})`}
-                >
-                  <div
-                    className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '6px' }}>
+              {QUICK_LOGIN_ROLES.map((r) => {
+                const isSelectedLoading = activeQuickRole === r.id;
+                const IconComponent = r.icon;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleQuickDemoFill(r.roleName, r.username, r.password, r.id)}
+                    disabled={loading || isLocked}
+                    title={`Đăng nhập ${r.title} (${r.username})`}
                     style={{
-                      width: '32px',
-                      height: '32px',
-                      backgroundColor: '#FFFFFF',
-                      color: r.color,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                      border: `1px solid ${r.border}`
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '7px',
+                      padding: '8px 10px',
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '10px',
+                      color: '#0F172A',
+                      cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
+                      opacity: loading && !isSelectedLoading ? 0.55 : 1,
+                      fontSize: '12.5px',
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      transition: 'border-color 0.15s ease, background-color 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loading && !isLocked) {
+                        e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        e.currentTarget.style.borderColor = r.color;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#F8FAFC';
+                      e.currentTarget.style.borderColor = '#E2E8F0';
                     }}
                   >
-                    {isSelectedLoading ? (
-                      <Spinner animation="border" size="sm" style={{ width: '13px', height: '13px', borderWidth: '2px', color: r.color }} />
-                    ) : (
-                      <IconComponent style={{ fontSize: '14px' }} />
-                    )}
-                  </div>
-                  <div className="flex-grow-1 overflow-hidden" style={{ minWidth: 0 }}>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="fw-bold text-truncate" style={{ fontSize: '13px', color: '#0F172A', lineHeight: 1.2 }}>
-                        {r.title}
-                      </span>
-                      <span 
-                        style={{ 
-                          fontSize: '9.5px', 
-                          color: r.color, 
-                          fontWeight: 700, 
-                          textTransform: 'uppercase',
-                          backgroundColor: '#FFFFFF',
-                          padding: '1px 5px',
-                          borderRadius: '4px',
-                          border: `1px solid ${r.border}`
-                        }}
-                      >
-                        {r.roleName}
-                      </span>
-                    </div>
-                    <div 
-                      className="text-muted text-truncate" 
-                      style={{ fontSize: '11px', marginTop: '1px', fontFamily: 'monospace' }}
+                    <span
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '7px',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #E2E8F0',
+                        color: r.color,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}
                     >
-                      {r.username}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+                      {isSelectedLoading ? (
+                        <Spinner animation="border" size="sm" style={{ width: '11px', height: '11px', borderWidth: '2px', color: r.color }} />
+                      ) : (
+                        <IconComponent size={13} strokeWidth={2} />
+                      )}
+                    </span>
+                    <span className="text-truncate">{r.title}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Google OAuth 2.0 Single Sign-On Button (Lockout & Loading Protected) */}
         {Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID) && (
@@ -937,7 +830,7 @@ export default function LoginPage({
 
       {/* Footer Minimal Copyright */}
       <div className="text-center mt-4 pt-3 text-muted" style={{ fontSize: '12px', color: '#94A3B8' }}>
-        © 2026 BMS Clinical Laboratory · ISO 15189:2022
+        © 2026 BMS Clinical Laboratory
       </div>
 
       {/* ======================================================================

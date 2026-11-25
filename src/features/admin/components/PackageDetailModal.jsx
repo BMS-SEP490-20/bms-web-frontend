@@ -15,11 +15,7 @@
 
 import React from "react";
 import { Modal, Button, Row, Col, Badge, Table, Alert } from "react-bootstrap";
-import {
-  FaShieldAlt, FaIdCard, FaClock, FaVial, FaCheckCircle,
-  FaUserInjured, FaNotesMedical, FaExclamationTriangle, FaEdit,
-  FaTint, FaCalendarCheck, FaInfoCircle
-} from "react-icons/fa";
+import { ShieldCheck, IdCard, Clock, TestTube2, CheckCircle2, User, FileText, AlertTriangle, SquarePen, Droplet, CalendarCheck, Info } from 'lucide-react';
 
 function formatMoney(value) {
   if (value === null || value === undefined || value === "") return "—";
@@ -71,18 +67,18 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                 </span>
                 {pkg.sampleTube && (
                   <span className="badge bg-light text-dark border px-3 py-1 rounded-pill small">
-                    <FaVial className="me-1 text-danger" /> Ống: {pkg.sampleTube}
+                    <TestTube2 className="me-1 text-danger"  size="1em"/> Ống: {pkg.sampleTube}
                   </span>
                 )}
                 {pkg.sampleVolumeMl && (
                   <span className="badge bg-light text-dark border px-3 py-1 rounded-pill small">
-                    <FaTint className="me-1 text-primary" /> {pkg.sampleVolumeMl} ml máu
+                    <Droplet className="me-1 text-primary"  size="1em"/> {pkg.sampleVolumeMl} ml máu
                   </span>
                 )}
               </div>
               <h4 className="fw-bold text-dark mb-2">{pkg.name}</h4>
               <p className="text-muted small mb-0" style={{ maxWidth: 780 }}>
-                {pkg.description || "Gói xét nghiệm tầm soát tiêu chuẩn ISO 15189:2022 tại BMS Clinical Laboratory."}
+                {pkg.description || "Gói xét nghiệm tầm soát tại BMS Clinical Laboratory."}
               </p>
             </Col>
 
@@ -122,7 +118,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
         {highlights.length > 0 && (
           <div className="mb-4">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FaShieldAlt className="text-primary" /> Điểm Nổi Bật Của Gói Dịch Vụ
+              <ShieldCheck className="text-primary"  size="1em"/> Điểm Nổi Bật Của Gói Dịch Vụ
             </h6>
             <Row className="g-3">
               {highlights.map((hl, idx) => (
@@ -135,7 +131,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
                       className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                       style={{ width: 36, height: 36, background: "rgba(30, 96, 230, 0.1)", color: "#1E60E6" }}
                     >
-                      <FaShieldAlt size={16} />
+                      <ShieldCheck size={16} />
                     </div>
                     <div className="small fw-semibold text-dark pt-1">
                       {hl}
@@ -151,12 +147,12 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
         {audienceLines.length > 0 && (
           <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FaUserInjured className="text-primary" /> Đối Tượng Cần Làm Xét Nghiệm
+              <User className="text-primary"  size="1em"/> Đối Tượng Cần Làm Xét Nghiệm
             </h6>
             <div className="d-flex flex-column gap-2">
               {audienceLines.map((line, idx) => (
                 <div key={idx} className="d-flex align-items-start gap-2 small text-dark">
-                  <FaCheckCircle className="text-success mt-1 flex-shrink-0" />
+                  <CheckCircle2 className="text-success mt-1 flex-shrink-0"  size="1em"/>
                   <span>{line.replace(/^[-•*]\s*/, "")}</span>
                 </div>
               ))}
@@ -169,10 +165,10 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
               <h6 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-                <FaVial className="text-primary" /> Danh Mục Các Chỉ Số Xét Nghiệm Thành Phần ({tests.length} chỉ số)
+                <TestTube2 className="text-primary"  size="1em"/> Danh Mục Các Chỉ Số Xét Nghiệm Thành Phần ({tests.length} chỉ số)
               </h6>
               <p className="text-muted small mb-0">
-                Được thực hiện trên hệ thống phân tích tự động thế hệ mới đạt chuẩn chất lượng ISO 15189:2022.
+                Thực hiện trên hệ thống máy xét nghiệm tại phòng Lab BMS.
               </p>
             </div>
           </div>
@@ -224,14 +220,14 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
         {pkg.tat && (
           <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-              <FaClock className="text-primary" /> Thời Gian Có Kết Quả (TAT Cam Kết)
+              <Clock className="text-primary"  size="1em"/> Thời Gian Có Kết Quả (TAT Cam Kết)
             </h6>
             <div
               className="p-3 rounded-3 border"
               style={{ background: "#EFF6FF", borderColor: "#BFDBFE" }}
             >
               <div className="d-flex align-items-start gap-2 text-primary fw-semibold small">
-                <FaClock className="mt-1 flex-shrink-0" />
+                <Clock className="mt-1 flex-shrink-0"  size="1em"/>
                 <span>{pkg.tat}</span>
               </div>
             </div>
@@ -242,11 +238,11 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
         {pkg.preparationNotes && (
           <div className="mb-2 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FaNotesMedical className="text-warning" /> Lưu Ý Trước Khi Lấy Mẫu Xét Nghiệm (Chuẩn ISO 15189:2022)
+              <FileText className="text-warning" size="1em"/> Lưu Ý Trước Khi Lấy Mẫu
             </h6>
             <Alert variant="warning" className="rounded-3 py-3 px-4 mb-0 border-warning-subtle">
               <div className="d-flex align-items-start gap-2 mb-2">
-                <FaExclamationTriangle className="text-warning fs-5 flex-shrink-0" />
+                <AlertTriangle className="text-warning fs-5 flex-shrink-0"  size="1em"/>
                 <strong className="text-dark">Hướng dẫn chuẩn bị bệnh nhân tiền phân tích:</strong>
               </div>
               <div className="small text-dark" style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
@@ -270,7 +266,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
               onEdit(pkg);
             }}
           >
-            <FaEdit /> Chỉnh Sửa Gói Này
+            <SquarePen  size="1em"/> Chỉnh Sửa Gói Này
           </Button>
         )}
       </Modal.Footer>

@@ -1,17 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  FaFileInvoiceDollar,
-  FaPrint,
-  FaDownload,
-  FaFileCode,
-  FaTimes,
-  FaCheckCircle,
-  FaCopy,
-  FaHospital,
-  FaRegCheckCircle
-} from 'react-icons/fa';
+import { Receipt, Printer, Download, FileCode2, X as LucideX, CheckCircle2, Copy, Hospital } from 'lucide-react';
 import './VatInvoiceModal.css';
 
 /**
@@ -88,9 +78,9 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
   const numericPartMatch = invoiceNumberRaw.match(/\d+$/);
   const serialNoFormatted = numericPartMatch ? numericPartMatch[0].padStart(7, '0') : '0000889';
 
-  const formNumber = invoiceData.formNumber || '1';
-  const serialNumber = invoiceData.serialNumber || '1C26TBM';
-  const cqtCode = invoiceData.cqtCode || `0026C1C26TBM${(invoiceNumberRaw.replace(/\D/g, '') || '49281').padEnd(12, '9')}B920042`;
+  const formNumber = invoiceData.formNumber || '—';
+  const serialNumber = invoiceData.serialNumber || '—';
+  const cqtCode = invoiceData.cqtCode || 'Chưa cấp mã';
 
   const paidDate = invoiceData.paidAt ? new Date(invoiceData.paidAt) : new Date();
   const dayStr = String(paidDate.getDate()).padStart(2, '0');
@@ -99,19 +89,19 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
   const dateFormatted = `Ngày ${dayStr} tháng ${monthStr} năm ${yearStr}`;
   const signedTimestamp = `${dayStr}/${monthStr}/${yearStr} ${String(paidDate.getHours()).padStart(2, '0')}:${String(paidDate.getMinutes()).padStart(2, '0')}:${String(paidDate.getSeconds()).padStart(2, '0')}`;
 
-  const patientName = patientData?.fullName || invoiceData.patientName || 'Trần Văn An';
-  const patientCode = patientData?.patientCode || invoiceData.patientId || 'PAT-079201009988';
-  const citizenId = patientData?.citizenId || patientData?.cccd || '079201009988';
-  const address = patientData?.address || 'Số 123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh';
-  const appointmentCode = invoiceData.appointmentCode || 'APT-261031-0002';
-  const paymentMethod = invoiceData.paymentMethod || 'Cổng VNPAY (Thẻ NCB Sandbox)';
-  const transactionCode = invoiceData.transactionCode || 'VNP-NCB-20261031-15882';
+  const patientName = patientData?.fullName || invoiceData.patientName || '—';
+  const patientCode = patientData?.patientCode || invoiceData.patientId || '—';
+  const citizenId = patientData?.citizenId || patientData?.cccd || '—';
+  const address = patientData?.address || '—';
+  const appointmentCode = invoiceData.appointmentCode || '—';
+  const paymentMethod = invoiceData.paymentMethod || '—';
+  const transactionCode = invoiceData.transactionCode || '';
 
-  const totalAmount = Number(invoiceData.amount || invoiceData.totalAmount || 180000);
+  const totalAmount = Number(invoiceData.amount || invoiceData.totalAmount || 0);
   const items = invoiceData.items && invoiceData.items.length > 0 ? invoiceData.items : [
     {
       stt: 1,
-      itemName: invoiceData.packageName || 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser) theo chỉ định khám & xét nghiệm',
+      itemName: invoiceData.packageName || 'Dịch vụ xét nghiệm',
       unit: 'Gói/Lần',
       quantity: 1,
       unitPrice: totalAmount,
@@ -195,7 +185,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
       <Signature Valid="true">
         <SignedBy>CÔNG TY CỔ PHẦN PHÒNG KHÁM CHUYÊN KHOA XÉT NGHIỆM BMS</SignedBy>
         <SigningTime>${signedTimestamp}</SigningTime>
-        <Provider>Viettel-CA / Ban Cơ yếu Chính phủ</Provider>
+        <Provider>BMS Clinical Laboratory</Provider>
       </Signature>
     </NBan>
   </DSCKS>
@@ -217,12 +207,12 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
       {/* Top Modal Floating Action Toolbar (Hidden in Print) */}
       <div className="bms-vat-toolbar no-print">
         <div className="bms-vat-toolbar-title">
-          <FaFileInvoiceDollar className="text-warning fs-5" />
+          <Receipt className="text-warning fs-5"  size="1em"/>
           <div>
             <div className="fw-bold text-white d-flex align-items-center gap-2">
               Hóa Đơn Giá Trị Gia Tăng Điện Tử (VAT)
               <span className="badge bg-success text-white py-1 px-2" style={{ fontSize: '11px' }}>
-                <FaCheckCircle className="me-1" /> TT 78/2021/TT-BTC
+                <CheckCircle2 className="me-1"  size="1em"/> TT 78/2021/TT-BTC
               </span>
             </div>
             <div className="text-secondary small font-monospace">
@@ -239,7 +229,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
             onClick={handleCopyCode}
             title="Sao chép mã xác thực cơ quan thuế"
           >
-            {copiedCode ? <FaRegCheckCircle className="text-success" /> : <FaCopy />}
+            {copiedCode ? <CheckCircle2 className="text-success"  size="1em"/> : <Copy  size="1em"/>}
             <span>{copiedCode ? 'Đã sao chép CQT' : 'Sao chép mã CQT'}</span>
           </button>
 
@@ -250,7 +240,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
             onClick={handleDownloadXml}
             title="Tải file XML hóa đơn điện tử gốc theo chuẩn Bộ Tài chính"
           >
-            <FaFileCode />
+            <FileCode2  size="1em"/>
             <span>Tải XML CQT</span>
           </button>
 
@@ -261,7 +251,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
             onClick={handlePrint}
             title="In hóa đơn chuẩn khổ giấy A4"
           >
-            <FaPrint />
+            <Printer  size="1em"/>
             <span>In Hóa Đơn (A4)</span>
           </button>
 
@@ -272,7 +262,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
             title="Đóng hóa đơn"
             aria-label="Close"
           >
-            <FaTimes />
+            <LucideX  size="1em"/>
           </button>
         </div>
       </div>
@@ -294,11 +284,11 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
               <div className="bms-vat-seller-info">
                 <div className="d-flex align-items-center gap-2 mb-2">
                   <div className="bms-vat-logo-badge">
-                    <FaHospital className="fs-3 text-primary" />
+                    <Hospital className="fs-3 text-primary"  size="1em"/>
                   </div>
                   <div>
                     <div className="bms-vat-brand-title">BMS CLINICAL LABORATORY</div>
-                    <div className="bms-vat-brand-sub">HỆ THỐNG PHÒNG XÉT NGHIỆM Y KHOA TIÊU CHUẨN ISO 15189:2022</div>
+                    <div className="bms-vat-brand-sub">PHÒNG XÉT NGHIỆM Y KHOA BMS</div>
                   </div>
                 </div>
 
@@ -319,11 +309,11 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
                 </div>
                 <div className="bms-vat-meta-line">
                   <span className="bms-vat-label">Số tài khoản:</span>
-                  <span>0123456789 tại Ngân hàng Ngoại Thương (Vietcombank) - CN TP.HCM</span>
+                  <span>Theo thông tin hóa đơn phát hành</span>
                 </div>
                 <div className="bms-vat-meta-line">
                   <span className="bms-vat-label">Giấy phép hoạt động:</span>
-                  <span>Số 08892/BYT-GPHĐ cấp bởi Bộ Y tế</span>
+                  <span>Phòng khám chuyên khoa xét nghiệm BMS</span>
                 </div>
               </div>
 
@@ -436,7 +426,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
                       <td className="text-center">{idx + 1}</td>
                       <td>
                         <div className="fw-semibold text-dark">{item.itemName}</div>
-                        <div className="bms-vat-item-sub">Thực hiện theo quy chuẩn an toàn sinh học phòng Lab ISO 15189</div>
+                        <div className="bms-vat-item-sub">Dịch vụ xét nghiệm tại phòng khám</div>
                       </td>
                       <td className="text-center">{item.unit || 'Gói/Lần'}</td>
                       <td className="text-center font-monospace">{item.quantity || 1}</td>
@@ -488,7 +478,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
 
                 <div className="bms-vat-sig-stamp buyer-stamp">
                   <div className="d-flex align-items-center gap-2 text-success fw-bold mb-1">
-                    <FaCheckCircle className="fs-5" />
+                    <CheckCircle2 className="fs-5"  size="1em"/>
                     <span>ĐÃ XÁC THỰC ĐIỆN TỬ</span>
                   </div>
                   <div className="small text-dark fw-semibold">{patientName}</div>
@@ -509,9 +499,9 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
                 <div className="bms-vat-sig-stamp seller-stamp">
                   <div className="bms-vat-sig-header">
                     <div className="bms-vat-valid-badge">
-                      <FaCheckCircle /> Signature Valid
+                      <CheckCircle2  size="1em"/> Signature Valid
                     </div>
-                    <span className="text-muted" style={{ fontSize: '10px' }}>Viettel-CA</span>
+                    <span className="text-muted" style={{ fontSize: '10px' }}>BMS MedLab</span>
                   </div>
                   <div className="bms-vat-sig-corp">
                     Được ký bởi: <strong>CÔNG TY CP PHÒNG KHÁM CHUYÊN KHOA XÉT NGHIỆM BMS</strong>
@@ -523,7 +513,7 @@ export default function VatInvoiceModal({ show, onClose, invoiceData, patientDat
                     Ngày ký số: <strong>{signedTimestamp}</strong>
                   </div>
                   <div className="bms-vat-sig-meta text-muted" style={{ fontSize: '10px' }}>
-                    Chứng thư số: Ban Cơ yếu Chính phủ / Viettel-CA
+                    Biên nhận giao dịch hệ thống BMS
                   </div>
                 </div>
               </div>

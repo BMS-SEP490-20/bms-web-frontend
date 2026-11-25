@@ -11,10 +11,7 @@ import {
   Alert,
   Spinner
 } from 'react-bootstrap';
-import {
-  FaCheckCircle,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { getStoredUser } from '../../../constants/roles';
 import {
@@ -177,8 +174,11 @@ export default function InitialMedicalProfileSetup() {
         const phoneNumber = pat?.phoneNumber || pat?.phone || stored?.phoneNumber || stored?.PhoneNumber || '';
         const email = pat?.email || stored?.email || stored?.Email || '';
         const address = pat?.address || stored?.address || stored?.Address || '';
-        const rawGender = pat?.gender || pat?.genderString || stored?.gender || stored?.Gender || '';
-        const gender = ['Nam', 'Nữ', 'Khác', 'Male', 'Female', 'Other'].includes(rawGender) ? rawGender : '';
+        const rawGender = String(pat?.gender || pat?.genderString || stored?.gender || stored?.Gender || '').trim();
+        const gender = (rawGender === 'Nam' || rawGender === 'Male') ? 'Male'
+          : (rawGender === 'Nữ' || rawGender === 'Female') ? 'Female'
+          : (rawGender === 'Khác' || rawGender === 'Other') ? 'Other'
+          : '';
         const patientCode = pat?.patientCode || pat?.id || stored?.patientCode || '';
 
         let dobStr = '';
@@ -480,7 +480,7 @@ export default function InitialMedicalProfileSetup() {
         </header>
 
         <div className="alert alert-info border rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
-          <FaCheckCircle className="text-primary fs-5 flex-shrink-0" />
+          <CheckCircle2 className="text-primary fs-5 flex-shrink-0"  size="1em"/>
           <div className="small text-dark" style={{ lineHeight: 1.5 }}>
             <strong>Bảo mật hồ sơ sức khỏe:</strong> Thông tin sức khỏe cá nhân chỉ phục vụ Bác sĩ đối chiếu khoảng tham chiếu sinh học và đảm bảo an toàn khi lấy mẫu máu.
           </div>
@@ -489,14 +489,14 @@ export default function InitialMedicalProfileSetup() {
         {/* Global Notifications */}
         {errorMessage && (
           <Alert variant="danger" className="d-flex align-items-center gap-2 mb-4 border-0 rounded-3" dismissible onClose={() => setErrorMessage('')}>
-            <FaExclamationTriangle className="flex-shrink-0" />
+            <AlertTriangle className="flex-shrink-0"  size="1em"/>
             <div className="small fw-medium">{errorMessage}</div>
           </Alert>
         )}
 
         {successMessage && (
           <Alert variant="success" className="d-flex align-items-center gap-2 mb-4 border-0 rounded-3">
-            <FaCheckCircle className="flex-shrink-0" />
+            <CheckCircle2 className="flex-shrink-0"  size="1em"/>
             <div className="small fw-medium">{successMessage}</div>
           </Alert>
         )}
@@ -564,9 +564,9 @@ export default function InitialMedicalProfileSetup() {
                 }}
               >
                 <option value="">Chọn</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
+                <option value="Male">Nam</option>
+                <option value="Female">Nữ</option>
+                <option value="Other">Khác</option>
               </Form.Select>
               {errors.gender && <small>{errors.gender}</small>}
             </div>

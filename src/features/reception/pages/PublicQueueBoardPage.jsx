@@ -8,16 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
-import {
-  FaHospital,
-  FaClock,
-  FaVolumeUp,
-  FaExpand,
-  FaCompress,
-  FaDoorOpen,
-  FaUserCheck,
-  FaListOl
-} from 'react-icons/fa';
+import { Hospital, Clock as LucideClock, Volume2, Maximize2, Minimize2, DoorOpen, UserCheck, ListOrdered } from 'lucide-react';
 import { receptionApi } from '../api/receptionApi';
 
 export default function PublicQueueBoardPage() {
@@ -150,7 +141,7 @@ export default function PublicQueueBoardPage() {
             className="p-2 rounded-3 text-white d-flex align-items-center justify-content-center"
             style={{ width: '48px', height: '48px', backgroundColor: '#1E60E6' }}
           >
-            <FaHospital className="fs-3" />
+            <Hospital className="fs-3"  size="1em"/>
           </div>
           <div>
             <h4 className="fw-bold mb-0 text-white tracking-wide">
@@ -165,7 +156,7 @@ export default function PublicQueueBoardPage() {
         <div className="d-flex align-items-center gap-4">
           {/* Clock Display */}
           <div className="text-end d-flex align-items-center gap-2">
-            <FaClock className="fs-4" style={{ color: '#B45309' }} />
+            <LucideClock className="fs-4" style={{ color: '#B45309' }}  size="1em"/>
             <div>
               <div className="fs-4 fw-bold font-monospace leading-none" style={{ color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>
                 {currentTime.toLocaleTimeString('vi-VN')}
@@ -188,10 +179,10 @@ export default function PublicQueueBoardPage() {
               }}
               title={audioEnabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt (Nhấp để bật)'}
             >
-              <FaVolumeUp className="me-1" /> {audioEnabled ? 'Loa BẬT' : 'Bật Loa'}
+              <Volume2 className="me-1"  size="1em"/> {audioEnabled ? 'Loa BẬT' : 'Bật Loa'}
             </Button>
             <Button variant="outline-light" size="sm" style={{ borderRadius: '9999px' }} onClick={toggleFullscreen} title="Toàn màn hình">
-              {isFullscreen ? <FaCompress /> : <FaExpand />}
+              {isFullscreen ? <Minimize2  size="1em"/> : <Maximize2  size="1em"/>}
             </Button>
           </div>
         </div>
@@ -208,7 +199,7 @@ export default function PublicQueueBoardPage() {
             >
               <div className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#1E60E6' }}>
                 <span className="fw-bold text-uppercase fs-5 d-flex align-items-center gap-2">
-                  <FaUserCheck /> ĐANG GỌI VÀO PHÒNG KHÁM
+                  <UserCheck  size="1em"/> ĐANG GỌI VÀO PHÒNG KHÁM
                 </span>
                 <span className="badge fs-6 px-3 py-1.5 rounded-pill" style={{ backgroundColor: '#B45309', color: '#1E293B', fontWeight: 'bold' }}>
                   {current?.roomId || 'TẤT CẢ PHÒNG'}
@@ -243,7 +234,7 @@ export default function PublicQueueBoardPage() {
                         borderColor: '#5BC0BE',
                       }}
                     >
-                      <FaDoorOpen className="text-info fs-2" />
+                      <DoorOpen className="text-info fs-2"  size="1em"/>
                       <span className="fs-3 fw-bold text-white">
                         VÀO: {current.roomId || 'PHÒNG 101'}
                       </span>
@@ -256,7 +247,7 @@ export default function PublicQueueBoardPage() {
                 ) : (
                   <div className="py-3">
                     <div className="display-1 text-white-50 opacity-25 mb-4">
-                      <FaHospital />
+                      <Hospital  size="1em"/>
                     </div>
                     <h2 className="fw-bold text-white mb-2">Đang chờ lượt gọi kế tiếp</h2>
                     <p className="text-white-50 fs-5 mb-0">
@@ -279,7 +270,7 @@ export default function PublicQueueBoardPage() {
                 style={{ borderColor: 'rgba(255,255,255,0.1)' }}
               >
                 <span className="fw-bold text-uppercase fs-5 text-white d-flex align-items-center gap-2">
-                  <FaListOl className="text-info" /> SỐ THỨ TỰ CHUẨN BỊ (ĐANG CHỜ)
+                  <ListOrdered className="text-info"  size="1em"/> SỐ THỨ TỰ CHUẨN BỊ (ĐANG CHỜ)
                 </span>
                 <Badge bg="info" className="fs-6 px-3 py-1.5 rounded-pill text-dark">
                   {waiting.length} Người

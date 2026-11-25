@@ -24,28 +24,7 @@ import {
   InputGroup,
   Modal
 } from 'react-bootstrap';
-import {
-  FaFlask,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaPhoneAlt,
-  FaVial,
-  FaMicroscope,
-  FaClock,
-  FaUserMd,
-  FaSave,
-  FaSearch,
-  FaLock,
-  FaBell,
-  FaVolumeUp,
-  FaStopwatch,
-  FaHospital,
-  FaEye,
-  FaTimesCircle,
-  FaRedo,
-  FaUndo,
-  FaFileSignature
-} from 'react-icons/fa';
+import { FlaskConical, CheckCircle2, AlertTriangle, Phone, TestTube2, Microscope, Clock, Stethoscope, Save, Search, Lock, Bell, Volume2, Timer, Hospital, Eye, XCircle, RotateCw, Undo2, FileSignature } from 'lucide-react';
 import { resultApi } from '../api/resultApi';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
@@ -749,9 +728,9 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         parameters: validParams,
         notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
         isPanic: hasCritical,
-        criticalNotified: doctorNotified || true,
-        confirmRerunChecked: confirmRerun || true,
-        doctorNotifiedName: doctorName || 'BS. Lâm sàng điều trị',
+        criticalNotified: Boolean(doctorNotified),
+        confirmRerunChecked: Boolean(confirmRerun),
+        doctorNotifiedName: doctorName || '',
         notifiedAt: new Date().toISOString(),
         reviewedBy: benchOperator || operatorDisplay
       });
@@ -768,7 +747,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     if (value === 0 || value === '') return <span className="text-muted">—</span>;
     switch (flag) {
       case 'CRITICAL':
-        return <Badge bg="danger" className="px-2 py-1 fw-bold"><FaExclamationTriangle className="me-1" />NGUY HIỂM (CRITICAL)</Badge>;
+        return <Badge bg="danger" className="px-2 py-1 fw-bold"><AlertTriangle className="me-1"  size="1em"/>NGUY HIỂM (CRITICAL)</Badge>;
       case 'HIGH':
         return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">VƯỢT CAO</Badge>;
       case 'LOW':
@@ -800,7 +779,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Card.Body className="p-3">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FaFlask style={{ color: '#1E60E6' }} />
+              <FlaskConical style={{ color: '#1E60E6' }}  size="1em"/>
               <span>Bàn Đo &amp; Nhập Kết Quả Xét Nghiệm (Manual Bench Entry)</span>
             </h6>
             <Row className="g-3">
@@ -841,7 +820,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                     placeholder="Quét Barcode hoặc nhập mã SMP-..."
                   />
                   <Button variant="outline-primary" type="button" onClick={handleLookupSample}>
-                    <FaSearch />
+                    <Search  size="1em"/>
                   </Button>
                 </InputGroup>
               </Col>
@@ -851,13 +830,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
         {!sampleId.trim() && (
           <Alert variant="info" className="rounded-3 shadow-sm border">
-            <FaSearch className="me-2" />
+            <Search className="me-2"  size="1em"/>
             Quét hoặc nhập <strong>mã barcode ống mẫu</strong> trước khi nhập kết quả. Hệ thống sẽ nạp đúng chỉ số theo y lệnh (không dùng bảng CBC mặc định).
           </Alert>
         )}
         {sampleDetails && !allowEnter && (
           <Alert variant="warning" className="rounded-3 shadow-sm border">
-            <FaLock className="me-2" />
+            <Lock className="me-2"  size="1em"/>
             Mẫu <strong>{sampleStatus}</strong> — đã qua bước nhập KQ / terminal. Nút gửi BS bị khóa (không cho quay lại bước trước).
           </Alert>
         )}
@@ -865,20 +844,20 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         {/* Thông báo Alert */}
         {cancellationSuccess && (
           <Alert variant="warning" dismissible onClose={() => setCancellationSuccess(null)} className="rounded-3 shadow-sm border-warning">
-            <FaUndo className="me-2 text-warning-emphasis" />
+            <Undo2 className="me-2 text-warning-emphasis"  size="1em"/>
             <strong>Đã Hủy &amp; Yêu Cầu Chạy Lại:</strong> {cancellationSuccess}
           </Alert>
         )}
         {error && (
           <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
-            <FaExclamationTriangle className="me-2" />
+            <AlertTriangle className="me-2"  size="1em"/>
             {error}
           </Alert>
         )}
         {result && (
           <Alert variant={result.isPanic ? 'warning' : 'success'} className="rounded-3 shadow-sm d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
-              <FaCheckCircle className="me-2 text-success fs-5" />
+              <CheckCircle2 className="me-2 text-success fs-5"  size="1em"/>
               <strong>{result.resultId || 'Đã lưu thành công'}</strong> &mdash; {result.message}
             </div>
             <Button
@@ -897,7 +876,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div className="d-flex align-items-center gap-3">
               <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center p-3 fs-4 shadow-sm">
-                <FaBell className="fa-shake" />
+                <Bell className="fa-shake"  size="1em"/>
               </div>
               <div>
                 <h5 className="mb-1 fw-bold text-danger d-flex align-items-center gap-2">
@@ -918,13 +897,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                 type="button"
                 onClick={playWebAudioAlert880Hz}
               >
-                <FaVolumeUp />
+                <Volume2  size="1em"/>
                 <span>Thử Còi 880Hz</span>
               </Button>
 
               <div className="text-center p-2 rounded bg-white border border-danger shadow-sm" style={{ minWidth: 150 }}>
                 <div className="small text-danger fw-semibold d-flex align-items-center justify-content-center gap-1">
-                  <FaStopwatch />
+                  <Timer  size="1em"/>
                   <span>Thời gian còn lại</span>
                 </div>
                 <div className={`fs-4 fw-bold font-monospace ${countdownSeconds < 180 ? 'text-danger' : 'text-dark'}`}>
@@ -956,7 +935,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       <small className="text-muted">
                         {flags.length} thông số
                         {isPackageFiltered && sampleDetails?.testPackageName ? ` theo gói "${sampleDetails.testPackageName}"` : ''}
-                        {' '}&bull; Đơn vị tính và khoảng tham chiếu chuẩn ISO 15189
+                        {' '}&bull; Đơn vị và khoảng tham chiếu
                       </small>
                     </div>
                     <span className="badge bg-light text-dark border">
@@ -986,7 +965,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         {!paramsLoading && flags.length === 0 && (
                           <tr>
                             <td colSpan={5} className="text-center py-5 text-muted">
-                              <FaSearch className="fs-3 mb-2 opacity-50 d-block mx-auto" />
+                              <Search className="fs-3 mb-2 opacity-50 d-block mx-auto"  size="1em"/>
                               <div className="fw-semibold text-dark mb-1">Chưa chọn ống mẫu xét nghiệm</div>
                               <div className="small">
                                 Vui lòng nhập hoặc quét <strong>Mã Barcode ống mẫu (SMP-...)</strong> ở phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số xét nghiệm theo gói/y lệnh từ CSDL.
@@ -1061,7 +1040,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                   {hasCritical && (
                     <div className="alert alert-danger mt-3 p-3 rounded-3 border-danger shadow-sm">
                       <div className="d-flex align-items-center gap-2 mb-2">
-                        <FaExclamationTriangle className="fs-4 text-danger flex-shrink-0" />
+                        <AlertTriangle className="fs-4 text-danger flex-shrink-0"  size="1em"/>
                         <div>
                           <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ</strong>
                           <div className="small">
@@ -1102,13 +1081,13 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       {/* Chi tiết thông báo Bác sĩ */}
                       <div className="p-3 bg-white rounded-3 border border-danger-subtle">
                         <h6 className="fw-bold text-danger mb-3 d-flex align-items-center gap-2">
-                          <FaPhoneAlt />
+                          <Phone  size="1em"/>
                           <span>Biên Bản Log Cuộc Gọi Khẩn Cấp Báo Động Đỏ</span>
                         </h6>
                         <Row className="g-2 mb-2">
                           <Col md={6}>
                             <Form.Label className="small fw-semibold text-secondary">
-                              <FaUserMd className="me-1" /> Họ Tên Bác Sĩ Tiếp Nhận <span className="text-danger">*</span>
+                              <Stethoscope className="me-1"  size="1em"/> Họ Tên Bác Sĩ Tiếp Nhận <span className="text-danger">*</span>
                             </Form.Label>
                             <Form.Control
                               size="sm"
@@ -1120,7 +1099,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                           </Col>
                           <Col md={6}>
                             <Form.Label className="small fw-semibold text-secondary">
-                              <FaPhoneAlt className="me-1" /> Số Điện Thoại / Máy Nhánh <span className="text-danger">*</span>
+                              <Phone className="me-1"  size="1em"/> Số Điện Thoại / Máy Nhánh <span className="text-danger">*</span>
                             </Form.Label>
                             <Form.Control
                               size="sm"
@@ -1135,7 +1114,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         <Row className="g-2 mb-2">
                           <Col md={5}>
                             <Form.Label className="small fw-semibold text-secondary">
-                              <FaHospital className="me-1" /> Khoa Lâm Sàng Tiếp Nhận
+                              <Hospital className="me-1"  size="1em"/> Khoa Lâm Sàng Tiếp Nhận
                             </Form.Label>
                             <Form.Control
                               size="sm"
@@ -1161,7 +1140,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                           </Col>
                           <Col md={3}>
                             <Form.Label className="small fw-semibold text-secondary">
-                              <FaClock className="me-1" /> Giờ Báo Động
+                              <Clock className="me-1"  size="1em"/> Giờ Báo Động
                             </Form.Label>
                             <Form.Control
                               size="sm"
@@ -1220,7 +1199,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       onClick={() => setShowRerunModal(true)}
                       className="d-flex align-items-center gap-1.5 fw-semibold"
                     >
-                      <FaUndo /> Hủy Kết Quả &amp; Yêu Cầu Chạy Lại
+                      <Undo2  size="1em"/> Hủy Kết Quả &amp; Yêu Cầu Chạy Lại
                     </Button>
                   </div>
 
@@ -1238,7 +1217,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       onClick={() => setShowPreviewModal(true)}
                       className="d-flex align-items-center gap-1.5 fw-semibold"
                     >
-                      <FaEye /> Xem Trước (Preview)
+                      <Eye  size="1em"/> Xem Trước (Preview)
                     </Button>
                     <Button
                       variant="primary"
@@ -1254,12 +1233,12 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         </>
                       ) : hasCritical ? (
                         <>
-                          <FaExclamationTriangle />
+                          <AlertTriangle  size="1em"/>
                           <span>Xác Nhận Đã Báo BS &amp; Gửi Phê Duyệt</span>
                         </>
                       ) : (
                         <>
-                          <FaCheckCircle />
+                          <CheckCircle2  size="1em"/>
                           <span>Ký Duyệt Kỹ Thuật &amp; Gửi BS</span>
                         </>
                       )}
@@ -1299,7 +1278,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
             <Card className="border-0 shadow-sm bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
                 <div className="alert alert-secondary py-2 small mb-0">
-                  <FaLock className="me-1 text-secondary" />
+                  <Lock className="me-1 text-secondary"  size="1em"/>
                   Sau khi gửi, kết quả chuyển Bác sĩ thẩm định lâm sàng &amp; ký số trước khi bệnh nhân xem được trên cổng.
                 </div>
               </Card.Body>
@@ -1312,7 +1291,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
         <Modal.Header closeButton style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
-            <FaEye style={{ color: "#1E60E6" }} />
+            <Eye style={{ color: "#1E60E6" }}  size="1em"/>
             <span>Xem Trước Bảng Kết Quả Xét Nghiệm</span>
           </Modal.Title>
         </Modal.Header>
@@ -1381,7 +1360,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           {/* Đánh giá mẫu theo ISO 15189 */}
           <div className="p-3 bg-white rounded-3 border small">
             <div className="fw-bold text-dark mb-1 d-flex align-items-center gap-1">
-              <FaCheckCircle className="text-success" />
+              <CheckCircle2 className="text-success"  size="1em"/>
               <span>Biên Bản Đánh Giá Mẫu Tiền Phân Tích &amp; Nội Kiểm IQC:</span>
             </div>
             <Row className="g-2 text-muted">
@@ -1407,7 +1386,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
             className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            <FaFileSignature /> Xác Nhận Ký Số Kỹ Thuật &amp; Gửi Bác Sĩ
+            <FileSignature  size="1em"/> Xác Nhận Ký Số Kỹ Thuật &amp; Gửi Bác Sĩ
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1416,7 +1395,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA" }}>
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2" style={{ color: "#991B1B" }}>
-            <FaUndo className="text-danger" />
+            <Undo2 className="text-danger"  size="1em"/>
             <span>Yêu Cầu Hủy Kết Quả &amp; Xét Nghiệm Lại</span>
           </Modal.Title>
         </Modal.Header>
@@ -1486,7 +1465,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
             onClick={handleCancelAndRerun}
             className="d-flex align-items-center gap-2 fw-semibold px-3"
           >
-            <FaTimesCircle /> Xác Nhận Hủy &amp; Chạy Lại
+            <XCircle  size="1em"/> Xác Nhận Hủy &amp; Chạy Lại
           </Button>
         </Modal.Footer>
       </Modal>

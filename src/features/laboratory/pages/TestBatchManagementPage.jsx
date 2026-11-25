@@ -18,24 +18,7 @@ import {
   Spinner,
   Modal
 } from 'react-bootstrap';
-import {
-  FaFlask,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaPlus,
-  FaPlay,
-  FaStop,
-  FaTrashAlt,
-  FaSyncAlt,
-  FaMicroscope,
-  FaVial,
-  FaArrowLeft,
-  FaLock,
-  FaClock,
-  FaInfoCircle,
-  FaSearch,
-  FaTimes
-} from 'react-icons/fa';
+import { FlaskConical, CheckCircle2, AlertTriangle, Plus, Play, Square, Trash2, RefreshCw, Microscope, TestTube2, ArrowLeft, Lock, Clock, Info, Search, X as LucideX } from 'lucide-react';
 import {
   getBatches,
   getPendingSamples,
@@ -301,7 +284,7 @@ export default function TestBatchManagementPage() {
             className="d-inline-flex align-items-center gap-1 px-3 fw-semibold rounded-pill text-nowrap text-white"
             style={{ backgroundColor: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }}
           >
-            <FaPlus /> Tạo mẻ mới
+            <Plus  size="1em"/> Tạo mẻ mới
           </Button>
         </div>
       </div>
@@ -309,13 +292,13 @@ export default function TestBatchManagementPage() {
       {/* Thông báo Alert */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm mb-3">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {error}
         </Alert>
       )}
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg(null)} className="rounded-3 shadow-sm mb-3">
-          <FaCheckCircle className="me-2" />
+          <CheckCircle2 className="me-2"  size="1em"/>
           {successMsg}
         </Alert>
       )}
@@ -325,7 +308,7 @@ export default function TestBatchManagementPage() {
         <>
           <div className="bms-filter-bar mb-3">
             <div className="bms-search-input-pill">
-              <FaSearch className="bms-search-icon" />
+              <Search className="bms-search-icon"  size="1em"/>
               <input
                 type="text"
                 placeholder="Tìm theo mã mẻ, máy phân tích, kỹ thuật viên..."
@@ -334,7 +317,7 @@ export default function TestBatchManagementPage() {
               />
               {batchSearch && (
                 <button type="button" className="bms-search-clear" onClick={() => setBatchSearch('')}>
-                  <FaTimes size={12} />
+                  <LucideX size={12} />
                 </button>
               )}
             </div>
@@ -366,7 +349,7 @@ export default function TestBatchManagementPage() {
             )}
 
             <Button variant="outline-secondary" size="sm" onClick={loadBatches} className="rounded-pill px-3 text-nowrap">
-              <FaSyncAlt className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
+              <RefreshCw className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
             </Button>
 
             <span className="bms-filter-meta">
@@ -406,11 +389,11 @@ export default function TestBatchManagementPage() {
                   ) : filteredBatches.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="text-center py-5 text-muted">
-                        <FaFlask className="fs-1 text-secondary opacity-50 mb-2" />
+                        <FlaskConical className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
                         <div className="fw-semibold text-dark">Chưa có mẻ xét nghiệm phù hợp</div>
                         <div className="small mb-3">Tạo mẻ mới để sắp xếp các ống bệnh phẩm vào khay máy.</div>
                         <Button variant="primary" size="sm" className="rounded-pill px-3" onClick={() => setActiveTab('create')}>
-                          <FaPlus className="me-1" /> Tạo mẻ mới ngay
+                          <Plus className="me-1"  size="1em"/> Tạo mẻ mới ngay
                         </Button>
                       </td>
                     </tr>
@@ -470,7 +453,7 @@ export default function TestBatchManagementPage() {
                                   style={{ fontSize: '0.75rem', backgroundColor: '#B45309', borderColor: '#B45309', color: '#FFFFFF' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Running')}
                                 >
-                                  <FaPlay className="me-1" /> Chạy máy
+                                  <Play className="me-1"  size="1em"/> Chạy máy
                                 </Button>
                               )}
 
@@ -482,7 +465,7 @@ export default function TestBatchManagementPage() {
                                   style={{ fontSize: '0.75rem', backgroundColor: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }}
                                   onClick={() => handleUpdateStatus(b.id, 'Completed')}
                                 >
-                                  <FaCheckCircle className="me-1" /> Hoàn thành
+                                  <CheckCircle2 className="me-1"  size="1em"/> Hoàn thành
                                 </Button>
                               )}
 
@@ -495,7 +478,7 @@ export default function TestBatchManagementPage() {
                                   onClick={() => handleCancelBatch(b.id)}
                                   title="Hủy mẻ và hoàn tác mẫu về hàng đợi"
                                 >
-                                  <FaTrashAlt />
+                                  <Trash2  size="1em"/>
                                 </Button>
                               )}
                             </div>
@@ -518,7 +501,7 @@ export default function TestBatchManagementPage() {
           <Card className="border-0 shadow-sm rounded-3 mb-4 bg-white">
             <Card.Header className="bg-white py-3 border-bottom">
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                <FaFlask className="text-primary" />
+                <FlaskConical className="text-primary"  size="1em"/>
                 <span>1. Chọn máy phân tích &amp; lô kiểm chuẩn IQC</span>
               </h5>
             </Card.Header>
@@ -557,7 +540,7 @@ export default function TestBatchManagementPage() {
                     className="w-100 d-flex align-items-center justify-content-center gap-1 shadow-sm"
                     onClick={handleAutoFill}
                   >
-                    <FaVial /> Xếp Nhanh Mẫu (Ưu Tiên STAT)
+                    <TestTube2  size="1em"/> Xếp Nhanh Mẫu (Ưu Tiên STAT)
                   </Button>
                 </Col>
 
@@ -580,7 +563,7 @@ export default function TestBatchManagementPage() {
               <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
                 <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                   <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                    <FaMicroscope className="text-primary" />
+                    <Microscope className="text-primary"  size="1em"/>
                     <span>Sơ Đồ Giếng Chạy Máy (Well Plate Layout — {selectedAnalyzer.name})</span>
                   </h5>
                   <div className="d-flex gap-2 small">
@@ -682,7 +665,7 @@ export default function TestBatchManagementPage() {
                         disabled={loading || Object.keys(assignedWells).length === 0}
                         onClick={handleCreateBatch}
                       >
-                        {loading ? <Spinner size="sm" animation="border" /> : <FaCheckCircle className="me-1" />}
+                        {loading ? <Spinner size="sm" animation="border" /> : <CheckCircle2 className="me-1"  size="1em"/>}
                         Xác Nhận Tạo Mẻ Xét Nghiệm
                       </Button>
                     </div>
@@ -696,7 +679,7 @@ export default function TestBatchManagementPage() {
               <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
                 <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                   <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-1">
-                    <FaClock className="text-warning" />
+                    <Clock className="text-warning"  size="1em"/>
                     <span>Mẫu Chờ Xếp Khay ({safePendingSamples.length})</span>
                   </h5>
                   <Badge bg="info">Giếng chọn: {selectedWell}</Badge>
@@ -763,11 +746,11 @@ export default function TestBatchManagementPage() {
         <Card className="border-0 shadow-sm rounded-3 bg-white">
           <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
             <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-              <FaInfoCircle className="text-primary" />
+              <Info className="text-primary"  size="1em"/>
               <span>Chi Tiết Khay Mẻ: {selectedBatch.batchCode || selectedBatch.id} &mdash; {selectedBatch.analyzerName}</span>
             </h5>
             <Button variant="outline-secondary" size="sm" onClick={() => setActiveTab('list')}>
-              <FaArrowLeft className="me-1" /> Quay lại danh sách
+              <ArrowLeft className="me-1"  size="1em"/> Quay lại danh sách
             </Button>
           </Card.Header>
 

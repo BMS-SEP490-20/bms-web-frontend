@@ -10,18 +10,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Table, Button, Form, Badge, Spinner, Alert, Pagination, Row, Col } from 'react-bootstrap';
-import {
-  FaPlus,
-  FaSearch,
-  FaLock,
-  FaPencilAlt,
-  FaTrash,
-  FaTimes,
-  FaUsers,
-  FaKey,
-  FaUserCheck,
-  FaCheckCircle
-} from 'react-icons/fa';
+import { Plus, Search, Lock, SquarePen, Trash2, X as LucideX, Users, Key, UserCheck, CheckCircle2 } from 'lucide-react';
 import { getRoles, getPermissionMatrix } from '../../../services/roleService';
 import RoleFormModal from '../components/RoleFormModal';
 import DeleteRoleConfirmModal from '../components/DeleteRoleConfirmModal';
@@ -143,7 +132,7 @@ export const RolesManagementPage = () => {
               fontSize: '14px'
             }}
           >
-            <FaPlus size={13} />
+            <Plus size={13} />
             <span>Thêm Vai Trò Mới</span>
           </Button>
         </div>
@@ -166,7 +155,7 @@ export const RolesManagementPage = () => {
               <div className="bms-kpi-sub text-muted">Toàn hệ sinh thái BMS</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-              <FaCheckCircle />
+              <CheckCircle2  size="1em"/>
             </div>
           </div>
         </Col>
@@ -178,7 +167,7 @@ export const RolesManagementPage = () => {
               <div className="bms-kpi-sub text-success">Đang gán cho nhân sự</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-              <FaCheckCircle />
+              <CheckCircle2  size="1em"/>
             </div>
           </div>
         </Col>
@@ -190,7 +179,7 @@ export const RolesManagementPage = () => {
               <div className="bms-kpi-sub text-muted">Bảo vệ an ninh hệ thống</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-              <FaLock />
+              <Lock  size="1em"/>
             </div>
           </div>
         </Col>
@@ -202,7 +191,7 @@ export const RolesManagementPage = () => {
               <div className="bms-kpi-sub text-muted">Ma trận đặc quyền truy cập</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
-              <FaKey />
+              <Key  size="1em"/>
             </div>
           </div>
         </Col>
@@ -212,7 +201,7 @@ export const RolesManagementPage = () => {
       <section className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
         <div className="d-flex align-items-center flex-wrap gap-2 w-100">
           <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
-            <FaSearch className="bms-search-icon" style={{ fontSize: '13px' }} />
+            <Search className="bms-search-icon" style={{ fontSize: '13px' }}  size="1em"/>
             <input
               type="text"
               className="bms-search-field border-0 bg-transparent flex-grow-1"
@@ -228,7 +217,7 @@ export const RolesManagementPage = () => {
                 onClick={() => setSearchTerm('')}
                 title="Xóa tìm kiếm"
               >
-                <FaTimes />
+                <LucideX  size="1em"/>
               </button>
             )}
           </div>
@@ -287,7 +276,7 @@ export const RolesManagementPage = () => {
                         <div className="fw-bold" style={{ color: '#0f2743' }}>{role.roleName}</div>
                         {role.isSystemRole && (
                           <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: '10px', borderRadius: 9999 }}>
-                            <FaLock className="me-1" />Hệ Thống Cốt Lõi
+                            <Lock className="me-1"  size="1em"/>Hệ Thống Cốt Lõi
                           </Badge>
                         )}
                       </td>
@@ -320,7 +309,7 @@ export const RolesManagementPage = () => {
                             onClick={() => handleOpenEditModal(role)}
                             style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
                           >
-                            <FaPencilAlt />
+                            <SquarePen  size="1em"/>
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -330,7 +319,7 @@ export const RolesManagementPage = () => {
                             disabled={role.isSystemRole}
                             style={{ borderRadius: 9999 }}
                           >
-                            <FaTrash />
+                            <Trash2  size="1em"/>
                           </Button>
                         </div>
                       </td>

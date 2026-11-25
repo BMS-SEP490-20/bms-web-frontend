@@ -7,15 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Row, Col, Badge, Alert, Card, InputGroup, Spinner } from 'react-bootstrap';
-import { 
-  FaVial, 
-  FaExclamationTriangle, 
-  FaCheckCircle, 
-  FaSave, 
-  FaTimes, 
-  FaInfoCircle,
-  FaHeartbeat
-} from 'react-icons/fa';
+import { TestTube2, AlertTriangle, CheckCircle2, Save, X, Info, HeartPulse } from 'lucide-react';
 
 const CATEGORIES = [
   { value: 'Biochemistry', label: 'Sinh hóa máu (Biochemistry)' },
@@ -171,7 +163,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
       <Modal.Header closeButton className="py-3 px-4 border-bottom" style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
         <div>
           <Modal.Title className="h5 fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-            <FaVial className="text-primary" />
+            <TestTube2 className="text-primary"  size="1em"/>
             {mode === 'create' ? 'Thêm mới chỉ số xét nghiệm' : `Chỉnh sửa chỉ số: ${formData.criterionCode}`}
           </Modal.Title>
           <small className="text-muted">
@@ -184,7 +176,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
         <Modal.Body className="p-2" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
           {validationError && (
             <Alert variant="danger" dismissible onClose={() => setValidationError('')} className="d-flex align-items-center gap-2 mb-4">
-              <FaExclamationTriangle className="flex-shrink-0" />
+              <AlertTriangle className="flex-shrink-0"  size="1em"/>
               <span>{validationError}</span>
             </Alert>
           )}
@@ -341,8 +333,8 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
                 <Card className="border border-success bg-success bg-opacity-10 mb-3 rounded-3 shadow-none">
                   <Card.Body className="p-3">
                     <div className="d-flex align-items-center gap-2 mb-2">
-                      <FaCheckCircle className="text-success" />
-                      <span className="fw-bold text-success">Dải giá trị sinh học bình thường (Normal Range - ISO 15189)</span>
+                      <CheckCircle2 className="text-success"  size="1em"/>
+                      <span className="fw-bold text-success">Khoảng giá trị bình thường</span>
                       <small className="text-muted ms-auto">(Căn phải số liệu theo chuẩn y khoa)</small>
                     </div>
                     <Row className="g-3">
@@ -382,7 +374,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
                 <Card className="border border-danger bg-danger bg-opacity-10 rounded-3 shadow-none">
                   <Card.Body className="p-3">
                     <div className="d-flex align-items-center gap-2 mb-2">
-                      <FaHeartbeat className="text-danger" />
+                      <HeartPulse className="text-danger"  size="1em"/>
                       <span className="fw-bold text-danger">Ngưỡng báo động đỏ nguy kịch (Critical Panic Alert)</span>
                       <small className="text-muted ms-auto">(Kích hoạt cờ đỏ khẩn cấp khi kết quả đe dọa tính mạng)</small>
                     </div>
@@ -429,7 +421,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
               <Card className="border border-info bg-info bg-opacity-10 rounded-3 shadow-none">
                 <Card.Body className="p-3">
                   <div className="d-flex align-items-center gap-2 mb-2">
-                    <FaInfoCircle className="text-primary" />
+                    <Info className="text-primary"  size="1em"/>
                     <span className="fw-bold text-primary">Giá trị bình thường chuẩn (Định tính)</span>
                   </div>
                   <Form.Group>
@@ -464,7 +456,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
 
         <Modal.Footer className="bg-light py-3 px-3 border-top">
           <Button variant="secondary" size="sm" onClick={onClose} disabled={isSubmitting} className="px-3">
-            <FaTimes className="me-1" /> Hủy Bỏ
+            <X className="me-1"  size="1em"/> Hủy Bỏ
           </Button>
           <Button variant="primary" size="sm" type="submit" disabled={isSubmitting} className="px-3">
             {isSubmitting ? (
@@ -473,7 +465,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
               </>
             ) : (
               <>
-                <FaSave className="me-2" /> {mode === 'create' ? 'Tạo Mới Chỉ Số' : 'Lưu Thay Đổi'}
+                <Save className="me-2"  size="1em"/> {mode === 'create' ? 'Tạo Mới Chỉ Số' : 'Lưu Thay Đổi'}
               </>
             )}
           </Button>

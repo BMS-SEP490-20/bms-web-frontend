@@ -10,25 +10,9 @@ import '../view-shifts.css';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Badge, Spinner, Modal, Button, Card } from 'react-bootstrap';
-import {
-  FaCalendarAlt,
-  FaClock,
-  FaCheckCircle,
-  FaUserMd,
-  FaDoorOpen,
-  FaUsers,
-  FaArrowRight,
-  FaPlus,
-  FaCalendarCheck,
-  FaHospital,
-  FaInfoCircle,
-  FaTimes,
-  FaUserNurse,
-  FaFlask
-} from 'react-icons/fa';
+import { Calendar, Clock, CheckCircle2, Stethoscope, DoorOpen, Users, ArrowRight, Plus, CalendarCheck, Hospital, Info as LucideInfo, X as LucideX, UserCheck, FlaskConical, List } from 'lucide-react';
 import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr, getShiftRoleCategory } from '../../schedule/components/WeeklyShiftTimetable';
 import { resolveStaffProfileMOH } from '../../schedule/utils/shiftStaffUtils';
-import { FaThList } from 'react-icons/fa';
 import { viewShiftApi } from '../api/viewShiftApi';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, hasRole, getStoredUser, resolveRoleId } from '../../../constants/roles';
@@ -53,7 +37,7 @@ export function ViewShiftsPage() {
   }, [user, storedUser]);
 
   const isLab = useMemo(() => {
-    return [ROLES.LAB_TECHNICIAN, ROLES.LAB_MANAGER].includes(roleId) || ['lab', 'labtech', 'labhead'].includes((userRole || '').toLowerCase());
+    return [ROLES.LAB, ROLES.MANAGER].includes(roleId) || ['lab', 'labtech', 'labhead', 'manager'].includes((userRole || '').toLowerCase());
   }, [roleId, userRole]);
 
   const isReceptionist = useMemo(() => {
@@ -230,7 +214,7 @@ export function ViewShiftsPage() {
               onClick={() => navigate('/manage/schedule')}
               title="Quản lý và phân bổ ca trực"
             >
-              <FaPlus size={13} />
+              <Plus size={13} />
               <span>Phân Bổ &amp; Xếp Lịch Ca Trực</span>
             </button>
           )}
@@ -254,7 +238,7 @@ export function ViewShiftsPage() {
               <div className="bms-kpi-sub text-muted">Khoảng ngày đã chọn</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-              <FaCalendarAlt />
+              <Calendar  size="1em"/>
             </div>
           </div>
         </Col>
@@ -266,7 +250,7 @@ export function ViewShiftsPage() {
               <div className="bms-kpi-sub text-success">Đang phân công vị trí trực</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-              <FaCheckCircle />
+              <CheckCircle2  size="1em"/>
             </div>
           </div>
         </Col>
@@ -278,7 +262,7 @@ export function ViewShiftsPage() {
               <div className="bms-kpi-sub text-muted">0 lượt bệnh nhân tiếp đón</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-              <FaClock />
+              <Clock  size="1em"/>
             </div>
           </div>
         </Col>
@@ -294,7 +278,7 @@ export function ViewShiftsPage() {
             onClick={() => setActiveRoleTab('doctor')}
             style={activeRoleTab === 'doctor' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaUserMd />
+            <Stethoscope  size="1em"/>
             <span>Bác Sĩ Khám Lâm Sàng</span>
             <Badge bg={activeRoleTab === 'doctor' ? 'light' : 'secondary'} text={activeRoleTab === 'doctor' ? 'primary' : 'white'} pill>
               {doctorShifts.length}
@@ -307,7 +291,7 @@ export function ViewShiftsPage() {
             onClick={() => setActiveRoleTab('lab')}
             style={activeRoleTab === 'lab' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaFlask />
+            <FlaskConical  size="1em"/>
             <span>Kỹ Thuật Viên Xét Nghiệm</span>
             <Badge bg={activeRoleTab === 'lab' ? 'light' : 'secondary'} text={activeRoleTab === 'lab' ? 'primary' : 'white'} pill>
               {labShifts.length}
@@ -320,7 +304,7 @@ export function ViewShiftsPage() {
             onClick={() => setActiveRoleTab('receptionist')}
             style={activeRoleTab === 'receptionist' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaUserNurse />
+            <UserCheck  size="1em"/>
             <span>Lễ Tân &amp; Điều Phối Tiếp Đón</span>
             <Badge bg={activeRoleTab === 'receptionist' ? 'light' : 'secondary'} text={activeRoleTab === 'receptionist' ? 'primary' : 'white'} pill>
               {receptionistShifts.length}
@@ -409,7 +393,7 @@ export function ViewShiftsPage() {
                 onClick={() => setViewMode('timetable')}
                 style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
+                <Calendar className="me-1"  size="1em"/> Dạng Thời Khóa Biểu
               </button>
               <button
                 type="button"
@@ -417,7 +401,7 @@ export function ViewShiftsPage() {
                 onClick={() => setViewMode('table')}
                 style={{ padding: '7px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                <FaThList className="me-1" /> Dạng Bảng
+                <List className="me-1"  size="1em"/> Dạng Bảng
               </button>
             </div>
           </div>
@@ -491,7 +475,7 @@ export function ViewShiftsPage() {
                             style={{ fontSize: '12px' }}
                           >
                             <span>Chi tiết ca</span>
-                            <FaArrowRight size={10} />
+                            <ArrowRight size={10} />
                           </button>
                         </td>
                       </tr>
@@ -500,7 +484,7 @@ export function ViewShiftsPage() {
                   {filtered.length === 0 && (
                     <tr>
                       <td colSpan={6} className="text-center text-muted py-3">
-                        <FaClock className="fs-2 text-muted opacity-50 mb-2 d-block mx-auto" />
+                        <Clock className="fs-2 text-muted opacity-50 mb-2 d-block mx-auto"  size="1em"/>
                         Không có ca trực nào phù hợp với bộ lọc ngày đã chọn.
                       </td>
                     </tr>
@@ -522,7 +506,7 @@ export function ViewShiftsPage() {
         <Modal.Header closeButton className="border-bottom bg-white py-3 px-4">
           <div className="d-flex align-items-center gap-3">
             <div className="rounded-3 bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 44, height: 44 }}>
-              <FaHospital className="fs-5" />
+              <Hospital className="fs-5"  size="1em"/>
             </div>
             <div>
               <Modal.Title className="fw-bold fs-5 text-dark mb-0">
@@ -556,7 +540,7 @@ export function ViewShiftsPage() {
                       {code}
                     </span>
                     <Badge bg="light" text="dark" className="border px-2 py-2">
-                      <FaCalendarAlt className="text-primary me-1" />
+                      <Calendar className="text-primary me-1"  size="1em"/>
                       {selectedShift.shiftDate ? new Date(selectedShift.shiftDate).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hôm nay'}
                     </Badge>
                   </div>
@@ -575,7 +559,7 @@ export function ViewShiftsPage() {
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center justify-content-between">
                         <span className="d-flex align-items-center gap-2">
-                          <FaUserMd className="text-primary" />
+                          <Stethoscope className="text-primary"  size="1em"/>
                           Hồ Sơ Cán Bộ Trực
                         </span>
                         <Badge bg="success-subtle" className="text-success border border-success-subtle">
@@ -585,7 +569,7 @@ export function ViewShiftsPage() {
 
                       <div className="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3 border">
                         <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: 54, height: 54 }}>
-                          <FaUserNurse className="fs-3 text-primary" />
+                          <UserCheck className="fs-3 text-primary"  size="1em"/>
                         </div>
                         <div>
                           <div className="fw-bold fs-6 text-dark">{staffMOH.name}</div>
@@ -633,7 +617,7 @@ export function ViewShiftsPage() {
                   <Col xs={12} md={5}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
-                        <FaClock className="text-primary" />
+                        <Clock className="text-primary"  size="1em"/>
                         Thời Gian &amp; Vị Trí Trực
                       </div>
                       <div className="d-flex flex-column gap-2 small">
@@ -644,21 +628,21 @@ export function ViewShiftsPage() {
                         <div className="p-2 border rounded-2 bg-light">
                           <span className="text-muted d-block">Khung giờ quy chuẩn:</span>
                           <strong className="text-dark font-monospace fs-6">
-                            <FaClock className="text-primary me-1" />
+                            <Clock className="text-primary me-1"  size="1em"/>
                             {timeWindow}
                           </strong>
                         </div>
                         <div className="p-2 border rounded-2 bg-light">
                           <span className="text-muted d-block">Vị trí phòng / quầy trực:</span>
                           <strong className="text-dark">
-                            <FaDoorOpen className="text-primary me-1" />
+                            <DoorOpen className="text-primary me-1"  size="1em"/>
                             {roomName}
                           </strong>
                         </div>
                         <div className="p-2 border rounded-2 bg-light">
                           <span className="text-muted d-block">Hình thức tiếp nhận:</span>
                           <strong className="text-success">
-                            <FaHospital className="me-1 text-success" />
+                            <Hospital className="me-1 text-success"  size="1em"/>
                             Trực tiếp tại viện (On-site Clinical / Lab)
                           </strong>
                         </div>
@@ -677,7 +661,7 @@ export function ViewShiftsPage() {
                 <Card className="border shadow-sm rounded-3 bg-white p-3">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <div className="small fw-semibold text-muted text-uppercase d-flex align-items-center gap-2">
-                      <FaUsers className="text-primary" />
+                      <Users className="text-primary"  size="1em"/>
                       Công Suất Tiếp Nhận Bệnh Nhân &amp; Mẫu Bệnh Phẩm
                     </div>
                     <Badge bg={current >= max ? 'danger' : 'success'} className="px-3 py-1">
@@ -692,8 +676,8 @@ export function ViewShiftsPage() {
                   </div>
                   <div className="p-2 border rounded-2 bg-light small text-muted">
                     <strong className="text-dark me-1">
-                      <FaCheckCircle className="text-success me-1" />
-                      Tiêu chuẩn ISO 15189:2022 &amp; Quy định Bộ Y tế:
+                      <CheckCircle2 className="text-success me-1"  size="1em"/>
+                      Quy định ca trực:
                     </strong>
                     Cán bộ y tế có mặt trước 15 phút để nhận bàn giao trang thiết bị, kiểm tra đối soát QC hóa chất hoặc phôi phiếu tiếp đón và đồng bộ hệ thống trước khi bắt đầu tiếp nhận bệnh nhân.
                   </div>
@@ -708,7 +692,7 @@ export function ViewShiftsPage() {
             onClick={() => setShowShiftDetailModal(false)}
             className="px-4 py-2 rounded-3 fw-semibold"
           >
-            <FaTimes className="me-2" />
+            <LucideX className="me-2"  size="1em"/>
             Đóng
           </Button>
         </Modal.Footer>

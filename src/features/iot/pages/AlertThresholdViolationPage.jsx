@@ -10,25 +10,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Alert } from "react-bootstrap";
 import IotNavigationTabs from "../components/IotNavigationTabs";
 import { getStoredUser } from "../../../constants/roles";
-import {
-    FaBell,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaSync,
-    FaFilter,
-    FaVolumeUp,
-    FaVolumeMute,
-    FaTools,
-    FaSearch,
-    FaThermometerHalf,
-    FaTint,
-    FaBolt,
-    FaHistory,
-    FaUserCheck,
-    FaPlay,
-    FaInfoCircle,
-    FaTimes
-} from "react-icons/fa";
+import { Bell, AlertTriangle, CheckCircle2, RefreshCw, Filter as LucideFilter, Volume2, VolumeX, Wrench, Search, Thermometer, Droplet, Zap, History, UserCheck, Play as LucidePlay, Info, X as LucideX } from 'lucide-react';
 import {
     fetchAlerts,
     fetchAlertSummary,
@@ -235,7 +217,7 @@ export default function AlertThresholdViolationPage() {
                         onClick={() => setSoundEnabled(!soundEnabled)}
                         title="Bật/Tắt chuông báo động âm thanh"
                     >
-                        {soundEnabled ? <FaVolumeUp size={13} /> : <FaVolumeMute size={13} />}
+                        {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
                         <span>{soundEnabled ? "Chuông: BẬT" : "Chuông: TẮT"}</span>
                     </button>
                     <button
@@ -247,7 +229,7 @@ export default function AlertThresholdViolationPage() {
                         }}
                         id="btn-simulate-iot-alert"
                     >
-                        <FaPlay size={12} />
+                        <LucidePlay size={12} />
                         <span>Diễn Tập Ngưỡng</span>
                     </button>
                     <button
@@ -256,7 +238,7 @@ export default function AlertThresholdViolationPage() {
                         onClick={loadData}
                         disabled={isLoading}
                     >
-                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={isLoading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                 </div>
@@ -286,11 +268,11 @@ export default function AlertThresholdViolationPage() {
                 <div className="d-flex align-items-center gap-3">
                     <div className="fs-3">
                         {isCriticalHealth ? (
-                            <FaExclamationTriangle style={{ color: '#ef4444' }} />
+                            <AlertTriangle style={{ color: '#ef4444' }}  size="1em"/>
                         ) : isWarningHealth ? (
-                            <FaExclamationTriangle style={{ color: '#b48316' }} />
+                            <AlertTriangle style={{ color: '#b48316' }}  size="1em"/>
                         ) : (
-                            <FaCheckCircle style={{ color: '#2b8a3e' }} />
+                            <CheckCircle2 style={{ color: '#2b8a3e' }}  size="1em"/>
                         )}
                     </div>
                     <div>
@@ -326,7 +308,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Đang chờ nhân viên tiếp nhận</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                            <FaBell />
+                            <Bell  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -339,7 +321,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Vượt xa ngưỡng bảo quản an toàn</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                            <FaBolt />
+                            <Zap  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -352,7 +334,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Kỹ thuật viên đã tiếp nhận</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                            <FaUserCheck />
+                            <UserCheck  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -365,7 +347,7 @@ export default function AlertThresholdViolationPage() {
                             <div className="bms-kpi-sub text-muted">Thời gian xử lý TB: {summary.averageResolutionMinutes} phút</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                            <FaCheckCircle />
+                            <CheckCircle2  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -374,7 +356,7 @@ export default function AlertThresholdViolationPage() {
             {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaSearch className="bms-search-icon" />
+                    <Search className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Tìm mã thiết bị, vị trí tủ lưu trữ hoặc ghi chú xử lý..."
@@ -388,7 +370,7 @@ export default function AlertThresholdViolationPage() {
                             onClick={() => setSearchQuery("")}
                             title="Xóa tìm kiếm"
                         >
-                            <FaTimes size={12} />
+                            <LucideX size={12} />
                         </button>
                     )}
                 </div>
@@ -447,7 +429,7 @@ export default function AlertThresholdViolationPage() {
                 <div className="bms-table-standalone-header">
                     <div>
                         <h5 className="bms-table-standalone-title">
-                            <FaBell style={{ color: '#1E60E6' }} />
+                            <Bell style={{ color: '#1E60E6' }}  size="1em"/>
                             <span>Danh Sách Cảnh Báo Vượt Ngưỡng Môi Trường</span>
                         </h5>
                         <div className="bms-table-standalone-subtitle">
@@ -466,7 +448,7 @@ export default function AlertThresholdViolationPage() {
                         </div>
                     ) : filteredAlerts.length === 0 ? (
                         <div className="text-center py-3 text-muted">
-                            <FaCheckCircle className="fs-1 mb-2" style={{ color: '#10B981' }} />
+                            <CheckCircle2 className="fs-1 mb-2" style={{ color: '#10B981' }}  size="1em"/>
                             <p className="mb-0 fw-semibold">Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</p>
                         </div>
                     ) : (
@@ -506,7 +488,7 @@ export default function AlertThresholdViolationPage() {
                                                 </td>
                                                 <td>
                                                     <span className="badge px-2.5 py-1" style={{ backgroundColor: '#EEF2F6', color: '#475569', borderRadius: '9999px' }}>
-                                                        {isTemp ? <FaThermometerHalf className="text-danger me-1" /> : <FaTint className="text-info me-1" />}
+                                                        {isTemp ? <Thermometer className="text-danger me-1"  size="1em"/> : <Droplet className="text-info me-1"  size="1em"/>}
                                                         {alert.sensorType}
                                                     </span>
                                                 </td>
@@ -564,7 +546,7 @@ export default function AlertThresholdViolationPage() {
                                                                     setActionNotes("");
                                                                 }}
                                                             >
-                                                                <FaUserCheck /> Tiếp nhận
+                                                                <UserCheck  size="1em"/> Tiếp nhận
                                                             </button>
                                                         )}
                                                         {(isAct || isAck) && (
@@ -578,7 +560,7 @@ export default function AlertThresholdViolationPage() {
                                                                     setActionNotes("");
                                                                 }}
                                                             >
-                                                                <FaTools /> Khắc phục
+                                                                <Wrench  size="1em"/> Khắc phục
                                                             </button>
                                                         )}
                                                         {isRes && (
@@ -699,7 +681,7 @@ export default function AlertThresholdViolationPage() {
                         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '20px', overflow: 'hidden' }}>
                             <div className="modal-header" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
                                 <h5 className="modal-title fw-bold" style={{ color: '#1E60E6' }}>
-                                    <FaPlay className="me-2" /> Kích Hoạt Diễn Tập Cảnh Báo Vượt Ngưỡng Môi Trường
+                                    <LucidePlay className="me-2"  size="1em"/> Kích Hoạt Diễn Tập Cảnh Báo Vượt Ngưỡng Môi Trường
                                 </h5>
                                 <button
                                     type="button"

@@ -17,11 +17,7 @@ import {
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, ProgressBar, Alert 
 } from 'react-bootstrap';
-import { 
-  FaStar, FaRegStar, FaComments, FaReply, 
-  FaEdit, FaTrashAlt, FaSearch, FaSyncAlt, 
-  FaUserCheck, FaUserSecret, FaUserMd, FaPlus, FaArrowLeft
-} from 'react-icons/fa';
+import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, resolveRoleId } from '../../../constants/roles';
 import { patientFeedbackService } from '../../../services/patientFeedbackService';
@@ -279,9 +275,9 @@ const FeedbackHubPage = () => {
     for (let i = 1; i <= 5; i++) {
       stars.push(
         i <= rating ? (
-          <FaStar key={i} className="text-warning me-1" />
+          <Star key={i} className="text-warning me-1"  size="1em"/>
         ) : (
-          <FaRegStar key={i} className="text-muted me-1" />
+          <Star key={i} className="text-muted me-1"  size="1em"/>
         )
       );
     }
@@ -304,7 +300,7 @@ const FeedbackHubPage = () => {
               onClick={() => navigate('/')}
               className="d-flex align-items-center gap-1.5 rounded-pill px-3"
             >
-              <FaArrowLeft />
+              <ArrowLeft  size="1em"/>
               <span>Trang chủ</span>
             </Button>
           )}
@@ -316,7 +312,7 @@ const FeedbackHubPage = () => {
               onClick={() => setShowCreateModal(true)}
               className="d-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold"
             >
-              <FaPlus />
+              <Plus  size="1em"/>
               <span>Gửi đánh giá mới</span>
             </Button>
           )}
@@ -328,7 +324,7 @@ const FeedbackHubPage = () => {
             disabled={loading}
             className="d-flex align-items-center gap-1.5 rounded-pill px-3"
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/>
             <span>Làm mới</span>
           </Button>
         </div>
@@ -348,7 +344,7 @@ const FeedbackHubPage = () => {
               <div className="bms-kpi-label mb-2">Đánh giá trung bình</div>
               <div className="display-5 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2 text-dark">
                 <span>{statistics.averageRating}</span>
-                <FaStar className="text-warning fs-3" />
+                <Star className="text-warning fs-3"  size="1em"/>
               </div>
               <div className="mb-2">
                 {renderStars(Math.round(statistics.averageRating))}
@@ -368,7 +364,7 @@ const FeedbackHubPage = () => {
                 return (
                   <div key={star} className="d-flex align-items-center gap-2 mb-2 small">
                     <span className="fw-semibold text-dark d-inline-flex align-items-center gap-1" style={{ width: '42px' }}>
-                      {star} <FaStar className="text-warning" size={11} />
+                      {star} <Star className="text-warning" size={11} />
                     </span>
                     <div className="flex-grow-1">
                       <ProgressBar 
@@ -416,7 +412,7 @@ const FeedbackHubPage = () => {
             <Col xs={12} md={4}>
               <InputGroup>
                 <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <FaSearch className="text-muted" />
+                  <Search className="text-muted"  size="1em"/>
                 </InputGroup.Text>
                 <Form.Control
                   placeholder="Tìm theo tiêu đề, nội dung, tên bệnh nhân, bác sĩ..."
@@ -509,7 +505,7 @@ const FeedbackHubPage = () => {
                           color: fb.isAnonymous ? '#6b7280' : '#0284c7'
                         }}
                       >
-                        {fb.isAnonymous ? <FaUserSecret className="fs-5" /> : <FaUserCheck className="fs-5" />}
+                        {fb.isAnonymous ? <User className="fs-5"  size="1em"/> : <UserCheck className="fs-5"  size="1em"/>}
                       </div>
                       <div>
                         <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -536,7 +532,7 @@ const FeedbackHubPage = () => {
                           {fb.doctorName && (
                             <>
                               <span>•</span>
-                              <span className="text-primary"><FaUserMd className="me-1" />{fb.doctorName}</span>
+                              <span className="text-primary"><Stethoscope className="me-1"  size="1em"/>{fb.doctorName}</span>
                             </>
                           )}
                           {fb.appointmentId && (
@@ -559,7 +555,7 @@ const FeedbackHubPage = () => {
                           className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                           onClick={() => openResponseModal(fb)}
                         >
-                          <FaReply />
+                          <Reply  size="1em"/>
                           <span>{fb.managerResponse ? 'Sửa phản hồi' : 'Phản hồi bệnh nhân'}</span>
                         </Button>
                       )}
@@ -572,7 +568,7 @@ const FeedbackHubPage = () => {
                           className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                           onClick={() => openEditModal(fb)}
                         >
-                          <FaEdit />
+                          <SquarePen  size="1em"/>
                           <span>Chỉnh sửa</span>
                         </Button>
                       )}
@@ -590,7 +586,7 @@ const FeedbackHubPage = () => {
                           }}
                           title="Xóa đánh giá (Chỉ dành cho Admin)"
                         >
-                          <FaTrashAlt style={{ fontSize: '0.75rem' }} />
+                          <Trash2 style={{ fontSize: '0.75rem' }}  size="1em"/>
                         </Button>
                       )}
                     </div>
@@ -599,7 +595,7 @@ const FeedbackHubPage = () => {
                   {/* Review Content */}
                   {fb.status === 'DELETED' ? (
                     <div className="mt-3 p-3 bg-danger-subtle border border-danger-subtle rounded-3 text-danger d-flex align-items-center gap-2">
-                      <FaTrashAlt className="flex-shrink-0" />
+                      <Trash2 className="flex-shrink-0"  size="1em"/>
                       <span className="fw-semibold">Feedback đã bị admin xóa</span>
                     </div>
                   ) : (
@@ -616,7 +612,7 @@ const FeedbackHubPage = () => {
                     <div className="mt-3 p-3 bg-primary-subtle border border-primary-subtle rounded-3 small">
                       <div className="d-flex align-items-center justify-content-between mb-1">
                         <span className="fw-bold text-primary d-flex align-items-center gap-1">
-                          <FaReply /> Phản hồi từ Ban Quản Lý Phòng Khám:
+                          <Reply  size="1em"/> Phản hồi từ Ban Quản Lý Phòng Khám:
                         </span>
                         {fb.respondedAt && (
                           <span className="text-muted" style={{ fontSize: '0.75rem' }}>
@@ -642,7 +638,7 @@ const FeedbackHubPage = () => {
       ) : (
         <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
           <Card.Body>
-            <FaComments className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
+            <MessagesSquare className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }}  size="1em"/>
             <h5 className="text-dark fw-bold">Chưa có phản hồi nào phù hợp</h5>
             <p className="text-muted small mb-0">Thử thay đổi bộ lọc tìm kiếm hoặc gửi phản hồi mới.</p>
           </Card.Body>
@@ -653,7 +649,7 @@ const FeedbackHubPage = () => {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaStar className="text-warning" />
+            <Star className="text-warning"  size="1em"/>
             Gửi Đánh Giá & Góp Ý Dịch Vụ
           </Modal.Title>
         </Modal.Header>
@@ -670,9 +666,9 @@ const FeedbackHubPage = () => {
                     onClick={() => setCreateForm({ ...createForm, rating: star })}
                   >
                     {star <= createForm.rating ? (
-                      <FaStar className="text-warning display-6" />
+                      <Star className="text-warning display-6"  size="1em"/>
                     ) : (
-                      <FaRegStar className="text-muted display-6" />
+                      <Star className="text-muted display-6"  size="1em"/>
                     )}
                   </button>
                 ))}
@@ -762,7 +758,7 @@ const FeedbackHubPage = () => {
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaEdit className="text-primary" />
+            <SquarePen className="text-primary"  size="1em"/>
             Chỉnh Sửa Đánh Giá Của Bạn
           </Modal.Title>
         </Modal.Header>
@@ -779,9 +775,9 @@ const FeedbackHubPage = () => {
                     onClick={() => setEditForm({ ...editForm, rating: star })}
                   >
                     {star <= editForm.rating ? (
-                      <FaStar className="text-warning display-6" />
+                      <Star className="text-warning display-6"  size="1em"/>
                     ) : (
-                      <FaRegStar className="text-muted display-6" />
+                      <Star className="text-muted display-6"  size="1em"/>
                     )}
                   </button>
                 ))}
@@ -826,7 +822,7 @@ const FeedbackHubPage = () => {
       <Modal show={showResponseModal} onHide={() => setShowResponseModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaReply className="text-primary" />
+            <Reply className="text-primary"  size="1em"/>
             Phản Hồi Chính Thức Cho Bệnh Nhân
           </Modal.Title>
         </Modal.Header>
@@ -869,7 +865,7 @@ const FeedbackHubPage = () => {
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">
-            <FaTrashAlt />
+            <Trash2  size="1em"/>
             Xác Nhận Xóa Đánh Giá (Admin)
           </Modal.Title>
         </Modal.Header>

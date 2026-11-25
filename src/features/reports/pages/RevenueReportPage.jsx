@@ -7,26 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-    FaMoneyBillWave,
-    FaChartLine,
-    FaChartPie,
-    FaFileInvoiceDollar,
-    FaHospitalUser,
-    FaDownload,
-    FaFilter,
-    FaCalendarAlt,
-    FaSync,
-    FaCreditCard,
-    FaQrcode,
-    FaMoneyCheckAlt,
-    FaSearch,
-    FaArrowUp,
-    FaArrowDown,
-    FaBuilding,
-    FaUserMd,
-    FaTimes
-} from "react-icons/fa";
+import { Banknote, TrendingUp, PieChart, Receipt, UserCheck, Download, Filter as LucideFilter, Calendar, RefreshCw, CreditCard, QrCode, Search, ArrowUp, ArrowDown, Building2, Stethoscope, X as LucideX } from 'lucide-react';
 import {
     fetchRevenueReport,
     fetchRevenueExportTransactions
@@ -236,7 +217,7 @@ export default function RevenueReportPage() {
                         onClick={handleExportCSV}
                         id="btn-export-revenue-csv"
                     >
-                        <FaDownload size={13} />
+                        <Download size={13} />
                         <span>Xuất CSV</span>
                     </button>
                     <button
@@ -245,7 +226,7 @@ export default function RevenueReportPage() {
                         onClick={loadReport}
                         disabled={isLoading}
                     >
-                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={isLoading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                 </div>
@@ -335,7 +316,7 @@ export default function RevenueReportPage() {
                             <div className="bms-kpi-sub text-muted">Trước khấu trừ bảo hiểm</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                            <FaFileInvoiceDollar />
+                            <Receipt  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -347,12 +328,12 @@ export default function RevenueReportPage() {
                             <h6 className="bms-kpi-label">Doanh Thu Thuần (Net)</h6>
                             <div className="bms-kpi-value text-success">{summary.formattedNetRevenue}</div>
                             <div className="bms-kpi-sub text-success d-flex align-items-center gap-1">
-                                {summary.growthRateVsPreviousPeriod >= 0 ? <FaArrowUp /> : <FaArrowDown />}
+                                {summary.growthRateVsPreviousPeriod >= 0 ? <ArrowUp  size="1em"/> : <ArrowDown  size="1em"/>}
                                 {summary.growthRateVsPreviousPeriod > 0 ? `+${summary.growthRateVsPreviousPeriod}%` : `${summary.growthRateVsPreviousPeriod}%`} so với kỳ trước
                             </div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                            <FaMoneyBillWave />
+                            <Banknote  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -366,7 +347,7 @@ export default function RevenueReportPage() {
                             <div className="bms-kpi-sub text-muted">Khấu trừ bảo hiểm y tế</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                            <FaHospitalUser />
+                            <UserCheck  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -380,7 +361,7 @@ export default function RevenueReportPage() {
                             <div className="bms-kpi-sub text-muted">Tổng {summary.totalOrdersCount.toLocaleString("vi-VN")} đơn xét nghiệm</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
-                            <FaCreditCard />
+                            <CreditCard  size="1em"/>
                         </div>
                     </div>
                 </div>
@@ -389,9 +370,9 @@ export default function RevenueReportPage() {
             {/* Navigation Tabs */}
             <div className="d-flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-4 shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 {[
-                    { key: "overview", label: "Biểu Đồ Doanh Thu & Xu Hướng", icon: FaChartLine },
-                    { key: "breakdown", label: "Cơ Cấu Chuyên Khoa & Phương Thức", icon: FaChartPie },
-                    { key: "transactions", label: `Bảng Kê Chi Tiết Giao Dịch (${filteredTransactions.length})`, icon: FaFileInvoiceDollar }
+                    { key: "overview", label: "Biểu Đồ Doanh Thu & Xu Hướng", icon: TrendingUp },
+                    { key: "breakdown", label: "Cơ Cấu Chuyên Khoa & Phương Thức", icon: PieChart },
+                    { key: "transactions", label: `Bảng Kê Chi Tiết Giao Dịch (${filteredTransactions.length})`, icon: Receipt }
                 ].map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.key;
@@ -423,7 +404,7 @@ export default function RevenueReportPage() {
                         <div className="card shadow-sm rounded-4 bg-white h-100 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                             <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                                 <h5 className="mb-0 fw-bold d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
-                                    <FaChartLine style={{ color: '#1E60E6' }} /> Xu Hướng Doanh Thu Thuần Thực Thu Theo Thời Gian
+                                    <TrendingUp style={{ color: '#1E60E6' }}  size="1em"/> Xu Hướng Doanh Thu Thuần Thực Thu Theo Thời Gian
                                 </h5>
                                 <span className="badge px-3 py-1.5" style={{ backgroundColor: '#EEF2F6', color: '#64748B', borderRadius: '9999px' }}>
                                     {report?.trend?.length || 0} điểm dữ liệu
@@ -500,7 +481,7 @@ export default function RevenueReportPage() {
                         <div className="card border-0 shadow-sm rounded-3 bg-white mb-4">
                             <div className="card-header bg-white border-bottom p-3">
                                 <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaHospitalUser className="text-success" /> Kênh Thực Hiện Dịch Vụ
+                                    <UserCheck className="text-success"  size="1em"/> Kênh Thực Hiện Dịch Vụ
                                 </h6>
                             </div>
                             <div className="card-body p-3">
@@ -527,7 +508,7 @@ export default function RevenueReportPage() {
                         <div className="card border-0 shadow-sm rounded-3 bg-white">
                             <div className="card-header bg-white border-bottom p-3">
                                 <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaUserMd className="text-primary" /> Top Bác Sĩ &amp; Khoa Phòng Chỉ Định
+                                    <Stethoscope className="text-primary"  size="1em"/> Top Bác Sĩ &amp; Khoa Phòng Chỉ Định
                                 </h6>
                             </div>
                             <div className="card-body p-3">
@@ -556,7 +537,7 @@ export default function RevenueReportPage() {
                         <div className="card border-0 shadow-sm rounded-3 bg-white h-100">
                             <div className="card-header bg-white border-bottom p-3">
                                 <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaChartPie className="text-primary" /> Doanh Thu Theo Chuyên Khoa Xét Nghiệm
+                                    <PieChart className="text-primary"  size="1em"/> Doanh Thu Theo Chuyên Khoa Xét Nghiệm
                                 </h5>
                             </div>
                             <div className="card-body p-2">
@@ -585,7 +566,7 @@ export default function RevenueReportPage() {
                         <div className="card border-0 shadow-sm rounded-3 bg-white h-100">
                             <div className="card-header bg-white border-bottom p-3">
                                 <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                    <FaQrcode className="text-success" /> Cơ Cấu Phương Thức Thanh Toán
+                                    <QrCode className="text-success"  size="1em"/> Cơ Cấu Phương Thức Thanh Toán
                                 </h5>
                             </div>
                             <div className="card-body p-2">
@@ -616,7 +597,7 @@ export default function RevenueReportPage() {
                 <>
                     <div className="bms-filter-bar mb-3">
                         <div className="bms-search-input-pill">
-                            <FaSearch className="bms-search-icon" />
+                            <Search className="bms-search-icon"  size="1em"/>
                             <input
                                 type="text"
                                 placeholder="Tìm mã giao dịch, mã đơn, tên bệnh nhân, phương thức..."
@@ -630,7 +611,7 @@ export default function RevenueReportPage() {
                                     onClick={() => setSearchTerm('')}
                                     title="Xóa tìm kiếm"
                                 >
-                                    <FaTimes size={12} />
+                                    <LucideX size={12} />
                                 </button>
                             )}
                         </div>
@@ -650,7 +631,7 @@ export default function RevenueReportPage() {
                                 className="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-1 fw-semibold text-nowrap"
                                 onClick={handleExportCSV}
                             >
-                                <FaDownload size={12} />
+                                <Download size={12} />
                                 <span>Xuất CSV</span>
                             </button>
                         </div>

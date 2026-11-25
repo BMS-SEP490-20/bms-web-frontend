@@ -22,25 +22,7 @@ import {
   Pagination,
   InputGroup
 } from 'react-bootstrap';
-import {
-  FaCalendarAlt,
-  FaClock,
-  FaUserMd,
-  FaSearch,
-  FaFilter,
-  FaRedo,
-  FaEye,
-  FaTimesCircle,
-  FaExclamationTriangle,
-  FaMapMarkerAlt,
-  FaVial,
-  FaUserInjured,
-  FaNotesMedical,
-  FaQrcode,
-  FaLock,
-  FaMoneyBillWave,
-  FaCheckCircle
-} from 'react-icons/fa';
+import { Calendar, Clock, Stethoscope, Search, Filter as LucideFilter, RotateCw, Eye, XCircle, AlertTriangle, MapPin, TestTube2, User, FileText, QrCode, Lock, Banknote, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
@@ -290,14 +272,14 @@ export default function AppointmentListPage() {
       case '0':
         return (
           <Badge bg="warning" text="dark" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaClock className="me-1" /> Chờ thanh toán
+            <Clock className="me-1"  size="1em"/> Chờ thanh toán
           </Badge>
         );
       case 'CONFIRMED':
       case '1':
         return (
           <Badge bg="success" className="px-2.5 py-1.5 rounded-pill shadow-xs text-white" style={{ backgroundColor: '#16a34a' }}>
-            <FaCheckCircle className="me-1" /> Đã xác nhận
+            <CheckCircle2 className="me-1"  size="1em"/> Đã xác nhận
           </Badge>
         );
       case 'CHECKEDIN':
@@ -305,7 +287,7 @@ export default function AppointmentListPage() {
       case '2':
         return (
           <Badge bg="primary" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaUserInjured className="me-1" /> Đã tiếp nhận
+            <User className="me-1"  size="1em"/> Đã tiếp nhận
           </Badge>
         );
       case 'INPROGRESS':
@@ -313,7 +295,7 @@ export default function AppointmentListPage() {
       case '3':
         return (
           <Badge bg="dark" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaVial className="me-1" /> Đang khám / Lấy mẫu
+            <TestTube2 className="me-1"  size="1em"/> Đang khám / Lấy mẫu
           </Badge>
         );
       case 'COMPLETED':
@@ -335,7 +317,7 @@ export default function AppointmentListPage() {
       case '6':
         return (
           <Badge bg="secondary" className="px-2.5 py-1.5 rounded-pill shadow-xs">
-            <FaExclamationTriangle className="me-1" /> Vắng mặt (No-show)
+            <AlertTriangle className="me-1"  size="1em"/> Vắng mặt (No-show)
           </Badge>
         );
       default:
@@ -365,11 +347,11 @@ export default function AppointmentListPage() {
             onClick={fetchAppointments}
             disabled={loading}
           >
-            <FaRedo className={loading ? 'fa-spin' : ''} /> Làm mới
+            <RotateCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
           {canBookAppointment && (
             <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
-              <FaCalendarAlt /> {isPatient ? 'Đặt lịch mới' : 'Tạo lịch hẹn mới'}
+              <Calendar  size="1em"/> {isPatient ? 'Đặt lịch mới' : 'Tạo lịch hẹn mới'}
             </Link>
           )}
         </div>
@@ -378,7 +360,7 @@ export default function AppointmentListPage() {
       {/* Date Validation Alert */}
       {dateValidationWarning && (
         <Alert variant="warning" className="d-flex align-items-center gap-2 py-2 mb-3 border-0 rounded-3">
-          <FaExclamationTriangle />
+          <AlertTriangle  size="1em"/>
           <span>{dateValidationWarning}</span>
         </Alert>
       )}
@@ -393,7 +375,7 @@ export default function AppointmentListPage() {
       {/* Unified Single-Row Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '220px' }}>
-          <FaSearch className="text-muted" size={13} />
+          <Search className="text-muted" size={13} />
           <input
             type="text"
             placeholder="Tìm mã hẹn, địa chỉ, ghi chú..."
@@ -499,7 +481,7 @@ export default function AppointmentListPage() {
                     </div>
                     {isPatient && (
                       <Link to="/appointments/book" className="btn btn-primary btn-sm px-3 rounded-pill">
-                        <FaCalendarAlt className="me-1" /> Đặt lịch lấy mẫu
+                        <Calendar className="me-1"  size="1em"/> Đặt lịch lấy mẫu
                       </Link>
                     )}
                   </td>
@@ -525,15 +507,15 @@ export default function AppointmentListPage() {
                       </td>
                       <td>
                         <div className="fw-semibold text-dark">
-                          <FaCalendarAlt className="me-1 text-muted small" /> {appointmentDateStr}
+                          <Calendar className="me-1 text-muted small"  size="1em"/> {appointmentDateStr}
                         </div>
                         <div className="small text-muted">
-                          <FaClock className="me-1 text-muted small" /> {apt.slotTime || '—'}
+                          <Clock className="me-1 text-muted small"  size="1em"/> {apt.slotTime || '—'}
                         </div>
                       </td>
                       <td>
                         <div className="fw-semibold text-dark d-flex align-items-center gap-1">
-                          <FaUserMd className="text-primary small" />
+                          <Stethoscope className="text-primary small"  size="1em"/>
                           {resolveDoctorDisplay(apt)}
                         </div>
                         <div className="small text-muted">{apt.specialty || 'Xét nghiệm lâm sàng'}</div>
@@ -550,7 +532,7 @@ export default function AppointmentListPage() {
                       <td className="text-truncate" style={{ maxWidth: '220px' }}>
                         {isHome ? (
                           <span className="small text-dark" title={apt.collectionAddress}>
-                            <FaMapMarkerAlt className="text-danger me-1" />
+                            <MapPin className="text-danger me-1"  size="1em"/>
                             {apt.collectionAddress || 'Chưa cung cấp'}
                           </span>
                         ) : (
@@ -571,16 +553,16 @@ export default function AppointmentListPage() {
                             onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
                             title={isReceptionist ? 'Bấm để xem Mã QR & Check-in Tiếp Đón' : 'Xem chi tiết lịch hẹn'}
                           >
-                            <FaQrcode className="text-success" /> {checkInButtonLabel}
+                            <QrCode className="text-success"  size="1em"/> {checkInButtonLabel}
                           </Button>
                         ) : isPending(apt.status) ? (
                           <div className="d-inline-flex flex-column align-items-center gap-1">
                             <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1 small fw-semibold">
-                              <FaLock className="me-1" /> Chờ thanh toán
+                              <Lock className="me-1"  size="1em"/> Chờ thanh toán
                             </span>
                             {apt.createdAt && (
                               <span className="badge bg-danger-subtle text-danger rounded-pill font-monospace px-2 py-0.5" style={{ fontSize: '0.75rem' }}>
-                                <FaClock className="me-1" />
+                                <Clock className="me-1"  size="1em"/>
                                 {formatCountdown(getRemainingSeconds(apt.createdAt, now))}
                               </span>
                             )}
@@ -607,7 +589,7 @@ export default function AppointmentListPage() {
                                 navigate(`/payments/checkout?appointmentId=${targetId}&code=${apt.appointmentCode || ''}`);
                               }}
                             >
-                              <FaMoneyBillWave /> Thanh toán
+                              <Banknote  size="1em"/> Thanh toán
                             </Button>
                           )}
                           <Button
@@ -616,7 +598,7 @@ export default function AppointmentListPage() {
                             className="rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1"
                             onClick={() => handleViewDetail(apt.appointmentId || apt.id)}
                           >
-                            <FaEye /> Chi tiết
+                            <Eye  size="1em"/> Chi tiết
                           </Button>
                         </div>
                       </td>
@@ -670,7 +652,7 @@ export default function AppointmentListPage() {
       >
         <Modal.Header closeButton className="border-0 pb-0 px-4 pt-4">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
-            <FaNotesMedical className="text-primary" /> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
+            <FileText className="text-primary"  size="1em"/> Chi Tiết Cuộc Hẹn #{selectedAppointment?.appointmentCode || selectedAppointment?.appointmentId?.slice(-8) || ''}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="px-4 py-3">
@@ -700,7 +682,7 @@ export default function AppointmentListPage() {
 
               <div className="border rounded-3 p-3 mb-3 bg-white">
                 <h6 className="fw-bold mb-2 text-secondary d-flex align-items-center gap-2">
-                  <FaUserInjured className="text-primary" /> Thông Tin Bệnh Nhân
+                  <User className="text-primary"  size="1em"/> Thông Tin Bệnh Nhân
                 </h6>
                 <div className="row g-2 small">
                   <div className="col-sm-6">
@@ -718,7 +700,7 @@ export default function AppointmentListPage() {
                 <Col md={6}>
                   <div className="border rounded-3 p-3">
                     <h6 className="fw-bold mb-2 text-secondary d-flex align-items-center gap-2">
-                      <FaUserMd className="text-primary" /> Thông Tin Bác Sĩ & Lịch Khám
+                      <Stethoscope className="text-primary"  size="1em"/> Thông Tin Bác Sĩ & Lịch Khám
                     </h6>
                     <div className="small mb-1">
                       <strong>Bác sĩ:</strong> {resolveDoctorDisplay(selectedAppointment)}
@@ -741,7 +723,7 @@ export default function AppointmentListPage() {
                 <Col md={6}>
                   <div className="border rounded-3 p-3">
                     <h6 className="fw-bold mb-2 text-secondary d-flex align-items-center gap-2">
-                      <FaMapMarkerAlt className="text-danger" /> Địa Điểm & Hình Thức
+                      <MapPin className="text-danger"  size="1em"/> Địa Điểm & Hình Thức
                     </h6>
                     <div className="small mb-1">
                       <strong>Hình thức:</strong>{' '}
@@ -765,7 +747,7 @@ export default function AppointmentListPage() {
 
               {selectedAppointment.testPackageName && (
                 <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
-                  <FaVial className="text-primary" />
+                  <TestTube2 className="text-primary"  size="1em"/>
                   <span>
                     <strong>Gói xét nghiệm chỉ định:</strong> {selectedAppointment.testPackageName}
                   </span>
@@ -781,7 +763,7 @@ export default function AppointmentListPage() {
                     </Badge>
                   </div>
                   <h6 className="fw-bold text-success text-uppercase mb-1 d-flex align-items-center justify-content-center gap-2">
-                    <FaQrcode /> Phiếu Tiếp Đón &amp; Check-in Xét Nghiệm
+                    <QrCode  size="1em"/> Phiếu Tiếp Đón &amp; Check-in Xét Nghiệm
                   </h6>
                   <p className="small text-muted mb-3">
                     Quý khách vui lòng xuất trình mã QR này tại quầy Lễ tân hoặc máy quét tự động khi đến phòng xét nghiệm.
@@ -798,19 +780,16 @@ export default function AppointmentListPage() {
 
                   {/* Prominent Manual Check-in Code */}
                   <div className="mx-auto" style={{ maxWidth: '420px' }}>
-                    <div className="small text-muted fw-semibold mb-1">Mã Nhập Tay Phụ (Manual Check-in Code):</div>
+                    <div className="small text-muted fw-semibold mb-1">Mã lịch hẹn (xuất trình khi đến quầy):</div>
                     <div className="h4 fw-bold font-monospace text-primary bg-white p-2 rounded-3 mb-1 tracking-wider">
                       {selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'N/A'}
-                    </div>
-                    <div className="text-muted small" style={{ fontSize: '0.8rem' }}>
-                      (Dành cho Lễ tân nhập trực tiếp vào hệ thống nếu thiết bị quét mã QR gặp sự cố)
                     </div>
                   </div>
                 </div>
               ) : isPending(selectedAppointment.status) ? (
                 <div className="p-2 bg-light rounded-4 text-center mt-3">
                   <div className="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-2" style={{ fontSize: '36px' }}>
-                    <FaLock />
+                    <Lock  size="1em"/>
                   </div>
                   <h5 className="fw-bold text-dark text-uppercase mb-1">
                     Mã QR Check-in Tiếp Đón Đang Tạm Khóa
@@ -826,7 +805,7 @@ export default function AppointmentListPage() {
                     return (
                       <div className="p-3 bg-white rounded-3 d-inline-block mb-3" style={{ minWidth: '280px' }}>
                         <div className="small text-muted fw-semibold mb-1">
-                          <FaClock className="me-1 text-warning" /> THỜI GIAN GIỮ CHỖ CÒN LẠI:
+                          <Clock className="me-1 text-warning"  size="1em"/> THỜI GIAN GIỮ CHỖ CÒN LẠI:
                         </div>
                         <div className={`h2 fw-bold font-monospace mb-0 ${isExpired ? 'text-danger' : 'text-danger'}`}>
                           {formatCountdown(remaining)}
@@ -852,11 +831,11 @@ export default function AppointmentListPage() {
                           navigate(`/payments/checkout?appointmentId=${selectedAppointment.appointmentId || selectedAppointment.id}&code=${selectedAppointment.appointmentCode}`);
                         }}
                       >
-                        <FaMoneyBillWave /> Tiến Hành Thanh Toán Ngay (VietQR / Chuyển Khoản)
+                        <Banknote  size="1em"/> Tiến Hành Thanh Toán Ngay (VietQR / Chuyển Khoản)
                       </Button>
                     ) : (
                       <div className="alert alert-danger py-2 small mb-0">
-                        <FaTimesCircle className="me-1" /> Lịch hẹn này đã hết hạn giữ chỗ (15 phút) và hệ thống đã hoàn trả slot khám.
+                        <XCircle className="me-1"  size="1em"/> Lịch hẹn này đã hết hạn giữ chỗ (15 phút) và hệ thống đã hoàn trả slot khám.
                       </div>
                     )}
                   </div>
@@ -864,7 +843,7 @@ export default function AppointmentListPage() {
               ) : isCancelled(selectedAppointment.status) ? (
                 <div className="p-3 bg-light rounded-4 text-center mt-3">
                   <div className="text-danger mb-2" style={{ fontSize: '36px' }}>
-                    <FaTimesCircle />
+                    <XCircle  size="1em"/>
                   </div>
                   <h5 className="fw-bold text-danger text-uppercase mb-1">Lịch Hẹn Đã Bị Hủy</h5>
                   <p className="text-muted small mb-0">

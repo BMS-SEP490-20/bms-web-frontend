@@ -6,7 +6,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaThermometerHalf, FaCogs, FaWifi } from "react-icons/fa";
+import { Thermometer, Settings, Wifi, AlertTriangle } from 'lucide-react';
 
 const IOT_TABS = [
     {
@@ -14,14 +14,21 @@ const IOT_TABS = [
         path: "/iot/monitor",
         matchPaths: ["/iot/monitor", "/iot/temperature", "/iot/logs", "/laboratory/iot-monitor", "/manager/iot-monitor"],
         label: "Giám Sát Nhiệt Độ, Độ Ẩm & Lịch Sử",
-        icon: FaThermometerHalf
+        icon: Thermometer
+    },
+    {
+        id: "tab-iot-alerts",
+        path: "/iot/alerts",
+        matchPaths: ["/iot/alerts", "/laboratory/iot-alerts"],
+        label: "Cảnh Báo Vượt Ngưỡng",
+        icon: AlertTriangle
     },
     {
         id: "tab-iot-thresholds",
         path: "/manager/iot-thresholds",
         matchPaths: ["/manager/iot-thresholds", "/laboratory/iot-thresholds", "/iot/thresholds"],
         label: "Cấu Hình Ngưỡng An Toàn",
-        icon: FaCogs
+        icon: Settings
     }
 ];
 
@@ -80,7 +87,7 @@ export default function IotNavigationTabs({ connectionStatus = null }) {
                             border: isConnected ? "1px solid rgba(21, 128, 61, 0.2)" : "1px solid rgba(220, 38, 38, 0.3)"
                         }}
                     >
-                        <FaWifi size={12} />
+                        <Wifi size={12} />
                         <span>
                             {isConnected
                                 ? `Cảm biến (${connectionStatus.deviceId}): Đang kết nối`

@@ -6,20 +6,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import {
-    FaPaperPlane,
-    FaExclamationTriangle,
-    FaVial,
-    FaUser,
-    FaPhoneAlt,
-    FaEnvelope,
-    FaBell,
-    FaCheck,
-    FaTimes,
-    FaCheckCircle,
-    FaUserCheck,
-    FaFileMedical
-} from "react-icons/fa";
+import { Send, AlertTriangle, TestTube2, User, Phone, Mail, Bell, Check, X as LucideX, CheckCircle2, UserCheck, FileHeart } from 'lucide-react';
 import { fetchCompletedTestPatients } from "../api/testResultNotificationApi";
 
 const CHANNELS = [
@@ -191,7 +178,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                         }}
                     >
                         <h5 className="modal-title fw-bold d-flex align-items-center gap-2 fs-6">
-                            {isCritical ? <FaExclamationTriangle className="text-danger" /> : <FaPaperPlane className="text-primary" />}
+                            {isCritical ? <AlertTriangle className="text-danger"  size="1em"/> : <Send className="text-primary"  size="1em"/>}
                             <span>{isCritical ? "Phát cảnh báo giá trị nguy kịch" : "Phát thông báo kết quả xét nghiệm"}</span>
                         </h5>
                         <button
@@ -214,7 +201,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                             <div className="p-3 rounded border mb-4 bg-light shadow-xs border-primary-subtle">
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <label className="form-label text-primary fw-bold small mb-0 d-flex align-items-center gap-2">
-                                        <FaUserCheck className="fs-5" />
+                                        <UserCheck className="fs-5"  size="1em"/>
                                         <span>Chọn Bệnh Nhân Đã Hoàn Thành Xét Nghiệm</span>
                                     </label>
                                     {loadingPatients && (
@@ -241,7 +228,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                     )}
                                 </select>
                                 <small className="text-muted d-block mt-2">
-                                    <FaCheckCircle className="text-success me-1" />
+                                    <CheckCircle2 className="text-success me-1"  size="1em"/>
                                     Dữ liệu được nạp tự động từ các xét nghiệm đã hoàn tất (Completed / Approved) trong cơ sở dữ liệu. Khi chọn bệnh nhân, tất cả thông tin định danh, mẫu bệnh phẩm, đơn chỉ định và nội dung thông báo sẽ tự động điền.
                                 </small>
                             </div>
@@ -407,7 +394,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                             {isCritical && (
                                 <div className="mb-3 p-3 bg-danger-subtle rounded border border-danger">
                                     <label className="form-label text-danger fw-bold small d-flex align-items-center gap-1">
-                                        <FaExclamationTriangle />
+                                        <AlertTriangle  size="1em"/>
                                         Danh Sách Chỉ Số Vượt Ngưỡng Nguy Kịch (Mỗi chỉ số 1 dòng)
                                     </label>
                                     <textarea
@@ -482,7 +469,7 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                     </>
                                 ) : (
                                     <>
-                                        <FaPaperPlane />
+                                        <Send  size="1em"/>
                                         <span>{isCritical ? "Phát Báo Động Nguy Kịch" : "Gửi Thông Báo Ngay"}</span>
                                     </>
                                 )}

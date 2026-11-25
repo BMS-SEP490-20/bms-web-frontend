@@ -14,10 +14,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Button, Form, Row, Col, Alert, Badge, Spinner, InputGroup, Nav, Table } from "react-bootstrap";
-import {
-  FaShieldAlt, FaIdCard, FaClock, FaVial, FaListUl, FaPlus, FaTrash,
-  FaCheckCircle, FaUserInjured, FaNotesMedical, FaInfoCircle, FaFileMedicalAlt
-} from "react-icons/fa";
+import { ShieldCheck, IdCard, Clock, TestTube2, List, Plus, Trash2, CheckCircle2, User, FileText, Info, FileHeart } from 'lucide-react';
 import { createPackage, updatePackage } from "../api/packageApi.jsx";
 
 export const STATUS_OPTIONS = [
@@ -84,7 +81,7 @@ const EMPTY_FORM = {
     "Miễn phí lấy mẫu tận nơi & tư vấn 1-1 với Bác sĩ chuyên khoa"
   ],
   targetAudience: "Người có dấu hiệu mệt mỏi kéo dài, hoa mắt, chóng mặt;\nNgười có chế độ ăn thiếu dinh dưỡng hoặc kém hấp thu;\nPhụ nữ trong độ tuổi sinh sản hoặc chuẩn bị mang thai;\nNgười có tiền sử gia đình mắc bệnh lý chuyển hóa hoặc huyết học.",
-  description: "Gói xét nghiệm được thiết kế chuyên sâu theo chuẩn ISO 15189:2022 giúp đánh giá toàn diện các chỉ số sinh hóa và huyết học trọng yếu, phát hiện sớm nguy cơ tiềm ẩn và hỗ trợ bác sĩ xây dựng phác đồ điều trị cá thể hóa chính xác.",
+  description: "",
   preparationNotes: "Nên lấy mẫu vào buổi sáng sau khi nhịn ăn 8 - 12 tiếng; chỉ được uống nước lọc.\nUống khoảng 250ml nước lọc trước khi lấy mẫu, tránh cô đặc máu.\nTạm ngưng uống viên sắt, vitamin ít nhất 24 giờ trước khi lấy máu (các thuốc điều trị mạn tính vẫn uống bình thường).\nThông báo với nhân viên y tế nếu đang trong kỳ kinh nguyệt hoặc đã truyền máu trong 3 tháng gần đây.",
   testIds: [],
   customTests: [] // Array of { code, name, sampleType, price, clinicalMeaning }
@@ -307,8 +304,8 @@ export default function PackageFormModal({
     <Modal show={open} onHide={saving ? undefined : onClose} size="xl" centered backdrop="static">
       <Modal.Header closeButton={!saving} style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
         <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2 text-dark">
-          <FaFileMedicalAlt className="text-primary" />
-          <span>{isEdit ? `Chỉnh Sửa Gói Xét Nghiệm: ${pkg?.name || pkg?.code}` : "Thiết Lập Gói Dịch Vụ Xét Nghiệm Mới (Chuẩn DIAG / ISO 15189)"}</span>
+          <FileHeart className="text-primary"  size="1em"/>
+          <span>{isEdit ? `Chỉnh Sửa Gói Xét Nghiệm: ${pkg?.name || pkg?.code}` : "Tạo Gói Dịch Vụ Xét Nghiệm Mới"}</span>
         </Modal.Title>
       </Modal.Header>
 
@@ -327,22 +324,22 @@ export default function PackageFormModal({
           <Nav variant="pills" activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="gap-2">
             <Nav.Item>
               <Nav.Link eventKey="general" className="py-2 px-3 fw-semibold small">
-                <FaIdCard className="me-1" /> 1. Thông Tin &amp; Giá
+                <IdCard className="me-1"  size="1em"/> 1. Thông Tin &amp; Giá
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="clinical" className="py-2 px-3 fw-semibold small">
-                <FaShieldAlt className="me-1" /> 2. Điểm Nổi Bật &amp; Đối Tượng
+                <ShieldCheck className="me-1"  size="1em"/> 2. Điểm Nổi Bật &amp; Đối Tượng
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="biomarkers" className="py-2 px-3 fw-semibold small">
-                <FaVial className="me-1" /> 3. Chỉ Số &amp; Diễn Giải Y Khoa ({form.customTests.length})
+                <TestTube2 className="me-1"  size="1em"/> 3. Chỉ Số &amp; Diễn Giải Y Khoa ({form.customTests.length})
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="preanalytical" className="py-2 px-3 fw-semibold small">
-                <FaClock className="me-1" /> 4. TAT &amp; Tiền Phân Tích (ISO 15189)
+                <Clock className="me-1" size="1em"/> 4. Thời Gian Trả Kết Quả &amp; Lưu Ý
               </Nav.Link>
             </Nav.Item>
           </Nav>
@@ -353,7 +350,7 @@ export default function PackageFormModal({
           {activeTab === "general" && (
             <div>
               <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                <FaIdCard /> 1. Định Danh Gói Xét Nghiệm &amp; Chính Sách Giá
+                <IdCard  size="1em"/> 1. Định Danh Gói Xét Nghiệm &amp; Chính Sách Giá
               </h6>
               <Row className="g-3 mb-3">
                 <Col md={4}>
@@ -444,7 +441,7 @@ export default function PackageFormModal({
 
                 <Col md={4}>
                   <Form.Group>
-                    <Form.Label className="small fw-semibold text-muted mb-1">Loại Ống Nghiệm Lấy Mẫu (ISO 15189)</Form.Label>
+                    <Form.Label className="small fw-semibold text-muted mb-1">Loại Ống Nghiệm Lấy Mẫu</Form.Label>
                     <Form.Control
                       placeholder="VD: EDTA-Tím & Serum-Đỏ/Vàng"
                       value={form.sampleTube}
@@ -495,7 +492,7 @@ export default function PackageFormModal({
               {/* Shield Highlights */}
               <div className="mb-4">
                 <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
-                  <FaShieldAlt /> Điểm Nổi Bật &amp; Cam Kết Chất Lượng (Shield Icons)
+                  <ShieldCheck  size="1em"/> Điểm Nổi Bật &amp; Cam Kết Chất Lượng (Shield Icons)
                 </h6>
                 <p className="text-muted small mb-3">
                   Các điểm nhấn giá trị cốt lõi giúp bệnh nhân nắm bắt lợi ích chính của gói xét nghiệm (hiển thị biểu tượng khiên y tế).
@@ -504,7 +501,7 @@ export default function PackageFormModal({
                 <div className="d-flex flex-column gap-2 mb-3">
                   {form.highlights.map((hl, idx) => (
                     <div key={idx} className="d-flex align-items-center gap-2 p-2 rounded-3 bg-light border">
-                      <FaShieldAlt className="text-primary flex-shrink-0" />
+                      <ShieldCheck className="text-primary flex-shrink-0"  size="1em"/>
                       <Form.Control
                         size="sm"
                         value={hl}
@@ -523,7 +520,7 @@ export default function PackageFormModal({
                         className="rounded-circle px-2"
                         onClick={() => handleRemoveHighlight(idx)}
                       >
-                        <FaTrash size={12} />
+                        <Trash2 size={12} />
                       </Button>
                     </div>
                   ))}
@@ -542,7 +539,7 @@ export default function PackageFormModal({
                     }}
                   />
                   <Button variant="outline-primary" onClick={handleAddHighlight}>
-                    <FaPlus className="me-1" /> Thêm điểm nhấn
+                    <Plus className="me-1"  size="1em"/> Thêm điểm nhấn
                   </Button>
                 </InputGroup>
               </div>
@@ -550,7 +547,7 @@ export default function PackageFormModal({
               {/* Target Audience */}
               <div className="mb-4">
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                  <FaUserInjured className="text-primary" /> Đối Tượng Cần Làm Xét Nghiệm (Chỉ Định Lâm Sàng)
+                  <User className="text-primary"  size="1em"/> Đối Tượng Cần Làm Xét Nghiệm (Chỉ Định Lâm Sàng)
                 </h6>
                 <Form.Control
                   as="textarea"
@@ -565,7 +562,7 @@ export default function PackageFormModal({
               {/* Overview & Pathology */}
               <div className="mb-3">
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                  <FaNotesMedical className="text-primary" /> Tổng Quan Về Gói Xét Nghiệm (Diễn Giải Chuyên Môn)
+                  <FileText className="text-primary"  size="1em"/> Tổng Quan Về Gói Xét Nghiệm (Diễn Giải Chuyên Môn)
                 </h6>
                 <Form.Control
                   as="textarea"
@@ -585,7 +582,7 @@ export default function PackageFormModal({
               <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div>
                   <h6 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                    <FaVial /> Danh Mục Chỉ Số Xét Nghiệm Thành Phần ({form.customTests.length} chỉ số)
+                    <TestTube2  size="1em"/> Danh Mục Chỉ Số Xét Nghiệm Thành Phần ({form.customTests.length} chỉ số)
                   </h6>
                   <p className="text-muted small mb-0">
                     Chọn các xét nghiệm cấu thành gói và bổ sung diễn giải ý nghĩa lâm sàng chuyên môn theo chuẩn DIAG.
@@ -658,7 +655,7 @@ export default function PackageFormModal({
                                 }));
                               }}
                             >
-                              <FaTrash size={11} />
+                              <Trash2 size={11} />
                             </Button>
                           </td>
                         </tr>
@@ -668,7 +665,7 @@ export default function PackageFormModal({
                 </div>
               ) : (
                 <Alert variant="warning" className="small py-2 mb-3">
-                  <FaInfoCircle className="me-1" /> Chưa có xét nghiệm nào được chọn. Hãy tick chọn các xét nghiệm bên dưới để thêm vào gói.
+                  <Info className="me-1"  size="1em"/> Chưa có xét nghiệm nào được chọn. Hãy tick chọn các xét nghiệm bên dưới để thêm vào gói.
                 </Alert>
               )}
 
@@ -676,7 +673,7 @@ export default function PackageFormModal({
               <div className="p-3 rounded-3 border bg-light">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span className="fw-bold small text-dark">
-                    <FaPlus className="me-1 text-primary" /> Chọn Thêm Chỉ Số Từ Danh Mục Xét Nghiệm Phòng Lab:
+                    <Plus className="me-1 text-primary"  size="1em"/> Chọn Thêm Chỉ Số Từ Danh Mục Xét Nghiệm Phòng Lab:
                   </span>
                   <Form.Control
                     size="sm"
@@ -731,7 +728,7 @@ export default function PackageFormModal({
           {activeTab === "preanalytical" && (
             <div>
               <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                <FaClock /> 4. Thời Gian Trả Kết Quả (TAT) &amp; Quy Chuẩn Tiền Phân Tích (ISO 15189)
+                <Clock size="1em"/> 4. Thời Gian Trả Kết Quả (TAT) &amp; Chuẩn Bị Mẫu
               </h6>
 
               {/* TAT Section */}
@@ -755,7 +752,7 @@ export default function PackageFormModal({
               {/* Preanalytical Preparation Notes */}
               <div className="mb-3">
                 <Form.Label className="small fw-semibold text-muted mb-1">
-                  Lưu Ý Trước Khi Xét Nghiệm (Chuẩn Bị Bệnh Nhân - Tiền Phân Tích ISO 15189)
+                  Lưu Ý Chuẩn Bị Trước Khi Lấy Mẫu
                 </Form.Label>
                 <Form.Control
                   as="textarea"
@@ -821,7 +818,7 @@ export default function PackageFormModal({
                 </>
               ) : (
                 <>
-                  <FaCheckCircle className="me-2" /> {isEdit ? "Cập Nhật Gói Xét Nghiệm" : "Lưu & Kích Hoạt Gói"}
+                  <CheckCircle2 className="me-2"  size="1em"/> {isEdit ? "Cập Nhật Gói Xét Nghiệm" : "Lưu & Kích Hoạt Gói"}
                 </>
               )}
             </Button>

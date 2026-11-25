@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaVial, FaClock, FaCheckCircle, FaPrint, FaCalendarAlt, FaArrowRight, FaTimes } from 'react-icons/fa';
+import { Search as LucideSearch, TestTube2, Clock, CheckCircle2, Printer, Calendar, ArrowRight, X as LucideX, Tag } from 'lucide-react';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
@@ -105,26 +105,25 @@ export default function PricingPage() {
             <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
               <div style={{ flex: 1 }}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
-                  <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                  <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
+                  <Tag size={15} className="text-primary" />
+                  <span>DANH MỤC &amp; BẢNG GIÁ DỊCH VỤ XÉT NGHIỆM</span>
                 </div>
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
-                  Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm
+                  Bảng Giá Dịch Vụ Xét Nghiệm
                 </h1>
                 <p className="mb-3 text-muted" style={{ fontSize: '13.5px', maxWidth: '820px', lineHeight: '1.7', color: '#475569' }}>
-                  Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Đã bao gồm trọn gói vật tư lấy mẫu vô trùng, tự động giảm trừ chi phí BHYT, hỗ trợ xuất hóa đơn điện tử VAT và Bác sĩ chuyên khoa tư vấn kết quả.
+                  Đơn giá từng gói xét nghiệm được hiển thị rõ ràng từ danh mục dịch vụ của phòng khám để bạn dễ dàng tra cứu và đặt lịch trực tuyến.
                 </p>
 
-                {/* 3 Gold Commitments Badges */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div style={{ background: '#EFF6FF', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#1E60E6', fontWeight: 650 }}>
-                    Không phụ phí ẩn &amp; Miễn phí vật tư lấy mẫu
+                    Hiển thị đúng giá gói khám
                   </div>
                   <div style={{ background: '#ECFDF5', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#059669', fontWeight: 650 }}>
-                    Tự động chiết khấu quyền lợi BHYT
+                    Đặt lịch &amp; thanh toán trực tuyến
                   </div>
                   <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#475569', fontWeight: 650, border: '1px solid #E2E8F0' }}>
-                    Bác sĩ Chuyên khoa giải thích kết quả miễn phí
+                    Bác sĩ duyệt và giải thích kết quả
                   </div>
                 </div>
               </div>
@@ -154,7 +153,7 @@ export default function PricingPage() {
                     boxShadow: 'none'
                   }}
                 >
-                  <FaPrint className="me-2" style={{ fontSize: '12px' }} /> In Bảng Giá
+                  <Printer className="me-2" style={{ fontSize: '12px' }}  size="1em"/> In Bảng Giá
                 </button>
                 <Link
                   to="/appointments/book"
@@ -170,7 +169,7 @@ export default function PricingPage() {
                     boxShadow: 'none'
                   }}
                 >
-                  <FaCalendarAlt className="me-2" style={{ fontSize: '12px' }} /> Đặt Lịch Khám
+                  <Calendar className="me-2" style={{ fontSize: '12px' }}  size="1em"/> Đặt Lịch Khám
                 </Link>
               </div>
             </div>
@@ -196,7 +195,7 @@ export default function PricingPage() {
               
               {/* Search Input - Clean High-Contrast Input with No Collision */}
               <div className="position-relative" style={{ maxWidth: '460px', width: '100%' }}>
-                <FaSearch
+                <LucideSearch
                   style={{
                     position: 'absolute',
                     left: '18px',
@@ -207,7 +206,7 @@ export default function PricingPage() {
                     pointerEvents: 'none',
                     zIndex: 2
                   }}
-                />
+                 size="1em"/>
                 <input
                   type="text"
                   placeholder="Tìm mã xét nghiệm (CBC, GLU, ALT...) hoặc tên chỉ số..."
@@ -244,7 +243,7 @@ export default function PricingPage() {
                       padding: '4px 6px'
                     }}
                   >
-                    <FaTimes />
+                    <LucideX  size="1em"/>
                   </button>
                 )}
               </div>
@@ -297,10 +296,10 @@ export default function PricingPage() {
                 aria-hidden="true"
               />
               <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
-                Niêm Yết Minh Bạch 100%
+                Niêm Yết Rõ Ràng
               </h3>
               <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
-                Toàn bộ đơn giá được công khai theo quy chuẩn Bộ Y Tế, xuất hóa đơn điện tử VAT 0%.
+                Đơn giá được cập nhật đồng bộ theo từng gói xét nghiệm trước khi bạn xác nhận đặt lịch.
               </p>
             </div>
 
@@ -311,10 +310,10 @@ export default function PricingPage() {
                 aria-hidden="true"
               />
               <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
-                Kiểm Soát Tiến Độ Xử Lý
+                Theo Dõi Tiến Độ Mẫu
               </h3>
               <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
-                Theo dõi quy trình phân tích mẫu theo thời gian thực, thông báo ngay khi bác sĩ hoàn tất thẩm duyệt.
+                Cập nhật trạng thái từ lúc lấy mẫu đến khi bác sĩ duyệt kết quả trên cổng bệnh nhân.
               </p>
             </div>
 
@@ -325,10 +324,10 @@ export default function PricingPage() {
                 aria-hidden="true"
               />
               <h3 className="fw-bold mb-1" style={{ fontSize: '15px', color: '#0F172A' }}>
-                Chữ Ký Số Y Tế Hợp Pháp
+                Bác Sĩ Duyệt Kết Quả
               </h3>
               <p className="text-muted mb-0" style={{ fontSize: '12.5px', lineHeight: '1.6' }}>
-                Phiếu kết quả được Bác sĩ chuyên khoa thẩm duyệt và cấp con dấu thời gian có giá trị toàn quốc.
+                Kết quả xét nghiệm chỉ được mở xem và tải phiếu PDF sau khi bác sĩ thẩm duyệt.
               </p>
             </div>
           </div>
@@ -416,13 +415,13 @@ export default function PricingPage() {
                           )}
                           {item.sampleTube && (
                             <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
-                              <FaVial style={{ color: '#1E60E6', fontSize: '11px' }} />
+                              <TestTube2 style={{ color: '#1E60E6', fontSize: '11px' }}  size="1em"/>
                               <span>{item.sampleTube}</span>
                             </span>
                           )}
                           {item.tat && (
                             <span className="d-flex align-items-center gap-1" style={{ color: '#64748B' }}>
-                              <FaClock style={{ color: '#94A3B8', fontSize: '11px' }} />
+                              <Clock style={{ color: '#94A3B8', fontSize: '11px' }}  size="1em"/>
                               <span>{item.tat}</span>
                             </span>
                           )}
@@ -442,7 +441,7 @@ export default function PricingPage() {
                           {Number(item.price).toLocaleString('vi-VN')} ₫
                         </div>
                         <div className="text-muted" style={{ fontSize: '11px' }}>
-                          Đã gồm VAT &amp; vật tư
+                          Chi phí gói dịch vụ
                         </div>
                       </div>
 
@@ -462,7 +461,7 @@ export default function PricingPage() {
                         }}
                       >
                         <span>Đặt Lịch</span>
-                        <FaArrowRight size={11} />
+                        <ArrowRight size={11} />
                       </button>
                     </div>
                   </div>
@@ -491,9 +490,9 @@ export default function PricingPage() {
                   Quy Định Về Giá Dịch Vụ &amp; Thanh Toán Viện Phí
                 </h6>
                 <ul className="mb-3 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
-                  <li>Bảng giá đã bao gồm toàn bộ vật tư y tế tiêu hao (kim lấy máu chân không vô trùng, ống chân không có gel tách huyết thanh, bông cồn sát khuẩn). Không phụ thu bất kỳ khoản chi phí ẩn nào.</li>
-                  <li>Bệnh nhân có thẻ Bảo Hiểm Y Tế (BHYT) được hưởng mức chi trả theo quy định hiện hành khi có chỉ định của bác sĩ tại phòng khám BMS.</li>
-                  <li>Miễn phí tư vấn giải thích kết quả và định hướng điều trị lâm sàng từ Bác sĩ chuyên khoa xét nghiệm.</li>
+                  <li>Bảng giá áp dụng theo danh mục dịch vụ công bố trên hệ thống BMS tại thời điểm đặt lịch.</li>
+                  <li>Bệnh nhân có thể thanh toán trực tiếp tại quầy lễ tân hoặc qua cổng thanh toán trực tuyến được hỗ trợ.</li>
+                  <li>Kết quả xét nghiệm sau khi bác sĩ duyệt có thể xem trực tuyến hoặc tải bản in PDF.</li>
                 </ul>
                 <div className="d-flex flex-wrap gap-3" style={{ fontSize: '12.5px' }}>
                   <Link to="/insurance-policy" style={{ color: '#1E60E6', textDecoration: 'none', fontWeight: 600 }}>

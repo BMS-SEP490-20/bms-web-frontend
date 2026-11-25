@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaCalendarAlt } from 'react-icons/fa';
+import { Home, Calendar } from 'lucide-react';
 
 export default function NotFound404() {
   return (
@@ -24,11 +24,11 @@ export default function NotFound404() {
 
         <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
           <Link to="/" className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            <FaHome />
+            <Home  size="1em"/>
             <span>Về Trang Chủ BMS</span>
           </Link>
           <Link to="/services" className="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center justify-content-center gap-2">
-            <FaCalendarAlt />
+            <Calendar  size="1em"/>
             <span>Danh Mục Xét Nghiệm</span>
           </Link>
         </div>

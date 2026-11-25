@@ -5,23 +5,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-    FaBell,
-    FaExclamationTriangle,
-    FaPaperPlane,
-    FaCheckCircle,
-    FaSync,
-    FaSearch,
-    FaPhoneAlt,
-    FaEnvelope,
-    FaMobileAlt,
-    FaFilter,
-    FaEye,
-    FaRedo,
-    FaCheck,
-    FaUser,
-    FaTimes
-} from "react-icons/fa";
+import { Bell, AlertTriangle, Send, CheckCircle2, RefreshCw, Search, Phone, Mail, Smartphone, Filter as LucideFilter, Eye, RotateCw, Check, User, X } from 'lucide-react';
 import {
     fetchNotifications,
     fetchNotificationById,
@@ -36,7 +20,7 @@ import NotificationDetailModal from "../components/NotificationDetailModal";
 
 const TABS = [
     { key: "ALL", label: "Tất Cả Thông Báo" },
-    { key: "PANIC", label: "Báo Động Nguy Kịch (Critical)", icon: FaExclamationTriangle, badgeClass: "bg-danger" },
+    { key: "PANIC", label: "Báo Động Nguy Kịch (Critical)", icon: AlertTriangle, badgeClass: "bg-danger" },
     { key: "UNREAD", label: "Chưa Đọc (Unread)" },
     { key: "DELIVERED", label: "Đã Chuyển Giao" }
 ];
@@ -194,13 +178,13 @@ export default function NotifyTestResultsPage() {
     const renderChannelIcon = (channel) => {
         switch (channel) {
             case "Sms":
-                return <span className="badge bg-success-subtle text-success border border-success"><FaPhoneAlt className="me-1" /> SMS</span>;
+                return <span className="badge bg-success-subtle text-success border border-success"><Phone className="me-1"  size="1em"/> SMS</span>;
             case "Email":
-                return <span className="badge bg-primary-subtle text-primary border border-primary"><FaEnvelope className="me-1" /> Email</span>;
+                return <span className="badge bg-primary-subtle text-primary border border-primary"><Mail className="me-1"  size="1em"/> Email</span>;
             case "Push":
-                return <span className="badge bg-info-subtle text-info border border-info"><FaMobileAlt className="me-1" /> Push App</span>;
+                return <span className="badge bg-info-subtle text-info border border-info"><Smartphone className="me-1"  size="1em"/> Push App</span>;
             default:
-                return <span className="badge bg-secondary-subtle text-secondary border"><FaBell className="me-1" /> Đa kênh (All)</span>;
+                return <span className="badge bg-secondary-subtle text-secondary border"><Bell className="me-1"  size="1em"/> Đa kênh (All)</span>;
         }
     };
 
@@ -208,7 +192,7 @@ export default function NotifyTestResultsPage() {
         if (isPanic || priority === "Critical") {
             return (
                 <span className="badge bg-danger shadow-xs animate-pulse">
-                    <FaExclamationTriangle className="me-1" /> Báo động khẩn
+                    <AlertTriangle className="me-1"  size="1em"/> Báo động khẩn
                 </span>
             );
         }
@@ -221,9 +205,9 @@ export default function NotifyTestResultsPage() {
     const renderStatusBadge = (status) => {
         switch (status) {
             case "Read":
-                return <span className="badge bg-info text-dark"><FaCheck className="me-1" /> Đã đọc</span>;
+                return <span className="badge bg-info text-dark"><Check className="me-1"  size="1em"/> Đã đọc</span>;
             case "Delivered":
-                return <span className="badge bg-success"><FaCheckCircle className="me-1" /> Đã nhận</span>;
+                return <span className="badge bg-success"><CheckCircle2 className="me-1"  size="1em"/> Đã nhận</span>;
             case "Failed":
                 return <span className="badge bg-danger">Thất bại</span>;
             default:
@@ -253,7 +237,7 @@ export default function NotifyTestResultsPage() {
                         style={{ color: "#1E60E6", borderColor: "#1E60E6" }}
                         onClick={loadData}
                     >
-                        <FaSync size={13} className={loading ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={loading ? "fa-spin" : ""} />
                         <span>Làm mới</span>
                     </button>
                     {canDispatch && (
@@ -263,7 +247,7 @@ export default function NotifyTestResultsPage() {
                             style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                             onClick={() => setShowDispatchModal(true)}
                         >
-                            <FaPaperPlane size={13} />
+                            <Send size={13} />
                             <span>Phát thông báo mới</span>
                         </button>
                     )}
@@ -277,7 +261,7 @@ export default function NotifyTestResultsPage() {
                     role="alert"
                 >
                     <div className="d-flex align-items-center">
-                        <FaCheckCircle className="me-2 fs-5" />
+                        <CheckCircle2 className="me-2 fs-5"  size="1em"/>
                         <div>{toastMessage.text}</div>
                     </div>
                     <button
@@ -294,7 +278,7 @@ export default function NotifyTestResultsPage() {
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                                <FaBell size={18} />
+                                <Bell size={18} />
                             </div>
                         </div>
                         <div className="bms-kpi-quad-value">{stats.totalNotifications}</div>
@@ -306,7 +290,7 @@ export default function NotifyTestResultsPage() {
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                                <FaCheckCircle size={18} />
+                                <CheckCircle2 size={18} />
                             </div>
                             <span className="bms-kpi-trend-pill">{stats.deliveredSuccessfully} thành công</span>
                         </div>
@@ -319,7 +303,7 @@ export default function NotifyTestResultsPage() {
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                                <FaExclamationTriangle size={18} />
+                                <AlertTriangle size={18} />
                             </div>
                         </div>
                         <div className="bms-kpi-quad-value">{stats.criticalPanicAlerts}</div>
@@ -331,7 +315,7 @@ export default function NotifyTestResultsPage() {
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                                <FaRedo size={18} />
+                                <RotateCw size={18} />
                             </div>
                         </div>
                         <div className="bms-kpi-quad-value">{stats.pendingCount + stats.failedCount}</div>
@@ -343,7 +327,7 @@ export default function NotifyTestResultsPage() {
             {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaSearch className="bms-search-icon" />
+                    <Search className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Tìm theo tên bệnh nhân, SĐT, mã đơn hoặc mã thông báo..."
@@ -352,7 +336,7 @@ export default function NotifyTestResultsPage() {
                     />
                     {searchTerm && (
                         <button type="button" className="bms-search-clear" onClick={() => setSearchTerm("")}>
-                            <FaTimes size={12} />
+                            <X size={12} />
                         </button>
                     )}
                 </div>
@@ -482,7 +466,7 @@ export default function NotifyTestResultsPage() {
                                             <small className="text-muted font-monospace">{notif.patientId}</small>
                                             {notif.patientEmail && (
                                                 <small className="text-primary d-block mt-1">
-                                                    <FaEnvelope size={10} className="me-1" />{notif.patientEmail}
+                                                    <Mail size={10} className="me-1" />{notif.patientEmail}
                                                 </small>
                                             )}
                                         </td>
@@ -505,7 +489,7 @@ export default function NotifyTestResultsPage() {
                                                     onClick={() => handleViewDetail(notif.notificationId || notif.id)}
                                                     title="Xem chi tiết"
                                                 >
-                                                    <FaEye size={12} />
+                                                    <Eye size={12} />
                                                     <span>Chi tiết</span>
                                                 </button>
                                                 {canDispatch && (
@@ -515,7 +499,7 @@ export default function NotifyTestResultsPage() {
                                                         onClick={() => handleResend(notif.notificationId || notif.id)}
                                                         title="Gửi lại"
                                                     >
-                                                        <FaRedo size={11} />
+                                                        <RotateCw size={11} />
                                                     </button>
                                                 )}
                                             </div>

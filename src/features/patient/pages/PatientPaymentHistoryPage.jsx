@@ -306,7 +306,7 @@ export default function PatientPaymentHistoryPage() {
             <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
           <Link
-            to="/appointments/book"
+            to="/services"
             className="btn btn-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 fw-semibold"
           >
             <LucideReceipt  size="1em"/> Đặt lịch mới

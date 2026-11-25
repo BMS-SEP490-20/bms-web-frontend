@@ -37,7 +37,7 @@ export default function MegaFooter() {
               <li><Link to="/services">Gói xét nghiệm</Link></li>
               <li><Link to="/pricing">Bảng giá niêm yết</Link></li>
               <li><Link to="/tracking">Tiến trình &amp; kết quả</Link></li>
-              <li><Link to="/appointments/book">Đặt lịch lấy mẫu</Link></li>
+              <li><Link to="/services">Đặt lịch lấy mẫu</Link></li>
               <li><Link to="/iso-process">Quy trình xét nghiệm</Link></li>
             </ul>
           </div>

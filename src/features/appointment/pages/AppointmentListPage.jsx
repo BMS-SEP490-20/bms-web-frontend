@@ -357,7 +357,7 @@ export default function AppointmentListPage() {
             <RotateCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
           {canBookAppointment && (
-            <Link to="/appointments/book" className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
+            <Link to={isPatient ? '/services' : '/appointments/book'} className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 rounded-pill">
               <Calendar  size="1em"/> {isPatient ? 'Đặt lịch mới' : 'Tạo lịch hẹn mới'}
             </Link>
           )}
@@ -487,7 +487,7 @@ export default function AppointmentListPage() {
                         : 'Điều chỉnh khoảng ngày hoặc trạng thái để tra cứu thêm.'}
                     </div>
                     {isPatient && (
-                      <Link to="/appointments/book" className="btn btn-primary btn-sm px-3 rounded-pill">
+                      <Link to="/services" className="btn btn-primary btn-sm px-3 rounded-pill">
                         <Calendar className="me-1"  size="1em"/> Đặt lịch lấy mẫu
                       </Link>
                     )}

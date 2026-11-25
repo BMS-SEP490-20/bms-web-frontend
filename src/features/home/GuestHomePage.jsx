@@ -216,7 +216,7 @@ export default function GuestHomePage({ user: propUser }) {
       const pkgId = pkg?.packageCode || pkg?.packageId || pkg?.id || '';
       window.location.href = pkgId
         ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}`
-        : '/appointments/book';
+        : '/services';
       return;
     }
     setSelectedPackage(pkg);

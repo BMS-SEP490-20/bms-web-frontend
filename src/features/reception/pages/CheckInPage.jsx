@@ -437,38 +437,6 @@ export default function CheckInPage() {
                 Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân trong hệ thống
               </div>
             </div>
-
-            <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
-              <Form onSubmit={handleQuickLookupSubmit} className="d-flex align-items-center gap-2">
-                <div className="bms-search-input-pill" style={{ minWidth: 260 }}>
-                  <Search className="bms-search-icon"  size="1em"/>
-                  <input
-                    type="text"
-                    placeholder="Nhập Mã BN, ID hoặc CCCD..."
-                    value={quickLookupId}
-                    onChange={(e) => setQuickLookupId(e.target.value)}
-                  />
-                  {quickLookupId && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setQuickLookupId('')}
-                      title="Xóa"
-                    >
-                      <LucideX size={12} />
-                    </button>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  disabled={lookupLoading || !quickLookupId.trim()}
-                  className="rounded-pill px-3 fw-semibold text-white d-flex align-items-center gap-1 shadow-sm"
-                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px' }}
-                >
-                  {lookupLoading ? <Spinner animation="border" size="sm" /> : <><Eye size={12} /> <span>Xem Nhanh</span></>}
-                </Button>
-              </Form>
-            </div>
           </div>
         </Card.Header>
 

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { CheckCircle2, AlertTriangle, Download, CalendarPlus, QrCode, Mail, Smartphone, MessageSquare, ChevronRight, ArrowLeft, RefreshCw, Lock, Banknote } from 'lucide-react';
 import { appointmentApi } from "../api/appointmentApi";
 import { QRCodeSVG } from "qrcode.react";
+import { ROLES, resolveRoleId, getStoredUser } from "../../../constants/roles";
 
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
@@ -18,6 +19,8 @@ const isPaidOrConfirmed = (rawStatus) => {
 export default function AppointmentConfirmationPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isReceptionist = useMemo(() => resolveRoleId(getStoredUser()) === ROLES.RECEPTIONIST, []);
+  const rebookPath = isReceptionist ? "/appointments/book" : "/services";
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -107,7 +110,7 @@ export default function AppointmentConfirmationPage() {
           <span className="align-middle">{error || "Không tìm thấy dữ liệu cuộc hẹn."}</span>
         </div>
         <div className="mt-3">
-          <Link to="/appointments/book" className="btn btn-primary">
+          <Link to={rebookPath} className="btn btn-primary">
             <ArrowLeft className="me-2"  size="1em"/> Quay lại đặt lịch hẹn
           </Link>
         </div>
@@ -130,7 +133,7 @@ export default function AppointmentConfirmationPage() {
             Mã xác nhận lịch hẹn đã được lưu vào hồ sơ y tế điện tử
           </p>
         </div>
-        <Link to="/appointments/book" className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5">
+        <Link to={rebookPath} className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5">
           <ArrowLeft  size="1em"/> Đặt lịch khác
         </Link>
       </div>

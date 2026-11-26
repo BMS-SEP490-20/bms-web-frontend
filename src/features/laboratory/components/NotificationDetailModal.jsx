@@ -5,19 +5,7 @@
  */
 
 import React, { useState } from "react";
-import {
-    FaBell,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaClock,
-    FaPhoneAlt,
-    FaEnvelope,
-    FaUser,
-    FaVial,
-    FaRedo,
-    FaCheck,
-    FaTimes
-} from "react-icons/fa";
+import { Bell, AlertTriangle, CheckCircle2, Clock, Phone, Mail, User, TestTube2, RotateCw, Check, X as LucideX } from 'lucide-react';
 
 export default function NotificationDetailModal({
     show,
@@ -79,7 +67,7 @@ export default function NotificationDetailModal({
                         }}
                     >
                         <div className="d-flex align-items-center gap-2">
-                            {isPanic ? <FaExclamationTriangle className="fs-5 text-danger" /> : <FaBell className="fs-5 text-primary" />}
+                            {isPanic ? <AlertTriangle className="fs-5 text-danger"  size="1em"/> : <Bell className="fs-5 text-primary"  size="1em"/>}
                             <h5 className="modal-title fw-bold mb-0 fs-6">
                                 Chi tiết thông báo kết quả xét nghiệm
                             </h5>
@@ -101,7 +89,7 @@ export default function NotificationDetailModal({
                         {/* Critical Banner */}
                         {isPanic && (
                             <div className="p-3 rounded-3 mb-4 d-flex align-items-start gap-3 border" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}>
-                                <FaExclamationTriangle className="fs-2 text-danger flex-shrink-0 mt-1" />
+                                <AlertTriangle className="fs-2 text-danger flex-shrink-0 mt-1"  size="1em"/>
                                 <div>
                                     <h6 className="fw-bold mb-1 text-danger">CẢNH BÁO: CHỈ SỐ XÉT NGHIỆM VƯỢT NGƯỠNG NGUY KỊCH</h6>
                                     <p className="mb-0 small text-dark">
@@ -141,16 +129,16 @@ export default function NotificationDetailModal({
                             <div className="col-12 col-md-6">
                                 <div className="p-3 border rounded bg-white h-100 shadow-xs">
                                     <span className="small text-muted fw-bold text-uppercase d-block mb-2">
-                                        <FaUser className="text-primary me-1" /> Thông Tin Bệnh Nhân
+                                        <User className="text-primary me-1"  size="1em"/> Thông Tin Bệnh Nhân
                                     </span>
                                     <h6 className="fw-bold text-dark mb-1">{notification.patientName}</h6>
                                     <div className="text-secondary small">
                                         <div>Mã BN: <strong className="font-monospace text-primary">{notification.patientId}</strong></div>
                                         {notification.patientPhone && (
-                                            <div><FaPhoneAlt className="me-1 text-muted" /> {notification.patientPhone}</div>
+                                            <div><Phone className="me-1 text-muted"  size="1em"/> {notification.patientPhone}</div>
                                         )}
                                         {notification.patientEmail && (
-                                            <div><FaEnvelope className="me-1 text-primary" /> <strong className="text-dark">{notification.patientEmail}</strong> <span className="badge bg-primary-subtle text-primary ms-1">Email nhận kết quả</span></div>
+                                            <div><Mail className="me-1 text-primary"  size="1em"/> <strong className="text-dark">{notification.patientEmail}</strong> <span className="badge bg-primary-subtle text-primary ms-1">Email nhận kết quả</span></div>
                                         )}
                                     </div>
                                 </div>
@@ -159,7 +147,7 @@ export default function NotificationDetailModal({
                             <div className="col-12 col-md-6">
                                 <div className="p-3 border rounded bg-white h-100 shadow-xs">
                                     <span className="small text-muted fw-bold text-uppercase d-block mb-2">
-                                        <FaVial className="text-info me-1" /> Đơn Xét Nghiệm & Gói Khám
+                                        <TestTube2 className="text-info me-1"  size="1em"/> Đơn Xét Nghiệm & Gói Khám
                                     </span>
                                     <h6 className="fw-bold text-dark mb-1 font-monospace">{notification.testOrderId}</h6>
                                     <div className="text-secondary small">
@@ -179,7 +167,7 @@ export default function NotificationDetailModal({
                         {notification.criticalParameters && notification.criticalParameters.length > 0 && (
                             <div className="p-3 bg-danger-subtle rounded border border-danger mb-4">
                                 <h6 className="fw-bold text-danger mb-2 d-flex align-items-center gap-1">
-                                    <FaExclamationTriangle />
+                                    <AlertTriangle  size="1em"/>
                                     Các Chỉ Số Vượt Ngưỡng Báo Động:
                                 </h6>
                                 <ul className="mb-0 text-danger ps-3 small fw-semibold font-monospace">
@@ -207,19 +195,19 @@ export default function NotificationDetailModal({
                         {/* Timestamps & Audit Trail */}
                         <div className="row g-2 text-muted small p-2 bg-light rounded border">
                             <div className="col-6 col-md-3">
-                                <FaClock className="me-1" /> Tạo lúc:
+                                <Clock className="me-1"  size="1em"/> Tạo lúc:
                                 <div className="fw-semibold text-dark">{notification.createdAt ? new Date(notification.createdAt).toLocaleString("vi-VN") : "--"}</div>
                             </div>
                             <div className="col-6 col-md-3">
-                                <FaClock className="me-1 text-primary" /> Đã gửi:
+                                <Clock className="me-1 text-primary"  size="1em"/> Đã gửi:
                                 <div className="fw-semibold text-dark">{notification.sentAt ? new Date(notification.sentAt).toLocaleString("vi-VN") : "--"}</div>
                             </div>
                             <div className="col-6 col-md-3">
-                                <FaCheckCircle className="me-1 text-success" /> Tiếp nhận:
+                                <CheckCircle2 className="me-1 text-success"  size="1em"/> Tiếp nhận:
                                 <div className="fw-semibold text-dark">{notification.deliveredAt ? new Date(notification.deliveredAt).toLocaleString("vi-VN") : "--"}</div>
                             </div>
                             <div className="col-6 col-md-3">
-                                <FaCheckCircle className="me-1 text-info" /> Đã đọc:
+                                <CheckCircle2 className="me-1 text-info"  size="1em"/> Đã đọc:
                                 <div className="fw-semibold text-dark">{notification.readAt ? new Date(notification.readAt).toLocaleString("vi-VN") : "Chưa đọc"}</div>
                             </div>
                         </div>
@@ -234,7 +222,7 @@ export default function NotificationDetailModal({
                                     onClick={handleRead}
                                     disabled={markingRead}
                                 >
-                                    <FaCheck />
+                                    <Check  size="1em"/>
                                     <span>Đánh dấu đã đọc</span>
                                 </button>
                             )}
@@ -262,7 +250,7 @@ export default function NotificationDetailModal({
                                         </>
                                     ) : (
                                         <>
-                                            <FaRedo />
+                                            <RotateCw  size="1em"/>
                                             <span>Gửi lại thông báo ({notification.retryCount || 0})</span>
                                         </>
                                     )}

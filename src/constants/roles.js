@@ -21,7 +21,7 @@ export const ROLE_LABELS = Object.freeze({
 /** Every role; use for screens open to any signed-in user (profile, password, own notifications). */
 export const ALL_ROLES = Object.freeze(Object.values(ROLES));
 
-// Old self-registration accounts were stored with RoleId 9; the backend now issues them as Patient (6).
+// Old self-registration accounts were stored with RoleId 9; the backend now issues them as Patient (5).
 const LEGACY_PATIENT_ROLE_ID = 9;
 
 // Exact (case-insensitive) names only. WHY: the old guards used substring matching and defaulted unknown
@@ -122,12 +122,12 @@ export function isPathAllowedForRole(roleId, path) {
   }
 
   const rules = {
-    [ROLES.ADMIN]: [/^\/dashboard/, /^\/admin\//, /^\/roles/, /^\/reports\//, /^\/packages/, /^\/shifts/, /^\/manage\//],
-    [ROLES.MANAGER]: [/^\/dashboard/, /^\/laboratory\//, /^\/lab\//, /^\/reports\//, /^\/admin\/packages/, /^\/packages/, /^\/shifts/, /^\/manage\//, /^\/patient\/test-history/],
-    [ROLES.DOCTOR]: [/^\/dashboard/, /^\/doctor\//, /^\/medical-assessments/, /^\/laboratory\/lookup-results/, /^\/appointments/, /^\/patient\//],
-    [ROLES.LAB]: [/^\/dashboard/, /^\/lab\//, /^\/laboratory\//, /^\/shifts/],
-    [ROLES.RECEPTIONIST]: [/^\/dashboard/, /^\/receptionist\//, /^\/reception\//, /^\/calculate-fees/, /^\/invoices/, /^\/appointments/, /^\/patients/],
-    [ROLES.PATIENT]: [/^\/home/, /^\/patient\//, /^\/appointments/, /^\/services/, /^\/tracking/],
+    [ROLES.ADMIN]: [/^\/dashboard/, /^\/admin\//, /^\/roles/, /^\/backup/, /^\/inventory/, /^\/feedback/, /^\/packages/, /^\/criteria/, /^\/laboratory\//, /^\/reports\//, /^\/iot\//, /^\/manager\//, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.MANAGER]: [/^\/dashboard/, /^\/laboratory\//, /^\/lab\//, /^\/qc\//, /^\/iot\//, /^\/criteria/, /^\/reports\//, /^\/admin\/packages/, /^\/packages/, /^\/shifts/, /^\/manage\//, /^\/patients/, /^\/inventory/, /^\/manager\//, /^\/feedback/, /^\/invoices/, /^\/patient\/test-history/, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.DOCTOR]: [/^\/dashboard/, /^\/doctor\//, /^\/medical-assessments/, /^\/medical-records/, /^\/laboratory\/biochemical-results/, /^\/laboratory\/lookup-results/, /^\/appointments/, /^\/patients/, /^\/shifts/, /^\/patient\//, /^\/results/, /^\/reports\//, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.LAB]: [/^\/dashboard/, /^\/lab\//, /^\/lab-user\//, /^\/laboratory\//, /^\/qc\//, /^\/iot\//, /^\/shifts/, /^\/patients/, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.RECEPTIONIST]: [/^\/dashboard/, /^\/receptionist\//, /^\/reception\//, /^\/queue/, /^\/payments\//, /^\/appointments/, /^\/patients/, /^\/shifts/, /^\/profile/, /^\/change-password/, /^\/notifications/],
+    [ROLES.PATIENT]: [/^\/home/, /^\/patient\//, /^\/appointments/, /^\/services/, /^\/pricing/, /^\/catalog/, /^\/iso-process/, /^\/tracking/, /^\/payments\//, /^\/results/, /^\/reports\//, /^\/feedback/, /^\/profile/, /^\/change-password/, /^\/notifications/],
   };
 
   const list = rules[roleId] || [];

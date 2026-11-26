@@ -73,6 +73,12 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
   background: transparent !important;
   border: none !important;
 }
+.modal .modal-header { padding: 22px 28px 14px !important; }
+.modal .modal-body,
+.modal .modal-body.p-2,
+.modal .modal-body.p-3 { padding: 20px 28px !important; }
+.modal .modal-body.p-0 { padding: 0 !important; }
+.modal .modal-footer { padding: 14px 28px 24px !important; gap: 10px; }
 .card-header { padding: 10px 14px 4px !important; font-size: var(--fs-sm); font-weight: 650; }
 .card-body { padding: 12px 14px !important; }
 hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
@@ -322,6 +328,13 @@ textarea.form-control { height: auto !important; }
 @media (max-width: 767px) {
   .bms-page { padding: 24px 20px 40px; }
   .bms-statrow { gap: 20px 36px; }
+}
+
+@keyframes bms-spin {
+  to { transform: rotate(360deg); }
+}
+.fa-spin {
+  animation: bms-spin 1s linear infinite;
 }
 
 

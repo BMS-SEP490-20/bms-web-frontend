@@ -8,26 +8,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Modal, Button, Badge, Form, Row, Col, Alert, Spinner } from 'react-bootstrap';
-import {
-  FaFileInvoiceDollar,
-  FaCreditCard,
-  FaCheckCircle,
-  FaClock,
-  FaDownload,
-  FaPrint,
-  FaSearch,
-  FaFilter,
-  FaCalendarAlt,
-  FaReceipt,
-  FaArrowRight,
-  FaTimes,
-  FaExternalLinkAlt,
-  FaInfoCircle,
-  FaUniversity,
-  FaMoneyBillWave,
-  FaSyncAlt,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+import { Receipt as LucideReceipt, CreditCard, CheckCircle2, Clock, Download, Printer, Search, Filter, Calendar, ArrowRight, X, ExternalLink, Info, Landmark, Banknote, RefreshCw, AlertTriangle } from 'lucide-react';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
 import { getMyPatientInformation } from '../../../services/patientService';
@@ -155,10 +136,14 @@ export default function PatientPaymentHistoryPage() {
           Boolean(item.paidAt);
 
         // Normalize payment method
-        let displayMethod = 'Cổng VNPAY (Thẻ NCB / QR)';
+        let displayMethod = item.paymentMethod ? String(item.paymentMethod) : (isPaid ? 'Chuyển khoản / Trực tuyến' : 'Chờ thanh toán');
         const rawMethod = String(item.paymentMethod || '').toLowerCase();
         if (rawMethod.includes('cash') || rawMethod.includes('tiền mặt') || item.paymentMethod === 1) {
           displayMethod = 'Tiền mặt tại quầy tiếp đón';
+        } else if (rawMethod.includes('sepay') || rawMethod.includes('vietqr')) {
+          displayMethod = 'Chuyển khoản SePay VietQR';
+        } else if (rawMethod.includes('vnpay')) {
+          displayMethod = 'Cổng thanh toán VNPAY';
         } else if (rawMethod.includes('transfer') || rawMethod.includes('chuyển khoản') || item.paymentMethod === 3) {
           displayMethod = 'Chuyển khoản Ngân hàng';
         } else if (rawMethod.includes('pos') || rawMethod.includes('card') || item.paymentMethod === 4) {
@@ -188,10 +173,10 @@ export default function PatientPaymentHistoryPage() {
         return {
           id: item.id || item.invoiceId || `INV-${index + 1}`,
           invoiceNumber: invNum,
-          formNumber: item.formNumber || '1',
-          serialNumber: item.serialNumber || '1C26TBM',
+          formNumber: item.formNumber || '—',
+          serialNumber: item.serialNumber || '—',
           cqtCode,
-          transactionCode: item.transactionReference || item.receiptNumber || item.transactionCode || (isPaid ? 'VNPAY-ONLINE' : null),
+          transactionCode: item.transactionReference || item.receiptNumber || item.transactionCode || null,
           packageName: pkgName,
           amount: totalAmt,
           subTotal: subTot,
@@ -205,12 +190,12 @@ export default function PatientPaymentHistoryPage() {
           statusText: isPaid ? 'Đã thanh toán' : 'Chờ thanh toán',
           paidAt: item.paidAt || item.createdAt || null,
           appointmentCode: item.appointmentCode || item.appointmentId || '—',
-          cashierName: item.cashierName || (rawMethod.includes('cash') ? 'Thu ngân quầy tiếp đón' : 'Cổng Thanh Toán Quốc Gia VNPAY'),
-          bankCode: item.bankCode || 'NCB',
+          cashierName: item.cashierName || (rawMethod.includes('cash') ? 'Thu ngân quầy tiếp đón' : '—'),
+          bankCode: item.bankCode || '',
           items: Array.isArray(item.items) && item.items.length > 0 ? item.items : [
             {
               stt: 1,
-              itemCode: item.items?.[0]?.itemCode || 'LAB-01',
+              itemCode: item.items?.[0]?.itemCode || '—',
               itemName: pkgName,
               unit: 'Gói/Lần',
               quantity: 1,
@@ -318,13 +303,13 @@ export default function PatientPaymentHistoryPage() {
             onClick={fetchInvoices}
             disabled={loading}
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
           <Link
-            to="/appointments/book"
+            to="/services"
             className="btn btn-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 fw-semibold"
           >
-            <FaReceipt /> Đặt lịch mới
+            <LucideReceipt  size="1em"/> Đặt lịch mới
           </Link>
         </div>
       </div>
@@ -339,7 +324,7 @@ export default function PatientPaymentHistoryPage() {
                 <div className="bms-kpi-value text-success">{formatCurrency(stats.totalPaid)}</div>
               </div>
               <div className="bms-kpi-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
-                <FaFileInvoiceDollar />
+                <LucideReceipt  size="1em"/>
               </div>
             </div>
           </div>
@@ -352,7 +337,7 @@ export default function PatientPaymentHistoryPage() {
                 <div className="bms-kpi-value text-primary">{stats.paidCount}</div>
               </div>
               <div className="bms-kpi-icon-box" style={{ background: '#EFF6FF', color: '#1E60E6' }}>
-                <FaCheckCircle />
+                <CheckCircle2  size="1em"/>
               </div>
             </div>
           </div>
@@ -365,7 +350,7 @@ export default function PatientPaymentHistoryPage() {
                 <div className="bms-kpi-value text-warning">{stats.pendingCount}</div>
               </div>
               <div className="bms-kpi-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
-                <FaClock />
+                <Clock  size="1em"/>
               </div>
             </div>
           </div>
@@ -375,7 +360,7 @@ export default function PatientPaymentHistoryPage() {
       {/* Date Range Validation Alert */}
       {isDateInvalid && (
         <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-3 border-0 bg-warning-subtle text-dark">
-          <FaExclamationTriangle className="text-warning flex-shrink-0" />
+          <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
           <span className="small">Ngày bắt đầu tra cứu phải trước hoặc bằng ngày kết thúc.</span>
         </Alert>
       )}
@@ -384,11 +369,11 @@ export default function PatientPaymentHistoryPage() {
       {error && (
         <Alert variant="danger" className="d-flex align-items-center justify-content-between mb-3 rounded-3 border-0 bg-danger-subtle text-dark">
           <div className="d-flex align-items-center gap-2">
-            <FaExclamationTriangle className="text-danger flex-shrink-0" />
+            <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
             <span className="small">{error}</span>
           </div>
           <Button variant="outline-danger" size="sm" className="rounded-pill px-3" onClick={fetchInvoices}>
-            <FaSyncAlt className="me-1" /> Thử lại
+            <RefreshCw className="me-1"  size="1em"/> Thử lại
           </Button>
         </Alert>
       )}
@@ -396,7 +381,7 @@ export default function PatientPaymentHistoryPage() {
       {/* 3. TOOLBAR & FILTER CONTROLS */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 220 }}>
-          <FaSearch className="text-muted" size={13} />
+          <Search className="text-muted" size={13} />
           <input
             type="text"
             placeholder="Tìm số hóa đơn, mã giao dịch, gói khám..."
@@ -485,7 +470,7 @@ export default function PatientPaymentHistoryPage() {
               ) : displayedTransactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-5 text-muted">
-                    <FaFileInvoiceDollar size={28} className="d-block mx-auto mb-2 opacity-50 text-secondary" />
+                    <LucideReceipt size={28} className="d-block mx-auto mb-2 opacity-50 text-secondary" />
                     <div className="fw-semibold text-secondary">Chưa có giao dịch viện phí hoặc hóa đơn nào</div>
                     <div className="small text-muted mt-1">Các giao dịch đặt lịch xét nghiệm sẽ hiển thị tại đây.</div>
                   </td>
@@ -518,9 +503,9 @@ export default function PatientPaymentHistoryPage() {
                       <td>
                         <span className="badge bg-light text-dark rounded-pill px-2.5 py-1 fw-normal" style={{ fontSize: 11.5 }}>
                           {item.rawPaymentMethod === 'Cash' || item.paymentMethod.includes('quầy') ? (
-                            <FaMoneyBillWave className="me-1 text-success" />
+                            <Banknote className="me-1 text-success"  size="1em"/>
                           ) : (
-                            <FaCreditCard className="me-1 text-primary" />
+                            <CreditCard className="me-1 text-primary"  size="1em"/>
                           )}
                           {item.paymentMethod}
                         </span>
@@ -531,11 +516,11 @@ export default function PatientPaymentHistoryPage() {
                       <td className="text-center">
                         {isPaid ? (
                           <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-semibold">
-                            <FaCheckCircle className="me-1" /> Đã thanh toán
+                            <CheckCircle2 className="me-1"  size="1em"/> Đã thanh toán
                           </span>
                         ) : (
                           <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2.5 py-1 fw-semibold">
-                            <FaClock className="me-1" /> Chờ thanh toán
+                            <Clock className="me-1"  size="1em"/> Chờ thanh toán
                           </span>
                         )}
                       </td>
@@ -546,7 +531,7 @@ export default function PatientPaymentHistoryPage() {
                             className="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
                             onClick={() => handleOpenReceipt(item)}
                           >
-                            <FaFileInvoiceDollar /> Hóa đơn VAT
+                            <LucideReceipt  size="1em"/> Hóa đơn VAT
                           </button>
                         ) : (
                           <button
@@ -554,7 +539,7 @@ export default function PatientPaymentHistoryPage() {
                             className="btn btn-primary btn-sm rounded-pill py-1 px-3 fw-semibold"
                             onClick={() => navigate(`/payments/checkout?invoiceId=${item.id}&appointmentId=${item.appointmentCode}&amount=${item.amount}`)}
                           >
-                            Thanh toán <FaArrowRight className="ms-1" />
+                            Thanh toán <ArrowRight className="ms-1"  size="1em"/>
                           </button>
                         )}
                       </td>
@@ -616,7 +601,7 @@ export default function PatientPaymentHistoryPage() {
       {/* 6. HELPFUL FOOTER NOTICE */}
       <div className="bms-pay-footer-note">
         <div className="d-flex align-items-center gap-2">
-          <FaInfoCircle className="text-primary flex-shrink-0" />
+          <Info className="text-primary flex-shrink-0"  size="1em"/>
           <span>
             Hóa đơn điện tử VAT được phát hành theo quy định của Bộ Tài chính. Quý khách có thể xuất trình mã tra cứu CQT khi làm thủ tục tại cơ sở y tế.
           </span>

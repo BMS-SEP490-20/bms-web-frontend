@@ -13,12 +13,15 @@ import PortalNavbar from '../../home/components/PortalNavbar';
 import PageHeader from '../../../components/ui/PageHeader';
 import MegaFooter from '../../home/components/MegaFooter';
 import { searchTestPackages } from '../api/catalogApi';
+import { patientFeedbackService, buildPackageRatingsMap, lookupPackageRating } from '../../../services/patientFeedbackService';
+import PackageRatingPill from '../components/PackageRatingPill';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
 import '../../home/landing-sections.css';
 
 export default function PricingPage() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState([]);
+  const [ratingsMap, setRatingsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -28,9 +31,15 @@ export default function PricingPage() {
     async function loadData() {
       try {
         setLoading(true);
-        const res = await searchTestPackages({ pageSize: 50 });
+        const [res, ratingsRes] = await Promise.all([
+          searchTestPackages({ pageSize: 50 }),
+          patientFeedbackService.getPackageRatings()
+        ]);
         if (isMounted) {
           setPackages(Array.isArray(res?.items) ? res.items : []);
+          if (ratingsRes.success) {
+            setRatingsMap(buildPackageRatingsMap(ratingsRes.data));
+          }
         }
       } catch (err) {
         console.error('Error fetching pricing items:', err);
@@ -47,6 +56,7 @@ export default function PricingPage() {
     () =>
       packages.map((pkg) => ({
         id: pkg.id || pkg.packageCode,
+        packageCode: pkg.packageCode || pkg.code || '',
         code: pkg.packageCode || pkg.code || '',
         name: pkg.packageName || pkg.name || '',
         category: pkg.category || '',
@@ -106,7 +116,7 @@ export default function PricingPage() {
               <div style={{ flex: 1 }}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                  <span>TIÊU CHUẨN ISO 15189:2022 · NIÊM YẾT MINH BẠCH 100%</span>
+                  <span>CHUẨN Y KHOA · NIÊM YẾT MINH BẠCH 100%</span>
                 </div>
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
                   Bảng Giá Niêm Yết Dịch Vụ Xét Nghiệm
@@ -406,6 +416,9 @@ export default function PricingPage() {
                               Gói {item.criteriaCount} chỉ số
                             </Badge>
                           )}
+                          {item.type === 'PACKAGE' && (
+                            <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, item)} compact />
+                          )}
                         </div>
                         <div className="d-flex flex-wrap align-items-center gap-3 mt-1 small text-muted" style={{ fontSize: '12.5px' }}>
                           {item.category && (
@@ -446,24 +459,41 @@ export default function PricingPage() {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
-                        className="btn text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-                        style={{
-                          backgroundColor: '#1E60E6',
-                          borderColor: '#1E60E6',
-                          borderRadius: '9999px',
-                          padding: '7px 20px',
-                          fontSize: '13px',
-                          boxShadow: '0 4px 12px rgba(30, 96, 230, 0.2)',
-                          transition: 'all 0.15s ease',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        <span>Đặt Lịch</span>
-                        <FaArrowRight size={11} />
-                      </button>
+                      <div className="d-flex align-items-center gap-2">
+                        <Link
+                          to={`/services?detail=${encodeURIComponent(item.code || item.id)}`}
+                          className="btn btn-sm fw-semibold"
+                          style={{
+                            backgroundColor: '#F1F5F9',
+                            color: '#334155',
+                            borderRadius: '9999px',
+                            padding: '7px 14px',
+                            fontSize: '12.5px',
+                            whiteSpace: 'nowrap',
+                            border: 'none'
+                          }}
+                        >
+                          Chi tiết &amp; đánh giá
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/appointments/book?packageId=${item.id}&packageName=${encodeURIComponent(item.name)}`)}
+                          className="btn text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
+                          style={{
+                            backgroundColor: '#1E60E6',
+                            borderColor: '#1E60E6',
+                            borderRadius: '9999px',
+                            padding: '7px 20px',
+                            fontSize: '13px',
+                            boxShadow: '0 4px 12px rgba(30, 96, 230, 0.2)',
+                            transition: 'all 0.15s ease',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          <span>Đặt Lịch</span>
+                          <FaArrowRight size={11} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

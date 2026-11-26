@@ -12,12 +12,7 @@ import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
   Modal, Spinner, Alert, Pagination, Nav
 } from 'react-bootstrap';
-import {
-  FaUserPlus, FaSearch, FaIdCard, FaUserInjured, FaPhoneAlt,
-  FaTint, FaHeartbeat, FaNotesMedical, FaCalendarCheck,
-  FaExclamationTriangle, FaCheckCircle, FaEye, FaSyncAlt, FaUserShield,
-  FaShieldAlt, FaUsers, FaUserCheck, FaTimes
-} from 'react-icons/fa';
+import { UserPlus, Search, IdCard, User, Phone, Droplet, HeartPulse, FileText, CalendarCheck, AlertTriangle, CheckCircle2, Eye, RefreshCw, ShieldCheck, Users, UserCheck, X as LucideX } from 'lucide-react';
 import {
   searchPatients,
   getPatientById,
@@ -109,6 +104,7 @@ export default function CheckInPage() {
   // WHY: UC25 guest profiles are Receptionist-only (matrix §1.3, decision 10: Admin has no clinical access).
   // No stored user => false (the old code returned true and also let Admin in).
   const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
+  const canViewClinicalRecords = React.useMemo(() => hasRole(getStoredUser(), ROLES.DOCTOR), []);
 
   useEffect(() => {
     try {
@@ -366,7 +362,7 @@ export default function CheckInPage() {
                 boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)'
               }}
             >
-              <FaUserPlus size={13} />
+              <UserPlus size={13} />
               <span>+ Tạo Hồ Sơ Khách</span>
             </Button>
           )}
@@ -393,7 +389,7 @@ export default function CheckInPage() {
               <div className="bms-kpi-value">{totalItems}</div>
               <div className="bms-kpi-sub text-muted">Toàn hệ thống lưu trữ</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUsers /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Users  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -403,7 +399,7 @@ export default function CheckInPage() {
               <div className="bms-kpi-value text-primary">{guestCount}</div>
               <div className="bms-kpi-sub text-primary">Tiếp nhận tại quầy</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserInjured /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><User  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -413,7 +409,7 @@ export default function CheckInPage() {
               <div className="bms-kpi-value text-success">{registeredCount}</div>
               <div className="bms-kpi-sub text-success">Đồng bộ portal trực tuyến</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCheck /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green"><UserCheck  size="1em"/></div>
           </div>
         </Col>
         <Col xs={12} sm={6} md={3}>
@@ -423,7 +419,7 @@ export default function CheckInPage() {
               <div className="bms-kpi-value">100%</div>
               <div className="bms-kpi-sub text-success">Bảo mật NĐ 13/2023</div>
             </div>
-            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaShieldAlt /></div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><ShieldCheck  size="1em"/></div>
           </div>
         </Col>
       </Row>
@@ -434,44 +430,12 @@ export default function CheckInPage() {
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
             <div>
               <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                <FaUserInjured style={{ color: '#1E60E6' }} />
+                <User style={{ color: '#1E60E6' }}  size="1em"/>
                 Danh Sách Hồ Sơ Bệnh Nhân &amp; Khách Vãng Lai
               </h5>
               <div className="text-muted small">
                 Hiển thị {patients.length} / {totalItems} hồ sơ bệnh nhân trong hệ thống
               </div>
-            </div>
-
-            <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
-              <Form onSubmit={handleQuickLookupSubmit} className="d-flex align-items-center gap-2">
-                <div className="bms-search-input-pill" style={{ minWidth: 260 }}>
-                  <FaSearch className="bms-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Nhập Mã BN, ID hoặc CCCD..."
-                    value={quickLookupId}
-                    onChange={(e) => setQuickLookupId(e.target.value)}
-                  />
-                  {quickLookupId && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setQuickLookupId('')}
-                      title="Xóa"
-                    >
-                      <FaTimes size={12} />
-                    </button>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  disabled={lookupLoading || !quickLookupId.trim()}
-                  className="rounded-pill px-3 fw-semibold text-white d-flex align-items-center gap-1 shadow-sm"
-                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '13px' }}
-                >
-                  {lookupLoading ? <Spinner animation="border" size="sm" /> : <><FaEye size={12} /> <span>Xem Nhanh</span></>}
-                </Button>
-              </Form>
             </div>
           </div>
         </Card.Header>
@@ -479,85 +443,78 @@ export default function CheckInPage() {
         <Card.Body className="p-0">
 
           {/* Integrated Filter Control Strip */}
-          <div className="bms-filter-bar">
-            <Row className="g-2 align-items-center">
-              <Col xs={12} md={5}>
-                <div className="bms-search-input-pill">
-                  <FaSearch className="bms-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                  />
-                  {searchInput && (
-                    <button
-                      type="button"
-                      className="bms-search-clear"
-                      onClick={() => setSearchInput('')}
-                      title="Xóa tìm kiếm"
-                    >
-                      <FaTimes size={12} />
-                    </button>
-                  )}
-                </div>
-              </Col>
-
-              <Col xs={6} md={3}>
-                <Form.Select
-                  value={guestFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setGuestFilter(e.target.value);
-                    setPage(1);
-                  }}
+          <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2">
+            <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+              <Search className="bms-search-icon" size="1em" />
+              <input
+                type="text"
+                placeholder="Tìm theo Họ tên, Mã BN, Số điện thoại, CCCD hoặc Email..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  className="bms-search-clear"
+                  onClick={() => setSearchInput('')}
+                  title="Xóa tìm kiếm"
                 >
-                  <option value="ALL">Tất cả loại hồ sơ</option>
-                  <option value="true">Khách vãng lai (Guest Profile)</option>
-                  <option value="false">Bệnh nhân có tài khoản</option>
-                </Form.Select>
-              </Col>
+                  <LucideX size={12} />
+                </button>
+              )}
+            </div>
 
-              <Col xs={6} md={2}>
-                <Form.Select
-                  value={genderFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setGenderFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option value="ALL">Mọi giới tính</option>
-                  <option value="Male">Nam (Male)</option>
-                  <option value="Female">Nữ (Female)</option>
-                  <option value="Other">Khác (Other)</option>
-                </Form.Select>
-              </Col>
+            <Form.Select
+              size="sm"
+              value={guestFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '185px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setGuestFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Tất cả loại hồ sơ</option>
+              <option value="true">Khách vãng lai</option>
+              <option value="false">Bệnh nhân có tài khoản</option>
+            </Form.Select>
 
-              <Col xs={12} md={2}>
-                <Form.Select
-                  value={bloodTypeFilter}
-                  className="rounded-pill"
-                  style={{ backgroundColor: '#FFFFFF', fontSize: '13.5px' }}
-                  onChange={(e) => {
-                    setBloodTypeFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option value="ALL">Mọi nhóm máu</option>
-                  <option value="O+">Nhóm máu O+</option>
-                  <option value="A+">Nhóm máu A+</option>
-                  <option value="B+">Nhóm máu B+</option>
-                  <option value="AB+">Nhóm máu AB+</option>
-                  <option value="O-">Nhóm máu O-</option>
-                  <option value="A-">Nhóm máu A-</option>
-                  <option value="B-">Nhóm máu B-</option>
-                  <option value="AB-">Nhóm máu AB-</option>
-                </Form.Select>
-              </Col>
-            </Row>
+            <Form.Select
+              size="sm"
+              value={genderFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '140px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setGenderFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi giới tính</option>
+              <option value="Male">Nam</option>
+              <option value="Female">Nữ</option>
+              <option value="Other">Khác</option>
+            </Form.Select>
+
+            <Form.Select
+              size="sm"
+              value={bloodTypeFilter}
+              className="rounded-pill"
+              style={{ width: 'auto', minWidth: '145px', backgroundColor: '#FFFFFF', fontSize: '13.5px', paddingTop: '7px', paddingBottom: '7px' }}
+              onChange={(e) => {
+                setBloodTypeFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">Mọi nhóm máu</option>
+              <option value="O+">Nhóm máu O+</option>
+              <option value="A+">Nhóm máu A+</option>
+              <option value="B+">Nhóm máu B+</option>
+              <option value="AB+">Nhóm máu AB+</option>
+              <option value="O-">Nhóm máu O-</option>
+              <option value="A-">Nhóm máu A-</option>
+              <option value="B-">Nhóm máu B-</option>
+              <option value="AB-">Nhóm máu AB-</option>
+            </Form.Select>
           </div>
 
           <div className="table-responsive">
@@ -585,7 +542,7 @@ export default function CheckInPage() {
                 ) : patients.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="text-center py-3 text-muted">
-                      <FaUserInjured className="fs-2 d-block mx-auto mb-2 opacity-50" style={{ color: '#64748B' }} />
+                      <User className="fs-2 d-block mx-auto mb-2 opacity-50" style={{ color: '#64748B' }}  size="1em"/>
                       Không tìm thấy hồ sơ bệnh nhân nào phù hợp. Bạn có thể tạo mới Hồ Sơ Khách Vãng Lai (Guest Profile).
                     </td>
                   </tr>
@@ -619,7 +576,7 @@ export default function CheckInPage() {
                       <td className="font-monospace py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{pt.identityNumber || '—'}</td>
                       <td className="text-center py-3">
                         <span className="badge px-2.5 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
-                          <FaTint className="me-1" />
+                          <Droplet className="me-1"  size="1em"/>
                           {pt.bloodType || 'Unknown'}
                         </span>
                       </td>
@@ -630,7 +587,7 @@ export default function CheckInPage() {
                           style={{ borderRadius: '9999px', borderColor: '#1E60E6', color: '#1E60E6' }}
                           onClick={() => handleViewPatient(pt)}
                         >
-                          <FaEye className="me-1" /> Xem Chi Tiết
+                          <Eye className="me-1"  size="1em"/> Xem Chi Tiết
                         </Button>
                       </td>
                     </tr>
@@ -672,19 +629,19 @@ export default function CheckInPage() {
         <Form onSubmit={handleCreateGuestSubmit}>
           <Modal.Header closeButton={!createLoading} style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
-              <FaUserPlus style={{ color: '#1E60E6' }} />
+              <UserPlus style={{ color: '#1E60E6' }}  size="1em"/>
               <span>Tạo Hồ Sơ Bệnh Nhân Khách Vãng Lai</span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
+          <Modal.Body style={{ maxHeight: '78vh', overflowY: 'auto' }}>
             <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
               <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
             </Alert>
 
             {createError && (
               <Alert variant="danger" dismissible onClose={() => setCreateError('')} className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
-                <FaExclamationTriangle className="me-2" />
+                <AlertTriangle className="me-2"  size="1em"/>
                 {createError}
               </Alert>
             )}
@@ -695,7 +652,7 @@ export default function CheckInPage() {
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
                     <div className="fw-bold small mb-1">
-                      <FaExclamationTriangle className="me-1" />
+                      <AlertTriangle className="me-1"  size="1em"/>
                       Phát hiện {duplicateMatches.length} hồ sơ có khả năng trùng lặp trong hệ thống:
                     </div>
                     {duplicateMatches.map((m) => (
@@ -964,7 +921,7 @@ export default function CheckInPage() {
               {createLoading ? (
                 <><Spinner animation="border" size="sm" className="me-2" /> Đang lưu hồ sơ...</>
               ) : (
-                <><FaUserPlus className="me-1" /> Lưu Hồ Sơ Khách Vãng Lai</>
+                <><UserPlus className="me-1"  size="1em"/> Lưu Hồ Sơ Khách Vãng Lai</>
               )}
             </Button>
           </Modal.Footer>
@@ -982,15 +939,15 @@ export default function CheckInPage() {
       >
         <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 mb-0">
-            <FaIdCard style={{ color: '#1E60E6' }} />
+            <IdCard style={{ color: '#1E60E6' }}  size="1em"/>
             <span>Hồ Sơ Chi Tiết Bệnh Nhân</span>
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="p-2" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+        <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
           {detailError && (
             <Alert variant="danger" className="mb-3" style={{ borderRadius: '12px' }}>
-              <FaExclamationTriangle className="me-2" />
+              <AlertTriangle className="me-2"  size="1em"/>
               {detailError}
             </Alert>
           )}
@@ -1030,11 +987,11 @@ export default function CheckInPage() {
                         </div>
                         <div className="d-flex flex-wrap gap-2 mt-2">
                           <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', borderRadius: '9999px' }}>
-                            <FaTint className="me-1" /> Nhóm máu: {selectedPatient.bloodType || 'Unknown'}
+                            <Droplet className="me-1"  size="1em"/> Nhóm máu: {selectedPatient.bloodType || 'Unknown'}
                           </span>
                           {selectedPatient.allergies?.length > 0 ? (
                             <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fde047', borderRadius: '9999px' }}>
-                              <FaExclamationTriangle className="me-1" />
+                              <AlertTriangle className="me-1"  size="1em"/>
                               Dị ứng: {selectedPatient.allergies.join(', ')}
                             </span>
                           ) : (
@@ -1076,7 +1033,7 @@ export default function CheckInPage() {
                     onClick={() => setActiveDetailTab('summary')}
                     className="fw-semibold"
                   >
-                    <FaHeartbeat className="me-1 text-danger" /> Thông Tin Hành Chính & Sinh Hiệu
+                    <HeartPulse className="me-1 text-danger"  size="1em"/> Thông Tin Hành Chính & Sinh Hiệu
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
@@ -1085,18 +1042,20 @@ export default function CheckInPage() {
                     onClick={() => setActiveDetailTab('appointments')}
                     className="fw-semibold"
                   >
-                    <FaCalendarCheck className="me-1 text-primary" /> Lịch Hẹn & Phiếu Xét Nghiệm ({selectedPatient.recentAppointments?.length || 0})
+                    <CalendarCheck className="me-1 text-primary"  size="1em"/> Lịch Hẹn & Phiếu Xét Nghiệm ({selectedPatient.recentAppointments?.length || 0})
                   </Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link
-                    active={activeDetailTab === 'records'}
-                    onClick={() => setActiveDetailTab('records')}
-                    className="fw-semibold"
-                  >
-                    <FaNotesMedical className="me-1 text-success" /> Bệnh Án & Ghi Chú Lâm Sàng ({selectedPatient.recentMedicalRecords?.length || 0})
-                  </Nav.Link>
-                </Nav.Item>
+                {canViewClinicalRecords && (
+                  <Nav.Item>
+                    <Nav.Link
+                      active={activeDetailTab === 'records'}
+                      onClick={() => setActiveDetailTab('records')}
+                      className="fw-semibold"
+                    >
+                      <FileText className="me-1 text-success"  size="1em"/> Bệnh Án &amp; Ghi Chú Lâm Sàng ({selectedPatient.recentMedicalRecords?.length || 0})
+                    </Nav.Link>
+                  </Nav.Item>
+                )}
               </Nav>
 
               {/* Tab 1: Demographics, Vitals & Medical History */}
@@ -1237,8 +1196,8 @@ export default function CheckInPage() {
                 </div>
               )}
 
-              {/* Tab 3: Recent Medical Records */}
-              {activeDetailTab === 'records' && (
+              {/* Tab 3: Recent Medical Records (Doctor only) */}
+              {canViewClinicalRecords && activeDetailTab === 'records' && (
                 <div className="table-responsive border rounded-3">
                   <Table hover size="sm" className="align-middle mb-0">
                     <thead className="table-light">

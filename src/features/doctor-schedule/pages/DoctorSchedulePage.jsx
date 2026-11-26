@@ -9,11 +9,7 @@ import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
   Spinner, Alert, Modal
 } from 'react-bootstrap';
-import {
-  FaCalendarAlt, FaUserMd, FaSearch, FaClock, FaClinicMedical,
-  FaCheckCircle, FaPlus, FaEdit, FaTrash, FaEye, FaSyncAlt,
-  FaExclamationTriangle, FaUsers, FaDoorOpen, FaLock, FaTimes, FaThList, FaFlask, FaUserNurse
-} from 'react-icons/fa';
+import { Calendar, Stethoscope, Search, Clock, Hospital, CheckCircle2, Plus, SquarePen, Trash2, Eye, RefreshCw, AlertTriangle, Users, DoorOpen, Lock, X as LucideX, List, FlaskConical, UserCheck } from 'lucide-react';
 import {
   fetchShifts,
   fetchShiftById,
@@ -555,7 +551,7 @@ export default function DoctorSchedulePage() {
             disabled={loading}
             className="d-flex align-items-center gap-1 px-3 py-2 rounded-pill"
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} /> Làm mới
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/> Làm mới
           </Button>
           {canManageShifts && (
             <Button
@@ -568,7 +564,7 @@ export default function DoctorSchedulePage() {
                 borderColor: '#1E60E6'
               }}
             >
-              <FaPlus size={13} /> Tạo Ca Làm Việc Mới
+              <Plus size={13} /> Tạo Ca Làm Việc Mới
             </Button>
           )}
         </div>
@@ -576,14 +572,14 @@ export default function DoctorSchedulePage() {
 
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3 shadow-sm mb-3">
-          <FaCheckCircle className="me-2" />
+          <CheckCircle2 className="me-2"  size="1em"/>
           {successMsg}
         </Alert>
       )}
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')} className="rounded-3 shadow-sm mb-3">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {error}
         </Alert>
       )}
@@ -598,7 +594,7 @@ export default function DoctorSchedulePage() {
               <div className="bms-kpi-sub text-muted">Hiển thị {shifts.length} ca trên trang</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-              <FaCalendarAlt />
+              <Calendar  size="1em"/>
             </div>
           </div>
         </Col>
@@ -610,7 +606,7 @@ export default function DoctorSchedulePage() {
               <div className="bms-kpi-sub text-success">Sẵn sàng tiếp nhận bệnh nhân</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-              <FaCheckCircle />
+              <CheckCircle2  size="1em"/>
             </div>
           </div>
         </Col>
@@ -622,7 +618,7 @@ export default function DoctorSchedulePage() {
               <div className="bms-kpi-sub text-muted">Lượt đăng ký / Tổng chỉ tiêu</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-              <FaUsers />
+              <Users  size="1em"/>
             </div>
           </div>
         </Col>
@@ -634,7 +630,7 @@ export default function DoctorSchedulePage() {
               <div className="bms-kpi-sub text-muted">Phòng khám &amp; xét nghiệm</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
-              <FaDoorOpen />
+              <DoorOpen  size="1em"/>
             </div>
           </div>
         </Col>
@@ -650,7 +646,7 @@ export default function DoctorSchedulePage() {
             onClick={() => setActiveRoleTab('doctor')}
             style={activeRoleTab === 'doctor' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaUserMd />
+            <Stethoscope  size="1em"/>
             <span>Bác Sĩ Khám Lâm Sàng</span>
             <Badge bg={activeRoleTab === 'doctor' ? 'light' : 'secondary'} text={activeRoleTab === 'doctor' ? 'primary' : 'white'} pill>
               {doctorShifts.length}
@@ -663,7 +659,7 @@ export default function DoctorSchedulePage() {
             onClick={() => setActiveRoleTab('lab')}
             style={activeRoleTab === 'lab' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaFlask />
+            <FlaskConical  size="1em"/>
             <span>Kỹ Thuật Viên Xét Nghiệm</span>
             <Badge bg={activeRoleTab === 'lab' ? 'light' : 'secondary'} text={activeRoleTab === 'lab' ? 'primary' : 'white'} pill>
               {labShifts.length}
@@ -676,7 +672,7 @@ export default function DoctorSchedulePage() {
             onClick={() => setActiveRoleTab('receptionist')}
             style={activeRoleTab === 'receptionist' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
           >
-            <FaUserNurse />
+            <UserCheck  size="1em"/>
             <span>Lễ Tân &amp; Điều Phối Tiếp Đón</span>
             <Badge bg={activeRoleTab === 'receptionist' ? 'light' : 'secondary'} text={activeRoleTab === 'receptionist' ? 'primary' : 'white'} pill>
               {receptionistShifts.length}
@@ -695,7 +691,7 @@ export default function DoctorSchedulePage() {
       {viewMode === 'table' && (
         <div className="bms-filter-bar mb-3">
           <div className="bms-search-input-pill">
-            <FaSearch className="bms-search-icon" />
+            <Search className="bms-search-icon"  size="1em"/>
             <input
               type="text"
               placeholder="Tìm tên nhân sự, mã nhân viên, phòng trực..."
@@ -709,7 +705,7 @@ export default function DoctorSchedulePage() {
                 onClick={() => setKeyword('')}
                 title="Xóa tìm kiếm"
               >
-                <FaTimes size={12} />
+                <LucideX size={12} />
               </button>
             )}
           </div>
@@ -779,7 +775,7 @@ export default function DoctorSchedulePage() {
         <div className="bms-table-standalone-header">
           <div className="mb-2 mb-lg-0">
             <h5 className="bms-table-standalone-title">
-              <FaCalendarAlt style={{ color: '#1E60E6' }} />
+              <Calendar style={{ color: '#1E60E6' }}  size="1em"/>
               {viewMode === 'timetable' 
                 ? (activeRoleTab === 'doctor' ? 'Thời Khóa Biểu Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Thời Khóa Biểu Ca Trực KTV Xét Nghiệm' : 'Thời Khóa Biểu Ca Trực Lễ Tân Tiếp Đón')
                 : (activeRoleTab === 'doctor' ? 'Danh Sách Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Danh Sách Ca Trực Xét Nghiệm' : 'Danh Sách Ca Trực Lễ Tân')}
@@ -803,7 +799,7 @@ export default function DoctorSchedulePage() {
                 }}
                 style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                <FaCalendarAlt className="me-1" /> Dạng Thời Khóa Biểu
+                <Calendar className="me-1"  size="1em"/> Dạng Thời Khóa Biểu
               </Button>
               <Button
                 variant={viewMode === 'table' ? 'primary' : 'outline-secondary'}
@@ -815,7 +811,7 @@ export default function DoctorSchedulePage() {
                 }}
                 style={{ padding: '8px 16px', fontWeight: 600, fontSize: '13px' }}
               >
-                <FaThList className="me-1" /> Dạng Bảng
+                <List className="me-1"  size="1em"/> Dạng Bảng
               </Button>
             </div>
           </div>
@@ -868,12 +864,12 @@ export default function DoctorSchedulePage() {
                     ) : myRoleShifts.length === 0 ? (
                       <tr>
                         <td colSpan="8" className="text-center py-3 text-muted">
-                          <FaUserMd className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50" />
+                          <Stethoscope className="fs-2 d-block mx-auto mb-2 text-secondary opacity-50"  size="1em"/>
                           <div className="fw-semibold">Không tìm thấy ca làm việc nào phù hợp</div>
                           <div className="small mb-3">Thử xoá bộ lọc ngày hoặc nhấn &ldquo;Tạo Ca Làm Việc Mới&rdquo; để phân ca.</div>
                           {canManageShifts && (
                             <Button variant="primary" size="sm" onClick={handleOpenCreate}>
-                              <FaPlus className="me-1" /> Tạo Ca Làm Việc Đầu Tiên
+                              <Plus className="me-1"  size="1em"/> Tạo Ca Làm Việc Đầu Tiên
                             </Button>
                           )}
                         </td>
@@ -900,7 +896,7 @@ export default function DoctorSchedulePage() {
                                   className="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                                   style={{ width: 38, height: 38 }}
                                 >
-                                  <FaUserMd />
+                                  <Stethoscope  size="1em"/>
                                 </div>
                                 <div>
                                   <div className="fw-bold text-dark">{shift.employeeName || shift.doctorName || 'Chưa gán nhân sự'}</div>
@@ -923,7 +919,7 @@ export default function DoctorSchedulePage() {
 
                             <td>
                               <div className="d-flex align-items-center gap-1 fw-semibold text-dark">
-                                <FaClinicMedical className="text-primary small" />
+                                <Hospital className="text-primary small"  size="1em"/>
                                 <span>{shift.roomName || shift.roomId}</span>
                               </div>
                               <div className="text-muted small">
@@ -941,7 +937,7 @@ export default function DoctorSchedulePage() {
                                 {typeMeta.label}
                               </span>
                               <div className="small text-muted d-flex align-items-center gap-1">
-                                <FaClock className="text-secondary" />
+                                <Clock className="text-secondary"  size="1em"/>
                                 <span>{shift.workingHoursLabel || `${shift.shiftStart} - ${shift.shiftEnd}`}</span>
                               </div>
                             </td>
@@ -970,7 +966,7 @@ export default function DoctorSchedulePage() {
                                   onClick={() => handleOpenDetail(shift)}
                                   title="Xem chi tiết ca"
                                 >
-                                  <FaEye />
+                                  <Eye  size="1em"/>
                                 </Button>
                                 {canManageShifts && (
                                   <>
@@ -980,7 +976,7 @@ export default function DoctorSchedulePage() {
                                       onClick={() => handleOpenEdit(shift)}
                                       title="Chỉnh sửa ca"
                                     >
-                                      <FaEdit />
+                                      <SquarePen  size="1em"/>
                                     </Button>
                                     <Button
                                       variant="outline-danger"
@@ -988,7 +984,7 @@ export default function DoctorSchedulePage() {
                                       onClick={() => handleOpenDelete(shift)}
                                       title="Xoá ca"
                                     >
-                                      <FaTrash />
+                                      <Trash2  size="1em"/>
                                     </Button>
                                   </>
                                 )}
@@ -1046,15 +1042,15 @@ export default function DoctorSchedulePage() {
         <Form onSubmit={handleFormSubmit}>
           <Modal.Header closeButton={!submitting} className="bg-light">
             <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-              <FaCalendarAlt className="text-primary" />
+              <Calendar className="text-primary"  size="1em"/>
               <span>{editingShift ? 'Cập Nhật Thông Tin Ca Làm Việc' : 'Tạo Ca Làm Việc Mới'}</span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {formError && (
               <Alert variant="danger" className="py-2 small">
-                <FaExclamationTriangle className="me-2" />
+                <AlertTriangle className="me-2"  size="1em"/>
                 {formError}
               </Alert>
             )}
@@ -1063,11 +1059,11 @@ export default function DoctorSchedulePage() {
             <div className="p-3 rounded-3 bg-light border mb-3">
               <div className="d-flex justify-content-between align-items-center mb-1">
                 <Form.Label className="small fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                  <FaUserMd className="text-primary" />
+                  <Stethoscope className="text-primary"  size="1em"/>
                   Nhân Sự Phụ Trách Ca Trực (Đồng Bộ Quản Lý Nhân Sự) <span className="text-danger">*</span>
                 </Form.Label>
                 <Badge bg="secondary-subtle" text="secondary" className="border d-flex align-items-center gap-1">
-                  <FaLock size={10} /> Dữ liệu gốc CSDL (Chỉ xem)
+                  <Lock size={10} /> Dữ liệu gốc CSDL (Chỉ xem)
                 </Badge>
               </div>
               <small className="text-muted d-block mb-2">
@@ -1367,11 +1363,11 @@ export default function DoctorSchedulePage() {
       >
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-            <FaEye className="text-primary" />
+            <Eye className="text-primary"  size="1em"/>
             <span>Chi Tiết Ca Làm Việc & Phân Công Nhân Sự</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {detailLoading && (
             <div className="text-center py-2 mb-3">
               <Spinner animation="border" size="sm" variant="primary" className="me-2" />
@@ -1414,8 +1410,8 @@ export default function DoctorSchedulePage() {
                     <div className="p-3 border rounded-3 h-100 bg-white">
                       <div className="small fw-semibold text-muted text-uppercase mb-2 d-flex align-items-center justify-content-between">
                         <span className="d-flex align-items-center gap-2">
-                          <FaUserMd className="text-primary" />
-                          Hồ Sơ Cán Bộ Trực (Đề Án 06 Bộ Y Tế)
+                          <Stethoscope className="text-primary"  size="1em"/>
+                          Thông Tin Nhân Sự Trực
                         </span>
                         <Badge bg="success-subtle" className="text-success border border-success-subtle">
                           Đã xác thực CCCD
@@ -1459,7 +1455,7 @@ export default function DoctorSchedulePage() {
                     <div className="p-3 border rounded-3 h-100 bg-white d-flex flex-column justify-content-between">
                       <div>
                         <div className="small fw-semibold text-muted text-uppercase mb-2 d-flex align-items-center gap-2">
-                          <FaClock className="text-primary" />
+                          <Clock className="text-primary"  size="1em"/>
                           Thời Gian &amp; Vị Trí Làm Việc
                         </div>
                         <div className="d-flex flex-column gap-2 small">
@@ -1496,7 +1492,7 @@ export default function DoctorSchedulePage() {
                   {/* Note Section */}
                   <Col xs={12}>
                     <div className="p-3 border rounded-3 bg-light small">
-                      <div className="text-muted fw-semibold mb-1">Ghi chú phân ca &amp; Tiêu chuẩn ISO 15189:2022:</div>
+                      <div className="text-muted fw-semibold mb-1">Ghi chú phân ca:</div>
                       <div className="text-dark">{detailShift.notes || 'Nhân sự nhận bàn giao cơ sở vật chất, chạy mẫu nội kiểm IQC đạt chuẩn trước giờ mở cửa tiếp đón bệnh nhân.'}</div>
                     </div>
                   </Col>
@@ -1514,7 +1510,7 @@ export default function DoctorSchedulePage() {
                 handleOpenEdit(detailShift);
               }}
             >
-              <FaEdit className="me-1" /> Chỉnh sửa ca này
+              <SquarePen className="me-1"  size="1em"/> Chỉnh sửa ca này
             </Button>
           )}
           <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
@@ -1533,14 +1529,14 @@ export default function DoctorSchedulePage() {
       >
         <Modal.Header closeButton={!deleting} className="bg-danger-subtle text-danger">
           <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-            <FaTrash />
+            <Trash2  size="1em"/>
             <span>Xác Nhận Xoá Ca Làm Việc</span>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {deleteError && (
             <Alert variant="danger" className="py-2 small">
-              <FaExclamationTriangle className="me-2" />
+              <AlertTriangle className="me-2"  size="1em"/>
               {deleteError}
             </Alert>
           )}
@@ -1557,7 +1553,7 @@ export default function DoctorSchedulePage() {
               </div>
               {(deletingShift.currentPatientsCount || 0) > 0 && (
                 <Alert variant="warning" className="py-2 small mb-0">
-                  <FaExclamationTriangle className="me-1" />
+                  <AlertTriangle className="me-1"  size="1em"/>
                   Ca trực này đang có <strong>{deletingShift.currentPatientsCount}</strong> bệnh nhân đã đăng ký. Hệ thống sẽ chặn xoá nếu còn lịch hẹn hoạt động.
                 </Alert>
               )}

@@ -9,7 +9,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Table, Button, Form, InputGroup, Badge, Spinner, Alert, Pagination } from "react-bootstrap";
-import { FaExternalLinkAlt, FaSearch, FaTimes } from "react-icons/fa";
+import { ExternalLink, Search, X as LucideX, PlusCircle, AlertTriangle, Inbox, Lock as LucideLock, Circle, Eye, Pencil, Trash2 } from 'lucide-react';
 import {
     getPackages,
     getTestCriteria,
@@ -104,7 +104,7 @@ export default function ServicePackagesPage({ onBack }) {
     const [detailPkg, setDetailPkg] = useState(null);
 
     // WHY: UC15/UC19 write = Admin + Manager (Quy trình DOT2 follow-up 2); missing user or role => read-only; the API enforces the same set.
-    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER), []);
+    const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN), []);
 
     const load = useCallback(async () => {
         try {
@@ -265,7 +265,7 @@ export default function ServicePackagesPage({ onBack }) {
                         title="Mở cổng tra cứu công khai của bệnh nhân trên tab mới"
                     >
                         <span>Xem Cổng Bệnh Nhân</span>
-                        <FaExternalLinkAlt size={11} />
+                        <ExternalLink size={11} />
                     </Button>
 
                     {canManage && (
@@ -275,7 +275,7 @@ export default function ServicePackagesPage({ onBack }) {
                             className="text-white fw-semibold d-flex align-items-center gap-2 rounded-pill px-3"
                             style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
                         >
-                            <i className="bi bi-plus-circle-fill"></i>
+                            <PlusCircle size="1em" />
                             Thêm Gói Mới
                         </Button>
                     )}
@@ -290,7 +290,7 @@ export default function ServicePackagesPage({ onBack }) {
                     className="mb-4"
                     style={{ borderRadius: 14 }}
                 >
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    <AlertTriangle size="1em" className="me-2" />
                     {error}
                 </Alert>
             )}
@@ -298,7 +298,7 @@ export default function ServicePackagesPage({ onBack }) {
             {/* Single-Line Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaSearch className="bms-search-icon" />
+                    <Search className="bms-search-icon" size="1em" />
                     <input
                         type="text"
                         placeholder="Tìm theo mã, tên gói, chỉ số..."
@@ -312,7 +312,7 @@ export default function ServicePackagesPage({ onBack }) {
                             onClick={() => setSearch('')}
                             title="Xóa tìm kiếm"
                         >
-                            <FaTimes size={12} />
+                            <LucideX size={12} />
                         </button>
                     )}
                 </div>
@@ -350,114 +350,116 @@ export default function ServicePackagesPage({ onBack }) {
                 <div className="bms-table-standalone-body">
                     <div className="table-responsive">
                         <Table hover className="align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th className="bms-align-center" style={{ width: "160px" }}>MÃ GÓI</th>
-                                <th>TÊN GÓI DỊCH VỤ</th>
-                                <th>MÔ TẢ &amp; CHỈ SỐ</th>
-                                <th className="bms-align-right" style={{ width: "160px" }}>ĐƠN GIÁ NIÊM YẾT</th>
-                                <th className="bms-align-center" style={{ width: "140px" }}>TRẠNG THÁI</th>
-                                <th className="bms-align-right" style={{ width: "130px" }}>THAO TÁC</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
+                            <thead>
                                 <tr>
-                                    <td colSpan="6" className="text-center py-3">
-                                        <Spinner animation="border" variant="primary" size="sm" className="me-2" />
-                                        Đang tải danh sách gói dịch vụ xét nghiệm...
-                                    </td>
+                                    <th className="bms-align-center" style={{ width: "160px" }}>MÃ GÓI</th>
+                                    <th>TÊN GÓI DỊCH VỤ</th>
+                                    <th>MÔ TẢ &amp; CHỈ SỐ</th>
+                                    <th className="bms-align-right" style={{ width: "160px" }}>ĐƠN GIÁ NIÊM YẾT</th>
+                                    <th className="bms-align-center" style={{ width: "140px" }}>TRẠNG THÁI</th>
+                                    <th className="bms-align-right" style={{ width: "130px" }}>THAO TÁC</th>
                                 </tr>
-                            ) : visible.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="text-center py-3 text-muted">
-                                        <i className="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
-                                        Không tìm thấy gói dịch vụ nào phù hợp với bộ lọc tìm kiếm.
-                                    </td>
-                                </tr>
-                            ) : (
-                                paginatedPackages.map((pkg) => (
-                                    <tr key={pkg._id}>
-                                        <td className="bms-align-center">
-                                            <span className="bms-role-code-cell">{pkg.code}</span>
-                                        </td>
-                                        <td>
-                                            <div className="fw-bold" style={{ color: '#0f2743' }}>{pkg.name}</div>
-                                            {pkg.code?.startsWith('BIOCHEM') || pkg.code?.startsWith('CBC') || pkg.code?.startsWith('COAG') || pkg.code?.startsWith('HEPA') || pkg.code?.startsWith('LIPID') ? (
-                                                <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px", borderRadius: 9999 }}>
-                                                    <i className="bi bi-lock-fill me-1"></i>Gói Mặc Định ISO
-                                                </Badge>
-                                            ) : null}
-                                        </td>
-                                        <td>
-                                            <div className="text-muted small text-truncate" style={{ maxWidth: "350px" }}>
-                                                {pkg.description || "Không có mô tả chi tiết."}
-                                            </div>
-                                            <div className="mt-1">
-                                                <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
-                                                    {pkg.tests?.length || 0} Chỉ Số
-                                                </span>
-                                                {pkg.tests?.length > 0 && (
-                                                    <span className="text-muted ms-2 small">
-                                                        ({testCodes(pkg).slice(0, 45)}
-                                                        {testCodes(pkg).length > 45 ? "..." : ""})
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="bms-align-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                            <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
-                                            {pkg.discountPrice ? (
-                                                <small className="text-muted text-decoration-line-through d-block">
-                                                    {formatMoney(pkg.discountPrice)}
-                                                </small>
-                                            ) : null}
-                                        </td>
-                                        <td className="bms-align-center">
-                                            <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>
-                                                <i className="bi bi-circle-fill" style={{ fontSize: "7px" }}></i>
-                                                {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
-                                            </span>
-                                        </td>
-                                        <td className="bms-align-right">
-                                            <div className="bms-action-btn-group">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    size="sm"
-                                                    title="Xem chi tiết gói dịch vụ"
-                                                    onClick={() => setDetailPkg(pkg)}
-                                                    style={{ borderRadius: 9999 }}
-                                                >
-                                                    <i className="bi bi-eye"></i>
-                                                </Button>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    title="Chỉnh sửa gói dịch vụ"
-                                                    onClick={() => openEdit(pkg)}
-                                                    disabled={!canManage}
-                                                    style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
-                                                >
-                                                    <i className="bi bi-pencil"></i>
-                                                </Button>
-                                                <Button
-                                                    variant="outline-danger"
-                                                    size="sm"
-                                                    title="Xóa gói dịch vụ"
-                                                    onClick={() => setDeleting(pkg)}
-                                                    disabled={!canManage}
-                                                    style={{ borderRadius: 9999 }}
-                                                >
-                                                    <i className="bi bi-trash"></i>
-                                                </Button>
-                                            </div>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="6" className="text-center py-3">
+                                            <Spinner animation="border" variant="primary" size="sm" className="me-2" />
+                                            Đang tải danh sách gói dịch vụ xét nghiệm...
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </Table>
-                </div>
+                                ) : visible.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="text-center py-3 text-muted">
+                                            <Inbox size="1em" className="fs-2 d-block mb-2 text-muted" />
+                                            Không tìm thấy gói dịch vụ nào phù hợp với bộ lọc tìm kiếm.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paginatedPackages.map((pkg) => (
+                                        <tr key={pkg._id}>
+                                            <td className="bms-align-center">
+                                                <span className="bms-role-code-cell">{pkg.code}</span>
+                                            </td>
+                                            <td>
+                                                <div className="fw-bold" style={{ color: '#0f2743' }}>{pkg.name}</div>
+                                                {pkg.code?.startsWith('BIOCHEM') || pkg.code?.startsWith('CBC') || pkg.code?.startsWith('COAG') || pkg.code?.startsWith('HEPA') || pkg.code?.startsWith('LIPID') ? (
+                                                    <Badge bg="info" className="small me-1 text-dark" style={{ fontSize: "10px", borderRadius: 9999 }}>
+                                                        <LucideLock size="1em" className="me-1" />Gói Mặc Định
+                                                    </Badge>
+                                                ) : null}
+                                            </td>
+                                            <td>
+                                                <div className="text-muted small text-truncate" style={{ maxWidth: "350px" }}>
+                                                    {pkg.description || "Không có mô tả chi tiết."}
+                                                </div>
+                                                <div className="mt-1">
+                                                    <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 9999, background: 'rgba(30, 96, 230, 0.1)', color: '#1E60E6', fontWeight: 600, fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
+                                                        {pkg.tests?.length || 0} Chỉ Số
+                                                    </span>
+                                                    {pkg.tests?.length > 0 && (
+                                                        <span className="text-muted ms-2 small">
+                                                            ({testCodes(pkg).slice(0, 45)}
+                                                            {testCodes(pkg).length > 45 ? "..." : ""})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="bms-align-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                                <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
+                                                {pkg.discountPrice ? (
+                                                    <small className="text-muted text-decoration-line-through d-block">
+                                                        {formatMoney(pkg.discountPrice)}
+                                                    </small>
+                                                ) : null}
+                                            </td>
+                                            <td className="bms-align-center">
+                                                <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>
+                                                    <Circle size="1em" style={{ fontSize: "7px" }} />
+                                                    {pkg.isActive ? "Đang Hoạt Động" : "Tạm Khóa"}
+                                                </span>
+                                            </td>
+                                            <td className="bms-align-right">
+                                                <div className="bms-action-btn-group">
+                                                    <Button
+                                                        variant="outline-secondary"
+                                                        size="sm"
+                                                        title="Xem chi tiết gói dịch vụ"
+                                                        onClick={() => setDetailPkg(pkg)}
+                                                        style={{ borderRadius: 9999 }}
+                                                    >
+                                                        <Eye size="1em" />
+                                                    </Button>
+                                                    {canManage && (
+                                                        <>
+                                                            <Button
+                                                                variant="outline-primary"
+                                                                size="sm"
+                                                                title="Chỉnh sửa gói dịch vụ"
+                                                                onClick={() => openEdit(pkg)}
+                                                                style={{ borderRadius: 9999, borderColor: '#1E60E6', color: '#1E60E6' }}
+                                                            >
+                                                                <Pencil size="1em" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                size="sm"
+                                                                title="Xóa gói dịch vụ"
+                                                                onClick={() => setDeleting(pkg)}
+                                                                style={{ borderRadius: 9999 }}
+                                                            >
+                                                                <Trash2 size="1em" />
+                                                            </Button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </Table>
+                    </div>
                 </div>
 
                 {/* Pagination Footer */}
@@ -493,7 +495,7 @@ export default function ServicePackagesPage({ onBack }) {
             <PackageDetailModal
                 pkg={detailPkg}
                 onClose={() => setDetailPkg(null)}
-                onEdit={openEdit}
+                onEdit={canManage ? openEdit : undefined}
             />
 
             <PackageFormModal

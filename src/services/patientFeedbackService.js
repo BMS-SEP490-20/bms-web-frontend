@@ -176,6 +176,15 @@ export const patientFeedbackService = {
       return {
         success: true,
         data: response.data?.data || { isEligible: false }
+  /**
+   * Public summary of star ratings and review counts grouped by service package.
+   */
+  getPackageRatings: async () => {
+    try {
+      const response = await api.get('/gateway/testorder/feedback/package-ratings');
+      return {
+        success: true,
+        data: Array.isArray(response.data?.data) ? response.data.data : []
       };
     } catch (error) {
       return {
@@ -192,6 +201,21 @@ export const patientFeedbackService = {
         success: true,
         data: response.data?.data,
         message: response.data?.message || 'Đã gửi yêu cầu xóa đến bệnh nhân.'
+        data: [],
+        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
+      };
+    }
+  },
+
+  /**
+   * Public anonymized reviews and rating summary for one service package.
+   */
+  getPackageFeedback: async (packageIdOrCode) => {
+    try {
+      const response = await api.get(`/gateway/testorder/feedback/packages/${encodeURIComponent(packageIdOrCode)}`);
+      return {
+        success: true,
+        data: response.data?.data || null
       };
     } catch (error) {
       return {
@@ -208,12 +232,50 @@ export const patientFeedbackService = {
         success: true,
         data: response.data?.data,
         message: response.data?.message || 'Đã cập nhật xác nhận.'
+        data: null,
+        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
+      };
+    }
+  },
+
+  /**
+   * Used/completed service package appointments eligible for patient feedback.
+   */
+  getMyEligiblePackages: async () => {
+    try {
+      const response = await api.get('/gateway/testorder/feedback/my-eligible-packages');
+      return {
+        success: true,
+        data: Array.isArray(response.data?.data) ? response.data.data : []
       };
     } catch (error) {
       return {
         success: false,
         message: error.response?.data?.message || error.message || 'Lỗi xác nhận'
+        data: [],
+        message: error.response?.data?.message || error.message || 'Lỗi tải danh sách gói đã sử dụng'
       };
     }
   }
 };
+
+export function buildPackageRatingsMap(items = []) {
+  const map = Object.create(null);
+  for (const item of Array.isArray(items) ? items : []) {
+    const keys = [item.key, item.servicePackageId, item.servicePackageCode].filter(Boolean);
+    for (const k of keys) {
+      map[String(k).trim().toLowerCase()] = item;
+    }
+  }
+  return map;
+}
+
+export function lookupPackageRating(ratingsMap, pkg) {
+  if (!ratingsMap || !pkg) return null;
+  const candidates = [pkg.id, pkg._id, pkg.packageId, pkg.packageCode, pkg.code].filter(Boolean);
+  for (const c of candidates) {
+    const hit = ratingsMap[String(c).trim().toLowerCase()];
+    if (hit) return hit;
+  }
+  return null;
+}

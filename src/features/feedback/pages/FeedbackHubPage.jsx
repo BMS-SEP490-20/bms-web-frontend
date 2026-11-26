@@ -12,22 +12,20 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, ProgressBar, Alert 
 } from 'react-bootstrap';
-import { 
-  FaStar, FaRegStar, FaComments, FaReply, 
-  FaEdit, FaTrashAlt, FaSearch, FaSyncAlt, 
-  FaUserCheck, FaUserSecret, FaUserMd, FaPlus, FaArrowLeft
-} from 'react-icons/fa';
+import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft, Package } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, resolveRoleId } from '../../../constants/roles';
 import { patientFeedbackService } from '../../../services/patientFeedbackService';
+import { fetchServiceCatalog } from '../../catalog/api/catalogApi';
 
 const FeedbackHubPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, userRole, userRoleId } = useAuth();
 
   // The server is the authoritative boundary for authorization and MongoDB operations.
@@ -62,8 +60,11 @@ const FeedbackHubPage = () => {
   // Filters
   const [ratingFilter, setRatingFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [packageFilter, setPackageFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [eligiblePackages, setEligiblePackages] = useState([]);
+  const [catalogPackages, setCatalogPackages] = useState([]);
 
   // Modals & Forms
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -76,10 +77,13 @@ const FeedbackHubPage = () => {
   // Create Form State
   const [createForm, setCreateForm] = useState({
     rating: 5,
-    serviceCategory: 'Tư vấn bác sĩ',
+    serviceCategory: 'Đánh giá gói xét nghiệm',
     title: '',
     comment: '',
     appointmentId: '',
+    servicePackageId: '',
+    servicePackageCode: '',
+    servicePackageName: '',
     doctorName: '',
     isAnonymous: false
   });
@@ -102,12 +106,31 @@ const FeedbackHubPage = () => {
   const fetchFeedbacks = useCallback(async () => {
     try {
       setLoading(true);
+      if (isPatient) {
+        if (user?.id) {
+          const [myRes, eligibleRes] = await Promise.all([
+            patientFeedbackService.getPatientFeedbacks(user.id),
+            patientFeedbackService.getMyEligiblePackages()
+          ]);
+          if (myRes.success) {
+            const list = Array.isArray(myRes.data) ? myRes.data : [];
+            setMyFeedbacks(list);
+            setFeedbacks(list);
+          }
+          if (eligibleRes.success) {
+            setEligiblePackages(Array.isArray(eligibleRes.data) ? eligibleRes.data : []);
+          }
+        }
+        return;
+      }
+
       const ratingVal = ratingFilter !== 'ALL' ? parseInt(ratingFilter) : null;
       const requests = [
         patientFeedbackService.getFeedbacks({
           rating: ratingVal,
           category: categoryFilter,
           status: statusFilter,
+          servicePackageId: packageFilter !== 'ALL' ? packageFilter : undefined,
           searchTerm: searchTerm.trim()
         }),
         patientFeedbackService.getStatistics()
@@ -136,7 +159,69 @@ const FeedbackHubPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [ratingFilter, categoryFilter, statusFilter, searchTerm, user, isPatient]);
+  }, [ratingFilter, categoryFilter, packageFilter, statusFilter, searchTerm, user, isPatient]);
+
+  useEffect(() => {
+    fetchServiceCatalog()
+      .then((res) => {
+        if (Array.isArray(res?.packages)) setCatalogPackages(res.packages);
+      })
+      .catch(() => {});
+  }, []);
+
+  const queryAutoOpenedRef = React.useRef('');
+  useEffect(() => {
+    if (!isPatient) return;
+    const qApt = searchParams.get('appointmentId') || '';
+    const qPkgId = searchParams.get('packageId') || '';
+    const qPkgCode = searchParams.get('packageCode') || '';
+    const signature = `${qApt}|${qPkgId}|${qPkgCode}`;
+    if ((!qApt && !qPkgId && !qPkgCode) || queryAutoOpenedRef.current === signature) return;
+
+    const matchedEligible = eligiblePackages.find(
+      (item) =>
+        (qApt && (String(item.appointmentCode).toLowerCase() === qApt.toLowerCase() || String(item.appointmentId).toLowerCase() === qApt.toLowerCase())) ||
+        (qPkgId && String(item.servicePackageId).toLowerCase() === qPkgId.toLowerCase()) ||
+        (qPkgCode && String(item.servicePackageCode).toLowerCase() === qPkgCode.toLowerCase())
+    );
+    const matchedCatalog = catalogPackages.find(
+      (p) =>
+        (qPkgId && String(p.id).toLowerCase() === qPkgId.toLowerCase()) ||
+        (qPkgCode && String(p.packageCode).toLowerCase() === qPkgCode.toLowerCase()) ||
+        (qPkgId && String(p.packageCode).toLowerCase() === qPkgId.toLowerCase())
+    );
+
+    if (matchedEligible?.alreadyReviewed && matchedEligible?.existingFeedbackId) {
+      const existingFb = myFeedbacks.find((f) => f.feedbackId === matchedEligible.existingFeedbackId);
+      if (existingFb) {
+        queryAutoOpenedRef.current = signature;
+        setSelectedFeedback(existingFb);
+        setEditForm({
+          rating: existingFb.rating,
+          serviceCategory: existingFb.serviceCategory,
+          title: existingFb.title,
+          comment: existingFb.comment,
+          isAnonymous: existingFb.isAnonymous
+        });
+        setShowEditModal(true);
+        return;
+      }
+    }
+
+    if (matchedEligible || matchedCatalog || qApt || qPkgId || qPkgCode) {
+      queryAutoOpenedRef.current = signature;
+      setCreateForm((prev) => ({
+        ...prev,
+        serviceCategory: 'Đánh giá gói xét nghiệm',
+        appointmentId: matchedEligible?.appointmentCode || qApt || '',
+        servicePackageId: matchedEligible?.servicePackageId || matchedCatalog?.id || qPkgId || '',
+        servicePackageCode: matchedEligible?.servicePackageCode || matchedCatalog?.packageCode || qPkgCode || '',
+        servicePackageName: matchedEligible?.servicePackageName || matchedCatalog?.packageName || '',
+        doctorName: matchedEligible?.doctorName || prev.doctorName || ''
+      }));
+      setShowCreateModal(true);
+    }
+  }, [isPatient, searchParams, eligiblePackages, catalogPackages, myFeedbacks]);
 
   const displayedFeedbacks = useMemo(() => {
     if (filterMyOnly && isPatient && user?.id) {
@@ -172,13 +257,17 @@ const FeedbackHubPage = () => {
         setShowCreateModal(false);
         setCreateForm({
           rating: 5,
-          serviceCategory: 'Tư vấn bác sĩ',
+          serviceCategory: 'Đánh giá gói xét nghiệm',
           title: '',
           comment: '',
           appointmentId: '',
+          servicePackageId: '',
+          servicePackageCode: '',
+          servicePackageName: '',
           doctorName: '',
           isAnonymous: false
         });
+        if (searchParams.toString()) setSearchParams({}, { replace: true });
         fetchFeedbacks();
       } else {
         setAlertMsg({ type: 'danger', text: res.message || 'Lỗi gửi đánh giá' });
@@ -306,9 +395,9 @@ const FeedbackHubPage = () => {
     for (let i = 1; i <= 5; i++) {
       stars.push(
         i <= rating ? (
-          <FaStar key={i} className="text-warning me-1" />
+          <Star key={i} className="text-warning me-1"  size="1em"/>
         ) : (
-          <FaRegStar key={i} className="text-muted me-1" />
+          <Star key={i} className="text-muted me-1"  size="1em"/>
         )
       );
     }
@@ -331,7 +420,7 @@ const FeedbackHubPage = () => {
               onClick={() => navigate('/')}
               className="d-flex align-items-center gap-1.5 rounded-pill px-3"
             >
-              <FaArrowLeft />
+              <ArrowLeft  size="1em"/>
               <span>Trang chủ</span>
             </Button>
           )}
@@ -352,7 +441,7 @@ const FeedbackHubPage = () => {
               }}
               className="d-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold"
             >
-              <FaPlus />
+              <Plus  size="1em"/>
               <span>Gửi đánh giá mới</span>
             </Button>
           )}
@@ -364,7 +453,7 @@ const FeedbackHubPage = () => {
             disabled={loading}
             className="d-flex align-items-center gap-1.5 rounded-pill px-3"
           >
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+            <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/>
             <span>Làm mới</span>
           </Button>
         </div>
@@ -400,7 +489,7 @@ const FeedbackHubPage = () => {
               <div className="bms-kpi-label mb-2">Đánh giá trung bình</div>
               <div className="display-5 fw-bold mb-1 d-flex align-items-center justify-content-center gap-2 text-dark">
                 <span>{statistics.averageRating}</span>
-                <FaStar className="text-warning fs-3" />
+                <Star className="text-warning fs-3"  size="1em"/>
               </div>
               <div className="mb-2">
                 {renderStars(Math.round(statistics.averageRating))}
@@ -420,7 +509,7 @@ const FeedbackHubPage = () => {
                 return (
                   <div key={star} className="d-flex align-items-center gap-2 mb-2 small">
                     <span className="fw-semibold text-dark d-inline-flex align-items-center gap-1" style={{ width: '42px' }}>
-                      {star} <FaStar className="text-warning" size={11} />
+                      {star} <Star className="text-warning" size={11} />
                     </span>
                     <div className="flex-grow-1">
                       <ProgressBar 
@@ -461,80 +550,92 @@ const FeedbackHubPage = () => {
         </Row>
       )}
 
-      {/* Filter Bar */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-3">
-            <Col xs={12} md={4}>
-              <InputGroup>
-                <InputGroup.Text className="border-end-0" style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  placeholder="Tìm theo tiêu đề, nội dung, tên bệnh nhân, bác sĩ..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-start-0"
-                  style={{ background: '#EEF2F6', borderColor: 'rgba(15, 23, 42, 0.05)', borderRadius: '0 10px 10px 0' }}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} sm={4} md={2}>
-              <Form.Select 
-                value={ratingFilter} 
-                onChange={(e) => setRatingFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả số sao</option>
-                <option value="5">5 Sao (Tuyệt vời)</option>
-                <option value="4">4 Sao (Tốt)</option>
-                <option value="3">3 Sao (Bình thường)</option>
-                <option value="2">2 Sao (Cần cải thiện)</option>
-                <option value="1">1 Sao (Kém)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} sm={4} md={3}>
-              <Form.Select 
-                value={categoryFilter} 
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả nhóm dịch vụ</option>
-                <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
-                <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
-                <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
-                <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
-                <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
-              </Form.Select>
-            </Col>
-            <Col xs={12} sm={4} md={3}>
-              <Form.Select 
-                value={statusFilter} 
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ phản hồi</option>
-                <option value="REVIEWED">Đã xem xét</option>
-                <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi từ trung tâm'}</option>
-              </Form.Select>
-            </Col>
-          </Row>
+      {/* Single-Line Filter Bar */}
+      <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '230px' }}>
+          <Search className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Tìm theo tiêu đề, nội dung, tên bệnh nhân, bác sĩ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-          {isPatient && myFeedbacks.length > 0 && (
-            <div className="mt-3 pt-2 border-top d-flex align-items-center gap-2">
-              <Form.Check 
-                type="switch"
-                id="filter-my-only"
-                label={`Chỉ xem đánh giá của tôi (${myFeedbacks.length} bài viết)`}
-                checked={filterMyOnly}
-                onChange={(e) => setFilterMyOnly(e.target.checked)}
-                className="fw-semibold text-primary small"
-              />
-            </div>
-          )}
-        </Card.Body>
-      </Card>
+        <Form.Select
+          size="sm"
+          value={ratingFilter}
+          onChange={(e) => setRatingFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '145px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả số sao</option>
+          <option value="5">5 Sao</option>
+          <option value="4">4 Sao</option>
+          <option value="3">3 Sao</option>
+          <option value="2">2 Sao</option>
+          <option value="1">1 Sao</option>
+        </Form.Select>
+
+        <Form.Select
+          size="sm"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '185px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả nhóm dịch vụ</option>
+          <option value="Đánh giá gói xét nghiệm">Đánh giá gói xét nghiệm</option>
+          <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân</option>
+          <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Xét nghiệm</option>
+          <option value="Tư vấn bác sĩ">Tư vấn bác sĩ</option>
+          <option value="Thời gian chờ & Cơ sở vật chất">Cơ sở vật chất & Thời gian chờ</option>
+          <option value="Thanh toán & Hóa đơn">Thanh toán & Hóa đơn</option>
+        </Form.Select>
+
+        {isManagerOrAdmin && catalogPackages.length > 0 && (
+          <Form.Select
+            size="sm"
+            value={packageFilter}
+            onChange={(e) => setPackageFilter(e.target.value)}
+            className="rounded-pill"
+            style={{ width: 'auto', maxWidth: '250px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+          >
+            <option value="ALL">Tất cả gói dịch vụ</option>
+            {catalogPackages.map((pkg) => (
+              <option key={pkg.id || pkg.packageCode} value={pkg.id || pkg.packageCode}>
+                {pkg.packageCode ? `[${pkg.packageCode}] ` : ''}{pkg.packageName}
+              </option>
+            ))}
+          </Form.Select>
+        )}
+
+        <Form.Select
+          size="sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '165px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ phản hồi</option>
+          <option value="REVIEWED">Đã xem xét</option>
+          <option value="RESPONDED">{isManagerOrAdmin ? 'Đã phản hồi (nội bộ)' : 'Đã có phản hồi'}</option>
+        </Form.Select>
+      </div>
+
+      {isPatient && myFeedbacks.length > 0 && (
+        <div className="mb-3 d-flex align-items-center">
+          <Form.Check
+            type="switch"
+            id="filter-my-only"
+            label={`Chỉ xem đánh giá của tôi (${myFeedbacks.length})`}
+            checked={filterMyOnly}
+            onChange={(e) => setFilterMyOnly(e.target.checked)}
+            className="fw-semibold text-primary small"
+          />
+        </div>
+      )}
 
       {/* Feedbacks List */}
       {loading && displayedFeedbacks.length === 0 ? (
@@ -561,7 +662,7 @@ const FeedbackHubPage = () => {
                           color: fb.isAnonymous ? '#6b7280' : '#0284c7'
                         }}
                       >
-                        {fb.isAnonymous ? <FaUserSecret className="fs-5" /> : <FaUserCheck className="fs-5" />}
+                        {fb.isAnonymous ? <User className="fs-5"  size="1em"/> : <UserCheck className="fs-5"  size="1em"/>}
                       </div>
                       <div>
                         <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -574,6 +675,15 @@ const FeedbackHubPage = () => {
                           <Badge bg="primary-subtle" className="text-primary border border-primary-subtle px-2 py-1 rounded-pill fw-normal" style={{ fontSize: '0.75rem' }}>
                             {fb.serviceCategory}
                           </Badge>
+                          {(fb.servicePackageName || fb.servicePackageCode) && (
+                            <Badge bg="success-subtle" className="text-success border border-success-subtle px-2 py-1 rounded-pill fw-semibold d-inline-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
+                              <Package size={11} />
+                              <span>
+                                Gói DV: {fb.servicePackageName || fb.servicePackageCode}
+                                {fb.servicePackageName && fb.servicePackageCode ? ` (${fb.servicePackageCode})` : ''}
+                              </span>
+                            </Badge>
+                          )}
                           {fb.status === 'DELETED' && (
                             <Badge bg="danger-subtle" className="text-danger border border-danger-subtle px-2 py-1 rounded-pill fw-semibold" style={{ fontSize: '0.75rem' }}>
                               Feedback đã bị admin xóa
@@ -588,7 +698,7 @@ const FeedbackHubPage = () => {
                           {fb.doctorName && (
                             <>
                               <span>•</span>
-                              <span className="text-primary"><FaUserMd className="me-1" />{fb.doctorName}</span>
+                              <span className="text-primary"><Stethoscope className="me-1"  size="1em"/>{fb.doctorName}</span>
                             </>
                           )}
                           {fb.appointmentId && (
@@ -628,6 +738,30 @@ const FeedbackHubPage = () => {
                             <span>Xóa</span>
                           </Button>
                         </>
+                      {/* Clinic Manager reply button */}
+                      {isManagerOrAdmin && fb.status !== 'DELETED' && (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                          onClick={() => openResponseModal(fb)}
+                        >
+                          <Reply  size="1em"/>
+                          <span>{fb.managerResponse ? 'Sửa phản hồi' : 'Phản hồi bệnh nhân'}</span>
+                        </Button>
+                      )}
+
+                      {/* Only Patient can edit their own feedback */}
+                      {isPatient && isOwn && fb.status !== 'DELETED' && (
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                          onClick={() => openEditModal(fb)}
+                        >
+                          <SquarePen  size="1em"/>
+                          <span>Chỉnh sửa</span>
+                        </Button>
                       )}
 
                       {/* Only Admin can request delete (requires patient consent) */}
@@ -645,6 +779,7 @@ const FeedbackHubPage = () => {
                         >
                           <FaTrashAlt style={{ fontSize: '0.75rem' }} />
                           <span>Yêu cầu xóa</span>
+                          <Trash2 style={{ fontSize: '0.75rem' }}  size="1em"/>
                         </Button>
                       )}
                       {isAdmin && fb.adminDeleteRequested && fb.status !== 'HIDDEN_BY_ADMIN' && (
@@ -683,7 +818,7 @@ const FeedbackHubPage = () => {
                     </div>
                   ) : fb.status === 'DELETED' ? (
                     <div className="mt-3 p-3 bg-danger-subtle border border-danger-subtle rounded-3 text-danger d-flex align-items-center gap-2">
-                      <FaTrashAlt className="flex-shrink-0" />
+                      <Trash2 className="flex-shrink-0"  size="1em"/>
                       <span className="fw-semibold">Feedback đã bị admin xóa</span>
                     </div>
                   ) : (
@@ -700,7 +835,7 @@ const FeedbackHubPage = () => {
                     <div className="mt-3 p-3 bg-primary-subtle border border-primary-subtle rounded-3 small">
                       <div className="d-flex align-items-center justify-content-between mb-1">
                         <span className="fw-bold text-primary d-flex align-items-center gap-1">
-                          <FaReply /> Phản hồi từ Ban Quản Lý Phòng Khám:
+                          <Reply  size="1em"/> Phản hồi từ Ban Quản Lý Phòng Khám:
                         </span>
                         {fb.respondedAt && (
                           <span className="text-muted" style={{ fontSize: '0.75rem' }}>
@@ -726,7 +861,7 @@ const FeedbackHubPage = () => {
       ) : (
         <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
           <Card.Body>
-            <FaComments className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
+            <MessagesSquare className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }}  size="1em"/>
             <h5 className="text-dark fw-bold">Chưa có phản hồi nào phù hợp</h5>
             <p className="text-muted small mb-0">Thử thay đổi bộ lọc tìm kiếm hoặc gửi phản hồi mới.</p>
           </Card.Body>
@@ -737,7 +872,7 @@ const FeedbackHubPage = () => {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaStar className="text-warning" />
+            <Star className="text-warning"  size="1em"/>
             Gửi Đánh Giá & Góp Ý Dịch Vụ
           </Modal.Title>
         </Modal.Header>
@@ -754,9 +889,9 @@ const FeedbackHubPage = () => {
                     onClick={() => setCreateForm({ ...createForm, rating: star })}
                   >
                     {star <= createForm.rating ? (
-                      <FaStar className="text-warning display-6" />
+                      <Star className="text-warning display-6"  size="1em"/>
                     ) : (
-                      <FaRegStar className="text-muted display-6" />
+                      <Star className="text-muted display-6"  size="1em"/>
                     )}
                   </button>
                 ))}
@@ -771,6 +906,78 @@ const FeedbackHubPage = () => {
             </div>
 
             <Row className="g-3">
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Gói dịch vụ / Lịch hẹn bạn đã sử dụng</Form.Label>
+                  <Form.Select
+                    value={createForm.appointmentId || createForm.servicePackageId || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          appointmentId: '',
+                          servicePackageId: '',
+                          servicePackageCode: '',
+                          servicePackageName: ''
+                        }));
+                        return;
+                      }
+                      const usedItem = eligiblePackages.find(
+                        (item) => item.appointmentCode === val || item.appointmentId === val || item.servicePackageId === val
+                      );
+                      if (usedItem) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          serviceCategory: 'Đánh giá gói xét nghiệm',
+                          appointmentId: usedItem.appointmentCode || usedItem.appointmentId || '',
+                          servicePackageId: usedItem.servicePackageId || '',
+                          servicePackageCode: usedItem.servicePackageCode || '',
+                          servicePackageName: usedItem.servicePackageName || '',
+                          doctorName: usedItem.doctorName || prev.doctorName
+                        }));
+                        return;
+                      }
+                      const catPkg = catalogPackages.find((p) => (p.id || p.packageCode) === val);
+                      if (catPkg) {
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          serviceCategory: 'Đánh giá gói xét nghiệm',
+                          appointmentId: '',
+                          servicePackageId: catPkg.id || '',
+                          servicePackageCode: catPkg.packageCode || '',
+                          servicePackageName: catPkg.packageName || ''
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="">-- Góp ý chung không gắn gói cụ thể --</option>
+                    {eligiblePackages.length > 0 && (
+                      <optgroup label="Lịch hẹn / Gói dịch vụ bạn đã sử dụng">
+                        {eligiblePackages.map((item) => (
+                          <option
+                            key={item.appointmentId}
+                            value={item.appointmentCode || item.appointmentId}
+                            disabled={item.alreadyReviewed}
+                          >
+                            {item.servicePackageName} ({item.servicePackageCode || item.appointmentCode}) · {new Date(item.appointmentDate).toLocaleDateString('vi-VN')}
+                            {item.alreadyReviewed ? ' [Đã đánh giá]' : ''}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {catalogPackages.length > 0 && (
+                      <optgroup label="Chọn gói xét nghiệm khác trong danh mục">
+                        {catalogPackages.map((pkg) => (
+                          <option key={pkg.id || pkg.packageCode} value={pkg.id || pkg.packageCode}>
+                            {pkg.packageCode ? `[${pkg.packageCode}] ` : ''}{pkg.packageName}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="small fw-semibold">Bộ phận / Dịch vụ bạn muốn đánh giá</Form.Label>
@@ -778,6 +985,7 @@ const FeedbackHubPage = () => {
                     value={createForm.serviceCategory}
                     onChange={(e) => setCreateForm({ ...createForm, serviceCategory: e.target.value })}
                   >
+                    <option value="Đánh giá gói xét nghiệm">Đánh giá gói xét nghiệm</option>
                     <option value="Đón tiếp & Lễ tân">Đón tiếp & Lễ tân (Reception)</option>
                     <option value="Lấy mẫu máu & Xét nghiệm">Lấy mẫu máu & Phòng xét nghiệm</option>
                     <option value="Tư vấn bác sĩ">Tư vấn bác sĩ (Doctor consultation)</option>
@@ -846,7 +1054,7 @@ const FeedbackHubPage = () => {
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaEdit className="text-primary" />
+            <SquarePen className="text-primary"  size="1em"/>
             Chỉnh Sửa Đánh Giá Của Bạn
           </Modal.Title>
         </Modal.Header>
@@ -863,9 +1071,9 @@ const FeedbackHubPage = () => {
                     onClick={() => setEditForm({ ...editForm, rating: star })}
                   >
                     {star <= editForm.rating ? (
-                      <FaStar className="text-warning display-6" />
+                      <Star className="text-warning display-6"  size="1em"/>
                     ) : (
-                      <FaRegStar className="text-muted display-6" />
+                      <Star className="text-muted display-6"  size="1em"/>
                     )}
                   </button>
                 ))}
@@ -910,7 +1118,7 @@ const FeedbackHubPage = () => {
       <Modal show={showResponseModal} onHide={() => setShowResponseModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaReply className="text-primary" />
+            <Reply className="text-primary"  size="1em"/>
             Phản Hồi Chính Thức Cho Bệnh Nhân
           </Modal.Title>
         </Modal.Header>
@@ -955,6 +1163,8 @@ const FeedbackHubPage = () => {
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">
             <FaTrashAlt />
             {isAdmin ? 'Gửi Yêu Cầu Xóa Đánh Giá (Admin)' : 'Xác Nhận Xóa Đánh Giá'}
+            <Trash2  size="1em"/>
+            Xác Nhận Xóa Đánh Giá (Admin)
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-3">

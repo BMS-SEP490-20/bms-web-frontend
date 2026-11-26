@@ -15,7 +15,7 @@ export default function MegaFooter() {
           <div>
             <img src="/assets/bms-logo.png" alt="BMS Clinical Laboratory" className="bms-ft-brand-logo" />
             <p className="bms-ft-about">
-              Hệ thống phòng xét nghiệm y khoa tự động hóa đạt tiêu chuẩn quốc tế ISO 15189:2022. Chuyên sâu huyết học,
+              Hệ thống phòng xét nghiệm y khoa tự động hóa chuẩn chất lượng Bộ Y Tế. Chuyên sâu huyết học,
               sinh hóa, miễn dịch và sàng lọc sớm với độ chính xác và tin cậy cao.
             </p>
             <div className="bms-ft-license">
@@ -25,7 +25,7 @@ export default function MegaFooter() {
               </div>
               <div className="bms-ft-license-row">
                 <span className="bms-ft-license-key">Chứng nhận</span>
-                <span className="bms-ft-license-val">ISO 15189:2022 · VILAS Med 124</span>
+                <span className="bms-ft-license-val">Phòng Xét Nghiệm Chuẩn Y Khoa · BMS Lab</span>
               </div>
             </div>
           </div>
@@ -37,8 +37,8 @@ export default function MegaFooter() {
               <li><Link to="/services">Gói xét nghiệm</Link></li>
               <li><Link to="/pricing">Bảng giá niêm yết</Link></li>
               <li><Link to="/tracking">Tiến trình &amp; kết quả</Link></li>
-              <li><Link to="/appointments/book">Đặt lịch lấy mẫu</Link></li>
-              <li><Link to="/iso-process">Quy trình ISO</Link></li>
+              <li><Link to="/services">Đặt lịch lấy mẫu</Link></li>
+              <li><Link to="/iso-process">Quy trình xét nghiệm</Link></li>
             </ul>
           </div>
 
@@ -79,7 +79,7 @@ export default function MegaFooter() {
 
         <div className="bms-ft-bottom">
           <div>
-            &copy; {new Date().getFullYear()} BMS Clinical Laboratory. ISO 15189:2022 &amp; Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.
+            &copy; {new Date().getFullYear()} BMS Clinical Laboratory. Chuẩn Y Khoa &amp; Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.
           </div>
           <div className="bms-ft-bottom-links">
             <Link to="/terms">Điều khoản dịch vụ</Link>

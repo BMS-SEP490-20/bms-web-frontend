@@ -38,19 +38,8 @@ export const sampleApi = {
       const res = await api.put(`/laboratory/samples/${encodeURIComponent(code)}/status`, payload);
       return res.data?.data || res.data;
     } catch (err) {
-      // Fallback to legacy endpoint if present
-      try {
-        const fallback = await api.post('/samples/check-in', {
-          code,
-          labRoomId,
-          rejectionCode,
-          rejectionNote
-        });
-        return fallback.data?.data || fallback.data;
-      } catch {
-        const message = err.response?.data?.message || err.response?.data?.detail || err.response?.data?.title || err.message || 'Lỗi khi tiếp nhận mẫu tại Lab.';
-        throw new Error(message);
-      }
+      const message = err.response?.data?.message || err.response?.data?.detail || err.response?.data?.title || err.message || 'Lỗi khi tiếp nhận mẫu tại Lab.';
+      throw new Error(message);
     }
   },
 
@@ -69,13 +58,8 @@ export const sampleApi = {
       }
       return sample;
     } catch (err) {
-      try {
-        const fallback = await api.get(`/samples/lookup/${encodeURIComponent(code.trim())}`);
-        return fallback.data?.data || fallback.data;
-      } catch {
-        const message = err.response?.data?.title || err.response?.data?.message || err.message || `Không tìm thấy mẫu "${code}".`;
-        throw new Error(message);
-      }
+      const message = err.response?.data?.title || err.response?.data?.message || err.message || `Không tìm thấy mẫu "${code}".`;
+      throw new Error(message);
     }
   },
 
@@ -92,8 +76,8 @@ export const sampleApi = {
       });
       const list = res.data?.data || [];
       if (!Array.isArray(list)) return [];
-      // Filter samples awaiting reception
-      return list.filter(s => s.status === 'Collected' || s.status === 'InTransit' || s.status === 'PendingCollection');
+      // Filter samples awaiting reception (only Collected or InTransit per workflow rules)
+      return list.filter(s => s.status === 'Collected' || s.status === 'InTransit');
     } catch {
       return [];
     }

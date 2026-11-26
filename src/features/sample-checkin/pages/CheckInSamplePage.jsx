@@ -5,23 +5,7 @@
  */
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import {
-  FaBarcode,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaVial,
-  FaTimes,
-  FaSearch,
-  FaExchangeAlt,
-  FaClock,
-  FaMapMarkerAlt,
-  FaUserInjured,
-  FaSpinner,
-  FaShieldAlt,
-  FaSyncAlt,
-  FaLock,
-  FaEye
-} from 'react-icons/fa';
+import { Barcode as LucideBarcode, CheckCircle2, AlertTriangle, TestTube2, X as LucideX, Search, ArrowLeftRight, Clock, MapPin, User, Loader2, ShieldCheck, RefreshCw, Lock, Eye } from 'lucide-react';
 import { Modal } from 'react-bootstrap';
 import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
@@ -365,7 +349,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       if (reject) {
         let msg = `Đã từ chối tiếp nhận mẫu ${targetCode} với lý do: ${rejectCode}`;
         if (isHemolysisSelected) {
-          msg += ' — [ISO 15189: Đã khóa phân tích và kích hoạt quy trình lấy lại mẫu/Rerun]';
+          msg += ' — [Đã khóa phân tích và chuyển yêu cầu lấy lại mẫu]';
         }
         setSuccess(msg);
       } else {
@@ -419,7 +403,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <div className="card-body p-2">
             <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-              <FaSearch style={{ color: '#1E60E6' }} />
+              <Search style={{ color: '#1E60E6' }}  size="1em"/>
               <span>Quét hoặc Tra Cứu Mã Barcode Ống Mẫu</span>
             </h6>
             <div className="d-flex gap-2 flex-wrap">
@@ -438,13 +422,13 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 disabled={lookupLoading}
                 onClick={() => void onLookup()}
               >
-                {lookupLoading ? <FaSpinner className="fa-spin" /> : <FaSearch />}
+                {lookupLoading ? <Loader2 className="fa-spin"  size="1em"/> : <Search  size="1em"/>}
                 <span>Tra cứu mẫu</span>
               </button>
             </div>
             {current && (
               <div className="small mt-2 text-success fw-medium d-flex align-items-center gap-1">
-                <FaCheckCircle />
+                <CheckCircle2  size="1em"/>
                 <span>Tìm thấy ống mẫu &bull; Mã: {current.barcode || current.sampleId} &bull; Trạng thái hiện tại: <strong>{formatSampleStatusVi(current.status).label}</strong></span>
               </div>
             )}
@@ -455,7 +439,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         {error && (
           <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
             <div className="d-flex align-items-center gap-2">
-              <FaExclamationTriangle className="text-danger fs-5" />
+              <AlertTriangle className="text-danger fs-5"  size="1em"/>
               <div>{error}</div>
             </div>
             <button type="button" className="btn-close" onClick={() => setError(null)}></button>
@@ -465,7 +449,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         {success && (
           <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
             <div className="d-flex align-items-center gap-2">
-              <FaCheckCircle className="text-success fs-5" />
+              <CheckCircle2 className="text-success fs-5"  size="1em"/>
               <div className="fw-medium">{success}</div>
             </div>
             <button type="button" className="btn-close" onClick={() => setSuccess(null)}></button>
@@ -476,12 +460,12 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         <div className="card border-0 shadow-sm mb-4 bg-white rounded-3">
           <div className="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-              <FaVial className="text-primary" />
+              <TestTube2 className="text-primary"  size="1em"/>
               <span>Danh sách ống chờ tiếp nhận ({filteredPending.length}/{safePending.length})</span>
             </h5>
             <div className="d-flex gap-2 align-items-center">
               <div className="input-group input-group-sm" style={{ width: 240 }}>
-                <span className="input-group-text bg-light"><FaSearch className="text-muted" /></span>
+                <span className="input-group-text bg-light"><Search className="text-muted"  size="1em"/></span>
                 <input
                   className="form-control"
                   placeholder="Lọc mã / tên BN / ống..."
@@ -495,7 +479,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 onClick={() => void loadPending()}
                 disabled={pendingLoading}
               >
-                <FaSyncAlt className={pendingLoading ? 'fa-spin' : ''} /> Làm mới
+                <RefreshCw className={pendingLoading ? 'fa-spin' : ''}  size="1em"/> Làm mới
               </button>
             </div>
           </div>
@@ -515,7 +499,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 {pendingLoading && (
                   <tr>
                     <td colSpan={6} className="text-center text-muted py-4">
-                      <FaSpinner className="fa-spin me-2" /> Đang tải danh sách ống…
+                      <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải danh sách ống…
                     </td>
                   </tr>
                 )}
@@ -566,7 +550,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                               void openSampleDetail(p);
                             }}
                           >
-                            <FaEye size={12} /> Chi tiết
+                            <Eye size={12} /> Chi tiết
                           </button>
                           <button
                             type="button"
@@ -597,7 +581,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             <div className="card border-0 shadow-sm rounded-3 bg-white">
               <div className="card-body p-2">
                 <h5 className="mb-3 fw-bold text-dark d-flex align-items-center gap-2">
-                  <FaShieldAlt className="text-primary" />
+                  <ShieldCheck className="text-primary"  size="1em"/>
                   <span>Biên Bản Tiếp Nhận &amp; Kiểm Chuẩn Tiền Phân Tích</span>
                 </h5>
                 {!current && (
@@ -675,7 +659,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
 
                 {canReceive && (
                   <div className="alert alert-success py-2 small mb-3 d-flex align-items-center gap-2">
-                    <FaCheckCircle />
+                    <CheckCircle2  size="1em"/>
                     <span>Mẫu đạt đầy đủ tiêu chuẩn tiền phân tích. Sẵn sàng chuyển trạng thái sang <strong>Đã tiếp nhận (Received)</strong> để đưa vào mẻ phân tích.</span>
                   </div>
                 )}
@@ -684,7 +668,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 <div className="border-top pt-3 mt-4">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="small fw-bold text-danger d-flex align-items-center gap-1">
-                      <FaExclamationTriangle /> Từ chối nhận mẫu tại bàn Lab (Tiêu chuẩn loại trừ ISO 15189)
+                      <AlertTriangle size="1em"/> Từ chối nhận mẫu không đạt
                     </span>
                   </div>
 
@@ -716,9 +700,9 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                   {/* Cảnh báo đặc thù nghiệp vụ Tán huyết (Hemolysis) */}
                   {isHemolysisSelected && (
                     <div className="alert alert-danger mt-3 py-2 small d-flex align-items-center gap-2 rounded-3 border-danger">
-                      <FaLock className="fs-5 text-danger" />
+                      <Lock className="fs-5 text-danger"  size="1em"/>
                       <div>
-                        <strong>RÀNG BUỘC NGHIỆP VỤ ISO 15189:</strong> Mẫu bị <strong>Tán huyết (Hemolysis)</strong>. 
+                        <strong>Lưu ý:</strong> Mẫu bị <strong>Tán huyết (Hemolysis)</strong>. 
                         Hệ thống sẽ <strong>Khóa phân tích tự động</strong> đối với mẫu này để tránh sai lệch kết quả sinh hóa (K+, AST, LDH) 
                         và tự động gửi yêu cầu <strong>Lấy lại mẫu (Recollect / Rerun)</strong> đến khoa phòng điều trị.
                       </div>
@@ -749,7 +733,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                   disabled={!rejectCode || !current || loading}
                   onClick={() => void onCheckIn(true)}
                 >
-                  <FaTimes />
+                  <LucideX  size="1em"/>
                   <span>Xác nhận từ chối mẫu</span>
                 </button>
                 <button
@@ -759,7 +743,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                   disabled={!canReceive || loading}
                   onClick={() => void onCheckIn(false)}
                 >
-                  {loading ? <FaSpinner className="fa-spin" /> : <FaCheckCircle />}
+                  {loading ? <Loader2 className="fa-spin"  size="1em"/> : <CheckCircle2  size="1em"/>}
                   <span>Xác Nhận Tiếp Nhận Mẫu</span>
                 </button>
               </div>
@@ -817,7 +801,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             {/* Card quy chuẩn bàn giao */}
             <div className="card border-0 shadow-sm mb-3 bg-white rounded-3">
               <div className="card-body p-3">
-                <h6 className="fw-bold text-dark mb-2">Quy Trình Bàn Giao ISO 15189</h6>
+                <h6 className="fw-bold text-dark mb-2">Quy Trình Bàn Giao Mẫu</h6>
                 <p className="small text-muted mb-0">
                   Nếu không quét được mã Barcode, hãy kiểm tra nhãn tại phòng lấy mẫu hoặc liên hệ điều dưỡng thu mẫu. 
                   Tuyệt đối không tự ý gán nhãn mã vạch không rõ nguồn gốc.
@@ -828,7 +812,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             <div className="card border-0 shadow-sm bg-white rounded-3">
               <div className="card-body p-3">
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-1">
-                  <FaClock className="text-warning" /> Tóm tắt hàng đợi
+                  <Clock className="text-warning"  size="1em"/> Tóm tắt hàng đợi
                 </h6>
                 <div className="display-6 fw-bold text-primary">{safePending.length}</div>
                 <div className="small text-muted">ống chờ lấy mẫu / đã lấy mẫu / đang vận chuyển</div>
@@ -845,7 +829,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       <Modal show={Boolean(detailSample)} onHide={() => setDetailSample(null)} centered size="lg">
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h6 fw-bold d-flex align-items-center gap-2">
-            <FaVial className="text-primary" />
+            <TestTube2 className="text-primary"  size="1em"/>
             <span>Chi Tiết Ống Mẫu &amp; Y Lệnh — </span>
             <code className="text-primary">{detailSample?.barcode || detailSample?.id}</code>
           </Modal.Title>
@@ -884,7 +868,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 <div className="small fw-bold text-uppercase text-primary mb-2">2. Bác Sĩ Chỉ Định &amp; Y Lệnh Lâm Sàng</div>
                 {detailLoading ? (
                   <div className="small text-muted py-1">
-                    <FaSpinner className="fa-spin me-2" /> Đang tải thông tin bác sĩ &amp; phiếu chỉ định...
+                    <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải thông tin bác sĩ &amp; phiếu chỉ định...
                   </div>
                 ) : (
                   <div className="row g-2 small">

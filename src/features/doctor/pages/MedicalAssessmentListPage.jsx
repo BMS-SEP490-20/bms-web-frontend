@@ -22,20 +22,7 @@ import {
   Alert,
   Modal
 } from 'react-bootstrap';
-import {
-  FaPlus,
-  FaSearch,
-  FaStethoscope,
-  FaHeartbeat,
-  FaEye,
-  FaEdit,
-  FaTrashAlt,
-  FaPrint,
-  FaLock,
-  FaClock,
-  FaTimes,
-  FaUserMd
-} from 'react-icons/fa';
+import { Plus, Search as LucideSearch, Stethoscope, HeartPulse, Eye, SquarePen, Trash2, Printer, Lock, Clock, X as LucideX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
@@ -181,7 +168,7 @@ export default function MedicalAssessmentListPage() {
             onClick={() => navigate('/doctor/console')}
             className="d-inline-flex align-items-center gap-2 rounded-pill px-3 fw-semibold text-nowrap"
           >
-            <FaUserMd /> <span>Bàn khám bác sĩ</span>
+            <Stethoscope  size="1em"/> <span>Bàn khám bác sĩ</span>
           </Button>
           {canManageAssessments && (
             <Button
@@ -191,7 +178,7 @@ export default function MedicalAssessmentListPage() {
               className="d-inline-flex align-items-center gap-2 rounded-pill px-3 fw-semibold text-white text-nowrap"
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <FaPlus /> <span>Thêm đánh giá</span>
+              <Plus  size="1em"/> <span>Thêm đánh giá</span>
             </Button>
           )}
         </div>
@@ -200,7 +187,7 @@ export default function MedicalAssessmentListPage() {
       {/* Filter and Search Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <LucideSearch className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo mã đánh giá, tên bệnh nhân, mã ICD-10..."
@@ -214,7 +201,7 @@ export default function MedicalAssessmentListPage() {
               onClick={() => setSearchTerm('')}
               title="Xóa tìm kiếm"
             >
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -271,7 +258,7 @@ export default function MedicalAssessmentListPage() {
             </div>
           ) : !Array.isArray(assessments) || assessments.length === 0 ? (
             <div className="text-center py-5">
-              <FaStethoscope className="text-muted fs-1 opacity-50 mb-3" />
+              <Stethoscope className="text-muted fs-1 opacity-50 mb-3"  size="1em"/>
               <h6 className="text-secondary fw-bold">Chưa có bản ghi đánh giá y khoa nào</h6>
               <p className="text-muted small mb-3">
                 Nhấn &quot;Thêm đánh giá&quot; để ghi nhận bệnh án và chẩn đoán ICD-10.
@@ -283,7 +270,7 @@ export default function MedicalAssessmentListPage() {
                   onClick={() => navigate('/medical-assessments/add')}
                   className="rounded-pill px-3 text-nowrap"
                 >
-                  <FaPlus className="me-1" /> Tạo đánh giá ngay
+                  <Plus className="me-1"  size="1em"/> Tạo đánh giá ngay
                 </Button>
               )}
             </div>
@@ -344,11 +331,11 @@ export default function MedicalAssessmentListPage() {
                     <td className="text-center">
                       {item.status === 'Finalized' ? (
                         <Badge bg="success-subtle" text="success" className="px-2.5 py-1 rounded-pill border border-success-subtle d-inline-flex align-items-center gap-1">
-                          <FaLock size={10} /> Đã khóa
+                          <Lock size={10} /> Đã khóa
                         </Badge>
                       ) : (
                         <Badge bg="warning-subtle" text="warning-emphasis" className="px-2.5 py-1 rounded-pill border border-warning-subtle d-inline-flex align-items-center gap-1">
-                          <FaClock size={10} /> Bản nháp
+                          <Clock size={10} /> Bản nháp
                         </Badge>
                       )}
                     </td>
@@ -369,7 +356,7 @@ export default function MedicalAssessmentListPage() {
                           onClick={() => handleOpenDetail(item)}
                           title="Xem chi tiết"
                         >
-                          <FaEye />
+                          <Eye  size="1em"/>
                         </Button>
                         {canManageAssessments && item.canEdit && (
                           <Button
@@ -379,7 +366,7 @@ export default function MedicalAssessmentListPage() {
                             onClick={() => navigate(`/medical-assessments/${item.id}/edit`)}
                             title="Chỉnh sửa"
                           >
-                            <FaEdit />
+                            <SquarePen  size="1em"/>
                           </Button>
                         )}
                         {canManageAssessments && item.canEdit && (
@@ -390,7 +377,7 @@ export default function MedicalAssessmentListPage() {
                             onClick={() => handleOpenDelete(item)}
                             title="Xóa mềm"
                           >
-                            <FaTrashAlt />
+                            <Trash2  size="1em"/>
                           </Button>
                         )}
                       </div>
@@ -409,10 +396,10 @@ export default function MedicalAssessmentListPage() {
           <>
             <Modal.Header closeButton style={{ backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
               <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-                <FaStethoscope className="text-primary" /> Phiếu đánh giá y khoa lâm sàng: {selectedAssessment.assessmentCode}
+                <Stethoscope className="text-primary"  size="1em"/> Phiếu đánh giá y khoa lâm sàng: {selectedAssessment.assessmentCode}
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-2" id="printable-assessment">
+            <Modal.Body id="printable-assessment">
               <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                 <div>
                   <h5 className="fw-bold mb-1">{selectedAssessment.patientName}</h5>
@@ -433,7 +420,7 @@ export default function MedicalAssessmentListPage() {
               {/* Vitals Summary */}
               <div className="bg-light p-3 rounded-3 mb-3 border">
                 <h6 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
-                  <FaHeartbeat /> Dấu Hiệu Sinh Tồn & Thể Trạng
+                  <HeartPulse  size="1em"/> Dấu Hiệu Sinh Tồn & Thể Trạng
                 </h6>
                 <Row className="g-2 text-center small">
                   <Col xs={4} md={2}>
@@ -539,7 +526,7 @@ export default function MedicalAssessmentListPage() {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="outline-secondary" onClick={handlePrint} className="d-flex align-items-center gap-1">
-                <FaPrint /> In Phiếu
+                <Printer  size="1em"/> In Phiếu
               </Button>
               <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
                 Đóng

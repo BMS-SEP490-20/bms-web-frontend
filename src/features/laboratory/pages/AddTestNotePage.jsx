@@ -6,23 +6,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  FaSave,
-  FaArrowLeft,
-  FaExclamationTriangle,
-  FaCheckCircle,
-  FaInfoCircle,
-  FaVial,
-  FaTag,
-  FaBold,
-  FaItalic,
-  FaUnderline,
-  FaListUl,
-  FaClock,
-  FaSearch,
-  FaUserMd,
-  FaSpinner
-} from "react-icons/fa";
+import { Save, ArrowLeft, AlertTriangle, CheckCircle2, Info, TestTube2, Tag, Bold, Italic, Underline, List, Clock, Search, Stethoscope, Loader2 } from 'lucide-react';
 import {
   fetchSpecimenContext,
   fetchNotesBySpecimen,
@@ -210,7 +194,7 @@ export default function AddTestNotePage() {
             onClick={() => navigate(-1)}
             className="btn btn-outline-secondary btn-sm px-3 rounded-pill text-nowrap"
           >
-            <FaArrowLeft className="me-1" /> Quay lại
+            <ArrowLeft className="me-1"  size="1em"/> Quay lại
           </button>
           <button
             type="button"
@@ -219,7 +203,7 @@ export default function AddTestNotePage() {
             className="btn btn-sm px-3 fw-semibold shadow-sm d-inline-flex align-items-center gap-1 rounded-pill text-nowrap"
             style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6", color: "#ffffff" }}
           >
-            {submitting ? <FaSpinner className="fa-spin" /> : <FaSave />}
+            {submitting ? <Loader2 className="fa-spin"  size="1em"/> : <Save  size="1em"/>}
             <span>{submitting ? "Đang lưu..." : "Lưu ghi chú"}</span>
           </button>
         </div>
@@ -228,7 +212,7 @@ export default function AddTestNotePage() {
       {/* Thông báo Alert */}
       {successMessage && (
         <div className="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4 border-0 shadow-sm rounded-3" role="alert">
-          <FaCheckCircle className="flex-shrink-0 me-2" size={18} />
+          <CheckCircle2 className="flex-shrink-0 me-2" size={18} />
           <div className="fw-medium">{successMessage}</div>
           <button type="button" className="btn-close" onClick={() => setSuccessMessage("")} aria-label="Close"></button>
         </div>
@@ -236,7 +220,7 @@ export default function AddTestNotePage() {
 
       {errorMessage && (
         <div className="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4 border-0 shadow-sm rounded-3" role="alert">
-          <FaExclamationTriangle className="flex-shrink-0 me-2" size={18} />
+          <AlertTriangle className="flex-shrink-0 me-2" size={18} />
           <div>{errorMessage}</div>
           <button type="button" className="btn-close" onClick={() => setErrorMessage("")} aria-label="Close"></button>
         </div>
@@ -248,7 +232,7 @@ export default function AddTestNotePage() {
           <div className="card shadow-sm border-0 h-100 bg-white rounded-3">
             <div className="card-header bg-white py-3 border-bottom">
               <h5 className="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2 fs-6">
-                <FaVial className="text-primary" />
+                <TestTube2 className="text-primary"  size="1em"/>
                 <span>Bối Cảnh Mẫu Xét Nghiệm (Specimen Context)</span>
               </h5>
             </div>
@@ -273,7 +257,7 @@ export default function AddTestNotePage() {
                     disabled={loadingContext}
                     className="btn btn-outline-primary d-flex align-items-center gap-1"
                   >
-                    {loadingContext ? <FaSpinner className="fa-spin" /> : <FaSearch />}
+                    {loadingContext ? <Loader2 className="fa-spin"  size="1em"/> : <Search  size="1em"/>}
                     <span>{loadingContext ? "Đang tải..." : "Tra cứu"}</span>
                   </button>
                 </div>
@@ -327,12 +311,12 @@ export default function AddTestNotePage() {
                 </div>
               ) : selectedSpecimenId ? (
                 <div className="p-3 mb-4 rounded-3 border bg-light text-muted small">
-                  <FaInfoCircle className="me-1 text-info" />
+                  <Info className="me-1 text-info"  size="1em"/>
                   Đang thao tác với mã Barcode: <strong className="font-monospace text-dark">{selectedSpecimenId}</strong>
                 </div>
               ) : (
                 <div className="p-3 mb-4 rounded-3 border bg-light text-muted small">
-                  <FaInfoCircle className="me-1 text-secondary" />
+                  <Info className="me-1 text-secondary"  size="1em"/>
                   Vui lòng quét hoặc chọn ống mẫu để hiển thị thông tin bệnh nhân.
                 </div>
               )}
@@ -398,7 +382,7 @@ export default function AddTestNotePage() {
                 </label>
                 <div className="input-group">
                   <span className="input-group-text bg-white text-muted">
-                    <FaTag size={12} />
+                    <Tag size={12} />
                   </span>
                   <input
                     type="text"
@@ -437,7 +421,7 @@ export default function AddTestNotePage() {
                   className="btn btn-sm btn-outline-secondary border-0"
                   title="In đậm"
                 >
-                  <FaBold size={12} />
+                  <Bold size={12} />
                 </button>
                 <button
                   type="button"
@@ -445,7 +429,7 @@ export default function AddTestNotePage() {
                   className="btn btn-sm btn-outline-secondary border-0"
                   title="In nghiêng"
                 >
-                  <FaItalic size={12} />
+                  <Italic size={12} />
                 </button>
                 <button
                   type="button"
@@ -453,7 +437,7 @@ export default function AddTestNotePage() {
                   className="btn btn-sm btn-outline-secondary border-0"
                   title="Gạch chân"
                 >
-                  <FaUnderline size={12} />
+                  <Underline size={12} />
                 </button>
                 <span className="border-start mx-1 my-1"></span>
                 <button
@@ -462,7 +446,7 @@ export default function AddTestNotePage() {
                   className="btn btn-sm btn-outline-secondary border-0"
                   title="Danh sách gạch đầu dòng"
                 >
-                  <FaListUl size={12} />
+                  <List size={12} />
                 </button>
               </div>
 
@@ -481,7 +465,7 @@ export default function AddTestNotePage() {
           <div className="card shadow-sm border-0 bg-white rounded-3">
             <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
               <h5 className="card-title mb-0 fw-bold text-dark fs-6 d-flex align-items-center gap-2">
-                <FaClock className="text-primary" />
+                <Clock className="text-primary"  size="1em"/>
                 <span>Lịch Sử Ghi Chú Đã Lưu Trên Ống Mẫu (Audit Trail)</span>
               </h5>
               <span className="badge bg-secondary-subtle text-secondary border">
@@ -491,7 +475,7 @@ export default function AddTestNotePage() {
             <div className="card-body p-3">
               {safeExistingNotes.length === 0 ? (
                 <div className="text-center py-2 text-muted small">
-                  <FaClock className="mb-2 d-block mx-auto text-secondary" size={24} />
+                  <Clock className="mb-2 d-block mx-auto text-secondary" size={24} />
                   Chưa có ghi chú chuyên môn nào được lưu cho mẫu xét nghiệm này.
                 </div>
               ) : (

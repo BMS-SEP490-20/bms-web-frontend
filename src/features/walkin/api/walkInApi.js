@@ -111,6 +111,18 @@ export const walkInApi = {
       throw buildWalkInError(err, 'Không thể tra cứu theo số điện thoại.');
     }
   },
+
+  async lookupByEmail(email) {
+    try {
+      const response = await api.get('/walk-in/lookup/email', { params: { email } });
+      return response.data;
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        return { exists: false };
+      }
+      throw buildWalkInError(err, 'Không thể tra cứu theo địa chỉ email.');
+    }
+  },
 };
 
 export default walkInApi;

@@ -8,17 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-    FaDownload,
-    FaShareAlt,
-    FaArrowLeft,
-    FaCheckCircle,
-    FaExclamationCircle,
-    FaPrint,
-    FaShieldAlt,
-    FaStethoscope,
-    FaUserMd
-} from "react-icons/fa";
+import { Download, Share2, ArrowLeft, CheckCircle2, AlertCircle, Printer, ShieldCheck, Stethoscope } from 'lucide-react';
 import { fetchReportByOrder } from "../api/testReportApi";
 import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
 
@@ -69,7 +59,7 @@ export default function TestReportPage() {
     if (!orderId) {
         return (
             <div className="container py-3 text-center text-muted" style={{ minHeight: "80vh" }}>
-                <FaExclamationCircle className="text-secondary fs-1 mb-3" />
+                <AlertCircle className="text-secondary fs-1 mb-3"  size="1em"/>
                 <h5>Chưa chọn phiếu chỉ định xét nghiệm</h5>
                 <p className="small">Vui lòng chọn một phiếu chỉ định từ danh sách lịch sử để xem kết quả xét nghiệm chi tiết.</p>
                 <button className="btn btn-outline-primary mt-2" onClick={() => navigate(-1)}>
@@ -91,7 +81,7 @@ export default function TestReportPage() {
     if (!report) {
         return (
             <div className="container py-3 text-center text-muted" style={{ minHeight: "80vh" }}>
-                <FaExclamationCircle className="text-danger fs-1 mb-3" />
+                <AlertCircle className="text-danger fs-1 mb-3"  size="1em"/>
                 <h5>{errorMessage || `Không tìm thấy phiếu kết quả xét nghiệm cho mã chỉ định #${orderId}`}</h5>
                 <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
                     Quay lại
@@ -120,7 +110,7 @@ export default function TestReportPage() {
                             className="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm text-white fw-semibold"
                             style={{ backgroundColor: "#059669", borderColor: "#059669" }}
                         >
-                            <FaStethoscope /> Tư Vấn & Lập Đánh Giá Y Khoa (ICD-10)
+                            <Stethoscope  size="1em"/> Tư Vấn & Lập Đánh Giá Y Khoa (ICD-10)
                         </Link>
                     )}
 
@@ -128,20 +118,20 @@ export default function TestReportPage() {
                         className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
                         onClick={() => navigate(-1)}
                     >
-                        <FaArrowLeft /> Quay lại
+                        <ArrowLeft  size="1em"/> Quay lại
                     </button>
                     <button
                         className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
                         onClick={handleShare}
                     >
-                        <FaShareAlt /> {copied ? "Đã sao chép liên kết!" : "Chia sẻ"}
+                        <Share2  size="1em"/> {copied ? "Đã sao chép liên kết!" : "Chia sẻ"}
                     </button>
                     <button
                         className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm fw-semibold"
                         style={{ backgroundColor: "#0284c7", borderColor: "#0284c7" }}
                         onClick={handleDownloadPdf}
                     >
-                        <FaDownload /> In / Tải PDF
+                        <Download  size="1em"/> In / Tải PDF
                     </button>
                 </div>
             </div>
@@ -260,23 +250,23 @@ export default function TestReportPage() {
                                 <small className="text-muted d-block">Kỹ thuật viên thực hiện xét nghiệm</small>
                                 <strong className="text-dark d-block">{report.analysedBy || 'KTV. Xét Nghiệm'}</strong>
                                 <small className="text-success font-monospace d-flex align-items-center gap-1 mt-1">
-                                    <FaShieldAlt /> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
+                                    <ShieldCheck  size="1em"/> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
                                 </small>
                             </div>
                             <div className="text-end">
                                 <small className="text-muted d-block">Bác sĩ điều trị phê duyệt</small>
                                 <strong className="text-dark d-block">{report.approvedBy || 'Bác sĩ điều trị'}</strong>
                                 <small className="text-primary font-monospace d-flex align-items-center justify-content-end gap-1 mt-1">
-                                    <FaCheckCircle /> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Chữ ký số y tế hợp chuẩn (MD)
+                                    <CheckCircle2  size="1em"/> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Chữ ký số y tế hợp chuẩn (MD)
                                 </small>
                             </div>
                         </div>
 
                         {/* Legal Disclaimer & ISO 15189 Notice */}
                         <div className="mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: "11px", fontStyle: "italic", borderColor: "#e2e8f0" }}>
-                            Phiếu kết quả xét nghiệm được kiểm soát và bảo chứng theo tiêu chuẩn phòng xét nghiệm y khoa ISO 15189:2022. Mọi sửa đổi hay tẩy xóa đều làm mất giá trị pháp lý của tài liệu. Bệnh nhân vui lòng mang phiếu này đến bác sĩ điều trị để được tư vấn và kết luận chẩn đoán.
+                            Phiếu kết quả chỉ có giá trị tham khảo lâm sàng sau khi được bác sĩ duyệt. Vui lòng trao đổi với bác sĩ điều trị để được tư vấn chi tiết.
                             <div className="mt-1 font-monospace text-secondary">
-                                Mã băm toàn vẹn dữ liệu (Verification Hash): {report.verificationHash || "SHA256:BMS-ISO15189-VALIDATED"}
+                                {report.verificationHash ? `Mã tra cứu phiếu: ${report.verificationHash}` : "Bản in kết quả xét nghiệm hệ thống BMS"}
                             </div>
                         </div>
                     </div>

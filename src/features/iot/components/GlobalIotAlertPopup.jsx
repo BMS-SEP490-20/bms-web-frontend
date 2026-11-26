@@ -9,17 +9,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  FaExclamationTriangle,
-  FaVolumeUp,
-  FaVolumeMute,
-  FaChevronDown,
-  FaChevronUp,
-  FaDatabase,
-  FaExternalLinkAlt,
-  FaCheckCircle,
-  FaTimes
-} from 'react-icons/fa';
+import { AlertTriangle, Volume2, VolumeX, ChevronDown, ChevronUp, Database as LucideDatabase, ExternalLink, CheckCircle2, X } from 'lucide-react';
 import { fetchIotConnectionStatus, getSelectedIotDeviceId } from '../api/iotTelemetryApi';
 import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 
@@ -80,7 +70,7 @@ export default function GlobalIotAlertPopup() {
   // Security & Medical SaaS UX: IoT Cold-Chain Alert is strictly internal to Admin and Manager (ROLE-PERMISSION-MATRIX §1).
   // It MUST ONLY be displayed inside internal management/lab routes, NEVER on public marketing or patient-facing pages!
   const currentUser = getStoredUser();
-  const isRoleAuthorized = hasRole(currentUser, ROLES.ADMIN, ROLES.MANAGER);
+  const isRoleAuthorized = hasRole(currentUser, ROLES.MANAGER, ROLES.LAB);
 
   const isInternalPortal =
     location.pathname.startsWith('/admin') ||
@@ -194,7 +184,7 @@ export default function GlobalIotAlertPopup() {
         onClick={() => setMinimized(false)}
         title="Nhấn để mở rộng cảnh báo cảm biến"
       >
-        <FaExclamationTriangle size={15} />
+        <AlertTriangle size={15} />
         <span>
           {isDisconnected
             ? `Mất kết nối cảm biến (${statusData.deviceId}) · ${formatDurationVi(
@@ -204,7 +194,7 @@ export default function GlobalIotAlertPopup() {
                 statusData.latestHumidity ?? 0
               ).toFixed(1)}%`}
         </span>
-        <FaChevronUp size={13} />
+        <ChevronUp size={13} />
       </div>
     );
   }
@@ -242,7 +232,7 @@ export default function GlobalIotAlertPopup() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '13.5px' }}>
-            <FaCheckCircle size={16} color="#10b981" />
+            <CheckCircle2 size={16} color="#10b981" />
             <span>Đã khôi phục kết nối cảm biến ({statusData.deviceId})</span>
           </div>
           <button
@@ -250,13 +240,13 @@ export default function GlobalIotAlertPopup() {
             onClick={() => setShowRecoveryBanner(false)}
             style={{ background: 'none', border: 'none', color: '#065f46', cursor: 'pointer' }}
           >
-            <FaTimes size={14} />
+            <X size={14} />
           </button>
         </div>
 
         <div style={{ padding: '14px 16px', fontSize: '12.5px', color: '#334155', lineHeight: 1.5 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: '#047857', fontWeight: 600 }}>
-            <FaDatabase size={14} />
+            <LucideDatabase size={14} />
             <span>
               Đã đồng bộ bù {recovered?.bufferedRecordsSynced ?? 0} bản ghi lưu trữ trong lúc mất kết nối.
             </span>
@@ -290,7 +280,7 @@ export default function GlobalIotAlertPopup() {
               }}
             >
               <span>Xem biểu đồ</span>
-              <FaExternalLinkAlt size={11} />
+              <ExternalLink size={11} />
             </button>
           </div>
         </div>
@@ -334,7 +324,7 @@ export default function GlobalIotAlertPopup() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-          <FaExclamationTriangle size={16} />
+          <AlertTriangle size={16} />
           <div>
             <div style={{ fontSize: '11px', fontWeight: 600, opacity: 0.85 }}>
               Giám sát bảo quản lạnh
@@ -365,7 +355,7 @@ export default function GlobalIotAlertPopup() {
               cursor: 'pointer'
             }}
           >
-            {soundEnabled ? <FaVolumeUp size={13} /> : <FaVolumeMute size={13} />}
+            {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
           </button>
 
           <button
@@ -385,7 +375,7 @@ export default function GlobalIotAlertPopup() {
               cursor: 'pointer'
             }}
           >
-            <FaChevronDown size={13} />
+            <ChevronDown size={13} />
           </button>
 
           {!isDisconnected && (
@@ -406,7 +396,7 @@ export default function GlobalIotAlertPopup() {
                 cursor: 'pointer'
               }}
             >
-              <FaTimes size={13} />
+              <X size={13} />
             </button>
           )}
         </div>
@@ -473,7 +463,7 @@ export default function GlobalIotAlertPopup() {
                 gap: '7px'
               }}
             >
-              <FaDatabase size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+              <LucideDatabase size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
               <span>
                 Thiết bị đang tự động lưu trữ nhiệt độ &amp; độ ẩm vào bộ nhớ tạm và sẽ đồng bộ lại ngay khi kết nối
                 được khôi phục.
@@ -520,7 +510,7 @@ export default function GlobalIotAlertPopup() {
                 }}
               >
                 <span>Xem Biểu Đồ Giám Sát</span>
-                <FaExternalLinkAlt size={11} />
+                <ExternalLink size={11} />
               </button>
             )}
           </div>

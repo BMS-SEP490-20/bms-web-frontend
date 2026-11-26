@@ -1,23 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  FaCalendarAlt,
-  FaClock,
-  FaUserMd,
-  FaHospital,
-  FaCheckCircle,
-  FaVial,
-  FaInfoCircle,
-  FaArrowRight,
-  FaCalendarCheck,
-  FaIdCard,
-  FaPhoneAlt,
-  FaFileMedical,
-  FaMapMarkerAlt,
-  FaNotesMedical,
-  FaExclamationTriangle,
-  FaSearch
-} from 'react-icons/fa';
+import { Calendar, Clock, Stethoscope, Hospital as LucideHospital, CheckCircle2, TestTube2, Info, ArrowRight, CalendarCheck, IdCard, Phone, FileHeart, MapPin, FileText, AlertTriangle, Search } from 'lucide-react';
 import '../appointment.css';
 import api from '../../../config/api';
 import { useBookAppointment } from '../hooks/useBookAppointment';
@@ -92,6 +75,14 @@ export function BookAppointmentPage({
   const preselectedPatientId = searchParams.get('patientId') || initialPatientId || '';
   const preselectedPkgId = searchParams.get('packageId') || searchParams.get('id') || '';
   const preselectedName = searchParams.get('packageName') || '';
+  const hasPreselectedFromUrl = Boolean(preselectedPkgId || preselectedName);
+  const needsCatalogRedirect = !isReceptionist && !hasPreselectedFromUrl && initialPackageIds.length === 0;
+
+  useEffect(() => {
+    if (needsCatalogRedirect) {
+      navigate('/services', { replace: true });
+    }
+  }, [needsCatalogRedirect, navigate]);
 
   const packageMatchesSelection = (pkg, selectedId, selectedName) => {
     const id = String(selectedId || '').trim().toLowerCase();
@@ -111,6 +102,7 @@ export function BookAppointmentPage({
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [packageSearch, setPackageSearch] = useState('');
   const [packageCategoryFilter, setPackageCategoryFilter] = useState('ALL');
+  const [showPackagePicker, setShowPackagePicker] = useState(() => isReceptionist);
 
   const [selectedPackageId, setSelectedPackageId] = useState(() => {
     if (preselectedPkgId) return preselectedPkgId;
@@ -327,6 +319,9 @@ export function BookAppointmentPage({
           description: p.description || '',
           fastingRule: p.fastingRule || '',
           sampleTube: p.sampleTube || '',
+          sampleVolumeMl: p.sampleVolumeMl || '',
+          tat: p.tat || p.turnaroundTime || '',
+          targetAudience: p.targetAudience || '',
           criteria: Array.isArray(p.criteria) ? p.criteria : []
         };
       });
@@ -400,6 +395,9 @@ export function BookAppointmentPage({
             description: sp.description || sp.Description || catalogMatch?.description || '',
             fastingRule: sp.preparationNotes || sp.PreparationNotes || catalogMatch?.fastingRule || '',
             sampleTube: sp.sampleTube || sp.SampleTube || catalogMatch?.sampleTube || '',
+            sampleVolumeMl: sp.sampleVolumeMl || sp.SampleVolumeMl || catalogMatch?.sampleVolumeMl || '',
+            tat: sp.tat || sp.Tat || sp.turnaroundTime || catalogMatch?.tat || '',
+            targetAudience: sp.targetAudience || sp.TargetAudience || catalogMatch?.targetAudience || '',
             criteria
           };
         });
@@ -452,16 +450,21 @@ export function BookAppointmentPage({
 
   // Sync preselected package from URL whenever preselectedPkgId or packages changes
   useEffect(() => {
-    if (preselectedPkgId || preselectedName) {
-      const match = packages.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
-      if (match) {
-        setSelectedPackageId(match.packageId);
-        requestAnimationFrame(() => {
-          document.querySelector(`[data-package-id="${CSS.escape(match.packageId)}"]`)?.scrollIntoView({ block: 'nearest' });
-        });
-      }
+    if (!hasPreselectedFromUrl || isReceptionist) {
+      setShowPackagePicker(true);
+      return;
     }
-  }, [preselectedPkgId, preselectedName, packages]);
+    if (packages.length === 0) return;
+
+    const match = packages.find((p) => packageMatchesSelection(p, preselectedPkgId, preselectedName));
+    if (match) {
+      setSelectedPackageId(match.packageId);
+      setShowPackagePicker(false);
+    } else if (!packagesLoading) {
+      // Redirect patient back to /services if URL packageId does not match any active package
+      navigate('/services', { replace: true });
+    }
+  }, [hasPreselectedFromUrl, isReceptionist, preselectedPkgId, preselectedName, packages, packagesLoading, navigate]);
 
   // Load Doctor Shifts & Assigned Rooms for selected date
   const loadDoctorShifts = useCallback(async () => {
@@ -748,10 +751,14 @@ export function BookAppointmentPage({
           <button type="button" onClick={() => navigate('/appointments')}>
             {isReceptionist ? 'Xem sổ lịch hẹn' : 'Xem lịch của tôi'}
           </button>
-          <button type="button" onClick={reset}>Đặt lịch khác</button>
+          <button type="button" onClick={() => (isReceptionist ? reset() : navigate('/services'))}>Đặt lịch khác</button>
         </div>
       </div>
     );
+  }
+
+  if (needsCatalogRedirect) {
+    return null;
   }
 
   return (
@@ -761,7 +768,11 @@ export function BookAppointmentPage({
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content">
             <h1 className="bms-page-title">Đặt Lịch Xét Nghiệm</h1>
-            <p className="bms-page-subtitle">Chọn gói dịch vụ, ngày khám và khung giờ lấy mẫu phù hợp</p>
+            <p className="bms-page-subtitle">
+              {showPackagePicker
+                ? 'Chọn gói dịch vụ, ngày khám và khung giờ lấy mẫu phù hợp'
+                : 'Chọn ngày khám và khung giờ lấy mẫu cho gói xét nghiệm bạn đã chọn'}
+            </p>
           </div>
         </div>
 
@@ -822,27 +833,37 @@ export function BookAppointmentPage({
                 </dl>
               </section>
 
-              {/* SECTION 2: Test Package Selection */}
-              <div className="card border-0 shadow-sm rounded-3 mb-4">
-                <div className="card-header bg-white border-bottom py-3 px-3">
-                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                      <FaVial className="text-primary" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
-                    </h5>
-                    {isReceptionist && (
-                      <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style={{ fontSize: '11px' }}>
-                        Danh mục gói dịch vụ &amp; bảng giá ({packages.length} gói)
-                      </span>
-                    )}
+              {/* SECTION 2: Test Package Selection (hidden when preselected from /services) */}
+              {showPackagePicker && (
+                <div className="card border-0 shadow-sm rounded-3 mb-4">
+                  <div className="card-header bg-white border-bottom py-3 px-3">
+                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                      <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <TestTube2 className="text-primary" size="1em" /> 2. Chọn Gói Xét Nghiệm Khám Bệnh
+                      </h5>
+                      {isReceptionist ? (
+                        <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style={{ fontSize: '11px' }}>
+                          Danh mục gói dịch vụ &amp; bảng giá ({packages.length} gói)
+                        </span>
+                      ) : hasPreselectedFromUrl && selectedPackage ? (
+                        <button
+                          type="button"
+                          className="btn btn-link btn-sm p-0 text-decoration-none fw-semibold"
+                          style={{ color: 'var(--primary)', fontSize: 'var(--fs-xs)' }}
+                          onClick={() => setShowPackagePicker(false)}
+                        >
+                          Thu gọn
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-                <div className="card-body p-2">
+                  <div className="card-body p-2">
                   {isReceptionist && (
                     <div className="row g-2 px-1 pt-1 pb-2 mb-2 border-bottom">
                       <div className="col-md-7">
                         <div className="input-group input-group-sm">
                           <span className="input-group-text bg-white text-muted border-end-0">
-                            <FaSearch size={12} />
+                            <Search size={12} />
                           </span>
                           <input
                             type="text"
@@ -917,7 +938,7 @@ export function BookAppointmentPage({
                               ) : null}
                             </span>
                             <span className="bms-pkg-price text-end">
-                              <span>
+                              <span className="d-block">
                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price || 0)}
                               </span>
                               {pkg.originalPrice && (
@@ -925,14 +946,21 @@ export function BookAppointmentPage({
                                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.originalPrice)}
                                 </small>
                               )}
+                              {isSelected && (
+                                <span className="bms-pkg-selected-tag">
+                                  <CheckCircle2 size={12} />
+                                  Đã chọn
+                                </span>
+                              )}
                             </span>
                           </button>
                         );
                       })}
                     </div>
                   )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* SECTION 3: Shift, Doctor & Room Management */}
               <div className="card border-0 shadow-sm rounded-3 mb-4">
@@ -1002,7 +1030,7 @@ export function BookAppointmentPage({
 
                   {showFastingWarning && (
                     <div className="alert alert-warning border-0 rounded-3 p-2.5 my-3 d-flex align-items-start gap-2 text-dark" style={{ backgroundColor: '#fef3c7', fontSize: '12.5px' }}>
-                      <FaInfoCircle className="text-warning mt-0.5 flex-shrink-0" />
+                      <Info className="text-warning mt-0.5 flex-shrink-0"  size="1em"/>
                       <div>
                         <strong>Dặn dò lâm sàng:</strong> Gói xét nghiệm này có chỉ định nhịn ăn 8 – 12 giờ. Nếu chọn ca Chiều hoặc Tối, quý khách vui lòng đảm bảo đã nhịn ăn đủ thời gian, hoặc khuyến nghị chuyển sang <strong>Ca Sáng</strong> để kết quả đạt độ chính xác tối đa.
                       </div>
@@ -1012,7 +1040,7 @@ export function BookAppointmentPage({
                   {(!activeShiftData || shiftSlots.length === 0) && (
                     <div className="alert alert-warning border rounded-3 p-3 my-3" style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
                       <div className="d-flex align-items-center gap-2 fw-bold text-dark small mb-1">
-                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                         <span>
                           {!activeShiftData
                             ? `Ca ${selectedShiftId === 'Morning' ? 'Sáng' : selectedShiftId === 'Afternoon' ? 'Chiều' : 'Tối'} ngày ${date} hiện chưa có Bác sĩ chuyên khoa ${selectedPackage?.category || ''} trực tiếp nhận.`
@@ -1047,7 +1075,7 @@ export function BookAppointmentPage({
                       </span>
                     ) : !activeShiftData ? (
                       <div className="py-2 text-muted small d-flex align-items-center gap-2">
-                        <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                        <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                         <span>Ca này hiện chưa có Bác sĩ chuyên khoa {selectedPackage?.category || ''} trực tiếp nhận. Quý khách vui lòng chọn ca khác hoặc ngày khác.</span>
                       </div>
                     ) : (
@@ -1057,7 +1085,7 @@ export function BookAppointmentPage({
                           <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
                             <strong className="text-dark mb-0">{activeShiftData.doctorName || 'Bác sĩ Phụ trách'}</strong>
                             <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style={{ fontSize: '11px', borderRadius: '999px' }}>
-                              <FaCheckCircle className="me-1" /> Điều phối tự động
+                              <CheckCircle2 className="me-1"  size="1em"/> Điều phối tự động
                             </span>
                           </div>
                           <span className="text-primary fw-medium" style={{ fontSize: '12.5px' }}>
@@ -1113,7 +1141,7 @@ export function BookAppointmentPage({
 
               {(validationError || error) && (
                 <div className="alert alert-danger border rounded-3 p-3 mb-3 d-flex align-items-center gap-2 text-dark small" style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca' }}>
-                  <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                  <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                   <span>{validationError || error}</span>
                 </div>
               )}
@@ -1130,33 +1158,137 @@ export function BookAppointmentPage({
             <div className="col-lg-4">
               <div className="card border-0 shadow-sm rounded-3 mb-4 sticky-top" style={{ top: '90px' }}>
                 <div className="card-header bg-white border-bottom py-3 px-3">
-                  <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <FaFileMedical className="text-primary" /> Tóm Tắt Phiếu Hẹn
-                  </h6>
+                  <div className="d-flex align-items-center justify-content-between gap-2">
+                    <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                      <FileHeart className="text-primary" size="1em" /> Tóm Tắt Phiếu Hẹn
+                    </h6>
+                    {!showPackagePicker && !isReceptionist && (
+                      <button
+                        type="button"
+                        className="btn btn-link btn-sm p-0 text-decoration-none fw-semibold"
+                        style={{ color: 'var(--primary)', fontSize: 'var(--fs-xs)' }}
+                        onClick={() => navigate('/services')}
+                      >
+                        Đổi gói
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="card-body p-2">
-                  {selectedPackage && (
-                    <div className="mb-3 pb-3 border-bottom">
-                      <div className="small text-muted">Gói xét nghiệm chỉ định:</div>
-                      <div className="fw-bold text-dark mt-1 d-flex align-items-center flex-wrap gap-1">
-                        {selectedPackage.packageCode && (
-                          <span className="badge bg-primary-subtle text-primary font-monospace" style={{ fontSize: '11px' }}>
-                            {selectedPackage.packageCode}
-                          </span>
-                        )}
-                        <span>{selectedPackage.packageName}</span>
-                      </div>
-                      {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
-                        <div className="mt-2">
-                          <div className="small text-muted mb-1">
-                            Chỉ số xét nghiệm ({selectedPackage.criteria.length}):
+                <div className="card-body">
+                  <div style={{ padding: '6px 8px' }}>
+                  {packagesLoading && !selectedPackage ? (
+                    <div className="small text-muted py-3 d-flex align-items-center gap-2">
+                      <span className="spinner-border spinner-border-sm text-primary" role="status" />
+                      <span>Đang tải thông tin gói xét nghiệm...</span>
+                    </div>
+                  ) : selectedPackage ? (
+                    <div style={{ paddingBottom: '20px', marginBottom: '20px', borderBottom: '1px solid #E2E8F0' }}>
+                      {/* Package header: icon + code + category + title */}
+                      <div className="d-flex align-items-start gap-3">
+                        <span className="bms-pkg-icon flex-shrink-0" style={{ width: '42px', height: '42px' }}>
+                          <BmsPackageIcon name={packageIconKey(selectedPackage)} size={42} />
+                        </span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div className="d-flex align-items-center flex-wrap gap-2 mb-1">
+                            {selectedPackage.packageCode && (
+                              <span className="badge bg-primary-subtle text-primary font-monospace" style={{ fontSize: '11.5px', fontWeight: 700 }}>
+                                {selectedPackage.packageCode}
+                              </span>
+                            )}
+                            {selectedPackage.category && (
+                              <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--ink-secondary)' }}>
+                                {selectedPackage.category}
+                              </span>
+                            )}
                           </div>
-                          <div className="d-flex flex-wrap gap-1">
+                          <div style={{ color: 'var(--ink)', fontSize: '16.5px', fontWeight: 750, lineHeight: 1.38, letterSpacing: '-0.015em', marginTop: '4px' }}>
+                            {selectedPackage.packageName}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description & target audience with generous breathing room */}
+                      {selectedPackage.description && (
+                        <p className="mb-0" style={{ marginTop: '14px', color: 'var(--ink-secondary)', fontSize: '13px', lineHeight: 1.65 }}>
+                          {selectedPackage.description}
+                        </p>
+                      )}
+
+                      {selectedPackage.targetAudience && (
+                        <div style={{ marginTop: '10px', fontSize: '12.5px', color: 'var(--ink-secondary)', lineHeight: 1.6 }}>
+                          <span style={{ fontWeight: 650, color: 'var(--ink)' }}>Đối tượng:</span> {selectedPackage.targetAudience}
+                        </div>
+                      )}
+
+                      {/* Structured 2-col specs + prep note in flat surface */}
+                      {(selectedPackage.sampleTube || selectedPackage.tat || selectedPackage.fastingRule) && (
+                        <div
+                          style={{
+                            marginTop: '16px',
+                            padding: '14px 16px',
+                            backgroundColor: 'var(--bg-page)',
+                            borderRadius: 'var(--r-md)'
+                          }}
+                        >
+                          {(selectedPackage.sampleTube || selectedPackage.tat) && (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px 16px' }}>
+                              {selectedPackage.sampleTube && (
+                                <div className="bms-field" style={{ gap: '3px' }}>
+                                  <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Ống lấy mẫu</span>
+                                  <span className="bms-field-value" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--ink)' }}>
+                                    {selectedPackage.sampleTube}
+                                    {selectedPackage.sampleVolumeMl ? ` (${selectedPackage.sampleVolumeMl} ml)` : ''}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedPackage.tat && (
+                                <div className="bms-field" style={{ gap: '3px' }}>
+                                  <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Trả kết quả</span>
+                                  <span className="bms-field-value" style={{ fontSize: '13.5px', fontWeight: 700, color: '#047857' }}>
+                                    {selectedPackage.tat}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {selectedPackage.fastingRule && (
+                            <div
+                              className="bms-field"
+                              style={{
+                                gap: '3px',
+                                marginTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '12px' : 0,
+                                paddingTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '12px' : 0,
+                                borderTop: (selectedPackage.sampleTube || selectedPackage.tat) ? '1px solid #E2E8F0' : 'none'
+                              }}
+                            >
+                              <span className="bms-field-label" style={{ fontSize: '11.5px' }}>Lưu ý chuẩn bị</span>
+                              <span className="bms-field-value" style={{ fontSize: '13px', fontWeight: 550, color: 'var(--ink)', lineHeight: 1.5 }}>
+                                {selectedPackage.fastingRule}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Biomarker criteria chips */}
+                      {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
+                        <div style={{ marginTop: '16px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-secondary)', marginBottom: '8px' }}>
+                            Chỉ số xét nghiệm ({selectedPackage.criteria.length})
+                          </div>
+                          <div className="d-flex flex-wrap" style={{ gap: '6px' }}>
                             {selectedPackage.criteria.map((c, idx) => (
                               <span
                                 key={`${c.code || c.name}-${idx}`}
-                                className="badge bg-light text-dark border fw-medium"
-                                style={{ fontSize: '11px' }}
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '4px 10px',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  color: 'var(--ink)',
+                                  backgroundColor: 'var(--bg-muted)',
+                                  borderRadius: '6px'
+                                }}
                                 title={c.name || c.code}
                               >
                                 {c.code || c.name}
@@ -1165,35 +1297,48 @@ export function BookAppointmentPage({
                           </div>
                         </div>
                       )}
-                      <div className="fw-bold text-primary mt-2 fs-5">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.price)}
-                        {selectedPackage.originalPrice && (
-                          <span className="ms-2 small text-muted text-decoration-line-through fw-normal">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.originalPrice)}
-                          </span>
-                        )}
+
+                      {/* Listed Price: 1.5x larger font + airy separation from section above */}
+                      <div
+                        className="d-flex align-items-baseline justify-content-between gap-2 flex-wrap"
+                        style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #E2E8F0' }}
+                      >
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-secondary)' }}>Đơn giá niêm yết</span>
+                        <div
+                          className="fw-bold tabular-nums"
+                          style={{ color: 'var(--primary)', fontSize: '26px', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.15 }}
+                        >
+                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.price)}
+                          {selectedPackage.originalPrice && (
+                            <span className="ms-2 text-muted text-decoration-line-through fw-normal" style={{ fontSize: '13px' }}>
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPackage.originalPrice)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
+                  ) : null}
 
-                  <div className="mb-3 pb-3 border-bottom">
-                    <div className="small text-muted mb-1">Thời gian & Ca khám:</div>
-                    <div className="fw-semibold text-dark">
+                  <div style={{ paddingBottom: '14px', marginBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div className="small text-muted mb-1">Thời gian &amp; Ca khám</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14.5px' }}>
                       {selectedShiftId === 'Morning' ? 'Ca Sáng' : selectedShiftId === 'Afternoon' ? 'Ca Chiều' : 'Ca Tối'} · {slotTime || '--:--'}
                     </div>
-                    <div className="small text-muted">{date}</div>
+                    <div className="small text-muted mt-1">{date}</div>
                   </div>
 
-                  <div className="mb-3 pb-3 border-bottom">
-                    <div className="small text-muted mb-1">Bác sĩ tiếp nhận:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
-                    <div className="small text-muted">{activeShiftData?.specialty || ''}</div>
+                  <div style={{ paddingBottom: '14px', marginBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div className="small text-muted mb-1">Bác sĩ tiếp nhận</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14px' }}>{activeShiftData?.doctorName || 'Chưa có bác sĩ trực'}</div>
+                    {activeShiftData?.specialty && (
+                      <div className="small text-muted mt-1">{activeShiftData.specialty}</div>
+                    )}
                   </div>
 
-                  <div className="mb-3">
-                    <div className="small text-muted mb-1">Phòng khám & Lấy mẫu:</div>
-                    <div className="fw-semibold text-dark">{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
-                    <div className="small text-muted">
+                  <div style={{ marginBottom: '18px' }}>
+                    <div className="small text-muted mb-1">Phòng khám &amp; Lấy mẫu</div>
+                    <div className="fw-bold" style={{ color: 'var(--ink)', fontSize: '14px' }}>{activeShiftData?.roomName || 'Chưa gán phòng'}</div>
+                    <div className="small text-muted mt-1">
                       {[
                         activeShiftData?.roomNumber ? `Phòng ${activeShiftData.roomNumber}` : '',
                         activeShiftData?.floor || ''
@@ -1201,11 +1346,12 @@ export function BookAppointmentPage({
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-3" style={{ backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1' }}>
-                    <div className="small fw-bold text-dark mb-1">Quy định tiếp nhận:</div>
-                    <div className="small text-muted">
+                  <div className="p-3" style={{ backgroundColor: 'var(--bg-page)', borderRadius: 'var(--r-md)' }}>
+                    <div className="small fw-bold text-dark mb-1">Quy định tiếp nhận</div>
+                    <div className="small text-muted" style={{ lineHeight: 1.6 }}>
                       Quý khách vui lòng có mặt trước 10 phút. Xuất trình tin nhắn SMS hoặc mã cuộc hẹn tại quầy Lễ tân BMS để được phát số tự động vào phòng Lab.
                     </div>
+                  </div>
                   </div>
                 </div>
               </div>

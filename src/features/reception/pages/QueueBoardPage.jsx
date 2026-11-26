@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  FaSyncAlt,
-  FaPrint,
-  FaBullhorn,
-  FaCheck,
-  FaClock,
-  FaUserCheck,
-  FaExclamationCircle,
-  FaPlusCircle,
-  FaClinicMedical,
-  FaShieldAlt,
-  FaListOl,
-} from "react-icons/fa";
+import { RefreshCw, Printer, Megaphone, Check, Clock, UserCheck, AlertCircle, PlusCircle, Hospital, ShieldCheck, ListOrdered } from 'lucide-react';
 import { queueApi } from "../api/queueApi";
 
 export default function QueueBoardPage() {
@@ -52,7 +40,7 @@ export default function QueueBoardPage() {
       counterName: "Phòng Lấy Mẫu 101",
       staffName: "KTV Lấy mẫu tầng 1",
       status: "Available",
-      description: "Bàn lấy mẫu máu tĩnh mạch tiêu chuẩn ISO 15189",
+      description: "Bàn lấy mẫu xét nghiệm",
     },
   ];
 
@@ -192,7 +180,7 @@ export default function QueueBoardPage() {
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
-            <FaClock size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 3: ĐIỀU PHỐI &amp; GỌI SỐ HÀNG ĐỢI
+            <Clock size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 3: ĐIỀU PHỐI &amp; GỌI SỐ HÀNG ĐỢI
           </span>
           <div className="bms-page-title-row">
             <h1 className="bms-page-title">
@@ -200,7 +188,7 @@ export default function QueueBoardPage() {
             </h1>
           </div>
           <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
-            Điều phối dòng bệnh nhân tại sảnh chờ, hiển thị số thứ tự đang gọi tại Quầy 01 (Tiếp đón) và Phòng Lấy Mẫu 101/102 theo chuẩn thời gian chờ ISO 15189:2022.
+            Hiển thị số thứ tự đang gọi tại Quầy Tiếp đón và Phòng Lấy mẫu.
           </p>
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
@@ -252,7 +240,7 @@ export default function QueueBoardPage() {
               <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
                 <div>
                   <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                    <FaListOl style={{ color: '#1E60E6' }} />
+                    <ListOrdered style={{ color: '#1E60E6' }}  size="1em"/>
                     Hàng Đợi Bệnh Nhân Tiếp Đón — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
                   </h5>
                   <div className="text-muted small">
@@ -337,7 +325,7 @@ export default function QueueBoardPage() {
                         <td className="text-end pe-3">
                           {ticket.status === "Called" || ticket.status === "Collecting" || ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
                             <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold">
-                              <FaCheck className="me-1" /> Đã gọi số
+                              <Check className="me-1"  size="1em"/> Đã gọi số
                             </span>
                           ) : ticket.status === "Waiting" || !ticket.status ? (
                             <button
@@ -347,7 +335,7 @@ export default function QueueBoardPage() {
                               className="btn btn-sm px-3 py-1 rounded-pill shadow-sm text-white"
                               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                             >
-                              <FaBullhorn className="me-1" /> Gọi số
+                              <Megaphone className="me-1"  size="1em"/> Gọi số
                             </button>
                           ) : (
                             <span className="text-muted small">{ticket.status}</span>
@@ -395,7 +383,7 @@ export default function QueueBoardPage() {
                 className="btn btn-lg w-100 mt-4 fw-bold shadow-sm rounded-pill"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
               >
-                <FaPrint className="me-2" />
+                <Printer className="me-2"  size="1em"/>
                 {issuing ? "Đang cấp số..." : (data.nextNumber ? `Cấp STT Vãng Lai (${data.nextNumber})` : "Cấp STT Mới")}
               </button>
             </div>

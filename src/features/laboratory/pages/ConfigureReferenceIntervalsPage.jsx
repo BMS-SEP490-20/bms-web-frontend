@@ -11,23 +11,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, Table, Button, Badge, Form, Row, Col, InputGroup, Pagination, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  FaHeartbeat,
-  FaPlus,
-  FaSearch,
-  FaFilter,
-  FaEdit,
-  FaLock,
-  FaUnlock,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaFlask,
-  FaSlidersH,
-  FaArrowLeft,
-  FaVial,
-  FaInfoCircle,
-  FaTimes,
-} from 'react-icons/fa';
+import { HeartPulse, Plus, Search, Filter as LucideFilter, SquarePen, Lock, Unlock, CheckCircle2, AlertTriangle, FlaskConical, SlidersHorizontal, ArrowLeft, TestTube2, Info, X } from 'lucide-react';
 import referenceIntervalService from '../../../services/referenceIntervalService';
 import ReferenceIntervalModal from '../components/ReferenceIntervalModal';
 import ClinicalRangeSimulator from '../components/ClinicalRangeSimulator';
@@ -36,7 +20,7 @@ import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 export default function ConfigureReferenceIntervalsPage() {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
-  const canConfigureIntervals = hasRole(currentUser, ROLES.ADMIN, ROLES.LAB, ROLES.MANAGER);
+  const canConfigureIntervals = hasRole(currentUser, ROLES.ADMIN, ROLES.LAB);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCriterionParam = searchParams.get('criterion') || '';
 
@@ -191,9 +175,9 @@ export default function ConfigureReferenceIntervalsPage() {
           style={{ minWidth: '320px' }}
         >
           {toast.type === 'success' ? (
-            <FaCheckCircle className="me-2" />
+            <CheckCircle2 className="me-2"  size="1em"/>
           ) : (
-            <FaExclamationTriangle className="me-2" />
+            <AlertTriangle className="me-2"  size="1em"/>
           )}
           {toast.message}
         </Alert>
@@ -217,7 +201,7 @@ export default function ConfigureReferenceIntervalsPage() {
             onClick={() => setShowSimulator(!showSimulator)}
             className="d-inline-flex align-items-center gap-1 fw-semibold rounded-pill px-3 text-nowrap"
           >
-            <FaFlask />
+            <FlaskConical  size="1em"/>
             {showSimulator ? 'Ẩn thử nghiệm' : 'Thử nghiệm dải đo'}
           </Button>
 
@@ -229,7 +213,7 @@ export default function ConfigureReferenceIntervalsPage() {
               className="d-inline-flex align-items-center gap-1 fw-semibold rounded-pill px-3 text-white text-nowrap"
               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
             >
-              <FaPlus /> Thêm khoảng tham chiếu
+              <Plus  size="1em"/> Thêm khoảng tham chiếu
             </Button>
           )}
         </div>
@@ -247,7 +231,7 @@ export default function ConfigureReferenceIntervalsPage() {
       {/* Single-Line Flat Filter Toolbar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo mã chỉ số (HGB, GLU, CRE...)"
@@ -256,7 +240,7 @@ export default function ConfigureReferenceIntervalsPage() {
           />
           {searchCode && (
             <button type="button" className="bms-search-clear" onClick={() => setSearchCode('')}>
-              <FaTimes size={12} />
+              <X size={12} />
             </button>
           )}
         </div>
@@ -335,7 +319,7 @@ export default function ConfigureReferenceIntervalsPage() {
               ) : intervals.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center py-4 text-muted">
-                    <FaInfoCircle size={28} className="mb-2 text-secondary opacity-50 d-block mx-auto" />
+                    <Info size={28} className="mb-2 text-secondary opacity-50 d-block mx-auto" />
                     Không tìm thấy khoảng tham chiếu phù hợp với bộ lọc.
                   </td>
                 </tr>
@@ -420,7 +404,7 @@ export default function ConfigureReferenceIntervalsPage() {
                             title="Chỉnh sửa khoảng tham chiếu"
                             onClick={() => handleOpenEditModal(item)}
                           >
-                            <FaEdit />
+                            <SquarePen  size="1em"/>
                           </Button>
 
                           <Button
@@ -430,7 +414,7 @@ export default function ConfigureReferenceIntervalsPage() {
                             title={item.isActive ? 'Khóa khoảng tham chiếu' : 'Kích hoạt lại'}
                             onClick={() => handleToggleActive(item)}
                           >
-                            {item.isActive ? <FaLock /> : <FaUnlock />}
+                            {item.isActive ? <Lock  size="1em"/> : <Unlock  size="1em"/>}
                           </Button>
                         </div>
                       </td>

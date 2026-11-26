@@ -1657,26 +1657,26 @@
 
 /* Dashboard tables are styled only in bms-workbench.css. */
 
-/* 5. Quick Shortcut Grid Tiles - Scaled ~30% */
+/* 5. Quick Shortcut Grid Tiles - Crisp White Card Surface */
 .bms-quick-tile {
-    background: #F8FAFC;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 12px;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 10px;
     text-decoration: none;
     color: #0F172A;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
     height: 100%;
 }
 
 .bms-quick-tile:hover {
-    background: #FFFFFF;
+    background: #FFFFFF !important;
     transform: none;
-    border-color: transparent;
+    border-color: #CBD5E1;
     box-shadow: none;
     color: #0F172A;
 }

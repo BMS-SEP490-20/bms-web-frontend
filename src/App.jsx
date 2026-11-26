@@ -104,7 +104,7 @@ const InitialMedicalProfileSetup = lazy(() => import("./features/patient/pages/I
 const UserManagementPage = lazy(() => import("./features/users/pages/UserManagementPage.jsx"));
 const RolesManagementPage = lazy(() => import("./features/user-management/pages/RolesManagementPage"));
 const ServicePackagesPage = lazy(() => import("./features/admin/pages/ServicePackagesPage.jsx"));
-const ScheduleManagementPage = lazy(() => import("./features/schedule/pages/ManageSchedulePage.jsx"));
+const BhytSettingsPage = lazy(() => import("./features/admin/pages/BhytSettingsPage.jsx"));
 const BackupManagementPage = lazy(() => import("./features/backup/pages/BackupManagementPage.jsx"));
 const AuditLogPage = lazy(() => import("./features/audit/pages/AuditLogPage.jsx"));
 const TatStatisticsDashboardPage = lazy(() => import("./features/reports/pages/TatStatisticsDashboardPage.jsx"));
@@ -114,11 +114,7 @@ const PushNotificationCenterPage = lazy(() => import("./features/notifications/p
 // API Clients & UI Icons
 import { fetchServiceCatalog } from "./features/catalog/api/catalogApi";
 import api from "./config/api";
-import {
-  FaVial, FaPhoneAlt, FaClock, FaCheckCircle, FaSearch, FaArrowRight, FaShieldAlt,
-  FaFileMedicalAlt, FaMicroscope, FaCalendarCheck, FaHospital, FaLock, FaUserMd,
-  FaUserCircle, FaSignOutAlt, FaFileInvoiceDollar, FaHistory, FaTimes
-} from "react-icons/fa";
+import { TestTube2, Phone, Clock, CheckCircle2, Search, ArrowRight, ShieldCheck, FileHeart, Microscope, CalendarCheck, Hospital, Lock, Stethoscope, UserCircle, LogOut, Receipt, History as LucideHistory, X } from 'lucide-react';
 import "./app.css";
 import "./styles/bms-workbench.css";
 
@@ -137,24 +133,6 @@ const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
 // =============================================================================
 // ROOT APPLICATION ROUTER
 // =============================================================================
-
-/**
- * Top-level application component assembling security providers and nested route tables.
- * Nested grouping minimizes route declarations while preserving atomic role permissions.
- */
-/**
- * Smart Invoice / Payment History Route Handler.
- * Staff (Receptionist, Manager) view official facility billing management.
- * Patients view their personal electronic receipt and payment history.
- */
-function InvoicesRoute() {
-  const user = getStoredUser();
-  const roleId = resolveRoleId(user);
-  if (roleId === ROLES.PATIENT) {
-    return <Navigate to="/patient/payment-history" replace />;
-  }
-  return <BillingInvoicesPage />;
-}
 
 export default function App() {
   return (
@@ -199,10 +177,9 @@ export default function App() {
               {/* --- 4. Authenticated Medical Modules (MainLayout). Role lists follow ROLE-PERMISSION-MATRIX §1. --- */}
               <Route element={<MainLayout />}>
 
-                {/* Profile, password, own notifications & medical intake */}
+                {/* Profile, password & own notifications */}
                 <Route element={<ProtectedRoute allowedRoles={ALL_ROLES} />}>
                   <Route path="/profile" element={<UserProfilePage />} />
-                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
                   <Route path="/change-password" element={<ChangePassword />} />
                   <Route path="/notifications" element={<PushNotificationCenterPage />} />
                   <Route path="/notifications/center" element={<PushNotificationCenterPage />} />
@@ -225,11 +202,14 @@ export default function App() {
 
                 {/* UC79 feedback: Patient CRUD, related roles Read-only, Admin Delete with Patient consent */}
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST, PATIENT]} />}>
+                {/* UC79 feedback: Patient submits, Admin & Manager review/respond (Admin can moderate/delete) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, PATIENT]} />}>
                   <Route path="/feedback" element={<FeedbackHubPage />} />
                   <Route path="/patient/feedback" element={<FeedbackHubPage />} />
                 </Route>
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/manager/feedback" element={<FeedbackHubPage />} />
+                  <Route path="/admin/feedback" element={<FeedbackHubPage />} />
                 </Route>
 
                 {/* UC23 view appointments: Receptionist, Manager, Doctor (assigned), Patient (own) */}
@@ -247,13 +227,13 @@ export default function App() {
                   <Route path="/payments/checkout/:invoiceId" element={<ProcessPaymentPage />} />
                 </Route>
 
-                {/* UC36 view shifts: Admin, Manager, Doctor, Lab, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, DOCTOR, LAB, RECEPTIONIST]} />}>
+                {/* UC36 view shifts: Manager, Doctor, Lab, Receptionist (System Admin excluded) */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER, DOCTOR, LAB, RECEPTIONIST]} />}>
                   <Route path="/shifts/view" element={<ViewShiftsPage />} />
                 </Route>
 
-                {/* UC35/UC16 shift schedule view: Admin, Manager, Doctor, Lab, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, ADMIN, LAB, RECEPTIONIST]} />}>
+                {/* UC35/UC16 shift schedule view: Manager, Doctor, Lab, Receptionist */}
+                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, LAB, RECEPTIONIST]} />}>
                   <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/schedule" element={<DoctorSchedulePage />} />
                 </Route>
@@ -283,13 +263,13 @@ export default function App() {
                   <Route path="/patient/test-history" element={<TestHistoryPage />} />
                 </Route>
 
-                {/* UC30 view patient information: Admin, Manager, Receptionist, Doctor, Lab */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, RECEPTIONIST, DOCTOR, LAB]} />}>
+                {/* UC30 view patient information: Manager, Receptionist, Doctor, Lab (Admin denied per decision 10) */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER, RECEPTIONIST, DOCTOR, LAB]} />}>
                   <Route path="/patients" element={<CheckInPage />} />
                   <Route path="/admin/patients" element={<CheckInPage />} />
                 </Route>
 
-                {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28), fees (UC53) - Receptionist only */}
+                {/* Front desk: check-in, guest/walk-in (UC25-UC29), queue (UC27/UC28) - Receptionist only */}
                 <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST]} />}>
                   <Route path="/reception/checkin" element={<ReceptionistCheckIn />} />
                   <Route path="/reception/check-in" element={<ReceptionistCheckIn />} />
@@ -299,21 +279,17 @@ export default function App() {
                   <Route path="/reception/register-walkin" element={<RegisterWalkInPatientPage />} />
                   <Route path="/reception/queue" element={<QueueBoardPage />} />
                   <Route path="/queue" element={<QueueBoardPage />} />
-                  {/* WHY: UC53 is Receptionist-only (matrix §1.8, §3.3); these URLs used to be public. */}
-                  <Route path="/calculate-fees" element={<CalculateFeesPage />} />
-                  <Route path="/fee-calculator" element={<CalculateFeesPage />} />
-                  <Route path="/billing/calculate-fee" element={<CalculateFeesPage />} />
-                  <Route path="/patient/fee-calculator" element={<CalculateFeesPage />} />
                 </Route>
 
-                {/* UC18 & UC54 Billing Invoices Management: Staff only (Receptionist, Manager) */}
-                <Route element={<ProtectedRoute allowedRoles={[RECEPTIONIST, MANAGER]} />}>
+                {/* UC18 & UC54 Billing Invoices Management: Manager only (removed from Receptionist) */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
                   <Route path="/invoices" element={<BillingInvoicesPage />} />
                   <Route path="/billing/invoices" element={<BillingInvoicesPage />} />
                 </Route>
 
-                {/* Patient Payment History: Patient only */}
+                {/* Patient Payment History & Medical Intake: Patient only */}
                 <Route element={<ProtectedRoute allowedRoles={[PATIENT]} />}>
+                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
                   <Route path="/patient/payments" element={<PatientPaymentHistoryPage />} />
                   <Route path="/patient/payment-history" element={<PatientPaymentHistoryPage />} />
                 </Route>
@@ -384,25 +360,29 @@ export default function App() {
                   <Route path="/laboratory/trace/:specimenId" element={<TraceSampleOriginPage />} />
                 </Route>
 
-                {/* UC18 criteria, UC57 reference intervals: Master laboratory technical catalog (Manager, Admin ONLY) */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER, ADMIN]} />}>
+                {/* UC18 criteria, UC57 reference intervals: Admin manages master data; Manager views */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/criteria" element={<TestCriteriaPage />} />
                   <Route path="/laboratory/reference-intervals" element={<ConfigureReferenceIntervalsPage />} />
                 </Route>
 
-                {/* UC34 lab rooms, UC61 lab profiles: Manager, Admin */}
-                <Route element={<ProtectedRoute allowedRoles={[MANAGER, ADMIN]} />}>
+                {/* UC34 lab rooms, UC61 lab profiles: Admin manages master data; Manager views */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/laboratory/rooms" element={<LabRoomManagement />} />
                   <Route path="/admin/lab-rooms" element={<LabRoomManagement />} />
                   <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                 </Route>
 
-                {/* UC56 inventory: Admin, Manager, Lab (Doctor denied, decision 10). UC67 IoT thresholds view: same set. */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, LAB]} />}>
+                {/* UC56 inventory: Admin (CRUD) & Manager (read-only) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/inventory" element={<InventoryPage />} />
                   <Route path="/manager/inventory-management" element={<InventoryPage />} />
                   <Route path="/admin/inventory-management" element={<InventoryPage />} />
+                </Route>
+
+                {/* IoT monitor & thresholds: Admin, Manager & Lab */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER, LAB]} />}>
                   <Route path="/manager/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                   <Route path="/laboratory/iot-thresholds" element={<ConfigureIotThresholdsPage />} />
                   <Route path="/iot/monitor" element={<IotMonitorPage />} />
@@ -412,8 +392,8 @@ export default function App() {
                   <Route path="/laboratory/iot-monitor" element={<IotMonitorPage />} />
                 </Route>
 
-                {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
+                {/* UC35 shift rostering (View/Create/Update/Delete Shifts): Manager ONLY */}
+                <Route element={<ProtectedRoute allowedRoles={[MANAGER]} />}>
                   <Route path="/manage/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/manager/shift-assignment" element={<DoctorSchedulePage />} />
                 </Route>
@@ -422,13 +402,18 @@ export default function App() {
                   <Route path="/schedule/personal" element={<Navigate to="/shifts/view" replace />} />
                 </Route>
 
-                {/* UC68 IoT alerts: Lab, Manager */}
-                <Route element={<ProtectedRoute allowedRoles={[LAB, MANAGER]} />}>
+                {/* UC68 IoT alerts: Lab, Manager, Admin (Admin views & simulates drills) */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, LAB, MANAGER]} />}>
                   <Route path="/iot/alerts" element={<AlertThresholdViolationPage />} />
                   <Route path="/laboratory/iot-alerts" element={<AlertThresholdViolationPage />} />
                 </Route>
 
-                {/* UC63 TAT, UC78 revenue (Manager view only): Admin, Manager */}
+                {/* Billing BHYT & priority discount settings: Admin & Manager */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
+                  <Route path="/admin/bhyt-settings" element={<BhytSettingsPage />} />
+                </Route>
+
+                {/* UC63 TAT, UC78 revenue: Admin & Manager */}
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/reports/revenue" element={<RevenueReportPage />} />
                   <Route path="/admin/revenue-report" element={<RevenueReportPage />} />
@@ -440,8 +425,7 @@ export default function App() {
                   <Route path="/admin/tat-statistics" element={<TatStatisticsDashboardPage />} />
                 </Route>
 
-                {/* UC15/UC19 package management: Admin + Manager (Quy trình DOT2 follow-up 2, pending Phát).
-                    WHY: UC19 test packages are edited through the same service-packages screen and API. */}
+                {/* UC15/UC19 package management: Admin edits; Manager views */}
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/packages" element={<ServicePackagesPage />} />
                   <Route path="/admin/packages" element={<ServicePackagesPage />} />
@@ -465,7 +449,7 @@ export default function App() {
 
               {/* Legacy URLs whose role-prefixed copies gave the wrong roles access; redirect so the canonical
                   route's guard decides (no 404 for old bookmarks). */}
-              {[["/doctor/feedback", "/feedback"], ["/receptionist/feedback", "/feedback"], ["/admin/feedback", "/feedback"],
+              {[["/doctor/feedback", "/feedback"], ["/receptionist/feedback", "/feedback"],
                 ["/admin/invoices", "/invoices"], ["/admin/qc-flags", "/laboratory/qc-flags"], ["/lab-user/lab-rooms", "/laboratory/rooms"],
                 ["/manager/audit-logs", "/admin/audit-logs"], ["/admin/shift-assignment", "/manager/shift-assignment"],
                 ["/admin/iot-alerts", "/iot/alerts"],
@@ -485,8 +469,6 @@ export default function App() {
                 ["/reception/console", "/reception/checkin"], ["/reception/patients", "/patients"],
                 ["/receptionist/walk-in", "/receptionist/create-patient"], ["/reception/walk-in", "/receptionist/create-patient"],
                 ["/receptionist/register-walkin", "/receptionist/create-patient"],
-                ["/receptionist/billing", "/calculate-fees"], ["/reception/billing", "/calculate-fees"],
-                ["/receptionist/fees", "/calculate-fees"], ["/receptionist/invoices", "/invoices"],
                 ["/manager/patients", "/patients"],
                 ["/reference-intervals", "/laboratory/reference-intervals"], ["/reports", "/reports/tat"],
                 ["/shifts", "/shifts/view"], ["/users", "/admin/users"], ["/receptionist/appointments", "/appointments"], ["/reception/appointments", "/appointments"], ["/doctor/appointments", "/appointments"], ["/lab-user/appointments", "/appointments"], ["/receptionist/sample-management", "/laboratory/samples"], ["/lab-user/sample-management", "/laboratory/samples"], ["/manager/sample-management", "/laboratory/samples"], ["/receptionist/services", "/services"], ["/manager/services", "/packages"], ["/doctor/dashboard", "/dashboard"], ["/receptionist/dashboard", "/dashboard"], ["/lab-user/dashboard", "/dashboard"], ["/admin/dashboard", "/dashboard"], ["/manager/dashboard", "/dashboard"]].map(([from, to]) => (

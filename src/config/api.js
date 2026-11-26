@@ -8,10 +8,25 @@
 
 import axios from 'axios';
 
-const API_URL =
+const rawApiUrl = (
     import.meta.env.VITE_API_URL ||
     import.meta.env.VITE_API_BASE_URL ||
-    "http://localhost:5000/api";
+    ""
+).trim();
+
+const isLocalhostOrigin =
+    typeof window !== "undefined" &&
+    /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+const isLocalhostApiUrl =
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(rawApiUrl);
+
+const API_URL =
+    !isLocalhostOrigin && (!rawApiUrl || isLocalhostApiUrl)
+        ? "/api"
+        : (rawApiUrl || "http://localhost:5000/api");
+
+const API_ROOT = API_URL.replace(/\/api\/?$/, "");
 
 /**
  * Retrieves the stored JWT access token from localStorage or sessionStorage.
@@ -92,7 +107,7 @@ api.interceptors.request.use(
                 config.url = config.url.replace(/\/gateway\/testorder\/qcflag/i, '/TestOrder/QcFlag');
             }
 
-            if (config.url.startsWith('/TestOrder')) {
+            if (/^\/TestOrder(\/|$)/.test(config.url)) {
                 config.baseURL = API_URL.replace(/\/api\/?$/, '');
             }
         }
@@ -294,5 +309,5 @@ export function unwrapList(data) {
     return [];
 }
 
-export { API_URL, api };
+export { API_URL, API_ROOT, api };
 export default api;

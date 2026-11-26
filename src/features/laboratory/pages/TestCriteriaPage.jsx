@@ -6,18 +6,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  FaSearch,
-  FaPlus,
-  FaSlidersH,
-  FaSpinner,
-  FaFlask,
-  FaExclamationTriangle,
-  FaCheckCircle,
-  FaTimes,
-  FaArrowLeft,
-  FaArrowRight
-} from 'react-icons/fa';
+import { Search, Plus, SlidersHorizontal, Loader2, FlaskConical, AlertTriangle, CheckCircle2, X, ArrowLeft, ArrowRight } from 'lucide-react';
 import testCriterionService from '../../../services/testCriterionService';
 import TestCriterionFormModal from '../components/TestCriterionFormModal';
 import DeactivateCriterionModal from '../components/DeactivateCriterionModal';
@@ -27,7 +16,7 @@ import './TestCriteriaPage.css';
 export default function TestCriteriaPage() {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
-  const canManage = hasRole(currentUser, ROLES.MANAGER, ROLES.ADMIN);
+  const canManage = hasRole(currentUser, ROLES.ADMIN);
   const [criteria, setCriteria] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -222,7 +211,7 @@ export default function TestCriteriaPage() {
             onClick={() => navigate('/laboratory/reference-intervals')}
             id="btn-goto-reference-intervals"
           >
-            <FaSlidersH size={13} />
+            <SlidersHorizontal size={13} />
             <span>Khoảng tham chiếu</span>
           </button>
           {canManage && (
@@ -243,7 +232,7 @@ export default function TestCriteriaPage() {
       {/* Single-Line Flat Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo mã (GLU, WBC) hoặc tên chỉ số..."
@@ -260,7 +249,7 @@ export default function TestCriteriaPage() {
                 fetchCriteria(1, '', selectedCategory, statusFilter);
               }}
             >
-              <FaTimes size={12} />
+              <X size={12} />
             </button>
           )}
         </div>
@@ -339,7 +328,7 @@ export default function TestCriteriaPage() {
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
                     <div style={{ display: 'inline-block', marginBottom: '8px' }}>
-                      <FaSpinner className="fa-spin text-primary" size={20} />
+                      <Loader2 className="fa-spin text-primary" size={20} />
                     </div>
                     <div>Đang tải dữ liệu chỉ số xét nghiệm...</div>
                   </td>
@@ -348,7 +337,7 @@ export default function TestCriteriaPage() {
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
                     <div style={{ fontSize: '24px', marginBottom: '8px' }}>
-                      <FaFlask className="text-muted opacity-50" size={28} />
+                      <FlaskConical className="text-muted opacity-50" size={28} />
                     </div>
                     <div style={{ fontWeight: 600, color: '#334155' }}>Không tìm thấy chỉ số xét nghiệm phù hợp</div>
                     <div style={{ fontSize: '13px', marginTop: '4px' }}>
@@ -382,7 +371,7 @@ export default function TestCriteriaPage() {
                     <td className="col-right">
                       {item.formattedPanicRange && item.formattedPanicRange !== 'N/A' ? (
                         <span className="bms-panic-range d-inline-flex align-items-center gap-1">
-                          <FaExclamationTriangle size={11} />
+                          <AlertTriangle size={11} />
                           <span>{item.formattedPanicRange}</span>
                         </span>
                       ) : (
@@ -456,7 +445,7 @@ export default function TestCriteriaPage() {
               disabled={pagination.currentPage <= 1 || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage - 1)}
             >
-              <FaArrowLeft size={10} /> Trang trước
+              <ArrowLeft size={10} /> Trang trước
             </button>
             <button
               type="button"
@@ -464,7 +453,7 @@ export default function TestCriteriaPage() {
               disabled={pagination.currentPage >= pagination.totalPages || isLoading}
               onClick={() => fetchCriteria(pagination.currentPage + 1)}
             >
-              Trang sau <FaArrowRight size={10} />
+              Trang sau <ArrowRight size={10} />
             </button>
           </div>
         </div>
@@ -491,7 +480,7 @@ export default function TestCriteriaPage() {
       {toast && (
         <div className={`bms-toast ${toast.type === 'error' ? 'bms-toast-error' : 'bms-toast-success'}`}>
           <span className="d-inline-flex align-items-center">
-            {toast.type === 'error' ? <FaExclamationTriangle /> : <FaCheckCircle />}
+            {toast.type === 'error' ? <AlertTriangle  size="1em"/> : <CheckCircle2  size="1em"/>}
           </span>
           <span>{toast.message}</span>
         </div>

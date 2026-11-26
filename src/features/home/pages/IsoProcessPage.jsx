@@ -71,8 +71,8 @@ const ISO_PHASES = [
 const ISO_METRICS = [
   {
     badge: 'CHỨNG NHẬN',
-    value: 'ISO 15189:2022',
-    label: 'Tiêu chuẩn vàng quốc tế về năng lực và chất lượng phòng xét nghiệm y khoa.',
+    value: 'Chuẩn Y Khoa',
+    label: 'Quy trình kiểm soát chất lượng nghiêm ngặt về năng lực và an toàn phòng xét nghiệm.',
     accent: '#1E60E6',
     bgAccent: 'rgba(30, 96, 230, 0.08)',
     icon: FaCheckCircle
@@ -128,28 +128,28 @@ export default function IsoProcessPage() {
               <div style={{ flex: 1 }}>
                 <div className="d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
                   <img src="/assets/lab-icon.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                  <span>TIÊU CHUẨN ISO 15189:2022 · HỆ THỐNG BMS LAB CHẤT LƯỢNG QUỐC TẾ</span>
+                  <span>QUY TRÌNH XÉT NGHIỆM KHÉP KÍN · HỆ THỐNG BMS LAB CHUẨN Y KHOA</span>
                 </div>
                 <h1 className="fw-bold mb-3" style={{ fontSize: '32px', color: '#0F172A', letterSpacing: '-0.03em', lineHeight: '1.2' }}>
-                  Quy Trình Kiểm Chuẩn ISO 15189:2022
+                  Quy Trình Xét Nghiệm Chuẩn Y Khoa
                 </h1>
                 <p className="mb-0 text-muted" style={{ fontSize: '14px', maxWidth: '780px', lineHeight: '1.7', color: '#475569' }}>
-                  Quy trình xét nghiệm tự động hóa khép kín 5 chặng, tuân thủ nghiêm ngặt chuẩn quốc tế ISO 15189 và Bộ Y Tế.
+                  Quy trình xét nghiệm tự động hóa khép kín 5 chặng, tuân thủ nghiêm ngặt quy trình kiểm soát chất lượng của Bộ Y Tế.
                 </p>
               </div>
 
-              {/* ISO Hero SVG Illustration */}
+              {/* Hero SVG Illustration */}
               <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
                 <img
                   src="/assets/bms/svg/hero/iso/iso-hero.svg"
-                  alt="ISO 15189 Accreditation Art"
+                  alt="Quy Trình Xét Nghiệm Chuẩn Y Khoa"
                   style={{ width: '100%', height: 'auto', maxHeight: '150px', objectFit: 'contain' }}
                 />
               </div>
 
               <div className="d-flex flex-column gap-2 align-items-stretch flex-shrink-0">
                 <Link
-                  to="/appointments/book"
+                  to="/services"
                   className="btn text-center"
                   style={{
                     fontSize: '13px',
@@ -408,7 +408,7 @@ export default function IsoProcessPage() {
               </h6>
             </div>
             <ul className="mb-0 text-muted small ps-3" style={{ lineHeight: '1.7', fontSize: '12.5px' }}>
-              <li><strong>ISO 15189:2022</strong>: Đánh giá định kỳ hàng năm bởi Văn phòng Công nhận Chất lượng (BoA).</li>
+              <li><strong>Kiểm chuẩn định kỳ</strong>: Đánh giá chất lượng vận hành định kỳ theo tiêu chuẩn ngành Y tế.</li>
               <li><strong>Quyết định 2429/QĐ-BYT</strong>: Tiêu chí đánh giá chất lượng phòng xét nghiệm y học của Bộ Y Tế.</li>
               <li><strong>Nghị định 13/2023/NĐ-CP</strong>: Bảo vệ dữ liệu cá nhân y tế, mã hóa kết quả và chữ ký số.</li>
               <li><strong>Chương trình EQAS / RIQAS</strong>: Kiểm định chéo hàng tháng với mạng lưới phòng Lab quốc tế.</li>

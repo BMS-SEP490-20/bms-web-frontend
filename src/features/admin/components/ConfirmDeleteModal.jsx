@@ -8,6 +8,7 @@
 
 import React, { useState } from "react";
 import { Modal, Button, Spinner, Alert } from "react-bootstrap";
+import { AlertTriangle, Trash2 } from 'lucide-react';
 
 /**
  * Confirmation dialog for permanently deleting a laboratory service package.
@@ -31,7 +32,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
         <Modal show={Boolean(item)} onHide={loading ? undefined : onClose} centered size="md">
             <Modal.Header closeButton={!loading} style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.05)', background: '#F8FAFC' }}>
                 <Modal.Title className="fs-6 fw-bold text-danger d-flex align-items-center gap-2">
-                    <i className="bi bi-exclamation-triangle-fill"></i>
+                    <AlertTriangle size="1em" />
                     Xác Nhận Xóa Gói Dịch Vụ Xét Nghiệm
                 </Modal.Title>
             </Modal.Header>
@@ -60,7 +61,7 @@ export default function ConfirmDeleteModal({ item, onClose, onConfirm }) {
                     className="d-flex align-items-center gap-1"
                     style={{ borderRadius: 9999, boxShadow: '0 4px 14px rgba(239, 68, 68, 0.25)' }}
                 >
-                    {loading ? <Spinner size="sm" animation="border" /> : <i className="bi bi-trash"></i>}
+                    {loading ? <Spinner size="sm" animation="border" /> : <Trash2 size="1em" />}
                     {loading ? "Đang xóa..." : "Xóa Gói Dịch Vụ"}
                 </Button>
             </Modal.Footer>

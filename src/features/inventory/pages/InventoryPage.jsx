@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Table } from 'react-bootstrap';
-import { FaArrowRight, FaBoxOpen, FaClock, FaExclamationTriangle, FaEye, FaPlus, FaRedo, FaSearch, FaTimes, FaTimesCircle } from 'react-icons/fa';
+import { ArrowRight, Package, Clock, AlertTriangle, Eye, Plus, RotateCw, Search, X as LucideX, XCircle } from 'lucide-react';
 import { getInventory, getInventoryDetail, inventoryError } from '../api/inventoryApi';
 import InventoryFormModal from '../components/InventoryFormModal';
 import DeleteInventoryModal from '../components/DeleteInventoryModal';
@@ -16,7 +16,7 @@ const quantity = (value) => new Intl.NumberFormat('vi-VN').format(value);
 const date = (value) => value ? new Date(value).toLocaleDateString('vi-VN', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Chưa có';
 const moment = (value) => value ? new Date(value).toLocaleString('vi-VN') : '—';
 const money = (value) => value == null ? '—' : `${quantity(value)} đ`;
-const movementLabels = { STOCK_IN: 'Nhập kho', STOCK_OUT: 'Xuất kho', ADJUSTMENT: 'Điều chỉnh' };
+const movementLabels = { STOCK_IN: 'Nhập kho', STOCK_OUT: 'Xuất kho', ADJUSTMENT: 'Điều chỉnh', CONSUME_TEST_RUN: 'Tiêu hao xét nghiệm' };
 
 function ExpiryBadge({ item }) {
   return <Badge pill bg={item.expiryStatus === 'EXPIRED' ? 'danger' : item.expiryStatus === 'EXPIRING_SOON' ? 'warning' : item.expiryStatus === 'AVAILABLE' ? 'success' : 'secondary'}
@@ -29,8 +29,8 @@ export default function InventoryPage() {
   const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [success, setSuccess] = useState('');
-  // WHY: UC56 ruling 30/10 — write = Manager, Lab (WarehouseStaff merged into Lab); Admin reads only.
-  const canManage = hasRole(getStoredUser(), ROLES.MANAGER, ROLES.LAB);
+  // Admin performs inventory CRUD; Manager views read-only.
+  const canManage = hasRole(getStoredUser(), ROLES.ADMIN);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
   const [data, setData] = useState(null);
@@ -95,11 +95,11 @@ export default function InventoryPage() {
       </div>
       <div className="bms-page-actions">
         <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" disabled={loading} onClick={() => setRefresh((v) => v + 1)}>
-          <FaRedo size={12} /><span>Làm mới</span>
+          <RotateCw size={12} /><span>Làm mới</span>
         </Button>
         {canManage && (
           <Button size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setSuccess(''); setShowCreate(true); }}>
-            <FaPlus size={12} /><span>Thêm lô</span>
+            <Plus size={12} /><span>Thêm lô</span>
           </Button>
         )}
       </div>
@@ -113,7 +113,7 @@ export default function InventoryPage() {
             <div className="bms-kpi-value text-primary">{loading ? '…' : summaryValue('Total') ?? '—'}</div>
             <div className="bms-kpi-sub text-muted">Tổng lô hóa chất đang theo dõi</div>
           </div>
-          <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaBoxOpen /></div>
+          <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Package  size="1em"/></div>
         </div>
       </Col>
       <Col xs={12} sm={6} xl={3}>
@@ -123,7 +123,7 @@ export default function InventoryPage() {
             <div className="bms-kpi-value" style={{ color: '#B45309' }}>{loading ? '…' : summaryValue('LowStock') ?? '—'}</div>
             <div className="bms-kpi-sub text-muted">Không vượt định mức tối thiểu</div>
           </div>
-          <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaExclamationTriangle /></div>
+          <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><AlertTriangle  size="1em"/></div>
         </div>
       </Col>
       <Col xs={12} sm={6} xl={3}>
@@ -133,7 +133,7 @@ export default function InventoryPage() {
             <div className="bms-kpi-value" style={{ color: '#B45309' }}>{loading ? '…' : summaryValue('ExpiringSoon') ?? '—'}</div>
             <div className="bms-kpi-sub text-muted">Còn hạn dưới 30 ngày</div>
           </div>
-          <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
+          <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><Clock  size="1em"/></div>
         </div>
       </Col>
       <Col xs={12} sm={6} xl={3}>
@@ -143,14 +143,14 @@ export default function InventoryPage() {
             <div className="bms-kpi-value text-danger">{loading ? '…' : summaryValue('Expired') ?? '—'}</div>
             <div className="bms-kpi-sub text-muted">Cần cô lập hoặc thanh lý</div>
           </div>
-          <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaTimesCircle /></div>
+          <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><XCircle  size="1em"/></div>
         </div>
       </Col>
     </Row>
 
     <div className="bms-filter-bar mb-3">
       <div className="bms-search-input-pill">
-        <FaSearch className="bms-search-icon" />
+        <Search className="bms-search-icon"  size="1em"/>
         <input
           id="inventory-search"
           type="text"
@@ -161,7 +161,7 @@ export default function InventoryPage() {
         />
         {search && (
           <button type="button" className="bms-search-clear" onClick={() => setSearch('')} title="Xóa tìm kiếm">
-            <FaTimes size={12} />
+            <LucideX size={12} />
           </button>
         )}
       </div>
@@ -194,10 +194,10 @@ export default function InventoryPage() {
       <div className="bms-table-standalone-body">
       {loading ? skeleton : data?.items.length ? <>
         <Table responsive hover className="align-middle mb-0"><thead><tr><th>Mã / Tên hóa chất</th><th>Số lô / Hãng</th><th className="text-end">Tồn / Tối thiểu</th><th>Hạn dùng</th><th className="text-center">Cảnh báo</th><th className="text-end pe-4">Chi tiết</th></tr></thead><tbody>
-          {data.items.map((row) => <tr key={row.id}><td><div className="font-monospace fw-semibold" style={{ color: '#1E60E6' }}>{row.code}</div><div className="fw-semibold">{row.name}</div></td><td><div>{row.lotNumber || '—'}</div><small className="text-muted">{row.manufacturer || '—'}</small></td><td className="text-end"><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.quantity)}</strong> / <span style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.minimumStock)}</span><div className="small text-muted">{row.unit}</div></td><td className="text-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(row.expiryDate)}</td><td className="text-center"><ExpiryBadge item={row} />{row.isLowStock && <div className="mt-1"><Badge pill bg="warning" text="dark" className="px-2">Tồn thấp</Badge></div>}</td><td className="text-end pe-4"><Button size="sm" variant="outline-primary" className="rounded-pill text-nowrap" aria-label={`Xem lô ${row.lotNumber || row.code}`} onClick={() => setSelectedId(row.id)}><FaEye className="me-1" />Xem</Button></td></tr>)}
+          {data.items.map((row) => <tr key={row.id}><td><div className="font-monospace fw-semibold" style={{ color: '#1E60E6' }}>{row.code}</div><div className="fw-semibold">{row.name}</div></td><td><div>{row.lotNumber || '—'}</div><small className="text-muted">{row.manufacturer || '—'}</small></td><td className="text-end"><strong style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.quantity)}</strong> / <span style={{ fontVariantNumeric: 'tabular-nums' }}>{quantity(row.minimumStock)}</span><div className="small text-muted">{row.unit}</div></td><td className="text-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{date(row.expiryDate)}</td><td className="text-center"><ExpiryBadge item={row} />{row.isLowStock && <div className="mt-1"><Badge pill bg="warning" text="dark" className="px-2">Tồn thấp</Badge></div>}</td><td className="text-end pe-4"><Button size="sm" variant="outline-primary" className="rounded-pill text-nowrap" aria-label={`Xem lô ${row.lotNumber || row.code}`} onClick={() => setSelectedId(row.id)}><Eye className="me-1"  size="1em"/>Xem</Button></td></tr>)}
         </tbody></Table>
         <div className="d-flex flex-wrap align-items-center justify-content-between gap-3"><Form.Select aria-label="Số lô mỗi trang" className="rounded-3" style={{ width: 150 }} value={filters.pageSize} onChange={(e) => change('pageSize', Number(e.target.value))}>{[20, 50, 100].map((n) => <option key={n} value={n}>{n} lô / trang</option>)}</Form.Select><div className="d-flex gap-3 align-items-center"><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page <= 1} onClick={() => setFilters((v) => ({ ...v, page: v.page - 1 }))}>Trước</Button><span className="small">Trang {data.page}/{data.totalPages}</span><Button variant="outline-primary" size="sm" className="rounded-pill px-3" disabled={data.page >= data.totalPages} onClick={() => setFilters((v) => ({ ...v, page: v.page + 1 }))}>Sau</Button></div></div>
-      </> : !error && !invalidDates && <div className="text-center text-muted py-4"><FaBoxOpen size={36} className="mb-3" style={{ color: '#1E60E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p className="small">Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
+      </> : !error && !invalidDates && <div className="text-center text-muted py-4"><Package size={36} className="mb-3" style={{ color: '#1E60E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p className="small">Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
       </div>
     </section>
     <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="xl" scrollable>
@@ -207,7 +207,7 @@ export default function InventoryPage() {
           <ExpiryBadge item={item} /> {item.isLowStock && <Badge bg="warning" text="dark">Tồn thấp</Badge>}
           {item.expiryStatus === 'EXPIRED' && <Alert variant="danger" className="mt-3">Lô đã hết hạn sử dụng. Không sử dụng cho xét nghiệm.</Alert>}
           <h6 className="fw-bold mt-4">Nhật ký quản lý lô</h6>
-          {detail.changes?.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Thao tác / Người thực hiện</th><th className="text-end">Tồn trước / sau</th><th>Lý do</th></tr></thead><tbody>{detail.changes.map((entry, i) => <tr key={i}><td>{moment(entry.at)}</td><td>{entry.action}<div>{entry.actorName}</div></td><td className="text-end">{entry.beforeQuantity == null ? '—' : quantity(entry.beforeQuantity)} <FaArrowRight size={10} className="mx-1 text-muted" /> {entry.afterQuantity == null ? '—' : quantity(entry.afterQuantity)}</td><td style={{ whiteSpace: 'pre-wrap' }}>{entry.reason}</td></tr>)}</tbody></Table> : <p className="small text-muted">Chưa có nhật ký quản lý cho dữ liệu cũ.</p>}
+          {detail.changes?.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Thao tác / Người thực hiện</th><th className="text-end">Tồn trước / sau</th><th>Lý do</th></tr></thead><tbody>{detail.changes.map((entry, i) => <tr key={i}><td>{moment(entry.at)}</td><td>{movementLabels[entry.action] || entry.action}<div>{entry.actorName}</div></td><td className="text-end">{entry.beforeQuantity == null ? '—' : quantity(entry.beforeQuantity)} <ArrowRight size={10} className="mx-1 text-muted" /> {entry.afterQuantity == null ? '—' : quantity(entry.afterQuantity)}</td><td style={{ whiteSpace: 'pre-wrap' }}>{entry.reason}</td></tr>)}</tbody></Table> : <p className="small text-muted">Chưa có nhật ký quản lý cho dữ liệu cũ.</p>}
           <h6 className="fw-bold mt-4">Lịch sử nhập / xuất theo mã hóa chất</h6><p className="small text-muted">Giao dịch hiện có không lưu số lô; đây là lịch sử của mã {item.code}, không phải riêng lô này. Hiển thị {detail.transactions.length}/{detail.transactionCount} giao dịch mới nhất.</p>
           {detail.transactions.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Loại</th><th className="text-end">Số lượng</th><th className="text-end">Đơn giá</th><th>Đơn vị thực hiện</th></tr></thead><tbody>{detail.transactions.map((t, i) => <tr key={t.id || i}><td>{moment(t.timestamp)}</td><td>{movementLabels[t.type] || t.type}</td><td className="text-end">{quantity(t.quantity)} {item.unit}</td><td className="text-end">{money(t.unitPrice)}</td><td>{t.department || '—'}</td></tr>)}</tbody></Table> : <p className="text-muted">Chưa có lịch sử giao dịch.</p>}
         </>}

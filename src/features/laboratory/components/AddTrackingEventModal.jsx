@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from "react";
-import { FaPlusCircle, FaCheck } from "react-icons/fa";
+import { PlusCircle, Check } from 'lucide-react';
 
 const EVENT_TYPE_OPTIONS = [
     { value: "ReceivedAtLab", label: "Tiếp Nhận Tại Phòng Lab", desc: "Mẫu đã được bàn giao và kiểm tra tiếp nhận tại phòng xét nghiệm" },
@@ -62,7 +62,7 @@ export default function AddTrackingEventModal({ show, onHide, barcode, onSave })
                 <div className="modal-content shadow border-0">
                     <div className="modal-header border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
                         <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2 fs-6">
-                            <FaPlusCircle className="text-primary" />
+                            <PlusCircle className="text-primary"  size="1em"/>
                             Ghi nhận sự kiện vòng đời mẫu
                         </h5>
                         <button
@@ -183,7 +183,7 @@ export default function AddTrackingEventModal({ show, onHide, barcode, onSave })
                                     </>
                                 ) : (
                                     <>
-                                        <FaCheck />
+                                        <Check  size="1em"/>
                                         <span>Lưu Sự Kiện</span>
                                     </>
                                 )}

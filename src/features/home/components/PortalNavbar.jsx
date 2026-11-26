@@ -241,7 +241,7 @@ export default function PortalNavbar({ user: propUser = null }) {
                 to="/iso-process"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Quy Trình ISO
+                Quy Trình Xét Nghiệm
               </Link>
             </>
           )}
@@ -293,6 +293,24 @@ export default function PortalNavbar({ user: propUser = null }) {
                   Đóng góp ý kiến
                 </Link>
               </div>
+              <Link
+                className="bms-btn-mint-cta"
+                to="/services"
+                style={{
+                  height: '32px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 650,
+                  borderRadius: '9999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1'
+                }}
+              >
+                Đặt Lịch Khám
+              </Link>
               <Link className="bms-user-profile-tile" to="/profile" title="Xem hồ sơ y tế">
                 <div className="bms-avatar-circle">{initial}</div>
                 <div className="bms-user-text">
@@ -348,7 +366,7 @@ export default function PortalNavbar({ user: propUser = null }) {
             <div className="bms-guest-actions">
               <Link
                 className="bms-btn-mint-cta"
-                to="/appointments/book"
+                to="/services"
                 style={{
                   height: '32px',
                   padding: '6px 14px',

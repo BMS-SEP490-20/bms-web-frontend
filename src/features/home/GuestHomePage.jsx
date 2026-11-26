@@ -21,6 +21,8 @@ import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 import usePageTransition from '../../shared/hooks/usePageTransition';
 import { ROLES, resolveRoleId, getStoredUser } from '../../constants/roles';
+import { patientFeedbackService, buildPackageRatingsMap, lookupPackageRating } from '../../services/patientFeedbackService';
+import PackageRatingPill from '../catalog/components/PackageRatingPill';
 import './landing-sections.css';
 
 const LANDING_SECTIONS = [
@@ -124,9 +126,9 @@ const LANDING_SECTIONS = [
     ]
   },
   {
-    num: '10 / CHỨNG NHẬN QUỐC TẾ',
-    title: 'Chuẩn Chất Lượng ISO 15189:2022',
-    desc: 'Phòng Lab đáp ứng tiêu chí đánh giá nghiêm ngặt theo ISO 15189 và QĐ 2429/QĐ-BYT.',
+    num: '10 / CHỨNG NHẬN CHẤT LƯỢNG',
+    title: 'Chuẩn Chất Lượng Y Khoa',
+    desc: 'Phòng Lab đáp ứng tiêu chí kiểm soát chất lượng nghiêm ngặt của Bộ Y Tế.',
     svg: '/assets/bms/svg/sections/landing/sec-10-accreditation-wall.svg',
     bullets: [
       'Văn phòng Công nhận Chất lượng (BoA) đánh giá',
@@ -185,6 +187,7 @@ export default function GuestHomePage({ user: propUser }) {
   const signedInUser = propUser !== undefined ? propUser : getStoredUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
+  const [ratingsMap, setRatingsMap] = useState({});
   const [showRequireLoginModal, setShowRequireLoginModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
 
@@ -199,6 +202,12 @@ export default function GuestHomePage({ user: propUser }) {
       .catch(() => {
         setPackages([]);
       });
+
+    patientFeedbackService.getPackageRatings()
+      .then(res => {
+        if (res.success) setRatingsMap(buildPackageRatingsMap(res.data));
+      })
+      .catch(() => {});
   }, []);
 
   const handleBookClick = (pkg) => {
@@ -207,7 +216,7 @@ export default function GuestHomePage({ user: propUser }) {
       const pkgId = pkg?.packageCode || pkg?.packageId || pkg?.id || '';
       window.location.href = pkgId
         ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}`
-        : '/appointments/book';
+        : '/services';
       return;
     }
     setSelectedPackage(pkg);
@@ -215,19 +224,19 @@ export default function GuestHomePage({ user: propUser }) {
   };
 
   return (
-    <div className="bms-telehealth-page" style={{ backgroundColor: '#F4F7FB', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+    <div className="bms-telehealth-page" style={{ backgroundColor: 'var(--bg-page)', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
       <PortalNavbar user={signedInUser} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
-      <section className="bms-hero-container-wrap pt-5 pb-4" style={{ marginTop: '24px', marginBottom: '56px' }}>
+      <section className="bms-hero-container-wrap pt-5 pb-4">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
             {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
             <div className="bms-hero-narrative">
               <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-2.5">
                 <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
-                <span>TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB</span>
+                <span>CHUẨN Y KHOA QUỐC GIA · HỆ THỐNG BMS LAB</span>
               </div>
 
               <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.025em', color: '#0F172A' }}>
@@ -248,7 +257,7 @@ export default function GuestHomePage({ user: propUser }) {
               </h1>
 
               <p className="bms-hero-lead mb-4" style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.65', maxWidth: '520px' }}>
-                Trung tâm xét nghiệm máu kỹ thuật cao chuẩn quốc tế ISO 15189:2022. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
+                Trung tâm xét nghiệm máu kỹ thuật cao chuẩn y khoa hiện đại. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
               </p>
 
               {/* Search Pill Capsule */}
@@ -277,7 +286,7 @@ export default function GuestHomePage({ user: propUser }) {
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
                   <div>
                     <div className="metric-number" style={{ fontSize: '18px' }}>Chính Xác 99.9%</div>
-                    <div className="metric-label">Chuẩn chất lượng ISO 15189</div>
+                    <div className="metric-label">Chuẩn chất lượng y khoa</div>
                   </div>
                 </div>
                 <div className="bms-metric-item-v3">
@@ -319,7 +328,7 @@ export default function GuestHomePage({ user: propUser }) {
       </section>
 
       {/* 2. Service Packages Catalog (Spacious Horizontal Service Strips - Moved to Top) */}
-      <section className="bms-section-wrap py-5" id="danh-muc" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5" id="danh-muc">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -363,8 +372,8 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      {/* Row 1: Badges */}
-                      <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
+                      {/* Row 1: Category & Code + Patient Rating */}
+                      <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span
                           style={{
                             fontSize: '10.5px',
@@ -392,6 +401,7 @@ export default function GuestHomePage({ user: propUser }) {
                         >
                           {pkg.packageCode || pkg.id || 'BMS'}
                         </span>
+                        <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                       </div>
 
                       {/* Row 2: Full Package Title */}
@@ -480,25 +490,42 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    style={{
-                      backgroundColor: '#10B981',
-                      color: '#FFFFFF',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '8px 22px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                      boxShadow: 'none',
-                      transition: 'background-color 0.15s ease'
-                    }}
-                    onClick={() => handleBookClick(pkg)}
-                  >
-                    Đặt Lịch Xét Nghiệm
-                  </button>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link
+                      to={`/services?detail=${encodeURIComponent(pkg.packageCode || pkg.id || '')}`}
+                      style={{
+                        backgroundColor: '#F1F5F9',
+                        color: '#334155',
+                        borderRadius: '9999px',
+                        padding: '8px 14px',
+                        fontSize: '12px',
+                        fontWeight: 650,
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none'
+                      }}
+                    >
+                      Chi tiết &amp; Đánh giá
+                    </Link>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: '#10B981',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '9999px',
+                        padding: '8px 20px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                        transition: 'background-color 0.15s ease'
+                      }}
+                      onClick={() => handleBookClick(pkg)}
+                    >
+                      Đặt Lịch Xét Nghiệm
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -516,13 +543,13 @@ export default function GuestHomePage({ user: propUser }) {
       </section>
 
       {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
-      <section className="bms-section-wrap py-5" id="quy-trinh" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5" id="quy-trinh">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
             <h2 className="bms-section-h2 mt-2 mb-2">Bốn Bước Đơn Giản, Một Hành Trình An Tâm</h2>
             <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy trình xét nghiệm khép kín chuẩn y tế.
             </p>
           </div>
 
@@ -594,14 +621,14 @@ export default function GuestHomePage({ user: propUser }) {
 
           <div className="text-center mt-4">
             <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+              Khám Phá Chi Tiết Quy Trình Xét Nghiệm &rarr;
             </Link>
           </div>
         </div>
       </section>
 
       {/* 4. Complete V3.1 Clinical Narrative Sections (14 Expanded Vignettes) */}
-      <section className="bms-section-wrap py-5" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap py-5">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
             <div className="bms-status-chip d-inline-block">TIÊU CHUẨN LÂM SÀNG TOÀN DIỆN</div>

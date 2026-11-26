@@ -5,20 +5,7 @@
  */
 
 import React from "react";
-import {
-    FaCheckCircle,
-    FaClock,
-    FaVial,
-    FaTruck,
-    FaFlask,
-    FaMicroscope,
-    FaSnowflake,
-    FaTrashAlt,
-    FaExclamationTriangle,
-    FaBarcode,
-    FaUserMd,
-    FaMapMarkerAlt
-} from "react-icons/fa";
+import { CheckCircle2, Clock, TestTube2, Truck, FlaskConical, Microscope, Snowflake, Trash2, AlertTriangle, Barcode, Stethoscope, MapPin } from 'lucide-react';
 
 /**
  * Return appropriate icon and color scheme for event types.
@@ -26,33 +13,33 @@ import {
 function getEventVisuals(eventType) {
     const type = (eventType || "").toLowerCase();
     if (type.includes("order")) {
-        return { icon: FaClock, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
+        return { icon: Clock, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
     }
     if (type.includes("collect")) {
-        return { icon: FaVial, color: "text-info", bg: "bg-info-subtle", border: "border-info" };
+        return { icon: TestTube2, color: "text-info", bg: "bg-info-subtle", border: "border-info" };
     }
     if (type.includes("barcode") || type.includes("label")) {
-        return { icon: FaBarcode, color: "text-secondary", bg: "bg-secondary-subtle", border: "border-secondary" };
+        return { icon: Barcode, color: "text-secondary", bg: "bg-secondary-subtle", border: "border-secondary" };
     }
     if (type.includes("transit") || type.includes("transport")) {
-        return { icon: FaTruck, color: "text-warning", bg: "bg-warning-subtle", border: "border-warning" };
+        return { icon: Truck, color: "text-warning", bg: "bg-warning-subtle", border: "border-warning" };
     }
     if (type.includes("receiv")) {
-        return { icon: FaCheckCircle, color: "text-success", bg: "bg-success-subtle", border: "border-success" };
+        return { icon: CheckCircle2, color: "text-success", bg: "bg-success-subtle", border: "border-success" };
     }
     if (type.includes("centrifug")) {
-        return { icon: FaFlask, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
+        return { icon: FlaskConical, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
     }
     if (type.includes("analy") || type.includes("test")) {
-        return { icon: FaMicroscope, color: "text-info", bg: "bg-info-subtle", border: "border-info" };
+        return { icon: Microscope, color: "text-info", bg: "bg-info-subtle", border: "border-info" };
     }
     if (type.includes("stor") || type.includes("cold") || type.includes("archive")) {
-        return { icon: FaSnowflake, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
+        return { icon: Snowflake, color: "text-primary", bg: "bg-primary-subtle", border: "border-primary" };
     }
     if (type.includes("discard") || type.includes("dispos") || type.includes("reject")) {
-        return { icon: FaTrashAlt, color: "text-danger", bg: "bg-danger-subtle", border: "border-danger" };
+        return { icon: Trash2, color: "text-danger", bg: "bg-danger-subtle", border: "border-danger" };
     }
-    return { icon: FaCheckCircle, color: "text-secondary", bg: "bg-light", border: "border-secondary" };
+    return { icon: CheckCircle2, color: "text-secondary", bg: "bg-light", border: "border-secondary" };
 }
 
 /**
@@ -81,7 +68,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
             <div className="card shadow-sm border-0 h-100">
                 <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                     <h6 className="mb-0 fw-bold text-dark">
-                        <FaClock className="text-primary me-2" />
+                        <Clock className="text-primary me-2"  size="1em"/>
                         Nhật Ký Hành Trình Mẫu (Audit Trail)
                     </h6>
                     {onAddEventClick && (
@@ -95,7 +82,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                     )}
                 </div>
                 <div className="card-body text-center py-3 text-muted">
-                    <FaClock className="display-6 mb-3 text-secondary opacity-50" />
+                    <Clock className="display-6 mb-3 text-secondary opacity-50"  size="1em"/>
                     <p className="mb-0">Chưa ghi nhận sự kiện vòng đời nào cho mẫu bệnh phẩm này.</p>
                 </div>
             </div>
@@ -107,8 +94,8 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
             <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <div>
                     <h6 className="mb-0 fw-bold text-dark">
-                        <FaClock className="text-primary me-2" />
-                        Hành Trình Mẫu Bệnh Phẩm (ISO 15189 Chain of Custody)
+                        <Clock className="text-primary me-2"  size="1em"/>
+                        Lịch Sử Trạng Thái Mẫu Bệnh Phẩm
                     </h6>
                     <small className="text-muted">Tổng cộng {events.length} sự kiện được kiểm toán</small>
                 </div>
@@ -158,7 +145,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                                                     )}
                                                     {evt.status === "Warning" && (
                                                         <span className="badge bg-warning text-dark ms-1">
-                                                            <FaExclamationTriangle className="me-1" /> Cảnh báo
+                                                            <AlertTriangle className="me-1"  size="1em"/> Cảnh báo
                                                         </span>
                                                     )}
                                                 </div>
@@ -171,13 +158,13 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                                             <div className="text-secondary small mb-2 d-flex flex-wrap gap-3">
                                                 {evt.location && (
                                                     <span className="d-inline-flex align-items-center">
-                                                        <FaMapMarkerAlt className="text-danger me-1" />
+                                                        <MapPin className="text-danger me-1"  size="1em"/>
                                                         {evt.location}
                                                     </span>
                                                 )}
                                                 {evt.operatorName && (
                                                     <span className="d-inline-flex align-items-center">
-                                                        <FaUserMd className="text-primary me-1" />
+                                                        <Stethoscope className="text-primary me-1"  size="1em"/>
                                                         {evt.operatorName} {evt.operatorRole ? `(${evt.operatorRole})` : ""}
                                                     </span>
                                                 )}

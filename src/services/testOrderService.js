@@ -675,7 +675,7 @@ const testOrderService = {
   // Get reagents from warehouse (to allow selection in UI)
   getReagents: async () => {
     try {
-      const resp = await api.get('/gateway/warehouse/reagents');
+      const resp = await api.get('/reagents', { params: { pageSize: 100 } });
       // Robustly extract arrays from different envelope shapes
       let raw = testOrderService._toArray(resp.data);
       if (!raw || raw.length === 0) raw = testOrderService._toArray(resp.data?.data);

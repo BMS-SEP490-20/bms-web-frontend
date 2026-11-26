@@ -16,11 +16,7 @@ import {
   Row, Col, Card, Badge, Button, Form, 
   InputGroup, Modal, Spinner, Alert 
 } from 'react-bootstrap';
-import { 
-  FaFlask, FaExclamationTriangle, FaCheckCircle, 
-  FaPlus, FaTrashAlt, FaSyncAlt, FaSearch, 
-  FaVial, FaTools, FaCheck, FaInfoCircle, FaTimes
-} from 'react-icons/fa';
+import { FlaskConical, AlertTriangle, CheckCircle2, Plus, Trash2, RefreshCw, Search, TestTube2, Wrench, Check, Info, X as LucideX } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';
 import { fetchQcFlags as fetchIqcWestgardFlags } from '../api/qcApi';
@@ -279,9 +275,9 @@ const QcFlagsPage = () => {
   const getSeverityBadge = (severity) => {
     switch (severity) {
       case 'CRITICAL':
-        return <Badge bg="danger" className="px-2 py-1"><FaExclamationTriangle className="me-1" />NGUY HIỂM</Badge>;
+        return <Badge bg="danger" className="px-2 py-1"><AlertTriangle className="me-1"  size="1em"/>NGUY HIỂM</Badge>;
       case 'HIGH':
-        return <Badge bg="warning" text="dark" className="px-2 py-1"><FaExclamationTriangle className="me-1" />MỨC CAO</Badge>;
+        return <Badge bg="warning" text="dark" className="px-2 py-1"><AlertTriangle className="me-1"  size="1em"/>MỨC CAO</Badge>;
       case 'MEDIUM':
         return <Badge bg="info" className="px-2 py-1">TRUNG BÌNH</Badge>;
       case 'LOW':
@@ -297,7 +293,7 @@ const QcFlagsPage = () => {
       case 'INVESTIGATING':
         return <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill">Đang điều tra</Badge>;
       case 'RESOLVED':
-        return <Badge bg="success" className="px-3 py-2 rounded-pill"><FaCheck className="me-1" />Đã giải quyết</Badge>;
+        return <Badge bg="success" className="px-3 py-2 rounded-pill"><Check className="me-1"  size="1em"/>Đã giải quyết</Badge>;
       case 'DISMISSED':
         return <Badge bg="secondary" className="px-3 py-2 rounded-pill">Bỏ qua / Đóng</Badge>;
       default:
@@ -321,7 +317,7 @@ const QcFlagsPage = () => {
                 onClick={() => navigate('/laboratory/qc')}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2"
               >
-                <FaFlask />
+                <FlaskConical  size="1em"/>
                 <span>Mở nội kiểm IQC</span>
               </Button>
               <Button
@@ -331,7 +327,7 @@ const QcFlagsPage = () => {
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                 title="Chỉ dùng khi ghi tay sự cố — bình thường cờ sinh từ trang IQC"
               >
-                <FaPlus />
+                <Plus  size="1em"/>
                 <span>Ghi tay sự cố</span>
               </Button>
               <Button
@@ -342,14 +338,14 @@ const QcFlagsPage = () => {
                 className="d-flex align-items-center gap-2 border rounded-pill px-3 py-2"
                 style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}
               >
-                <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+                <RefreshCw className={loading ? 'fa-spin' : ''}  size="1em"/>
                 <span>Làm mới</span>
               </Button>
         </div>
       </header>
 
       <Alert variant="light" className="border rounded-3 shadow-sm mb-3 d-flex align-items-start gap-2">
-        <FaInfoCircle className="text-primary mt-1 flex-shrink-0" />
+        <Info className="text-primary mt-1 flex-shrink-0"  size="1em"/>
         <div className="small mb-0">
           <strong>Không thuộc luồng BN chính.</strong> Đây là bảng sự cố nội kiểm máy (IQC / Westgard) —
           khi QC ngoài giới hạn thì xem/xử lý tại đây. Demo E2E: BN → lấy mẫu → nhập KQ → BS duyệt
@@ -372,7 +368,7 @@ const QcFlagsPage = () => {
       {/* CẢNH BÁO KHÓA MÁY (WESTGARD 1_3s) */}
       {Array.isArray(flags) && flags.some(f => f.status === 'ACTIVE' && (f.ruleType?.includes('1_3s') || f.severity === 'CRITICAL')) && (
         <Alert variant="danger" className="rounded-4 mb-4 d-flex align-items-center gap-3" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
-          <FaExclamationTriangle className="fs-3 text-danger flex-shrink-0" />
+          <AlertTriangle className="fs-3 text-danger flex-shrink-0"  size="1em"/>
           <div>
             <strong className="d-block">Cảnh báo khóa máy phân tích: Phát hiện cờ nguy hiểm / vi phạm Westgard 1_3s</strong>
             <span className="small">
@@ -393,7 +389,7 @@ const QcFlagsPage = () => {
                 <div className="bms-kpi-sub text-muted">Toàn bộ cờ kiểm chuẩn ghi nhận</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                <FaVial />
+                <TestTube2  size="1em"/>
               </div>
             </div>
           </Col>
@@ -405,7 +401,7 @@ const QcFlagsPage = () => {
                 <div className="bms-kpi-sub text-muted">Cần kiểm tra thiết bị ngay</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                <FaExclamationTriangle />
+                <AlertTriangle  size="1em"/>
               </div>
             </div>
           </Col>
@@ -417,7 +413,7 @@ const QcFlagsPage = () => {
                 <div className="bms-kpi-sub text-muted">Đang hiệu chuẩn hoặc thay hóa chất</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                <FaTools />
+                <Wrench  size="1em"/>
               </div>
             </div>
           </Col>
@@ -429,7 +425,7 @@ const QcFlagsPage = () => {
                 <div className="bms-kpi-sub text-muted">Đã xác nhận ổn định trở lại</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-green">
-                <FaCheckCircle />
+                <CheckCircle2  size="1em"/>
               </div>
             </div>
           </Col>
@@ -439,7 +435,7 @@ const QcFlagsPage = () => {
       {/* Single-Line Flat Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo chỉ số (WBC, RBC, Glucose...)"
@@ -448,7 +444,7 @@ const QcFlagsPage = () => {
           />
           {searchTerm && (
             <button type="button" className="bms-search-clear" onClick={() => setSearchTerm('')} title="Xóa tìm kiếm">
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -525,7 +521,7 @@ const QcFlagsPage = () => {
                           color: flag.status === 'ACTIVE' ? '#dc2626' : flag.status === 'INVESTIGATING' ? '#d97706' : '#16a34a'
                         }}
                       >
-                        <FaFlask className="fs-5" />
+                        <FlaskConical className="fs-5"  size="1em"/>
                       </div>
                       <div>
                         <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
@@ -565,7 +561,7 @@ const QcFlagsPage = () => {
                         {flag.resolutionNotes && (
                           <div className="mt-3 p-3 bg-success-subtle border border-success-subtle rounded-3 small">
                             <div className="fw-bold text-success-emphasis mb-1 d-flex align-items-center gap-1">
-                              <FaCheckCircle /> Biện pháp khắc phục đã ghi nhận:
+                              <CheckCircle2  size="1em"/> Biện pháp khắc phục đã ghi nhận:
                             </div>
                             <div className="text-dark">{flag.resolutionNotes}</div>
                             {flag.resolvedBy && (
@@ -587,7 +583,7 @@ const QcFlagsPage = () => {
                         style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
                         onClick={() => openEditModal(flag)}
                       >
-                        <FaTools />
+                        <Wrench  size="1em"/>
                         <span>Xử lý / Cập nhật</span>
                       </Button>
                       <Button
@@ -597,7 +593,7 @@ const QcFlagsPage = () => {
                         onClick={() => openDeleteModal(flag)}
                         title="Xóa cờ QC"
                       >
-                        <FaTrashAlt />
+                        <Trash2  size="1em"/>
                       </Button>
                     </div>
                   </div>
@@ -609,7 +605,7 @@ const QcFlagsPage = () => {
       ) : (
         <Card className="border-0 shadow-sm rounded-4 text-center py-4 bg-white">
           <Card.Body>
-            <FaCheckCircle className="text-secondary mb-3" style={{ fontSize: '2.5rem', opacity: 0.45 }} />
+            <CheckCircle2 className="text-secondary mb-3" style={{ fontSize: '2.5rem', opacity: 0.45 }}  size="1em"/>
             <h5 className="text-dark fw-bold">Chưa có cờ vi phạm Westgard</h5>
             <p className="text-muted small mx-auto mb-3" style={{ maxWidth: 520 }}>
               Danh sách trống = chưa ghi nhận sự cố IQC (hoặc đã lọc hết). Không đồng nghĩa mọi máy
@@ -631,7 +627,7 @@ const QcFlagsPage = () => {
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaFlask className="text-warning" />
+            <FlaskConical className="text-warning"  size="1em"/>
             Thiết Lập / Kích Hoạt Cờ Kiểm Chuẩn QC Mới
           </Modal.Title>
         </Modal.Header>
@@ -785,7 +781,7 @@ const QcFlagsPage = () => {
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaTools className="text-primary" />
+            <Wrench className="text-primary"  size="1em"/>
             Cập Nhật & Xử Lý Cờ Kiểm Chuẩn QC
           </Modal.Title>
         </Modal.Header>
@@ -854,7 +850,7 @@ const QcFlagsPage = () => {
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">
-            <FaTrashAlt />
+            <Trash2  size="1em"/>
             Xác Nhận Xóa Cờ QC
           </Modal.Title>
         </Modal.Header>

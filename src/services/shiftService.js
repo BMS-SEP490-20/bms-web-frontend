@@ -2,31 +2,23 @@ import api from '../config/api';
 
 export const shiftService = {
   async getShiftById(id) {
+    if (!id) return { success: false, data: null };
     try {
-      const res = await api.get(`/doctor-shifts/${id}`);
+      const res = await api.get(`/shifts/${encodeURIComponent(id)}`);
       return { success: true, data: res.data?.data || res.data };
-    } catch {
+    } catch (error) {
       return {
-        success: true,
-        data: {
-          id: id || 'SHIFT-01',
-          shiftType: 'Morning',
-          shiftName: 'Ca Sáng (07:00 - 11:30)',
-          roomName: 'Phòng khám Huyết học Tổng quát 1'
-        }
+        success: false,
+        message: error.response?.data?.message || error.message || 'Không thể tải thông tin ca trực.',
+        data: null
       };
     }
   },
 
   async getLabAssignmentById(id) {
     return {
-      success: true,
-      data: {
-        id,
-        status: 'Assigned',
-        technicianName: 'KTV. Lê Thị Bình',
-        roomName: 'Phòng Lab Tự Động Hóa 101'
-      }
+      success: false,
+      data: null
     };
   },
 

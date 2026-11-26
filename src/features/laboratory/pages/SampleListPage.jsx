@@ -6,21 +6,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FaSearch,
-  FaVial,
-  FaCheckCircle,
-  FaPrint,
-  FaBarcode,
-  FaArrowLeft,
-  FaClock,
-  FaMapMarkerAlt,
-  FaExclamationCircle,
-  FaClipboardList,
-  FaTimes,
-  FaUserCheck,
-  FaSpinner
-} from "react-icons/fa";
+import { Search, TestTube2, CheckCircle2, Printer, Barcode as LucideBarcode, ArrowLeft, Clock, MapPin, AlertCircle, ClipboardList, X as LucideX, UserCheck, Loader2 } from 'lucide-react';
 import {
   fetchCheckedInAppointments,
   createCollectionBatch,
@@ -519,7 +505,7 @@ export default function SampleListPage() {
             className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
             onClick={() => navigate(-1)}
           >
-            <FaArrowLeft /> Quay lại
+            <ArrowLeft  size="1em"/> Quay lại
           </button>
         </div>
       </div>
@@ -527,7 +513,7 @@ export default function SampleListPage() {
       {/* Single-Line Filter Bar extracted above tables */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo họ tên bệnh nhân, mã lịch hẹn, gói xét nghiệm..."
@@ -540,7 +526,7 @@ export default function SampleListPage() {
               className="bms-search-clear"
               onClick={() => setSearchTerm("")}
             >
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -553,7 +539,7 @@ export default function SampleListPage() {
       {successMessage && (
         <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 mb-4 rounded-3">
           <div className="d-flex align-items-center gap-2">
-            <FaCheckCircle className="text-success fs-5" />
+            <CheckCircle2 className="text-success fs-5"  size="1em"/>
             <div className="fw-medium">{successMessage}</div>
           </div>
           <div className="d-flex gap-2 flex-wrap">
@@ -561,13 +547,13 @@ export default function SampleListPage() {
               className="btn btn-sm btn-success d-flex align-items-center gap-1 shadow-sm"
               onClick={handlePrintBarcodes}
             >
-              <FaBarcode /> In lại nhãn ống
+              <LucideBarcode  size="1em"/> In lại nhãn ống
             </button>
             <button
               className="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm"
               onClick={goToScanCheckIn}
             >
-              <FaVial /> Sang quét tiếp nhận ống
+              <TestTube2  size="1em"/> Sang quét tiếp nhận ống
             </button>
           </div>
         </div>
@@ -575,7 +561,7 @@ export default function SampleListPage() {
 
       {errorMessage && (
         <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-3">
-          <FaExclamationCircle className="text-danger fs-5" />
+          <AlertCircle className="text-danger fs-5"  size="1em"/>
           <div>{errorMessage}</div>
         </div>
       )}
@@ -617,7 +603,7 @@ export default function SampleListPage() {
                   {loading ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-muted">
-                        <FaSpinner className="fa-spin me-2" /> Đang tải danh sách tiếp đón...
+                        <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải danh sách tiếp đón...
                       </td>
                     </tr>
                   ) : filteredAppointments.length === 0 ? (
@@ -747,7 +733,7 @@ export default function SampleListPage() {
                                   key={tIdx}
                                   className={`badge px-2 py-0.5 rounded-pill ${getTubeBadgeClass(tube)}`}
                                 >
-                                  <FaVial className="me-1 small" />
+                                  <TestTube2 className="me-1 small"  size="1em"/>
                                   {tube}
                                 </span>
                               ))}
@@ -767,7 +753,7 @@ export default function SampleListPage() {
           <div className="card shadow-sm rounded-4 bg-white" style={{ border: "1px solid #E2E8F0" }}>
             <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                <FaMapMarkerAlt className="text-primary" />
+                <MapPin className="text-primary"  size="1em"/>
                 <span>Thiết lập địa điểm &amp; thời gian lấy mẫu</span>
               </h5>
             </div>
@@ -786,7 +772,7 @@ export default function SampleListPage() {
                 <div className="col-md-5">
                   <label className="form-label fw-semibold text-dark small">Thời Gian Lấy Mẫu (Giờ hiện tại)</label>
                   <div className="input-group">
-                    <span className="input-group-text bg-light"><FaClock className="text-muted" /></span>
+                    <span className="input-group-text bg-light"><Clock className="text-muted"  size="1em"/></span>
                     <input
                       type="time"
                       className="form-control bg-light text-dark fw-semibold"
@@ -807,11 +793,11 @@ export default function SampleListPage() {
                     disabled={submitting || selectedAppointments.length === 0}
                     onClick={handleConfirmList}
                   >
-                    <FaCheckCircle /> {submitting ? "Đang xác nhận..." : "Xác Nhận Đợt Lấy Mẫu"}
+                    <CheckCircle2  size="1em"/> {submitting ? "Đang xác nhận..." : "Xác Nhận Đợt Lấy Mẫu"}
                   </button>
                 ) : (
                   <span className="badge bg-success-subtle text-success border border-success-subtle align-self-center px-3 py-2">
-                    <FaCheckCircle className="me-1" />
+                    <CheckCircle2 className="me-1"  size="1em"/>
                     Đã xác nhận {batchCode} — nút xác nhận đã ẩn
                   </span>
                 )}
@@ -822,7 +808,7 @@ export default function SampleListPage() {
                   title={selectedAppointments.length === 0 ? "Chọn BN trước" : "In phiếu checklist lấy mẫu (không phải nhãn barcode)"}
                   onClick={handlePrintManifest}
                 >
-                  <FaPrint /> In bảng kê mẫu
+                  <Printer  size="1em"/> In bảng kê mẫu
                 </button>
                 <button
                   type="button"
@@ -831,7 +817,7 @@ export default function SampleListPage() {
                   disabled={!batchConfirmed || !batchCode || loadingBarcodes}
                   title={batchConfirmed ? "In lại nhãn Code 128" : "Xác nhận đợt trước — modal sẽ tự mở"}
                 >
-                  <FaBarcode /> In nhãn mã vạch
+                  <LucideBarcode  size="1em"/> In nhãn mã vạch
                 </button>
               </div>
             </div>
@@ -851,7 +837,7 @@ export default function SampleListPage() {
               <div className="modal-header border-bottom py-3">
                 <div>
                   <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2 mb-1">
-                    <FaBarcode className="text-primary" />
+                    <LucideBarcode className="text-primary"  size="1em"/>
                     Nhãn dán ống nghiệm (Code 128) — Đợt {batchCode || "—"}
                   </h5>
                   <div className="small text-muted">
@@ -868,11 +854,11 @@ export default function SampleListPage() {
               <div className="modal-body p-3" style={{ maxHeight: "65vh", overflowY: "auto" }}>
                 {loadingBarcodes ? (
                   <div className="text-center py-4 text-muted">
-                    <FaSpinner className="fa-spin me-2" /> Đang tạo nhãn ống…
+                    <Loader2 className="fa-spin me-2"  size="1em"/> Đang tạo nhãn ống…
                   </div>
                 ) : !barcodeData || !Array.isArray(barcodeData.labels) || barcodeData.labels.length === 0 ? (
                   <div className="text-center py-4 text-muted">
-                    <FaBarcode className="fs-1 text-secondary opacity-50 mb-2" />
+                    <LucideBarcode className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
                     <p className="mb-0">Chưa có nhãn ống cho đợt này.</p>
                   </div>
                 ) : (
@@ -936,7 +922,7 @@ export default function SampleListPage() {
                     className="btn btn-success d-flex align-items-center gap-1"
                     onClick={goToScanCheckIn}
                   >
-                    <FaVial /> Tiếp tục: Quét tiếp nhận ống
+                    <TestTube2  size="1em"/> Tiếp tục: Quét tiếp nhận ống
                   </button>
                   <button
                     type="button"
@@ -994,7 +980,7 @@ export default function SampleListPage() {
                       }
                     }}
                   >
-                    <FaPrint /> In nhãn dán ống ({barcodeData?.labels?.length || 0})
+                    <Printer  size="1em"/> In nhãn dán ống ({barcodeData?.labels?.length || 0})
                   </button>
                 </div>
               </div>

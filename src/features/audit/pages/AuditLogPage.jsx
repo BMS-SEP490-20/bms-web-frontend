@@ -12,11 +12,7 @@ import {
   Row, Col, Card, Table, Badge, Button,
   Form, InputGroup, Modal, Spinner
 } from 'react-bootstrap';
-import {
-  FaSearch, FaSyncAlt, FaFileExport,
-  FaExclamationTriangle, FaCheckCircle, FaTimesCircle,
-  FaInfoCircle, FaLock, FaEye, FaTimes, FaUserCheck
-} from 'react-icons/fa';
+import { Search as LucideSearch, RefreshCw, FileOutput, AlertTriangle, CheckCircle2, XCircle, Info, Lock, Eye, X as LucideX, UserCheck } from 'lucide-react';
 import { auditLogService } from '../../../services/auditLogService';
 
 const AuditLogPage = () => {
@@ -115,14 +111,14 @@ const AuditLogPage = () => {
   const getSeverityBadge = (severity) => {
     switch (severity) {
       case 'CRITICAL':
-        return <Badge bg="danger" className="px-2 py-1"><FaExclamationTriangle className="me-1" />NGHIÊM TRỌNG</Badge>;
+        return <Badge bg="danger" className="px-2 py-1"><AlertTriangle className="me-1"  size="1em"/>NGHIÊM TRỌNG</Badge>;
       case 'ERROR':
-        return <Badge bg="danger" className="px-2 py-1"><FaTimesCircle className="me-1" />LỖI HỆ THỐNG</Badge>;
+        return <Badge bg="danger" className="px-2 py-1"><XCircle className="me-1"  size="1em"/>LỖI HỆ THỐNG</Badge>;
       case 'WARNING':
-        return <Badge bg="warning" text="dark" className="px-2 py-1"><FaExclamationTriangle className="me-1" />CẢNH BÁO</Badge>;
+        return <Badge bg="warning" text="dark" className="px-2 py-1"><AlertTriangle className="me-1"  size="1em"/>CẢNH BÁO</Badge>;
       case 'INFO':
       default:
-        return <Badge bg="info" className="px-2 py-1"><FaInfoCircle className="me-1" />THÔNG TIN</Badge>;
+        return <Badge bg="info" className="px-2 py-1"><Info className="me-1"  size="1em"/>THÔNG TIN</Badge>;
     }
   };
 
@@ -173,7 +169,7 @@ const AuditLogPage = () => {
             disabled={safeLogs.length === 0}
             className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
           >
-            <FaFileExport size={13} />
+            <FileOutput size={13} />
             <span>Xuất Báo Cáo CSV</span>
           </Button>
           <Button
@@ -184,7 +180,7 @@ const AuditLogPage = () => {
             className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold"
             style={{ background: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            <FaSyncAlt size={13} className={loading ? 'fa-spin' : ''} />
+            <RefreshCw size={13} className={loading ? 'fa-spin' : ''} />
             <span>Làm Mới</span>
           </Button>
         </div>
@@ -201,7 +197,7 @@ const AuditLogPage = () => {
                 <div className="bms-kpi-sub text-muted">Tổng bản ghi nhật ký hệ thống</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
-                <FaCheckCircle />
+                <CheckCircle2  size="1em"/>
               </div>
             </div>
           </Col>
@@ -213,7 +209,7 @@ const AuditLogPage = () => {
                 <div className="bms-kpi-sub text-muted">Truy cập &amp; phân quyền bảo mật</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                <FaLock />
+                <Lock  size="1em"/>
               </div>
             </div>
           </Col>
@@ -225,7 +221,7 @@ const AuditLogPage = () => {
                 <div className="bms-kpi-sub text-muted">Sự kiện mức cảnh báo cao</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
-                <FaExclamationTriangle />
+                <AlertTriangle  size="1em"/>
               </div>
             </div>
           </Col>
@@ -237,7 +233,7 @@ const AuditLogPage = () => {
                 <div className="bms-kpi-sub text-muted">Thao tác bị từ chối hoặc lỗi</div>
               </div>
               <div className="bms-kpi-icon-badge bms-kpi-icon-purple">
-                <FaTimesCircle />
+                <XCircle  size="1em"/>
               </div>
             </div>
           </Col>
@@ -247,7 +243,7 @@ const AuditLogPage = () => {
       {/* Single-Line Flat Filter Bar */}
       <section className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
-          <FaSearch className="bms-search-icon" />
+          <LucideSearch className="bms-search-icon"  size="1em"/>
           <input
             type="text"
             placeholder="Tìm theo người dùng, hành động, đối tượng tác động..."
@@ -261,7 +257,7 @@ const AuditLogPage = () => {
               onClick={() => setSearchTerm('')}
               title="Xóa tìm kiếm"
             >
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -355,7 +351,7 @@ const AuditLogPage = () => {
                       <td>
                         <div className="fw-semibold text-dark small">{item.userName || 'Hệ thống'}</div>
                         <div className="d-flex align-items-center gap-1 text-muted" style={{ fontSize: '0.75rem' }}>
-                          <FaUserCheck className="text-primary" />
+                          <UserCheck className="text-primary"  size="1em"/>
                           <span>{item.userRole || 'Admin'}</span>
                         </div>
                       </td>
@@ -380,9 +376,9 @@ const AuditLogPage = () => {
                         <div className="small font-monospace text-secondary">{item.ipAddress || '127.0.0.1'}</div>
                         <div className="text-muted" style={{ fontSize: '0.7rem' }}>
                           {item.status === 'SUCCESS' ? (
-                            <span className="text-success fw-medium"><FaCheckCircle className="me-1" />Thành công</span>
+                            <span className="text-success fw-medium"><CheckCircle2 className="me-1"  size="1em"/>Thành công</span>
                           ) : (
-                            <span className="text-danger fw-medium"><FaTimesCircle className="me-1" />Thất bại</span>
+                            <span className="text-danger fw-medium"><XCircle className="me-1"  size="1em"/>Thất bại</span>
                           )}
                         </div>
                       </td>
@@ -398,7 +394,7 @@ const AuditLogPage = () => {
                           }}
                           title="Xem chi tiết sự kiện"
                         >
-                          <FaEye />
+                          <Eye  size="1em"/>
                         </Button>
                       </td>
                     </tr>
@@ -408,7 +404,7 @@ const AuditLogPage = () => {
             </div>
           ) : (
             <div className="text-center py-3">
-              <FaCheckCircle className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }} />
+              <CheckCircle2 className="text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }}  size="1em"/>
               <h5 className="text-dark fw-bold">Không tìm thấy bản ghi kiểm toán nào</h5>
               <p className="text-muted small">Thử thay đổi bộ lọc phân loại hoặc từ khóa tìm kiếm.</p>
             </div>
@@ -420,11 +416,11 @@ const AuditLogPage = () => {
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0 bg-light">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2 fs-5">
-            <FaCheckCircle className="text-primary" />
+            <CheckCircle2 className="text-primary"  size="1em"/>
             Chi Tiết Bản Ghi Kiểm Toán An Ninh
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2">
+        <Modal.Body>
           {selectedLog && (
             <div>
               <div className="p-3 bg-light rounded-3 mb-3 border">
@@ -462,9 +458,9 @@ const AuditLogPage = () => {
                     <div className="small text-muted">Trạng thái kết quả:</div>
                     <div className="mt-1">
                       {selectedLog.status === 'SUCCESS' ? (
-                        <Badge bg="success" className="px-2 py-1"><FaCheckCircle className="me-1" />Thực hiện thành công</Badge>
+                        <Badge bg="success" className="px-2 py-1"><CheckCircle2 className="me-1"  size="1em"/>Thực hiện thành công</Badge>
                       ) : (
-                        <Badge bg="danger" className="px-2 py-1"><FaTimesCircle className="me-1" />Thực hiện thất bại</Badge>
+                        <Badge bg="danger" className="px-2 py-1"><XCircle className="me-1"  size="1em"/>Thực hiện thất bại</Badge>
                       )}
                     </div>
                   </Col>

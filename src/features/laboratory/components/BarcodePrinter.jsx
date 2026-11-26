@@ -16,16 +16,7 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import { Modal, Button, Card, Row, Col, Badge, Table, Alert, Form } from "react-bootstrap";
-import {
-  FaBarcode,
-  FaPrint,
-  FaCheckCircle,
-  FaVial,
-  FaUserInjured,
-  FaThLarge,
-  FaDownload,
-  FaInfoCircle
-} from "react-icons/fa";
+import { Barcode as LucideBarcode, Printer, CheckCircle2, TestTube2, User, LayoutGrid, Download, Info } from 'lucide-react';
 
 // Định nghĩa chuẩn 3 loại ống lấy máu theo ISO 15189
 export const SPECIMEN_TUBES_CONFIG = [
@@ -220,15 +211,15 @@ export function AntiCollisionRackVisualizer({ patientsData }) {
       <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
         <div>
           <h6 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            <FaThLarge style={{ color: "#1E60E6" }} />
-            <span>Sơ Đồ Giá Đỡ Ống Máu (Rack 3x3) &amp; Cơ Chế Chống Nhầm Lẫn Tuyệt Đối</span>
+            <LayoutGrid style={{ color: "#1E60E6" }}  size="1em"/>
+            <span>Sơ Đồ Giá Đỡ Ống Máu (Rack 3x3)</span>
           </h6>
           <small className="text-muted">
-            Thuật toán ISO 15189:2022 phân bổ tọa độ 9 vị trí cho 3 bệnh nhân A, B, C &mdash; Cam kết không bao giờ chồng chéo ống mẫu
+            Phân bổ 9 vị trí tem nhãn cho các ống mẫu tránh nhầm lẫn
           </small>
         </div>
         <Badge bg="success" className="px-3 py-1.5 rounded-pill">
-          <FaCheckCircle className="me-1" /> 100% Anti-Collision
+          <CheckCircle2 className="me-1" size="1em" /> Sẵn sàng in
         </Badge>
       </Card.Header>
 
@@ -342,7 +333,7 @@ export default function BarcodePrinterModal({
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton className="bg-light border-bottom">
         <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2 text-dark">
-          <FaBarcode style={{ color: "#1E60E6" }} />
+          <LucideBarcode style={{ color: "#1E60E6" }}  size="1em"/>
           <span>In Bộ 3 Tem Barcode Ống Nghiệm Chuẩn Y Tế (Anti-Collision)</span>
         </Modal.Title>
       </Modal.Header>
@@ -350,8 +341,8 @@ export default function BarcodePrinterModal({
       <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
         {printSuccess && (
           <Alert variant="success" dismissible onClose={() => setPrintSuccess(false)} className="py-2 mb-3 shadow-sm">
-            <FaCheckCircle className="me-2" />
-            Lệnh in đã gửi đến máy in tem nhãn nhiệt phòng xét nghiệm (Khổ 50x30mm). Đã dán tem kiểm chuẩn ISO 15189.
+            <CheckCircle2 className="me-2"  size="1em"/>
+            Đã gửi lệnh in tem nhãn khổ 50x30mm đến máy in phòng xét nghiệm.
           </Alert>
         )}
 
@@ -361,7 +352,7 @@ export default function BarcodePrinterModal({
             <Col sm={6}>
               <div className="small text-muted">Bệnh nhân chỉ định:</div>
               <div className="fw-bold fs-6 text-dark d-flex align-items-center gap-1">
-                <FaUserInjured style={{ color: "#1E60E6" }} />
+                <User style={{ color: "#1E60E6" }}  size="1em"/>
                 {safePatient.name} ({safePatient.gender} · {safePatient.age} tuổi)
               </div>
               <div className="small text-muted font-monospace">Mã hồ sơ BN: {safePatient.id}</div>
@@ -376,7 +367,7 @@ export default function BarcodePrinterModal({
 
         {/* Cảnh báo thứ tự lấy mẫu chuẩn Bộ Y Tế */}
         <div className="alert alert-info border-0 d-flex gap-2 p-2.5 mb-3 rounded-3 small">
-          <FaInfoCircle className="flex-shrink-0 mt-0.5 text-info" />
+          <Info className="flex-shrink-0 mt-0.5 text-info"  size="1em"/>
           <div>
             <strong>Quy chuẩn lấy mẫu (Draw Order):</strong> Lấy ống <strong>Xanh dương (Citrate)</strong> đầu tiên để đảm bảo đông máu chính xác &rarr; Lấy ống <strong>Vàng (SST Gel)</strong> &rarr; Lấy ống <strong>Tím (EDTA)</strong> cuối cùng để tránh nhiễm chéo EDTA gây giảm giả tạo canxi máu!
           </div>
@@ -412,7 +403,7 @@ export default function BarcodePrinterModal({
           className="d-flex align-items-center gap-2 fw-semibold px-3 text-white shadow-sm"
           style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
         >
-          <FaPrint /> In Cả 3 Tem Mã Vạch (50x30mm)
+          <Printer  size="1em"/> In Cả 3 Tem Mã Vạch (50x30mm)
         </Button>
       </Modal.Footer>
     </Modal>

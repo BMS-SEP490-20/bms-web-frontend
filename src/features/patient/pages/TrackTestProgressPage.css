@@ -13,8 +13,12 @@
 }
 
 .bms-tracking-main {
+  padding: 20px 0 12px 0;
+}
+
+.bms-tracking-page .bms-ft {
+  margin-top: 24px;
   flex: 1;
-  padding: 24px 0 48px 0;
 }
 
 /* ==========================================================================
@@ -27,7 +31,7 @@
   border-radius: 20px;
   box-shadow: none !important;
   padding: 28px 36px;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
 }
 
 .bms-hero-search-wrapper {
@@ -209,13 +213,13 @@
   border: none !important;
   border-radius: 16px;
   padding: 22px 26px;
-  margin-top: 24px;
-  margin-bottom: 48px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   box-shadow: none !important;
 }
 
 .bms-guide-container {
-  margin-bottom: 48px;
+  margin-bottom: 0;
 }
 
 .bms-stages-overview-title {
@@ -552,19 +556,145 @@
   gap: 4px;
 }
 
-/* Modal chi tiết tiến trình */
+/* ==========================================================================
+   6. TRACKING TABLE + PAGINATION + 16:9 WIDESCREEN DETAIL MODAL
+   ========================================================================== */
+
+.bms-tracking-table-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+}
+
+.bms-tracking-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.bms-tracking-table-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bms-tracking-filter-pill {
+  border: 0;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: #F1F5F9;
+  color: #475569;
+  cursor: pointer;
+}
+
+.bms-tracking-filter-pill.is-active {
+  background: #1E60E6;
+  color: #FFFFFF;
+}
+
+.bms-tracking-table th {
+  padding: 12px 16px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  background: #F8FAFC !important;
+  border: 0 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  white-space: nowrap;
+}
+
+.bms-tracking-table td {
+  padding: 13px 16px !important;
+  vertical-align: middle !important;
+  background: #FFFFFF !important;
+  border: 0 !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+}
+
+.bms-tracking-table tbody tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+.bms-tracking-table tbody tr:hover td {
+  background: #F8FAFC !important;
+}
+
+.bms-tracking-table tbody tr.is-selected-row td {
+  background: #EEF4FD !important;
+}
+
+.bms-tracking-table-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #F1F5F9;
+  background: #FFFFFF;
+}
+
+/* 2-column widescreen grid for 6-stage progress inside 16:9 detail modal */
+.bms-stepper-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.bms-step-grid-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  border-radius: 14px;
+}
+
+.bms-step-grid-card .bms-step-desc {
+  flex: 1 1 auto;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  line-height: 1.55;
+}
+
+.bms-step-grid-card .bms-step-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding-top: 10px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.bms-stepper-node--inline {
+  position: static;
+  left: auto;
+  top: auto;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+/* Modal chi tiết tiến trình — tỷ lệ ngang rộng 16:9 thoáng */
 .bms-tracking-detail-modal {
-  max-width: min(1120px, 96vw);
+  width: min(1420px, 95vw);
+  max-width: min(1420px, 95vw);
 }
 
 .bms-tracking-detail-modal .modal-content {
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.16);
 }
 
 .bms-tracking-detail-modal .modal-body {
-  max-height: min(78vh, 820px);
+  max-height: min(82vh, 800px);
 }
 
 .bms-tracking-detail-modal .bms-result-meta-card {
@@ -573,6 +703,9 @@
 }
 
 @media (max-width: 991.98px) {
+  .bms-stepper-grid {
+    grid-template-columns: 1fr;
+  }
   .bms-tracking-detail-modal .modal-body {
     max-height: 85vh;
   }

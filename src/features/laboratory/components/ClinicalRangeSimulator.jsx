@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Row, Col, Button, Badge, Alert, Spinner } from 'react-bootstrap';
-import { FaHeartbeat, FaVial, FaExclamationTriangle, FaCheckCircle, FaBell, FaInfoCircle } from 'react-icons/fa';
+import { HeartPulse, TestTube2, AlertTriangle, CheckCircle2, Bell, Info } from 'lucide-react';
 import referenceIntervalService from '../../../services/referenceIntervalService';
 import testCriterionService from '../../../services/testCriterionService';
 
@@ -107,22 +107,22 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
             className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle"
             style={{ width: '36px', height: '36px' }}
           >
-            <FaHeartbeat />
+            <HeartPulse  size="1em"/>
           </div>
           <div>
             <h6 className="mb-0 fw-bold text-dark">Thử Nghiệm Đánh Giá Lâm Sàng (Clinical Range Simulator)</h6>
-            <small className="text-muted">Kiểm tra tự động gắn cờ L, H và cảnh báo PANIC đe dọa tính mạng (BR-LAB-02 / BR-LAB-03)</small>
+            <small className="text-muted">Tự động gắn cờ L, H và cảnh báo ngưỡng nguy kịch (PANIC)</small>
           </div>
         </div>
         <Badge bg="info" className="px-3 py-2 text-white">
-          ISO 15189 / QĐ 2429
+          Khoảng tham chiếu
         </Badge>
       </Card.Header>
 
       <Card.Body className="p-2">
         {errorMsg && (
           <Alert variant="danger" dismissible onClose={() => setErrorMsg('')} className="py-2 mb-3">
-            <FaExclamationTriangle className="me-2" />
+            <AlertTriangle className="me-2"  size="1em"/>
             {errorMsg}
           </Alert>
         )}
@@ -220,11 +220,11 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
                     className="p-3 bg-danger text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center"
                     style={{ animation: 'pulse 1.5s infinite' }}
                   >
-                    <FaBell size={24} />
+                    <Bell size={24} />
                   </div>
                 ) : evalResult.flag === 'NORMAL' ? (
                   <div className="p-3 bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center">
-                    <FaCheckCircle size={24} />
+                    <CheckCircle2 size={24} />
                   </div>
                 ) : (
                   <div
@@ -232,7 +232,7 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
                       evalResult.flag === 'L' ? 'bg-warning text-dark' : 'bg-danger'
                     }`}
                   >
-                    <FaExclamationTriangle size={24} />
+                    <AlertTriangle size={24} />
                   </div>
                 )}
 

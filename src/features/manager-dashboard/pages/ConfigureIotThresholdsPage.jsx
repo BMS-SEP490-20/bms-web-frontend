@@ -8,14 +8,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
-import {
-    FaCogs,
-    FaSave,
-    FaUndo,
-    FaThermometerHalf,
-    FaPlus,
-    FaBell
-} from 'react-icons/fa';
+import { Settings, Save, Undo2, Thermometer, Droplets, AlertOctagon, CheckCircle2, Lock as LucideLock } from 'lucide-react';
+import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 import {
     fetchIotThresholdsSummary,
     batchUpdateIotThresholds,
@@ -24,6 +18,7 @@ import {
 
 export default function ConfigureIotThresholdsPage() {
     const navigate = useNavigate();
+    const isAdmin = hasRole(getStoredUser(), ROLES.ADMIN);
 
     const [thresholds, setThresholds] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -136,25 +131,34 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
 
                 <div className="bms-page-actions">
-                    <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
-                        onClick={handleResetDefaults}
-                        disabled={resetting}
-                    >
-                        <FaUndo size={12} />
-                        <span>{resetting ? 'Đang khôi phục...' : 'Khôi Phục Mặc Định (2°C - 8°C)'}</span>
-                    </button>
-                    <button
-                        type="button"
-                        className="btn btn-primary btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
-                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                        onClick={handleSaveAll}
-                        disabled={saving}
-                    >
-                        <FaSave size={13} />
-                        <span>{saving ? 'Đang lưu...' : 'Lưu Tất Cả Ngưỡng'}</span>
-                    </button>
+                    {isAdmin ? (
+                        <>
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold rounded-pill"
+                                onClick={handleResetDefaults}
+                                disabled={resetting}
+                            >
+                                <Undo2 size={12} />
+                                <span>{resetting ? 'Đang khôi phục...' : 'Khôi Phục Mặc Định (2°C - 8°C)'}</span>
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-sm d-flex align-items-center gap-2 text-white px-3 py-2 fw-semibold rounded-pill"
+                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                                onClick={handleSaveAll}
+                                disabled={saving}
+                            >
+                                <Save size={13} />
+                                <span>{saving ? 'Đang lưu...' : 'Lưu Tất Cả Ngưỡng'}</span>
+                            </button>
+                        </>
+                    ) : (
+                        <span className="badge d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style={{ backgroundColor: '#F1F5F9', color: '#475569', fontSize: '12px', fontWeight: 600 }}>
+                            <LucideLock size={13} />
+                            Chỉ xem (Chỉ Quản trị viên hệ thống được thay đổi ngưỡng)
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -163,13 +167,13 @@ export default function ConfigureIotThresholdsPage() {
             {/* Thông báo Alert */}
             {errorMessage && (
                 <div className="alert alert-danger d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px' }}>
-                    <i className="bi bi-exclamation-octagon-fill me-2"></i>
+                    <AlertOctagon size={16} className="me-2 flex-shrink-0" />
                     <div>{errorMessage}</div>
                 </div>
             )}
             {successMessage && (
                 <div className="alert alert-success d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px' }}>
-                    <i className="bi bi-check-circle-fill me-2" style={{ color: '#2b8a3e' }}></i>
+                    <CheckCircle2 size={16} className="me-2 flex-shrink-0" style={{ color: '#2b8a3e' }} />
                     <div>{successMessage}</div>
                 </div>
             )}
@@ -179,7 +183,7 @@ export default function ConfigureIotThresholdsPage() {
                 <div className="bms-table-standalone-header">
                     <div>
                         <h5 className="bms-table-standalone-title">
-                            <FaCogs style={{ color: '#1E60E6' }} />
+                            <Settings style={{ color: '#1E60E6' }}  size="1em"/>
                             <span>Danh Sách Ngưỡng Cảnh Báo Thiết Bị Cảm Biến</span>
                         </h5>
                         <div className="bms-table-standalone-subtitle">
@@ -221,12 +225,12 @@ export default function ConfigureIotThresholdsPage() {
                                             </td>
                                             <td>
                                                 {isTemp ? (
-                                                    <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
-                                                        <i className="bi bi-thermometer-half me-1"></i> Nhiệt Độ (°C)
+                                                    <span className="d-inline-flex align-items-center gap-1" style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
+                                                        <Thermometer size={12} /> Nhiệt Độ (°C)
                                                     </span>
                                                 ) : (
-                                                    <span style={{ background: '#f3e8ff', color: '#7e22ce', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
-                                                        <i className="bi bi-moisture me-1"></i> Độ Ẩm (%)
+                                                    <span className="d-inline-flex align-items-center gap-1" style={{ background: '#f3e8ff', color: '#7e22ce', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
+                                                        <Droplets size={12} /> Độ Ẩm (%)
                                                     </span>
                                                 )}
                                             </td>
@@ -234,6 +238,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.lowAlert}
@@ -244,6 +249,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.highAlert}
@@ -254,6 +260,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="1"
+                                                    disabled={!isAdmin}
                                                     className="form-control d-inline-block text-center"
                                                     style={{ width: '70px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.intervalSeconds}

@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Row, Col, Table, Button, Form, Modal, Spinner, Badge } from 'react-bootstrap';
-import { FaPlus, FaSearch, FaTimes, FaSyncAlt, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { Plus, Search, X as LucideX, RefreshCw, SquarePen, Trash2, Eye } from 'lucide-react';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { testOrderService } from '../../../services/testOrderService';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
@@ -16,7 +16,8 @@ const LabRoomManagementPage = () => {
     const { user, userRoleId, userRole } = useAuth();
     const { showSuccess, showError } = useNotificationContext();
     const isAdmin = userRoleId === 1 || userRole === 'admin' || user?.role === 'Administrator';
-    const isManagerOrAdmin = isAdmin || userRoleId === 2 || userRole === 'manager' || user?.role === 'Manager' || userRole === 'lab_manager';
+    // Admin manages rooms (add/edit/delete); Manager views read-only
+    const isManagerOrAdmin = isAdmin;
 
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -176,7 +177,7 @@ const LabRoomManagementPage = () => {
                         onClick={fetchRooms}
                         disabled={loading}
                     >
-                        <FaSyncAlt className={loading ? 'fa-spin' : ''} size={13} />
+                        <RefreshCw className={loading ? 'fa-spin' : ''} size={13} />
                         <span>Làm mới</span>
                     </Button>
                     {isManagerOrAdmin && (
@@ -187,7 +188,7 @@ const LabRoomManagementPage = () => {
                             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                             onClick={() => handleOpenModal()}
                         >
-                            <FaPlus size={12} />
+                            <Plus size={12} />
                             <span>Thêm phòng mới</span>
                         </Button>
                     )}
@@ -196,7 +197,7 @@ const LabRoomManagementPage = () => {
 
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
-                    <FaSearch className="bms-search-icon" />
+                    <Search className="bms-search-icon"  size="1em"/>
                     <input
                         type="text"
                         placeholder="Tìm tên phòng, vị trí, thiết bị hoặc nhân sự phụ trách..."
@@ -210,7 +211,7 @@ const LabRoomManagementPage = () => {
                             onClick={() => setSearchTerm('')}
                             title="Xóa tìm kiếm"
                         >
-                            <FaTimes size={12} />
+                            <LucideX size={12} />
                         </button>
                     )}
                 </div>
@@ -309,15 +310,15 @@ const LabRoomManagementPage = () => {
                                                         {isManagerOrAdmin ? (
                                                             <>
                                                                 <Button variant="outline-primary" size="sm" className="rounded-pill text-nowrap fw-semibold" onClick={() => handleOpenModal(room)}>
-                                                                    <FaEdit className="me-1" /> Sửa
+                                                                    <SquarePen className="me-1"  size="1em"/> Sửa
                                                                 </Button>
                                                                 <Button variant="outline-danger" size="sm" className="rounded-pill text-nowrap fw-semibold" onClick={() => handleDelete(rId)}>
-                                                                    <FaTrash className="me-1" /> Xóa
+                                                                    <Trash2 className="me-1"  size="1em"/> Xóa
                                                                 </Button>
                                                             </>
                                                         ) : (
                                                             <Button variant="outline-primary" size="sm" className="rounded-pill text-nowrap" onClick={() => handleOpenModal(room)}>
-                                                                <FaEye className="me-1" /> Xem chi tiết
+                                                                <Eye className="me-1"  size="1em"/> Xem chi tiết
                                                             </Button>
                                                         )}
                                                     </div>
@@ -346,7 +347,7 @@ const LabRoomManagementPage = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
-                    <Modal.Body className="p-2">
+                    <Modal.Body>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-semibold">Tên Phòng Xét Nghiệm <span className="text-danger">*</span></Form.Label>
                             <Form.Control

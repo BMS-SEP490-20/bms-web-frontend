@@ -12,27 +12,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Modal, Button as BsButton, Card, Badge, Spinner, Form, Alert } from "react-bootstrap";
-import {
-  FaSearch,
-  FaClipboardList,
-  FaExclamationTriangle,
-  FaCheckCircle,
-  FaSave,
-  FaVial,
-  FaUserInjured,
-  FaArrowLeft,
-  FaClock,
-  FaStethoscope,
-  FaTimes,
-  FaCheck,
-  FaSync,
-  FaFileSignature,
-  FaHeartbeat,
-  FaBan,
-  FaLayerGroup,
-  FaPaperPlane,
-  FaBullhorn
-} from "react-icons/fa";
+import { Search, ClipboardList, AlertTriangle, CheckCircle2, Save, TestTube2, User, ArrowLeft, Clock, Stethoscope, X as LucideX, Check as LucideCheck, RefreshCw, FileSignature, HeartPulse, Ban, Layers, Send, Megaphone } from 'lucide-react';
 import {
   createTestOrder,
   fetchTestOrders,
@@ -225,7 +205,7 @@ export default function CreateTestOrderPage() {
             category: pkg.category || "Gói Khám Tổng Hợp",
             tubeType: pkg.sampleTube || "Serum-Đỏ/Vàng & EDTA-Tím",
             turnaroundTime: pkg.tat && pkg.tat.length > 25 ? "~2–4h" : (pkg.tat || "~2h"),
-            preparationNotes: pkg.preparationNotes || "Nhịn ăn 8–12h theo chuẩn ISO 15189",
+            preparationNotes: pkg.preparationNotes || "Nhịn ăn 8–12h nếu có chỉ định",
             price: pkg.discountPrice || pkg.price || 0,
             isPackage: true
           });
@@ -831,16 +811,6 @@ export default function CreateTestOrderPage() {
         await loadWorklist();
         setActiveModalEncounter(null);
       } else {
-        // Khi Bác sĩ ra phiếu chỉ định xét nghiệm -> Tự động hoàn tất lượt khám tại bàn khám luôn
-        const targetApptId = activeModalEncounter.appointmentId || activeModalEncounter.appointmentCode;
-        if (targetApptId) {
-          await receptionApi
-            .completePatient(
-              targetApptId,
-              `Đã hoàn tất khám lâm sàng và phát hành phiếu chỉ định xét nghiệm #${resData?.orderNumber || ""}`
-            )
-            .catch(() => null);
-        }
         setDispatchedOrderResult(resData || { status: "PaidPendingSample" });
         await loadWorklist();
       }
@@ -901,15 +871,15 @@ export default function CreateTestOrderPage() {
   }, [encounters, statusFilter, searchKeyword]);
 
   return (
-    <div className="w-100 py-1">
+    <div size="1em" className="w-100 py-1">
       {/* Header Card */}
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Ra y lệnh &amp; chỉ định xét nghiệm</h1>
+            <h1 className="bms-page-title">Chỉ định xét nghiệm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Danh sách bệnh nhân đã được gọi số từ Bàn khám &amp; Hàng đợi. Bấm <strong>Chỉ định xét nghiệm</strong> trên từng lịch hẹn để khám lâm sàng và chuyển đơn xuống Phòng Lab.
+            Chọn bệnh nhân từ danh sách chờ để khám và chỉ định xét nghiệm.
           </p>
         </div>
         <div className="bms-page-actions">
@@ -920,7 +890,7 @@ export default function CreateTestOrderPage() {
             onClick={loadWorklist}
             disabled={loadingWorklist}
           >
-            <FaSync className={loadingWorklist ? "fa-spin me-1" : "me-1"} size={11} /> Làm mới
+            <RefreshCw className={loadingWorklist ? "fa-spin me-1" : "me-1"} size={11} /> Làm mới
           </BsButton>
         </div>
       </div>
@@ -928,16 +898,16 @@ export default function CreateTestOrderPage() {
       {/* Thanh Lọc 1 Dòng & Pills Trạng Thái */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: "260px" }}>
-          <FaSearch className="bms-search-icon" />
+          <Search className="bms-search-icon"  size="1em"/>
           <input
             type="text"
-            placeholder="Tìm theo mã hẹn (APT-...), tên bệnh nhân, mã PAT-..., hoặc mã y lệnh ORD-..."
+            placeholder="Tìm theo mã hẹn (APT-...), tên bệnh nhân, mã PAT-..., hoặc mã chỉ định ORD-..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
           />
           {searchKeyword && (
             <button type="button" className="bms-search-clear" onClick={() => setSearchKeyword("")}>
-              <FaTimes size={12} />
+              <LucideX size={12} />
             </button>
           )}
         </div>
@@ -972,7 +942,7 @@ export default function CreateTestOrderPage() {
 
       {worklistError && (
         <Alert variant="danger" dismissible onClose={() => setWorklistError("")} className="py-2 mb-3 rounded-3 small">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {worklistError}
         </Alert>
       )}
@@ -981,7 +951,7 @@ export default function CreateTestOrderPage() {
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div className="d-flex align-items-center gap-2">
-            <FaClipboardList className="text-primary" />
+            <ClipboardList className="text-primary"  size="1em"/>
             <h6 className="fw-bold text-dark mb-0">Danh Sách Lịch Hẹn Bệnh Nhân (Từ Bàn Khám &amp; Hàng Đợi)</h6>
           </div>
           <Badge bg="light" text="dark" className="border rounded-pill px-3 py-1">
@@ -996,7 +966,7 @@ export default function CreateTestOrderPage() {
                 <th className="ps-3" style={{ width: "17%" }}>STT &amp; Mã Lịch Hẹn</th>
                 <th style={{ width: "20%" }}>Bệnh Nhân</th>
                 <th style={{ width: "24%" }}>Gói Đã Đặt Tại Quầy</th>
-                <th style={{ width: "21%" }}>Trạng Thái Y Lệnh</th>
+                <th style={{ width: "21%" }}>Trạng Thái Chỉ Định</th>
                 <th className="text-end pe-3" style={{ width: "18%" }}>Thao Tác</th>
               </tr>
             </thead>
@@ -1011,7 +981,7 @@ export default function CreateTestOrderPage() {
               ) : filteredEncounters.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-5">
-                    <FaUserInjured className="fs-2 text-muted opacity-25 mb-2" />
+                    <User className="fs-2 text-muted opacity-25 mb-2"  size="1em"/>
                     <div className="fw-bold text-dark mb-1">
                       {searchKeyword || statusFilter !== "ALL"
                         ? "Không có lịch hẹn nào khớp với bộ lọc hiện tại"
@@ -1025,7 +995,7 @@ export default function CreateTestOrderPage() {
                       className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold text-white"
                       style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                     >
-                      <FaBullhorn className="me-1.5" /> Mở Bàn Khám &amp; Gọi Số
+                      <Megaphone className="me-1.5"  size="1em"/> Mở Bàn Khám &amp; Gọi Số
                     </Link>
                   </td>
                 </tr>
@@ -1079,7 +1049,7 @@ export default function CreateTestOrderPage() {
                               ✓ {formatDispatchedStatusLabel(ord.status)}
                             </Badge>
                             <div className="small text-muted font-monospace mt-0.5">
-                              Y lệnh: <strong>{ord.orderNumber}</strong>
+                              Chỉ định: <strong>{ord.orderNumber}</strong>
                             </div>
                           </div>
                         ) : draft ? (
@@ -1101,7 +1071,7 @@ export default function CreateTestOrderPage() {
                         {dispatched ? (
                           <div className="d-inline-flex align-items-center gap-1.5">
                             <span className="badge bg-success text-white rounded-pill px-2.5 py-1.5 small fw-semibold">
-                              <FaCheck className="me-1" /> Đã chuyển Lab
+                              <LucideCheck className="me-1"  size="1em"/> Đã chuyển Lab
                             </span>
                             {(String(ord.status || "").toLowerCase() === "paidpendingsample" ||
                               String(ord.status || "").toLowerCase() === "ordered") && (
@@ -1109,10 +1079,10 @@ export default function CreateTestOrderPage() {
                                   variant="outline-danger"
                                   size="sm"
                                   className="rounded-pill px-2 py-1"
-                                  title="Hủy y lệnh trước khi Lab lấy mẫu"
+                                  title="Hủy chỉ định trước khi Lab lấy mẫu"
                                   onClick={() => setCancelTargetOrder(ord)}
                                 >
-                                  <FaBan size={11} />
+                                  <Ban size={11} />
                                 </BsButton>
                               )}
                           </div>
@@ -1124,7 +1094,7 @@ export default function CreateTestOrderPage() {
                             style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                             onClick={() => handleOpenClinicalModal(enc)}
                           >
-                            <FaStethoscope className="me-1.5" />
+                            <Stethoscope className="me-1.5"  size="1em"/>
                             {draft ? "Mở bản nháp & Chuyển" : "Chỉ định xét nghiệm"}
                           </BsButton>
                         )}
@@ -1152,7 +1122,7 @@ export default function CreateTestOrderPage() {
       >
         <Modal.Header closeButton={!submitting} className="bg-light border-bottom py-2.5 px-3">
           <Modal.Title className="h6 fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
-            <FaStethoscope className="text-primary" />
+            <Stethoscope className="text-primary"  size="1em"/>
             <span>Khám Lâm Sàng &amp; Chỉ Định Xét Nghiệm</span>
             {activeModalEncounter && (
               <Badge bg="primary" pill className="font-monospace">
@@ -1170,7 +1140,7 @@ export default function CreateTestOrderPage() {
         <Modal.Body className="p-3" style={{ backgroundColor: "#F8FAFC" }}>
           {modalError && (
             <Alert variant="danger" dismissible onClose={() => setModalError("")} className="py-2 px-3 mb-3 rounded-3 small">
-              <FaExclamationTriangle className="me-2" />
+              <AlertTriangle className="me-2"  size="1em"/>
               {modalError}
             </Alert>
           )}
@@ -1179,10 +1149,10 @@ export default function CreateTestOrderPage() {
           {dispatchedOrderResult && (
             <Alert variant="success" className="p-3 mb-3 rounded-4 border-success shadow-sm">
               <div className="d-flex align-items-center gap-3">
-                <FaCheckCircle className="fs-2 text-success flex-shrink-0" />
+                <CheckCircle2 className="fs-2 text-success flex-shrink-0"  size="1em"/>
                 <div>
                   <div className="fw-bold text-dark fs-6">
-                    Đã Ký &amp; Chuyển Y Lệnh #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
+                    Đã Ký &amp; Chuyển Chỉ Định #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
                   </div>
                 </div>
               </div>
@@ -1198,7 +1168,7 @@ export default function CreateTestOrderPage() {
                     className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
                     style={{ width: 38, height: 38, backgroundColor: "#1E60E6" }}
                   >
-                    <FaUserInjured />
+                    <User  size="1em"/>
                   </div>
                   <div>
                     <div className="fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
@@ -1243,7 +1213,7 @@ export default function CreateTestOrderPage() {
                   <Card className="border-0 shadow-xs rounded-4 mb-3 bg-white">
                     <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
-                        <FaHeartbeat className="text-danger" /> 1. Khám Lâm Sàng, Sinh Hiệu &amp; Chẩn Đoán ICD-10
+                        <HeartPulse className="text-danger"  size="1em"/> 1. Khám Lâm Sàng, Sinh Hiệu &amp; Chẩn Đoán ICD-10
                       </span>
                       <Form.Check
                         type="switch"
@@ -1332,7 +1302,7 @@ export default function CreateTestOrderPage() {
                               >
                                 <span className="font-monospace fw-bold">{code}</span>
                                 {!dispatchedOrderResult && (
-                                  <FaTimes style={{ cursor: "pointer" }} onClick={() => handleRemoveIcd(code)} />
+                                  <LucideX style={{ cursor: "pointer" }} onClick={() => handleRemoveIcd(code)} />
                                 )}
                               </span>
                             ))}
@@ -1451,7 +1421,7 @@ export default function CreateTestOrderPage() {
 
                     <div className="p-2 border-bottom d-flex gap-2 bg-light">
                       <div className="bms-search-input-pill flex-grow-1 bg-white">
-                        <FaSearch className="bms-search-icon" />
+                        <Search className="bms-search-icon"  size="1em"/>
                         <input
                           type="text"
                           placeholder="Tìm thêm gói hoặc chỉ số xét nghiệm (CBC, GLU, ANTI-TPO...)..."
@@ -1528,7 +1498,7 @@ export default function CreateTestOrderPage() {
                   <Card className="border-0 shadow-xs rounded-4 bg-white h-100">
                     <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
-                        <FaLayerGroup className="text-primary" /> 3. Tách Ống Máu &amp; Chuyển Lab
+                        <Layers className="text-primary"  size="1em"/> 3. Tách Ống Máu &amp; Chuyển Lab
                       </span>
                       <Badge bg="primary" pill>{autoTubeGroups.length} ống mẫu</Badge>
                     </Card.Header>
@@ -1579,7 +1549,7 @@ export default function CreateTestOrderPage() {
                               onChange={(e) => setFastingConfirmed(e.target.checked)}
                               label={
                                 <span className="small fw-semibold text-dark">
-                                  Xác nhận tiền phân tích: Bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h theo chuẩn ISO 15189.
+                                  Xác nhận: Bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h trước khi lấy mẫu.
                                 </span>
                               }
                             />
@@ -1594,7 +1564,7 @@ export default function CreateTestOrderPage() {
                           <strong className="text-dark small">{selectedTests.length} mục</strong>
                         </div>
                         <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-bold text-dark">Tổng chi phí y lệnh:</span>
+                          <span className="fw-bold text-dark">Tổng chi phí chỉ định:</span>
                           <span className="fs-5 fw-bold font-monospace" style={{ color: "#1E60E6" }}>
                             {totalAmount.toLocaleString("vi-VN")} đ
                           </span>
@@ -1629,7 +1599,7 @@ export default function CreateTestOrderPage() {
                 disabled={submitting || selectedTests.length === 0}
                 onClick={() => handleDispatchToLab(true)}
               >
-                <FaSave className="me-1" /> Lưu Bản Nháp
+                <Save className="me-1"  size="1em"/> Lưu Bản Nháp
               </BsButton>
 
               <BsButton
@@ -1647,7 +1617,7 @@ export default function CreateTestOrderPage() {
                   </>
                 ) : (
                   <>
-                    <FaPaperPlane />
+                    <Send  size="1em"/>
                     <span>Ký &amp; Chuyển Xuống Phòng Lab</span>
                   </>
                 )}
@@ -1657,23 +1627,23 @@ export default function CreateTestOrderPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* MODAL XÁC NHẬN HỦY Y LỆNH TRƯỚC KHI LẤY MẪU */}
+      {/* MODAL XÁC NHẬN HỦY CHỈ ĐỊNH TRƯỚC KHI LẤY MẪU */}
       <Modal show={Boolean(cancelTargetOrder)} onHide={() => setCancelTargetOrder(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="h6 fw-bold text-danger">
-            Xác Nhận Hủy Y Lệnh #{cancelTargetOrder?.orderNumber || cancelTargetOrder?.id}
+            Xác Nhận Hủy Chỉ Định #{cancelTargetOrder?.orderNumber || cancelTargetOrder?.id}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p className="small text-muted mb-2">
-            Bác sĩ chỉ có thể hủy y lệnh trước khi Phòng Lab lấy mẫu máu. Thao tác này sẽ được lưu vết trong Audit Log.
+            Bác sĩ chỉ có thể hủy chỉ định trước khi Phòng Lab lấy mẫu máu. Thao tác này sẽ được lưu vết trong Audit Log.
           </p>
           <Form.Control
             as="textarea"
             rows={2}
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
-            placeholder="Nhập lý do hủy y lệnh..."
+            placeholder="Nhập lý do hủy chỉ định..."
           />
         </Modal.Body>
         <Modal.Footer>
@@ -1687,7 +1657,7 @@ export default function CreateTestOrderPage() {
             disabled={cancelBusy || !cancelReason.trim()}
             onClick={handleConfirmCancelOrder}
           >
-            {cancelBusy ? "Đang hủy..." : "Xác nhận Hủy Y Lệnh"}
+            {cancelBusy ? "Đang hủy..." : "Xác nhận Hủy Chỉ Định"}
           </BsButton>
         </Modal.Footer>
       </Modal>

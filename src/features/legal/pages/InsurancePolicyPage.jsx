@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHospital, FaIdCard, FaPercentage, FaCheckCircle, FaFileInvoiceDollar, FaExclamationTriangle, FaPhoneAlt, FaNotesMedical } from 'react-icons/fa';
+import { Hospital, IdCard, Percent, CheckCircle2, Receipt, AlertTriangle, Phone, FileText } from 'lucide-react';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
@@ -32,7 +32,7 @@ export default function InsurancePolicyPage() {
               }}
             >
               <div className="d-flex align-items-center gap-2 mb-2.5" style={{ fontSize: '12px', color: '#1E60E6', fontWeight: 700, letterSpacing: '0.04em' }}>
-                <FaHospital style={{ fontSize: '15px' }} />
+                <Hospital style={{ fontSize: '15px' }}  size="1em"/>
                 <span>CHÍNH SÁCH BẢO HIỂM Y TẾ · NGHỊ ĐỊNH 75/2023/NĐ-CP &amp; THÔNG TƯ 22/2023/TT-BYT</span>
               </div>
               <h1 className="fw-bold mb-3" style={{ fontSize: '30px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
@@ -130,25 +130,25 @@ export default function InsurancePolicyPage() {
                 </p>
                 <div className="d-flex flex-column gap-2">
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Căn cước công dân gắn chip hoặc ứng dụng VNeID (Mức 2):</strong> Đã tích hợp thông tin thẻ BHYT hợp lệ.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Ứng dụng VssID (Bảo hiểm xã hội số):</strong> Mở hình ảnh thẻ BHYT trực tuyến trên màn hình điện thoại thông minh.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Thẻ BHYT bản giấy còn thời hạn sử dụng:</strong> Kèm theo giấy tờ tùy thân có ảnh hợp pháp (CCCD, Hộ chiếu, Giấy phép lái xe).
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Giấy chuyển tuyến khám chữa bệnh BHYT (nếu có):</strong> Để được hưởng 100% mức quyền lợi đúng tuyến khi điều trị chuyên khoa.
                     </span>
@@ -217,7 +217,7 @@ export default function InsurancePolicyPage() {
                 </h2>
                 <div className="p-3" style={{ background: '#FFFBEB', borderRadius: '14px', border: '1px solid #FDE68A' }}>
                   <div className="d-flex align-items-center gap-2 mb-2 text-warning-emphasis fw-bold" style={{ fontSize: '14px' }}>
-                    <FaExclamationTriangle />
+                    <AlertTriangle  size="1em"/>
                     <span>Lưu ý theo quy định của Luật Bảo hiểm Y tế</span>
                   </div>
                   <ul className="mb-0 ps-3 text-muted" style={{ fontSize: '13px', lineHeight: 1.7 }}>
@@ -239,11 +239,11 @@ export default function InsurancePolicyPage() {
                 </p>
                 <div className="d-flex flex-wrap gap-4 mt-2">
                   <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
-                    <FaPhoneAlt style={{ color: '#1E60E6' }} />
-                    <span>Hotline Hỗ Trợ BHYT: <strong>1900 8686 (Bấm phím 1)</strong></span>
+                    <Phone style={{ color: '#1E60E6' }}  size="1em"/>
+                    <span>Hotline Hỗ Trợ BHYT: <strong>1900 6868 (Bấm phím 1)</strong></span>
                   </div>
                   <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
-                    <FaNotesMedical style={{ color: '#10B981' }} />
+                    <FileText style={{ color: '#10B981' }}  size="1em"/>
                     <span>Email thẩm định hồ sơ: <strong>bhyt@bmslab.vn</strong></span>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { FaPrint, FaTimes } from 'react-icons/fa';
+import { Printer, X } from 'lucide-react';
 
 export default function ReceiptPrintModal({ printData, onClose }) {
     const receiptRef = useRef(null);
@@ -105,7 +105,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 boxShadow: '0 2px 8px rgba(30, 96, 230, 0.3)',
                             }}
                         >
-                            <FaPrint size={13} />
+                            <Printer size={13} />
                             <span>In Ngay</span>
                         </button>
                         <button
@@ -122,7 +122,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 alignItems: 'center',
                             }}
                         >
-                            <FaTimes size={13} />
+                            <X size={13} />
                         </button>
                     </div>
                 </div>
@@ -366,7 +366,7 @@ export default function ReceiptPrintModal({ printData, onClose }) {
                                 gap: '6px',
                             }}
                         >
-                            <FaPrint size={13} />
+                            <Printer size={13} />
                             <span>In Biên Lai (K80)</span>
                         </button>
                     </div>

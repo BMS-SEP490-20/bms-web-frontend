@@ -10,12 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import {
-  FaArrowLeft,
-  FaStethoscope,
-  FaClipboardList,
-  FaUserMd
-} from 'react-icons/fa';
+import { ArrowLeft, Stethoscope, ClipboardList } from 'lucide-react';
 import MedicalAssessmentForm from '../components/MedicalAssessmentForm';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 
@@ -86,7 +81,7 @@ export default function AddMedicalAssessmentPage() {
             onClick={() => navigate('/medical-assessments')}
             className="d-inline-flex align-items-center gap-2 rounded-pill px-3 text-nowrap"
           >
-            <FaClipboardList /> Danh sách đánh giá
+            <ClipboardList  size="1em"/> Danh sách đánh giá
           </Button>
           <Button
             variant="outline-primary"
@@ -94,7 +89,7 @@ export default function AddMedicalAssessmentPage() {
             onClick={() => navigate('/doctor/console')}
             className="d-inline-flex align-items-center gap-2 rounded-pill px-3 text-nowrap"
           >
-            <FaUserMd /> Bàn khám bác sĩ
+            <Stethoscope  size="1em"/> Bàn khám bác sĩ
           </Button>
         </div>
       </div>
@@ -109,7 +104,7 @@ export default function AddMedicalAssessmentPage() {
           <h5>Không tìm thấy dữ liệu</h5>
           <p>{fetchError}</p>
           <Button variant="outline-danger" onClick={() => navigate('/medical-assessments')}>
-            <FaArrowLeft className="me-2" /> Quay lại danh sách
+            <ArrowLeft className="me-2"  size="1em"/> Quay lại danh sách
           </Button>
         </Alert>
       ) : (

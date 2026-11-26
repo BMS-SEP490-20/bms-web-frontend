@@ -5,10 +5,7 @@
 
 import React from 'react';
 import { Modal, Button, Spinner, Alert, Nav, Badge } from 'react-bootstrap';
-import {
-  FaIdCard, FaPhoneAlt, FaEnvelope, FaTint, FaExclamationTriangle,
-  FaHeartbeat, FaCalendarCheck, FaNotesMedical, FaMapMarkerAlt, FaUserFriends
-} from 'react-icons/fa';
+import { IdCard, Phone, Mail, Droplet, AlertTriangle, HeartPulse, CalendarCheck, FileText, MapPin, Users } from 'lucide-react';
 
 function formatDate(val) {
   if (!val) return '—';
@@ -77,7 +74,7 @@ export default function PatientDetailModal({
     >
       <Modal.Header closeButton className="bms-pd-header border-0">
         <Modal.Title className="h5 fw-bold mb-0 d-flex align-items-center gap-2">
-          <span className="bms-pd-title-icon"><FaIdCard /></span>
+          <span className="bms-pd-title-icon"><IdCard  size="1em"/></span>
           Hồ sơ chi tiết bệnh nhân
         </Modal.Title>
       </Modal.Header>
@@ -85,7 +82,7 @@ export default function PatientDetailModal({
       <Modal.Body className="bms-pd-body">
         {error && (
           <Alert variant="danger" className="border-0 rounded-3 mb-3">
-            <FaExclamationTriangle className="me-2" />
+            <AlertTriangle className="me-2"  size="1em"/>
             {error}
           </Alert>
         )}
@@ -117,11 +114,11 @@ export default function PatientDetailModal({
                 </div>
                 <div className="d-flex flex-wrap gap-2 mt-2">
                   <span className="bms-pd-chip bms-pd-chip-muted">
-                    <FaTint className="me-1" /> Nhóm máu: {patient.bloodType || 'Chưa rõ'}
+                    <Droplet className="me-1"  size="1em"/> Nhóm máu: {patient.bloodType || 'Chưa rõ'}
                   </span>
                   {allergies.length > 0 ? (
                     <span className="bms-pd-chip bms-pd-chip-warn">
-                      <FaExclamationTriangle className="me-1" />
+                      <AlertTriangle className="me-1"  size="1em"/>
                       Dị ứng: {allergies.join(', ')}
                     </span>
                   ) : (
@@ -130,9 +127,9 @@ export default function PatientDetailModal({
                 </div>
               </div>
               <div className="bms-pd-identity-side">
-                <div className="bms-pd-contact-row"><FaPhoneAlt /> {patient.phoneNumber || '—'}</div>
-                <div className="bms-pd-contact-row"><FaEnvelope /> {patient.email || '—'}</div>
-                <div className="bms-pd-contact-row"><FaIdCard /> CCCD: <span className="font-monospace">{patient.identityNumber || '—'}</span></div>
+                <div className="bms-pd-contact-row"><Phone  size="1em"/> {patient.phoneNumber || '—'}</div>
+                <div className="bms-pd-contact-row"><Mail  size="1em"/> {patient.email || '—'}</div>
+                <div className="bms-pd-contact-row"><IdCard  size="1em"/> CCCD: <span className="font-monospace">{patient.identityNumber || '—'}</span></div>
                 <div className="bms-pd-contact-row text-muted">Lập hồ sơ: {formatDate(patient.createdAt)}</div>
               </div>
             </section>
@@ -143,7 +140,7 @@ export default function PatientDetailModal({
                   active={activeTab === 'summary'}
                   onClick={() => onTabChange?.('summary')}
                 >
-                  <FaHeartbeat className="me-1" /> Hành chính & sinh hiệu
+                  <HeartPulse className="me-1"  size="1em"/> Hành chính & sinh hiệu
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
@@ -151,7 +148,7 @@ export default function PatientDetailModal({
                   active={activeTab === 'appointments'}
                   onClick={() => onTabChange?.('appointments')}
                 >
-                  <FaCalendarCheck className="me-1" /> Lịch hẹn ({patient.recentAppointments?.length || 0})
+                  <CalendarCheck className="me-1"  size="1em"/> Lịch hẹn ({patient.recentAppointments?.length || 0})
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
@@ -159,7 +156,7 @@ export default function PatientDetailModal({
                   active={activeTab === 'records'}
                   onClick={() => onTabChange?.('records')}
                 >
-                  <FaNotesMedical className="me-1" /> Bệnh án ({patient.recentMedicalRecords?.length || 0})
+                  <FileText className="me-1"  size="1em"/> Bệnh án ({patient.recentMedicalRecords?.length || 0})
                 </Nav.Link>
               </Nav.Item>
             </Nav>
@@ -179,7 +176,7 @@ export default function PatientDetailModal({
                       label="Địa chỉ"
                       value={
                         <span className="d-inline-flex align-items-start gap-1">
-                          <FaMapMarkerAlt className="mt-1 text-muted flex-shrink-0" />
+                          <MapPin className="mt-1 text-muted flex-shrink-0"  size="1em"/>
                           {patient.address || 'Chưa cập nhật'}
                         </span>
                       }
@@ -188,7 +185,7 @@ export default function PatientDetailModal({
                       label="Liên hệ khẩn cấp"
                       value={
                         <span className="d-inline-flex align-items-center gap-1">
-                          <FaUserFriends className="text-muted" />
+                          <Users className="text-muted"  size="1em"/>
                           {patient.emergencyContactName || '—'}
                           {patient.emergencyContactPhone ? ` · ${patient.emergencyContactPhone}` : ''}
                         </span>

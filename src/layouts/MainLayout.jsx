@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import PatientPortalLayout from './PatientPortalLayout';
 import { ROLES, resolveRoleId, getStoredUser } from '../constants/roles';
 import { Outlet } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa';
+import { Menu } from 'lucide-react';
 import Sidebar from '../components/Layout/Sidebar.jsx';
 
 /**
@@ -127,7 +127,7 @@ export default function MainLayout() {
               style={{ width: 36, height: 36, background: '#EEF2F6', border: 'none' }}
               aria-label="Mở menu"
             >
-              <FaBars size={16} style={{ color: '#475569' }} />
+              <Menu size={16} style={{ color: '#475569' }} />
             </button>
             <div className="d-flex align-items-center gap-2">
               <span className="fw-bold fs-6" style={{ color: '#1E60E6' }}>BMS Clinical Lab</span>
@@ -148,8 +148,6 @@ export default function MainLayout() {
               &copy; {new Date().getFullYear()} <strong>BMS Health</strong> — Clinical Laboratory Diagnostics Platform.
             </div>
             <div className="d-flex align-items-center gap-3" style={{ fontSize: '12px' }}>
-              <span className="text-muted">ISO 15189 Quality System</span>
-              <span className="text-secondary">•</span>
               <span style={{ color: '#0F3D1A', backgroundColor: '#EEF8EB', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600 }}>v1.0 Production</span>
             </div>
           </div>

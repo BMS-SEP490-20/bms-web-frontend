@@ -20,19 +20,7 @@ import {
   InputGroup
 } from 'react-bootstrap';
 import { canValidateSampleQc, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
-import {
-  FaVial,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaTimes,
-  FaSyncAlt,
-  FaLock,
-  FaSearch,
-  FaRedoAlt,
-  FaShieldAlt,
-  FaFlask,
-  FaEye
-} from 'react-icons/fa';
+import { TestTube2, CheckCircle2, AlertTriangle, X as LucideX, RefreshCw, Lock, Search, RotateCw, ShieldCheck, FlaskConical, Eye } from 'lucide-react';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
 import { sampleService } from '../../../services/sampleService';
 import api from '../../../config/api';
@@ -139,7 +127,7 @@ const ValidateSample = () => {
     } else if (defaultAssessment === 'CLOTTED') {
       setNotes('Mẫu có sợi huyết đông dây (Clotted). Khóa phân tích, từ chối chạy máy để bảo vệ kim hút.');
     } else {
-      setNotes('Mẫu đạt chuẩn thể tích và chất lượng tiền phân tích ISO 15189.');
+      setNotes('Mẫu đạt yêu cầu thể tích và chất lượng.');
     }
 
     setShowModal(true);
@@ -175,7 +163,7 @@ const ValidateSample = () => {
       if (isHemolysis) {
         try {
           await api.post(`/laboratory/samples/${encodeURIComponent(sampleId)}/rerun`, {
-            reason: `Mẫu tán huyết (Hemolysis) vi phạm tiêu chuẩn tiền phân tích ISO 15189: ${notes}`,
+            reason: `Mẫu tán huyết (Hemolysis) không đạt yêu cầu: ${notes}`,
             requestedBy: labUserName
           });
         } catch {
@@ -270,65 +258,59 @@ const ValidateSample = () => {
 
   return (
     <Container fluid className="py-2 px-md-4">
-      {/* Tiêu đề trang chuẩn y khoa */}
-      <header className="bms-page-header">
+      {/* Header Card */}
+      <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Kiểm chuẩn mẫu</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Kiểm tra chất lượng mẫu bệnh phẩm trước khi đưa vào phân tích
+          </p>
         </div>
 
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-1 shadow-sm">
-            <FaSyncAlt className={loading ? 'fa-spin' : ''} />
+        <div className="bms-page-actions">
+          <Button variant="outline-primary" size="sm" onClick={fetchSamples} disabled={loading} className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold" style={{ borderColor: '#1E60E6', color: '#1E60E6' }}>
+            <RefreshCw className={loading ? 'fa-spin' : ''} size={14} />
             <span>Làm mới</span>
           </Button>
         </div>
-      </header>
+      </div>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2" size="1em" />
           {error}
         </Alert>
       )}
 
-      {/* Thanh lọc và tìm kiếm */}
-      <Card className="bms-filter-bar border-0">
-        <Card.Body className="p-3">
-          <Row className="g-2 align-items-center">
-            <Col xs={12} md={6}>
-              <InputGroup size="sm">
-                <InputGroup.Text className="bg-light border-end-0">
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  className="bg-light border-start-0"
-                  placeholder="Tìm theo Mã mẫu, Barcode, Mã bệnh nhân hoặc Họ tên..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </InputGroup>
-            </Col>
-            <Col xs={6} md={3}>
-              <Form.Select
-                size="sm"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-light"
-              >
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ kiểm chuẩn (Collected / Received)</option>
-                <option value="validated">Đã kiểm chuẩn đạt (Validated)</option>
-                <option value="rejected">Bị từ chối / Khóa (Rejected)</option>
-              </Form.Select>
-            </Col>
-            <Col xs={6} md={3} className="text-end">
-              <span className="small text-muted">
-                Hiển thị: <strong className="text-primary">{filteredSamples.length}</strong> / {safeSamples.length} ống mẫu
-              </span>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      {/* Single-Line Filter Bar */}
+      <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
+          <Search className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Tìm theo Mã mẫu, Barcode, Mã bệnh nhân hoặc Họ tên..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Form.Select
+          size="sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-pill"
+          style={{ width: 'auto', minWidth: '210px', background: '#FFFFFF', paddingTop: '7px', paddingBottom: '7px' }}
+        >
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">Chờ kiểm chuẩn</option>
+          <option value="validated">Đã kiểm chuẩn đạt</option>
+          <option value="rejected">Đã từ chối</option>
+        </Form.Select>
+        <span className="bms-filter-meta">
+          Hiển thị <strong>{filteredSamples.length}</strong> / {safeSamples.length} mẫu
+        </span>
+      </div>
 
       {/* Bảng danh sách mẫu kiểm chuẩn */}
       <Card className="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
@@ -357,7 +339,7 @@ const ValidateSample = () => {
                 ) : filteredSamples.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="text-center py-3 text-muted">
-                      <FaVial className="fs-1 text-secondary opacity-50 mb-2" />
+                      <TestTube2 className="fs-1 text-secondary opacity-50 mb-2"  size="1em"/>
                       <div className="fw-semibold">Không tìm thấy mẫu xét nghiệm nào cần kiểm chuẩn</div>
                     </td>
                   </tr>
@@ -402,7 +384,7 @@ const ValidateSample = () => {
                           <div className="small text-muted text-truncate" style={{ maxWidth: '280px' }} title={sample.notes || 'Chưa ghi chú'}>
                             {sample.rejectionReason ? (
                               <span className="text-danger fw-semibold">
-                                <FaExclamationTriangle className="me-1" />
+                                <AlertTriangle className="me-1"  size="1em"/>
                                 {sample.rejectionReason}
                               </span>
                             ) : sample.notes ? (
@@ -425,7 +407,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'PASSED')}
                                   title="Xác nhận mẫu đạt chuẩn đưa vào phân tích"
                                 >
-                                  <FaCheckCircle />
+                                  <CheckCircle2  size="1em"/>
                                   <span>Đạt chuẩn</span>
                                 </Button>
                                 <Button
@@ -436,7 +418,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'HEMOLYSIS')}
                                   title="Báo mẫu tán huyết: Khóa phân tích & Lấy lại mẫu"
                                 >
-                                  <FaLock />
+                                  <Lock  size="1em"/>
                                   <span>Tán huyết</span>
                                 </Button>
                                 <Button
@@ -447,7 +429,7 @@ const ValidateSample = () => {
                                   onClick={() => openAssessmentModal(sample, 'CLOTTED')}
                                   title="Báo mẫu đông dây / vón cục"
                                 >
-                                  <FaExclamationTriangle />
+                                  <AlertTriangle  size="1em"/>
                                   <span>Đông dây</span>
                                 </Button>
                               </>
@@ -475,12 +457,12 @@ const ValidateSample = () => {
         <Form onSubmit={handleSubmitAssessment}>
           <Modal.Header closeButton={!submitting} className="bg-light">
             <Modal.Title className="fs-5 fw-bold d-flex align-items-center gap-2">
-              <FaShieldAlt className="text-primary" />
-              <span>Kiểm Chuẩn Chất Lượng Tiền Phân Tích (ISO 15189:2022)</span>
+              <ShieldCheck className="text-primary"  size="1em"/>
+              <span>Kiểm Tra Chất Lượng Mẫu Trước Phân Tích</span>
             </Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="p-2">
+          <Modal.Body>
             {selectedSample && (
               <div className="p-3 bg-light rounded-3 border mb-3">
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -523,7 +505,7 @@ const ValidateSample = () => {
                         } else if (opt.id === 'CLOTTED') {
                           setNotes('Mẫu có sợi huyết đông dây (Clotted). Khóa phân tích, từ chối chạy máy để bảo vệ kim hút.');
                         } else if (opt.id === 'PASSED') {
-                          setNotes('Mẫu đạt chuẩn thể tích và chất lượng tiền phân tích ISO 15189.');
+                          setNotes('Mẫu đạt yêu cầu thể tích và chất lượng.');
                         }
                       }}
                     >
@@ -551,9 +533,9 @@ const ValidateSample = () => {
             {/* CẢNH BÁO RÀNG BUỘC NGHIỆP VỤ TÁN HUYẾT */}
             {assessmentType === 'HEMOLYSIS' && (
               <Alert variant="danger" className="d-flex align-items-center gap-2 rounded-3 border-danger">
-                <FaLock className="fs-3 text-danger flex-shrink-0" />
+                <Lock className="fs-3 text-danger flex-shrink-0"  size="1em"/>
                 <div className="small">
-                  <strong>RÀNG BUỘC NGHIỆP VỤ BẮT BUỘC (ISO 15189):</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>. 
+                  <strong>LƯU Ý:</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>, cần từ chối và lấy lại. 
                   Hệ thống sẽ ngay lập tức <strong>Khóa phân tích mẫu này trên máy tự động</strong> và tự động chuyển yêu cầu 
                   <strong> Lấy lại mẫu mới (Recollect / Rerun)</strong> đến khoa phòng chỉ định.
                 </div>
@@ -563,7 +545,7 @@ const ValidateSample = () => {
             {/* CẢNH BÁO RÀNG BUỘC ĐÔNG DÂY */}
             {assessmentType === 'CLOTTED' && (
               <Alert variant="warning" className="d-flex align-items-center gap-2 rounded-3 border-warning">
-                <FaExclamationTriangle className="fs-3 text-warning-emphasis flex-shrink-0" />
+                <AlertTriangle className="fs-3 text-warning-emphasis flex-shrink-0"  size="1em"/>
                 <div className="small text-dark">
                   <strong>CẢNH BÁO AN TOÀN THIẾT BỊ:</strong> Mẫu bị <strong>Đông dây / Vón cục (Clotted)</strong>. 
                   Khóa phân tích để ngăn ngừa tắc kim hút và hỏng cảm biến máy phân tích tự động. Yêu cầu lấy lại mẫu.
@@ -604,17 +586,17 @@ const ValidateSample = () => {
                 </>
               ) : activeOption.isHemolysis ? (
                 <>
-                  <FaLock />
+                  <Lock  size="1em"/>
                   <span>Xác Nhận Tán Huyết &amp; Khóa Phân Tích</span>
                 </>
               ) : activeOption.status === 'rejected' ? (
                 <>
-                  <FaTimes />
+                  <LucideX  size="1em"/>
                   <span>Từ Chối Mẫu &amp; Yêu Cầu Lấy Lại</span>
                 </>
               ) : (
                 <>
-                  <FaCheckCircle />
+                  <CheckCircle2  size="1em"/>
                   <span>Xác Nhận Đạt Chuẩn Phân Tích</span>
                 </>
               )}

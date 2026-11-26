@@ -7,17 +7,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import {
-    FaRedo,
-    FaArrowLeft,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaInfoCircle,
-    FaVial,
-    FaMicroscope,
-    FaUserMd,
-    FaTimes
-} from "react-icons/fa";
+import { RotateCw, ArrowLeft, AlertTriangle, CheckCircle2, Info, TestTube2, Microscope, Stethoscope, X } from 'lucide-react';
 import {
     fetchOpenReruns,
     fetchSampleRerunDetails,
@@ -179,14 +169,14 @@ export default function SampleRerunPage() {
                         to="/lab/queue"
                         className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
                     >
-                        <FaVial /> Hàng đợi mẫu
+                        <TestTube2  size="1em"/> Hàng đợi mẫu
                     </Link>
                     <button
                         type="button"
                         className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 text-nowrap"
                         onClick={() => navigate(-1)}
                     >
-                        <FaArrowLeft /> Quay lại
+                        <ArrowLeft  size="1em"/> Quay lại
                     </button>
                 </div>
             </div>
@@ -195,7 +185,7 @@ export default function SampleRerunPage() {
             {successMessage && (
                 <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
                     <div className="d-flex align-items-center gap-2">
-                        <FaCheckCircle className="text-success fs-5 flex-shrink-0" />
+                        <CheckCircle2 className="text-success fs-5 flex-shrink-0"  size="1em"/>
                         <div>{successMessage}</div>
                     </div>
                     <button
@@ -210,7 +200,7 @@ export default function SampleRerunPage() {
 
             {errorMessage && (
                 <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 p-3 mb-4 rounded-3">
-                    <FaExclamationTriangle className="text-danger fs-5 flex-shrink-0" />
+                    <AlertTriangle className="text-danger fs-5 flex-shrink-0"  size="1em"/>
                     <div>{errorMessage}</div>
                 </div>
             )}
@@ -226,7 +216,7 @@ export default function SampleRerunPage() {
                     <div className="col-lg-7">
                         {!sampleDetails ? (
                             <div className="card shadow-sm rounded-4 p-5 text-center h-100 d-flex flex-column justify-content-center" style={{ border: "1px solid #E2E8F0" }}>
-                                <FaExclamationTriangle className="text-warning fs-1 mx-auto mb-3 opacity-75" />
+                                <AlertTriangle className="text-warning fs-1 mx-auto mb-3 opacity-75"  size="1em"/>
                                 <h5 className="fw-bold text-dark">Không tìm thấy mẫu bệnh phẩm</h5>
                                 <p className="text-muted small mb-4">
                                     {targetSampleId
@@ -235,7 +225,7 @@ export default function SampleRerunPage() {
                                 </p>
                                 <div>
                                     <Link to="/lab/queue" className="btn btn-primary btn-sm rounded-pill px-4 d-inline-flex align-items-center gap-2 text-nowrap" style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}>
-                                        <FaVial /> Mở hàng đợi mẫu xét nghiệm
+                                        <TestTube2  size="1em"/> Mở hàng đợi mẫu xét nghiệm
                                     </Link>
                                 </div>
                             </div>
@@ -243,7 +233,7 @@ export default function SampleRerunPage() {
                             <div className="card shadow-sm rounded-4" style={{ border: "1px solid #E2E8F0" }}>
                                 <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
                                     <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-                                        <FaRedo style={{ color: "#1E60E6" }} /> Phiếu yêu cầu chạy lại mẫu — <span className="font-monospace" style={{ color: "#1E60E6" }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
+                                        <RotateCw style={{ color: "#1E60E6" }}  size="1em"/> Phiếu yêu cầu chạy lại mẫu — <span className="font-monospace" style={{ color: "#1E60E6" }}>{sampleDetails.barcode || sampleDetails.sampleId}</span>
                                     </h5>
                                 </div>
                                 <div className="card-body p-4">
@@ -369,7 +359,7 @@ export default function SampleRerunPage() {
                                             disabled={submitting}
                                             onClick={handleSubmit}
                                         >
-                                            <FaRedo /> {submitting ? "Đang gửi yêu cầu..." : "Gửi yêu cầu chạy lại"}
+                                            <RotateCw  size="1em"/> {submitting ? "Đang gửi yêu cầu..." : "Gửi yêu cầu chạy lại"}
                                         </button>
                                         <button
                                             type="button"

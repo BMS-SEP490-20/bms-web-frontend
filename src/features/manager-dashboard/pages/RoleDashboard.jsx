@@ -9,33 +9,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Badge, Button, Alert, Spinner } from 'react-bootstrap';
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaVial,
-  FaClipboardCheck,
-  FaStopwatch,
-  FaTemperatureHigh,
-  FaDoorOpen,
-  FaSlidersH,
-  FaMoneyBillWave,
-  FaArrowRight,
-  FaSyncAlt,
-  FaHeartbeat,
-  FaStethoscope,
-  FaUserMd,
-  FaNotesMedical,
-  FaFlask,
-  FaQrcode,
-  FaUserPlus,
-  FaClock,
-  FaReceipt,
-  FaDatabase,
-  FaUserCog,
-  FaUsers,
-  FaServer,
-  FaHistory
-} from 'react-icons/fa';
+import { CheckCircle2, AlertTriangle, TestTube2, ClipboardCheck, Timer, Thermometer, DoorOpen, SlidersHorizontal, Banknote, ArrowRight, RefreshCw, HeartPulse, Stethoscope, FileText, FlaskConical, QrCode, UserPlus, Clock, CalendarCheck, Receipt, Database, UserCog, Users, Server, History } from 'lucide-react';
 import api from '../../../config/api';
 import { fetchVerificationQueue } from '../../laboratory/api/testResultVerificationApi';
 import { getAdminOps } from '../../admin/services/adminOpsService';
@@ -47,7 +21,7 @@ const NUM = new Intl.NumberFormat('vi-VN');
 const ROLE_META = {
   Admin: {
     title: 'Bảng Điều Khiển Quản Trị Hệ Thống',
-    subtitle: 'Giám sát tài khoản nhân sự, nhật ký kiểm toán, sao lưu dữ liệu và hạ tầng cảm biến.'
+    subtitle: 'Giám sát tài khoản nhân sự (IAM), phân quyền vai trò (RBAC), nhật ký kiểm toán và sao lưu dữ liệu.'
   },
   Manager: {
     title: 'Bảng Điều Khiển Trưởng Khoa Xét Nghiệm',
@@ -220,7 +194,7 @@ export default function RoleBasedDashboard() {
               onClick={loadDashboardData}
               disabled={loading}
             >
-              <FaSyncAlt className={loading ? 'fa-spin' : ''} size={12} />
+              <RefreshCw className={loading ? 'fa-spin' : ''} size={12} />
               <span>{loading ? 'Đang tải...' : 'Làm mới'}</span>
             </Button>
           </div>
@@ -229,7 +203,7 @@ export default function RoleBasedDashboard() {
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')} className="mb-4">
-          <FaExclamationTriangle className="me-2" />
+          <AlertTriangle className="me-2"  size="1em"/>
           {error}
         </Alert>
       )}
@@ -245,7 +219,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.managerData?.totalOrdersToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-muted">Tổng lượt chỉ định trong ngày</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaClipboardCheck /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><ClipboardCheck  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -255,7 +229,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{VND.format(stats?.managerData?.revenueToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Tổng hóa đơn đã thanh toán</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaMoneyBillWave /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><Banknote  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -267,7 +241,7 @@ export default function RoleBasedDashboard() {
                   </div>
                   <div className="bms-kpi-sub text-muted">Chỉ số hiệu suất TAT</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaStopwatch /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><Timer  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -283,7 +257,7 @@ export default function RoleBasedDashboard() {
                       : `${stats.managerData.activeAlertsCount} cảnh báo vượt ngưỡng`}
                   </div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaTemperatureHigh /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><Thermometer  size="1em"/></div>
               </div>
             </Col>
           </Row>
@@ -298,7 +272,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.doctorData?.todayAppointmentsCount ?? doctorAppointments.length)}</div>
                   <div className="bms-kpi-sub text-primary">Ca khám phân công trong ngày</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserMd /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Stethoscope  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -308,7 +282,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.doctorData?.pendingApprovalsCount ?? 0)}</div>
                   <div className="bms-kpi-sub text-muted">Phiếu xét nghiệm cần hội chẩn</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaClipboardCheck /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><ClipboardCheck  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -318,7 +292,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{stats?.doctorData?.reviewedTodayCount ?? 0}</div>
                   <div className="bms-kpi-sub text-success">Đã thẩm định trong ca</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><CheckCircle2  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -328,7 +302,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value fs-4">{stats?.doctorData?.currentShiftName || '—'}</div>
                   <div className="bms-kpi-sub text-muted">{stats?.doctorData?.currentShiftWindow || 'Theo lịch phân công'}</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaStethoscope /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><Stethoscope  size="1em"/></div>
               </div>
             </Col>
           </Row>
@@ -343,7 +317,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.queueWaitingCount ?? 0)}</div>
                   <div className="bms-kpi-sub text-primary">Hàng đợi tiếp nhận phòng Lab</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><TestTube2  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -353,7 +327,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.inProgressCount ?? 0)}</div>
                   <div className="bms-kpi-sub text-muted">Đang chạy máy xét nghiệm</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaFlask /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FlaskConical  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -363,7 +337,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.completedTodayCount ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Đã ghi nhận kết quả đo lường</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><CheckCircle2  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -373,7 +347,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.labUserData?.rerunRequestedCount ?? 0)}</div>
                   <div className="bms-kpi-sub text-muted">Mẫu cần kiểm tra đối chiếu lại</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaExclamationTriangle /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><AlertTriangle  size="1em"/></div>
               </div>
             </Col>
           </Row>
@@ -388,7 +362,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.checkInsToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Tiếp đón tại quầy và quét QR</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaQrcode /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><QrCode  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -398,7 +372,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.waitingQueueCount ?? receptionQueue.length)}</div>
                   <div className="bms-kpi-sub text-primary">Bệnh nhân tại sảnh chờ</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaClock /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Clock  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -408,7 +382,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(stats?.receptionistData?.totalWalkIns ?? 0)}</div>
                   <div className="bms-kpi-sub text-muted">Hồ sơ đăng ký trực tiếp tại quầy</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserPlus /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><UserPlus  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -418,7 +392,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{VND.format(stats?.receptionistData?.paymentsCollectedToday ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">Xuất hóa đơn điện tử 100%</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaReceipt /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><Receipt  size="1em"/></div>
               </div>
             </Col>
           </Row>
@@ -433,7 +407,7 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(totalAdminUsers)}</div>
                   <div className="bms-kpi-sub text-muted">Nhân sự y tế và bệnh nhân</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUsers /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Users  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -443,17 +417,17 @@ export default function RoleBasedDashboard() {
                   <div className="bms-kpi-value">{NUM.format(adminOps?.logins?.distinctAccountsLast24h ?? 0)}</div>
                   <div className="bms-kpi-sub text-success">{NUM.format(adminOps?.logins?.distinctAccountsLast7d ?? 0)} tài khoản trong 7 ngày</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCog /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-green"><UserCog  size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <div className="bms-kpi-quad-card">
                 <div>
-                  <h6 className="bms-kpi-label">Cảm Biến IoT Trực Tuyến</h6>
-                  <div className="bms-kpi-value">{NUM.format(adminOps?.iotDevices?.online ?? 0)}</div>
-                  <div className="bms-kpi-sub text-muted">{NUM.format(adminOps?.iotDevices?.offline ?? 0)} thiết bị ngoại tuyến</div>
+                  <h6 className="bms-kpi-label">Nhật Ký Kiểm Toán (Audit)</h6>
+                  <div className="bms-kpi-value">{NUM.format(adminOps?.auditLogRows ?? 0)}</div>
+                  <div className="bms-kpi-sub text-muted">Bản ghi truy xuất hệ thống</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaServer /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><History size="1em"/></div>
               </div>
             </Col>
             <Col xs={12} sm={6} lg={3}>
@@ -461,9 +435,9 @@ export default function RoleBasedDashboard() {
                 <div>
                   <h6 className="bms-kpi-label">Sao Lưu Cơ Sở Dữ Liệu</h6>
                   <div className="bms-kpi-value fs-5">{adminOps?.backup?.lastStatus || 'Sẵn sàng'}</div>
-                  <div className="bms-kpi-sub text-muted">{NUM.format(adminOps?.auditLogRows ?? 0)} bản ghi nhật ký audit</div>
+                  <div className="bms-kpi-sub text-muted">Snapshot MongoDB tự động</div>
                 </div>
-                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaDatabase /></div>
+                <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><Database size="1em"/></div>
               </div>
             </Col>
           </Row>
@@ -477,7 +451,7 @@ export default function RoleBasedDashboard() {
             <div className="bms-table-standalone-header">
               <div>
                 <h5 className="bms-table-standalone-title">
-                  <FaClipboardCheck style={{ color: '#1E60E6' }} />
+                  <ClipboardCheck style={{ color: '#1E60E6' }}  size="1em"/>
                   Hàng Đợi Thẩm Định Kỹ Thuật (Tùy chọn — QC / Westgard)
                 </h5>
                 <div className="bms-table-standalone-subtitle">
@@ -490,7 +464,7 @@ export default function RoleBasedDashboard() {
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
                 <span>Vào thẩm định kỹ thuật</span>
-                <FaArrowRight size={11} />
+                <ArrowRight size={11} />
               </Link>
             </div>
             <div className="bms-table-standalone-body">
@@ -555,7 +529,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <Link to="/laboratory/rooms" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaDoorOpen /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><DoorOpen  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Phòng Xét Nghiệm</h6>
                     <small className="text-muted">Quản lý phòng lab và thiết bị</small>
@@ -563,14 +537,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở danh mục</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/criteria" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaSlidersH /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><SlidersHorizontal  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Danh Mục Chỉ Số</h6>
                     <small className="text-muted">Chỉ số và đơn vị đo lường</small>
@@ -578,14 +552,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
                   <span>Mở danh mục</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/laboratory/reference-intervals" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><FaHeartbeat /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-cyan"><HeartPulse  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Khoảng Tham Chiếu</h6>
                     <small className="text-muted">Ngưỡng sinh học và cảnh báo</small>
@@ -593,14 +567,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Cấu hình</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/reports/revenue" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaMoneyBillWave /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><Banknote  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Báo Cáo Doanh Thu</h6>
                     <small className="text-muted">Thống kê tài chính viện phí</small>
@@ -608,7 +582,7 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Xem báo cáo</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
@@ -690,7 +664,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <Link to="/doctor/console" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaStethoscope /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><Stethoscope  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Bàn Khám Bác Sĩ</h6>
                     <small className="text-muted">Gọi số và khám bệnh nhân</small>
@@ -698,14 +672,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở bàn khám</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/doctor/orders/create" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaNotesMedical /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FileText  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Chỉ Định Xét Nghiệm</h6>
                     <small className="text-muted">Tạo phiếu y lệnh cận lâm sàng</small>
@@ -713,14 +687,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
                   <span>Lập y lệnh</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/doctor/emr" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaNotesMedical /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FileText  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Bệnh Án Điện Tử (EMR)</h6>
                     <small className="text-muted">Tra cứu và lập bệnh án</small>
@@ -728,14 +702,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở EMR</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/medical-assessments" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaHeartbeat /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><HeartPulse  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Chẩn Đoán ICD-10</h6>
                     <small className="text-muted">Đánh giá lâm sàng và phác đồ</small>
@@ -743,7 +717,7 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở danh sách</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
@@ -822,7 +796,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <Link to="/lab/queue" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaVial /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><TestTube2  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Hàng Đợi Mẫu</h6>
                     <small className="text-muted">Theo dõi vòng đời ống mẫu</small>
@@ -830,14 +804,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở hàng đợi</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/laboratory/checkinsample" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><CheckCircle2  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Tiếp Nhận Mẫu Máu</h6>
                     <small className="text-muted">Quét barcode nhận mẫu</small>
@@ -845,14 +819,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
                   <span>Tiếp nhận</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/laboratory/enter-test-results" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaNotesMedical /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FileText  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Nhập Kết Quả XN</h6>
                     <small className="text-muted">Ghi nhận chỉ số phân tích</small>
@@ -860,14 +834,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Nhập kết quả</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/qc/management" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaFlask /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FlaskConical  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Kiểm Chuẩn IQC</h6>
                     <small className="text-muted">Biểu đồ Levey-Jennings</small>
@@ -875,7 +849,7 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở IQC</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
@@ -959,7 +933,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <Link to="/receptionist/check-in" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaQrcode /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><QrCode  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Tiếp Đón &amp; Check-in</h6>
                     <small className="text-muted">Quét mã QR lịch hẹn</small>
@@ -967,14 +941,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở quầy check-in</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/receptionist/create-patient" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaUserPlus /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><UserPlus  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Tiếp Nhận Vãng Lai</h6>
                     <small className="text-muted">Đăng ký hồ sơ mới tại quầy</small>
@@ -982,37 +956,37 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Tạo hồ sơ</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
-              <Link to="/invoices" className="bms-quick-tile">
+              <Link to="/reception/queue" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaReceipt /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><Clock size="1em"/></div>
                   <div>
-                    <h6 className="fw-semibold mb-0">Quầy Thu Viện Phí</h6>
-                    <small className="text-muted">Hóa đơn và biên lai K80</small>
+                    <h6 className="fw-semibold mb-0">Điều Phối Hàng Đợi</h6>
+                    <small className="text-muted">Theo dõi STT và gọi bệnh nhân</small>
                   </div>
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
-                  <span>Mở quầy thu</span>
-                  <FaArrowRight size={11} />
+                  <span>Mở hàng đợi</span>
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
-              <Link to="/calculate-fees" className="bms-quick-tile">
+              <Link to="/appointments" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaMoneyBillWave /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><CalendarCheck size="1em"/></div>
                   <div>
-                    <h6 className="fw-semibold mb-0">Dự Toán BHYT</h6>
-                    <small className="text-muted">Chiết tính đồng chi trả</small>
+                    <h6 className="fw-semibold mb-0">Sổ Lịch Hẹn Khám</h6>
+                    <small className="text-muted">Quản lý lịch hẹn tại quầy</small>
                   </div>
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
-                  <span>Mở bảng tính</span>
-                  <FaArrowRight size={11} />
+                  <span>Xem lịch hẹn</span>
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
@@ -1061,7 +1035,7 @@ export default function RoleBasedDashboard() {
                     ) : (
                       Object.entries(adminOps.usersPerRole).map(([roleKey, count]) => (
                         <tr key={roleKey}>
-                          <td className="ps-4 fw-medium text-dark">{ROLE_LABELS[roleKey] || roleKey}</td>
+                          <td className="ps-4 fw-medium text-dark">{ROLE_LABELS[resolveRoleId(roleKey)] || ROLE_LABELS[roleKey] || roleKey}</td>
                           <td className="text-end fw-semibold font-monospace">{NUM.format(count)}</td>
                           <td className="text-center"><Badge bg="success">Đang hoạt động</Badge></td>
                           <td className="text-end pe-4">
@@ -1087,7 +1061,7 @@ export default function RoleBasedDashboard() {
             <Col xs={12} sm={6} lg={3}>
               <Link to="/admin/user-management" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaUserCog /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><UserCog  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Quản Lý Tài Khoản</h6>
                     <small className="text-muted">Cấp phát và phân quyền IAM</small>
@@ -1095,14 +1069,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở quản trị IAM</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/roles" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaCheckCircle /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-green"><CheckCircle2  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Phân Quyền Vai Trò</h6>
                     <small className="text-muted">Ma trận đặc quyền RBAC</small>
@@ -1110,14 +1084,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-success small fw-semibold">
                   <span>Mở RBAC</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/admin/audit-logs" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaHistory /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><History  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Nhật Ký Audit</h6>
                     <small className="text-muted">Lịch sử truy xuất hệ thống</small>
@@ -1125,14 +1099,14 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở nhật ký</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>
             <Col xs={12} sm={6} lg={3}>
               <Link to="/admin/backup" className="bms-quick-tile">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><FaDatabase /></div>
+                  <div className="bms-kpi-icon-badge bms-kpi-icon-amber"><Database  size="1em"/></div>
                   <div>
                     <h6 className="fw-semibold mb-0">Sao Lưu &amp; Khôi Phục</h6>
                     <small className="text-muted">Snapshot cơ sở dữ liệu</small>
@@ -1140,7 +1114,7 @@ export default function RoleBasedDashboard() {
                 </div>
                 <div className="d-flex align-items-center justify-content-between text-primary small fw-semibold">
                   <span>Mở sao lưu</span>
-                  <FaArrowRight size={11} />
+                  <ArrowRight size={11} />
                 </div>
               </Link>
             </Col>

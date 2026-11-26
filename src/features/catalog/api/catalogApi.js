@@ -6,9 +6,9 @@
  * - GET /api/v1/test-packages/{id} (also /api/v1/catalog/services/{id})
  */
 
-import { getToken } from '../../../config/api';
+import { API_ROOT, getToken } from '../../../config/api';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = API_ROOT;
 
 function buildHeaders() {
   const token = getToken();

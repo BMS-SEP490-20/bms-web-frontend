@@ -1,14 +1,9 @@
 import '../walkin.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  FaIdCard, FaUser, FaPhone, FaCalendarAlt, FaCheckCircle, FaSearch,
-  FaUserCheck, FaTicketAlt, FaPrint, FaDesktop, FaCashRegister,
-  FaClipboardCheck, FaExclamationTriangle, FaHospital, FaArrowRight,
-  FaFileInvoiceDollar, FaShieldAlt, FaClock, FaDoorOpen, FaUndo
-} from 'react-icons/fa';
+import { IdCard, User, Phone as LucidePhone, Calendar, CheckCircle2, Search, UserCheck, Ticket as LucideTicket, Printer, Monitor, ClipboardCheck, AlertTriangle, Hospital, ArrowRight, ShieldCheck, Clock, DoorOpen, Undo2 } from 'lucide-react';
 import { useRegisterWalkIn } from '../hooks/useRegisterWalkIn';
 import { walkInApi } from '../api/walkInApi';
 import { queueApi } from '../../reception/api/queueApi';
@@ -37,6 +32,11 @@ export function RegisterWalkInPage({ onSuccess }) {
   const [lookupStatus, setLookupStatus] = useState('idle'); // 'idle' | 'checking' | 'found' | 'not_found' | 'error'
   const [lookupMsg, setLookupMsg] = useState(null);
   const [existingPatient, setExistingPatient] = useState(null);
+  const [phoneLookup, setPhoneLookup] = useState({ status: 'idle', patient: null });
+  const [emailLookup, setEmailLookup] = useState({ status: 'idle', patient: null });
+  const cccdSeqRef = useRef(0);
+  const phoneSeqRef = useRef(0);
+  const emailSeqRef = useRef(0);
 
   const [checks, setChecks] = useState({
     identity: false,
@@ -58,8 +58,8 @@ export function RegisterWalkInPage({ onSuccess }) {
       if (!val) return 'Họ và tên bệnh nhân không được để trống.';
     }
     if (key === 'identityNumber') {
-      if (!val) return 'Số CCCD không được để trống (12 chữ số theo Đề án 06 BYT).';
-      if (val.length !== 12) return 'Số CCCD phải gồm đúng 12 chữ số theo Đề án 06 Bộ Y Tế.';
+      if (!val) return 'Số CCCD không được để trống.';
+      if (val.length !== 12) return 'Số CCCD phải gồm đúng 12 chữ số.';
     }
     if (key === 'dateOfBirth') {
       if (!val) return 'Ngày sinh không được để trống.';
@@ -119,48 +119,143 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   };
 
-  // Tra cứu & Đối soát CCCD với hệ thống định danh y tế
-  const onLookupCccd = async () => {
-    const cccd = (form.identityNumber || '').trim();
+  const normalizeLookupPatient = (res, fallbackCccd = '') => ({
+    patientId: res.patientId || res.PatientId,
+    patientCode: res.patientCode || res.PatientCode || res.patientId || res.PatientId,
+    fullName: res.fullName || res.FullName,
+    identityNumber: res.identityNumber || res.IdentityNumber || fallbackCccd,
+    phone: res.phone || res.Phone || '',
+    email: res.email || res.Email || '',
+    address: res.address || res.Address || '',
+    bloodType: res.bloodType || res.BloodType || '',
+    dateOfBirth: res.dateOfBirth || res.DateOfBirth,
+    gender: res.gender || res.Gender || 'Male',
+  });
+
+  // Tra cứu & Đối soát CCCD với hệ thống định danh y tế (gọi tự động real-time hoặc thủ công)
+  const onLookupCccd = useCallback(async (overrideCccd) => {
+    const cccd = (typeof overrideCccd === 'string' ? overrideCccd : form.identityNumber || '').trim();
     if (!cccd) {
-      setLookupStatus('error');
-      setLookupMsg('Vui lòng nhập số CCCD (12 chữ số theo Đề án 06 Bộ Y Tế).');
+      setLookupStatus('idle');
+      setLookupMsg(null);
+      setExistingPatient(null);
       return;
     }
-    if (cccd.length !== 12 && cccd.length !== 9) {
+    if (cccd.length !== 12) {
       setLookupStatus('error');
-      setLookupMsg('Số định danh cá nhân / CCCD phải gồm 12 chữ số hợp lệ.');
+      setLookupMsg(`Số định danh cá nhân / CCCD phải gồm đúng 12 chữ số (hiện tại ${cccd.length}/12).`);
+      setExistingPatient(null);
       return;
     }
 
+    const seq = ++cccdSeqRef.current;
     setLookupStatus('checking');
     setLookupMsg(null);
     setExistingPatient(null);
 
     try {
       const res = await walkInApi.lookupByIdentity(cccd);
+      if (seq !== cccdSeqRef.current) return;
       if (res?.exists || res?.Exists) {
-        const found = {
-          patientId: res.patientId || res.PatientId,
-          fullName: res.fullName || res.FullName,
-          identityNumber: res.identityNumber || res.IdentityNumber || cccd,
-          phone: res.phone || res.Phone,
-          dateOfBirth: res.dateOfBirth || res.DateOfBirth,
-          gender: res.gender || res.Gender || 'Male',
-        };
+        const found = normalizeLookupPatient(res, cccd);
         setExistingPatient(found);
         setLookupStatus('found');
-        setLookupMsg(`Người bệnh đã có hồ sơ y tế tại BMS MedLab (Mã: ${found.patientId}).`);
+        setLookupMsg(`CCCD đã tồn tại — thuộc về ${found.fullName} (${found.patientCode || found.patientId}).`);
       } else {
         setExistingPatient(null);
         setLookupStatus('not_found');
-        setLookupMsg('Số CCCD chưa có trên hệ thống — Sẵn sàng đăng ký hồ sơ khách vãng lai mới.');
+        setLookupMsg('CCCD hợp lệ — Chưa có trong CSDL, sẵn sàng đăng ký hồ sơ mới.');
       }
     } catch (err) {
+      if (seq !== cccdSeqRef.current) return;
       setLookupStatus('error');
       setLookupMsg(err?.message || 'Không thể kết nối đối soát thông tin CCCD lúc này.');
     }
-  };
+  }, [form.identityNumber]);
+
+  // Real-time auto-validate CCCD as Receptionist types (no manual click required)
+  useEffect(() => {
+    const cccd = (form.identityNumber || '').trim();
+    if (!cccd) {
+      cccdSeqRef.current += 1;
+      setLookupStatus('idle');
+      setLookupMsg(null);
+      setExistingPatient(null);
+      return;
+    }
+    if (cccd.length < 12) {
+      cccdSeqRef.current += 1;
+      setLookupStatus('idle');
+      setLookupMsg(null);
+      setExistingPatient(null);
+      return;
+    }
+    const timer = setTimeout(() => {
+      void onLookupCccd(cccd);
+    }, 260);
+    return () => clearTimeout(timer);
+  }, [form.identityNumber, onLookupCccd]);
+
+  // Real-time auto-validate Phone binding against DB
+  useEffect(() => {
+    const phone = (form.phone || '').trim();
+    if (!phone || !/^0[35789]\d{8}$/.test(phone)) {
+      phoneSeqRef.current += 1;
+      setPhoneLookup({ status: 'idle', patient: null });
+      return;
+    }
+    const seq = ++phoneSeqRef.current;
+    setPhoneLookup({ status: 'checking', patient: null });
+    const timer = setTimeout(async () => {
+      try {
+        const res = await walkInApi.lookupByPhone(phone);
+        if (seq !== phoneSeqRef.current) return;
+        if (res?.exists || res?.Exists) {
+          const found = normalizeLookupPatient(res);
+          const sameAsCccd = Boolean(form.identityNumber && found.identityNumber && form.identityNumber.trim() === found.identityNumber.trim());
+          setPhoneLookup({ status: sameAsCccd ? 'ok' : 'conflict', patient: found });
+        } else {
+          setPhoneLookup({ status: 'ok', patient: null });
+        }
+      } catch {
+        if (seq === phoneSeqRef.current) setPhoneLookup({ status: 'idle', patient: null });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [form.phone, form.identityNumber]);
+
+  // Real-time auto-validate Email binding against DB
+  useEffect(() => {
+    const email = (form.email || '').trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailSeqRef.current += 1;
+      setEmailLookup({ status: 'idle', patient: null });
+      return;
+    }
+    const seq = ++emailSeqRef.current;
+    setEmailLookup({ status: 'checking', patient: null });
+    const timer = setTimeout(async () => {
+      try {
+        const res = await walkInApi.lookupByEmail(email);
+        if (seq !== emailSeqRef.current) return;
+        if (res?.exists || res?.Exists) {
+          const found = normalizeLookupPatient(res);
+          const sameAsCccd = Boolean(form.identityNumber && found.identityNumber && form.identityNumber.trim() === found.identityNumber.trim());
+          setEmailLookup({ status: sameAsCccd ? 'ok' : 'conflict', patient: found });
+        } else {
+          setEmailLookup({ status: 'ok', patient: null });
+        }
+      } catch {
+        if (seq === emailSeqRef.current) setEmailLookup({ status: 'idle', patient: null });
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [form.email, form.identityNumber]);
+
+  const hasIdentityConflict =
+    lookupStatus === 'found' ||
+    phoneLookup.status === 'conflict' ||
+    emailLookup.status === 'conflict';
 
   // Nạp thông tin bệnh nhân đã có vào biểu mẫu
   const handleLoadExistingIntoForm = () => {
@@ -175,8 +270,11 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
     setForm((prev) => ({
       ...prev,
-      fullName: existingPatient.fullName || prev.fullName,
+      fullName: (existingPatient.fullName || prev.fullName || '').toUpperCase(),
       phone: existingPatient.phone || prev.phone,
+      email: existingPatient.email || prev.email,
+      address: existingPatient.address || prev.address,
+      bloodType: existingPatient.bloodType || prev.bloodType,
       identityNumber: existingPatient.identityNumber || prev.identityNumber,
       gender: existingPatient.gender || prev.gender,
       dateOfBirth: formattedDob || prev.dateOfBirth,
@@ -221,12 +319,35 @@ export function RegisterWalkInPage({ onSuccess }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!checks.identity || !checks.consent) {
-      setCheckError('Bắt buộc xác nhận đối chiếu CCCD và đồng thuận lấy mẫu (ISO 15189) trước khi đăng ký.');
+      setCheckError('Vui lòng xác nhận thông tin định danh và đồng thuận lấy mẫu trước khi đăng ký.');
       return;
     }
     setCheckError(null);
 
-    // 1. Kiểm tra tính hợp lệ dữ liệu ngay tại Client
+    // 1. Chặn tạo trùng lặp nếu CCCD / SĐT / Email đang gắn với bệnh nhân đã có trong DB
+    if (lookupStatus === 'found' && existingPatient) {
+      setFieldErrors({
+        identityNumber: `CCCD ${existingPatient.identityNumber} đã gắn với bệnh nhân ${existingPatient.fullName} (${existingPatient.patientCode || existingPatient.patientId}). Vui lòng dùng hồ sơ sẵn có thay vì tạo mới.`
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (phoneLookup.status === 'conflict' && phoneLookup.patient) {
+      setFieldErrors({
+        phone: `SĐT ${form.phone} đã gắn với bệnh nhân ${phoneLookup.patient.fullName} (${phoneLookup.patient.patientCode || phoneLookup.patient.patientId}).`
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (emailLookup.status === 'conflict' && emailLookup.patient) {
+      setFieldErrors({
+        email: `Email ${form.email} đã gắn với bệnh nhân ${emailLookup.patient.fullName} (${emailLookup.patient.patientCode || emailLookup.patient.patientId}).`
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 2. Kiểm tra tính hợp lệ dữ liệu ngay tại Client
     const errs = validateForm();
     const activeErrKeys = Object.keys(errs).filter((k) => !!errs[k]);
     if (activeErrKeys.length > 0) {
@@ -360,10 +481,15 @@ export function RegisterWalkInPage({ onSuccess }) {
   // Reset toàn bộ để tiếp nhận người tiếp theo
   const handleResetAll = () => {
     reset();
+    cccdSeqRef.current += 1;
+    phoneSeqRef.current += 1;
+    emailSeqRef.current += 1;
     setForm(emptyForm);
     setLookupMsg(null);
     setLookupStatus('idle');
     setExistingPatient(null);
+    setPhoneLookup({ status: 'idle', patient: null });
+    setEmailLookup({ status: 'idle', patient: null });
     setIssuedTicket(null);
     setActivePatientData(null);
     setReceptionNotes('');
@@ -387,14 +513,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                   className="rounded-circle d-flex align-items-center justify-content-center bg-white text-success shadow-sm"
                   style={{ width: 48, height: 48, fontSize: '24px' }}
                 >
-                  <FaCheckCircle />
+                  <CheckCircle2  size="1em"/>
                 </div>
                 <div>
                   <h4 className="fw-bold mb-1 text-white">
                     {pt.isExisting ? 'Xác Nhận Tiếp Đón Khách Vãng Lai' : 'Tiếp Nhận & Đăng Ký Hồ Sơ Thành Công'}
                   </h4>
                   <p className="mb-0 text-white-50 small">
-                    Hồ sơ hợp lệ theo quy chuẩn ISO 15189:2022 &amp; Đề án 06 Bộ Y Tế
+                    Hồ sơ hợp lệ
                   </p>
                 </div>
               </div>
@@ -471,7 +597,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   style={{ background: '#f0fdf4', border: '2px solid #86efac' }}
                 >
                   <div className="text-success fw-bold small text-uppercase letter-spacing-1">
-                    <FaCheckCircle className="me-1" /> ĐÃ CẤP SỐ THỨ TỰ LẤY MẪU MÁU
+                    <CheckCircle2 className="me-1"  size="1em"/> ĐÃ CẤP SỐ THỨ TỰ LẤY MẪU MÁU
                   </div>
                   <div
                     style={{ fontSize: '3.6rem', fontWeight: '900', color: '#059669', lineHeight: 1.1, margin: '8px 0' }}
@@ -479,7 +605,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                     {issuedTicket.ticketNumber}
                   </div>
                   <div className="fw-semibold text-dark fs-6 mb-2">
-                    <FaDoorOpen className="me-1 text-primary" /> Phòng Lấy Mẫu Máu 101 (Tầng 1 - Trạm lấy mẫu trung tâm)
+                    <DoorOpen className="me-1 text-primary"  size="1em"/> Phòng Lấy Mẫu Máu 101 (Tầng 1 - Trạm lấy mẫu trung tâm)
                   </div>
                   <p className="text-muted small mb-3">
                     Người bệnh đã được đưa vào hàng đợi điện tử. Dữ liệu đồng bộ tự động với màn hình gọi số của Kỹ thuật viên.
@@ -490,14 +616,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                       className="rounded-pill px-4 fw-bold shadow-sm"
                       onClick={() => setShowK80Modal(true)}
                     >
-                      <FaPrint className="me-2" /> In Phiếu Tiếp Đón K80
+                      <Printer className="me-2"  size="1em"/> In Phiếu Tiếp Đón K80
                     </Button>
                     <Button
                       variant="outline-primary"
                       className="rounded-pill px-4 fw-semibold"
                       onClick={() => navigate('/reception/queue')}
                     >
-                      <FaDesktop className="me-2" /> Bảng Điều Phối Hàng Đợi
+                      <Monitor className="me-2"  size="1em"/> Bảng Điều Phối Hàng Đợi
                     </Button>
                   </div>
                 </div>
@@ -508,7 +634,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 >
                   <div>
                     <h6 className="fw-bold text-primary mb-1">
-                      <FaTicketAlt className="me-2" /> Bước tiếp theo: Cấp số thứ tự lấy mẫu
+                      <LucideTicket className="me-2"  size="1em"/> Bước tiếp theo: Cấp số thứ tự lấy mẫu
                     </h6>
                     <p className="text-muted small mb-0">
                       Đưa người bệnh vào luồng lấy mẫu máu tại <strong>Phòng Lấy Mẫu 101</strong> và in phiếu K80 điều hướng.
@@ -527,7 +653,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       </>
                     ) : (
                       <>
-                        <FaTicketAlt className="me-2" /> Cấp STT Lấy Mẫu Ngay
+                        <LucideTicket className="me-2"  size="1em"/> Cấp STT Lấy Mẫu Ngay
                       </>
                     )}
                   </Button>
@@ -537,7 +663,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Các thao tác chuyển tiếp */}
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top">
                 <Button variant="outline-secondary" className="rounded-pill px-3" onClick={handleResetAll}>
-                  <FaUndo className="me-1" /> Tiếp nhận người bệnh tiếp theo
+                  <Undo2 className="me-1"  size="1em"/> Tiếp nhận người bệnh tiếp theo
                 </Button>
                 <div className="d-flex gap-2 flex-wrap">
                   <Button
@@ -545,22 +671,14 @@ export function RegisterWalkInPage({ onSuccess }) {
                     className="rounded-pill px-3 fw-semibold"
                     onClick={() => navigate(`/appointments/book?patientId=${encodeURIComponent(pt.patientId)}`)}
                   >
-                    <FaCalendarAlt className="me-1" /> Tạo Lịch Hẹn &amp; Chọn Gói XN
+                    <Calendar className="me-1" size="1em"/> Tạo Lịch Hẹn &amp; Chọn Gói XN
                   </Button>
                   <Button
                     variant="outline-primary"
                     className="rounded-pill px-3 fw-semibold"
-                    onClick={() => navigate(`/calculate-fees?patientId=${pt.patientId}`)}
+                    onClick={() => navigate('/reception/queue')}
                   >
-                    <FaFileInvoiceDollar className="me-1" /> Quầy Dự Toán Viện Phí &amp; BHYT
-                  </Button>
-                  <Button
-                    variant="primary"
-                    className="rounded-pill px-3 fw-semibold"
-                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                    onClick={() => navigate('/invoices')}
-                  >
-                    <FaCashRegister className="me-1" /> Quầy Thu Ngân
+                    <Monitor className="me-1" size="1em"/> Bảng Điều Phối Hàng Đợi
                   </Button>
                 </div>
               </div>
@@ -572,7 +690,7 @@ export function RegisterWalkInPage({ onSuccess }) {
         <Modal show={showK80Modal} onHide={() => setShowK80Modal(false)} size="md" centered>
           <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
             <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-              <FaPrint className="text-primary me-2" /> Xem Trước &amp; In Phiếu Tiếp Đón K80
+              <Printer className="text-primary me-2"  size="1em"/> Xem Trước &amp; In Phiếu Tiếp Đón K80
             </Modal.Title>
           </Modal.Header>
           <Modal.Body style={{ padding: '24px' }}>
@@ -598,7 +716,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 HỆ THỐNG XÉT NGHIỆM BMS MEDLAB
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '8px' }}>
-                Đề án 06 BYT • Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868
+                BMS MedLab • Hotline: 1900 6868
               </div>
               <div style={{ borderBottom: '1px dashed #cbd5e1', margin: '8px 0' }} />
 
@@ -629,7 +747,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   {issuedTicket?.ticketNumber || 'B01'}
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#047857', fontWeight: '600' }}>
-                  <FaDoorOpen className="me-1" /> Phòng Lấy Mẫu 101 (Tầng 1)
+                  <DoorOpen className="me-1"  size="1em"/> Phòng Lấy Mẫu 101 (Tầng 1)
                 </div>
               </div>
 
@@ -691,7 +809,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               Đóng
             </Button>
             <Button variant="success" className="px-4 fw-bold" onClick={handlePrintK80}>
-              <FaPrint className="me-2" /> In Phiếu K80
+              <Printer className="me-2"  size="1em"/> In Phiếu K80
             </Button>
           </Modal.Footer>
         </Modal>
@@ -703,24 +821,23 @@ export function RegisterWalkInPage({ onSuccess }) {
   // MÀN HÌNH CHÍNH: BIỂU MẪU TIẾP ĐÓN & ĐĂNG KÝ KHÁCH VÃNG LAI
   // =========================================================================
   return (
-    <div className="walkin-page container-fluid py-4" style={{ background: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header chuẩn hóa chung dashboard lễ tân */}
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-          <h2 className="fs-4 fw-bold text-dark mb-1">
-            <FaIdCard className="text-primary me-2" />
-            Quầy Tiếp Nhận &amp; Đăng Ký Hồ Sơ Khách Vãng Lai (Walk-in)
-          </h2>
-          <p className="text-muted mb-0 small">
-            Tiếp đón người bệnh chưa đặt lịch, xác thực CCCD gắn chip (Đề án 06 Bộ Y Tế), sàng lọc tiêu chuẩn tiền phân tích (ISO 15189:2022) và cấp số thứ tự vào phòng lấy mẫu.
+    <div className="walkin-page w-100 py-1">
+      {/* Page Header Card */}
+      <div className="bms-page-header-card mb-4">
+        <div className="bms-page-header-content">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Tiếp Nhận Khách Vãng Lai (Walk-in)</h1>
+          </div>
+          <p className="text-muted mb-0 small mt-1">
+            Tiếp đón bệnh nhân chưa đặt lịch, kiểm tra thông tin và cấp số thứ tự lấy mẫu.
           </p>
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" className="rounded-pill" onClick={() => navigate('/reception/queue')}>
-            <FaDesktop className="me-1" /> Bảng Gọi Số
+        <div className="bms-page-actions">
+          <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-1" onClick={() => navigate('/reception/queue')}>
+            <Monitor size={14} /> Bảng Gọi Số
           </Button>
-          <Button variant="outline-primary" size="sm" className="rounded-pill" onClick={() => navigate('/calculate-fees')}>
-            <FaFileInvoiceDollar className="me-1" /> Quầy Dự Toán
+          <Button variant="outline-primary" size="sm" className="rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-1" onClick={() => navigate('/appointments')} style={{ borderColor: '#1E60E6', color: '#1E60E6' }}>
+            <Calendar size={14} /> Sổ Lịch Hẹn
           </Button>
         </div>
       </div>
@@ -731,7 +848,7 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
             <Card.Header className="bg-white border-bottom py-3 px-4">
               <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                <FaClipboardCheck className="text-primary" />
+                <ClipboardCheck className="text-primary"  size="1em"/>
                 Hồ Sơ Tiếp Đón Khách Vãng Lai Tại Quầy
               </h5>
             </Card.Header>
@@ -740,39 +857,57 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Alert lỗi trực quan ngay cạnh nút bấm */}
               {error && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                  <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                   <div>
                     <strong>Lỗi:</strong> {error}
                   </div>
                 </Alert>
               )}
 
-              {/* Thông báo kết quả đối soát CCCD */}
+              {/* Thông báo kết quả đối soát CCCD real-time */}
               {lookupStatus === 'found' && existingPatient && (
                 <div
-                  className="p-3 rounded-4 mb-4 border"
-                  style={{ background: '#f0fdf4', borderColor: '#86efac' }}
+                  className="p-3 rounded-4 mb-4"
+                  style={{ background: '#ecfdf5', border: '1.5px solid #10b981' }}
                 >
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-                    <div className="d-flex align-items-center gap-2 text-success fw-bold">
-                      <FaUserCheck className="fs-5" />
-                      <span>ĐÃ CÓ HỒ SƠ Y TẾ TẠI BMS MEDLAB (ĐỀ ÁN 06 KHỚP)</span>
+                    <div className="d-flex align-items-center gap-2 fw-bold" style={{ color: '#065f46' }}>
+                      <UserCheck size={18} />
+                      <span>ĐÃ TÌM THẤY HỒ SƠ BỆNH NHÂN TRONG CSDL</span>
                     </div>
-                    <Badge bg="success" className="px-2 py-1">
-                      Mã BN: {existingPatient.patientId}
-                    </Badge>
+                    <span
+                      className="font-monospace fw-bold px-2.5 py-1 rounded-pill"
+                      style={{ background: '#d1fae5', color: '#065f46', fontSize: '11.5px' }}
+                    >
+                      Mã BN: {existingPatient.patientCode || existingPatient.patientId}
+                    </span>
                   </div>
-                  <div className="small text-dark mb-3">
-                    Người bệnh: <strong>{existingPatient.fullName}</strong> • Giới tính:{' '}
-                    <strong>{existingPatient.gender === 'Female' ? 'Nữ' : 'Nam'}</strong> • SĐT:{' '}
-                    <strong>{existingPatient.phone || 'Chưa có'}</strong> • CCCD:{' '}
-                    <code>{existingPatient.identityNumber}</code>
+                  <div
+                    className="small mb-3 p-2.5 rounded-3"
+                    style={{ background: '#ffffff', color: '#0f172a', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '8px 16px' }}
+                  >
+                    <div>
+                      <div className="text-muted" style={{ fontSize: '11px' }}>Họ và tên</div>
+                      <div className="fw-bold" style={{ color: '#1E60E6' }}>{existingPatient.fullName || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted" style={{ fontSize: '11px' }}>Số CCCD</div>
+                      <div className="fw-bold font-monospace">{existingPatient.identityNumber || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted" style={{ fontSize: '11px' }}>Số điện thoại</div>
+                      <div className="fw-bold font-monospace" style={{ color: '#047857' }}>{existingPatient.phone || 'Chưa cập nhật'}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted" style={{ fontSize: '11px' }}>Email</div>
+                      <div className="fw-semibold" style={{ wordBreak: 'break-all' }}>{existingPatient.email || 'Chưa cập nhật'}</div>
+                    </div>
                   </div>
                   <div className="d-flex gap-2 flex-wrap">
                     <Button
                       variant="success"
                       size="sm"
-                      className="rounded-pill px-3 fw-semibold shadow-sm"
+                      className="rounded-pill px-3 fw-semibold"
                       onClick={handleIssueTicketForExisting}
                       disabled={isIssuingTicket}
                     >
@@ -782,9 +917,17 @@ export function RegisterWalkInPage({ onSuccess }) {
                         </>
                       ) : (
                         <>
-                          <FaTicketAlt className="me-1" /> Cấp STT Lấy Mẫu Ngay (Phòng 101)
+                          <LucideTicket className="me-1" size="1em"/> Cấp STT Lấy Mẫu Ngay (Phòng 101)
                         </>
                       )}
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="rounded-pill px-3 fw-semibold"
+                      onClick={() => navigate(`/appointments/book?patientId=${encodeURIComponent(existingPatient.patientId)}`)}
+                    >
+                      <Calendar className="me-1" size="1em"/> Tạo Lịch Hẹn &amp; Chọn Gói XN
                     </Button>
                     <Button
                       variant="outline-success"
@@ -792,15 +935,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       className="rounded-pill px-3 fw-semibold"
                       onClick={handleLoadExistingIntoForm}
                     >
-                      Nạp thông tin vào biểu mẫu
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="rounded-pill px-3 fw-semibold"
-                      onClick={() => navigate(`/calculate-fees?patientId=${existingPatient.patientId}`)}
-                    >
-                      Dự toán viện phí &rarr;
+                      Điền thông tin vào biểu mẫu
                     </Button>
                   </div>
                 </div>
@@ -808,14 +943,14 @@ export function RegisterWalkInPage({ onSuccess }) {
 
               {lookupStatus === 'not_found' && (
                 <Alert variant="info" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaCheckCircle className="text-info flex-shrink-0" />
+                  <CheckCircle2 className="text-info flex-shrink-0"  size="1em"/>
                   <div className="small">{lookupMsg}</div>
                 </Alert>
               )}
 
               {lookupStatus === 'error' && (
                 <Alert variant="warning" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                  <FaExclamationTriangle className="text-warning flex-shrink-0" />
+                  <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
                   <div className="small">{lookupMsg}</div>
                 </Alert>
               )}
@@ -823,7 +958,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               {/* Alert lỗi bỏ trống thông tin bắt buộc */}
               {Object.values(fieldErrors).some(Boolean) && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-start gap-2">
-                  <FaExclamationTriangle className="text-danger mt-1 flex-shrink-0" />
+                  <AlertTriangle className="text-danger mt-1 flex-shrink-0"  size="1em"/>
                   <div>
                     <strong>Vui lòng kiểm tra và điền đầy đủ các thông tin bắt buộc:</strong>
                     <ul className="mb-0 ps-3 small mt-1">
@@ -839,7 +974,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* 1. THÔNG TIN ĐỊNH DANH (ĐỀ ÁN 06 BYT) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                    <FaIdCard /> 1. Thông Tin Định Danh Người Bệnh (Chuẩn Đề án 06 Bộ Y Tế)
+                    <IdCard size="1em"/> 1. Thông Tin Định Danh Người Bệnh
                   </h6>
                   <Row className="g-3">
                     <Col md={7}>
@@ -881,7 +1016,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       <div className="d-flex gap-2 align-items-stretch">
                         <Form.Control
                           required
-                          placeholder="Nhập 12 chữ số CCCD gắn chip"
+                          placeholder="Nhập 12 chữ số CCCD — tự động đối soát CSDL"
                           maxLength={12}
                           value={form.identityNumber}
                           onChange={(e) => set('identityNumber', e.target.value.replace(/\D/g, ''))}
@@ -899,7 +1034,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                           variant="outline-primary"
                           type="button"
                           className="px-3 fw-semibold text-nowrap rounded-3 d-flex align-items-center"
-                          onClick={onLookupCccd}
+                          onClick={() => onLookupCccd()}
                           disabled={lookupStatus === 'checking'}
                           style={{ minHeight: 44, border: '1px solid #1E60E6' }}
                         >
@@ -909,11 +1044,32 @@ export function RegisterWalkInPage({ onSuccess }) {
                             </>
                           ) : (
                             <>
-                              <FaSearch className="me-1" /> Đối soát CCCD
+                              <Search className="me-1" size="1em"/> Đối soát ngay
                             </>
                           )}
                         </Button>
                       </div>
+                      {/* Live real-time CCCD feedback */}
+                      {form.identityNumber && form.identityNumber.length < 12 && !fieldErrors.identityNumber && (
+                        <div className="small mt-1" style={{ color: '#64748b' }}>
+                          Đã nhập <strong className="font-monospace">{form.identityNumber.length}/12</strong> chữ số — hệ thống sẽ tự động đối soát CSDL khi đủ 12 số.
+                        </div>
+                      )}
+                      {lookupStatus === 'checking' && (
+                        <div className="small mt-1 d-flex align-items-center gap-1" style={{ color: '#1E60E6' }}>
+                          <Spinner animation="border" size="sm" /> Đang đối soát CCCD trong CSDL...
+                        </div>
+                      )}
+                      {lookupStatus === 'not_found' && (
+                        <div className="small mt-1 fw-semibold d-flex align-items-center gap-1" style={{ color: '#059669' }}>
+                          <CheckCircle2 size={13} /> CCCD hợp lệ — chưa tồn tại trong CSDL, sẵn sàng đăng ký mới.
+                        </div>
+                      )}
+                      {lookupStatus === 'found' && existingPatient && (
+                        <div className="small mt-1 fw-semibold" style={{ color: '#b45309' }}>
+                          CCCD đã gắn với: <strong>{existingPatient.fullName}</strong> ({existingPatient.patientCode || existingPatient.patientId}) · SĐT: <span className="font-monospace">{existingPatient.phone || '—'}</span> · Email: {existingPatient.email || '—'}
+                        </div>
+                      )}
                       {fieldErrors.identityNumber && (
                         <div className="text-danger small mt-1">
                           {fieldErrors.identityNumber}
@@ -951,12 +1107,27 @@ export function RegisterWalkInPage({ onSuccess }) {
                         value={form.phone}
                         onChange={(e) => set('phone', e.target.value.replace(/\D/g, ''))}
                         onBlur={(e) => handleBlur('phone', e.target.value)}
-                        isInvalid={!!fieldErrors.phone}
+                        isInvalid={!!fieldErrors.phone || phoneLookup.status === 'conflict'}
                         style={{ minHeight: 44 }}
                       />
                       <Form.Control.Feedback type="invalid">
                         {fieldErrors.phone}
                       </Form.Control.Feedback>
+                      {phoneLookup.status === 'checking' && (
+                        <div className="small mt-1 d-flex align-items-center gap-1" style={{ color: '#1E60E6' }}>
+                          <Spinner animation="border" size="sm" /> Đang kiểm tra liên kết SĐT...
+                        </div>
+                      )}
+                      {phoneLookup.status === 'ok' && !fieldErrors.phone && (
+                        <div className="small mt-1 fw-semibold d-flex align-items-center gap-1" style={{ color: '#059669' }}>
+                          <CheckCircle2 size={13} /> Số điện thoại hợp lệ, chưa trùng hồ sơ khác.
+                        </div>
+                      )}
+                      {phoneLookup.status === 'conflict' && phoneLookup.patient && (
+                        <div className="small mt-1 fw-semibold" style={{ color: '#dc2626' }}>
+                          SĐT đã gắn với <strong>{phoneLookup.patient.fullName}</strong> ({phoneLookup.patient.patientCode || phoneLookup.patient.patientId} · CCCD: <span className="font-monospace">{phoneLookup.patient.identityNumber || '—'}</span> · Email: {phoneLookup.patient.email || '—'}).
+                        </div>
+                      )}
                     </Col>
 
                     <Col md={6}>
@@ -967,12 +1138,27 @@ export function RegisterWalkInPage({ onSuccess }) {
                         value={form.email}
                         onChange={(e) => set('email', e.target.value)}
                         onBlur={(e) => handleBlur('email', e.target.value)}
-                        isInvalid={!!fieldErrors.email}
+                        isInvalid={!!fieldErrors.email || emailLookup.status === 'conflict'}
                         style={{ minHeight: 44 }}
                       />
                       <Form.Control.Feedback type="invalid">
                         {fieldErrors.email}
                       </Form.Control.Feedback>
+                      {emailLookup.status === 'checking' && (
+                        <div className="small mt-1 d-flex align-items-center gap-1" style={{ color: '#1E60E6' }}>
+                          <Spinner animation="border" size="sm" /> Đang kiểm tra liên kết Email...
+                        </div>
+                      )}
+                      {emailLookup.status === 'ok' && !fieldErrors.email && (
+                        <div className="small mt-1 fw-semibold d-flex align-items-center gap-1" style={{ color: '#059669' }}>
+                          <CheckCircle2 size={13} /> Email hợp lệ, chưa trùng hồ sơ khác.
+                        </div>
+                      )}
+                      {emailLookup.status === 'conflict' && emailLookup.patient && (
+                        <div className="small mt-1 fw-semibold" style={{ color: '#dc2626' }}>
+                          Email đã gắn với <strong>{emailLookup.patient.fullName}</strong> ({emailLookup.patient.patientCode || emailLookup.patient.patientId} · CCCD: <span className="font-monospace">{emailLookup.patient.identityNumber || '—'}</span> · SĐT: <span className="font-monospace">{emailLookup.patient.phone || '—'}</span>).
+                        </div>
+                      )}
                     </Col>
 
                     <Col md={12}>
@@ -992,7 +1178,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                 {/* 2. SÀNG LỌC TIỀN PHÂN TÍCH (ISO 15189:2022) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                    <FaShieldAlt /> 2. Tiêu Chuẩn Tiền Phân Tích &amp; An Toàn Xét Nghiệm (ISO 15189:2022)
+                    <ShieldCheck size="1em"/> 2. Sàng Lọc Trước Lấy Mẫu
                   </h6>
                   <div className="bg-light p-3 rounded-3 mb-3">
                     {[
@@ -1065,7 +1251,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                                 {/* Alert lỗi trực quan ngay cạnh nút bấm */}
                 {error && (
                   <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
-                    <FaExclamationTriangle className="text-danger flex-shrink-0" />
+                    <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
                     <div>
                       <strong>Lỗi:</strong> {error}
                     </div>
@@ -1073,16 +1259,24 @@ export function RegisterWalkInPage({ onSuccess }) {
                 )}
 
                 {/* Footer form buttons */}
-                <div className="d-flex justify-content-between align-items-center pt-3 border-top">
-                  <span className="text-muted small">
-                    <FaCheckCircle className="text-success me-1" /> Hồ sơ sau khi xác nhận sẽ tự động liên kết máy cấp STT.
+                <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
+                  <span className="small" style={{ color: hasIdentityConflict ? '#dc2626' : '#64748b' }}>
+                    {hasIdentityConflict ? (
+                      <>
+                        <AlertTriangle className="me-1" size="1em"/> Phát hiện trùng CCCD / SĐT / Email trong CSDL — vui lòng dùng hồ sơ sẵn có hoặc kiểm tra lại thông tin.
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="text-success me-1" size="1em"/> Hồ sơ sau khi xác nhận sẽ tự động liên kết máy cấp STT.
+                      </>
+                    )}
                   </span>
                   <Button
                     type="submit"
                     variant="primary"
                     className="rounded-pill px-4 py-2 fw-bold shadow-sm"
                     style={{ minHeight: 44, backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                    disabled={loading}
+                    disabled={loading || hasIdentityConflict || lookupStatus === 'checking'}
                   >
                     {loading ? (
                       <>
@@ -1090,7 +1284,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                       </>
                     ) : (
                       <>
-                        <FaUserCheck className="me-2" /> Xác Nhận Tiếp Nhận &amp; Cấp Hồ Sơ
+                        <UserCheck className="me-2"  size="1em"/> Xác Nhận Tiếp Nhận &amp; Cấp Hồ Sơ
                       </>
                     )}
                   </Button>
@@ -1106,8 +1300,8 @@ export function RegisterWalkInPage({ onSuccess }) {
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                <FaShieldAlt className="text-success" />
-                Quy Chuẩn Tiền Phân Tích (ISO 15189)
+                <ShieldCheck className="text-success"  size="1em"/>
+                Điều Kiện Trước Lấy Mẫu
               </h6>
               <p className="small text-muted mb-2">
                 70% sai sót kết quả xét nghiệm bắt nguồn từ khâu tiền phân tích:
@@ -1120,52 +1314,58 @@ export function RegisterWalkInPage({ onSuccess }) {
             </Card.Body>
           </Card>
 
-          {/* Card 2: Chính sách viện phí */}
+          {/* Card 2: Quy định định danh duy nhất */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
             <Card.Body className="p-3">
               <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
-                <FaFileInvoiceDollar />
-                Chính Sách Viện Phí &amp; Hóa Đơn Điện Tử
+                <IdCard size="1em"/>
+                Định Danh Hồ Sơ Duy Nhất (Đề Án 06)
               </h6>
-              <p className="small text-muted mb-2">
-                Tuân thủ Nghị định 123/2020/NĐ-CP &amp; Thông tư 22/2023/TT-BYT:
-              </p>
               <ul className="small text-muted ps-3 mb-0">
-                <li className="mb-1">Khách vãng lai thanh toán tại quầy thu ngân hoặc ứng dụng trước/sau khi lấy mẫu theo luồng tiếp đón.</li>
-                <li className="mb-1">Hỗ trợ đối soát quyền lợi BHYT 80% – 100% tại quầy dự toán viện phí.</li>
-                <li>Tự động xuất biên lai nhiệt K80 và hóa đơn VAT điện tử.</li>
+                <li className="mb-1"><strong>CCCD 12 số</strong>, <strong>SĐT</strong> và <strong>Email</strong> gắn liền duy nhất với từng hồ sơ bệnh nhân.</li>
+                <li className="mb-1">Hệ thống tự động đối soát CSDL ngay khi gõ để tránh tạo hồ sơ trùng lặp.</li>
+                <li>Nếu bệnh nhân đã có hồ sơ, dùng nút <strong>Cấp STT Lấy Mẫu Ngay</strong> hoặc <strong>Tạo Lịch Hẹn</strong>.</li>
               </ul>
             </Card.Body>
           </Card>
 
-          {/* Card 3: Quy trình 5 bước */}
+          {/* Card 3: Quy trình 5 bước (plain circle step badges — avoids .badge::before dot collision) */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
-              <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                <FaHospital className="text-secondary" />
+              <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                <Hospital className="text-secondary" size="1em"/>
                 Luồng Tiếp Đón Khách Vãng Lai
               </h6>
-              <div className="small text-muted">
-                <div className="d-flex align-items-start gap-2 mb-2">
-                  <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>1</Badge>
-                  <span>Nhập CCCD &rarr; Đối soát trùng lặp hồ sơ cũ.</span>
-                </div>
-                <div className="d-flex align-items-start gap-2 mb-2">
-                  <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>2</Badge>
-                  <span>Khai báo thông tin lâm sàng &amp; tiền phân tích.</span>
-                </div>
-                <div className="d-flex align-items-start gap-2 mb-2">
-                  <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>3</Badge>
-                  <span>Cấp mã bệnh nhân <code>PAT-xxxx</code> và STT lấy mẫu.</span>
-                </div>
-                <div className="d-flex align-items-start gap-2 mb-2">
-                  <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>4</Badge>
-                  <span>In Phiếu Tiếp Đón K80 &rarr; Hướng dẫn vào Phòng 101.</span>
-                </div>
-                <div className="d-flex align-items-start gap-2">
-                  <Badge bg="primary" className="rounded-circle p-1" style={{ width: 20, height: 20 }}>5</Badge>
-                  <span>Chuyển Quầy Dự Toán &amp; Thu Ngân thu viện phí.</span>
-                </div>
+              <div className="small text-muted d-flex flex-column gap-2">
+                {[
+                  { n: 1, content: <>Nhập CCCD &rarr; Đối soát tự động hồ sơ cũ trong CSDL.</> },
+                  { n: 2, content: <>Khai báo thông tin lâm sàng &amp; tiền phân tích.</> },
+                  { n: 3, content: <>Cấp mã bệnh nhân <code>PAT-xxxx</code> và STT lấy mẫu.</> },
+                  { n: 4, content: <>In Phiếu Tiếp Đón K80 &rarr; Hướng dẫn vào Phòng 101.</> },
+                  { n: 5, content: <>Tạo lịch hẹn / chuyển tiếp vào khu vực khám &amp; lấy mẫu.</> }
+                ].map((step) => (
+                  <div key={step.n} className="d-flex align-items-start" style={{ gap: '10px', lineHeight: 1.5 }}>
+                    <span
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        backgroundColor: '#EEF4FD',
+                        color: '#1E60E6',
+                        fontSize: '11.5px',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: '1px'
+                      }}
+                    >
+                      {step.n}
+                    </span>
+                    <span style={{ flex: 1, minWidth: 0 }}>{step.content}</span>
+                  </div>
+                ))}
               </div>
             </Card.Body>
           </Card>

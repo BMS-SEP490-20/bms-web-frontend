@@ -4,27 +4,10 @@
  * Clean, Non-AI Human-Centered Medical UI conforming to AGENTS-DESIGN.md and ISO 15189:2022.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { Modal } from "react-bootstrap";
-import { 
-    FaSearch, 
-    FaVial, 
-    FaCheckCircle, 
-    FaClock, 
-    FaMicroscope, 
-    FaFileMedicalAlt, 
-    FaHospital, 
-    FaUserMd, 
-    FaExclamationTriangle, 
-    FaTimesCircle, 
-    FaRedoAlt, 
-    FaBarcode, 
-    FaArrowRight, 
-    FaPrint, 
-    FaTimes, 
-    FaCheck
-} from "react-icons/fa";
+import { Search, TestTube2, CheckCircle2, Clock, Microscope, FileHeart, Hospital, Stethoscope, AlertTriangle, XCircle, RotateCw, Barcode, ArrowRight, Printer, X as LucideX, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchTrackingByCode, fetchPatientTrackings } from "../api/trackingApi";
 import { ROLES, resolveRoleId, getStoredUser } from "../../../constants/roles";
 import PortalNavbar from "../../home/components/PortalNavbar";
@@ -93,6 +76,42 @@ export default function TrackTestProgressPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [hasSearched, setHasSearched] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [tableSearch, setTableSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("ALL");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
+    const filteredTrackings = useMemo(() => {
+        const kw = tableSearch.trim().toLowerCase();
+        return myTrackings.filter((item) => {
+            if (statusFilter === "COMPLETED" && !item.isCompleted) return false;
+            if (statusFilter === "PROCESSING" && (item.isCompleted || item.isRejected)) return false;
+            if (!kw) return true;
+            const hay = [
+                formatTrackingCode(item),
+                item.barcode,
+                item.orderNumber,
+                item.patientName,
+                item.currentStepName,
+                ...(item.testPackageNames || [])
+            ].filter(Boolean).join(" ").toLowerCase();
+            return hay.includes(kw);
+        });
+    }, [myTrackings, tableSearch, statusFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredTrackings.length / pageSize));
+    const safePage = Math.min(currentPage, totalPages);
+    const paginatedTrackings = useMemo(() => {
+        const start = (safePage - 1) * pageSize;
+        return filteredTrackings.slice(start, start + pageSize);
+    }, [filteredTrackings, safePage, pageSize]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [tableSearch, statusFilter, pageSize]);
+
+    const completedCount = useMemo(() => myTrackings.filter((x) => x.isCompleted).length, [myTrackings]);
+    const processingCount = useMemo(() => myTrackings.filter((x) => !x.isCompleted && !x.isRejected).length, [myTrackings]);
 
     const openTrackingDetail = (item) => {
         if (!item) return;
@@ -203,28 +222,28 @@ export default function TrackTestProgressPage() {
             case 2:
                 return (
                     <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-semibold">
-                        <FaCheckCircle className="me-1" /> Đã hoàn tất
+                        <CheckCircle2 className="me-1" size="1em" /> Đã hoàn tất
                     </span>
                 );
             case "InProgress":
             case 1:
                 return (
                     <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-semibold">
-                        <FaClock className="me-1" /> Đang xử lý
+                        <Clock className="me-1" size="1em" /> Đang xử lý
                     </span>
                 );
             case "Warning":
             case 3:
                 return (
                     <span className="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 fw-semibold">
-                        <FaExclamationTriangle className="me-1" /> Cần chạy lại (Rerun)
+                        <AlertTriangle className="me-1" size="1em" /> Cần chạy lại (Rerun)
                     </span>
                 );
             case "Rejected":
             case 4:
                 return (
                     <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-semibold">
-                        <FaTimesCircle className="me-1" /> Mẫu từ chối
+                        <XCircle className="me-1" size="1em" /> Mẫu từ chối
                     </span>
                 );
             default:
@@ -237,185 +256,381 @@ export default function TrackTestProgressPage() {
     };
 
     const getStepIcon = (stepNumber, status) => {
-        if (status === "Completed" || status === 2) return <FaCheck />;
+        if (status === "Completed" || status === 2) return <Check size="1em" />;
         switch (stepNumber) {
-            case 1: return <FaHospital />;
-            case 2: return <FaVial />;
-            case 3: return <FaBarcode />;
-            case 4: return <FaMicroscope />;
-            case 5: return <FaUserMd />;
-            case 6: return <FaFileMedicalAlt />;
-            default: return <FaCheckCircle />;
+            case 1: return <Hospital size="1em" />;
+            case 2: return <TestTube2 size="1em" />;
+            case 3: return <Barcode size="1em" />;
+            case 4: return <Microscope size="1em" />;
+            case 5: return <Stethoscope size="1em" />;
+            case 6: return <FileHeart size="1em" />;
+            default: return <CheckCircle2 size="1em" />;
         }
     };
 
     return (
         <div className="bms-tracking-page">
             {!isEmbedded && <PortalNavbar />}
-            
+
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
-                <div className="container" style={{ maxWidth: 1180 }}>
-                    
-                    {/* 1. HERO — BN: không ô tìm đơn; khách: giữ form tra mã */}
+                <div className="container" style={{ maxWidth: 1320 }}>
+
+                    {/* 1. HERO — BN: gộp tiêu đề "Mẫu xét nghiệm của tôi" vào card trắng; khách: form tra mã */}
                     <div className="bms-tracking-hero mb-4">
-                        <div className={`row align-items-center g-4 ${hideManualSearch ? '' : ''}`}>
+                        <div className="row align-items-center g-4">
                             <div className={hideManualSearch ? 'col-12' : 'col-lg-6'}>
-                                <h1 className="fw-bold mb-2" style={{ fontSize: '24px', color: '#0F172A', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
-                                    {hideManualSearch ? 'Tiến Trình & Kết Quả Xét Nghiệm' : 'Tra Cứu Lộ Trình Mẫu Máu'}
+                                <h1 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ fontSize: '22px', color: '#0F172A', letterSpacing: '-0.02em', lineHeight: '1.25' }}>
+                                    {hideManualSearch && <TestTube2 className="text-primary flex-shrink-0" size={20} />}
+                                    <span>{hideManualSearch ? 'Mẫu xét nghiệm của tôi' : 'Tra Cứu Lộ Trình Mẫu'}</span>
                                 </h1>
                                 <p className="mb-0 text-muted" style={{ fontSize: '13.5px', maxWidth: '560px', lineHeight: '1.6', color: '#475569' }}>
                                     {hideManualSearch
-                                        ? 'Chọn mẫu trong danh sách bên dưới để xem lộ trình phân tích và kết quả ký số.'
-                                        : 'Theo dõi trực tiếp tiến trình phân tích mẫu và thời gian nhận kết quả ký số.'}
+                                        ? (myTrackings.length > 0
+                                            ? `${myTrackings.length} mẫu — chọn một dòng bên dưới để xem tiến trình`
+                                            : 'Hiện tại bạn chưa có mẫu xét nghiệm nào đang theo dõi.')
+                                        : 'Theo dõi trực tiếp tiến trình xử lý mẫu và thời gian nhận kết quả.'}
                                 </p>
                             </div>
 
                             {!hideManualSearch && (
-                            <div className="col-lg-6 d-flex justify-content-lg-end">
-                                <form onSubmit={handleFormSubmit} className="d-flex align-items-center gap-2.5 w-100" style={{ maxWidth: '480px' }}>
-                                    <div className="position-relative flex-grow-1">
-                                        <FaBarcode
-                                            style={{
-                                                position: 'absolute',
-                                                left: '18px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                color: '#1E60E6',
-                                                fontSize: '16px',
-                                                pointerEvents: 'none',
-                                                zIndex: 2
-                                            }}
-                                        />
-                                        <input
-                                            type="text"
-                                            className="bms-track-search-input"
-                                            placeholder="Nhập mã đơn (VD: BC-... hoặc ORD-...)"
-                                            value={searchInput}
-                                            onChange={(e) => setSearchInput(e.target.value)}
-                                            autoFocus
-                                        />
-                                        {searchInput && (
-                                            <button 
-                                                type="button" 
-                                                onClick={() => setSearchInput("")}
+                                <div className="col-lg-6 d-flex justify-content-lg-end">
+                                    <form onSubmit={handleFormSubmit} className="d-flex align-items-center gap-2.5 w-100" style={{ maxWidth: '480px' }}>
+                                        <div className="position-relative flex-grow-1">
+                                            <Barcode
                                                 style={{
                                                     position: 'absolute',
-                                                    right: '14px',
+                                                    left: '18px',
                                                     top: '50%',
                                                     transform: 'translateY(-50%)',
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    color: '#94A3B8',
-                                                    cursor: 'pointer',
-                                                    fontSize: '13px',
-                                                    padding: '4px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    color: '#1E60E6',
+                                                    fontSize: '16px',
+                                                    pointerEvents: 'none',
                                                     zIndex: 2
                                                 }}
-                                                title="Xóa nội dung"
-                                            >
-                                                <FaTimes />
-                                            </button>
-                                        )}
-                                    </div>
-                                    <button 
-                                        type="submit" 
-                                        className="btn fw-bold flex-shrink-0 d-flex align-items-center justify-content-center gap-2"
-                                        style={{
-                                            height: '46px',
-                                            padding: '0 24px',
-                                            backgroundColor: '#1E60E6',
-                                            color: '#FFFFFF',
-                                            border: 'none',
-                                            borderRadius: '9999px',
-                                            fontSize: '13px',
-                                            boxShadow: 'none',
-                                            cursor: loading ? 'not-allowed' : 'pointer'
-                                        }}
-                                        disabled={loading}
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                <span>Đang tìm...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FaSearch style={{ fontSize: '12px' }} />
-                                                <span>Tra Cứu</span>
-                                            </>
-                                        )}
-                                    </button>
-                                </form>
-                            </div>
+                                                size="1em" />
+                                            <input
+                                                type="text"
+                                                className="bms-track-search-input"
+                                                placeholder="Nhập mã đơn (VD: BC-... hoặc ORD-...)"
+                                                value={searchInput}
+                                                onChange={(e) => setSearchInput(e.target.value)}
+                                                autoFocus
+                                            />
+                                            {searchInput && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSearchInput("")}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        right: '14px',
+                                                        top: '50%',
+                                                        transform: 'translateY(-50%)',
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        color: '#94A3B8',
+                                                        cursor: 'pointer',
+                                                        fontSize: '13px',
+                                                        padding: '4px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        zIndex: 2
+                                                    }}
+                                                    title="Xóa nội dung"
+                                                >
+                                                    <LucideX size="1em" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            className="btn fw-bold flex-shrink-0 d-flex align-items-center justify-content-center gap-2"
+                                            style={{
+                                                height: '46px',
+                                                padding: '0 24px',
+                                                backgroundColor: '#1E60E6',
+                                                color: '#FFFFFF',
+                                                border: 'none',
+                                                borderRadius: '9999px',
+                                                fontSize: '13px',
+                                                boxShadow: 'none',
+                                                cursor: loading ? 'not-allowed' : 'pointer'
+                                            }}
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span>Đang tìm...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Search style={{ fontSize: '12px' }} size="1em" />
+                                                    <span>Tra Cứu</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </form>
+                                </div>
                             )}
                         </div>
                     </div>
 
-                    {/* 1.5. DANH SÁCH MẪU — layout list (không chip) */}
+                    {/* 1.5. DANH SÁCH MẪU — Bảng trực quan đầy đủ thông tin + lọc + phân trang */}
                     {myTrackings.length > 0 && (
-                        <div className="bms-tracking-order-list mb-4">
-                            <div className="d-flex justify-content-between align-items-end mb-3 px-1">
-                                <div>
-                                    <div className="fw-bold text-dark" style={{ fontSize: '15px' }}>
-                                        <FaVial className="text-primary me-2" />
-                                        Mẫu xét nghiệm của tôi
+                        <div className="bms-tracking-table-card mb-4">
+                            <div className="bms-tracking-table-toolbar">
+                                <div className="bms-tracking-table-filters">
+                                    <button
+                                        type="button"
+                                        className={`bms-tracking-filter-pill${statusFilter === "ALL" ? " is-active" : ""}`}
+                                        onClick={() => setStatusFilter("ALL")}
+                                    >
+                                        Tất cả ({myTrackings.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`bms-tracking-filter-pill${statusFilter === "PROCESSING" ? " is-active" : ""}`}
+                                        onClick={() => setStatusFilter("PROCESSING")}
+                                    >
+                                        Đang xử lý ({processingCount})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`bms-tracking-filter-pill${statusFilter === "COMPLETED" ? " is-active" : ""}`}
+                                        onClick={() => setStatusFilter("COMPLETED")}
+                                    >
+                                        Đã có kết quả ({completedCount})
+                                    </button>
+                                </div>
+
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <div className="position-relative" style={{ minWidth: '240px' }}>
+                                        <Search
+                                            size={14}
+                                            style={{
+                                                position: 'absolute',
+                                                left: '12px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                color: '#94A3B8',
+                                                pointerEvents: 'none'
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            className="form-control form-control-sm"
+                                            style={{ paddingLeft: '34px', height: '34px', fontSize: '12.5px' }}
+                                            placeholder="Tìm mã mẫu, gói xét nghiệm..."
+                                            value={tableSearch}
+                                            onChange={(e) => setTableSearch(e.target.value)}
+                                        />
                                     </div>
-                                    <div className="text-muted small mt-1">{myTrackings.length} mẫu — chọn một dòng để xem tiến trình</div>
+                                    <select
+                                        className="form-select form-select-sm"
+                                        style={{ width: 'auto', height: '34px', fontSize: '12.5px' }}
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(Number(e.target.value))}
+                                        aria-label="Số dòng mỗi trang"
+                                    >
+                                        <option value={5}>5 / trang</option>
+                                        <option value={10}>10 / trang</option>
+                                        <option value={20}>20 / trang</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div className="d-flex flex-column gap-2">
-                                {myTrackings.map((item) => {
-                                    const isSelected = trackingData && (trackingData.orderNumber === item.orderNumber || trackingData.barcode === item.barcode);
-                                    return (
-                                        <button
-                                            key={`${item.orderNumber}-${item.barcode}`}
-                                            type="button"
-                                            onClick={() => openTrackingDetail(item)}
-                                            className="bms-tracking-order-row text-start w-100 border-0"
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                gap: '16px',
-                                                flexWrap: 'wrap',
-                                                background: isSelected && showDetailModal ? '#EEF4FD' : '#FFFFFF',
-                                                borderRadius: '14px',
-                                                padding: '16px 20px',
-                                                boxShadow: 'none',
-                                                outline: isSelected && showDetailModal ? '2px solid #1E60E6' : '1px solid #E2E8F0',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            <div style={{ minWidth: 0, flex: '1 1 220px' }}>
-                                                <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
-                                                    <span className="font-monospace fw-bold" style={{ fontSize: '14px', color: '#0F172A' }}>
-                                                        {formatTrackingCode(item)}
-                                                    </span>
-                                                    <span
-                                                        className="badge"
-                                                        style={{
-                                                            backgroundColor: item.isCompleted ? '#DCFCE7' : '#FEF3C7',
-                                                            color: item.isCompleted ? '#166534' : '#92400E',
-                                                            fontWeight: 650
-                                                        }}
-                                                    >
-                                                        {item.isCompleted ? 'Đã có kết quả' : (item.currentStepName || 'Đang xử lý')}
-                                                    </span>
-                                                </div>
-                                                <div className="text-muted" style={{ fontSize: '12.5px', lineHeight: 1.45 }}>
-                                                    {(item.testPackageNames && item.testPackageNames[0]) || 'Xét nghiệm'}
-                                                    {item.patientName ? ` · ${item.patientName}` : ''}
-                                                </div>
-                                            </div>
-                                            <div className="d-flex align-items-center gap-2 flex-shrink-0" style={{ color: '#1E60E6', fontSize: '12.5px', fontWeight: 650 }}>
-                                                Xem tiến trình <FaArrowRight style={{ fontSize: '11px' }} />
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+
+                            <div className="table-responsive">
+                                <table className="table bms-tracking-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã mẫu / Barcode</th>
+                                            <th>Gói xét nghiệm</th>
+                                            <th>Tiếp nhận lúc</th>
+                                            <th>Tiến độ xử lý</th>
+                                            <th>Trạng thái</th>
+                                            <th>Dự kiến hoàn tất</th>
+                                            <th className="text-end">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {paginatedTrackings.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={7} className="text-center text-muted py-4">
+                                                    Không có mẫu xét nghiệm nào phù hợp với bộ lọc hiện tại.
+                                                </td>
+                                            </tr>
+                                        ) : paginatedTrackings.map((item) => {
+                                            const isSelected = showDetailModal && trackingData && (trackingData.orderNumber === item.orderNumber || trackingData.barcode === item.barcode);
+                                            const stepNum = Math.min(6, Math.max(1, Number(item.currentStepNumber || 1)));
+                                            const pct = item.isCompleted ? 100 : Math.round((stepNum / 6) * 100);
+                                            const isUrgent = item.priority === "Stat" || item.priority === "Urgent";
+                                            const statusPill = item.isRejected
+                                                ? { bg: '#FEE2E2', color: '#B91C1C', label: 'Mẫu bị từ chối' }
+                                                : item.isRerunRequested
+                                                    ? { bg: '#FEF3C7', color: '#92400E', label: 'Đang chạy lại' }
+                                                    : item.isCompleted
+                                                        ? { bg: '#DCFCE7', color: '#166534', label: 'Đã có kết quả' }
+                                                        : { bg: '#EEF4FD', color: '#1E60E6', label: 'Đang xử lý' };
+
+                                            return (
+                                                <tr
+                                                    key={`${item.orderNumber}-${item.barcode}`}
+                                                    className={isSelected ? "is-selected-row" : ""}
+                                                    onClick={() => openTrackingDetail(item)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <td>
+                                                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                            <span className="font-monospace fw-bold" style={{ color: '#1E60E6', fontSize: '13.5px' }}>
+                                                                {formatTrackingCode(item)}
+                                                            </span>
+                                                            {isUrgent && (
+                                                                <span className="badge" style={{ backgroundColor: '#FEE2E2', color: '#B91C1C', fontSize: '10.5px', fontWeight: 700 }}>
+                                                                    STAT
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {item.barcode && item.orderNumber && item.barcode !== item.orderNumber && !GUID_RE.test(item.barcode) && (
+                                                            <div className="font-monospace text-muted" style={{ fontSize: '11px' }}>
+                                                                {item.barcode}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <div className="fw-semibold" style={{ color: '#0F172A', fontSize: '13px', maxWidth: '300px' }}>
+                                                            {(item.testPackageNames && item.testPackageNames.join(", ")) || "Xét nghiệm lâm sàng"}
+                                                        </div>
+                                                        {item.patientName && (
+                                                            <div className="text-muted" style={{ fontSize: '11.5px' }}>
+                                                                {item.patientName}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="tabular-nums text-nowrap" style={{ fontSize: '12.5px', color: '#334155' }}>
+                                                        {formatDateTime(item.orderedAt)}
+                                                    </td>
+                                                    <td style={{ minWidth: '175px' }}>
+                                                        <div className="d-flex align-items-center justify-content-between gap-2 mb-1" style={{ fontSize: '11.5px' }}>
+                                                            <span className="fw-semibold" style={{ color: '#0F172A' }}>
+                                                                Chặng {stepNum}/6
+                                                            </span>
+                                                            <span className="text-muted text-truncate" style={{ maxWidth: '120px' }} title={item.currentStepName}>
+                                                                {item.currentStepName || "Đang xử lý"}
+                                                            </span>
+                                                        </div>
+                                                        <div style={{ height: '6px', backgroundColor: '#E2E8F0', borderRadius: '999px', overflow: 'hidden' }}>
+                                                            <div
+                                                                style={{
+                                                                    width: `${pct}%`,
+                                                                    height: '100%',
+                                                                    backgroundColor: item.isRejected ? '#EF4444' : item.isCompleted ? '#10B981' : '#1E60E6',
+                                                                    borderRadius: '999px'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-nowrap">
+                                                        <span
+                                                            className="badge"
+                                                            style={{
+                                                                backgroundColor: statusPill.bg,
+                                                                color: statusPill.color,
+                                                                fontWeight: 650,
+                                                                fontSize: '11.5px',
+                                                                padding: '5px 10px'
+                                                            }}
+                                                        >
+                                                            {statusPill.label}
+                                                        </span>
+                                                    </td>
+                                                    <td className="tabular-nums text-nowrap" style={{ fontSize: '12.5px', color: '#475569' }}>
+                                                        {formatDateTime(item.estimatedCompletionTime)}
+                                                    </td>
+                                                    <td className="text-end text-nowrap" onClick={(e) => e.stopPropagation()}>
+                                                        <div className="d-inline-flex align-items-center gap-2">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1"
+                                                                style={{ fontSize: '12px', fontWeight: 650, padding: '4px 12px' }}
+                                                                onClick={() => openTrackingDetail(item)}
+                                                            >
+                                                                Xem tiến trình <ArrowRight size={12} />
+                                                            </button>
+                                                            {item.isCompleted && (
+                                                                <Link
+                                                                    to={`/patient/results/export/${encodeURIComponent(trackingExportCode(item))}`}
+                                                                    className="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center gap-1"
+                                                                    style={{ fontSize: '12px', fontWeight: 650, padding: '4px 10px' }}
+                                                                    title="Xem & tải phiếu kết quả PDF"
+                                                                >
+                                                                    <FileHeart size={12} /> PDF
+                                                                </Link>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Pagination Footer */}
+                            <div className="bms-tracking-table-pager">
+                                <div className="small text-muted tabular-nums">
+                                    {filteredTrackings.length === 0
+                                        ? "0 mẫu xét nghiệm"
+                                        : `Hiển thị ${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredTrackings.length)} / ${filteredTrackings.length} mẫu xét nghiệm`}
+                                </div>
+                                <nav aria-label="Phân trang tiến trình xét nghiệm">
+                                    <ul className="pagination pagination-sm mb-0">
+                                        <li className={`page-item${safePage <= 1 ? " disabled" : ""}`}>
+                                            <button
+                                                type="button"
+                                                className="page-link d-inline-flex align-items-center gap-1"
+                                                disabled={safePage <= 1}
+                                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                            >
+                                                <ChevronLeft size={13} /> Trước
+                                            </button>
+                                        </li>
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                            .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                                            .reduce((acc, p, idx, arr) => {
+                                                if (idx > 0 && p - arr[idx - 1] > 1) acc.push("ellipsis-" + p);
+                                                acc.push(p);
+                                                return acc;
+                                            }, [])
+                                            .map((entry) =>
+                                                typeof entry === "string" ? (
+                                                    <li key={entry} className="page-item disabled">
+                                                        <span className="page-link">…</span>
+                                                    </li>
+                                                ) : (
+                                                    <li key={entry} className={`page-item${entry === safePage ? " active" : ""}`}>
+                                                        <button
+                                                            type="button"
+                                                            className="page-link tabular-nums"
+                                                            onClick={() => setCurrentPage(entry)}
+                                                        >
+                                                            {entry}
+                                                        </button>
+                                                    </li>
+                                                )
+                                            )}
+                                        <li className={`page-item${safePage >= totalPages ? " disabled" : ""}`}>
+                                            <button
+                                                type="button"
+                                                className="page-link d-inline-flex align-items-center gap-1"
+                                                disabled={safePage >= totalPages}
+                                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                            >
+                                                Sau <ChevronRight size={13} />
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     )}
@@ -423,7 +638,7 @@ export default function TrackTestProgressPage() {
                     {/* 2. ERROR NOTIFICATION */}
                     {errorMessage && (
                         <div className="alert alert-warning border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-3" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
-                            <FaExclamationTriangle className="fs-5 flex-shrink-0" style={{ color: '#D97706' }} />
+                            <AlertTriangle className="fs-5 flex-shrink-0" style={{ color: '#D97706' }} size="1em" />
                             <div>
                                 <div className="fw-bold mb-0" style={{ fontSize: '13px' }}>Không tìm thấy dữ liệu</div>
                                 <div style={{ fontSize: '12px' }}>{errorMessage}</div>
@@ -478,7 +693,7 @@ export default function TrackTestProgressPage() {
                                         Mẫu bệnh phẩm được kiểm soát nghiêm ngặt bằng mã định danh bảo mật từ khâu lấy mẫu đến kết quả cuối cùng
                                     </p>
                                 </div>
-                                
+
                                 <div className="bms-stages-flow-row">
                                     <div className="bms-stage-flow-card">
                                         <span className="bms-stage-flow-badge">Chặng 1</span>
@@ -542,20 +757,22 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* Explainer Patient Journey Row */}
-                            <div className="bms-stages-overview my-3 text-center" style={{ padding: '24px' }}>
-                                <h4 className="bms-stages-overview-title mb-1">Hành Trình Xét Nghiệm Khép Kín Chuẩn Y Tế BMS</h4>
-                                <p className="bms-stages-overview-subtitle mb-3">
-                                    Minh họa toàn diện từ thời điểm tiếp nhận mẫu đến khi cấp chứng thư chữ ký số
-                                </p>
-                                <img
-                                    src="/assets/bms/svg/sections/landing/sec-09-patient-journey.svg"
-                                    alt="Hành trình xét nghiệm bệnh nhân"
-                                    style={{ width: '100%', maxWidth: '440px', height: 'auto', margin: '0 auto', display: 'block' }}
-                                />
-                            </div>
+                            {/* Explainer Patient Journey Row (Guest / public tracking) */}
+                            {!hideManualSearch && (
+                                <div className="bms-stages-overview my-3 text-center" style={{ padding: '24px' }}>
+                                    <h4 className="bms-stages-overview-title mb-1">Hành Trình Xét Nghiệm Khép Kín Chuẩn Y Tế BMS</h4>
+                                    <p className="bms-stages-overview-subtitle mb-3">
+                                        Minh họa toàn diện từ thời điểm tiếp nhận mẫu đến khi cấp chứng thư chữ ký số
+                                    </p>
+                                    <img
+                                        src="/assets/bms/svg/sections/landing/sec-09-patient-journey.svg"
+                                        alt="Hành trình xét nghiệm bệnh nhân"
+                                        style={{ width: '100%', maxWidth: '440px', height: 'auto', margin: '0 auto', display: 'block' }}
+                                    />
+                                </div>
+                            )}
 
-                            {/* Trust & Support Strip - Clean typography without decorative icons */}
+                            {/* Trust & Support Strip */}
                             <div className="bms-trust-box">
                                 <div className="bms-trust-item">
                                     <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Thông tin cá nhân của người bệnh được bảo vệ và ẩn danh khi tra cứu trực tuyến).</span>
@@ -607,9 +824,9 @@ export default function TrackTestProgressPage() {
                                                 <span className="bms-specimen-detail-val">{trackingData.patientName}</span>
                                             </li>
                                             <li className="bms-specimen-detail-item">
-                                                <span className="bms-specimen-detail-label">Thông tin sinh hiệu</span>
+                                                <span className="bms-specimen-detail-label">Giới tính &amp; Tuổi</span>
                                                 <span className="bms-specimen-detail-val">
-                                                    {trackingData.patientGender === "Male" ? "Nam" : trackingData.patientGender === "Female" ? "Nữ" : (trackingData.patientGender || "—")}{trackingData.patientAge > 0 ? ` • ${trackingData.patientAge} tuổi` : ""}
+                                                    {trackingData.patientGender === "Male" || trackingData.patientGender === "Nam" ? "Nam" : trackingData.patientGender === "Female" || trackingData.patientGender === "Nữ" ? "Nữ" : (trackingData.patientGender || "—")}{trackingData.patientAge > 0 ? ` • ${trackingData.patientAge} tuổi` : ""}
                                                 </span>
                                             </li>
                                             <li className="bms-specimen-detail-item">
@@ -640,13 +857,13 @@ export default function TrackTestProgressPage() {
 
                                         {trackingData.isRejected && (
                                             <div className="alert alert-danger py-2 px-3 small rounded-3 mt-3 mb-0">
-                                                <strong><FaTimesCircle className="me-1" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
+                                                <strong><XCircle className="me-1" size="1em" /> Mẫu bị từ chối:</strong> {trackingData.rejectionReason}
                                             </div>
                                         )}
 
                                         {trackingData.isRerunRequested && (
                                             <div className="alert alert-warning py-2 px-3 small rounded-3 mt-3 mb-0">
-                                                <strong><FaExclamationTriangle className="me-1" /> Yêu cầu kiểm tra lại:</strong> {trackingData.rerunReason}
+                                                <strong><AlertTriangle className="me-1" size="1em" /> Yêu cầu kiểm tra lại:</strong> {trackingData.rerunReason}
                                             </div>
                                         )}
 
@@ -658,14 +875,14 @@ export default function TrackTestProgressPage() {
                                                         className="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
                                                         onClick={closeTrackingDetail}
                                                     >
-                                                        <FaFileMedicalAlt /> Xem Chi Tiết Kết Quả Xét Nghiệm
+                                                        <FileHeart size="1em" /> Xem Chi Tiết Kết Quả Xét Nghiệm
                                                     </Link>
                                                     <Link
                                                         to={`/patient/results/export/${encodeURIComponent(trackingExportCode(trackingData))}`}
                                                         className="btn btn-success rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
                                                         onClick={closeTrackingDetail}
                                                     >
-                                                        <FaFileMedicalAlt /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
+                                                        <FileHeart size="1em" /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
                                                     </Link>
                                                 </>
                                             )}
@@ -674,14 +891,14 @@ export default function TrackTestProgressPage() {
                                                 className="btn btn-outline-primary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
                                                 onClick={() => handleTrackLookup(trackingLookupCode(trackingData))}
                                             >
-                                                <FaRedoAlt /> Tải lại tiến trình
+                                                <RotateCw size="1em" /> Tải lại tiến trình
                                             </button>
                                             <button
                                                 type="button"
                                                 className="btn btn-outline-secondary rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 small"
                                                 onClick={() => window.print()}
                                             >
-                                                <FaPrint /> In phiếu lộ trình
+                                                <Printer size="1em" /> In phiếu lộ trình
                                             </button>
                                             {!hideManualSearch && (
                                                 <button
@@ -701,14 +918,13 @@ export default function TrackTestProgressPage() {
                                         <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
                                             <div>
                                                 <h3 className="h5 fw-bold text-dark mb-0">Chi Tiết Tiến Trình Xét Nghiệm</h3>
-                                                <div className="text-muted small">Tuân thủ quy trình kiểm soát chất lượng mẫu ISO 15189</div>
                                             </div>
                                             <span className="badge bg-primary px-3 py-2 fw-semibold">
                                                 Chặng {trackingData.currentStepNumber}/6: {trackingData.currentStepName}
                                             </span>
                                         </div>
 
-                                        <div className="bms-stepper-timeline">
+                                        <div className="bms-stepper-grid">
                                             {trackingData.steps?.map((step) => {
                                                 const isCompleted = step.status === "Completed" || step.status === 2;
                                                 const isInProgress = step.status === "InProgress" || step.status === 1;
@@ -722,44 +938,46 @@ export default function TrackTestProgressPage() {
                                                 else if (isWarning) nodeClass = "warning";
 
                                                 return (
-                                                    <div key={step.stepNumber} className="bms-stepper-item">
-                                                        <div className={`bms-stepper-node ${nodeClass}`}>
-                                                            {getStepIcon(step.stepNumber, step.status)}
-                                                        </div>
-                                                        <div className={`bms-step-card ${isInProgress ? "active-step" : ""}`}>
-                                                            <div className="bms-step-card-header">
-                                                                <div className="d-flex align-items-center gap-2">
-                                                                    <span className="text-muted small fw-bold">#{step.stepNumber}</span>
+                                                    <div key={step.stepNumber} className={`bms-step-card bms-step-grid-card ${isInProgress ? "active-step" : ""}`}>
+                                                        <div className="bms-step-card-header">
+                                                            <div className="d-flex align-items-center gap-2 min-w-0">
+                                                                <span className={`bms-stepper-node bms-stepper-node--inline ${nodeClass}`}>
+                                                                    {getStepIcon(step.stepNumber, step.status)}
+                                                                </span>
+                                                                <div className="min-w-0">
+                                                                    <div className="text-muted fw-bold" style={{ fontSize: '11px', lineHeight: 1.1 }}>
+                                                                        Chặng #{step.stepNumber}
+                                                                    </div>
                                                                     <h4 className="bms-step-title">{step.title}</h4>
                                                                 </div>
-                                                                <div>{getStepStatusBadge(step.status)}</div>
                                                             </div>
-                                                            <p className="bms-step-desc">{step.description}</p>
-                                                            <div className="bms-step-meta">
+                                                            <div className="flex-shrink-0">{getStepStatusBadge(step.status)}</div>
+                                                        </div>
+                                                        <p className="bms-step-desc">{step.description}</p>
+                                                        <div className="bms-step-meta">
+                                                            <div className="bms-step-meta-item">
+                                                                <Clock className="text-secondary flex-shrink-0" size="1em" />
+                                                                <span><strong>Thời gian:</strong> {formatDateTime(step.timestamp)}</span>
+                                                            </div>
+                                                            {step.handlerName && (
                                                                 <div className="bms-step-meta-item">
-                                                                    <FaClock className="text-secondary" />
-                                                                    <span><strong>Thời gian:</strong> {formatDateTime(step.timestamp)}</span>
+                                                                    <Stethoscope className="text-primary flex-shrink-0" size="1em" />
+                                                                    <span><strong>Phụ trách:</strong> {step.handlerName}</span>
                                                                 </div>
-                                                                {step.handlerName && (
-                                                                    <div className="bms-step-meta-item">
-                                                                        <FaUserMd className="text-primary" />
-                                                                        <span><strong>Phụ trách:</strong> {step.handlerName}</span>
-                                                                    </div>
-                                                                )}
-                                                                {step.department && (
-                                                                    <div className="bms-step-meta-item">
-                                                                        <FaHospital className="text-secondary" />
-                                                                        <span>{step.department}</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {step.notes && (
-                                                                <div className="alert alert-warning py-1.5 px-2.5 small rounded-2 mt-2 mb-0 d-flex align-items-center gap-2">
-                                                                    <FaExclamationTriangle className="text-warning flex-shrink-0" />
-                                                                    <span>{step.notes}</span>
+                                                            )}
+                                                            {step.department && (
+                                                                <div className="bms-step-meta-item">
+                                                                    <Hospital className="text-secondary flex-shrink-0" size="1em" />
+                                                                    <span>{step.department}</span>
                                                                 </div>
                                                             )}
                                                         </div>
+                                                        {step.notes && (
+                                                            <div className="alert alert-warning py-1.5 px-2.5 small rounded-2 mt-2 mb-0 d-flex align-items-center gap-2">
+                                                                <AlertTriangle className="text-warning flex-shrink-0" size="1em" />
+                                                                <span>{step.notes}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

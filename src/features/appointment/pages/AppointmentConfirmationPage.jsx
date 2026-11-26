@@ -1,22 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaDownload,
-  FaCalendarPlus,
-  FaQrcode,
-  FaEnvelope,
-  FaMobileAlt,
-  FaCommentDots,
-  FaChevronRight,
-  FaArrowLeft,
-  FaSyncAlt,
-  FaLock,
-  FaMoneyBillWave,
-} from "react-icons/fa";
+import { CheckCircle2, AlertTriangle, Download, CalendarPlus, QrCode, Mail, Smartphone, MessageSquare, ChevronRight, ArrowLeft, RefreshCw, Lock, Banknote } from 'lucide-react';
 import { appointmentApi } from "../api/appointmentApi";
 import { QRCodeSVG } from "qrcode.react";
+import { ROLES, resolveRoleId, getStoredUser } from "../../../constants/roles";
 
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
@@ -32,6 +19,8 @@ const isPaidOrConfirmed = (rawStatus) => {
 export default function AppointmentConfirmationPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isReceptionist = useMemo(() => resolveRoleId(getStoredUser()) === ROLES.RECEPTIONIST, []);
+  const rebookPath = isReceptionist ? "/appointments/book" : "/services";
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,8 +70,8 @@ export default function AppointmentConfirmationPage() {
         type: 1, // BookingConfirmed
       });
       setResendStatus("Email xác nhận đã được gửi lại thành công!");
-    } catch {
-      setResendStatus("Email xác nhận đã được gửi lại!");
+    } catch (err) {
+      setResendStatus(err?.response?.data?.message || "Không thể gửi lại email lúc này. Vui lòng liên hệ quầy tiếp đón.");
     } finally {
       setResending(false);
     }
@@ -95,7 +84,7 @@ export default function AppointmentConfirmationPage() {
   const handleAddToCalendar = () => {
     const title = encodeURIComponent(`Lấy mẫu máu: ${data?.packageName || "Xét nghiệm BMS"}`);
     const details = encodeURIComponent(
-      `Lịch hẹn tại BMS: ${data?.location || ""}. Mã: ${data?.appointmentCode}. Nhịn ăn 12h.`
+      `Lịch hẹn tại BMS${data?.location ? `: ${data.location}` : ""}. Mã: ${data?.appointmentCode || targetId}.`
     );
     const location = encodeURIComponent(data?.location || "");
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
@@ -117,12 +106,12 @@ export default function AppointmentConfirmationPage() {
     return (
       <div className="container py-3 text-center">
         <div className="alert alert-warning d-inline-block px-3 py-3 rounded-3 text-start">
-          <FaExclamationTriangle className="me-2 text-warning fs-4 align-middle" />
+          <AlertTriangle className="me-2 text-warning fs-4 align-middle"  size="1em"/>
           <span className="align-middle">{error || "Không tìm thấy dữ liệu cuộc hẹn."}</span>
         </div>
         <div className="mt-3">
-          <Link to="/appointments/book" className="btn btn-primary">
-            <FaArrowLeft className="me-2" /> Quay lại đặt lịch hẹn
+          <Link to={rebookPath} className="btn btn-primary">
+            <ArrowLeft className="me-2"  size="1em"/> Quay lại đặt lịch hẹn
           </Link>
         </div>
       </div>
@@ -144,14 +133,14 @@ export default function AppointmentConfirmationPage() {
             Mã xác nhận lịch hẹn đã được lưu vào hồ sơ y tế điện tử
           </p>
         </div>
-        <Link to="/appointments/book" className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5">
-          <FaArrowLeft /> Đặt lịch khác
+        <Link to={rebookPath} className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5">
+          <ArrowLeft  size="1em"/> Đặt lịch khác
         </Link>
       </div>
 
       {resendStatus && (
         <div className="alert alert-success alert-dismissible fade show rounded-3 border-0" role="alert">
-          <FaCheckCircle className="me-2" />
+          <CheckCircle2 className="me-2"  size="1em"/>
           {resendStatus}
           <button
             type="button"
@@ -174,7 +163,7 @@ export default function AppointmentConfirmationPage() {
               borderRadius: "50%",
             }}
           >
-            <FaCheckCircle style={{ fontSize: "36px", color: "#059669" }} />
+            <CheckCircle2 style={{ fontSize: "36px", color: "#059669" }}  size="1em"/>
           </div>
 
           <h2 className="h4 fw-bold text-dark mb-2">
@@ -246,7 +235,7 @@ export default function AppointmentConfirmationPage() {
                 color: "#92400E",
               }}
             >
-              <FaExclamationTriangle className="me-2 mt-1 flex-shrink-0 fs-5 text-warning" />
+              <AlertTriangle className="me-2 mt-1 flex-shrink-0 fs-5 text-warning"  size="1em"/>
               <div style={{ fontSize: "13.5px" }}>
                 <strong>Lưu ý nhịn ăn:</strong> {data?.fastingInstructions}
               </div>
@@ -260,7 +249,7 @@ export default function AppointmentConfirmationPage() {
             {isPaidOrConfirmed(data?.status) ? (
               <>
                 <div className="text-uppercase text-success small fw-bold mb-2">
-                  <FaCheckCircle className="me-1" /> Phiếu Tiếp Đón & Mã Check-in QR
+                  <CheckCircle2 className="me-1"  size="1em"/> Phiếu Tiếp Đón & Mã Check-in QR
                 </div>
                 <div
                   className="d-inline-flex p-3 bg-white rounded-3 border align-items-center justify-content-center"
@@ -284,7 +273,7 @@ export default function AppointmentConfirmationPage() {
             ) : (
               <div className="p-4 rounded-4 mx-auto text-center" style={{ maxWidth: "480px", backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }}>
                 <div className="text-warning mb-2" style={{ fontSize: "28px" }}>
-                  <FaLock />
+                  <Lock  size="1em"/>
                 </div>
                 <h6 className="fw-bold text-dark mb-1">
                   Mã QR Check-in Đang Tạm Khóa
@@ -297,7 +286,7 @@ export default function AppointmentConfirmationPage() {
                   className="btn btn-primary fw-semibold px-4 py-2 rounded-pill d-inline-flex align-items-center gap-2"
                   onClick={() => navigate(`/payments/checkout?appointmentId=${data?.appointmentId || targetId}&code=${data?.appointmentCode || targetId}`)}
                 >
-                  <FaMoneyBillWave /> Thanh toán giữ chỗ ngay
+                  <Banknote  size="1em"/> Thanh toán giữ chỗ ngay
                 </button>
               </div>
             )}
@@ -309,20 +298,20 @@ export default function AppointmentConfirmationPage() {
               onClick={handleDownloadPdf}
               className="btn btn-primary rounded-pill px-4 py-2 fw-semibold"
             >
-              <FaDownload className="me-2" /> Tải phiếu hẹn (PDF)
+              <Download className="me-2"  size="1em"/> Tải phiếu hẹn (PDF)
             </button>
             <button
               onClick={handleAddToCalendar}
               className="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold"
             >
-              <FaCalendarPlus className="me-2 text-primary" /> Thêm vào Google Calendar
+              <CalendarPlus className="me-2 text-primary"  size="1em"/> Thêm vào Google Calendar
             </button>
             <button
               onClick={handleResendNotification}
               disabled={resending}
               className="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold"
             >
-              <FaSyncAlt className={`me-2 ${resending ? "fa-spin" : ""}`} />
+              <RefreshCw className={`me-2 ${resending ? "fa-spin" : ""}`}  size="1em"/>
               {resending ? "Đang gửi..." : "Gửi lại thông báo"}
             </button>
           </div>
@@ -335,15 +324,15 @@ export default function AppointmentConfirmationPage() {
         >
           <div className="d-flex flex-wrap justify-content-center gap-4 text-muted small">
             <span>
-              <FaEnvelope className="text-success me-1" /> Đã gửi Email ·{" "}
+              <Mail className="text-success me-1"  size="1em"/> Đã gửi Email ·{" "}
               {data?.deliveryStatus?.emailSentAt || "—"}
             </span>
             <span>
-              <FaMobileAlt className="text-success me-1" /> Đã gửi thông báo ứng dụng ·{" "}
+              <Smartphone className="text-success me-1"  size="1em"/> Đã gửi thông báo ứng dụng ·{" "}
               {data?.deliveryStatus?.pushSentAt || "—"}
             </span>
             <span>
-              <FaCommentDots className="text-muted me-1" /> SMS chưa kích hoạt
+              <MessageSquare className="text-muted me-1"  size="1em"/> SMS chưa kích hoạt
             </span>
           </div>
         </div>

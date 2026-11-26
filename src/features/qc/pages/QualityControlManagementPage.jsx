@@ -7,24 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-    FaVial,
-    FaChartLine,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaPlus,
-    FaLock,
-    FaUnlock,
-    FaSync,
-    FaCheck,
-    FaTimes,
-    FaUserCheck,
-    FaSearch,
-    FaHistory,
-    FaMicroscope,
-    FaInfoCircle,
-    FaShieldAlt
-} from "react-icons/fa";
+import { TestTube2, TrendingUp, AlertTriangle, CheckCircle2, Plus, Lock, Unlock, RefreshCw, Check, X as LucideX, UserCheck, Search, History, Microscope, Info, ShieldCheck } from 'lucide-react';
 import {
     fetchQcLots,
     createQcLot,
@@ -316,7 +299,7 @@ export default function QualityControlManagementPage() {
                         onClick={() => setShowCreateLotModal(true)}
                         id="btn-create-qc-lot"
                     >
-                        <FaPlus size={12} />
+                        <Plus size={12} />
                         <span>Khởi Tạo Lô QC</span>
                     </button>
                     <button
@@ -325,7 +308,7 @@ export default function QualityControlManagementPage() {
                         onClick={() => setShowRecordModal(true)}
                         id="btn-record-qc-run"
                     >
-                        <FaVial size={13} />
+                        <TestTube2 size={13} />
                         <span>Nhập Kết Quả QC</span>
                     </button>
                     <button
@@ -334,7 +317,7 @@ export default function QualityControlManagementPage() {
                         onClick={loadLotsAndSummary}
                         disabled={isLoading}
                     >
-                        <FaSync size={13} className={isLoading ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={isLoading ? "fa-spin" : ""} />
                         <span>Làm Mới</span>
                     </button>
                 </div>
@@ -342,7 +325,7 @@ export default function QualityControlManagementPage() {
 
             {qcError ? (
                 <div className="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-3" role="alert">
-                    <FaExclamationTriangle className="me-2" />
+                    <AlertTriangle className="me-2"  size="1em"/>
                     <span>{qcError}</span>
                     <button type="button" className="btn-close" aria-label="Close" onClick={() => setQcError("")} />
                 </div>
@@ -355,7 +338,7 @@ export default function QualityControlManagementPage() {
                     <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-success border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
                             <span className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Đạt Chuẩn IQC</span>
-                            <span className="badge bg-success-subtle text-success rounded-pill">CLSI C24-A3</span>
+                            <span className="badge bg-success-subtle text-success rounded-pill">IQC</span>
                         </div>
                         <div className="fs-2 fw-bold text-success mt-1 font-monospace" style={{ fontVariantNumeric: 'tabular-nums' }}>{summary.inControlRate}%</div>
                         <div className="small text-muted mt-1">Đảm bảo độ tin cậy mẫu bệnh nhân</div>
@@ -409,7 +392,7 @@ export default function QualityControlManagementPage() {
                         style={activeTab === 'chart' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("chart")}
                     >
-                        <FaChartLine /> Biểu Đồ Levey-Jennings
+                        <TrendingUp  size="1em"/> Biểu Đồ Levey-Jennings
                     </button>
                 </li>
                 <li className="nav-item">
@@ -418,7 +401,7 @@ export default function QualityControlManagementPage() {
                         style={activeTab === 'lots' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("lots")}
                     >
-                        <FaVial /> Lô Kiểm Chuẩn (QC Lots)
+                        <TestTube2  size="1em"/> Lô Kiểm Chuẩn (QC Lots)
                     </button>
                 </li>
                 <li className="nav-item">
@@ -427,7 +410,7 @@ export default function QualityControlManagementPage() {
                         style={activeTab === 'flags' ? { backgroundColor: '#1E60E6' } : {}}
                         onClick={() => setActiveTab("flags")}
                     >
-                        <FaExclamationTriangle /> Lịch Sử Cảnh Báo Vi Phạm Westgard ({flags.length})
+                        <AlertTriangle  size="1em"/> Lịch Sử Cảnh Báo Vi Phạm Westgard ({flags.length})
                     </button>
                 </li>
             </ul>
@@ -486,11 +469,11 @@ export default function QualityControlManagementPage() {
                     {/* CẢNH BÁO VI PHẠM QUY TẮC WESTGARD 1_3S & KHÓA MÁY */}
                     {has13sViolation && (
                         <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center gap-3">
-                            <FaLock className="fs-2 text-danger flex-shrink-0" />
+                            <Lock className="fs-2 text-danger flex-shrink-0"  size="1em"/>
                             <div>
                                 <strong className="fs-6 d-block">VI PHẠM QUY TẮC WESTGARD 1_3s — MÁY PHÂN TÍCH ĐÃ BỊ KHÓA TỰ ĐỘNG!</strong>
                                 <span className="small">
-                                    Phát hiện điểm đo nội kiểm IQC vượt quá giới hạn sai số ngẫu nhiên nghiêm trọng (&plusmn;3 SD). <strong>Quy chuẩn ISO 15189:2022 yêu cầu dừng ngay việc chạy mẫu bệnh nhân trên thiết bị này.</strong> Kỹ thuật viên bắt buộc phải kiểm tra hóa chất, hiệu chuẩn lại cảm biến đo và chạy lại mẫu kiểm chuẩn đạt mới được mở khóa chạy mẫu.
+                                    Điểm đo IQC vượt ngưỡng &plusmn;3 SD. Thiết bị đã khóa chạy mẫu; vui lòng kiểm tra hóa chất, hiệu chuẩn lại và chạy QC đạt trước khi mở khóa.
                                 </span>
                             </div>
                         </div>
@@ -500,7 +483,7 @@ export default function QualityControlManagementPage() {
                     <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
                         <div className="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
                             <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                <FaChartLine className="text-primary" /> Biểu Đồ Levey-Jennings ({ljData?.lot?.analyteName || "Analyte"})
+                                <TrendingUp className="text-primary"  size="1em"/> Biểu Đồ Levey-Jennings ({ljData?.lot?.analyteName || "Analyte"})
                             </h5>
                             <div className="d-flex align-items-center gap-3 small text-muted">
                                 <span><span className="badge rounded-pill bg-success me-1">&bull;</span> Đạt chuẩn (|Z| &le; 2)</span>
@@ -512,7 +495,7 @@ export default function QualityControlManagementPage() {
                         <div className="card-body p-2 text-center">
                             {!chartRenderData ? (
                                 <div className="py-3 text-muted">
-                                    <FaInfoCircle className="fs-1 mb-2" />
+                                    <Info className="fs-1 mb-2"  size="1em"/>
                                     <p>Chưa có dữ liệu lượt chạy QC cho lô này. Hãy nhấn "Nhập kết quả chạy QC" để ghi nhận lần chạy đầu tiên.</p>
                                 </div>
                             ) : (
@@ -607,11 +590,11 @@ export default function QualityControlManagementPage() {
                     <div className="bms-table-standalone-header">
                         <div>
                             <h5 className="bms-table-standalone-title">
-                                <FaVial style={{ color: '#1E60E6' }} />
+                                <TestTube2 style={{ color: '#1E60E6' }}  size="1em"/>
                                 <span>Danh Sách Lô Kiểm Chuẩn Đang Quản Lý</span>
                             </h5>
                             <div className="bms-table-standalone-subtitle">
-                                {lots.length} lô kiểm chuẩn nội bộ IQC theo chuẩn CLSI C24-A3
+                                {lots.length} lô kiểm chuẩn nội bộ IQC
                             </div>
                         </div>
                     </div>
@@ -690,11 +673,11 @@ export default function QualityControlManagementPage() {
                     <div className="bms-table-standalone-header">
                         <div>
                             <h5 className="bms-table-standalone-title">
-                                <FaExclamationTriangle style={{ color: '#ef4444' }} />
+                                <AlertTriangle style={{ color: '#ef4444' }}  size="1em"/>
                                 <span>Nhật Ký Cảnh Báo Vi Phạm Westgard &amp; Khóa Máy</span>
                             </h5>
                             <div className="bms-table-standalone-subtitle">
-                                {flags.length} sự cố vi phạm Westgard ghi nhận theo chuẩn CLSI C24-A3
+                                {flags.length} cảnh báo vi phạm Westgard đã ghi nhận
                             </div>
                         </div>
                     </div>
@@ -702,7 +685,7 @@ export default function QualityControlManagementPage() {
                     <div className="bms-table-standalone-body">
                         {flags.length === 0 ? (
                             <div className="text-center py-3 text-muted">
-                                <FaCheckCircle className="fs-1 text-success mb-2" />
+                                <CheckCircle2 className="fs-1 text-success mb-2"  size="1em"/>
                                 <p className="mb-0 fw-semibold">Không có sự cố vi phạm Westgard nào chưa được khắc phục.</p>
                             </div>
                         ) : (
@@ -744,11 +727,11 @@ export default function QualityControlManagementPage() {
                                                 <td className="text-center">
                                                     {flag.isLocked ? (
                                                         <span className="badge bg-danger text-white d-inline-flex align-items-center gap-1">
-                                                            <FaLock /> ĐANG KHÓA
+                                                            <Lock  size="1em"/> ĐANG KHÓA
                                                         </span>
                                                     ) : (
                                                         <span className="badge bg-success text-white d-inline-flex align-items-center gap-1">
-                                                            <FaUnlock /> ĐÃ MỞ
+                                                            <Unlock  size="1em"/> ĐÃ MỞ
                                                         </span>
                                                     )}
                                                 </td>
@@ -765,7 +748,7 @@ export default function QualityControlManagementPage() {
                                                                     setShowSignoffModal(true);
                                                                 }}
                                                             >
-                                                                <FaUserCheck /> Ký mở khóa
+                                                                <UserCheck  size="1em"/> Ký mở khóa
                                                             </button>
                                                         ) : (
                                                             <span
@@ -798,7 +781,7 @@ export default function QualityControlManagementPage() {
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-success text-white">
                                 <h5 className="modal-title fw-bold">
-                                    <FaVial className="me-2" /> Nhập Kết Quả Chạy Kiểm Chuẩn (Record QC Run)
+                                    <TestTube2 className="me-2"  size="1em"/> Nhập Kết Quả Chạy Kiểm Chuẩn (Record QC Run)
                                 </h5>
                                 <button
                                     type="button"
@@ -857,7 +840,7 @@ export default function QualityControlManagementPage() {
                                     {recordResult && (
                                         <div className={`alert p-3 rounded border ${recordResult.isLocked ? 'alert-danger bg-danger-subtle border-danger' : recordResult.status === 'WARNING_1_2S' ? 'alert-warning bg-warning-subtle border-warning' : 'alert-success bg-success-subtle border-success'}`}>
                                             <div className="fw-bold d-flex align-items-center gap-2">
-                                                {recordResult.isLocked ? <FaExclamationTriangle className="text-danger" /> : <FaCheckCircle className="text-success" />}
+                                                {recordResult.isLocked ? <AlertTriangle className="text-danger"  size="1em"/> : <CheckCircle2 className="text-success"  size="1em"/>}
                                                 Đánh giá Westgard: {recordResult.status} (Z-Score: {recordResult.zScore}s)
                                             </div>
                                             <div className="small mt-1">{recordResult.message}</div>
@@ -898,7 +881,7 @@ export default function QualityControlManagementPage() {
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-primary text-white">
                                 <h5 className="modal-title fw-bold">
-                                    <FaPlus className="me-2" /> Khởi Tạo Lô Kiểm Chuẩn Mới (Create QC Lot)
+                                    <Plus className="me-2"  size="1em"/> Khởi Tạo Lô Kiểm Chuẩn Mới (Create QC Lot)
                                 </h5>
                                 <button
                                     type="button"
@@ -1033,7 +1016,7 @@ export default function QualityControlManagementPage() {
                         <div className="modal-content border-0 shadow-lg">
                             <div className="modal-header bg-danger text-white">
                                 <h5 className="modal-title fw-bold">
-                                    <FaLock className="me-2" /> Ký Duyệt Khắc Phục Sự Cố QC &amp; Mở Khóa Máy
+                                    <Lock className="me-2"  size="1em"/> Ký Duyệt Khắc Phục Sự Cố QC &amp; Mở Khóa Máy
                                 </h5>
                                 <button
                                     type="button"

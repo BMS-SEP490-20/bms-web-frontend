@@ -7,7 +7,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaFileContract, FaCalendarCheck, FaClock, FaPhoneAlt, FaCheckCircle } from 'react-icons/fa';
+import { FileCheck2, CalendarCheck, Clock, Phone, CheckCircle2 } from 'lucide-react';
 import PortalNavbar from '../../home/components/PortalNavbar';
 import MegaFooter from '../../home/components/MegaFooter';
 import usePageTransition from '../../../shared/hooks/usePageTransition';
@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
               }}
             >
               <div className="d-flex align-items-center gap-2 mb-2.5" style={{ fontSize: '12px', color: '#64748B', fontWeight: 700, letterSpacing: '0.04em' }}>
-                <FaFileContract style={{ color: '#1E60E6', fontSize: '15px' }} />
+                <FileCheck2 style={{ color: '#1E60E6', fontSize: '15px' }}  size="1em"/>
                 <span>QUY ĐỊNH PHÁP LÝ · HỆ THỐNG PHÒNG XÉT NGHIỆM Y KHOA BMS</span>
               </div>
               <h1 className="fw-bold mb-3" style={{ fontSize: '30px', color: '#0F172A', letterSpacing: '-0.025em', lineHeight: '1.25' }}>
@@ -67,7 +67,7 @@ export default function TermsOfServicePage() {
                   1. Giới Thiệu &amp; Phạm Vi Cung Cấp Dịch Vụ
                 </h2>
                 <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.7 }}>
-                  Hệ thống Xét nghiệm Y khoa BMS (Giấy phép hoạt động số 08892/BYT-GPHĐ, đạt chứng nhận quốc tế ISO 15189:2022) cung cấp dịch vụ xét nghiệm huyết học, sinh hóa, miễn dịch và sàng lọc di truyền. Dịch vụ được cung cấp trực tiếp tại các trung tâm xét nghiệm BMS hoặc thông qua dịch vụ lấy mẫu chuyên nghiệp tận nhà theo yêu cầu của người bệnh.
+                  Hệ thống Phòng Xét Nghiệm Y Khoa BMS cung cấp dịch vụ đặt lịch, lấy mẫu và trả kết quả xét nghiệm trực tuyến cho người bệnh.
                 </p>
               </div>
 
@@ -78,25 +78,25 @@ export default function TermsOfServicePage() {
                 </h2>
                 <div className="d-flex flex-column gap-2 mb-3">
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Quyền được chăm sóc tận tình &amp; an toàn:</strong> Người bệnh được phục vụ bởi đội ngũ điều dưỡng có chứng chỉ hành nghề chính quy, thao tác lấy mẫu êm ái, bộ dụng cụ vô trùng dùng 1 lần duy nhất.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Quyền được giải thích &amp; tư vấn kết quả:</strong> Mọi kết quả xét nghiệm bất thường đều được Bác sĩ Chuyên khoa liên hệ tư vấn cặn kẽ, giải thích ý nghĩa các chỉ số và định hướng điều trị hoặc chế độ dinh dưỡng.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Quyền bảo mật thông tin y tế:</strong> Hồ sơ sức khỏe và kết quả xét nghiệm được mã hóa và bảo vệ tuyệt đối theo quy định của Luật Khám bệnh chữa bệnh và Nghị định 13/2023/NĐ-CP.
                     </span>
                   </div>
                   <div className="d-flex align-items-start gap-2.5">
-                    <FaCheckCircle style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }} />
+                    <CheckCircle2 style={{ color: '#10B981', marginTop: '4px', flexShrink: 0 }}  size="1em"/>
                     <span style={{ fontSize: '14px', color: '#334155', lineHeight: 1.6 }}>
                       <strong>Nghĩa vụ phối hợp:</strong> Người bệnh có trách nhiệm cung cấp thông tin nhân thân, tiền sử bệnh án và tuân thủ các hướng dẫn chuẩn bị (như nhịn ăn, kiêng đồ uống có cồn) để đảm bảo kết quả chính xác nhất.
                     </span>

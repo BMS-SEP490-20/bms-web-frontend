@@ -1,42 +1,35 @@
 /**
  * @file PushNotificationCenterPage.jsx
- * @description Master Multi-Channel Push Notification & Audit Log Center (UC58 / I3-032).
- * Integrates real-time dispatch, multi-channel gateway routing (Push/FCM, InApp, SMS, Email),
- * emergency critical panic override, BR-NOTIF-01 rate limit monitoring, and in-app bell drawer.
- * Conforms to: Production Medical Standards, Clinical Emergency Escalation & AGENTS-DESIGN.md.
+ * @description Multi-Channel Push Notification Center & Delivery Log (UC58 / I3-032).
+ * Clean 2D flat BMS layout for Admins/Staff to compose & dispatch notifications and monitor delivery status,
+ * plus dedicated Patient Notification Inbox view.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    FaBell,
-    FaPaperPlane,
-    FaExclamationTriangle,
-    FaCheckCircle,
-    FaTimesCircle,
-    FaClock,
-    FaSync,
-    FaSearch,
-    FaFilter,
-    FaMobileAlt,
-    FaEnvelope,
-    FaCommentDots,
-    FaRedo,
-    FaEye,
-    FaCheckDouble,
-    FaShieldAlt,
-    FaVolumeUp,
-    FaBolt,
-    FaUser,
-    FaArrowRight,
-    FaArrowLeft,
-    FaTimes,
-    FaInfoCircle,
-    FaFlask,
-    FaCalendarAlt,
-    FaReceipt,
-    FaCheck
-} from "react-icons/fa";
+    Bell,
+    Send,
+    AlertTriangle,
+    CheckCircle2,
+    XCircle,
+    Clock,
+    RefreshCw,
+    Search as LucideSearch,
+    Smartphone,
+    Mail,
+    MessageSquare,
+    RotateCw,
+    Eye,
+    CheckCheck,
+    ArrowRight,
+    ArrowLeft,
+    X as LucideX,
+    FlaskConical,
+    Calendar,
+    Receipt,
+    Check
+} from "lucide-react";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { ROLES, resolveRoleId } from "../../../constants/roles";
 import {
@@ -49,20 +42,29 @@ import {
 } from "../api/pushNotificationApi";
 import userManagementService from "../../../services/userManagementService";
 
-// Predefined Template Categories
 const CATEGORIES = [
-    { key: "RESULT_READY", label: "Kết quả XN sẵn sàng", defaultPriority: "High", defaultAction: "/patient/test-reports" },
-    { key: "CRITICAL_PANIC", label: "Báo động Nguy kịch (Critical Panic)", defaultPriority: "Critical_Panic", defaultAction: "/doctor/medical-records" },
+    { key: "RESULT_READY", label: "Kết quả xét nghiệm sẵn sàng", defaultPriority: "High", defaultAction: "/patient/test-history" },
+    { key: "CRITICAL_PANIC", label: "Cảnh báo kết quả bất thường (Critical)", defaultPriority: "Critical_Panic", defaultAction: "/doctor/medical-records" },
     { key: "APPOINTMENT_REMINDER", label: "Nhắc nhở lịch hẹn", defaultPriority: "Normal", defaultAction: "/appointments" },
-    { key: "PAYMENT_REMINDER", label: "Nhắc thanh toán viện phí", defaultPriority: "Normal", defaultAction: "/billing/calculate-fee" },
-    { key: "SYSTEM_ALERT", label: "Thông báo bảo trì hệ thống", defaultPriority: "Normal", defaultAction: "/dashboard" }
+    { key: "PAYMENT_REMINDER", label: "Nhắc thanh toán", defaultPriority: "Normal", defaultAction: "/patient/payment-history" },
+    { key: "SYSTEM_ALERT", label: "Thông báo hệ thống", defaultPriority: "Normal", defaultAction: "/dashboard" }
+];
+
+const LOG_TABS = [
+    { key: "ALL", label: "Tất cả" },
+    { key: "CRITICAL", label: "Nguy kịch" },
+    { key: "PUSH", label: "Push (FCM)" },
+    { key: "INAPP", label: "In-App" },
+    { key: "FAILED", label: "Thất bại" }
 ];
 
 export default function PushNotificationCenterPage() {
     const { user, userRole, userRoleId } = useAuth();
     const navigate = useNavigate();
     const currentRoleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(userRoleId), [user, userRoleId]);
-    const isPatient = useMemo(() => currentRoleId === ROLES.PATIENT || userRole === 'patient', [currentRoleId, userRole]);
+    const isPatient = useMemo(() => currentRoleId === ROLES.PATIENT || userRole === "patient", [currentRoleId, userRole]);
+    const canViewLogs = useMemo(() => currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER, [currentRoleId]);
+    const canViewUsers = useMemo(() => currentRoleId === ROLES.ADMIN, [currentRoleId]);
     const [patientFilter, setPatientFilter] = useState("ALL");
 
     // Audit logs state
@@ -74,7 +76,7 @@ export default function PushNotificationCenterPage() {
     const [loadError, setLoadError] = useState(null);
 
     // Filters
-    const [activeTab, setActiveTab] = useState("ALL"); // ALL, CRITICAL, PUSH, INAPP, FAILED
+    const [activeTab, setActiveTab] = useState("ALL");
     const [searchTerm, setSearchTerm] = useState("");
     const [channelFilter, setChannelFilter] = useState("ALL");
     const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -82,27 +84,25 @@ export default function PushNotificationCenterPage() {
     // Dispatch form state
     const [formUserId, setFormUserId] = useState("");
     const [formRecipientName, setFormRecipientName] = useState("");
-    const [formChannel, setFormChannel] = useState("Push");
-    const [formPriority, setFormPriority] = useState("High");
-    const [formCategory, setFormCategory] = useState("RESULT_READY");
-    const [formTitle, setFormTitle] = useState("Kết quả xét nghiệm Tổng phân tích máu đã sẵn sàng");
-    const [formBody, setFormBody] = useState("Phiếu kết quả xét nghiệm mã số #ORD-2026-9901 đã được Bác sĩ điều trị phê duyệt. Vui lòng bấm để xem chi tiết.");
-    const [formActionUrl, setFormActionUrl] = useState("/patient/test-reports/ORD-2026-9901");
-    const [formPlatform, setFormPlatform] = useState("Android");
+    const [formChannel, setFormChannel] = useState("InApp");
+    const [formPriority, setFormPriority] = useState("Normal");
+    const [formCategory, setFormCategory] = useState("SYSTEM_ALERT");
+    const [formTitle, setFormTitle] = useState("");
+    const [formBody, setFormBody] = useState("");
+    const [formActionUrl, setFormActionUrl] = useState("");
+    const [formPlatform, setFormPlatform] = useState("Web");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formAlert, setFormAlert] = useState(null); // { type: 'success' | 'danger', message: string }
+    const [formAlert, setFormAlert] = useState(null);
     const [availableUsers, setAvailableUsers] = useState([]);
 
-    // In-App Notification Drawer Simulation
+    // In-App Notification Drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [drawerUserId, setDrawerUserId] = useState("");
     const [userNotifications, setUserNotifications] = useState([]);
-    const [drawerUnreadOnly, setDrawerUnreadOnly] = useState(false);
 
-    // Details Modal
+    // Detail Modal
     const [selectedDetail, setSelectedDetail] = useState(null);
 
-    // Sound effect synthesis via Web Audio API
     const playChime = useCallback((isCritical = false) => {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -110,35 +110,30 @@ export default function PushNotificationCenterPage() {
             const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
-
             if (isCritical) {
-                // Emergency Alarm dual tone
                 osc.type = "sawtooth";
                 osc.frequency.setValueAtTime(880, ctx.currentTime);
                 osc.frequency.setValueAtTime(440, ctx.currentTime + 0.15);
-                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
                 osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.5);
+                osc.stop(ctx.currentTime + 0.45);
             } else {
-                // Gentle chime
                 osc.type = "sine";
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-                osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.1); // A5
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.setValueAtTime(880.0, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
                 osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.4);
+                osc.stop(ctx.currentTime + 0.35);
             }
         } catch {
-            // Audio context blocked or not supported
+            // AudioContext unsupported or blocked
         }
     }, []);
 
-    // Load audit logs (staff only)
     const fetchLogs = useCallback(async () => {
-        if (isPatient) {
+        if (!canViewLogs) {
             setIsLoading(false);
             return;
         }
@@ -168,30 +163,27 @@ export default function PushNotificationCenterPage() {
             setTotalCount(result?.totalItems ?? result?.totalCount ?? items.length);
         } catch (error) {
             console.error("Failed to load notification logs:", error);
-            setLoadError(error.message || "Không thể kết nối đến hệ thống máy chủ để tải thông báo.");
+            setLoadError(error.message || "Không thể tải nhật ký thông báo từ máy chủ.");
         } finally {
             setIsLoading(false);
         }
-    }, [isPatient, activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
+    }, [canViewLogs, activeTab, channelFilter, priorityFilter, searchTerm, currentPage, pageSize]);
 
-    // Target user ID for inbox retrieval (Patient own ID or Drawer selected ID)
     const targetUserId = useMemo(() => {
         if (isPatient) return user?.id || user?._id || user?.sub || "";
         return drawerUserId;
     }, [isPatient, user, drawerUserId]);
 
-    // Load user notifications for drawer or patient hub
     const fetchUserNotifs = useCallback(async () => {
         if (!targetUserId) return;
         try {
-            const raw = await getUserNotifications(targetUserId, { unreadOnly: drawerUnreadOnly });
+            const raw = await getUserNotifications(targetUserId, { unreadOnly: false });
             const list = Array.isArray(raw) ? raw : (raw?.items ?? []);
             setUserNotifications(list);
-        } catch (err) {
-            console.error("Failed to fetch user notifications:", err);
+        } catch {
             setUserNotifications([]);
         }
-    }, [targetUserId, drawerUnreadOnly]);
+    }, [targetUserId]);
 
     useEffect(() => {
         fetchLogs();
@@ -201,45 +193,45 @@ export default function PushNotificationCenterPage() {
         fetchUserNotifs();
     }, [fetchUserNotifs]);
 
-    // Metrics calculations
     const metrics = useMemo(() => {
         const total = totalCount || logs.length;
         const criticalCount = logs.filter(l => l.priority === "Critical_Panic" || l.category === "CRITICAL_PANIC").length;
         const failedCount = logs.filter(l => l.status === "FAILED").length;
         const deliveredCount = logs.filter(l => l.status === "DELIVERED").length;
-        const successRate = total > 0 ? Math.round((deliveredCount / total) * 100) : 100;
+        const successRate = logs.length > 0 ? Math.round((deliveredCount / logs.length) * 100) : 100;
         return { total, criticalCount, failedCount, deliveredCount, successRate };
     }, [logs, totalCount]);
 
-    // Unread count for bell
-    const unreadCount = useMemo(() => {
-        return userNotifications.filter(n => !n.isRead && !n.IsRead).length;
-    }, [userNotifications]);
+    const unreadCount = useMemo(
+        () => userNotifications.filter(n => !n.isRead && !n.IsRead).length,
+        [userNotifications]
+    );
 
-    // Load real users from database (staff only)
     useEffect(() => {
-        if (isPatient) return;
-        userManagementService.getAllUsers({ params: { pageSize: 20 } })
+        if (!canViewUsers) return;
+        userManagementService.getAllUsers({ params: { pageSize: 50 } })
             .then(res => {
                 const list = res?.success && Array.isArray(res.data) ? res.data : [];
                 setAvailableUsers(list);
-                if (list.length > 0 && !formUserId) {
-                    setFormUserId(list[0].id || list[0]._id || "");
-                    setFormRecipientName(list[0].fullName || list[0].name || "");
-                    setDrawerUserId(list[0].id || list[0]._id || "");
+                if (list.length > 0) {
+                    const firstId = list[0].id || list[0]._id || "";
+                    setFormUserId(prev => prev || firstId);
+                    setFormRecipientName(prev => prev || (list[0].fullName || list[0].username || ""));
+                    setDrawerUserId(prev => prev || firstId);
                 }
             })
             .catch(() => setAvailableUsers([]));
-    }, [isPatient, formUserId]);
+    }, [canViewUsers]);
 
-    // Handle Quick User Selection
-    const handleSelectDemoUser = (user) => {
-        setFormUserId(user.id || user._id);
-        setFormRecipientName(user.fullName || user.name || "");
-        setFormPlatform(user.defaultPlatform || "Web");
+    const handleSelectRecipient = (selectedId) => {
+        setFormUserId(selectedId);
+        const found = availableUsers.find(u => (u.id || u._id) === selectedId);
+        if (found) {
+            setFormRecipientName(found.fullName || found.username || "");
+            setFormPlatform(found.defaultPlatform || "Web");
+        }
     };
 
-    // Handle Category Selection
     const handleSelectCategory = (catKey) => {
         const cat = CATEGORIES.find(c => c.key === catKey);
         if (!cat) return;
@@ -247,40 +239,11 @@ export default function PushNotificationCenterPage() {
         setFormPriority(cat.defaultPriority);
         setFormActionUrl(cat.defaultAction);
 
-        if (cat.key === "CRITICAL_PANIC") {
-            setFormTitle("BÁO ĐỘNG NGUY KỊCH: Giá trị sinh hóa vượt ngưỡng đỏ");
-            setFormBody("Phòng xét nghiệm ghi nhận kết quả bất thường nguy kịch cần hội chẩn và xử trí cấp bách!");
-            setFormChannel("Push");
-        } else if (cat.key === "RESULT_READY") {
-            setFormTitle("Kết quả xét nghiệm đã hoàn thành");
-            setFormBody("Phiếu xét nghiệm của bạn đã được duyệt và cấp mã bảo mật xem trực tuyến.");
-        } else if (cat.key === "APPOINTMENT_REMINDER") {
-            setFormTitle("Nhắc nhở lịch hẹn khám bệnh BMS");
-            setFormBody("Quý khách có lịch hẹn khám tại cơ sở số 1 vào ngày mai. Vui lòng đến đúng giờ.");
-        } else if (cat.key === "PAYMENT_REMINDER") {
-            setFormTitle("Thông báo viện phí cần quyết toán");
-            setFormBody("Hóa đơn khám chữa bệnh của quý khách đã có thông tin chi tiết BHYT và số tiền đồng chi trả.");
+        if (!formTitle.trim() && !formBody.trim()) {
+            setFormTitle(cat.label);
         }
     };
 
-    // Quick Test Action Buttons
-    const triggerQuickTest = (type) => {
-        if (type === "CRITICAL") {
-            handleSelectCategory("CRITICAL_PANIC");
-            setFormPriority("Critical_Panic");
-            setFormChannel("Push");
-        } else if (type === "RESULT") {
-            handleSelectCategory("RESULT_READY");
-            setFormPriority("High");
-            setFormChannel("InApp");
-        } else if (type === "FEE") {
-            handleSelectCategory("PAYMENT_REMINDER");
-            setFormPriority("Normal");
-            setFormChannel("SMS");
-        }
-    };
-
-    // Dispatch form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setFormAlert(null);
@@ -288,27 +251,25 @@ export default function PushNotificationCenterPage() {
 
         try {
             const isCritical = formPriority === "Critical_Panic" || formCategory === "CRITICAL_PANIC";
-            const payload = {
-                userId: formUserId,
-                recipientName: formRecipientName,
+            const result = await dispatchNotification({
+                userId: formUserId.trim(),
+                recipientName: formRecipientName.trim(),
                 channel: formChannel,
                 priority: formPriority,
                 category: formCategory,
-                title: formTitle,
-                body: formBody,
-                actionUrl: formActionUrl,
+                title: formTitle.trim(),
+                body: formBody.trim(),
+                actionUrl: formActionUrl.trim(),
                 devicePlatform: formPlatform
-            };
-
-            const result = await dispatchNotification(payload);
+            });
 
             playChime(isCritical);
             setFormAlert({
                 type: "success",
-                message: `[Mã: ${result.notificationId}] Đã gửi thông báo thành công qua kênh ${formChannel} đến ${formRecipientName} (${formUserId})!`
+                message: `Đã gửi thông báo ${result?.notificationId ? `#${result.notificationId} ` : ""}qua kênh ${formChannel} đến ${formRecipientName || formUserId}.`
             });
-
-            // Refresh logs and user notifications
+            setFormTitle("");
+            setFormBody("");
             await fetchLogs();
             await fetchUserNotifs();
         } catch (error) {
@@ -321,13 +282,12 @@ export default function PushNotificationCenterPage() {
         }
     };
 
-    // Resend failed notification
     const handleResend = async (id) => {
         try {
             const res = await resendNotification(id);
             setFormAlert({
                 type: "success",
-                message: res.message || `Đã thử gửi lại thông báo #${id} thành công!`
+                message: res?.message || `Đã gửi lại thông báo #${id}.`
             });
             await fetchLogs();
         } catch (err) {
@@ -338,7 +298,6 @@ export default function PushNotificationCenterPage() {
         }
     };
 
-    // Mark single notification read
     const handleMarkRead = async (id) => {
         try {
             await markNotificationRead(id);
@@ -349,7 +308,6 @@ export default function PushNotificationCenterPage() {
         }
     };
 
-    // Mark all read for user
     const handleMarkAllRead = async () => {
         try {
             const uid = isPatient ? (user?.id || user?._id || user?.sub) : drawerUserId;
@@ -375,13 +333,12 @@ export default function PushNotificationCenterPage() {
 
         return (
             <div className="container-fluid py-4" style={{ maxWidth: "1050px" }}>
-                {/* Header Card */}
                 <div className="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
                     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div>
                             <div className="d-flex align-items-center gap-2 mb-2">
-                                <span className="badge bg-primary-subtle text-primary fw-semibold px-2.5 py-1.5 rounded-pill">
-                                    <FaBell className="me-1" /> Hộp thư thông báo y khoa
+                                <span className="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1">
+                                    <Bell size={13} /> Hộp thư thông báo
                                 </span>
                                 {unreadCount > 0 && (
                                     <span className="badge bg-danger text-white rounded-pill">
@@ -389,9 +346,9 @@ export default function PushNotificationCenterPage() {
                                     </span>
                                 )}
                             </div>
-                            <h2 className="fw-bold mb-1" style={{ color: "#0f2743" }}>Thông Báo &amp; Lời Nhắc Y Khoa</h2>
+                            <h2 className="fw-bold mb-1" style={{ color: "#0f2743" }}>Thông Báo &amp; Lịch Hẹn</h2>
                             <p className="text-muted small mb-0">
-                                Xin chào <strong>{user?.fullName || user?.username || "Quý khách"}</strong> ({user?.patientCode || "Bệnh nhân"}) • Cập nhật kết quả xét nghiệm, lịch hẹn và hướng dẫn lâm sàng
+                                Xin chào <strong>{user?.fullName || user?.username || "Quý khách"}</strong> • Cập nhật trạng thái kết quả xét nghiệm và lịch hẹn
                             </p>
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -399,28 +356,26 @@ export default function PushNotificationCenterPage() {
                                 className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
                                 onClick={() => navigate("/")}
                             >
-                                <FaArrowLeft /> Trang chủ
+                                <ArrowLeft size={14} /> Trang chủ
                             </button>
                             <button
                                 className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
                                 onClick={fetchUserNotifs}
-                                title="Tải lại thông báo"
                             >
-                                <FaSync /> Làm mới
+                                <RefreshCw size={14} /> Làm mới
                             </button>
                             {unreadCount > 0 && (
                                 <button
                                     className="btn btn-primary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2"
                                     onClick={handleMarkAllRead}
                                 >
-                                    <FaCheckDouble /> Đã đọc tất cả
+                                    <CheckCheck size={14} /> Đã đọc tất cả
                                 </button>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Filter Tabs */}
                 <div className="d-flex gap-2 mb-3 overflow-auto pb-1">
                     {[
                         { key: "ALL", label: `Tất cả (${userNotifications.length})` },
@@ -430,7 +385,7 @@ export default function PushNotificationCenterPage() {
                     ].map(tab => (
                         <button
                             key={tab.key}
-                            className={`btn btn-sm rounded-pill px-3.5 py-2 fw-semibold ${patientFilter === tab.key ? "btn-primary text-white" : "btn-light text-secondary border"}`}
+                            className={`btn btn-sm rounded-pill px-3 py-2 fw-semibold ${patientFilter === tab.key ? "btn-primary text-white" : "btn-light text-secondary border"}`}
                             onClick={() => setPatientFilter(tab.key)}
                         >
                             {tab.label}
@@ -438,17 +393,16 @@ export default function PushNotificationCenterPage() {
                     ))}
                 </div>
 
-                {/* Notification List */}
                 {filteredNotifications.length === 0 ? (
                     <div className="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
                         <div className="text-muted mb-3">
-                            <FaBell style={{ fontSize: "3rem", opacity: 0.3 }} />
+                            <Bell size={40} style={{ opacity: 0.3 }} />
                         </div>
                         <h5 className="fw-bold text-dark">Không có thông báo nào</h5>
                         <p className="text-muted small mb-3">
                             {patientFilter === "UNREAD"
                                 ? "Quý khách đã đọc hết tất cả các thông báo."
-                                : "Hiện tại không có thông báo y khoa nào trong mục này."}
+                                : "Hiện tại không có thông báo nào trong mục này."}
                         </p>
                         <div>
                             <button className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2" onClick={() => setPatientFilter("ALL")}>
@@ -460,7 +414,7 @@ export default function PushNotificationCenterPage() {
                     <div className="d-flex flex-column gap-3">
                         {filteredNotifications.map((notif, idx) => {
                             const isUnread = !notif.isRead && !notif.IsRead;
-                            const title = notif.title || notif.Title || "Thông báo y khoa";
+                            const title = notif.title || notif.Title || "Thông báo";
                             const body = notif.body || notif.message || notif.Message || "";
                             const isResult = notif.category === "RESULT_READY" || notif.type === "TEST_RESULT_READY" || title.toLowerCase().includes("kết quả");
                             const isPanic = notif.priority === "Critical_Panic" || notif.category === "CRITICAL_PANIC" || notif.type === "PANIC_RESULT_ALERT";
@@ -470,7 +424,7 @@ export default function PushNotificationCenterPage() {
                             return (
                                 <div
                                     key={notif.id || notif._id || idx}
-                                    className={`card border-0 shadow-sm rounded-4 p-3.5 ${isUnread ? "bg-white" : "bg-light bg-opacity-75"}`}
+                                    className={`card border-0 shadow-sm rounded-4 p-4 ${isUnread ? "bg-white" : "bg-light bg-opacity-75"}`}
                                     style={{
                                         borderLeft: isPanic ? "5px solid #dc3545" : isUnread ? "5px solid #0d6efd" : "5px solid #dee2e6"
                                     }}
@@ -486,26 +440,20 @@ export default function PushNotificationCenterPage() {
                                                 }`}
                                                 style={{ width: "48px", height: "48px" }}
                                             >
-                                                {isPanic ? <FaExclamationTriangle size={20} /> :
-                                                 isResult ? <FaFlask size={20} /> :
-                                                 isAppt ? <FaCalendarAlt size={20} /> :
-                                                 isPayment ? <FaReceipt size={20} /> : <FaBell size={20} />}
+                                                {isPanic ? <AlertTriangle size={20} /> :
+                                                 isResult ? <FlaskConical size={20} /> :
+                                                 isAppt ? <Calendar size={20} /> :
+                                                 isPayment ? <Receipt size={20} /> : <Bell size={20} />}
                                             </div>
                                             <div className="flex-grow-1">
                                                 <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                                     <span className="fw-bold text-dark fs-6">{title}</span>
-                                                    {isUnread && (
-                                                        <span className="badge bg-primary rounded-pill small">Mới</span>
-                                                    )}
-                                                    {isPanic && (
-                                                        <span className="badge bg-danger text-white rounded-pill small">Khẩn cấp</span>
-                                                    )}
+                                                    {isUnread && <span className="badge bg-primary rounded-pill small">Mới</span>}
+                                                    {isPanic && <span className="badge bg-danger text-white rounded-pill small">Khẩn cấp</span>}
                                                 </div>
-                                                <p className="text-secondary small mb-2" style={{ lineHeight: 1.5 }}>
-                                                    {body}
-                                                </p>
+                                                <p className="text-secondary small mb-2" style={{ lineHeight: 1.5 }}>{body}</p>
                                                 <div className="d-flex align-items-center gap-2 text-muted small" style={{ fontSize: "0.8rem" }}>
-                                                    <FaClock size={12} />
+                                                    <Clock size={12} />
                                                     <span>{notif.createdAt || notif.CreatedAt ? new Date(notif.createdAt || notif.CreatedAt).toLocaleString("vi-VN") : "Gần đây"}</span>
                                                     {notif.channel && (
                                                         <>
@@ -520,30 +468,24 @@ export default function PushNotificationCenterPage() {
                                         <div className="d-flex align-items-center gap-2 flex-shrink-0">
                                             {isUnread && (
                                                 <button
-                                                    className="btn btn-light btn-sm rounded-pill px-3 py-1.5 text-secondary border d-flex align-items-center gap-1"
+                                                    className="btn btn-light btn-sm rounded-pill px-3 py-1 text-secondary border d-flex align-items-center gap-1"
                                                     onClick={() => handleMarkRead(notif.id || notif._id)}
-                                                    title="Đánh dấu đã đọc"
                                                 >
-                                                    <FaCheck size={11} /> Đã đọc
+                                                    <Check size={12} /> Đã đọc
                                                 </button>
                                             )}
                                             {(notif.actionUrl || isResult || isAppt || isPayment) && (
                                                 <button
-                                                    className="btn btn-primary btn-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1"
+                                                    className="btn btn-primary btn-sm rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                                                     onClick={() => {
                                                         if (isUnread) handleMarkRead(notif.id || notif._id);
-                                                        if (notif.actionUrl) {
-                                                            navigate(notif.actionUrl);
-                                                        } else if (isResult) {
-                                                            navigate("/patient/test-history");
-                                                        } else if (isAppt) {
-                                                            navigate("/appointments");
-                                                        } else if (isPayment) {
-                                                            navigate("/patient/payment-history");
-                                                        }
+                                                        if (notif.actionUrl) navigate(notif.actionUrl);
+                                                        else if (isResult) navigate("/patient/test-history");
+                                                        else if (isAppt) navigate("/appointments");
+                                                        else if (isPayment) navigate("/patient/payment-history");
                                                     }}
                                                 >
-                                                    <span>Chi tiết</span> <FaArrowRight size={10} />
+                                                    <span>Chi tiết</span> <ArrowRight size={12} />
                                                 </button>
                                             )}
                                         </div>
@@ -559,574 +501,532 @@ export default function PushNotificationCenterPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
-            <div className="bms-page-header-card">
+            {/* Page Header */}
+            <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content">
-                    
                     <div className="bms-page-title-row">
-                        
-                        <h1 className="bms-page-title">
-                            Trung Tâm Quản Lý &amp; Phát Thông Báo Đa Kênh
-                        </h1>
+                        <h1 className="bms-page-title">Trung Tâm Thông Báo Hệ Thống</h1>
                     </div>
-                    
+                    <p className="text-muted small m-0 mt-1">
+                        Soạn phát thông báo đến người dùng và theo dõi nhật ký chuyển phát theo thời gian thực
+                    </p>
                 </div>
 
                 <div className="bms-page-actions">
                     <button
-                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
-                        onClick={() => triggerQuickTest("CRITICAL")}
-                        title="Nạp mẫu báo động nguy kịch vượt giới hạn"
+                        type="button"
+                        className="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
+                        onClick={fetchLogs}
+                        disabled={isLoading}
+                        style={{ borderColor: "#1E60E6", color: "#1E60E6" }}
                     >
-                        <FaBolt size={12} />
-                        <span>Test Panic</span>
+                        <RefreshCw size={14} className={isLoading ? "fa-spin" : ""} />
+                        <span>Làm Mới</span>
                     </button>
                     <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-2 fw-semibold"
-                        onClick={() => triggerQuickTest("RESULT")}
-                        title="Nạp mẫu thông báo kết quả xét nghiệm"
-                    >
-                        <FaCheckCircle size={12} />
-                        <span>Test Kết Quả</span>
-                    </button>
-                    <button
-                        className="btn btn-light position-relative border shadow-sm rounded-pill px-3.5 py-2 d-flex align-items-center gap-2 fw-semibold"
+                        type="button"
+                        className="btn btn-light border rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2"
                         onClick={() => setIsDrawerOpen(true)}
                         id="btn-open-notification-drawer"
                     >
-                        <FaBell className="text-primary" size={14} />
+                        <Bell className="text-primary" size={14} />
                         <span>Hộp Thư</span>
                         {unreadCount > 0 && (
-                            <span className="badge rounded-pill bg-danger ms-1">
-                                {unreadCount}
-                            </span>
+                            <span className="badge rounded-pill bg-danger">{unreadCount}</span>
                         )}
                     </button>
                 </div>
             </div>
 
-            {/* Metrics Ribbon */}
+            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Tổng Thông Báo</div>
-                                <div className="fs-3 fw-bold text-dark mt-1">{metrics.total}</div>
-                            </div>
-                            <div className="rounded-circle bg-primary-subtle p-3 text-primary">
-                                <FaPaperPlane className="fs-4" />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tổng Thông Báo</h6>
+                            <div className="bms-kpi-value">{metrics.total}</div>
+                            <div className="bms-kpi-sub text-muted">Bản ghi nhật ký chuyển phát</div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            <span className="text-success fw-bold">100%</span> nhật ký lưu trữ audit trail
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <Send size="1em" />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-danger border-4">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Báo Động Nguy Kịch</div>
-                                <div className="fs-3 fw-bold text-danger mt-1">{metrics.criticalCount}</div>
-                            </div>
-                            <div className="rounded-circle bg-danger-subtle p-3 text-danger">
-                                <FaExclamationTriangle className="fs-4" />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Báo Động Nguy Kịch</h6>
+                            <div className="bms-kpi-value text-danger">{metrics.criticalCount}</div>
+                            <div className="bms-kpi-sub text-danger">Ưu tiên cao nhất</div>
                         </div>
-                        <div className="small text-danger mt-2 fw-semibold">
-                            Ưu tiên cao nhất (Bypass Rate-Limit)
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
+                            <AlertTriangle size="1em" />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-success border-4">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Tỷ Lệ Chuyển Giao</div>
-                                <div className="fs-3 fw-bold text-success mt-1">{metrics.successRate}%</div>
-                            </div>
-                            <div className="rounded-circle bg-success-subtle p-3 text-success">
-                                <FaCheckCircle className="fs-4" />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Tỷ Lệ Chuyển Giao</h6>
+                            <div className="bms-kpi-value text-success">{metrics.successRate}%</div>
+                            <div className="bms-kpi-sub text-muted">{metrics.deliveredCount} tin đã chuyển thành công</div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            {metrics.deliveredCount} tin đã gửi thành công
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <CheckCircle2 size="1em" />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-warning border-4">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div className="text-muted small fw-semibold text-uppercase">Lỗi / Chờ Thử Lại</div>
-                                <div className="fs-3 fw-bold text-warning mt-1">{metrics.failedCount}</div>
-                            </div>
-                            <div className="rounded-circle bg-warning-subtle p-3 text-warning">
-                                <FaClock className="fs-4" />
-                            </div>
+                    <div className="bms-kpi-quad-card">
+                        <div>
+                            <h6 className="bms-kpi-label">Lỗi / Chờ Thử Lại</h6>
+                            <div className="bms-kpi-value text-warning">{metrics.failedCount}</div>
+                            <div className="bms-kpi-sub text-muted">Cần kiểm tra hoặc gửi lại</div>
                         </div>
-                        <div className="small text-muted mt-2">
-                            Tự động thử lại tối đa 3 lần
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
+                            <Clock size="1em" />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Alert Banner */}
             {formAlert && (
-                <div className={`alert alert-${formAlert.type} alert-dismissible fade show shadow-sm mb-4`} role="alert">
+                <div className={`alert alert-${formAlert.type} alert-dismissible fade show mb-4`} role="alert" style={{ borderRadius: 14 }}>
                     <div className="d-flex align-items-center gap-2">
-                        {formAlert.type === "success" ? <FaCheckCircle className="fs-5" /> : <FaExclamationTriangle className="fs-5" />}
-                        <div>{formAlert.message}</div>
+                        {formAlert.type === "success" ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                        <span>{formAlert.message}</span>
                     </div>
-                    <button type="button" className="btn-close" onClick={() => setFormAlert(null)} aria-label="Close"></button>
+                    <button type="button" className="btn-close" onClick={() => setFormAlert(null)} aria-label="Close" />
                 </div>
             )}
 
-            {/* Main Content Layout: Form & Audit Table */}
-            <div className="row g-4">
-                {/* Left Column: Notification Dispatcher Form */}
-                <div className="col-12 col-lg-5 col-xl-4">
-                    <div className="card border-0 shadow-sm rounded-3 overflow-hidden sticky-top" style={{ top: "1.5rem" }}>
-                        <div className="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
-                            <h5 className="card-title mb-0 fw-bold d-flex align-items-center gap-2">
-                                <FaPaperPlane className="text-primary" /> Phát Thông Báo Mới
+            {/* Main 2-Column Workspace */}
+            <div className="row g-4 align-items-start">
+                {/* Left Column: Composer */}
+                <div className="col-12 col-xl-4">
+                    <div className="bg-white rounded-4 border p-4" style={{ borderColor: "#E2E8F0" }}>
+                        <div className="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                            <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style={{ fontSize: "16px" }}>
+                                <Send className="text-primary" size={16} />
+                                <span>Phát Thông Báo Mới</span>
                             </h5>
-                            <span className="badge bg-secondary-subtle text-secondary small">Gateway Dispatcher</span>
                         </div>
-                        <div className="card-body p-3 p-md-4">
-                            <form onSubmit={handleSubmit}>
-                                {/* Quick Demo User Selection */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">
-                                        Đối tượng nhận (Chọn nhanh từ cơ sở dữ liệu):
-                                    </label>
-                                    <div className="d-flex flex-wrap gap-1 mb-2">
-                                        {availableUsers.slice(0, 5).map(u => {
-                                            const uid = u.id || u._id;
-                                            return (
-                                                <button
-                                                    key={uid}
-                                                    type="button"
-                                                    className={`btn btn-xs ${formUserId === uid ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                                    style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem" }}
-                                                    onClick={() => handleSelectDemoUser(u)}
-                                                >
-                                                    {u.fullName || uid} ({u.role || 'User'})
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-light"><FaUser className="text-muted" /></span>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            value={formUserId}
-                                            onChange={e => setFormUserId(e.target.value)}
-                                            placeholder="Mã người dùng (VD: PAT-00892)"
-                                            required
-                                        />
-                                    </div>
-                                </div>
 
-                                {/* Recipient Name */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Họ tên người nhận:</label>
+                        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                            <div>
+                                <label className="form-label small fw-semibold text-secondary mb-1">
+                                    Chọn nhanh người nhận
+                                </label>
+                                <select
+                                    className="form-select"
+                                    value={availableUsers.some(u => (u.id || u._id) === formUserId) ? formUserId : ""}
+                                    onChange={e => handleSelectRecipient(e.target.value)}
+                                >
+                                    <option value="">-- Chọn tài khoản từ hệ thống --</option>
+                                    {availableUsers.map(u => {
+                                        const uid = u.id || u._id;
+                                        return (
+                                            <option key={uid} value={uid}>
+                                                {u.fullName || u.username} ({u.role || "user"})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+
+                            <div className="row g-2">
+                                <div className="col-6">
+                                    <label className="form-label small fw-semibold text-secondary mb-1">Mã người nhận</label>
+                                    <input
+                                        type="text"
+                                        className="form-control font-monospace"
+                                        value={formUserId}
+                                        onChange={e => setFormUserId(e.target.value)}
+                                        placeholder="User ID"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-6">
+                                    <label className="form-label small fw-semibold text-secondary mb-1">Họ tên</label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         value={formRecipientName}
                                         onChange={e => setFormRecipientName(e.target.value)}
-                                        placeholder="Tên bệnh nhân / Bác sĩ"
+                                        placeholder="Tên người nhận"
                                         required
                                     />
                                 </div>
-
-                                {/* Category Selection */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Loại thông báo / Sự kiện:</label>
-                                    <select
-                                        className="form-select"
-                                        value={formCategory}
-                                        onChange={e => handleSelectCategory(e.target.value)}
-                                    >
-                                        {CATEGORIES.map(c => (
-                                            <option key={c.key} value={c.key}>{c.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* Channel and Priority Row */}
-                                <div className="row g-2 mb-3">
-                                    <div className="col-6">
-                                        <label className="form-label small fw-bold text-muted text-uppercase mb-1">Kênh gửi:</label>
-                                        <select
-                                            className="form-select"
-                                            value={formChannel}
-                                            onChange={e => setFormChannel(e.target.value)}
-                                        >
-                                            <option value="Push">Push (FCM/APNS)</option>
-                                            <option value="InApp">In-App Banner</option>
-                                            <option value="SMS">SMS Gateway</option>
-                                            <option value="Email">Email SMTP</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-6">
-                                        <label className="form-label small fw-bold text-muted text-uppercase mb-1">Độ ưu tiên:</label>
-                                        <select
-                                            className={`form-select ${formPriority === 'Critical_Panic' ? 'border-danger text-danger fw-bold' : ''}`}
-                                            value={formPriority}
-                                            onChange={e => setFormPriority(e.target.value)}
-                                        >
-                                            <option value="Normal">Normal</option>
-                                            <option value="High">High</option>
-                                            <option value="Critical_Panic">CRITICAL PANIC</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {formPriority === "Critical_Panic" && (
-                                    <div className="p-2 mb-3 rounded bg-danger-subtle text-danger small d-flex align-items-center gap-2 border border-danger">
-                                        <FaExclamationTriangle className="flex-shrink-0" />
-                                        <span><strong>Lưu ý khẩn cấp:</strong> Thông báo Critical Panic sẽ bypass rate limit và kích hoạt âm thanh cảnh báo trực tiếp đến thiết bị.</span>
-                                    </div>
-                                )}
-
-                                {/* Title */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Tiêu đề thông báo:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={formTitle}
-                                        onChange={e => setFormTitle(e.target.value)}
-                                        placeholder="Nhập tiêu đề tóm tắt..."
-                                        required
-                                    />
-                                </div>
-
-                                {/* Body */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Nội dung chi tiết:</label>
-                                    <textarea
-                                        className="form-control"
-                                        rows={3}
-                                        value={formBody}
-                                        onChange={e => setFormBody(e.target.value)}
-                                        placeholder="Nội dung gửi đến người nhận..."
-                                        required
-                                    />
-                                    <div className="d-flex justify-content-between text-muted small mt-1">
-                                        <span>Tối đa 500 ký tự</span>
-                                        <span>{formBody.length}/500</span>
-                                    </div>
-                                </div>
-
-                                {/* Action URL */}
-                                <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Liên kết chuyển hướng (Action URL):</label>
-                                    <input
-                                        type="text"
-                                        className="form-control font-monospace small"
-                                        value={formActionUrl}
-                                        onChange={e => setFormActionUrl(e.target.value)}
-                                        placeholder="/patient/test-reports"
-                                    />
-                                </div>
-
-                                {/* Rate limit compliance badge */}
-                                <div className="p-2 mb-3 rounded bg-light border small text-muted d-flex align-items-center justify-content-between">
-                                    <span className="d-flex align-items-center gap-1">
-                                        <FaShieldAlt className="text-success" />
-                                        BR-NOTIF-01: Max 5 msg/min/user
-                                    </span>
-                                    <span className="badge bg-success-subtle text-success">Compliant</span>
-                                </div>
-
-                                {/* Submit button */}
-                                <button
-                                    type="submit"
-                                    className={`btn ${formPriority === 'Critical_Panic' ? 'btn-danger' : 'btn-primary'} w-100 py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm`}
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm" role="status"></span>
-                                            <span>Đang chuyển phát qua Gateway...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FaPaperPlane />
-                                            <span>Phát Thông Báo Ngay</span>
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column: Audit Logs & Filtering */}
-                <div className="col-12 col-lg-7 col-xl-8">
-                    <div className="card border-0 shadow-sm rounded-3">
-                        {/* Table Header & Controls */}
-                        <div className="card-header bg-white py-3 border-bottom">
-                            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                <div>
-                                    <h5 className="card-title mb-0 fw-bold text-dark">Nhật Ký Chuyển Phát & Audit Trail</h5>
-                                    <span className="text-muted small">Lịch sử giám sát trạng thái chuyển giao thông báo đa kênh</span>
-                                </div>
-                                <button
-                                    className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                                    onClick={fetchLogs}
-                                    disabled={isLoading}
-                                >
-                                    <FaSync className={isLoading ? "fa-spin" : ""} /> Làm mới
-                                </button>
                             </div>
 
-                            {/* Filter Tabs */}
-                            <ul className="nav nav-pills mt-3 gap-2">
-                                {[
-                                    { key: "ALL", label: "Tất cả" },
-                                    { key: "CRITICAL", label: "Nguy Kịch (Critical)", badge: "bg-danger text-white" },
-                                    { key: "PUSH", label: "Push (FCM)" },
-                                    { key: "INAPP", label: "In-App" },
-                                    { key: "FAILED", label: "Thất bại / Dead-Letter", badge: "bg-warning text-dark" }
-                                ].map(tab => (
-                                    <li className="nav-item" key={tab.key}>
-                                        <button
-                                            className={`nav-link py-1 px-3 small ${activeTab === tab.key ? 'active' : ''}`}
-                                            onClick={() => {
-                                                setActiveTab(tab.key);
-                                                setCurrentPage(1);
-                                            }}
-                                        >
-                                            {tab.label}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
+                            <div>
+                                <label className="form-label small fw-semibold text-secondary mb-1">Loại thông báo</label>
+                                <select
+                                    className="form-select"
+                                    value={formCategory}
+                                    onChange={e => handleSelectCategory(e.target.value)}
+                                >
+                                    {CATEGORIES.map(c => (
+                                        <option key={c.key} value={c.key}>{c.label}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                            {/* Search & Channel Filters */}
-                            <div className="bms-filter-bar">
-                                <div className="col-12 col-sm-6">
-                                    <div className="bms-search-input-pill">
-                                        <FaSearch className="bms-search-icon" />
-                                        <input
-                                            type="text"
-                                            placeholder="Tìm theo tiêu đề, người nhận, mã..."
-                                            value={searchTerm}
-                                            onChange={e => {
-                                                setSearchTerm(e.target.value);
-                                                setCurrentPage(1);
-                                            }}
-                                        />
-                                        {searchTerm && (
-                                            <button
-                                                type="button"
-                                                className="bms-search-clear"
-                                                onClick={() => {
-                                                    setSearchTerm('');
-                                                    setCurrentPage(1);
-                                                }}
-                                                title="Xóa tìm kiếm"
-                                            >
-                                                <FaTimes size={12} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-3">
+                            <div className="row g-2">
+                                <div className="col-6">
+                                    <label className="form-label small fw-semibold text-secondary mb-1">Kênh gửi</label>
                                     <select
-                                        className="form-select form-select-sm"
-                                        value={channelFilter}
-                                        onChange={e => {
-                                            setChannelFilter(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
+                                        className="form-select"
+                                        value={formChannel}
+                                        onChange={e => setFormChannel(e.target.value)}
                                     >
-                                        <option value="ALL">Mọi kênh</option>
-                                        <option value="Push">Push (FCM)</option>
                                         <option value="InApp">In-App</option>
+                                        <option value="Push">Push (FCM)</option>
                                         <option value="SMS">SMS</option>
                                         <option value="Email">Email</option>
                                     </select>
                                 </div>
-                                <div className="col-6 col-sm-3">
+                                <div className="col-6">
+                                    <label className="form-label small fw-semibold text-secondary mb-1">Độ ưu tiên</label>
                                     <select
-                                        className="form-select form-select-sm"
-                                        value={priorityFilter}
-                                        onChange={e => {
-                                            setPriorityFilter(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
+                                        className={`form-select ${formPriority === "Critical_Panic" ? "border-danger text-danger fw-semibold" : ""}`}
+                                        value={formPriority}
+                                        onChange={e => setFormPriority(e.target.value)}
                                     >
-                                        <option value="ALL">Mọi ưu tiên</option>
-                                        <option value="Normal">Normal</option>
-                                        <option value="High">High</option>
-                                        <option value="Critical_Panic">Critical Panic</option>
+                                        <option value="Normal">Bình thường</option>
+                                        <option value="High">Cao</option>
+                                        <option value="Critical_Panic">Nguy kịch (Critical)</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            {formPriority === "Critical_Panic" && (
+                                <div className="p-2 rounded-3 bg-danger-subtle text-danger small d-flex align-items-start gap-2 border border-danger-subtle">
+                                    <AlertTriangle size={16} className="flex-shrink-0 mt-1" />
+                                    <span>Chế độ Critical sẽ ưu tiên phát ngay lập tức và kích hoạt cảnh báo âm thanh.</span>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="form-label small fw-semibold text-secondary mb-1">Tiêu đề thông báo</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={formTitle}
+                                    onChange={e => setFormTitle(e.target.value)}
+                                    placeholder="Nhập tiêu đề thông báo..."
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                    <label className="form-label small fw-semibold text-secondary mb-0">Nội dung chi tiết</label>
+                                    <span className="text-muted" style={{ fontSize: "11px" }}>{formBody.length}/500</span>
+                                </div>
+                                <textarea
+                                    className="form-control"
+                                    rows={3}
+                                    maxLength={500}
+                                    value={formBody}
+                                    onChange={e => setFormBody(e.target.value)}
+                                    placeholder="Nhập nội dung gửi đến người nhận..."
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label small fw-semibold text-secondary mb-1">Đường dẫn đính kèm (tùy chọn)</label>
+                                <input
+                                    type="text"
+                                    className="form-control font-monospace small"
+                                    value={formActionUrl}
+                                    onChange={e => setFormActionUrl(e.target.value)}
+                                    placeholder="/dashboard"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className={`btn ${formPriority === "Critical_Panic" ? "btn-danger" : "btn-primary"} w-100 rounded-pill py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 mt-1`}
+                                disabled={isSubmitting}
+                                style={formPriority !== "Critical_Panic" ? { background: "#1E60E6", borderColor: "#1E60E6" } : undefined}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" role="status" />
+                                        <span>Đang gửi thông báo...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={15} />
+                                        <span>Phát Thông Báo Ngay</span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Right Column: Tabs + Filter + Standalone Table */}
+                <div className="col-12 col-xl-8">
+                    {/* External Pill Tabs */}
+                    <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        {LOG_TABS.map(tab => {
+                            const isActive = activeTab === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    type="button"
+                                    className="btn btn-sm rounded-pill px-3 py-2 fw-semibold"
+                                    onClick={() => {
+                                        setActiveTab(tab.key);
+                                        setCurrentPage(1);
+                                    }}
+                                    style={{
+                                        background: isActive ? "#1E60E6" : "#FFFFFF",
+                                        color: isActive ? "#FFFFFF" : "#475569",
+                                        border: isActive ? "1px solid #1E60E6" : "1px solid #E2E8F0",
+                                        fontSize: "13px"
+                                    }}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Single-Line Filter Bar */}
+                    <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: "220px" }}>
+                            <LucideSearch className="bms-search-icon" size="1em" />
+                            <input
+                                type="text"
+                                placeholder="Tìm theo tiêu đề, người nhận hoặc mã thông báo..."
+                                value={searchTerm}
+                                onChange={e => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    className="bms-search-clear"
+                                    onClick={() => {
+                                        setSearchTerm("");
+                                        setCurrentPage(1);
+                                    }}
+                                    title="Xóa tìm kiếm"
+                                >
+                                    <LucideX size={12} />
+                                </button>
+                            )}
+                        </div>
+
+                        <select
+                            className="form-select form-select-sm"
+                            value={channelFilter}
+                            onChange={e => {
+                                setChannelFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            style={{ width: "auto", minWidth: "145px", borderRadius: "9999px", paddingTop: "7px", paddingBottom: "7px" }}
+                        >
+                            <option value="ALL">Mọi kênh</option>
+                            <option value="Push">Push (FCM)</option>
+                            <option value="InApp">In-App</option>
+                            <option value="SMS">SMS</option>
+                            <option value="Email">Email</option>
+                        </select>
+
+                        <select
+                            className="form-select form-select-sm"
+                            value={priorityFilter}
+                            onChange={e => {
+                                setPriorityFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            style={{ width: "auto", minWidth: "155px", borderRadius: "9999px", paddingTop: "7px", paddingBottom: "7px" }}
+                        >
+                            <option value="ALL">Mọi ưu tiên</option>
+                            <option value="Normal">Bình thường</option>
+                            <option value="High">Cao</option>
+                            <option value="Critical_Panic">Nguy kịch</option>
+                        </select>
+
+                        {(searchTerm || channelFilter !== "ALL" || priorityFilter !== "ALL" || activeTab !== "ALL") && (
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 flex-shrink-0"
+                                onClick={() => {
+                                    setActiveTab("ALL");
+                                    setSearchTerm("");
+                                    setChannelFilter("ALL");
+                                    setPriorityFilter("ALL");
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                Xóa lọc
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Standalone Table */}
+                    <div className="bms-table-standalone-section">
+                        <div className="bms-table-standalone-header">
+                            <div>
+                                <h5 className="bms-table-standalone-title">
+                                    <Bell size={16} style={{ color: "#1E60E6" }} />
+                                    <span>Nhật Ký Chuyển Phát Thông Báo</span>
+                                </h5>
+                                <div className="bms-table-standalone-subtitle">
+                                    Tổng {totalCount} bản ghi lịch sử chuyển giao
                                 </div>
                             </div>
                         </div>
 
-                        {/* Audit Table */}
-                        <div className="table-responsive">
-                            <table className="bms-dash-table">
-                                <thead className="table-light small text-muted text-uppercase">
-                                    <tr>
-                                        <th style={{ width: "120px" }}>Thời Gian</th>
-                                        <th style={{ width: "130px" }}>Người Nhận</th>
-                                        <th>Nội Dung Thông Báo</th>
-                                        <th style={{ width: "100px" }}>Kênh</th>
-                                        <th style={{ width: "110px" }}>Trạng Thái</th>
-                                        <th style={{ width: "110px" }} className="text-end">Thao Tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {isLoading ? (
+                        <div className="bms-table-standalone-body">
+                            <div className="table-responsive">
+                                <table className="bms-dash-table">
+                                    <thead>
                                         <tr>
-                                            <td colSpan="6" className="text-center py-2 text-muted">
-                                                <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                                                Đang tải dữ liệu nhật ký...
-                                            </td>
+                                            <th className="ps-4" style={{ width: "120px" }}>Thời Gian</th>
+                                            <th style={{ width: "150px" }}>Người Nhận</th>
+                                            <th>Nội Dung Thông Báo</th>
+                                            <th style={{ width: "110px" }}>Kênh</th>
+                                            <th style={{ width: "115px" }}>Trạng Thái</th>
+                                            <th className="text-end pe-4" style={{ width: "100px" }}>Thao Tác</th>
                                         </tr>
-                                    ) : loadError ? (
-                                        <tr>
-                                            <td colSpan="6" className="text-center py-2 text-danger">
-                                                <div className="mb-2 fw-semibold">{loadError}</div>
-                                                <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={fetchLogs}>
-                                                    Thử lại
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ) : logs.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="6" className="text-center py-2 text-muted">
-                                                Không tìm thấy thông báo nào phù hợp với bộ lọc.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        logs.map(log => {
-                                            const isCritical = log.priority === "Critical_Panic" || log.category === "CRITICAL_PANIC";
-                                            return (
-                                                <tr key={log.id} className={isCritical ? "table-danger-subtle" : ""}>
-                                                    {/* Sent Time */}
-                                                    <td className="small text-muted">
-                                                        <div>{new Date(log.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                                        <div style={{ fontSize: "0.75rem" }}>{new Date(log.sentAt).toLocaleDateString()}</div>
-                                                    </td>
-
-                                                    {/* Recipient */}
-                                                    <td>
-                                                        <div className="fw-semibold text-truncate" style={{ maxWidth: "120px" }}>
-                                                            {log.recipientName || log.userId}
-                                                        </div>
-                                                        <span className="badge bg-light text-dark font-monospace" style={{ fontSize: "0.7rem" }}>
-                                                            {log.userId}
-                                                        </span>
-                                                    </td>
-
-                                                    {/* Content */}
-                                                    <td>
-                                                        <div className="d-flex align-items-center gap-2">
-                                                            {isCritical && (
-                                                                <span className="badge bg-danger text-white py-1 px-2" style={{ fontSize: "0.65rem" }}>
-                                                                    CRITICAL
+                                    </thead>
+                                    <tbody>
+                                        {isLoading ? (
+                                            <tr>
+                                                <td colSpan="6" className="text-center py-4 text-muted">
+                                                    <div className="spinner-border spinner-border-sm me-2 text-primary" role="status" />
+                                                    Đang tải dữ liệu nhật ký...
+                                                </td>
+                                            </tr>
+                                        ) : loadError ? (
+                                            <tr>
+                                                <td colSpan="6" className="text-center py-4 text-danger">
+                                                    <div className="mb-2 fw-semibold">{loadError}</div>
+                                                    <button type="button" className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={fetchLogs}>
+                                                        Thử lại
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ) : logs.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="6" className="text-center py-4 text-muted">
+                                                    Không tìm thấy thông báo nào phù hợp với bộ lọc.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            logs.map(log => {
+                                                const isCritical = log.priority === "Critical_Panic" || log.category === "CRITICAL_PANIC";
+                                                return (
+                                                    <tr key={log.id} className={isCritical ? "table-danger-subtle" : ""}>
+                                                        <td className="ps-4 small text-muted">
+                                                            <div className="fw-semibold text-dark">{new Date(log.sentAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</div>
+                                                            <div style={{ fontSize: "11px" }}>{new Date(log.sentAt).toLocaleDateString("vi-VN")}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="fw-semibold text-dark text-truncate" style={{ maxWidth: "140px" }}>
+                                                                {log.recipientName || log.userId}
+                                                            </div>
+                                                            <div className="text-muted font-monospace text-truncate" style={{ fontSize: "11px", maxWidth: "140px" }}>
+                                                                {log.userId}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                {isCritical && (
+                                                                    <span className="badge bg-danger text-white" style={{ fontSize: "10px" }}>CRITICAL</span>
+                                                                )}
+                                                                <span className="fw-semibold text-dark text-truncate" style={{ maxWidth: "260px" }}>
+                                                                    {log.title}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-muted small text-truncate mt-1" style={{ maxWidth: "320px" }}>
+                                                                {log.body}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
+                                                                {log.channel === "Push" && <Smartphone className="text-primary" size={12} />}
+                                                                {log.channel === "InApp" && <Bell className="text-info" size={12} />}
+                                                                {log.channel === "SMS" && <MessageSquare className="text-success" size={12} />}
+                                                                {log.channel === "Email" && <Mail className="text-secondary" size={12} />}
+                                                                <span>{log.channel}</span>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            {log.status === "DELIVERED" ? (
+                                                                <span className="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+                                                                    <CheckCircle2 size={12} /> Đã gửi
+                                                                </span>
+                                                            ) : log.status === "FAILED" ? (
+                                                                <span className="badge bg-danger-subtle text-danger border border-danger-subtle d-inline-flex align-items-center gap-1">
+                                                                    <XCircle size={12} /> Thất bại
+                                                                </span>
+                                                            ) : (
+                                                                <span className="badge bg-warning-subtle text-warning border border-warning-subtle d-inline-flex align-items-center gap-1">
+                                                                    <Clock size={12} /> Đang chờ
                                                                 </span>
                                                             )}
-                                                            <span className="fw-bold text-dark text-truncate" style={{ maxWidth: "260px" }}>
-                                                                {log.title}
-                                                            </span>
-                                                        </div>
-                                                        <div className="text-muted small text-truncate mt-1" style={{ maxWidth: "340px" }}>
-                                                            {log.body}
-                                                        </div>
-                                                        {log.actionUrl && (
-                                                            <div className="font-monospace text-primary" style={{ fontSize: "0.7rem" }}>
-                                                                Link: {log.actionUrl}
-                                                            </div>
-                                                        )}
-                                                    </td>
-
-                                                    {/* Channel Badge */}
-                                                    <td>
-                                                        <span className="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
-                                                            {log.channel === "Push" && <FaMobileAlt className="text-primary" />}
-                                                            {log.channel === "InApp" && <FaBell className="text-info" />}
-                                                            {log.channel === "SMS" && <FaCommentDots className="text-success" />}
-                                                            {log.channel === "Email" && <FaEnvelope className="text-secondary" />}
-                                                            <span>{log.channel}</span>
-                                                        </span>
-                                                    </td>
-
-                                                    {/* Status Badge */}
-                                                    <td>
-                                                        {log.status === "DELIVERED" ? (
-                                                            <span className="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
-                                                                <FaCheckCircle /> Đã gửi
-                                                            </span>
-                                                        ) : log.status === "FAILED" ? (
-                                                            <span className="badge bg-danger-subtle text-danger border border-danger-subtle d-inline-flex align-items-center gap-1">
-                                                                <FaTimesCircle /> Thất bại
-                                                            </span>
-                                                        ) : (
-                                                            <span className="badge bg-warning-subtle text-warning border border-warning-subtle d-inline-flex align-items-center gap-1">
-                                                                <FaClock /> Đang chờ
-                                                            </span>
-                                                        )}
-                                                    </td>
-
-                                                    {/* Actions */}
-                                                    <td className="text-end">
-                                                        <div className="btn-group btn-group-sm">
-                                                            <button
-                                                                className="btn btn-outline-secondary"
-                                                                title="Xem chi tiết"
-                                                                onClick={() => setSelectedDetail(log)}
-                                                            >
-                                                                <FaEye />
-                                                            </button>
-                                                            {log.status === "FAILED" && (
+                                                        </td>
+                                                        <td className="text-end pe-4">
+                                                            <div className="d-inline-flex gap-1">
                                                                 <button
-                                                                    className="btn btn-outline-warning"
-                                                                    title="Gửi lại (Retry)"
-                                                                    onClick={() => handleResend(log.id)}
+                                                                    type="button"
+                                                                    className="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1"
+                                                                    title="Xem chi tiết"
+                                                                    onClick={() => setSelectedDetail(log)}
                                                                 >
-                                                                    <FaRedo />
+                                                                    <Eye size={13} />
                                                                 </button>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
-                                </tbody>
-                            </table>
+                                                                {log.status === "FAILED" && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-outline-warning btn-sm rounded-pill px-2 py-1"
+                                                                        title="Gửi lại"
+                                                                        onClick={() => handleResend(log.notificationId || log.id)}
+                                                                    >
+                                                                        <RotateCw size={13} />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
-                        {/* Pagination Footer */}
-                        <div className="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center">
+                        {/* Footer Pagination */}
+                        <div className="px-4 py-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white">
                             <span className="small text-muted">
                                 Hiển thị <strong>{logs.length}</strong> / <strong>{totalCount}</strong> thông báo
                             </span>
                             <div className="d-flex gap-2">
                                 <button
-                                    className="btn btn-outline-secondary btn-sm"
+                                    type="button"
+                                    className="btn btn-outline-secondary btn-sm rounded-pill px-3"
                                     disabled={currentPage <= 1}
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 >
                                     Trang trước
                                 </button>
                                 <button
-                                    className="btn btn-outline-secondary btn-sm"
+                                    type="button"
+                                    className="btn btn-outline-secondary btn-sm rounded-pill px-3"
                                     disabled={currentPage * pageSize >= totalCount}
                                     onClick={() => setCurrentPage(p => p + 1)}
                                 >
@@ -1138,17 +1038,16 @@ export default function PushNotificationCenterPage() {
                 </div>
             </div>
 
-            {/* In-App Notification Drawer (Flyout) */}
+            {/* In-App Notification Drawer */}
             {isDrawerOpen && (
                 <div
                     className="position-fixed top-0 end-0 bottom-0 bg-white shadow-lg border-start d-flex flex-column"
-                    style={{ width: "400px", maxWidth: "90vw", zIndex: 1060 }}
+                    style={{ width: "420px", maxWidth: "92vw", zIndex: 1060 }}
                 >
-                    {/* Drawer Header */}
-                    <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                    <div className="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-light">
                         <div className="d-flex align-items-center gap-2">
-                            <FaBell className="text-primary fs-5" />
-                            <h6 className="mb-0 fw-bold">Thông Báo Của Bạn</h6>
+                            <Bell className="text-primary" size={18} />
+                            <h6 className="mb-0 fw-bold">Hộp Thư Thông Báo</h6>
                             {unreadCount > 0 && (
                                 <span className="badge bg-danger rounded-pill">{unreadCount} mới</span>
                             )}
@@ -1158,38 +1057,35 @@ export default function PushNotificationCenterPage() {
                             className="btn-close"
                             onClick={() => setIsDrawerOpen(false)}
                             aria-label="Close"
-                        ></button>
+                        />
                     </div>
 
-                    {/* Drawer User Switcher & Actions */}
-                    <div className="p-2 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <div className="px-4 py-2 border-bottom bg-white d-flex justify-content-between align-items-center gap-2">
                         <select
-                            className="form-select form-select-sm"
-                            style={{ width: "220px" }}
+                            className="form-select form-select-sm flex-grow-1"
                             value={drawerUserId}
                             onChange={e => setDrawerUserId(e.target.value)}
                         >
                             {availableUsers.map(u => {
                                 const uid = u.id || u._id;
                                 return (
-                                    <option key={uid} value={uid}>{u.fullName || u.name || uid} ({uid})</option>
+                                    <option key={uid} value={uid}>{u.fullName || u.username || uid}</option>
                                 );
                             })}
                         </select>
                         <button
-                            className="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1 text-primary small"
+                            type="button"
+                            className="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1 text-primary small flex-shrink-0"
                             onClick={handleMarkAllRead}
-                            title="Đánh dấu tất cả đã đọc"
                         >
-                            <FaCheckDouble /> Đọc hết
+                            <CheckCheck size={14} /> Đọc hết
                         </button>
                     </div>
 
-                    {/* Drawer Notification List */}
-                    <div className="flex-grow-1 overflow-auto p-2">
+                    <div className="flex-grow-1 overflow-auto p-3">
                         {userNotifications.length === 0 ? (
-                            <div className="text-center py-3 text-muted">
-                                <FaBell className="fs-1 text-light-emphasis mb-2" />
+                            <div className="text-center py-5 text-muted">
+                                <Bell size={36} className="mb-2 opacity-25" />
                                 <p className="mb-0 small">Chưa có thông báo nào cho tài khoản này.</p>
                             </div>
                         ) : (
@@ -1198,15 +1094,14 @@ export default function PushNotificationCenterPage() {
                                 return (
                                     <div
                                         key={item.id}
-                                        className={`p-3 mb-2 rounded border position-relative transition-all ${!item.isRead ? 'bg-primary-subtle border-primary-subtle' : 'bg-white'}`}
-                                        style={{ borderLeftWidth: isCritical ? "4px !important" : undefined, borderLeftColor: isCritical ? "#dc3545" : undefined }}
+                                        className={`p-3 mb-2 rounded-3 border ${!item.isRead ? "bg-primary-subtle border-primary-subtle" : "bg-white"}`}
                                     >
                                         <div className="d-flex justify-content-between align-items-start mb-1">
-                                            <span className={`badge ${isCritical ? 'bg-danger text-white' : 'bg-light text-muted border'}`} style={{ fontSize: "0.65rem" }}>
+                                            <span className={`badge ${isCritical ? "bg-danger text-white" : "bg-light text-muted border"}`} style={{ fontSize: "10px" }}>
                                                 {item.category || item.channel}
                                             </span>
-                                            <span className="text-muted small" style={{ fontSize: "0.7rem" }}>
-                                                {new Date(item.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            <span className="text-muted" style={{ fontSize: "11px" }}>
+                                                {new Date(item.sentAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                                             </span>
                                         </div>
                                         <h6 className="fw-bold mb-1 fs-6 text-dark">{item.title}</h6>
@@ -1215,15 +1110,16 @@ export default function PushNotificationCenterPage() {
                                             {item.actionUrl ? (
                                                 <a
                                                     href={item.actionUrl}
-                                                    className="small fw-semibold text-primary text-decoration-none d-flex align-items-center gap-1"
+                                                    className="small fw-semibold text-primary text-decoration-none d-inline-flex align-items-center gap-1"
                                                     onClick={() => handleMarkRead(item.id)}
                                                 >
-                                                    Xem chi tiết <FaArrowRight size={10} />
+                                                    Xem chi tiết <ArrowRight size={11} />
                                                 </a>
-                                            ) : <span></span>}
+                                            ) : <span />}
                                             {!item.isRead && (
                                                 <button
-                                                    className="btn btn-link btn-xs text-muted p-0 text-decoration-none small"
+                                                    type="button"
+                                                    className="btn btn-link btn-sm text-muted p-0 text-decoration-none"
                                                     onClick={() => handleMarkRead(item.id)}
                                                 >
                                                     Đánh dấu đã đọc
@@ -1240,50 +1136,48 @@ export default function PushNotificationCenterPage() {
 
             {/* Notification Detail Modal */}
             {selectedDetail && (
-                <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1070 }}>
+                <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)", zIndex: 1070 }}>
                     <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content border-0 shadow-lg">
+                        <div className="modal-content border-0 shadow-lg rounded-4">
                             <div className="modal-header bg-light">
-                                <h5 className="modal-title fw-bold">Chi Tiết Nhật Ký Thông Báo #{selectedDetail.id}</h5>
-                                <button type="button" className="btn-close" onClick={() => setSelectedDetail(null)}></button>
+                                <h5 className="modal-title fw-bold">Chi Tiết Thông Báo #{selectedDetail.id}</h5>
+                                <button type="button" className="btn-close" onClick={() => setSelectedDetail(null)} />
                             </div>
                             <div className="modal-body">
                                 <div className="mb-3">
-                                    <label className="text-muted small text-uppercase fw-bold">Tiêu đề:</label>
-                                    <div className="fw-bold fs-6">{selectedDetail.title}</div>
+                                    <label className="text-muted small fw-semibold">Tiêu đề</label>
+                                    <div className="fw-bold text-dark">{selectedDetail.title}</div>
                                 </div>
                                 <div className="mb-3">
-                                    <label className="text-muted small text-uppercase fw-bold">Nội dung:</label>
-                                    <div className="p-2 bg-light rounded text-secondary small">{selectedDetail.body}</div>
+                                    <label className="text-muted small fw-semibold">Nội dung</label>
+                                    <div className="p-3 bg-light rounded-3 text-secondary small">{selectedDetail.body}</div>
                                 </div>
-                                <div className="row g-2 mb-3">
+                                <div className="row g-3 mb-2">
                                     <div className="col-6">
-                                        <label className="text-muted small text-uppercase fw-bold">Người nhận:</label>
-                                        <div>{selectedDetail.recipientName} ({selectedDetail.userId})</div>
+                                        <label className="text-muted small fw-semibold">Người nhận</label>
+                                        <div className="small text-dark">{selectedDetail.recipientName || selectedDetail.userId}</div>
                                     </div>
                                     <div className="col-6">
-                                        <label className="text-muted small text-uppercase fw-bold">Kênh / Nền tảng:</label>
-                                        <div>{selectedDetail.channel} ({selectedDetail.devicePlatform || "Web"})</div>
-                                    </div>
-                                </div>
-                                <div className="row g-2 mb-3">
-                                    <div className="col-6">
-                                        <label className="text-muted small text-uppercase fw-bold">Độ ưu tiên:</label>
-                                        <div>{selectedDetail.priority}</div>
+                                        <label className="text-muted small fw-semibold">Kênh / Nền tảng</label>
+                                        <div className="small text-dark">{selectedDetail.channel} ({selectedDetail.devicePlatform || "Web"})</div>
                                     </div>
                                     <div className="col-6">
-                                        <label className="text-muted small text-uppercase fw-bold">Trạng thái:</label>
-                                        <div>{selectedDetail.status}</div>
+                                        <label className="text-muted small fw-semibold">Độ ưu tiên</label>
+                                        <div className="small text-dark">{selectedDetail.priority}</div>
+                                    </div>
+                                    <div className="col-6">
+                                        <label className="text-muted small fw-semibold">Trạng thái</label>
+                                        <div className="small text-dark">{selectedDetail.status}</div>
                                     </div>
                                 </div>
                                 {selectedDetail.errorMessage && (
-                                    <div className="p-2 rounded bg-danger-subtle text-danger small">
+                                    <div className="p-3 mt-2 rounded-3 bg-danger-subtle text-danger small">
                                         <strong>Lỗi gateway:</strong> {selectedDetail.errorMessage}
                                     </div>
                                 )}
                             </div>
                             <div className="modal-footer bg-light">
-                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSelectedDetail(null)}>
+                                <button type="button" className="btn btn-secondary btn-sm rounded-pill px-4" onClick={() => setSelectedDetail(null)}>
                                     Đóng
                                 </button>
                             </div>

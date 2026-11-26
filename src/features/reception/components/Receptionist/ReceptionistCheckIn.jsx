@@ -7,11 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, InputGroup, Alert, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  FaQrcode, FaCalendarCheck, FaUserCheck, FaSearch, FaTimes,
-  FaFileCsv, FaPrint, FaShieldAlt, FaClock, FaUsers,
-  FaTicketAlt, FaEye, FaCheckCircle, FaUserFriends, FaCalendarTimes, FaUserTimes
-} from 'react-icons/fa';
+import { QrCode, CalendarCheck, UserCheck, Search, X as LucideX, FileText, Printer, ShieldCheck, Clock, Users, Ticket as LucideTicket, Eye, CheckCircle2, CalendarX, UserX, Calendar, Info as LucideInfo, Stethoscope, DoorOpen, Hospital, IdCard, AlertTriangle, TestTube2, Package as LucidePackage, ClipboardCheck, Microscope, Monitor } from 'lucide-react';
 import { appointmentService } from '../../../../services/appointmentService';
 import { patientService } from '../../../../services/patientService';
 import { medicalService } from '../../../../services/medicalService';
@@ -1991,7 +1987,7 @@ const ReceptionistCheckIn = () => {
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
             <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
-              <FaQrcode size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 1: TIẾP ĐÓN &amp; CẤP STT
+              <QrCode size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 1: TIẾP ĐÓN &amp; CẤP STT
             </span>
             <div className="bms-page-title-row">
               <h1 className="bms-page-title">
@@ -1999,7 +1995,7 @@ const ReceptionistCheckIn = () => {
               </h1>
             </div>
             <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
-              Dành cho bệnh nhân đã đặt hẹn online: Quét mã QR hoặc Nhập mã hẹn, đối chiếu CCCD (Đề án 06 BYT), xác nhận y lệnh và cấp số thứ tự K80 vào phòng lấy mẫu máu (ISO 15189:2022).
+              Quét mã QR hoặc nhập mã hẹn để đối chiếu thông tin và cấp số thứ tự tiếp đón.
             </p>
           </div>
           <div className="bms-page-actions">
@@ -2015,7 +2011,7 @@ const ReceptionistCheckIn = () => {
                 fontSize: '14px'
               }}
             >
-              <FaQrcode size={15} />
+              <QrCode size={15} />
               <span>Quét QR / Nhập Mã Tiếp Đón</span>
             </Button>
           </div>
@@ -2030,7 +2026,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value">{confirmedList.length}</div>
                 <div className="bms-kpi-sub text-muted">Hôm nay theo phân ca</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><FaCalendarCheck /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-blue"><CalendarCheck  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2040,7 +2036,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value text-primary">{filteredAppointments.length}</div>
                 <div className="bms-kpi-sub text-primary">Cần tiếp đón ngay</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><FaClock /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-purple"><Clock  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2050,7 +2046,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value text-success">{checkedInAppointments.length}</div>
                 <div className="bms-kpi-sub text-success">Đã cấp STT lấy mẫu</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><FaUserCheck /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-green"><UserCheck  size="1em"/></div>
             </div>
           </Col>
           <Col xs={12} sm={6} md={3}>
@@ -2060,7 +2056,7 @@ const ReceptionistCheckIn = () => {
                 <div className="bms-kpi-value">10 - 14</div>
                 <div className="bms-kpi-sub text-muted">Hẹn / khung giờ (2 bàn)</div>
               </div>
-              <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><FaUsers /></div>
+              <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><Users  size="1em"/></div>
             </div>
           </Col>
         </Row>
@@ -2071,7 +2067,7 @@ const ReceptionistCheckIn = () => {
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
               <div>
                 <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaCalendarCheck style={{ color: '#1E60E6' }} />
+                  <CalendarCheck style={{ color: '#1E60E6' }}  size="1em"/>
                   Sổ Lịch Hẹn Đã Xác Nhận &amp; Chờ Check-in
                 </h5>
                 <div className="text-muted small">
@@ -2081,7 +2077,7 @@ const ReceptionistCheckIn = () => {
 
               <div className="d-flex align-items-center ms-auto">
                 <div className="bms-search-input-pill" style={{ minWidth: isMobile ? '100%' : '320px' }}>
-                  <FaSearch className="bms-search-icon" />
+                  <Search className="bms-search-icon"  size="1em"/>
                   <input
                     type="text"
                     placeholder="Tìm theo tên bệnh nhân, mã lịch hẹn..."
@@ -2095,7 +2091,7 @@ const ReceptionistCheckIn = () => {
                       onClick={() => setSearchTerm('')}
                       title="Xóa tìm kiếm"
                     >
-                      <FaTimes size={12} />
+                      <LucideX size={12} />
                     </button>
                   )}
                 </div>
@@ -2107,7 +2103,7 @@ const ReceptionistCheckIn = () => {
           <div className="px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC' }}>
             <div className="d-flex flex-wrap align-items-center gap-2">
               <span className="fw-semibold text-dark small">
-                <FaClock className="me-1" style={{ color: '#1E60E6' }} /> Phân bổ khung ca sáng:
+                <Clock className="me-1" style={{ color: '#1E60E6' }}  size="1em"/> Phân bổ khung ca sáng:
               </span>
               <div className="btn-group btn-group-sm" role="group">
                 <button
@@ -2145,7 +2141,7 @@ const ReceptionistCheckIn = () => {
               </div>
             </div>
             <div className="small text-muted">
-              <FaUserFriends className="me-1" style={{ color: '#1E60E6' }} /> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
+              <Users className="me-1" style={{ color: '#1E60E6' }}  size="1em"/> Định mức: 10 hẹn online + 2-4 vãng lai/khung (2 bàn lấy mẫu)
             </div>
           </div>
 
@@ -2215,14 +2211,14 @@ const ReceptionistCheckIn = () => {
                               {timeFormatted}
                             </div>
                             <Badge bg={timeStatus.color} className="mt-1" style={{ fontSize: '0.78rem', fontWeight: '500' }}>
-                              <FaClock className="me-1" />
+                              <Clock className="me-1"  size="1em"/>
                               {timeStatus.message}
                             </Badge>
                           </td>
                           <td className="text-center d-none d-sm-table-cell">
                             {isPaid ? (
                               <Badge bg="success" style={{ fontSize: '0.8rem', padding: '6px 10px', fontWeight: '500' }}>
-                                <FaCheckCircle className="me-1" /> Đã TT (VNPAY)
+                                <CheckCircle2 className="me-1"  size="1em"/> Đã TT (VNPAY)
                               </Badge>
                             ) : (
                               getStatusBadge(apt.status)
@@ -2244,7 +2240,7 @@ const ReceptionistCheckIn = () => {
                                 }}
                                 disabled={!['scheduled', 'confirmed', 'paid', '1'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, '')) || ['checkedin', '2'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, ''))}
                               >
-                                <FaTicketAlt size={12} />
+                                <LucideTicket size={12} />
                                 <span>Check-in &amp; Cấp STT</span>
                               </Button>
                               <Button
@@ -2260,7 +2256,7 @@ const ReceptionistCheckIn = () => {
                                   borderColor: '#1E60E6'
                                 }}
                               >
-                                <FaEye size={12} /> <span>Chi tiết</span>
+                                <Eye size={12} /> <span>Chi tiết</span>
                               </Button>
                             </div>
                           </td>
@@ -2272,7 +2268,7 @@ const ReceptionistCheckIn = () => {
               </div>
             ) : (
               <div className="text-center py-3">
-                <FaCalendarTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }} />
+                <CalendarX className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem', color: '#1E60E6' }}  size="1em"/>
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Không có lịch hẹn nào cần check-in trong khung giờ này</h5>
                 <p className="text-muted small">Chọn tab "Tất cả" hoặc chuyển khung giờ khác để theo dõi.</p>
               </div>
@@ -2286,7 +2282,7 @@ const ReceptionistCheckIn = () => {
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
               <div>
                 <h5 className="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
-                  <FaUserCheck style={{ color: '#16a34a' }} />
+                  <UserCheck style={{ color: '#16a34a' }}  size="1em"/>
                   Danh Sách Bệnh Nhân Đã Check-in ({checkedInAppointments.length})
                 </h5>
                 <div className="text-muted small">
@@ -2303,7 +2299,7 @@ const ReceptionistCheckIn = () => {
                   disabled={checkedInAppointments.length === 0}
                   style={{ fontSize: '13px' }}
                 >
-                  <FaFileCsv />
+                  <FileText  size="1em"/>
                   <span>Xuất CSV</span>
                 </Button>
                 <Button
@@ -2314,7 +2310,7 @@ const ReceptionistCheckIn = () => {
                   disabled={checkedInAppointments.length === 0}
                   style={{ fontSize: '13px', color: '#1E60E6', borderColor: '#1E60E6' }}
                 >
-                  <FaPrint />
+                  <Printer  size="1em"/>
                   <span>In danh sách</span>
                 </Button>
               </div>
@@ -2398,7 +2394,7 @@ const ReceptionistCheckIn = () => {
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              <FaEye size={12} />
+                              <Eye size={12} />
                               <span>Chi tiết</span>
                             </Button>
                           </td>
@@ -2410,7 +2406,7 @@ const ReceptionistCheckIn = () => {
               </div>
             ) : (
               <div className="text-center py-3">
-                <FaUserTimes className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }} />
+                <UserX className="text-muted mb-2" style={{ fontSize: isMobile ? '3rem' : '3.5rem' }}  size="1em"/>
                 <h5 className="text-muted mt-2 fw-bold" style={{ fontSize: isMobile ? '1rem' : '1.15rem' }}>Chưa có bệnh nhân nào check-in</h5>
                 <p className="text-muted small">Các lượt check-in thành công sẽ xuất hiện tại danh sách này.</p>
               </div>
@@ -2436,7 +2432,7 @@ const ReceptionistCheckIn = () => {
       >
         <Modal.Header closeButton className="bg-primary text-white" style={{ padding: isMobile ? '0.75rem' : '1rem' }}>
           <Modal.Title style={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
-            <i className="fas fa-qrcode me-2"></i>
+            <QrCode size="1em" className="me-2" />
             {isMobile ? 'Check-in QR/Mã' : 'Tiếp Đón Nhanh: Quét QR & Nhập Mã Hẹn'}
           </Modal.Title>
         </Modal.Header>
@@ -2472,14 +2468,14 @@ const ReceptionistCheckIn = () => {
         <Modal.Header closeButton className="border-bottom bg-white py-3 px-4">
           <div className="d-flex align-items-center gap-3">
             <div className="rounded-3 bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 44, height: 44 }}>
-              <i className="fas fa-file-medical-alt fs-5"></i>
+              <FileText size="1em" className="fs-5" />
             </div>
             <div>
               <Modal.Title className="fw-bold fs-5 text-dark mb-0">
                 Hồ Sơ Chi Tiết Lịch Hẹn Khám &amp; Xét Nghiệm
               </Modal.Title>
               <div className="text-muted small">
-                Tiếp đón người bệnh theo tiêu chuẩn ISO 15189:2022 &amp; Đề án 06 Bộ Y Tế
+                Tiếp đón người bệnh tại quầy lễ tân
               </div>
             </div>
           </div>
@@ -2490,16 +2486,15 @@ const ReceptionistCheckIn = () => {
               || getPatientInfo(detailAppointment.patientId)
               || getPatientInfo(detailAppointment.patient_id)
               || getPatientInfo(detailAppointment.userId)
-              || (patients && patients.length > 0 ? patients[0] : null)
               || {
-              fullName: detailAppointment.patientName || 'Trần Văn An',
-              identityCardNumber: '079195000792',
-              dateOfBirth: '1995-08-15',
-              gender: 'Nam',
-              phone: '0909 123 456',
-              email: 'an.tran@gmail.com',
-              address: 'Số 123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. HCM',
-              patientCode: 'BN-2026-0792'
+              fullName: detailAppointment.patientName || 'Chưa cập nhật',
+              identityCardNumber: detailAppointment.identityCardNumber || '—',
+              dateOfBirth: null,
+              gender: '—',
+              phone: detailAppointment.patientPhone || '—',
+              email: detailAppointment.patientEmail || '—',
+              address: '—',
+              patientCode: detailAppointment.patientCode || '—'
             };
             const appointmentCode = getAppointmentCode(detailAppointment);
             const docInfo = resolveDoctorInfo(detailAppointment);
@@ -2518,11 +2513,11 @@ const ReceptionistCheckIn = () => {
                       {appointmentCode}
                     </span>
                     <Badge bg="light" text="dark" className="border px-2 py-2">
-                      <i className="fas fa-calendar-day text-primary me-1"></i>
+                      <Calendar size="1em" className="text-primary me-1" />
                       {safeFormatDate(detailAppointment.appointmentDate, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </Badge>
                     <Badge bg="light" text="dark" className="border px-2 py-2">
-                      <i className="fas fa-clock text-primary me-1"></i>
+                      <Clock size="1em" className="text-primary me-1" />
                       Khung giờ: <strong className="text-dark ms-1">{slotTime}</strong>
                     </Badge>
                   </div>
@@ -2542,7 +2537,7 @@ const ReceptionistCheckIn = () => {
                   <Col xs={12} lg={4}>
                     <Card className="h-100 border shadow-sm rounded-3 text-center p-3 bg-white">
                       <div className="small fw-semibold text-muted text-uppercase mb-2">
-                        <i className="fas fa-qrcode me-1 text-primary"></i>
+                        <QrCode size="1em" className="me-1 text-primary" />
                         Mã Tiếp Đón &amp; Check-In
                       </div>
                       <div className="p-3 bg-light rounded-3 d-inline-block mx-auto mb-2 border shadow-sm">
@@ -2562,7 +2557,7 @@ const ReceptionistCheckIn = () => {
 
                       {isCheckedIn ? (
                         <div className="p-2 rounded-3 bg-success-subtle text-success small fw-semibold border border-success-subtle">
-                          <i className="fas fa-check-circle me-1"></i>
+                          <CheckCircle2 size="1em" className="me-1" />
                           Đã tiếp đón vào phòng lấy mẫu
                           {detailAppointment.checkedInAt && (
                             <div className="text-muted fw-normal mt-1" style={{ fontSize: '11px' }}>
@@ -2572,7 +2567,7 @@ const ReceptionistCheckIn = () => {
                         </div>
                       ) : (
                         <div className="p-2 rounded-3 bg-info-subtle text-primary small fw-semibold border border-info-subtle">
-                          <i className="fas fa-info-circle me-1"></i>
+                          <LucideInfo size="1em" className="me-1" />
                           Sẵn sàng quét mã tiếp đón
                         </div>
                       )}
@@ -2584,7 +2579,7 @@ const ReceptionistCheckIn = () => {
                     <Card className="h-100 border shadow-sm rounded-3 bg-white">
                       <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                         <span>
-                          <i className="fas fa-user-md text-primary me-2"></i>
+                          <Stethoscope size="1em" className="text-primary me-2" />
                           Bác Sĩ Phụ Trách &amp; Phòng Khám Chỉ Định
                         </span>
                         <span className="badge bg-light text-muted border fw-normal" style={{ fontSize: '11px' }}>
@@ -2594,7 +2589,7 @@ const ReceptionistCheckIn = () => {
                       <Card.Body className="p-3">
                         <div className="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3 border">
                           <div className="rounded-circle bg-white border p-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: 56, height: 56 }}>
-                            <i className="fas fa-user-md fs-3"></i>
+                            <Stethoscope size="1em" className="fs-3" />
                           </div>
                           <div className="flex-grow-1">
                             <div className="fw-bold fs-6 text-dark">{docInfo.fullName}</div>
@@ -2615,7 +2610,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Phòng khám chuyên khoa:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-door-open text-primary me-1"></i>
+                                <DoorOpen size="1em" className="text-primary me-1" />
                                 {detailAppointment.resolvedRoom || detailAppointment.roomName || docInfo.room || 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)'}
                               </strong>
                             </div>
@@ -2624,7 +2619,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Hình thức tiếp nhận:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-hospital text-primary me-1"></i>
+                                <Hospital size="1em" className="text-primary me-1" />
                                 Khám &amp; Lấy mẫu trực tiếp tại Trung tâm BMS
                               </strong>
                             </div>
@@ -2633,7 +2628,7 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Thời gian hẹn:</span>
                               <strong className="text-dark font-monospace">
-                                <i className="fas fa-clock text-primary me-1"></i>
+                                <Clock size="1em" className="text-primary me-1" />
                                 {slotTime} ({safeFormatDate(detailAppointment.appointmentDate)})
                               </strong>
                             </div>
@@ -2642,8 +2637,8 @@ const ReceptionistCheckIn = () => {
                             <div className="p-2 border rounded-2 bg-light">
                               <span className="text-muted d-block">Quy trình chuyên môn:</span>
                               <strong className="text-dark">
-                                <i className="fas fa-shield-alt text-primary me-1"></i>
-                                Quản lý chất lượng ISO 15189:2022
+                                <ShieldCheck size="1em" className="text-primary me-1" />
+                                Hệ thống tiếp nhận BMS
                               </strong>
                             </div>
                           </div>
@@ -2657,8 +2652,8 @@ const ReceptionistCheckIn = () => {
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
-                      <i className="fas fa-id-card text-primary me-2"></i>
-                      Thông Tin Hành Chính Bệnh Nhân (Chuẩn Đề án 06 Bộ Y Tế)
+                      <IdCard size="1em" className="text-primary me-2" />
+                      Thông Tin Hành Chính Bệnh Nhân
                     </span>
                     <span className="badge bg-light text-muted border fw-normal" style={{ fontSize: '11px' }}>
                       Mã BN: {patient?.patientCode || patient?.id || 'BN-2026-0792'}
@@ -2708,7 +2703,7 @@ const ReceptionistCheckIn = () => {
                       </Row>
                     ) : (
                       <Alert variant="warning" className="mb-0">
-                        <i className="fas fa-exclamation-triangle me-2"></i>
+                        <AlertTriangle size="1em" className="me-2" />
                         Chưa tìm thấy dữ liệu nhân khẩu học bệnh nhân.
                       </Alert>
                     )}
@@ -2719,7 +2714,7 @@ const ReceptionistCheckIn = () => {
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
-                      <i className="fas fa-vial text-primary me-2"></i>
+                      <TestTube2 size="1em" className="text-primary me-2" />
                       Y Lệnh Chỉ Định Xét Nghiệm &amp; Dịch Vụ Đã Đặt
                     </span>
                     <Badge bg="primary-subtle" className="text-primary border border-primary-subtle">
@@ -2730,7 +2725,7 @@ const ReceptionistCheckIn = () => {
                     <div className="d-flex flex-wrap justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 gap-2 border">
                       <div>
                         <div className="fw-bold text-dark fs-6">
-                          <i className="fas fa-cube text-primary me-2"></i>
+                          <LucidePackage size="1em" className="text-primary me-2" />
                           {packageInfo.name || 'Tổng phân tích tế bào máu ngoại vi (24 thông số Laser)'}
                         </div>
                         <div className="text-muted small mt-1">
@@ -2747,7 +2742,7 @@ const ReceptionistCheckIn = () => {
 
                     <div className="p-2 border rounded-2 bg-light small text-muted">
                       <strong className="text-dark me-1">
-                        <i className="fas fa-clipboard-check text-success me-1"></i>
+                        <ClipboardCheck size="1em" className="text-success me-1" />
                         Dặn dò lâm sàng:
                       </strong>
                       {detailAppointment.notes || 'Phòng khám: Phòng khám Huyết học Tổng quát 1(101). Nhịn ăn sáng từ 8-12 tiếng trước khi lấy mẫu máu đối với các xét nghiệm đường huyết/mỡ máu.'}
@@ -2760,7 +2755,7 @@ const ReceptionistCheckIn = () => {
                   <Card className="border shadow-sm rounded-3 bg-white border-primary-subtle">
                     <Card.Header className="bg-primary-subtle border-bottom py-2 px-3 fw-bold text-primary d-flex justify-content-between align-items-center">
                       <span>
-                        <i className="fas fa-microscope me-2"></i>
+                        <Microscope size="1em" className="me-2" />
                         Phân Công Lấy Mẫu &amp; Phân Tích Phòng Lab
                       </span>
                       <Badge bg="success">Đã phân luồng</Badge>
@@ -2770,14 +2765,14 @@ const ReceptionistCheckIn = () => {
                         <Col sm={6}>
                           <div className="text-muted small">Kỹ thuật viên phụ trách:</div>
                           <div className="fw-bold text-dark fs-6">
-                            <i className="fas fa-user-nurse text-primary me-1"></i>
+                            <UserCheck size="1em" className="text-primary me-1" />
                             {labAssignmentInfo?.labUser?.fullName || 'KTV. Phạm Quốc Hưng'}
                           </div>
                         </Col>
                         <Col sm={6}>
                           <div className="text-muted small">Phòng xét nghiệm / lấy mẫu:</div>
                           <div className="fw-bold text-dark fs-6">
-                            <i className="fas fa-door-open text-primary me-1"></i>
+                            <DoorOpen size="1em" className="text-primary me-1" />
                             {labAssignmentInfo?.labRoom?.roomName || 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)'}
                           </div>
                         </Col>
@@ -2795,7 +2790,7 @@ const ReceptionistCheckIn = () => {
             onClick={handleCloseDetailModal}
             className="px-4 py-2 rounded-3 fw-semibold"
           >
-            <i className="fas fa-times me-2"></i>
+            <LucideX size="1em" className="me-2" />
             Đóng
           </Button>
 
@@ -2805,7 +2800,7 @@ const ReceptionistCheckIn = () => {
               onClick={handlePrintAppointmentSlip}
               className="px-4 py-2 rounded-3 fw-semibold shadow-sm"
             >
-              <i className="fas fa-print me-2"></i>
+              <Printer size="1em" className="me-2" />
               In Phiếu Tiếp Đón K80
             </Button>
 
@@ -2819,7 +2814,7 @@ const ReceptionistCheckIn = () => {
                 className="px-4 py-2 rounded-3 fw-semibold text-white shadow-sm"
                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
               >
-                <i className="fas fa-check-circle me-2"></i>
+                <CheckCircle2 size="1em" className="me-2" />
                 Check-in ngay
               </Button>
             )}
@@ -2831,7 +2826,7 @@ const ReceptionistCheckIn = () => {
       <Modal show={showTicketModal} onHide={() => setShowTicketModal(false)} size="md" centered>
         <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
           <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-            <i className="fas fa-ticket-alt text-primary me-2"></i>
+            <LucideTicket size="1em" className="text-primary me-2" />
             Phiếu Tiếp Đón & Số Thứ Tự Lấy Mẫu
           </Modal.Title>
         </Modal.Header>
@@ -2842,7 +2837,7 @@ const ReceptionistCheckIn = () => {
                 Hệ Thống Xét Nghiệm BMS MedLab
               </div>
               <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '16px' }}>
-                Tiêu chuẩn ISO 15189:2022 • Hotline: 1900 6868
+                BMS MedLab • Hotline: 1900 6868
               </div>
 
               {/* Big Ticket Number */}
@@ -2852,7 +2847,7 @@ const ReceptionistCheckIn = () => {
                   {issuedTicketData.ticketNumber}
                 </div>
                 <div style={{ fontSize: '0.9rem', color: '#047857', fontWeight: '600' }}>
-                  <i className="fas fa-door-open me-1"></i> {issuedTicketData.roomName}
+                  <DoorOpen size="1em" className="me-1" /> {issuedTicketData.roomName}
                 </div>
               </div>
 
@@ -2867,13 +2862,13 @@ const ReceptionistCheckIn = () => {
                 <div>
                   <strong>Thanh toán:</strong>{' '}
                   <span className="badge bg-success" style={{ fontSize: '0.8rem' }}>
-                    <i className="fas fa-check-circle me-1"></i> {issuedTicketData.paymentStatus}
+                    <CheckCircle2 size="1em" className="me-1" /> {issuedTicketData.paymentStatus}
                   </span>
                 </div>
               </div>
 
               <div className="mt-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                <i className="fas fa-info-circle me-1"></i> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
+                <LucideInfo size="1em" className="me-1" /> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
               </div>
             </div>
           )}
@@ -2896,7 +2891,7 @@ const ReceptionistCheckIn = () => {
                 }
               }}
             >
-              <i className="fas fa-print me-1"></i> In Phiếu STT
+              <Printer size="1em" className="me-1" /> In Phiếu STT
             </Button>
             <Button
               variant="primary"
@@ -2906,7 +2901,7 @@ const ReceptionistCheckIn = () => {
               }}
               style={{ backgroundColor: '#1E60E6' }}
             >
-              <i className="fas fa-desktop me-1"></i> Đến Bảng Gọi Số
+              <Monitor size="1em" className="me-1" /> Đến Bảng Gọi Số
             </Button>
           </div>
         </Modal.Footer>

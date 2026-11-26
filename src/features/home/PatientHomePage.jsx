@@ -21,6 +21,8 @@ import PortalNavbar from './components/PortalNavbar';
 import BmsPackageIcon from '../../shared/components/kit/BmsPackageIcon';
 import { getCategoryIconKey } from '../../shared/components/kit/bmsIconMaps';
 import usePageTransition from '../../shared/hooks/usePageTransition';
+import { patientFeedbackService, buildPackageRatingsMap, lookupPackageRating } from '../../services/patientFeedbackService';
+import PackageRatingPill from '../catalog/components/PackageRatingPill';
 
 export default function PatientHomePage({ user: propUser }) {
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ export default function PatientHomePage({ user: propUser }) {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [packages, setPackages] = useState([]);
+  const [ratingsMap, setRatingsMap] = useState({});
   const [recentTest, setRecentTest] = useState(null);
   const [resolvedPatientCode, setResolvedPatientCode] = useState(
     () => user?.patientCode || user?.medicalRecordNumber || user?.patientId || ''
@@ -52,7 +55,7 @@ export default function PatientHomePage({ user: propUser }) {
       })
       .catch(() => {});
 
-    // Load service packages
+    // Load service packages & public ratings
     fetchServiceCatalog()
       .then(res => {
         if (res?.packages?.length) {
@@ -62,6 +65,12 @@ export default function PatientHomePage({ user: propUser }) {
       .catch(() => {
         setPackages([]);
       });
+
+    patientFeedbackService.getPackageRatings()
+      .then(res => {
+        if (res.success) setRatingsMap(buildPackageRatingsMap(res.data));
+      })
+      .catch(() => {});
 
     // Load recent test order from real patient database
     getTestHistory({ pageSize: 1 })
@@ -78,7 +87,7 @@ export default function PatientHomePage({ user: propUser }) {
 
   const handleBookClick = (pkg) => {
     const pkgId = pkg?.packageCode || pkg?.id || '';
-    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/appointments/book');
+    navigate(pkgId ? `/appointments/book?packageId=${encodeURIComponent(pkgId)}` : '/services');
   };
 
   const patientCode = resolvedPatientCode || user?.patientCode || user?.medicalRecordNumber || user?.patientId || 'Chờ kích hoạt tại Lễ tân';
@@ -106,12 +115,12 @@ export default function PatientHomePage({ user: propUser }) {
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
         {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
-      <section className="bms-hero-container-wrap" style={{ marginBottom: '56px' }}>
+      <section className="bms-hero-container-wrap">
         <div className="bms-hero-grid">
           {/* Left Column: Narrative & Metrics */}
           <div className="bms-hero-narrative">
             <div className="bms-status-chip">
-              TIÊU CHUẨN ISO 15189 · HỆ THỐNG BMS LAB
+              CHUẨN Y KHOA QUỐC GIA · HỆ THỐNG BMS LAB
             </div>
 
             <h1 className="bms-hero-heading mb-3" style={{ fontSize: '30px', lineHeight: 1.25, letterSpacing: '-0.025em' }}>
@@ -211,9 +220,9 @@ export default function PatientHomePage({ user: propUser }) {
             ) : (
               <div className="bms-recent-result-dock text-center p-3">
                 <div className="text-muted small mb-2">Chưa ghi nhận kết quả xét nghiệm gần đây</div>
-                <a href="/appointments/book" className="bms-btn-mint-cta w-100">
+                <Link to="/services" className="bms-btn-mint-cta w-100">
                   Đặt Lịch Xét Nghiệm Mới
-                </a>
+                </Link>
               </div>
             )}
 
@@ -238,7 +247,7 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 2. Service Packages Catalog (Moved to Top) */}
-      <section className="bms-section-wrap" id="danh-muc" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap" id="danh-muc">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">DANH MỤC DỊCH VỤ NIÊM YẾT</div>
@@ -310,6 +319,7 @@ export default function PatientHomePage({ user: propUser }) {
                         >
                           {pkg.packageCode || pkg.id || 'BMS'}
                         </span>
+                        <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                       </div>
 
                       {/* Row 2: Full Package Title */}
@@ -398,25 +408,42 @@ export default function PatientHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    style={{
-                      backgroundColor: '#10B981',
-                      color: '#FFFFFF',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '8px 22px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                      boxShadow: 'none',
-                      transition: 'background-color 0.15s ease'
-                    }}
-                    onClick={() => handleBookClick(pkg)}
-                  >
-                    Đặt Lịch Xét Nghiệm
-                  </button>
+                  <div className="d-flex align-items-center gap-2">
+                    <Link
+                      to={`/services?detail=${encodeURIComponent(pkg.packageCode || pkg.id || '')}`}
+                      style={{
+                        backgroundColor: '#F1F5F9',
+                        color: '#334155',
+                        borderRadius: '9999px',
+                        padding: '8px 14px',
+                        fontSize: '12px',
+                        fontWeight: 650,
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none'
+                      }}
+                    >
+                      Chi tiết &amp; Đánh giá
+                    </Link>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: '#10B981',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '9999px',
+                        padding: '8px 20px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                        transition: 'background-color 0.15s ease'
+                      }}
+                      onClick={() => handleBookClick(pkg)}
+                    >
+                      Đặt Lịch Xét Nghiệm
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -434,13 +461,13 @@ export default function PatientHomePage({ user: propUser }) {
       </section>
 
       {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
-      <section className="bms-section-wrap" id="quy-trinh" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap" id="quy-trinh">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">QUY TRÌNH TINH GỌN &amp; AN TOÀN</div>
             <h2 className="bms-section-h2">Xét Nghiệm Máu Dễ Dàng Chỉ Với 4 Bước</h2>
             <p className="bms-section-p">
-              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy chuẩn y tế quốc tế ISO 15189:2022.
+              Toàn bộ tiến trình từ lúc đặt lịch hẹn đến khi Bác sĩ tư vấn kết quả được chuẩn hóa theo quy trình xét nghiệm khép kín chuẩn y tế.
             </p>
           </div>
 
@@ -480,14 +507,14 @@ export default function PatientHomePage({ user: propUser }) {
 
           <div className="text-center mt-4">
             <Link to="/iso-process" className="bms-btn-neutral-pill">
-              Khám Phá Chi Tiết Quy Trình ISO 15189:2022 &rarr;
+              Khám Phá Chi Tiết Quy Trình Xét Nghiệm &rarr;
             </Link>
           </div>
         </div>
       </section>
 
       {/* 4. Quality & Trust Pillars */}
-      <section className="bms-section-wrap" style={{ marginBottom: '56px' }}>
+      <section className="bms-section-wrap">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
             <div className="bms-status-chip">TIÊU CHUẨN QUỐC TẾ</div>

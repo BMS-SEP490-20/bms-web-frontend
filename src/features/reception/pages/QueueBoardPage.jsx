@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Printer, Megaphone, Check, Clock, UserCheck, AlertCircle, PlusCircle, Hospital, ShieldCheck, ListOrdered } from 'lucide-react';
 import { queueApi } from "../api/queueApi";
+import WorkflowStepperBar from "../../../shared/components/WorkflowStepperBar";
 
 export default function QueueBoardPage() {
   const [loading, setLoading] = useState(true);
@@ -210,6 +211,18 @@ export default function QueueBoardPage() {
           </div>
         </div>
       </div>
+
+      {/* Workflow Guidance Bar for Receptionist */}
+      <WorkflowStepperBar
+        title="Quy trình tiếp đón Lễ tân (3 bước)"
+        hint="Bệnh nhân đã Check-in & cấp STT tự động sang hàng đợi phòng khám của Bác sĩ"
+        activeStep={3}
+        steps={[
+          { id: 'rec-1', label: 'Tiếp đón & Check-in', desc: 'Quét QR hoặc bấm Check-in trực tiếp trên danh sách chờ', path: '/receptionist/check-in' },
+          { id: 'rec-2', label: 'Khách vãng lai (nếu chưa đặt)', desc: 'Đăng ký hồ sơ mới theo CCCD đối soát CSDL & cấp STT', path: '/receptionist/create-patient' },
+          { id: 'rec-3', label: 'Bảng gọi số & chuyển Bác sĩ', desc: 'Theo dõi STT đã cấp & gọi bệnh nhân vào phòng khám', path: '/reception/queue' }
+        ]}
+      />
 
       {boardError && (
         <div className="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">

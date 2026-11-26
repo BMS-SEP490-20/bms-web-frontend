@@ -11,6 +11,7 @@ import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { getStoredUser } from '../../../constants/roles';
+import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
 
 const REJECTION_CODES = [
   { code: 'REJ-01', label: 'Tán huyết (Hemolysis) — Khóa phân tích & Lấy lại mẫu', isHemolysis: true },
@@ -399,6 +400,18 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       </header>
 
       <div className="container-fluid px-3" style={{ maxWidth: 1200 }}>
+        <WorkflowStepperBar
+          title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
+          hint="Chọn ống mẫu ở danh sách chờ bên dưới → tick 4 tiêu chí đạt chuẩn → Xác nhận tiếp nhận"
+          activeStep={2}
+          steps={[
+            { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
+            { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu vào phòng Lab', path: '/laboratory/checkinsample' },
+            { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
+            { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
+          ]}
+        />
+
         {/* Hộp quét Barcode */}
         <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
           <div className="card-body p-2">
@@ -628,9 +641,19 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 </div>
 
                 {/* 4 Tiêu chí kiểm chuẩn */}
-                <h6 className="small fw-bold text-uppercase text-secondary mt-4 mb-2">
-                  Kiểm tra tiêu chuẩn chất lượng mẫu (Pre-analytical Verification):
-                </h6>
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-4 mb-2">
+                  <h6 className="small fw-bold text-uppercase text-secondary mb-0">
+                    Kiểm tra tiêu chuẩn chất lượng mẫu (Pre-analytical Verification):
+                  </h6>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold"
+                    style={{ fontSize: '12px' }}
+                    onClick={() => setChecks({ idMatch: true, intact: true, tubeOk: true, labeled: true })}
+                  >
+                    Đạt đủ cả 4 tiêu chí
+                  </button>
+                </div>
                 {[
                   ['idMatch', '1. Mã Barcode và họ tên bệnh nhân trùng khớp 100% với phiếu chỉ định'],
                   ['intact', '2. Ống nghiệm nguyên vẹn, không nứt vỡ, không rò rỉ bệnh phẩm'],

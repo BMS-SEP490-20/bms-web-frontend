@@ -208,6 +208,12 @@ export default function PatientPaymentHistoryPage() {
         };
       });
 
+      normalized.sort((a, b) => {
+        const tA = new Date(a?.paidAt || 0).getTime() || 0;
+        const tB = new Date(b?.paidAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+
       setRawTransactions(normalized);
       setTotalCount(total);
     } catch (err) {

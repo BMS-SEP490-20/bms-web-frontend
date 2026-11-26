@@ -842,7 +842,20 @@ const SampleQueuePage = () => {
   };
 
   // Summary counts
-  const sampleListSafe = Array.isArray(samples) ? samples : [];
+  const sampleListSafe = (Array.isArray(samples) ? [...samples] : []).sort((a, b) => {
+    const tA = Math.max(
+      new Date(a?.updatedAt || 0).getTime() || 0,
+      new Date(a?.createdAt || 0).getTime() || 0,
+      new Date(a?.collectedAt || 0).getTime() || 0
+    );
+    const tB = Math.max(
+      new Date(b?.updatedAt || 0).getTime() || 0,
+      new Date(b?.createdAt || 0).getTime() || 0,
+      new Date(b?.collectedAt || 0).getTime() || 0
+    );
+    if (tB !== tA) return tB - tA;
+    return String(b?.barcode || b?.id || '').localeCompare(String(a?.barcode || a?.id || ''));
+  });
   const collectedCount = sampleListSafe.filter(s => ['Collected', 'InTransit', 'Received'].includes(s?.status)).length;
   const processingCount = sampleListSafe.filter(s => ['Processing', 'Testing', 'RerunRequested'].includes(s?.status)).length;
   const completedCount = sampleListSafe.filter(s => s?.status === 'Completed').length;

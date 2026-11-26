@@ -158,7 +158,12 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     setPendingLoading(true);
     try {
       const data = await sampleApi.pending();
-      setPending(Array.isArray(data) ? data : []);
+      const sortedPending = (Array.isArray(data) ? [...data] : []).sort((a, b) => {
+        const tA = new Date(a?.updatedAt || a?.collectedAt || a?.createdAt || 0).getTime() || 0;
+        const tB = new Date(b?.updatedAt || b?.collectedAt || b?.createdAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+      setPending(sortedPending);
     } catch {
       setPending([]);
     } finally {

@@ -141,7 +141,13 @@ export default function CheckInPage() {
       });
 
       const items = res?.items || res?.data || [];
-      setPatients(items);
+      const sortedItems = [...items].sort((a, b) => {
+        const tA = new Date(a?.createdAt || a?.updatedAt || 0).getTime() || 0;
+        const tB = new Date(b?.createdAt || b?.updatedAt || 0).getTime() || 0;
+        if (tB !== tA) return tB - tA;
+        return String(b?.patientCode || b?.id || '').localeCompare(String(a?.patientCode || a?.id || ''));
+      });
+      setPatients(sortedItems);
       setTotalItems(res?.totalItems ?? items.length);
       setTotalPages(res?.totalPages || Math.ceil((res?.totalItems || items.length) / pageSize) || 1);
     } catch (err) {

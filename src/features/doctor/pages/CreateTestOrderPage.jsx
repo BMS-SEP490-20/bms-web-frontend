@@ -1125,14 +1125,20 @@ export default function CreateTestOrderPage() {
       </Card>
 
       {/* =========================================================================================
-          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (CLEAN FLAT 2-COLUMN REDESIGN)
+          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (WIDE BREATHABLE FLAT 2-COLUMN)
          ========================================================================================= */}
+      <style>{`
+        .bms-wide-order-modal {
+          max-width: min(1360px, 95vw) !important;
+          width: min(1360px, 95vw) !important;
+        }
+      `}</style>
       <Modal
         show={Boolean(activeModalEncounter)}
         onHide={() => {
           if (!submitting) setActiveModalEncounter(null);
         }}
-        size="xl"
+        dialogClassName="bms-wide-order-modal"
         centered
         backdrop="static"
         contentClassName="border-0 overflow-hidden"
@@ -1142,7 +1148,7 @@ export default function CreateTestOrderPage() {
           style={{
             backgroundColor: "#FFFFFF",
             borderBottom: "1px solid #E2E8F0",
-            padding: "16px 24px",
+            padding: "20px 28px",
           }}
         >
           <div style={{ minWidth: 0, width: "100%", paddingRight: "16px" }}>
@@ -1202,7 +1208,7 @@ export default function CreateTestOrderPage() {
           </div>
         </Modal.Header>
 
-        <Modal.Body style={{ backgroundColor: "#F8FAFC", padding: "18px 24px", maxHeight: "76vh", overflowY: "auto" }}>
+        <Modal.Body style={{ backgroundColor: "#F8FAFC", padding: "24px 28px", maxHeight: "80vh", overflowY: "auto" }}>
           {modalError && (
             <Alert variant="danger" dismissible onClose={() => setModalError("")} className="py-2 px-3 mb-3 rounded-3 small">
               <AlertTriangle className="me-2" size="1em" />
@@ -1232,8 +1238,8 @@ export default function CreateTestOrderPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-                gap: "16px",
+                gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))",
+                gap: "22px",
                 alignItems: "start",
               }}
             >
@@ -1242,8 +1248,8 @@ export default function CreateTestOrderPage() {
                 style={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: "14px",
-                  padding: "16px 18px",
+                  borderRadius: "16px",
+                  padding: "20px 22px",
                   minWidth: 0,
                 }}
               >
@@ -1743,30 +1749,38 @@ export default function CreateTestOrderPage() {
                       Chưa có xét nghiệm nào được chọn.
                     </div>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "14px" }}>
                       {autoTubeGroups.map((g, idx) => (
                         <div
                           key={g.key}
                           style={{
-                            padding: "10px 12px",
-                            borderRadius: "10px",
+                            padding: "12px 14px",
+                            borderRadius: "12px",
                             backgroundColor: "#F8FAFC",
                             border: "1px solid #E2E8F0",
-                            borderLeft: `4px solid ${g.colorHex}`,
                           }}
                         >
-                          <div className="d-flex justify-content-between align-items-center flex-wrap gap-1.5">
-                            <span style={{ fontSize: "12.5px", fontWeight: 700, color: g.colorHex }}>
+                          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span style={{ fontSize: "13px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                              <span
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  borderRadius: "999px",
+                                  backgroundColor: g.colorHex,
+                                  flexShrink: 0,
+                                }}
+                              />
                               Ống #{idx + 1}: {g.label}
                             </span>
                             <span
                               style={{
-                                fontSize: "11px",
+                                fontSize: "11.5px",
                                 fontWeight: 600,
                                 color: "#475569",
                                 backgroundColor: "#FFFFFF",
                                 border: "1px solid #E2E8F0",
-                                padding: "1px 8px",
+                                padding: "2px 10px",
                                 borderRadius: "999px",
                                 whiteSpace: "nowrap",
                               }}
@@ -1774,7 +1788,7 @@ export default function CreateTestOrderPage() {
                               {g.sampleType}
                             </span>
                           </div>
-                          <div style={{ fontSize: "12px", color: "#334155", marginTop: "4px", lineHeight: 1.4 }}>
+                          <div style={{ fontSize: "12.5px", color: "#475569", marginTop: "5px", paddingLeft: "16px", lineHeight: 1.45 }}>
                             {g.tests.map((t) => t.name).join(" · ")}
                           </div>
                         </div>

@@ -1125,7 +1125,7 @@ export default function CreateTestOrderPage() {
       </Card>
 
       {/* =========================================================================================
-          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (NẠP GÓI ĐẶT TRƯỚC + KHÓA NÚT CHUYỂN 1 CHIỀU)
+          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (CLEAN FLAT 2-COLUMN REDESIGN)
          ========================================================================================= */}
       <Modal
         show={Boolean(activeModalEncounter)}
@@ -1135,493 +1135,729 @@ export default function CreateTestOrderPage() {
         size="xl"
         centered
         backdrop="static"
+        contentClassName="border-0 overflow-hidden"
       >
-        <Modal.Header closeButton={!submitting} className="bg-light border-bottom py-2.5 px-3">
-          <Modal.Title className="h6 fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
-            <Stethoscope className="text-primary"  size="1em"/>
-            <span>Khám Lâm Sàng &amp; Chỉ Định Xét Nghiệm</span>
+        <Modal.Header
+          closeButton={!submitting}
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderBottom: "1px solid #E2E8F0",
+            padding: "16px 24px",
+          }}
+        >
+          <div style={{ minWidth: 0, width: "100%", paddingRight: "16px" }}>
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <Stethoscope size={18} style={{ color: "#1E60E6", flexShrink: 0 }} />
+              <span style={{ fontSize: "17px", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.015em" }}>
+                Chỉ Định Xét Nghiệm
+              </span>
+              {activeModalEncounter && (
+                <span
+                  className="font-monospace"
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: "#1E60E6",
+                    backgroundColor: "#EFF6FF",
+                    padding: "3px 10px",
+                    borderRadius: "999px",
+                  }}
+                >
+                  {activeModalEncounter.appointmentCode}
+                </span>
+              )}
+              {editingDraftId && (
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#B45309",
+                    backgroundColor: "#FFFBEB",
+                    padding: "3px 10px",
+                    borderRadius: "999px",
+                  }}
+                >
+                  Bản nháp #{editingDraftId}
+                </span>
+              )}
+            </div>
+
             {activeModalEncounter && (
-              <Badge bg="primary" pill className="font-monospace">
-                {activeModalEncounter.appointmentCode}
-              </Badge>
+              <div
+                className="d-flex align-items-center flex-wrap gap-2 mt-1.5"
+                style={{ fontSize: "12.5px", color: "#64748B" }}
+              >
+                <strong style={{ color: "#0F172A", fontSize: "13px" }}>{activeModalEncounter.patientName}</strong>
+                <span className="font-monospace" style={{ color: "#475569" }}>{activeModalEncounter.patientId}</span>
+                <span>·</span>
+                <span>{activeModalEncounter.patientGender}, {activeModalEncounter.patientAge} tuổi</span>
+                <span>·</span>
+                <span>SĐT: <strong style={{ color: "#334155" }}>{activeModalEncounter.patientPhone || "—"}</strong></span>
+                <span>·</span>
+                <span>STT: <strong className="font-monospace" style={{ color: "#1E60E6" }}>{activeModalEncounter.queueNumber}</strong></span>
+                <span>·</span>
+                <span>BS: <strong style={{ color: "#334155" }}>{doctorName}</strong></span>
+              </div>
             )}
-            {editingDraftId && (
-              <Badge bg="warning" text="dark" pill>
-                Bản nháp #{editingDraftId}
-              </Badge>
-            )}
-          </Modal.Title>
+          </div>
         </Modal.Header>
 
-        <Modal.Body className="p-3" style={{ backgroundColor: "#F8FAFC" }}>
+        <Modal.Body style={{ backgroundColor: "#F8FAFC", padding: "18px 24px", maxHeight: "76vh", overflowY: "auto" }}>
           {modalError && (
             <Alert variant="danger" dismissible onClose={() => setModalError("")} className="py-2 px-3 mb-3 rounded-3 small">
-              <AlertTriangle className="me-2"  size="1em"/>
+              <AlertTriangle className="me-2" size="1em" />
               {modalError}
             </Alert>
           )}
 
-          {/* THÔNG BÁO ĐÃ CHUYỂN LAB THÀNH CÔNG */}
           {dispatchedOrderResult && (
-            <Alert variant="success" className="p-3 mb-3 rounded-4 border-success shadow-sm">
-              <div className="d-flex align-items-center gap-3">
-                <CheckCircle2 className="fs-2 text-success flex-shrink-0"  size="1em"/>
-                <div>
-                  <div className="fw-bold text-dark fs-6">
-                    Đã Ký &amp; Chuyển Chỉ Định #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} Xuống Phòng Lab Thành Công!
-                  </div>
-                </div>
+            <div
+              className="d-flex align-items-center gap-3 mb-3"
+              style={{
+                backgroundColor: "#ECFDF5",
+                border: "1px solid #A7F3D0",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                color: "#065F46",
+              }}
+            >
+              <CheckCircle2 size={22} style={{ color: "#059669", flexShrink: 0 }} />
+              <div style={{ fontSize: "14px", fontWeight: 700 }}>
+                Đã ký &amp; chuyển chỉ định #{dispatchedOrderResult.orderNumber || dispatchedOrderResult.id} xuống Phòng Lab thành công!
               </div>
-            </Alert>
+            </div>
           )}
 
           {activeModalEncounter && (
-            <>
-              {/* KHỐI 1: THÔNG TIN BỆNH NHÂN & LỊCH HẸN */}
-              <div className="p-2.5 px-3 rounded-4 bg-white border mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div className="d-flex align-items-center gap-2.5 flex-wrap">
-                  <div
-                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                    style={{ width: 38, height: 38, backgroundColor: "#1E60E6" }}
-                  >
-                    <User  size="1em"/>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
+                gap: "16px",
+                alignItems: "start",
+              }}
+            >
+              {/* CỘT TRÁI: 1. KHÁM LÂM SÀNG & CHẨN ĐOÁN */}
+              <div
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E2E8F0",
+                  borderRadius: "14px",
+                  padding: "16px 18px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  className="d-flex justify-content-between align-items-center pb-2.5 mb-3"
+                  style={{ borderBottom: "1px solid #F1F5F9" }}
+                >
+                  <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
+                    <HeartPulse size={15} style={{ color: "#EF4444" }} />
+                    1. Khám Lâm Sàng &amp; Chẩn Đoán
+                  </span>
+                  <Form.Check
+                    type="switch"
+                    id="save-emr-switch"
+                    label={<span style={{ fontSize: "12px", fontWeight: 600, color: "#1E60E6" }}>Lưu EMR</span>}
+                    checked={saveToEmr}
+                    disabled={Boolean(dispatchedOrderResult)}
+                    onChange={(e) => setSaveToEmr(e.target.checked)}
+                    className="mb-0"
+                  />
+                </div>
+
+                {/* Sinh hiệu: 4 ô đều nhau thoáng mắt */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1.35fr 1fr 1fr",
+                    gap: "10px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <div>
+                    <label style={{ display: "block", fontSize: "11.5px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      Mạch (bpm)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      style={{ height: "36px", padding: "0 10px", fontSize: "13.5px", fontWeight: 600 }}
+                      value={vitals.heartRate}
+                      disabled={Boolean(dispatchedOrderResult)}
+                      onChange={(e) => setVitals({ ...vitals, heartRate: e.target.value })}
+                    />
                   </div>
                   <div>
-                    <div className="fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
-                      <span>{activeModalEncounter.patientName}</span>
-                      <Badge bg="light" text="dark" className="border font-monospace rounded-pill">
-                        {activeModalEncounter.patientId}
-                      </Badge>
-                      <Badge bg="light" text="dark" className="border rounded-pill">
-                        {activeModalEncounter.patientGender} · {activeModalEncounter.patientAge} tuổi
-                      </Badge>
+                    <label style={{ display: "block", fontSize: "11.5px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      Huyết áp (mmHg)
+                    </label>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        height: "36px",
+                        backgroundColor: "#F8FAFC",
+                        border: "1px solid #DDE3EA",
+                        borderRadius: "10px",
+                        padding: "0 6px",
+                        gap: "4px",
+                      }}
+                    >
+                      <input
+                        type="number"
+                        style={{
+                          width: "100%",
+                          minWidth: 0,
+                          border: "none",
+                          background: "transparent",
+                          textAlign: "center",
+                          fontSize: "13.5px",
+                          fontWeight: 600,
+                          color: "#0F172A",
+                          outline: "none",
+                          height: "100%",
+                        }}
+                        value={vitals.systolicBp}
+                        disabled={Boolean(dispatchedOrderResult)}
+                        onChange={(e) => setVitals({ ...vitals, systolicBp: e.target.value })}
+                      />
+                      <span style={{ color: "#94A3B8", fontWeight: 600, fontSize: "13px" }}>/</span>
+                      <input
+                        type="number"
+                        style={{
+                          width: "100%",
+                          minWidth: 0,
+                          border: "none",
+                          background: "transparent",
+                          textAlign: "center",
+                          fontSize: "13.5px",
+                          fontWeight: 600,
+                          color: "#0F172A",
+                          outline: "none",
+                          height: "100%",
+                        }}
+                        value={vitals.diastolicBp}
+                        disabled={Boolean(dispatchedOrderResult)}
+                        onChange={(e) => setVitals({ ...vitals, diastolicBp: e.target.value })}
+                      />
                     </div>
-                    <div className="small text-muted">
-                      SĐT: <strong>{activeModalEncounter.patientPhone || "Chưa cung cấp"}</strong> ·
-                      STT: <strong className="text-primary">{activeModalEncounter.queueNumber}</strong> ·
-                      Bác sĩ khám: <strong>{doctorName}</strong>
-                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11.5px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      Nhiệt độ (°C)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      className="form-control"
+                      style={{ height: "36px", padding: "0 10px", fontSize: "13.5px", fontWeight: 600 }}
+                      value={vitals.temperature}
+                      disabled={Boolean(dispatchedOrderResult)}
+                      onChange={(e) => setVitals({ ...vitals, temperature: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11.5px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      SpO2 (%)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      style={{ height: "36px", padding: "0 10px", fontSize: "13.5px", fontWeight: 600 }}
+                      value={vitals.spo2}
+                      disabled={Boolean(dispatchedOrderResult)}
+                      onChange={(e) => setVitals({ ...vitals, spo2: e.target.value })}
+                    />
                   </div>
                 </div>
 
-                {activeModalEncounter.packageName || activeModalEncounter.packageCode ? (
-                  <div className="px-3 py-1.5 rounded-3 bg-primary-subtle border border-primary-subtle small">
-                    <div className="text-primary fw-bold" style={{ fontSize: "0.72rem" }}>
-                      GÓI BỆNH NHÂN ĐÃ ĐẶT (TỰ ĐỘNG KHÓA):
-                    </div>
-                    <div className="fw-bold text-dark">
-                      {resolveBookedPackageInCatalog(activeModalEncounter.packageCode, activeModalEncounter.packageName)?.name ||
-                        activeModalEncounter.packageName ||
-                        activeModalEncounter.packageCode}
+                {!bpValid && (
+                  <div className="text-danger small mb-2.5 fw-semibold">
+                    Huyết áp tâm thu phải lớn hơn huyết áp tâm trương ít nhất 15 mmHg.
+                  </div>
+                )}
+
+                {/* Mã bệnh ICD-10 */}
+                <div style={{ marginBottom: "14px" }}>
+                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1.5">
+                    <label style={{ fontSize: "12px", fontWeight: 700, color: "#334155", margin: 0 }}>
+                      Mã bệnh ICD-10 <span className="text-danger">*</span>
+                    </label>
+                    <div className="d-flex flex-wrap gap-1.5">
+                      {selectedIcdCodes.map((code) => (
+                        <span
+                          key={code}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            padding: "2px 9px",
+                            borderRadius: "999px",
+                            backgroundColor: "#EFF6FF",
+                            color: "#1E60E6",
+                            border: "1px solid #BFDBFE",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          <span className="font-monospace">{code}</span>
+                          {!dispatchedOrderResult && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveIcd(code)}
+                              style={{
+                                border: "none",
+                                background: "transparent",
+                                padding: 0,
+                                display: "inline-flex",
+                                color: "#1E60E6",
+                                cursor: "pointer",
+                              }}
+                              aria-label={`Xóa mã ${code}`}
+                            >
+                              <LucideX size={12} />
+                            </button>
+                          )}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                ) : (
-                  <Badge bg="light" text="secondary" className="border rounded-pill px-3 py-1.5">
-                    Khám trực tiếp — Chọn chỉ định bên dưới
-                  </Badge>
-                )}
+                  {icdError && <div className="text-danger small mb-1.5">{icdError}</div>}
+                  {!dispatchedOrderResult && (
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <select
+                        className="form-select"
+                        style={{ flex: 1, minWidth: 0, height: "36px", fontSize: "13px" }}
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) handleAddIcd(e.target.value);
+                        }}
+                      >
+                        <option value="">+ Chọn nhanh mã bệnh ICD-10...</option>
+                        {CLINICAL_ICD10_LIST.map((icd) => (
+                          <option key={icd.code} value={icd.code} disabled={selectedIcdCodes.includes(icd.code)}>
+                            {icd.code} — {icd.name}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        className="form-control"
+                        style={{ width: "108px", height: "36px", fontSize: "13px" }}
+                        placeholder="Mã khác..."
+                        value={customIcdInput}
+                        onChange={(e) => setCustomIcdInput(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => customIcdInput && handleAddIcd(customIcdInput)}
+                        style={{
+                          height: "36px",
+                          width: "36px",
+                          minWidth: "36px",
+                          borderRadius: "10px",
+                          border: "1px solid #BFDBFE",
+                          backgroundColor: "#EFF6FF",
+                          color: "#1E60E6",
+                          fontWeight: 700,
+                          fontSize: "16px",
+                          lineHeight: 1,
+                          cursor: "pointer",
+                        }}
+                        title="Thêm mã ICD-10"
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Triệu chứng & Chẩn đoán lâm sàng */}
+                <div style={{ marginBottom: "14px" }}>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#334155", marginBottom: "5px" }}>
+                    Triệu chứng &amp; Chẩn đoán lâm sàng <span className="text-danger">*</span>
+                  </label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    style={{ fontSize: "13px", lineHeight: 1.5, padding: "10px 12px" }}
+                    disabled={Boolean(dispatchedOrderResult)}
+                    value={clinicalIndication}
+                    onChange={(e) => setClinicalIndication(e.target.value)}
+                    placeholder="Ghi ngắn gọn triệu chứng lâm sàng, lý do chỉ định xét nghiệm..."
+                  />
+                </div>
+
+                {/* Độ ưu tiên & Ghi chú cho Lab */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "10px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      Độ ưu tiên
+                    </label>
+                    <select
+                      className="form-select"
+                      style={{ height: "36px", fontSize: "13px" }}
+                      disabled={Boolean(dispatchedOrderResult)}
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value)}
+                    >
+                      <option value="Routine">Thường quy (Routine)</option>
+                      <option value="Urgent">Khẩn (Urgent)</option>
+                      <option value="STAT">Cấp cứu (STAT)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
+                      Ghi chú cho Phòng Lab
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={{ height: "36px", fontSize: "13px" }}
+                      disabled={Boolean(dispatchedOrderResult)}
+                      value={specialInstructions}
+                      onChange={(e) => setSpecialInstructions(e.target.value)}
+                      placeholder="Lưu ý lấy mẫu, kháng đông..."
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="row g-3">
-                {/* CỘT TRÁI MODAL (7 PHẦN): KHÁM LÂM SÀNG + CHỌN/BỔ SUNG XÉT NGHIỆM */}
-                <div className="col-lg-7">
-                  {/* KHỐI 2: KHÁM LÂM SÀNG CHUẨN Y TẾ (SINH HIỆU & ICD-10) */}
-                  <Card className="border-0 shadow-xs rounded-4 mb-3 bg-white">
-                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
-                      <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
-                        <HeartPulse className="text-danger"  size="1em"/> 1. Khám Lâm Sàng, Sinh Hiệu &amp; Chẩn Đoán ICD-10
-                      </span>
-                      <Form.Check
-                        type="switch"
-                        id="save-emr-switch"
-                        label={<span className="small fw-semibold text-primary">Lưu vào Bệnh án EMR</span>}
-                        checked={saveToEmr}
-                        disabled={Boolean(dispatchedOrderResult)}
-                        onChange={(e) => setSaveToEmr(e.target.checked)}
+              {/* CỘT PHẢI: 2. CHỌN GÓI / CHỈ SỐ + 3. ỐNG MẪU & TỔNG CHI PHÍ */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
+                {/* Card 2: Gói Đã Đặt & Chỉ Định Bổ Sung */}
+                <div
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "14px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    className="d-flex justify-content-between align-items-center flex-wrap gap-2"
+                    style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}
+                  >
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A" }}>
+                      2. Gói Đã Đặt &amp; Chỉ Định Bổ Sung
+                    </span>
+                    <div className="d-flex gap-1">
+                      {[
+                        { id: "ALL", label: "Tất cả" },
+                        { id: "PACKAGE", label: "Gói" },
+                        { id: "SINGLE", label: "Chỉ số lẻ" }
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setModalTypeFilter(t.id)}
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            padding: "4px 10px",
+                            borderRadius: "999px",
+                            backgroundColor: modalTypeFilter === t.id ? "#1E60E6" : "#F1F5F9",
+                            color: modalTypeFilter === t.id ? "#FFFFFF" : "#475569",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Thanh tìm kiếm sạch 1 viền duy nhất */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      padding: "10px 14px",
+                      backgroundColor: "#F8FAFC",
+                      borderBottom: "1px solid #F1F5F9",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        flex: 1,
+                        minWidth: 0,
+                        height: "36px",
+                        padding: "0 12px",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #DDE3EA",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <Search size={14} style={{ color: "#94A3B8", flexShrink: 0 }} />
+                      <input
+                        type="text"
+                        style={{
+                          width: "100%",
+                          minWidth: 0,
+                          height: "100%",
+                          border: "none",
+                          outline: "none",
+                          background: "transparent",
+                          fontSize: "13px",
+                          color: "#0F172A",
+                          padding: 0,
+                        }}
+                        placeholder="Tìm gói hoặc chỉ số (CBC, GLU, HBsAg...)"
+                        value={modalSearchTerm}
+                        onChange={(e) => setModalSearchTerm(e.target.value)}
                       />
-                    </Card.Header>
+                    </div>
+                    <select
+                      className="form-select"
+                      style={{ width: "152px", flexShrink: 0, height: "36px", fontSize: "12.5px", backgroundColor: "#FFFFFF" }}
+                      value={modalCategory}
+                      onChange={(e) => setModalCategory(e.target.value)}
+                    >
+                      <option value="Tất cả">Tất cả chuyên khoa</option>
+                      <option value="Huyết học">Huyết học</option>
+                      <option value="Sinh hóa">Sinh hóa</option>
+                      <option value="Miễn dịch">Miễn dịch</option>
+                    </select>
+                  </div>
 
-                    <Card.Body className="p-2.5">
-                      {/* Dấu hiệu sinh tồn */}
-                      <div className="row g-2 mb-2.5">
-                        <div className="col-6 col-sm-3">
-                          <label className="small text-muted fw-semibold mb-0.5">Mạch (bpm)</label>
-                          <Form.Control
-                            size="sm"
-                            type="number"
-                            value={vitals.heartRate}
-                            disabled={Boolean(dispatchedOrderResult)}
-                            onChange={(e) => setVitals({ ...vitals, heartRate: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-6 col-sm-3">
-                          <label className="small text-muted fw-semibold mb-0.5">HA (Tâm thu/trương)</label>
-                          <div className="d-flex align-items-center gap-1">
-                            <Form.Control
-                              size="sm"
-                              type="number"
-                              value={vitals.systolicBp}
-                              disabled={Boolean(dispatchedOrderResult)}
-                              onChange={(e) => setVitals({ ...vitals, systolicBp: e.target.value })}
-                            />
-                            <span>/</span>
-                            <Form.Control
-                              size="sm"
-                              type="number"
-                              value={vitals.diastolicBp}
-                              disabled={Boolean(dispatchedOrderResult)}
-                              onChange={(e) => setVitals({ ...vitals, diastolicBp: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-6 col-sm-3">
-                          <label className="small text-muted fw-semibold mb-0.5">Nhiệt độ (°C)</label>
-                          <Form.Control
-                            size="sm"
-                            type="number"
-                            step="0.1"
-                            value={vitals.temperature}
-                            disabled={Boolean(dispatchedOrderResult)}
-                            onChange={(e) => setVitals({ ...vitals, temperature: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-6 col-sm-3">
-                          <label className="small text-muted fw-semibold mb-0.5">SpO2 (%)</label>
-                          <Form.Control
-                            size="sm"
-                            type="number"
-                            value={vitals.spo2}
-                            disabled={Boolean(dispatchedOrderResult)}
-                            onChange={(e) => setVitals({ ...vitals, spo2: e.target.value })}
-                          />
-                        </div>
-                      </div>
-
-                      {!bpValid && (
-                        <div className="text-danger small mb-2 fw-semibold">
-                          ⚠ Huyết áp tâm thu phải lớn hơn huyết áp tâm trương ít nhất 15 mmHg.
-                        </div>
-                      )}
-
-                      {/* Mã bệnh ICD-10 */}
-                      <div className="mb-2">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <label className="small fw-bold text-dark mb-0">
-                            Mã bệnh WHO ICD-10 <span className="text-danger">*</span>
-                          </label>
-                          <div className="d-flex flex-wrap gap-1">
-                            {selectedIcdCodes.map((code) => (
-                              <span
-                                key={code}
-                                className="badge d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill text-white"
-                                style={{ backgroundColor: "#1E60E6", fontSize: "0.73rem" }}
-                              >
-                                <span className="font-monospace fw-bold">{code}</span>
-                                {!dispatchedOrderResult && (
-                                  <LucideX style={{ cursor: "pointer" }} onClick={() => handleRemoveIcd(code)} />
-                                )}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        {icdError && <div className="text-danger small mb-1">{icdError}</div>}
-                        {!dispatchedOrderResult && (
-                          <div className="d-flex gap-1.5">
-                            <select
-                              className="form-select form-select-sm rounded-pill"
-                              value=""
-                              onChange={(e) => {
-                                if (e.target.value) handleAddIcd(e.target.value);
-                              }}
-                            >
-                              <option value="">+ Chọn nhanh mã bệnh ICD-10...</option>
-                              {CLINICAL_ICD10_LIST.map((icd) => (
-                                <option key={icd.code} value={icd.code} disabled={selectedIcdCodes.includes(icd.code)}>
-                                  {icd.code} — {icd.name}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="input-group input-group-sm" style={{ maxWidth: "135px" }}>
-                              <input
-                                type="text"
-                                className="form-control rounded-start-pill"
-                                placeholder="Mã khác..."
-                                value={customIcdInput}
-                                onChange={(e) => setCustomIcdInput(e.target.value)}
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-outline-primary rounded-end-pill px-2"
-                                onClick={() => customIcdInput && handleAddIcd(customIcdInput)}
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Triệu chứng & Lý do chỉ định */}
-                      <div className="row g-2">
-                        <div className="col-12">
-                          <label className="small fw-bold text-dark mb-0.5">
-                            Triệu chứng &amp; Chẩn đoán lâm sàng <span className="text-danger">*</span>
-                          </label>
-                          <Form.Control
-                            size="sm"
-                            as="textarea"
-                            rows={2}
-                            disabled={Boolean(dispatchedOrderResult)}
-                            value={clinicalIndication}
-                            onChange={(e) => setClinicalIndication(e.target.value)}
-                            placeholder="Ghi triệu chứng lâm sàng, mục tiêu chỉ định xét nghiệm..."
-                          />
-                        </div>
-                        <div className="col-6">
-                          <label className="small fw-semibold text-secondary mb-0.5">Độ ưu tiên</label>
-                          <select
-                            className="form-select form-select-sm"
-                            disabled={Boolean(dispatchedOrderResult)}
-                            value={priority}
-                            onChange={(e) => setPriority(e.target.value)}
-                          >
-                            <option value="Routine">Thường quy (Routine)</option>
-                            <option value="Urgent">Khẩn (Urgent)</option>
-                            <option value="STAT">Cấp cứu (STAT)</option>
-                          </select>
-                        </div>
-                        <div className="col-6">
-                          <label className="small fw-semibold text-secondary mb-0.5">Ghi chú kỹ thuật cho Lab</label>
-                          <input
-                            type="text"
-                            className="form-control form-control-sm"
-                            disabled={Boolean(dispatchedOrderResult)}
-                            value={specialInstructions}
-                            onChange={(e) => setSpecialInstructions(e.target.value)}
-                            placeholder="Lưu ý kháng đông, lấy mẫu..."
-                          />
-                        </div>
-                      </div>
-                    </Card.Body>
-                  </Card>
-
-                  {/* KHỐI 3: BẢNG CHỌN GÓI / CHỈ SỐ XÉT NGHIỆM BỔ SUNG */}
-                  <Card className="border-0 shadow-xs rounded-4 bg-white overflow-hidden">
-                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <span className="fw-bold small text-dark text-uppercase">
-                        2. Gói Đã Đặt &amp; Chỉ Định Bổ Sung
-                      </span>
-                      <div className="d-flex gap-1">
-                        {[
-                          { id: "ALL", label: "Tất cả" },
-                          { id: "PACKAGE", label: "Gói" },
-                          { id: "SINGLE", label: "Chỉ số lẻ" }
-                        ].map((t) => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => setModalTypeFilter(t.id)}
-                            className="btn btn-sm rounded-pill px-2.5 py-0.5 fw-semibold"
+                  {/* Danh sách gói / chỉ số thoáng mắt, gói đã đặt luôn lên trên */}
+                  <div style={{ maxHeight: "225px", overflowY: "auto" }}>
+                    {[...filteredModalCatalog]
+                      .sort((a, b) => Number(lockedCodes.has(b.code)) - Number(lockedCodes.has(a.code)))
+                      .map((item) => {
+                        const isSel = selectedCodes.has(item.code);
+                        const isLocked = lockedCodes.has(item.code);
+                        const tubeSpec = resolveTubeSpec(item.tubeType, item.category);
+                        return (
+                          <div
+                            key={item.code}
+                            onClick={() => handleToggleCode(item.code)}
                             style={{
-                              fontSize: "0.72rem",
-                              backgroundColor: modalTypeFilter === t.id ? "#1E60E6" : "#EEF2F6",
-                              color: modalTypeFilter === t.id ? "#FFFFFF" : "#475569",
-                              border: "none"
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "10px 14px",
+                              borderBottom: "1px solid #F1F5F9",
+                              cursor: isLocked || dispatchedOrderResult ? "default" : "pointer",
+                              backgroundColor: isSel ? "#F0F7FF" : "#FFFFFF",
+                              transition: "background-color 0.12s ease",
                             }}
                           >
-                            {t.label}
-                          </button>
-                        ))}
-                      </div>
-                    </Card.Header>
-
-                    <div className="p-2 border-bottom d-flex gap-2 bg-light">
-                      <div className="bms-search-input-pill flex-grow-1 bg-white">
-                        <Search className="bms-search-icon"  size="1em"/>
-                        <input
-                          type="text"
-                          placeholder="Tìm thêm gói hoặc chỉ số xét nghiệm (CBC, GLU, ANTI-TPO...)..."
-                          value={modalSearchTerm}
-                          onChange={(e) => setModalSearchTerm(e.target.value)}
-                        />
-                      </div>
-                      <select
-                        className="form-select form-select-sm rounded-pill"
-                        style={{ width: "auto" }}
-                        value={modalCategory}
-                        onChange={(e) => setModalCategory(e.target.value)}
-                      >
-                        <option value="Tất cả">Tất cả chuyên khoa</option>
-                        <option value="Huyết học">Huyết học</option>
-                        <option value="Sinh hóa">Sinh hóa</option>
-                        <option value="Miễn dịch">Miễn dịch</option>
-                      </select>
-                    </div>
-
-                    <div className="table-responsive" style={{ maxHeight: "230px" }}>
-                      <table className="table table-hover table-sm align-middle mb-0">
-                        <tbody>
-                          {filteredModalCatalog.map((item) => {
-                            const isSel = selectedCodes.has(item.code);
-                            const isLocked = lockedCodes.has(item.code);
-                            const tubeSpec = resolveTubeSpec(item.tubeType, item.category);
-                            return (
-                              <tr
-                                key={item.code}
-                                onClick={() => handleToggleCode(item.code)}
-                                style={{
-                                  cursor: isLocked || dispatchedOrderResult ? "default" : "pointer",
-                                  backgroundColor: isSel ? "rgba(30, 96, 230, 0.08)" : undefined
-                                }}
-                              >
-                                <td className="ps-3 text-center" style={{ width: 38 }} onClick={(e) => e.stopPropagation()}>
-                                  <input
-                                    type="checkbox"
-                                    className="form-check-input"
-                                    checked={isSel}
-                                    disabled={isLocked || Boolean(dispatchedOrderResult)}
-                                    onChange={() => handleToggleCode(item.code)}
-                                  />
-                                </td>
-                                <td>
-                                  <div className="fw-semibold text-dark small d-flex align-items-center gap-1.5">
-                                    <span>{item.name}</span>
-                                    {isLocked && (
-                                      <Badge bg="success" pill style={{ fontSize: "0.66rem" }}>
-                                        Đã đặt trước (Khóa)
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="small text-muted">
-                                    <code className="text-primary me-2">{item.code}</code>
-                                    <span style={{ color: tubeSpec.colorHex }}>{tubeSpec.shortLabel}</span>
-                                  </div>
-                                </td>
-                                <td className="text-end pe-3 font-monospace fw-bold small text-nowrap">
-                                  {Number(item.price || 0).toLocaleString("vi-VN")} đ
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </Card>
+                            <input
+                              type="checkbox"
+                              className="form-check-input m-0 flex-shrink-0"
+                              checked={isSel}
+                              disabled={isLocked || Boolean(dispatchedOrderResult)}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={() => handleToggleCode(item.code)}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                <span style={{ fontSize: "13px", fontWeight: 600, color: "#0F172A", lineHeight: 1.3 }}>
+                                  {item.name}
+                                </span>
+                                {isLocked && (
+                                  <span
+                                    style={{
+                                      fontSize: "11px",
+                                      fontWeight: 600,
+                                      color: "#047857",
+                                      backgroundColor: "#ECFDF5",
+                                      padding: "1px 8px",
+                                      borderRadius: "999px",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    Đã đặt
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: "11.5px", color: "#64748B", marginTop: "2px" }}>
+                                <code style={{ color: "#1E60E6", marginRight: "8px" }}>{item.code}</code>
+                                <span style={{ color: tubeSpec.colorHex }}>{tubeSpec.shortLabel}</span>
+                              </div>
+                            </div>
+                            <div
+                              className="font-monospace"
+                              style={{
+                                fontSize: "13px",
+                                fontWeight: 700,
+                                color: "#0F172A",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {Number(item.price || 0).toLocaleString("vi-VN")} đ
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
                 </div>
 
-                {/* CỘT PHẢI MODAL (5 PHẦN): XEM TRƯỚC TÁCH ỐNG CLSI & SÀNG LỌC TIỀN PHÂN TÍCH */}
-                <div className="col-lg-5">
-                  <Card className="border-0 shadow-xs rounded-4 bg-white h-100">
-                    <Card.Header className="bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
-                      <span className="fw-bold small text-dark text-uppercase d-flex align-items-center gap-1.5">
-                        <Layers className="text-primary"  size="1em"/> 3. Tách Ống Máu &amp; Chuyển Lab
-                      </span>
-                      <Badge bg="primary" pill>{autoTubeGroups.length} ống mẫu</Badge>
-                    </Card.Header>
+                {/* Card 3: Ống Mẫu Sinh Tự Động & Tổng Chi Phí */}
+                <div
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "14px",
+                    padding: "14px 16px",
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-center mb-2.5">
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
+                      <Layers size={15} style={{ color: "#1E60E6" }} />
+                      3. Ống Bệnh Phẩm Tự Sinh Cho Lab
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11.5px",
+                        fontWeight: 700,
+                        color: "#1E60E6",
+                        backgroundColor: "#EFF6FF",
+                        padding: "2px 10px",
+                        borderRadius: "999px",
+                      }}
+                    >
+                      {autoTubeGroups.length} ống mẫu
+                    </span>
+                  </div>
 
-                    <Card.Body className="p-3 d-flex flex-column justify-content-between">
-                      <div>
-                        {/* Danh sách ống máu CLSI tự tách */}
-                        <div className="mb-3">
-                          <div className="small fw-bold text-muted text-uppercase mb-1.5">
-                            Ống bệnh phẩm hệ thống sẽ tự sinh cho Lab:
+                  {autoTubeGroups.length === 0 ? (
+                    <div
+                      style={{
+                        padding: "12px",
+                        borderRadius: "10px",
+                        backgroundColor: "#F8FAFC",
+                        textAlign: "center",
+                        fontSize: "12.5px",
+                        color: "#64748B",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      Chưa có xét nghiệm nào được chọn.
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
+                      {autoTubeGroups.map((g, idx) => (
+                        <div
+                          key={g.key}
+                          style={{
+                            padding: "10px 12px",
+                            borderRadius: "10px",
+                            backgroundColor: "#F8FAFC",
+                            border: "1px solid #E2E8F0",
+                            borderLeft: `4px solid ${g.colorHex}`,
+                          }}
+                        >
+                          <div className="d-flex justify-content-between align-items-center flex-wrap gap-1.5">
+                            <span style={{ fontSize: "12.5px", fontWeight: 700, color: g.colorHex }}>
+                              Ống #{idx + 1}: {g.label}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: 600,
+                                color: "#475569",
+                                backgroundColor: "#FFFFFF",
+                                border: "1px solid #E2E8F0",
+                                padding: "1px 8px",
+                                borderRadius: "999px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {g.sampleType}
+                            </span>
                           </div>
-                          {autoTubeGroups.length === 0 ? (
-                            <div className="p-3 rounded-3 bg-light border text-center text-muted small">
-                              Chưa có xét nghiệm nào được chọn.
-                            </div>
-                          ) : (
-                            <div className="d-flex flex-column gap-1.5">
-                              {autoTubeGroups.map((g, idx) => (
-                                <div
-                                  key={g.key}
-                                  className="p-2 rounded-3 bg-light border"
-                                  style={{ borderLeft: `4px solid ${g.colorHex}` }}
-                                >
-                                  <div className="d-flex justify-content-between align-items-center">
-                                    <span className="fw-bold small" style={{ color: g.colorHex }}>
-                                      Ống #{idx + 1}: {g.label}
-                                    </span>
-                                    <span className="badge bg-white text-dark border rounded-pill" style={{ fontSize: "0.68rem" }}>
-                                      {g.sampleType}
-                                    </span>
-                                  </div>
-                                  <div className="small text-dark mt-1">
-                                    {g.tests.map((t) => t.name).join(" • ")}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Sàng lọc nhịn ăn */}
-                        {fastingInfo.required && priority !== "STAT" && !dispatchedOrderResult && (
-                          <div className="p-2.5 rounded-3 mb-3 border border-warning bg-warning-subtle">
-                            <Form.Check
-                              type="checkbox"
-                              id="modal-fasting-check"
-                              checked={fastingConfirmed}
-                              onChange={(e) => setFastingConfirmed(e.target.checked)}
-                              label={
-                                <span className="small fw-semibold text-dark">
-                                  Xác nhận: Bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h trước khi lấy mẫu.
-                                </span>
-                              }
-                            />
+                          <div style={{ fontSize: "12px", color: "#334155", marginTop: "4px", lineHeight: 1.4 }}>
+                            {g.tests.map((t) => t.name).join(" · ")}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Tổng chi phí & Tóm tắt chuyển */}
-                      <div className="p-3 rounded-3 bg-light border">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span className="small text-muted">Số mục xét nghiệm:</span>
-                          <strong className="text-dark small">{selectedTests.length} mục</strong>
                         </div>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-bold text-dark">Tổng chi phí chỉ định:</span>
-                          <span className="fs-5 fw-bold font-monospace" style={{ color: "#1E60E6" }}>
-                            {totalAmount.toLocaleString("vi-VN")} đ
+                      ))}
+                    </div>
+                  )}
+
+                  {fastingInfo.required && priority !== "STAT" && !dispatchedOrderResult && (
+                    <div
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: "10px",
+                        backgroundColor: "#FFFBEB",
+                        border: "1px solid #FDE68A",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <Form.Check
+                        type="checkbox"
+                        id="modal-fasting-check"
+                        checked={fastingConfirmed}
+                        onChange={(e) => setFastingConfirmed(e.target.checked)}
+                        className="mb-0"
+                        label={
+                          <span style={{ fontSize: "12.5px", fontWeight: 600, color: "#92400E" }}>
+                            Xác nhận bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h trước khi lấy mẫu
                           </span>
-                        </div>
-                      </div>
-                    </Card.Body>
-                  </Card>
+                        }
+                      />
+                    </div>
+                  )}
+
+                  <div
+                    className="d-flex justify-content-between align-items-center pt-2.5"
+                    style={{ borderTop: "1px solid #F1F5F9" }}
+                  >
+                    <div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: "#0F172A" }}>Tổng chi phí chỉ định</div>
+                      <div style={{ fontSize: "11.5px", color: "#64748B" }}>{selectedTests.length} mục xét nghiệm</div>
+                    </div>
+                    <div
+                      className="font-monospace"
+                      style={{ fontSize: "20px", fontWeight: 800, color: "#1E60E6", letterSpacing: "-0.02em" }}
+                    >
+                      {totalAmount.toLocaleString("vi-VN")} đ
+                    </div>
+                  </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </Modal.Body>
 
-        <Modal.Footer className="bg-light border-top d-flex justify-content-between">
+        <Modal.Footer
+          className="d-flex justify-content-between align-items-center"
+          style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #E2E8F0", padding: "14px 24px" }}
+        >
           <BsButton
             variant="secondary"
             size="sm"
-            className="rounded-pill px-3"
+            className="rounded-pill px-3.5"
             disabled={submitting}
             onClick={() => setActiveModalEncounter(null)}
           >
             {dispatchedOrderResult ? "Đóng & Quay lại danh sách" : "Đóng"}
           </BsButton>
 
-          {/* ẨN HOÀN TOÀN NÚT CHUYỂN & LƯU NHÁP KHI ĐÃ CHUYỂN LAB THÀNH CÔNG */}
           {!dispatchedOrderResult && (
             <div className="d-flex align-items-center gap-2">
               <BsButton
                 variant="outline-secondary"
                 size="sm"
-                className="rounded-pill px-3 fw-semibold"
+                className="rounded-pill px-3.5 fw-semibold d-inline-flex align-items-center gap-1.5"
                 disabled={submitting || selectedTests.length === 0}
                 onClick={() => handleDispatchToLab(true)}
               >
-                <Save className="me-1"  size="1em"/> Lưu Bản Nháp
+                <Save size={14} /> Lưu Bản Nháp
               </BsButton>
 
               <BsButton
                 variant="primary"
                 size="sm"
-                className="rounded-pill px-4 py-1.5 fw-bold text-white shadow-sm d-flex align-items-center gap-2"
+                className="rounded-pill px-4 py-1.5 fw-bold text-white d-inline-flex align-items-center gap-2"
                 style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
                 disabled={submitting || selectedTests.length === 0 || !bpValid}
                 onClick={() => handleDispatchToLab(false)}
@@ -1633,7 +1869,7 @@ export default function CreateTestOrderPage() {
                   </>
                 ) : (
                   <>
-                    <Send  size="1em"/>
+                    <Send size={14} />
                     <span>Ký &amp; Chuyển Xuống Phòng Lab</span>
                   </>
                 )}

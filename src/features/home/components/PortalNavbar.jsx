@@ -42,7 +42,8 @@ export default function PortalNavbar({ user: propUser = null }) {
     if (isPatient) {
       if (currentPath.startsWith('/appointments')) return true;
       if (currentPath.startsWith('/patient/test-history')) return true;
-      if (currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices')) return true;
+      if (currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/patient/payments') || currentPath.startsWith('/invoices')) return true;
+      if (currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback')) return true;
     } else {
       if (currentPath.startsWith('/pricing') || currentPath.startsWith('/catalog')) return true;
       if (currentPath.startsWith('/iso-process')) return true;
@@ -220,11 +221,18 @@ export default function PortalNavbar({ user: propUser = null }) {
                 Lịch Sử Xét Nghiệm
               </Link>
               <Link
-                className={`bms-capsule-item ${currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/invoices') ? 'active' : ''}`}
+                className={`bms-capsule-item ${currentPath.startsWith('/patient/payment-history') || currentPath.startsWith('/patient/payments') || currentPath.startsWith('/invoices') ? 'active' : ''}`}
                 to="/patient/payment-history"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                Lịch Sử Thanh Toán
+                Thanh Toán
+              </Link>
+              <Link
+                className={`bms-capsule-item ${currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? 'active' : ''}`}
+                to="/feedback"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
+                Góp Ý
               </Link>
             </>
           ) : (
@@ -251,48 +259,6 @@ export default function PortalNavbar({ user: propUser = null }) {
         <div className="bms-identity-cluster">
           {isPatient ? (
             <div className="bms-user-dock">
-              <div className="d-flex flex-column align-items-stretch" style={{ gap: '4px' }}>
-                <Link
-                  className="bms-btn-mint-cta"
-                  to="/appointments/book"
-                  style={{
-                    height: '28px',
-                    padding: '4px 14px',
-                    fontSize: '12px',
-                    fontWeight: 650,
-                    borderRadius: '9999px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    whiteSpace: 'nowrap',
-                    lineHeight: '1'
-                  }}
-                >
-                  Đặt Lịch Khám
-                </Link>
-                <Link
-                  to="/feedback"
-                  style={{
-                    height: '24px',
-                    padding: '2px 12px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    borderRadius: '9999px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    whiteSpace: 'nowrap',
-                    lineHeight: '1',
-                    textDecoration: 'none',
-                    color: currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? '#ffffff' : '#1E60E6',
-                    backgroundColor: currentPath.startsWith('/feedback') || currentPath.startsWith('/patient/feedback') ? '#1E60E6' : '#E8EFFE',
-                    border: '1px solid rgba(30, 96, 230, 0.25)',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  Đóng góp ý kiến
-                </Link>
-              </div>
               <Link
                 className="bms-btn-mint-cta"
                 to="/services"

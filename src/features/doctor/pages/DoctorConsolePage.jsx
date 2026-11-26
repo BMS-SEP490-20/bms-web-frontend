@@ -25,6 +25,7 @@ import { Stethoscope, Megaphone, CheckCircle2, XCircle, User, Clock, DoorOpen, V
 import { receptionApi } from '../../reception/api/receptionApi';
 import api from '../../../config/api';
 import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laboratory/components/BarcodePrinter';
+import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
 
 export default function DoctorConsolePage() {
   const navigate = useNavigate();
@@ -40,11 +41,11 @@ export default function DoctorConsolePage() {
   });
 
   const rawDoctorName = currentUser?.fullName || currentUser?.name || currentUser?.username || '';
-  const doctorDisplayName = (!rawDoctorName || /^[0-9a-f]{24}$/i.test(rawDoctorName) || rawDoctorName === 'Bác sĩ đang đăng nhập')
-    ? 'BS. CKI Lê Hoàng Nam'
+  const doctorDisplayName = (!rawDoctorName || /^[0-9a-f]{24}$/i.test(rawDoctorName))
+    ? 'Bác sĩ đang trực'
     : rawDoctorName;
   const rawLicense = currentUser?.licenseNumber || currentUser?.employeeCode || currentUser?.username || '';
-  const doctorLicenseLabel = (!rawLicense || /^[0-9a-f]{24}$/i.test(rawLicense)) ? 'CCHN-004521/BYT' : rawLicense;
+  const doctorLicenseLabel = (!rawLicense || /^[0-9a-f]{24}$/i.test(rawLicense)) ? '—' : rawLicense;
 
   // Auto-filled from ca trực hôm nay — BS đã được phân phòng, không bắt chọn tay.
   const [roomId, setRoomId] = useState('');
@@ -869,6 +870,19 @@ export default function DoctorConsolePage() {
           </Button>
         </div>
       </div>
+
+      {/* Quy trình 4 bước cho Bác sĩ */}
+      <WorkflowStepperBar
+        title="Quy trình làm việc của Bác sĩ (4 bước)"
+        hint="Bệnh nhân Lễ tân vừa Check-in sẽ hiện ngay ở Hàng Đợi Chờ Khám bên phải"
+        activeStep={1}
+        steps={[
+          { id: 'doc-1', label: 'Gọi bệnh nhân (F2)', desc: 'Mời người bệnh từ Hàng Đợi Chờ Khám vào bàn khám', path: '/doctor/console' },
+          { id: 'doc-2', label: 'Chỉ định xét nghiệm', desc: 'Khám sinh hiệu, chọn ICD-10 & chuyển đơn xuống Phòng Lab', path: '/doctor/orders/create' },
+          { id: 'doc-3', label: 'Chờ Phòng Lab phân tích', desc: 'KTV lấy mẫu, tiếp nhận ống mẫu & nhập chỉ số xét nghiệm' },
+          { id: 'doc-4', label: 'Thẩm định & Ký số KQ', desc: 'Duyệt kết quả Lab bên dưới hoặc ở màn Duyệt KQ để trả cho BN', path: '/laboratory/biochemical-results' }
+        ]}
+      />
 
       {/* Alerts */}
       {verifiedAlert && (

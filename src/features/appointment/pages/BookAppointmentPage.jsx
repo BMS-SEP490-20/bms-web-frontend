@@ -125,18 +125,19 @@ export function BookAppointmentPage({
   const [patientSearch, setPatientSearch] = useState('');
   const [patientsLoading, setPatientsLoading] = useState(false);
 
-  const [date, setDate] = useState(() => {
-    const d = new Date();
-    if (!isReceptionist) d.setDate(d.getDate() + 1);
-    return toDateKey(d);
-  });
+  const [date, setDate] = useState(() => toDateKey(new Date()));
   const [calendarCursor, setCalendarCursor] = useState(() => {
     const d = new Date();
-    if (!isReceptionist) d.setDate(d.getDate() + 1);
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
 
-  const [selectedShiftId, setSelectedShiftId] = useState('Morning');
+  const [selectedShiftId, setSelectedShiftId] = useState(() => {
+    const h = new Date().getHours();
+    if (h >= 17) return 'Evening';
+    if (h >= 11) return 'Afternoon';
+    return 'Morning';
+  });
+  const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [availableShifts, setAvailableShifts] = useState([]);
   const [loadingShifts, setLoadingShifts] = useState(false);
 
@@ -580,11 +581,47 @@ export function BookAppointmentPage({
     return inShift;
   }, [availableShifts, selectedShiftId, selectedPackage]);
 
-  // Hệ thống tự động điều phối Bác sĩ chuyên khoa phụ trách ca này (không để bệnh nhân tự chọn)
+  // Real doctors on duty from MongoDB doctor_shifts (user can pick if multiple doctors work the shift)
   const activeShiftData = useMemo(() => {
     if (shiftDoctors.length === 0) return null;
+    if (selectedDoctorId) {
+      const picked = shiftDoctors.find((d) => d.doctorId === selectedDoctorId);
+      if (picked) return picked;
+    }
     return shiftDoctors[0];
-  }, [shiftDoctors]);
+  }, [shiftDoctors, selectedDoctorId]);
+
+  // Keep selectedDoctorId synced with available real doctors in this shift
+  useEffect(() => {
+    if (shiftDoctors.length === 0) {
+      setSelectedDoctorId('');
+      return;
+    }
+    if (!shiftDoctors.some((d) => d.doctorId === selectedDoctorId)) {
+      setSelectedDoctorId(shiftDoctors[0].doctorId || '');
+    }
+  }, [shiftDoctors, selectedDoctorId]);
+
+  // If the currently chosen shift has no real on-duty doctor on the selected date, auto-switch to a shift that does
+  useEffect(() => {
+    if (loadingShifts || availableShifts.length === 0) return;
+    const hasCurrentShift = availableShifts.some(
+      (s) => (s.shiftType || '').toLowerCase() === selectedShiftId.toLowerCase()
+    );
+    if (!hasCurrentShift) {
+      const nowHour = new Date().getHours();
+      const isToday = date === toDateKey(new Date());
+      const preferredOrder = isToday
+        ? (nowHour < 11 ? ['Morning', 'Afternoon', 'Evening'] : nowHour < 17 ? ['Afternoon', 'Evening', 'Morning'] : ['Evening', 'Afternoon', 'Morning'])
+        : ['Morning', 'Afternoon', 'Evening'];
+      const nextShift = preferredOrder.find((sid) =>
+        availableShifts.some((s) => (s.shiftType || '').toLowerCase() === sid.toLowerCase())
+      );
+      if (nextShift && nextShift !== selectedShiftId) {
+        setSelectedShiftId(nextShift);
+      }
+    }
+  }, [availableShifts, loadingShifts, date]);
 
   // Fasting clinical warning indicator
   const requiresFasting = useMemo(() => {
@@ -629,18 +666,28 @@ export function BookAppointmentPage({
     const start = activeShiftData.shiftStart || '07:00';
     const end = activeShiftData.shiftEnd || '11:30';
 
+    const isToday = date === toDateKey(new Date());
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
     const normalized = allSlots
       .map((s) => {
-        if (typeof s === 'string') return { slotTime: s, isAvailable: true };
-        return {
-          slotTime: s.slotTime,
-          isAvailable: s.isAvailable !== false && (s.remainingCapacity === undefined || s.remainingCapacity > 0)
-        };
+        const slotStr = typeof s === 'string' ? s : s.slotTime;
+        let avail = typeof s === 'string'
+          ? true
+          : (s.isAvailable !== false && (s.remainingCapacity === undefined || s.remainingCapacity > 0));
+        if (avail && isToday && slotStr) {
+          const [hh, mm] = String(slotStr).split(':').map(Number);
+          if (!Number.isNaN(hh) && !Number.isNaN(mm) && (hh * 60 + mm) <= (nowMinutes - 5)) {
+            avail = false;
+          }
+        }
+        return { slotTime: slotStr, isAvailable: avail };
       })
       .filter((s) => s.slotTime >= start && s.slotTime < end);
 
     return normalized;
-  }, [allSlots, activeShiftData]);
+  }, [allSlots, activeShiftData, date]);
 
   // Auto-select first AVAILABLE slot of the shift
   useEffect(() => {
@@ -679,9 +726,7 @@ export function BookAppointmentPage({
       appointmentDate: date,
       slotTime,
       packageIds: [selectedPackage?.packageCode || selectedPackage?.packageId || selectedPackageId],
-      notes: notes
-        ? `${notes} (Bác sĩ: ${activeShiftData.doctorName} - Phòng: ${activeShiftData.roomName})`
-        : `Phòng khám: ${activeShiftData.roomName} (${activeShiftData.roomNumber})`,
+      notes: notes.trim(),
       type: 'ClinicVisit'
     });
   };
@@ -1014,17 +1059,25 @@ export function BookAppointmentPage({
                   </div>
 
                   <div className="bms-book-shifts">
-                    {SHIFT_DEFINITIONS.map((shift) => (
-                      <button
-                        key={shift.id}
-                        type="button"
-                        className={`is-${shift.id.toLowerCase()}${selectedShiftId === shift.id ? ' is-selected' : ''}`}
-                        onClick={() => setSelectedShiftId(shift.id)}
-                      >
-                        <strong>{shift.name}</strong>
-                        <span>{shift.timeRange}</span>
-                      </button>
-                    ))}
+                    {SHIFT_DEFINITIONS.map((shift) => {
+                      const shiftCount = availableShifts.filter(
+                        (s) => (s.shiftType || '').toLowerCase() === shift.id.toLowerCase()
+                      ).length;
+                      return (
+                        <button
+                          key={shift.id}
+                          type="button"
+                          className={`is-${shift.id.toLowerCase()}${selectedShiftId === shift.id ? ' is-selected' : ''}`}
+                          onClick={() => setSelectedShiftId(shift.id)}
+                        >
+                          <strong>{shift.name}</strong>
+                          <span>{shift.timeRange}</span>
+                          <span style={{ fontSize: '11px', marginTop: '2px', color: selectedShiftId === shift.id ? 'rgba(255,255,255,0.92)' : (shiftCount > 0 ? '#047857' : '#94a3b8') }}>
+                            {loadingShifts ? '...' : shiftCount > 0 ? `${shiftCount} BS trực` : 'Chưa có ca trực'}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                   </div>
 
@@ -1066,7 +1119,26 @@ export function BookAppointmentPage({
                     </div>
                   )}
 
-                  {/* Auto-Allocated Clinical Doctor Card */}
+                  {/* Real On-Duty Clinical Doctor Selector (100% from DB doctor_shifts) */}
+                  {shiftDoctors.length > 1 && (
+                    <div className="mb-2 d-flex align-items-center gap-2 flex-wrap">
+                      <span className="small text-muted fw-semibold">Chọn bác sĩ đang trực ({shiftDoctors.length}):</span>
+                      {shiftDoctors.map((doc) => {
+                        const isPicked = doc.doctorId === activeShiftData?.doctorId;
+                        return (
+                          <button
+                            key={doc.doctorId}
+                            type="button"
+                            className={`btn btn-sm rounded-pill px-3 ${isPicked ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            style={{ fontSize: '12px' }}
+                            onClick={() => setSelectedDoctorId(doc.doctorId)}
+                          >
+                            {doc.doctorName}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className={`bms-book-doctor is-${selectedShiftId.toLowerCase()}${activeShiftData ? '' : ' is-empty'}`}>
                     {loadingShifts ? (
                       <span className="text-muted small py-2 d-flex align-items-center gap-2">
@@ -1085,7 +1157,7 @@ export function BookAppointmentPage({
                           <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
                             <strong className="text-dark mb-0">{activeShiftData.doctorName || 'Bác sĩ Phụ trách'}</strong>
                             <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style={{ fontSize: '11px', borderRadius: '999px' }}>
-                              <CheckCircle2 className="me-1"  size="1em"/> Điều phối tự động
+                              <CheckCircle2 className="me-1"  size="1em"/> Lịch trực thực tế
                             </span>
                           </div>
                           <span className="text-primary fw-medium" style={{ fontSize: '12.5px' }}>

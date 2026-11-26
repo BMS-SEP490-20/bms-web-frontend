@@ -21,6 +21,7 @@ import api from '../../../../config/api';
 import useResponsive from '../../../../shared/hooks/useResponsive';
 import { useAutoRefresh, dispatchRefreshEvent, setRefreshFlag } from '../../../../shared/hooks/useAutoRefresh';
 import { queueApi } from '../../api/queueApi';
+import WorkflowStepperBar from '../../../../shared/components/WorkflowStepperBar';
 
 const ReceptionistCheckIn = () => {
   // Safe Date & Currency Formatter Helpers to prevent React Render crashes
@@ -74,19 +75,6 @@ const ReceptionistCheckIn = () => {
     return s;
   };
 
-  const KNOWN_DOCTORS = {
-    '670560000000000000000002': { fullName: 'BS. CKI Nguyễn Văn Minh', specialty: 'Huyết học - Truyền máu', room: 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)', license: 'CCHN-008912/HCM' },
-    '670560000000000000000003': { fullName: 'ThS. BS Lê Văn Thành', specialty: 'Nội tiết - Sinh hóa', room: 'Phòng khám Sinh hóa - Nội tiết (Phòng 102)', license: 'CCHN-009451/HCM' },
-    '670560000000000000000021': { fullName: 'BS. CKI Hoàng Thị Thu Trang', specialty: 'Miễn dịch lâm sàng', room: 'Phòng khám Miễn dịch (Phòng 103)', license: 'CCHN-010234/HCM' },
-    '670560000000000000000022': { fullName: 'BS. CKI Trần Đức Huy', specialty: 'Đông máu & Huyết khối', room: 'Phòng khám Đông máu (Phòng 104)', license: 'CCHN-011876/HCM' },
-    '670560000000000000000023': { fullName: 'BSCKII. Phạm Văn Phúc', specialty: 'Đa khoa Tổng quát', room: 'Phòng khám Đa khoa Tổng quát (Phòng 105)', license: 'CCHN-005612/HCM' },
-    '670560000000000000000031': { fullName: 'BS. CKI Lê Hoàng Nam', specialty: 'Huyết học', room: 'Phòng khám Huyết học Tổng quát 1 (Phòng 101)', license: 'CCHN-007823/HCM' },
-    '670560000000000000000032': { fullName: 'BS. CKI Nguyễn Bích Ngọc', specialty: 'Sinh hóa', room: 'Phòng khám Sinh hóa (Phòng 102)', license: 'CCHN-009112/HCM' },
-    '670560000000000000000033': { fullName: 'BS. CKI Đỗ Tuấn Anh', specialty: 'Miễn dịch', room: 'Phòng khám Miễn dịch (Phòng 103)', license: 'CCHN-010240/HCM' },
-    '670560000000000000000034': { fullName: 'BS. CKI Vũ Mai Phương', specialty: 'Đông máu', room: 'Phòng khám Đông máu (Phòng 104)', license: 'CCHN-011570/HCM' },
-    '670560000000000000000035': { fullName: 'ThS. BS Đặng Quỳnh Chi', specialty: 'Tổng quát', room: 'Phòng khám Tổng quát (Phòng 105)', license: 'CCHN-007825/HCM' }
-  };
-
   const resolveDoctorInfo = (apt) => {
     const empty = { fullName: 'Chưa phân công bác sĩ', specialty: '—', room: '—', license: '—' };
     if (!apt) return empty;
@@ -102,14 +90,16 @@ const ReceptionistCheckIn = () => {
 
     const dName = apt.doctorName || apt.DoctorName || apt.doctor_name;
     const docId = String(apt.doctorId || apt.DoctorId || apt.doctor_id || '');
+    const matchedDoc = docId && Array.isArray(doctors)
+      ? doctors.find((d) => String(d.id || d.doctorId || d._id || '') === docId)
+      : null;
 
-    if (docId && KNOWN_DOCTORS[docId]) {
-      const known = KNOWN_DOCTORS[docId];
+    if (matchedDoc) {
       return {
-        fullName: dName && !dName.startsWith('ID:') && dName !== 'N/A' ? dName : known.fullName,
-        specialty: apt.specialty || known.specialty,
-        room: apt.resolvedRoom || apt.roomName || known.room,
-        license: known.license
+        fullName: (dName && !dName.startsWith('ID:') && dName !== 'N/A') ? dName : (matchedDoc.fullName || matchedDoc.name || 'Bác sĩ phụ trách'),
+        specialty: apt.specialty || matchedDoc.specialty || '—',
+        room: apt.resolvedRoom || apt.roomName || matchedDoc.roomName || '—',
+        license: matchedDoc.licenseNumber || '—'
       };
     }
 
@@ -819,19 +809,14 @@ const ReceptionistCheckIn = () => {
       filtered = filtered.filter(apt => getSlotForAppointment(apt) === selectedSlot);
     }
 
-    // Sort priority: imminent appointment time first
+    // Sort newest created/updated first so freshly booked & paid appointments always appear at row #1
     filtered.sort((a, b) => {
-      const now = new Date();
-      const timeA = getAppointmentDateTime(a);
-      const timeB = getAppointmentDateTime(b);
-
-      if (!timeA && !timeB) return 0;
-      if (!timeA) return 1;
-      if (!timeB) return -1;
-
-      const diffA = Math.abs(timeA - now);
-      const diffB = Math.abs(timeB - now);
-      return diffA - diffB; // Ascending time proximity
+      const createdA = new Date(a.createdAt || a.CreatedAt || a.updatedAt || a.appointmentDate || 0).getTime();
+      const createdB = new Date(b.createdAt || b.CreatedAt || b.updatedAt || b.appointmentDate || 0).getTime();
+      if (createdB !== createdA) return createdB - createdA;
+      const codeA = String(a.appointmentCode || a.code || '');
+      const codeB = String(b.appointmentCode || b.code || '');
+      return codeB.localeCompare(codeA);
     });
 
     setFilteredAppointments(filtered);
@@ -2016,6 +2001,18 @@ const ReceptionistCheckIn = () => {
             </Button>
           </div>
         </div>
+
+        {/* Workflow Guidance Bar for Receptionist */}
+        <WorkflowStepperBar
+          title="Quy trình tiếp đón Lễ tân (3 bước)"
+          hint="Lịch mới đặt & đã thanh toán luôn xếp lên dòng đầu tiên"
+          activeStep={1}
+          steps={[
+            { id: 'rec-1', label: 'Tiếp đón & Check-in', desc: 'Quét QR hoặc bấm Check-in trực tiếp trên danh sách chờ bên dưới', path: '/receptionist/check-in' },
+            { id: 'rec-2', label: 'Khách vãng lai (nếu chưa đặt)', desc: 'Đăng ký hồ sơ mới theo CCCD đối soát CSDL & cấp STT', path: '/receptionist/create-patient' },
+            { id: 'rec-3', label: 'Bảng gọi số & chuyển Bác sĩ', desc: 'Theo dõi STT đã cấp — bệnh nhân tự vào hàng đợi Bàn Khám Bác sĩ', path: '/reception/queue' }
+          ]}
+        />
 
         {/* 2. KPI Metrics Quad Cards */}
         <Row className="g-3 mb-4">

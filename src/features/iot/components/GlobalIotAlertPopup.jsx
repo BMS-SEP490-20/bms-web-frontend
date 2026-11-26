@@ -59,8 +59,8 @@ export default function GlobalIotAlertPopup() {
   const navigate = useNavigate();
 
   const [statusData, setStatusData] = useState(null);
-  const [minimized, setMinimized] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [minimized, setMinimized] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [showRecoveryBanner, setShowRecoveryBanner] = useState(false);
   const [dismissedViolationKey, setDismissedViolationKey] = useState('');
 
@@ -107,7 +107,7 @@ export default function GlobalIotAlertPopup() {
       } else if (!isNowConnected) {
         if (!wasDisconnectedRef.current) {
           wasDisconnectedRef.current = true;
-          setMinimized(false);
+          // Keep minimized pill by default so it never blocks Lab Queue / Check-in action buttons
           if (soundEnabled) {
             playPopupAlarmBeep();
           }

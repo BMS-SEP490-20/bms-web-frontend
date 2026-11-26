@@ -95,20 +95,20 @@ const MENU_SECTIONS = [
 
   // ================= LAB TECHNICIAN SECTIONS (KỸ THUẬT VIÊN) =================
   {
-    category: 'Tiếp Nhận & Lấy Mẫu Bệnh Phẩm',
+    category: 'Quy Trình Xét Nghiệm Lab (Theo Thứ Tự)',
     roles: [LAB],
     items: [
-      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Tiếp Nhận Chỉ Định & In Barcode', icon: LucideBarcode, roles: [LAB] },
-      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Quét Tiếp Nhận Ống Mẫu (Scan)', icon: TestTube2, roles: [LAB] },
-      { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu (Batch)', icon: ClipboardCheck, roles: [LAB] },
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi Mẫu Bệnh Phẩm', icon: Clock, roles: [LAB] }
+      { id: 'lab-queue', path: '/lab/queue', label: '1. Hàng Đợi & Lấy Mẫu Bệnh Phẩm', icon: Clock, roles: [LAB] },
+      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: '2. Tiếp Nhận & Quét Ống Mẫu', icon: TestTube2, roles: [LAB] },
+      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: '3. Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, roles: [LAB] },
+      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Gom Đợt Lấy Mẫu & In Barcode', icon: LucideBarcode, roles: [LAB] },
+      { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu (Batch)', icon: ClipboardCheck, roles: [LAB] }
     ]
   },
   {
-    category: 'Phân Tích & Kiểm Soát Chất Lượng',
+    category: 'Kiểm Soát Chất Lượng (QC)',
     roles: [LAB],
     items: [
-      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, roles: [LAB] },
       { id: 'lab-qc', path: '/laboratory/qc', label: 'Kiểm Chuẩn Nội Kiểm (Westgard QC)', icon: FlaskConical, roles: [LAB] },
       { id: 'lab-qc-flags', path: '/laboratory/qc-flags', label: 'Cảnh Báo Vi Phạm Westgard', icon: AlertTriangle, roles: [LAB] }
     ]

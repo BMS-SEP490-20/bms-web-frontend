@@ -89,17 +89,9 @@ const formatCountdown = (totalSeconds) => {
 };
 
 export default function AppointmentListPage() {
-  // Query parameters state
-  const [fromDate, setFromDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 7);
-    return d.toISOString().split('T')[0];
-  });
-  const [toDate, setToDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 14);
-    return d.toISOString().split('T')[0];
-  });
+  // Query parameters state — default empty date filter so ALL appointments (newest first) show immediately
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
@@ -258,14 +250,8 @@ export default function AppointmentListPage() {
   };
 
   const handleResetFilters = () => {
-    const d = new Date();
-    const f = new Date();
-    f.setDate(d.getDate() - 7);
-    const t = new Date();
-    t.setDate(d.getDate() + 14);
-
-    setFromDate(f.toISOString().split('T')[0]);
-    setToDate(t.toISOString().split('T')[0]);
+    setFromDate('');
+    setToDate('');
     setStatus('');
     setKeyword('');
     setPage(1);

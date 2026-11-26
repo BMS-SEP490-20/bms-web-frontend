@@ -35,6 +35,7 @@ import {
   primaryForwardAction
 } from '../../../shared/workflow/sampleWorkflowGates';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
+import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
 
 /**
  * Standard Clinical Lab Test Parameters (Clean Human-Operated Routine Entry).
@@ -876,6 +877,19 @@ const SampleQueuePage = () => {
         </div>
       </div>
 
+      {/* Quy trình 4 bước cho KTV Phòng Lab */}
+      <WorkflowStepperBar
+        title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
+        hint="Chỉ định mới từ Bác sĩ luôn nổi lên dòng đầu tiên — bấm nút hành động ở cột cuối để đi tiếp"
+        activeStep={1}
+        steps={[
+          { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
+          { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu (hoặc bấm Đang xét nghiệm)', path: '/laboratory/checkinsample' },
+          { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
+          { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
+        ]}
+      />
+
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3">
           {successMsg}
@@ -1028,12 +1042,10 @@ const SampleQueuePage = () => {
               <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'auto', width: '100%' }}>
                 <thead className="table-light">
                   <tr>
-                    <th className="ps-3">Barcode / Mã Mẫu</th>
+                    <th className="ps-3">Barcode &amp; Ưu Tiên</th>
                     <th>Bệnh Nhân</th>
-                    <th>Chỉ Định / Ống Mẫu</th>
-                    <th>Thời Gian Lấy Mẫu</th>
-                    <th>Ưu Tiên</th>
-                    <th>Phòng Lab</th>
+                    <th>Chỉ Định &amp; Ống Mẫu</th>
+                    <th>Lấy Mẫu &amp; Phòng Lab</th>
                     <th>Trạng Thái</th>
                     <th className="text-end pe-3">Thao Tác</th>
                   </tr>
@@ -1042,18 +1054,20 @@ const SampleQueuePage = () => {
                   {sampleListSafe.map((s) => (
                     <tr key={s.id}>
                       <td className="ps-3">
-                        <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
+                        <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.8rem' }}>
                           <LucideBarcode size="1em" />
                           <span>{s.barcode}</span>
                           {s.isAliquot && (
                             <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
-                              Aliquot ({s.parentBarcode || 'Ống phụ'})
+                              Aliquot
                             </Badge>
                           )}
                         </div>
-                        <div className="text-muted" style={{ fontSize: '0.75rem' }}>
-                          ID: <code>{s.id}</code>
-                          {s.rfidTag ? ` • ${s.rfidTag}` : ''}
+                        <div className="d-flex align-items-center gap-1.5 flex-wrap mt-1">
+                          {getPriorityBadge(s.priority)}
+                          <span className="text-muted font-monospace" style={{ fontSize: '0.7rem' }}>
+                            {s.id && s.id.length > 14 ? `${s.id.slice(0, 12)}…` : s.id}
+                          </span>
                         </div>
                       </td>
 
@@ -1062,9 +1076,8 @@ const SampleQueuePage = () => {
                           {s.patientName || s.patientId || 'Bệnh nhân'}
                         </div>
                         <div className="text-muted" style={{ fontSize: '0.74rem' }}>
-                          Mã BN: <code>{s.patientId || '—'}</code>
-                          {s.patientGender ? ` • ${s.patientGender}` : ''}
-                          {s.patientAge ? `, ${s.patientAge} tuổi` : ''}
+                          <code>{s.patientId || '—'}</code>
+                          {s.patientAge ? ` • ${s.patientAge}t` : ''}
                         </div>
                       </td>
 
@@ -1089,17 +1102,9 @@ const SampleQueuePage = () => {
                         <div className="fw-semibold text-dark" style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                           {formatDateTimeVN(s.collectedAt)}
                         </div>
-                        <div className="text-muted text-truncate" style={{ fontSize: '0.72rem' }} title={s.collectorName || s.collectedBy || 'KTV Lấy mẫu'}>
-                          Người lấy: {s.collectorName || s.collectedBy || 'KTV Lấy mẫu'}
-                        </div>
-                      </td>
-
-                      <td>{getPriorityBadge(s.priority)}</td>
-
-                      <td>
-                        <span className="badge bg-light text-dark text-truncate d-inline-block" style={{ maxWidth: '135px', fontSize: '0.74rem' }} title={s.labRoom || 'LAB-ROOM-01'}>
+                        <div className="text-muted text-truncate" style={{ fontSize: '0.72rem', maxWidth: '170px' }} title={`${s.collectorName || s.collectedBy || 'KTV Lấy mẫu'} · ${s.labRoom || 'LAB-ROOM-01'}`}>
                           {s.labRoom || 'LAB-ROOM-01'}
-                        </span>
+                        </div>
                       </td>
 
                       <td>{getStatusBadge(s.status)}</td>
@@ -1170,7 +1175,7 @@ const SampleQueuePage = () => {
                                     title="Xem kết quả đã nhập"
                                     onClick={() =>
                                       navigate(
-                                        `/laboratory/enter-test-results?sampleId=${encodeURIComponent(sampleKey)}&mode=view`
+                                        `/laboratory/enter-test-results?sampleId=${sampleKey}&mode=view`
                                       )
                                     }
                                   >

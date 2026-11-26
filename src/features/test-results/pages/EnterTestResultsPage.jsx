@@ -32,6 +32,7 @@ import { getStoredUser } from '../../../constants/roles';
 import { canEnterTestResults, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { resolveParamsForSample } from '../../../shared/workflow/resolveOrderParams';
+import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
 
 function isQualitativeParam(p) {
   return String(p?.valueType || '').toLowerCase() === 'qualitative';
@@ -823,6 +824,18 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           <span>&larr; Quay lại Hàng Đợi Mẫu</span>
         </Button>
       </header>
+
+      <WorkflowStepperBar
+        title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
+        hint="Chọn ống mẫu đang phân tích → nhập chỉ số → bấm Lưu & Gửi kết quả lên Bác sĩ thẩm định"
+        activeStep={3}
+        steps={[
+          { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
+          { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu vào phòng Lab', path: '/laboratory/checkinsample' },
+          { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
+          { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
+        ]}
+      />
 
       <div>
         {/* Card thiết lập lượt chạy máy */}

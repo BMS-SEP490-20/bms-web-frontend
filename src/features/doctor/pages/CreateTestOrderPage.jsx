@@ -23,6 +23,7 @@ import { getPackages, getTestCriteria } from "../../admin/api/packageApi";
 import { receptionApi } from "../../reception/api/receptionApi";
 import { getAppointments } from "../../appointment/api/appointmentApi";
 import { medicalRecordApi } from "../api/medicalRecordApi";
+import WorkflowStepperBar from "../../../shared/components/WorkflowStepperBar";
 
 // Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế
 const CLINICAL_ICD10_LIST = [
@@ -126,8 +127,8 @@ export default function CreateTestOrderPage() {
     }
   }, []);
   const rawDocName = currentUser?.fullName || currentUser?.name || currentUser?.username || "";
-  const doctorName = (!rawDocName || /^[0-9a-f]{24}$/i.test(rawDocName)) ? "BS. CKI Lê Hoàng Nam" : rawDocName;
-  const doctorId = currentUser?.id || currentUser?.doctorId || currentUser?._id || "dr_hoangnam";
+  const doctorName = (!rawDocName || /^[0-9a-f]{24}$/i.test(rawDocName)) ? "Bác sĩ đang trực" : rawDocName;
+  const doctorId = currentUser?.id || currentUser?.doctorId || currentUser?._id || "";
 
   // Worklist State (Bảng lịch hẹn đã gọi số & chờ khám)
   const [encounters, setEncounters] = useState([]);
@@ -424,13 +425,15 @@ export default function CreateTestOrderPage() {
         };
       });
 
-      // Sắp xếp: Ca đang gọi trong phòng -> Ca chưa chỉ định -> Bản nháp -> Đã chuyển Lab
+      // Sắp xếp: Ca đang gọi trong phòng -> Ca chưa chỉ định -> mới nhất lên đầu
       list.sort((a, b) => {
         if (a.isCurrentServing !== b.isCurrentServing) return a.isCurrentServing ? -1 : 1;
         const aDisp = isOrderDispatched(a.linkedOrder) ? 1 : 0;
         const bDisp = isOrderDispatched(b.linkedOrder) ? 1 : 0;
         if (aDisp !== bDisp) return aDisp - bDisp;
-        return new Date(b.appointmentDate || 0).getTime() - new Date(a.appointmentDate || 0).getTime();
+        const timeA = new Date(a.createdAt || a.appointmentDate || 0).getTime();
+        const timeB = new Date(b.createdAt || b.appointmentDate || 0).getTime();
+        return timeB - timeA;
       });
 
       setEncounters(list);
@@ -894,6 +897,19 @@ export default function CreateTestOrderPage() {
           </BsButton>
         </div>
       </div>
+
+      {/* Quy trình 4 bước cho Bác sĩ */}
+      <WorkflowStepperBar
+        title="Quy trình làm việc của Bác sĩ (4 bước)"
+        hint="Chọn bệnh nhân bên dưới → Khám & chọn mã ICD-10 → Ký & Chuyển xuống Phòng Lab"
+        activeStep={2}
+        steps={[
+          { id: 'doc-1', label: 'Gọi bệnh nhân (F2)', desc: 'Mời người bệnh từ Hàng Đợi Chờ Khám vào bàn khám', path: '/doctor/console' },
+          { id: 'doc-2', label: 'Chỉ định xét nghiệm', desc: 'Khám sinh hiệu, chọn ICD-10 & chuyển đơn xuống Phòng Lab', path: '/doctor/orders/create' },
+          { id: 'doc-3', label: 'Chờ Phòng Lab phân tích', desc: 'KTV lấy mẫu, tiếp nhận ống mẫu & nhập chỉ số xét nghiệm' },
+          { id: 'doc-4', label: 'Thẩm định & Ký số KQ', desc: 'Duyệt kết quả Lab, kết luận lâm sàng & phát hành cho BN', path: '/laboratory/biochemical-results' }
+        ]}
+      />
 
       {/* Thanh Lọc 1 Dòng & Pills Trạng Thái */}
       <div className="bms-filter-bar mb-3 flex-wrap">

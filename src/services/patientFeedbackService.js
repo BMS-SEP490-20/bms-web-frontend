@@ -176,6 +176,15 @@ export const patientFeedbackService = {
       return {
         success: true,
         data: response.data?.data || { isEligible: false }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: { isEligible: false, reason: error.response?.data?.message || 'Không thể kiểm tra điều kiện đánh giá.' }
+      };
+    }
+  },
+
   /**
    * Public summary of star ratings and review counts grouped by service package.
    */
@@ -189,7 +198,8 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
-        data: { isEligible: false, reason: error.response?.data?.message || 'Không thể kiểm tra điều kiện đánh giá.' }
+        data: [],
+        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
       };
     }
   },
@@ -201,8 +211,11 @@ export const patientFeedbackService = {
         success: true,
         data: response.data?.data,
         message: response.data?.message || 'Đã gửi yêu cầu xóa đến bệnh nhân.'
-        data: [],
-        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi gửi yêu cầu xóa'
       };
     }
   },
@@ -220,7 +233,8 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || error.message || 'Lỗi gửi yêu cầu xóa'
+        data: null,
+        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
       };
     }
   },
@@ -232,8 +246,11 @@ export const patientFeedbackService = {
         success: true,
         data: response.data?.data,
         message: response.data?.message || 'Đã cập nhật xác nhận.'
-        data: null,
-        message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi xác nhận'
       };
     }
   },
@@ -251,7 +268,6 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || error.message || 'Lỗi xác nhận'
         data: [],
         message: error.response?.data?.message || error.message || 'Lỗi tải danh sách gói đã sử dụng'
       };

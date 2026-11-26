@@ -980,17 +980,17 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           </div>
         )}
 
-        <Row className="g-4">
+        <Row className="g-3">
           {/* Cột trái: Bảng nhập chỉ số phân tích */}
-          <Col lg={8}>
+          <Col xl={9} lg={12} style={{ minWidth: 0 }}>
             <Form onSubmit={onSubmit}>
               <Card className="border-0 shadow-sm rounded-3 bg-white mb-4">
-                <Card.Body className="p-2">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <div>
+                <Card.Header className="bg-white border-bottom px-4 py-3">
+                  <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 w-100">
+                    <div style={{ minWidth: 0 }}>
                       <h5 className="mb-0 fw-bold text-dark">Bảng Nhập Chỉ Số Đo Bệnh Phẩm</h5>
                       {resolvedOrderLabel ? (
-                        <div className="small text-primary mt-1">
+                        <div className="small text-primary mt-1" style={{ wordBreak: 'break-word' }}>
                           Đã nạp theo chỉ định: <strong>{resolvedOrderLabel}</strong>
                           {flags.length > 0 ? ` · ${flags.length} thông số` : ''}
                         </div>
@@ -998,40 +998,40 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       <small className="text-muted">
                         {flags.length} thông số
                         {isPackageFiltered && sampleDetails?.testPackageName ? ` theo gói "${sampleDetails.testPackageName}"` : ''}
-                        {' '}&bull; Đơn vị và khoảng tham chiếu
+                        {' '}&bull; Đơn vị và khoảng tham chiếu chuẩn
                       </small>
                     </div>
-                    <span className="badge bg-light text-dark border">
+                    <span className="badge bg-light text-dark border flex-shrink-0">
                       KTV nhập: {benchOperator || operatorDisplay}
                     </span>
                   </div>
-
+                </Card.Header>
+                <Card.Body className="p-0">
                   <div className="table-responsive">
-                    <Table hover align="middle" className="mb-0 table-sm">
-                      <thead className="table-light text-muted small text-uppercase">
+                    <Table hover align="middle" className="mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
+                      <thead className="table-light text-muted small">
                         <tr>
-                          <th className="py-2.5 ps-3">Thông Số Đo</th>
-                          <th className="py-2.5 text-end" style={{ width: '130px' }}>Kết Quả Đo</th>
-                          <th className="py-2.5">Đơn Vị</th>
-                          <th className="py-2.5">Khoảng Tham Chiếu</th>
-                          <th className="py-2.5 text-end pe-3">Cờ Cảnh Báo</th>
+                          <th className="py-2.5 ps-3" style={{ width: '35%' }}>Thông Số Đo</th>
+                          <th className="py-2.5" style={{ width: '26%' }}>Kết Quả Đo</th>
+                          <th className="py-2.5" style={{ width: '21%' }}>Tham Chiếu &amp; Đơn Vị</th>
+                          <th className="py-2.5 text-end pe-3" style={{ width: '18%' }}>Đánh Giá</th>
                         </tr>
                       </thead>
                       <tbody>
                         {paramsLoading && (
                           <tr>
-                            <td colSpan={5} className="text-center text-muted py-4">
+                            <td colSpan={4} className="text-center text-muted py-4">
                               <Spinner animation="border" size="sm" className="me-2" /> Đang nạp chỉ số theo y lệnh / gói dịch vụ…
                             </td>
                           </tr>
                         )}
                         {!paramsLoading && flags.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="text-center py-5 text-muted">
-                              <Search className="fs-3 mb-2 opacity-50 d-block mx-auto"  size="1em"/>
+                            <td colSpan={4} className="text-center py-4 px-3 text-muted" style={{ whiteSpace: 'normal' }}>
+                              <Search className="fs-4 mb-2 opacity-50 d-block mx-auto" size="1.25em" />
                               <div className="fw-semibold text-dark mb-1">Chưa chọn ống mẫu xét nghiệm</div>
-                              <div className="small">
-                                Vui lòng nhập hoặc quét <strong>Mã Barcode ống mẫu (SMP-...)</strong> ở phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số xét nghiệm theo gói/y lệnh từ CSDL.
+                              <div className="small mx-auto" style={{ maxWidth: '540px', whiteSpace: 'normal', lineHeight: 1.5 }}>
+                                Quét hoặc nhập <strong>Mã Barcode ống mẫu (SMP-/SPC-...)</strong> ở ô phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số theo chỉ định.
                               </div>
                             </td>
                           </tr>
@@ -1043,20 +1043,23 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                             key={`${p.code}-${idx}`}
                             className={p.flag === 'CRITICAL' ? 'table-danger' : p.flag !== 'NORMAL' && p.value !== 0 && p.value !== '' ? 'table-warning' : undefined}
                           >
-                            <td className="ps-3">
-                              <strong className="text-dark">{p.name}</strong>
-                              <span className="badge bg-light text-secondary border font-monospace ms-2">{p.code}</span>
-                              {panicText && (
-                                <Badge bg="danger-subtle" text="danger" className="ms-1 border border-danger-subtle small">
-                                  {panicText}
-                                </Badge>
-                              )}
+                            <td className="ps-3" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                              <div className="fw-semibold text-dark" style={{ lineHeight: 1.35 }}>{p.name}</div>
+                              <div className="d-flex flex-wrap align-items-center gap-1 mt-1">
+                                <span className="badge bg-light text-secondary border font-monospace">{p.code}</span>
+                                {panicText && (
+                                  <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle small">
+                                    {panicText}
+                                  </Badge>
+                                )}
+                              </div>
                             </td>
-                            <td className="text-end">
+                            <td>
                               {isQualitativeParam(p) ? (
                                 <Form.Select
                                   size="sm"
-                                  className="fw-semibold"
+                                  className="fw-semibold w-100"
+                                  style={{ minWidth: 0, maxWidth: '100%' }}
                                   value={p.value || ''}
                                   onChange={(e) => setValue(idx, e.target.value)}
                                   disabled={viewOnlyMode || !allowEnter}
@@ -1070,17 +1073,17 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                                   type="number"
                                   step="any"
                                   size="sm"
-                                  className="text-end fw-bold font-monospace"
+                                  className="text-end fw-bold font-monospace w-100"
                                   value={p.value === 0 || p.value === '0' ? '0' : (p.value ?? '')}
                                   onChange={(e) => setValue(idx, e.target.value)}
                                   readOnly={viewOnlyMode || !allowEnter}
-                                  placeholder="0.0"
+                                  placeholder="Nhập giá trị..."
                                 />
                               )}
                             </td>
-                            <td className="text-secondary small">{p.unit || '—'}</td>
-                            <td className="small text-muted font-monospace">
-                              {formatReferenceRange(p)}
+                            <td className="small" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                              <div className="text-dark font-monospace fw-medium">{formatReferenceRange(p)}</div>
+                              {p.unit ? <div className="text-muted" style={{ fontSize: '11.5px' }}>Đơn vị: {p.unit}</div> : null}
                             </td>
                             <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
                           </tr>
@@ -1090,9 +1093,11 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                     </Table>
                   </div>
 
+                  {/* Phần thông tin hóa chất, ghi chú & cảnh báo bên dưới bảng */}
+                  <div className="px-4 py-3 border-top" style={{ backgroundColor: '#FFFFFF' }}>
                   {/* Cảnh báo các chỉ số bất thường */}
                   {abnormalAnalytes.length > 0 && (
-                    <div className="alert alert-warning py-2 small mt-3 rounded-3 mb-0">
+                    <div className="alert alert-warning py-2 small mb-3 rounded-3">
                       <strong>Phát hiện {abnormalAnalytes.length} chỉ số ngoài khoảng tham chiếu:</strong>{' '}
                       {abnormalAnalytes.map((a) => `${a.code} (${a.value} ${a.unit})`).join(', ')}. 
                       Cần rà soát kỹ thuật trước khi chuyển Bác sĩ phê duyệt.
@@ -1101,7 +1106,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
                   {/* RÀNG BUỘC BẮT BUỘC: FORM GHI LOG CUỘC GỌI KHẨN CẤP CHO BÁC SĨ ĐIỀU TRỊ */}
                   {hasCritical && (
-                    <div className="alert alert-danger mt-3 p-3 rounded-3 border-danger shadow-sm">
+                    <div className="alert alert-danger mb-3 p-3 rounded-3 border-danger shadow-sm">
                       <div className="d-flex align-items-center gap-2 mb-2">
                         <AlertTriangle className="fs-4 text-danger flex-shrink-0"  size="1em"/>
                         <div>
@@ -1231,8 +1236,8 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                   )}
 
                   {/* Vật tư / Hóa chất tiêu hao (trừ tồn kho tự động) & Ghi chú kỹ thuật */}
-                  <div className="row g-3 mt-3">
-                    <Col md={5}>
+                  <Row className="g-3">
+                    <Col md={5} style={{ minWidth: 0 }}>
                       <Form.Label className="small fw-semibold text-secondary">
                         Lô Hóa Chất / Vật Tư Sử Dụng (Tự Động Trừ Kho)
                       </Form.Label>
@@ -1241,6 +1246,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         onChange={(e) => setSelectedReagentLotId(e.target.value)}
                         disabled={!allowEnter || reagentsLoading}
                         aria-label="Chọn lô hóa chất sử dụng"
+                        style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
                       >
                         <option value="">
                           {reagentsLoading
@@ -1261,11 +1267,11 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         </div>
                       )}
                     </Col>
-                    <Col md={3}>
+                    <Col md={3} style={{ minWidth: 0 }}>
                       <Form.Label className="small fw-semibold text-secondary">
                         Số Lượng Tiêu Hao {selectedReagentLot ? `(${selectedReagentLot.unit})` : ''}
                       </Form.Label>
-                      <InputGroup>
+                      <InputGroup style={{ height: '38px' }}>
                         <Form.Control
                           type="number"
                           min="0.1"
@@ -1285,7 +1291,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         </div>
                       )}
                     </Col>
-                    <Col md={4}>
+                    <Col md={4} style={{ minWidth: 0 }}>
                       <Form.Label className="small fw-semibold text-secondary">Phương Thức Đo &amp; Nhập</Form.Label>
                       <Form.Control
                         readOnly
@@ -1304,10 +1310,11 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         placeholder="Ghi nhận tình trạng huyết thanh, độ đục, kiểm tra quang học hoặc mã báo động máy..."
                       />
                     </Col>
+                  </Row>
                   </div>
                 </Card.Body>
 
-                <Card.Footer className="bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3 rounded-bottom-3">
+                <Card.Footer className="bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2 px-4 py-3 rounded-bottom-3">
                   <div className="d-flex gap-2">
                     <Button
                       variant="outline-danger"
@@ -1365,22 +1372,22 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
             </Form>
           </Col>
 
-          {/* Cột phải: Thông tin mẫu & Danh sách kiểm tra chất lượng */}
-          <Col lg={4}>
+          {/* Cột phải: Thông tin mẫu & Lưu ý quy trình */}
+          <Col xl={3} lg={12} style={{ minWidth: 0 }}>
             <Card className="border-0 shadow-sm mb-3 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
               <Card.Body className="p-3">
                 <h6 className="fw-bold text-dark mb-2">Thông Tin Ống Mẫu Xét Nghiệm</h6>
                 <div className="badge border mb-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                   {sampleStatus || 'Chưa tra mẫu'}
                 </div>
-                <div className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
+                <div className="fw-bold font-monospace small" style={{ color: '#1E60E6', wordBreak: 'break-all' }}>
                   {sampleId || 'Chưa chọn mẫu'}
                 </div>
                 {sampleDetails ? (
-                  <div className="small text-muted mt-2 border-top pt-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
+                  <div className="small text-muted mt-2 border-top pt-2 d-flex flex-column gap-1" style={{ borderColor: 'rgba(15, 23, 42, 0.05)', wordBreak: 'break-word' }}>
                     <div>Bệnh nhân: <strong className="text-dark">{sampleDetails.patientName}</strong></div>
                     <div>Mã BN: <code>{sampleDetails.patientId}</code></div>
-                    <div>Gói XN: <strong>{sampleDetails.testPackageName}</strong></div>
+                    <div>Gói XN: <strong className="text-dark">{sampleDetails.testPackageName}</strong></div>
                     <div>Loại mẫu: {sampleDetails.sampleType} ({sampleDetails.tubeColor})</div>
                   </div>
                 ) : (

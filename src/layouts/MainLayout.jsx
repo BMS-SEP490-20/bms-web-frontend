@@ -114,8 +114,12 @@ export default function MainLayout() {
         className="bms-main-content-wrapper d-flex flex-column flex-grow-1"
         style={{
           marginLeft: isMobile ? '0' : sidebarWidth,
-          transition: 'margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-          minHeight: '100vh'
+          width: isMobile ? '100%' : `calc(100% - ${sidebarWidth})`,
+          maxWidth: '100%',
+          minWidth: 0,
+          transition: 'margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          minHeight: '100vh',
+          boxSizing: 'border-box'
         }}
       >
         {/* Minimal Mobile Drawer Header */}

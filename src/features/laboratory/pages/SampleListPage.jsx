@@ -691,15 +691,15 @@ export default function SampleListPage() {
               </span>
             </div>
 
-            <div className="bms-table-standalone-body">
-              <table className="table table-hover align-middle mb-0 table-sm">
-                <thead className="table-light text-muted small text-uppercase">
+            <div className="bms-table-standalone-body table-responsive">
+              <table className="table table-hover align-middle mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
+                <thead className="table-light text-muted small">
                   <tr>
                     <th style={{ width: "36px" }} className="ps-3">#</th>
-                    <th>Mã ống mẫu (Dự kiến)</th>
-                    <th>Bệnh nhân</th>
-                    <th>Loại ống / Chất chống đông</th>
-                    <th className="pe-3">Người lấy mẫu</th>
+                    <th style={{ width: "30%" }}>Mã ống mẫu</th>
+                    <th style={{ width: "22%" }}>Bệnh nhân</th>
+                    <th style={{ width: "24%" }}>Loại ống</th>
+                    <th style={{ width: "18%" }} className="pe-3">Người lấy mẫu</th>
                   </tr>
                 </thead>
                 <tbody>

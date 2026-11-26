@@ -23,16 +23,6 @@ const MENU_SECTIONS = [
     category: 'Quản Trị Hệ Thống & Bảo Mật',
     roles: [ADMIN],
     items: [
-      { id: 'admin-dash', path: '/dashboard', label: 'Bảng Điều Khiển Admin', icon: FaTachometerAlt, roles: [ADMIN] },
-      { id: 'admin-users', path: '/admin/user-management', label: 'Quản Lý Tài Khoản (IAM)', icon: FaUserCog, roles: [ADMIN] },
-      { id: 'admin-patients', path: '/admin/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [ADMIN] },
-      { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: FaShieldAlt, roles: [ADMIN] },
-      { id: 'admin-packages', path: '/admin/packages', label: 'Danh Mục Gói Khám', icon: FaBoxOpen, roles: [ADMIN] },
-      { id: 'admin-backup', path: '/admin/backup', label: 'Sao Lưu & Khôi Phục Dữ Liệu', icon: FaDatabase, roles: [ADMIN] },
-      { id: 'admin-audit', path: '/admin/audit-logs', label: 'Nhật Ký Audit Hệ Thống', icon: FaShieldAlt, roles: [ADMIN] },
-      { id: 'admin-shifts', path: '/manage/schedule', label: 'Phân Bổ Lịch Ca Trực', icon: FaClock, roles: [ADMIN] },
-      { id: 'admin-view-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Toàn Viện', icon: FaClock, roles: [ADMIN] },
-      { id: 'admin-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân ', icon: FaStar, roles: [ADMIN] }
       { id: 'admin-dash', path: '/dashboard', label: 'Bảng Điều Khiển Admin', icon: Gauge, roles: [ADMIN] },
       { id: 'admin-users', path: '/admin/user-management', label: 'Quản Lý Tài Khoản (IAM)', icon: UserCog, roles: [ADMIN] },
       { id: 'admin-roles', path: '/roles', label: 'Phân Quyền Vai Trò (RBAC)', icon: ShieldCheck, roles: [ADMIN] },
@@ -72,12 +62,6 @@ const MENU_SECTIONS = [
     category: 'Điều Hành Chuyên Môn Lab',
     roles: [MANAGER],
     items: [
-      { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Thẩm Định Kỹ Thuật', icon: FaCheckCircle, roles: [MANAGER] },
-      { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: FaChartBar, roles: [MANAGER] },
-      { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FaFlask, roles: [MANAGER] },
-      { id: 'mgr-westgard', path: '/laboratory/qc-flags', label: 'Cờ Kiểm Chuẩn Westgard', icon: FaFlask, roles: [MANAGER] },
-      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [MANAGER] },
-      { id: 'mgr-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [MANAGER] }
       { id: 'mgr-dash', path: '/dashboard', label: 'Tổng Quan Điều Hành', icon: Gauge, roles: [MANAGER] },
       { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Thẩm Định Kỹ Thuật', icon: CheckCircle2, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FlaskConical, roles: [MANAGER] },
@@ -133,14 +117,11 @@ const MENU_SECTIONS = [
     category: 'Truy Vết & Thiết Bị IoT',
     roles: [LAB],
     items: [
-      { id: 'lab-timeline', path: '/laboratory/sample-timeline', label: 'Tra Cứu Tiến Trình Mẫu Máu', icon: FaHistory, roles: [LAB] },
-      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: FaBell, roles: [LAB] },
-      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [LAB] },
-      { id: 'lab-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [LAB] }
       { id: 'lab-specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử & Truy Vết Mẫu Máu', icon: History, roles: [LAB] },
       { id: 'lab-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ IoT', icon: HeartPulse, roles: [LAB] },
       { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: Bell, roles: [LAB] },
-      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [LAB] }
+      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [LAB] },
+      { id: 'lab-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [LAB] }
     ]
   },
 
@@ -159,14 +140,11 @@ const MENU_SECTIONS = [
     category: 'Hồ Sơ, Đánh Giá & Lịch Làm Việc',
     roles: [DOCTOR],
     items: [
-      { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: FaCalendarAlt, roles: [DOCTOR] },
-      { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [DOCTOR] },
-      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [DOCTOR] },
-      { id: 'doc-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [DOCTOR] }
       { id: 'doc-assessments', path: '/medical-assessments', label: 'Đánh Giá Lâm Sàng (ICD-10)', icon: ClipboardCheck, roles: [DOCTOR] },
       { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: Calendar, roles: [DOCTOR] },
       { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: Users, roles: [DOCTOR] },
-      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [DOCTOR] }
+      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [DOCTOR] },
+      { id: 'doc-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [DOCTOR] }
     ]
   },
 
@@ -175,19 +153,19 @@ const MENU_SECTIONS = [
     category: 'Tiếp Đón & Điều Phối Bệnh Nhân',
     roles: [RECEPTIONIST],
     items: [
-      { id: 'rec-checkin', path: '/receptionist/check-in', label: 'Tiếp Đón & Check-in (QR/Mã)', icon: QrCode, roles: [RECEPTIONIST] },
-      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: 'Đăng Ký Khách Vãng Lai', icon: UserPlus, roles: [RECEPTIONIST] },
-      { id: 'rec-queue', path: '/reception/queue', label: 'Điều Phối Hàng Đợi Tiếp Đón', icon: Clock, roles: [RECEPTIONIST] }
+      { id: 'rec-checkin', path: '/receptionist/check-in', label: '1. Tiếp Đón & Check-in (QR/Mã)', icon: QrCode, roles: [RECEPTIONIST] },
+      { id: 'rec-queue', path: '/reception/queue', label: '2. Điều Phối Hàng Đợi', icon: Clock, roles: [RECEPTIONIST] },
+      { id: 'rec-create-pt', path: '/receptionist/create-patient', label: '3. Đăng Ký Khách Vãng Lai', icon: UserPlus, roles: [RECEPTIONIST] }
     ]
   },
   {
     category: 'Sổ Bộ Hồ Sơ & Lịch Khám',
     roles: [RECEPTIONIST],
     items: [
-      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn Khám (Quầy)', icon: FaCalendarAlt, roles: [RECEPTIONIST] },
-      { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: FaUsers, roles: [RECEPTIONIST] },
-      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: FaClock, roles: [RECEPTIONIST] },
-      { id: 'rec-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến của Bệnh nhân', icon: FaStar, roles: [RECEPTIONIST] }
+      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn Khám (Quầy)', icon: Calendar, roles: [RECEPTIONIST] },
+      { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: Users, roles: [RECEPTIONIST] },
+      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [RECEPTIONIST] },
+      { id: 'rec-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [RECEPTIONIST] }
     ]
   },
 
@@ -196,14 +174,11 @@ const MENU_SECTIONS = [
     category: 'Cổng Bệnh Nhân',
     roles: [PATIENT],
     items: [
-      { id: 'pt-search-packages', path: '/services', label: 'Tra Cứu Gói Xét Nghiệm', icon: FaSearch, roles: [PATIENT] },
-      { id: 'pt-appointments', path: '/appointments', label: 'Lịch Khám & Hẹn Lấy Mẫu', icon: FaCalendarAlt, roles: [PATIENT] },
-      { id: 'pt-tracking', path: '/patient/tracking', label: 'Tiến Trình & Kết Quả', icon: FaHeartbeat, roles: [PATIENT] },
-      { id: 'pt-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: FaHistory, roles: [PATIENT] },
-      { id: 'pt-feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý Y Tế', icon: FaStar, roles: [PATIENT] }
-      { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn Khám (Quầy)', icon: Calendar, roles: [RECEPTIONIST] },
-      { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: Users, roles: [RECEPTIONIST] },
-      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [RECEPTIONIST] }
+      { id: 'pt-search-packages', path: '/services', label: 'Tra Cứu Gói Xét Nghiệm', icon: Search, roles: [PATIENT] },
+      { id: 'pt-appointments', path: '/appointments', label: 'Lịch Khám & Hẹn Lấy Mẫu', icon: Calendar, roles: [PATIENT] },
+      { id: 'pt-tracking', path: '/patient/tracking', label: 'Tiến Trình & Kết Quả', icon: HeartPulse, roles: [PATIENT] },
+      { id: 'pt-history', path: '/patient/test-history', label: 'Lịch Sử Xét Nghiệm', icon: History, roles: [PATIENT] },
+      { id: 'pt-feedback', path: '/feedback', label: 'Đánh Giá & Góp Ý Y Tế', icon: Star, roles: [PATIENT] }
     ]
   },
 

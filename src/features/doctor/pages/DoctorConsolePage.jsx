@@ -1219,15 +1219,15 @@ export default function DoctorConsolePage() {
           </div>
         </Card.Header>
         <div className="table-responsive">
-          <Table hover className="align-middle mb-0">
-            <thead className="table-light small text-uppercase text-muted">
+          <Table hover className="align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
+            <thead className="table-light small text-muted">
               <tr>
-                <th className="ps-3">Mã Ống Mẫu &amp; Phiếu KQ</th>
-                <th>Bệnh Nhân</th>
-                <th>Gói &amp; Đánh Giá Chỉ Số</th>
-                <th>Xác Nhận Kỹ Thuật / Thời Gian</th>
-                <th>Trạng Thái Tư Vấn BS</th>
-                <th className="text-end pe-3">Thao Tác</th>
+                <th className="ps-3" style={{ width: '17%' }}>Mã Mẫu &amp; Phiếu KQ</th>
+                <th style={{ width: '15%' }}>Bệnh Nhân</th>
+                <th style={{ width: '21%' }}>Gói &amp; Chỉ Số</th>
+                <th style={{ width: '15%' }}>KTV / Thời Gian</th>
+                <th style={{ width: '13%' }}>Tư Vấn BS</th>
+                <th className="text-end pe-3" style={{ width: '19%' }}>Thao Tác</th>
               </tr>
             </thead>
             <tbody>
@@ -1310,12 +1310,15 @@ export default function DoctorConsolePage() {
                         <Button
                           size="sm"
                           variant={saved || isSigned ? 'outline-primary' : 'primary'}
-                          className="fw-semibold rounded-pill px-3 text-nowrap"
-                          style={!(saved || isSigned) ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : undefined}
+                          className="fw-semibold rounded-pill px-2.5 text-nowrap"
+                          style={{
+                            fontSize: '0.78rem',
+                            ...(!(saved || isSigned) ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}),
+                          }}
                           onClick={() => handleOpenConsultationModal(item)}
                         >
                           <Stethoscope className="me-1" size="1em" />
-                          {saved || isSigned ? 'Xem / Sửa kết luận' : 'Thẩm Định & Tư Vấn'}
+                          {saved || isSigned ? 'Xem kết luận' : 'Thẩm Định'}
                         </Button>
                       </td>
                     </tr>

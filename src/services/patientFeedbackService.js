@@ -170,6 +170,12 @@ export const patientFeedbackService = {
     }
   },
 
+  checkEligibility: async () => {
+    try {
+      const response = await api.get('/gateway/testorder/feedback/eligibility');
+      return {
+        success: true,
+        data: response.data?.data || { isEligible: false }
   /**
    * Public summary of star ratings and review counts grouped by service package.
    */
@@ -183,6 +189,18 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
+        data: { isEligible: false, reason: error.response?.data?.message || 'Không thể kiểm tra điều kiện đánh giá.' }
+      };
+    }
+  },
+
+  requestAdminDelete: async (id, reason) => {
+    try {
+      const response = await api.post(`/gateway/testorder/feedback/${id}/request-delete`, { reason });
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Đã gửi yêu cầu xóa đến bệnh nhân.'
         data: [],
         message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
       };
@@ -202,6 +220,18 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi gửi yêu cầu xóa'
+      };
+    }
+  },
+
+  respondDeleteConsent: async (id, approved) => {
+    try {
+      const response = await api.post(`/gateway/testorder/feedback/${id}/consent-delete`, { approved });
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Đã cập nhật xác nhận.'
         data: null,
         message: error.response?.data?.message || error.message || 'Lỗi tải đánh giá gói dịch vụ'
       };
@@ -221,6 +251,7 @@ export const patientFeedbackService = {
     } catch (error) {
       return {
         success: false,
+        message: error.response?.data?.message || error.message || 'Lỗi xác nhận'
         data: [],
         message: error.response?.data?.message || error.message || 'Lỗi tải danh sách gói đã sử dụng'
       };

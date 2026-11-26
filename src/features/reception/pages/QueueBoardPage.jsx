@@ -67,6 +67,19 @@ export default function QueueBoardPage() {
           const activeCount = mergedCounters.filter((c) => c.status === "Active" || c.status === "Available").length;
           boardData.stats.countersActive = `${activeCount} / ${mergedCounters.length}`;
         }
+        if (Array.isArray(boardData.currentQueue)) {
+          const ticketSeq = (t) => {
+            if (Number.isFinite(Number(t?.sequence))) return Number(t.sequence);
+            const m = String(t?.ticketNumber || '').match(/(\d+)/);
+            return m ? parseInt(m[1], 10) : 0;
+          };
+          const ticketTime = (t) => new Date(t?.createdAt || t?.checkedInAt || t?.updatedAt || 0).getTime() || 0;
+          boardData.currentQueue = [...boardData.currentQueue].sort((a, b) => {
+            const seqDiff = ticketSeq(b) - ticketSeq(a);
+            if (seqDiff !== 0) return seqDiff;
+            return ticketTime(b) - ticketTime(a);
+          });
+        }
         setData(boardData);
       } else {
         setData({ currentQueue: [], counters: DEFAULT_RECEPTION_COUNTERS, stats: {} });
@@ -157,19 +170,19 @@ export default function QueueBoardPage() {
       case "Called":
         return (
           <span className="badge bg-success bg-opacity-20 text-success border border-success">
-            ● Đã gọi vào
+            Đã gọi vào
           </span>
         );
       case "Collecting":
         return (
           <span className="badge bg-primary bg-opacity-20 text-primary border border-primary">
-            ● Đang tiếp đón
+            Đang tiếp đón
           </span>
         );
       default:
         return (
           <span className="badge bg-warning bg-opacity-20 text-warning-emphasis border border-warning">
-            ● Đang chờ gọi
+            Đang chờ gọi
           </span>
         );
     }

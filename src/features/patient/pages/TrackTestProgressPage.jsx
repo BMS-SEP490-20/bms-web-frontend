@@ -141,7 +141,12 @@ export default function TrackTestProgressPage() {
         let active = true;
         fetchPatientTrackings(pid).then((list) => {
             if (!active || !Array.isArray(list) || list.length === 0) return;
-            setMyTrackings(list);
+            const sorted = [...list].sort((a, b) => {
+                const tA = new Date(a?.updatedAt || a?.lastUpdated || a?.createdAt || a?.orderDate || 0).getTime() || 0;
+                const tB = new Date(b?.updatedAt || b?.lastUpdated || b?.createdAt || b?.orderDate || 0).getTime() || 0;
+                return tB - tA;
+            });
+            setMyTrackings(sorted);
             // BN: chỉ hiện list — chi tiết mở modal khi bấm "Xem tiến trình"
         });
         return () => { active = false; };

@@ -175,7 +175,13 @@ export default function DoctorConsolePage() {
           );
         });
 
-        setWaitingList(validWaitingList);
+        const sortedWaiting = [...validWaitingList].sort((a, b) => {
+          const tA = new Date(a?.checkedInAt || a?.updatedAt || a?.createdAt || 0).getTime() || 0;
+          const tB = new Date(b?.checkedInAt || b?.updatedAt || b?.createdAt || 0).getTime() || 0;
+          if (tB !== tA) return tB - tA;
+          return Number(b?.queueNumber || 0) - Number(a?.queueNumber || 0);
+        });
+        setWaitingList(sortedWaiting);
         setWaitingCount(
           Number.isFinite(res.waitingCount)
             ? res.waitingCount

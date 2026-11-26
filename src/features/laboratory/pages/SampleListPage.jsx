@@ -110,7 +110,12 @@ export default function SampleListPage() {
       setLoading(true);
       try {
         const list = await fetchCheckedInAppointments();
-        setAppointments(Array.isArray(list) ? list : []);
+        const sortedList = (Array.isArray(list) ? [...list] : []).sort((a, b) => {
+          const tA = new Date(a?.checkedInAt || a?.updatedAt || a?.createdAt || a?.appointmentDate || 0).getTime() || 0;
+          const tB = new Date(b?.checkedInAt || b?.updatedAt || b?.createdAt || b?.appointmentDate || 0).getTime() || 0;
+          return tB - tA;
+        });
+        setAppointments(sortedList);
       } catch (err) {
         console.error("Lỗi khi tải danh sách tiếp đón:", err);
         setAppointments([]);

@@ -722,7 +722,7 @@ const FeedbackHubPage = () => {
                             className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                             onClick={() => openEditModal(fb)}
                           >
-                            <FaEdit />
+                            <SquarePen size="1em" />
                             <span>Chỉnh sửa</span>
                           </Button>
                           <Button
@@ -734,10 +734,12 @@ const FeedbackHubPage = () => {
                               setShowDeleteModal(true);
                             }}
                           >
-                            <FaTrashAlt />
+                            <Trash2 size="1em" />
                             <span>Xóa</span>
                           </Button>
                         </>
+                      )}
+
                       {/* Clinic Manager reply button */}
                       {isManagerOrAdmin && fb.status !== 'DELETED' && (
                         <Button
@@ -746,21 +748,8 @@ const FeedbackHubPage = () => {
                           className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
                           onClick={() => openResponseModal(fb)}
                         >
-                          <Reply  size="1em"/>
+                          <Reply size="1em" />
                           <span>{fb.managerResponse ? 'Sửa phản hồi' : 'Phản hồi bệnh nhân'}</span>
-                        </Button>
-                      )}
-
-                      {/* Only Patient can edit their own feedback */}
-                      {isPatient && isOwn && fb.status !== 'DELETED' && (
-                        <Button
-                          variant="outline-secondary"
-                          size="sm"
-                          className="rounded-pill px-3 py-1 d-flex align-items-center gap-1"
-                          onClick={() => openEditModal(fb)}
-                        >
-                          <SquarePen  size="1em"/>
-                          <span>Chỉnh sửa</span>
                         </Button>
                       )}
 
@@ -777,9 +766,8 @@ const FeedbackHubPage = () => {
                           }}
                           title="Gửi yêu cầu xóa đánh giá (Cần sự đồng ý của bệnh nhân)"
                         >
-                          <FaTrashAlt style={{ fontSize: '0.75rem' }} />
+                          <Trash2 size="1em" />
                           <span>Yêu cầu xóa</span>
-                          <Trash2 style={{ fontSize: '0.75rem' }}  size="1em"/>
                         </Button>
                       )}
                       {isAdmin && fb.adminDeleteRequested && fb.status !== 'HIDDEN_BY_ADMIN' && (

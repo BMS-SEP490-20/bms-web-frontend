@@ -269,23 +269,20 @@ export default function QueueBoardPage() {
 
             <div className="card-body p-0">
               <div className="table-responsive">
-                <table className="table table-hover align-middle mb-0">
+                <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <thead style={{ background: '#F8FAFC' }}>
                     <tr>
-                    <th scope="col" style={{ width: "95px" }}>Số Thứ Tự</th>
-                    <th scope="col">Bệnh Nhân</th>
-                    <th scope="col">Gói Xét Nghiệm</th>
-                    <th scope="col" style={{ width: "100px" }}>Giờ Đến</th>
-                    <th scope="col" style={{ width: "90px" }}>Chờ (phút)</th>
-                    <th scope="col" style={{ width: "95px" }}>Ưu Tiên</th>
-                    <th scope="col" style={{ width: "105px" }}>Trạng Thái</th>
-                    <th scope="col" className="text-end pe-3" style={{ width: "120px" }}>Thao Tác</th>
+                    <th scope="col" style={{ width: "16%" }}>STT &amp; Ưu Tiên</th>
+                    <th scope="col" style={{ width: "24%" }}>Bệnh Nhân</th>
+                    <th scope="col" style={{ width: "24%" }}>Gói Xét Nghiệm</th>
+                    <th scope="col" style={{ width: "20%" }}>Tiếp Nhận &amp; Trạng Thái</th>
+                    <th scope="col" className="text-end pe-3" style={{ width: "16%" }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.currentQueue.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="text-center py-3 text-muted">
+                      <td colSpan="5" className="text-center py-3 text-muted">
                         Hiện không có bệnh nhân nào trong hàng đợi.
                       </td>
                     </tr>
@@ -295,10 +292,13 @@ export default function QueueBoardPage() {
                         key={ticket.id}
                         className={ticket.status === "Called" ? "table-success" : ""}
                       >
-                        <td className="fw-bold font-monospace fs-5" style={{ color: '#1E60E6' }}>
-                          {ticket.ticketNumber}
-                        </td>
                         <td>
+                          <div className="fw-bold font-monospace fs-6" style={{ color: '#1E60E6' }}>
+                            {ticket.ticketNumber}
+                          </div>
+                          <div className="mt-1">{getPriorityBadge(ticket.priority)}</div>
+                        </td>
+                        <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
                           <div className="fw-semibold text-dark">
                             {(() => {
                               const name = ticket.patientName || '';
@@ -317,38 +317,30 @@ export default function QueueBoardPage() {
                             )}
                           </div>
                         </td>
-                        <td className="small fw-semibold text-secondary">
+                        <td className="small fw-semibold text-secondary" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
                           {ticket.packageName}
                         </td>
-                        <td className="font-monospace small text-muted">
-                          {ticket.checkedInTime}
-                        </td>
-                        <td className="font-monospace small text-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          {ticket.waitTimeMinutes} min
-                        </td>
-                        <td>{getPriorityBadge(ticket.priority)}</td>
                         <td>
-                          {getStatusBadge(ticket.status)}
-                          {ticket.counterName && (
-                            <div className="small text-muted font-monospace mt-1">
-                              {ticket.counterName}
-                            </div>
-                          )}
+                          <div>{getStatusBadge(ticket.status)}</div>
+                          <div className="font-monospace text-muted mt-1" style={{ fontSize: '11.5px', fontVariantNumeric: 'tabular-nums' }}>
+                            {ticket.checkedInTime} · Chờ {ticket.waitTimeMinutes}p
+                            {ticket.counterName ? ` · ${ticket.counterName}` : ''}
+                          </div>
                         </td>
                         <td className="text-end pe-3">
                           {ticket.status === "Called" || ticket.status === "Collecting" || ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
-                            <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold">
-                              <Check className="me-1"  size="1em"/> Đã gọi số
+                            <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold">
+                              <Check className="me-1" size="1em"/> Đã gọi
                             </span>
                           ) : ticket.status === "Waiting" || !ticket.status ? (
                             <button
                               onClick={() => handleCallNext(ticket)}
                               disabled={!selectedCounter}
                               title={!selectedCounter ? "Vui lòng chọn quầy trước khi gọi" : ""}
-                              className="btn btn-sm px-3 py-1 rounded-pill shadow-sm text-white"
+                              className="btn btn-sm px-2.5 py-1 rounded-pill shadow-sm text-white"
                               style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                             >
-                              <Megaphone className="me-1"  size="1em"/> Gọi số
+                              <Megaphone className="me-1" size="1em"/> Gọi số
                             </button>
                           ) : (
                             <span className="text-muted small">{ticket.status}</span>

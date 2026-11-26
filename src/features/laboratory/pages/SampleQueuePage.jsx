@@ -1039,35 +1039,32 @@ const SampleQueuePage = () => {
             </div>
           ) : (
             <div className="table-responsive">
-              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'auto', width: '100%' }}>
+              <Table hover className="mb-0 align-middle table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
                 <thead className="table-light">
                   <tr>
-                    <th className="ps-3">Barcode &amp; Ưu Tiên</th>
-                    <th>Bệnh Nhân</th>
-                    <th>Chỉ Định &amp; Ống Mẫu</th>
-                    <th>Lấy Mẫu &amp; Phòng Lab</th>
-                    <th>Trạng Thái</th>
-                    <th className="text-end pe-3">Thao Tác</th>
+                    <th className="ps-3" style={{ width: '17%' }}>Barcode</th>
+                    <th style={{ width: '14%' }}>Bệnh Nhân</th>
+                    <th style={{ width: '21%' }}>Chỉ Định &amp; Mẫu</th>
+                    <th style={{ width: '13%' }}>Thời Gian / Lab</th>
+                    <th style={{ width: '14%' }}>Trạng Thái</th>
+                    <th className="text-end pe-3" style={{ width: '21%' }}>Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sampleListSafe.map((s) => (
                     <tr key={s.id}>
-                      <td className="ps-3">
-                        <div className="fw-bold font-monospace text-primary d-flex align-items-center gap-1" style={{ fontSize: '0.8rem' }}>
-                          <LucideBarcode size="1em" />
+                      <td className="ps-3" style={{ wordBreak: 'break-all' }}>
+                        <div className="fw-bold font-monospace text-primary d-flex align-items-start gap-1" style={{ fontSize: '0.75rem', lineHeight: 1.3 }}>
+                          <LucideBarcode size="1em" className="flex-shrink-0" />
                           <span>{s.barcode}</span>
+                        </div>
+                        <div className="d-flex align-items-center gap-1 flex-wrap mt-1">
+                          {getPriorityBadge(s.priority)}
                           {s.isAliquot && (
-                            <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
+                            <Badge bg="info" style={{ fontSize: '0.65rem' }}>
                               Aliquot
                             </Badge>
                           )}
-                        </div>
-                        <div className="d-flex align-items-center gap-1.5 flex-wrap mt-1">
-                          {getPriorityBadge(s.priority)}
-                          <span className="text-muted font-monospace" style={{ fontSize: '0.7rem' }}>
-                            {s.id && s.id.length > 14 ? `${s.id.slice(0, 12)}…` : s.id}
-                          </span>
                         </div>
                       </td>
 
@@ -1110,7 +1107,7 @@ const SampleQueuePage = () => {
                       <td>{getStatusBadge(s.status)}</td>
 
                       <td className="text-end pe-3">
-                        <div className="d-flex gap-1 justify-content-end align-items-center">
+                        <div className="d-flex flex-wrap gap-1 justify-content-end align-items-center">
                           {(() => {
                             const st = normalizeSampleStatus(s.status);
                             const fwd = primaryForwardAction(st);

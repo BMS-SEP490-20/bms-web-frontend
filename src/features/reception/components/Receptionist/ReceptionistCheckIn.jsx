@@ -2145,25 +2145,25 @@ const ReceptionistCheckIn = () => {
           <Card.Body className="p-0">
             {filteredAppointments.length > 0 ? (
               <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                <Table hover className="align-middle mb-0" style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', minWidth: isMobile ? '600px' : 'auto' }}>
+                <Table hover className="align-middle mb-0" style={{ fontSize: isMobile ? '0.85rem' : '0.88rem', tableLayout: isMobile ? 'auto' : 'fixed', width: '100%' }}>
                   <thead style={{ background: '#F8FAFC' }}>
                     <tr>
-                      <th className="text-start ps-4" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold' }}>
-                        Bệnh nhân &amp; Mã hồ sơ
+                      <th className="text-start ps-3" style={{ width: '19%', fontWeight: 'bold' }}>
+                        Bệnh nhân &amp; Mã
                       </th>
-                      <th className="text-start d-none d-lg-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold' }}>
+                      <th className="text-start d-none d-lg-table-cell" style={{ width: '21%', fontWeight: 'bold' }}>
                         Gói xét nghiệm
                       </th>
-                      <th className="text-center d-none d-md-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                      <th className="text-center d-none d-md-table-cell" style={{ width: '10%', fontWeight: 'bold' }}>
                         Ngày hẹn
                       </th>
-                      <th className="text-center" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                        Giờ hẹn &amp; Khung ca
+                      <th className="text-center" style={{ width: '13%', fontWeight: 'bold' }}>
+                        Giờ hẹn
                       </th>
-                      <th className="text-center d-none d-sm-table-cell" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                        Viện phí &amp; Trạng thái
+                      <th className="text-center d-none d-sm-table-cell" style={{ width: '13%', fontWeight: 'bold' }}>
+                        Trạng thái
                       </th>
-                      <th className="text-center pe-4" style={{ fontSize: isMobile ? '0.85rem' : '0.92rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                      <th className="text-center pe-3" style={{ width: '24%', fontWeight: 'bold' }}>
                         Thao tác
                       </th>
                     </tr>
@@ -2221,15 +2221,15 @@ const ReceptionistCheckIn = () => {
                               getStatusBadge(apt.status)
                             )}
                           </td>
-                          <td className="text-center pe-4">
-                            <div className={'d-flex ' + (isMobile ? 'flex-column gap-1' : 'justify-content-center gap-2')}>
+                          <td className="text-center pe-3">
+                            <div className={'d-flex flex-wrap ' + (isMobile ? 'flex-column gap-1' : 'justify-content-center gap-1.5')}>
                               <Button
                                 size="sm"
                                 onClick={() => handleDirectCheckIn(apt)}
-                                className="rounded-pill px-3 shadow-sm fw-semibold d-flex align-items-center gap-1"
+                                className="rounded-pill px-2.5 shadow-sm fw-semibold d-flex align-items-center gap-1"
                                 style={{
-                                  fontSize: isMobile ? '0.8rem' : '0.88rem',
-                                  padding: '6px 14px',
+                                  fontSize: isMobile ? '0.78rem' : '0.8rem',
+                                  padding: '4px 10px',
                                   whiteSpace: 'nowrap',
                                   backgroundColor: '#1E60E6',
                                   borderColor: '#1E60E6',
@@ -2238,16 +2238,16 @@ const ReceptionistCheckIn = () => {
                                 disabled={!['scheduled', 'confirmed', 'paid', '1'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, '')) || ['checkedin', '2'].includes((apt.status || '').toLowerCase().replace(/[_-]/g, ''))}
                               >
                                 <LucideTicket size={12} />
-                                <span>Check-in &amp; Cấp STT</span>
+                                <span>Check-in</span>
                               </Button>
                               <Button
                                 variant="outline-primary"
                                 size="sm"
                                 onClick={() => handleViewDetail(apt)}
-                                className="rounded-pill px-3 d-flex align-items-center gap-1"
+                                className="rounded-pill px-2.5 d-flex align-items-center gap-1"
                                 style={{
-                                  fontSize: isMobile ? '0.8rem' : '0.88rem',
-                                  padding: '6px 12px',
+                                  fontSize: isMobile ? '0.78rem' : '0.8rem',
+                                  padding: '4px 10px',
                                   whiteSpace: 'nowrap',
                                   color: '#1E60E6',
                                   borderColor: '#1E60E6'

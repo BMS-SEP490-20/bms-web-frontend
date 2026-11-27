@@ -21,8 +21,11 @@ import {
 import { getPackages } from '../../admin/api/packageApi';
 import ReceiptPrintModal from '../components/ReceiptPrintModal';
 import VatInvoiceModal, { numberToVietnameseWords } from '../components/VatInvoiceModal';
+import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 
 export default function BillingInvoicesPage() {
+  const currentUser = getStoredUser();
+  const canCollectPayment = hasRole(currentUser, ROLES.RECEPTIONIST);
   const [invoices, setInvoices] = useState([]);
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -72,7 +75,7 @@ export default function BillingInvoicesPage() {
   async function loadInvoices() {
     setLoading(true);
     try {
-      const res = await getInvoices({ status: statusFilter });
+      const res = await getInvoices({ status: statusFilter, pageSize: 100 });
       if (res?.data) {
         setInvoices(res.data);
       } else if (Array.isArray(res)) {
@@ -257,38 +260,44 @@ export default function BillingInvoicesPage() {
           <div>
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <h1 className="bms-page-title mb-0" style={{ fontSize: '19px', fontWeight: '800', color: '#0f172a' }}>
-                Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Điện Tử
+                Quầy Thu Viện Phí &amp; Quản Lý Hóa Đơn Dịch Vụ
               </h1>
               <span className="badge rounded-pill" style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: '700' }}>
-                Nghị Định 123/2020/NĐ-CP
+                Chuẩn giấy in POS K80
               </span>
               <span className="badge rounded-pill" style={{ background: '#ecfdf5', color: '#065f46', fontSize: '11px', fontWeight: '700' }}>
                 Tại quầy thu ngân
               </span>
             </div>
             <p className="text-muted small mb-0 mt-1">
-              Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR), in biên lai nhiệt K80 và phát hành hóa đơn điện tử VAT.
+              Thu ngân viện phí trực tiếp (Tiền mặt / Thẻ POS / VietQR) và in hóa đơn thu phí dịch vụ khổ nhiệt K80.
             </p>
           </div>
         </div>
 
         <div className="bms-page-actions">
-          <Button
-            variant="primary"
-            onClick={() => setShowCreateModal(true)}
-            className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
-            style={{
-              borderRadius: 9999,
-              background: '#1E60E6',
-              borderColor: '#1E60E6',
-              boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
-              padding: '9px 20px',
-              fontSize: '13.5px'
-            }}
-          >
-            <Plus size={12} />
-            <span>Tạo Hóa Đơn Thu Viện Phí</span>
-          </Button>
+          {canCollectPayment ? (
+            <Button
+              variant="primary"
+              onClick={() => setShowCreateModal(true)}
+              className="text-white fw-semibold d-flex align-items-center gap-2 shadow-sm"
+              style={{
+                borderRadius: 9999,
+                background: '#1E60E6',
+                borderColor: '#1E60E6',
+                boxShadow: '0 4px 14px rgba(30, 96, 230, 0.25)',
+                padding: '9px 20px',
+                fontSize: '13.5px'
+              }}
+            >
+              <Plus size={12} />
+              <span>Tạo Hóa Đơn Thu Viện Phí</span>
+            </Button>
+          ) : (
+            <span className="badge rounded-pill px-3 py-2 fw-semibold" style={{ background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE' }}>
+              Chế độ Quản lý: Đối soát &amp; In lại biên lai
+            </span>
+          )}
         </div>
       </div>
 
@@ -364,7 +373,7 @@ export default function BillingInvoicesPage() {
                 </span>
               </h5>
               <div className="text-muted small">
-                Danh sách hóa đơn điện tử VAT và biên lai thu tiền theo ca trực
+                Danh sách hóa đơn thu phí dịch vụ y tế và biên lai thu tiền theo ca trực
               </div>
             </div>
 
@@ -498,23 +507,39 @@ export default function BillingInvoicesPage() {
 
                         {/* Trạng Thái */}
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                          <span
-                            className="bms-status-pill"
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              padding: '4px 12px',
-                              borderRadius: '9999px',
-                              fontSize: '11.5px',
-                              fontWeight: '700',
-                              backgroundColor: isPaid ? '#dcfce7' : '#fef3c7',
-                              color: isPaid ? '#166534' : '#92400e'
-                            }}
-                          >
-                            <Circle size="1em" style={{ fontSize: '6px' }} />
-                            {isPaid ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
-                          </span>
+                          {(() => {
+                            const stRaw = String(inv.status ?? '').toLowerCase();
+                            const isRefunded = inv.status === 3 || stRaw === 'refunded' || inv.status === 2 || stRaw === 'partiallyrefunded';
+                            const isVoided = inv.status === 4 || stRaw === 'voided';
+                            const label = isPaid
+                              ? 'Đã Thanh Toán'
+                              : isRefunded
+                                ? 'Đã Hoàn Tiền'
+                                : isVoided
+                                  ? 'Đã Hủy'
+                                  : 'Chờ Thanh Toán';
+                            const bg = isPaid ? '#dcfce7' : isRefunded ? '#e0e7ff' : isVoided ? '#fee2e2' : '#fef3c7';
+                            const fg = isPaid ? '#166534' : isRefunded ? '#3730a3' : isVoided ? '#991b1b' : '#92400e';
+                            return (
+                              <span
+                                className="bms-status-pill"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '4px 12px',
+                                  borderRadius: '9999px',
+                                  fontSize: '11.5px',
+                                  fontWeight: '700',
+                                  backgroundColor: bg,
+                                  color: fg
+                                }}
+                              >
+                                <Circle size="1em" style={{ fontSize: '6px' }} />
+                                {label}
+                              </span>
+                            );
+                          })()}
                         </td>
 
                         {/* Số Lần In */}
@@ -547,24 +572,35 @@ export default function BillingInvoicesPage() {
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <div className="d-inline-flex align-items-center gap-2">
                             {!isPaid ? (
-                              <Button
-                                variant="success"
-                                size="sm"
-                                onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
-                                className="d-inline-flex align-items-center gap-1 shadow-sm fw-semibold"
-                                style={{
-                                  borderRadius: 9999,
-                                  fontSize: '12px',
-                                  padding: '4px 12px',
-                                  background: '#10b981',
-                                  borderColor: '#10b981',
-                                  color: '#ffffff'
-                                }}
-                                title="Xác nhận thu viện phí trực tiếp qua POS / Tiền mặt"
-                              >
-                                <CreditCard size={11} />
-                                <span>Thu Tiền POS</span>
-                              </Button>
+                              (() => {
+                                const stRaw = String(inv.status ?? '').toLowerCase();
+                                const isClosed = inv.status === 2 || inv.status === 3 || inv.status === 4 || stRaw === 'refunded' || stRaw === 'partiallyrefunded' || stRaw === 'voided';
+                                if (isClosed) {
+                                  return <span className="text-muted small">Đã đóng</span>;
+                                }
+                                return canCollectPayment ? (
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    onClick={() => { setSelectedInvoice(inv); setShowPayModal(true); }}
+                                    className="d-inline-flex align-items-center gap-1 shadow-sm fw-semibold"
+                                    style={{
+                                      borderRadius: 9999,
+                                      fontSize: '12px',
+                                      padding: '4px 12px',
+                                      background: '#10b981',
+                                      borderColor: '#10b981',
+                                      color: '#ffffff'
+                                    }}
+                                    title="Xác nhận thu viện phí trực tiếp qua POS / Tiền mặt"
+                                  >
+                                    <CreditCard size={11} />
+                                    <span>Thu Tiền POS</span>
+                                  </Button>
+                                ) : (
+                                  <span className="text-muted small">Chờ thu ngân thu phí</span>
+                                );
+                              })()
                             ) : (
                               <>
                                 {/* In Biên Lai (K80) */}
@@ -587,7 +623,7 @@ export default function BillingInvoicesPage() {
                                   <span>In Biên Lai</span>
                                 </Button>
 
-                                {/* Hóa Đơn Điện Tử VAT */}
+                                {/* Hóa Đơn Thu Phí Dịch Vụ (POS K80) */}
                                 <Button
                                   variant="outline-secondary"
                                   size="sm"
@@ -601,10 +637,10 @@ export default function BillingInvoicesPage() {
                                     borderColor: '#ddd6fe',
                                     color: '#6d28d9'
                                   }}
-                                  title="Xem & phát hành hóa đơn điện tử VAT chuẩn Nghị định 123/2020/NĐ-CP"
+                                  title="Xem & in hóa đơn thu phí dịch vụ y tế khổ POS K80"
                                 >
                                   <Receipt size={11} />
-                                  <span>HĐ VAT</span>
+                                  <span>Hóa Đơn POS</span>
                                 </Button>
                               </>
                             )}
@@ -783,7 +819,7 @@ export default function BillingInvoicesPage() {
 
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label className="small fw-semibold text-secondary">Miễn Giảm / BHYT Hỗ Trợ (VNĐ)</Form.Label>
+                    <Form.Label className="small fw-semibold text-secondary">Miễn Giảm / Ưu Đãi (VNĐ)</Form.Label>
                     <Form.Control
                       type="number"
                       min={0}

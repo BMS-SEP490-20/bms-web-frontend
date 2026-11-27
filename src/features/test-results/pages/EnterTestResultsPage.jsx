@@ -30,6 +30,7 @@ import { resultApi } from '../api/resultApi';
 import { getInventory } from '../../inventory/api/inventoryApi';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
+import Code128Barcode from '../../../shared/components/Code128Barcode';
 import { canEnterTestResults, canViewTestResults, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { resolveParamsForSample } from '../../../shared/workflow/resolveOrderParams';
@@ -569,20 +570,38 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     return () => { cancelled = true; };
   }, [operatorDisplay]);
 
-  // Xử lý Hủy kết quả và chạy lại
-  const handleCancelAndRerun = () => {
+  // Xử lý Hủy kết quả và chạy lại (Gọi API thực tế: Reject nếu lấy lại mẫu, hoặc Rerun nếu chạy lại mẫu hiện có)
+  const handleCancelAndRerun = async () => {
     if (!rerunReason) return;
-    const targetSample = sampleId.trim() || 'Mẫu hiện tại';
-    // Reset giá trị đã nhập nhưng vẫn giữ nguyên danh sách chỉ số của y lệnh / gói hiện tại
-    setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })));
-    setShowRerunModal(false);
-    setCancellationSuccess(
-      `Đã hủy thành công kết quả mẫu ${targetSample}. Lý do y khoa: "${rerunReason}". ${
+    const targetSample = sampleId.trim();
+    if (!targetSample) return;
+
+    try {
+      if (rerunActionType === 'redraw_sample') {
+        await api.put(`/laboratory/samples/${encodeURIComponent(targetSample)}/status`, {
+          status: 'Rejected',
+          rejectionReason: rerunReason,
+          notes: `Từ chối mẫu yêu cầu lấy lại: ${rerunReason}`,
+          technicianName: benchOperator || operatorDisplay
+        });
+      } else {
+        await api.post(`/laboratory/samples/${encodeURIComponent(targetSample)}/rerun`, {
+          reason: rerunReason,
+          requestedBy: benchOperator || operatorDisplay
+        });
+      }
+      // Reset giá trị đã nhập nhưng vẫn giữ nguyên danh sách chỉ số của y lệnh / gói hiện tại
+      setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })));
+      setShowRerunModal(false);
+      setCancellationSuccess(
         rerunActionType === 'redraw_sample'
-          ? 'Đã gửi thông báo yêu cầu Phòng Khám / Điều Dưỡng lấy lại ống mẫu mới từ người bệnh.'
-          : 'Hệ thống đã reset toàn bộ kết quả đo để Kỹ Thuật Viên chạy kiểm chứng và nhập lại kết quả mới.'
-      }`
-    );
+          ? `Đã từ chối mẫu ${targetSample} (lý do: "${rerunReason}") và gửi thông báo yêu cầu lấy lại mẫu mới cho Bệnh nhân & Bác sĩ.`
+          : `Đã ghi nhận yêu cầu chạy lại (Rerun) mẫu ${targetSample} (lý do: "${rerunReason}"). KTV có thể nhập kết quả lần chạy mới.`
+      );
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Không thể gửi yêu cầu chạy lại / từ chối mẫu.');
+      setShowRerunModal(false);
+    }
   };
 
   const loadUsableReagents = useCallback(async () => {
@@ -1306,7 +1325,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                       </div>
                       <div>
                         {benchTab === 'TESTING'
-                          ? 'Các ống mẫu sau khi bấm "Bắt đầu XN" ở Bước 2 (Tiếp Nhận & Xử Lý Ống Mẫu) sẽ xuất hiện tại đây.'
+                          ? 'Các ống mẫu sau khi bấm "Bắt đầu XN" ở Bước 3 (Tiếp Nhận & Xử Lý Ống Mẫu) sẽ xuất hiện tại đây.'
                           : 'Bạn có thể chuyển tab hoặc quét trực tiếp mã Barcode ở ô tìm kiếm phía trên.'}
                       </div>
                     </td>
@@ -1325,14 +1344,16 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                         onClick={() => openEntryModalForSample(key)}
                       >
                         <td className="ps-3">
-                          <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                            <code className="fw-bold text-primary small">{key}</code>
-                            {s.isAliquot && (
-                              <Badge bg="info" style={{ fontSize: '0.65rem' }}>Aliquot</Badge>
-                            )}
-                            {String(s.priority || '').toUpperCase() === 'STAT' && (
-                              <Badge bg="danger" style={{ fontSize: '0.65rem' }}>STAT</Badge>
-                            )}
+                          <div className="d-flex flex-column align-items-start gap-1">
+                            <Code128Barcode value={key} height={24} width={1.0} compact align="start" />
+                            <div className="d-flex align-items-center gap-1 flex-wrap">
+                              {s.isAliquot && (
+                                <Badge bg="info" style={{ fontSize: '0.65rem' }}>Aliquot</Badge>
+                              )}
+                              {String(s.priority || '').toUpperCase() === 'STAT' && (
+                                <Badge bg="danger" style={{ fontSize: '0.65rem' }}>STAT</Badge>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td>

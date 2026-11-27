@@ -22,11 +22,12 @@ import {
   Pagination,
   InputGroup
 } from 'react-bootstrap';
-import { Calendar, Clock, Stethoscope, Search, Filter as LucideFilter, RotateCw, Eye, XCircle, AlertTriangle, MapPin, TestTube2, User, FileText, QrCode, Lock, Banknote, CheckCircle2, Star } from 'lucide-react';
+import { Calendar, Clock, Stethoscope, Search, Filter as LucideFilter, RotateCw, Eye, XCircle, AlertTriangle, MapPin, TestTube2, User, FileText, QrCode, Lock, Banknote, CheckCircle2, Star, Printer } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { appointmentApi } from '../api/appointmentApi';
 import { ROLES, resolveRoleId, getStoredUser, hasRole } from '../../../constants/roles';
+import { PosThermalModal } from '../../../shared/components/PosThermalSlip';
 import '../appointment.css';
 
 const HOLD_DURATION_MS = 15 * 60 * 1000;
@@ -117,6 +118,7 @@ export default function AppointmentListPage() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showPosSlipModal, setShowPosSlipModal] = useState(false);
 
   // Live timer for reservation hold countdown (ticks every 1 second)
   const [now, setNow] = useState(Date.now());
@@ -872,12 +874,80 @@ export default function AppointmentListPage() {
             </Alert>
           )}
         </Modal.Body>
-        <Modal.Footer className="bg-light">
+        <Modal.Footer className="bg-light d-flex justify-content-between">
           <Button variant="secondary" size="sm" onClick={() => setShowDetailModal(false)}>
             Đóng
           </Button>
+          {selectedAppointment && isPaidOrConfirmed(selectedAppointment.status) && (
+            <Button
+              variant="primary"
+              size="sm"
+              className="rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+              onClick={() => setShowPosSlipModal(true)}
+            >
+              <Printer size={14} /> In Phiếu Hẹn POS (K80)
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
+
+      {/* Unified POS K80 Appointment Slip Modal */}
+      {selectedAppointment && (
+        <PosThermalModal
+          show={showPosSlipModal}
+          onClose={() => setShowPosSlipModal(false)}
+          modalTitle="Phiếu Xác Nhận Lịch Hẹn"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`Mã lịch hẹn: ${selectedAppointment.appointmentCode || selectedAppointment.id}`}
+          printTitle={`Phieu_Lich_Hen_POS_${selectedAppointment.appointmentCode || selectedAppointment.id}`}
+          printButtonLabel="In Phiếu Hẹn POS (K80)"
+          copyText={selectedAppointment.appointmentCode || ''}
+          copyButtonLabel="Sao chép mã hẹn"
+          slipProps={{
+            title: 'PHIẾU XÁC NHẬN LỊCH HẸN',
+            subtitle: 'Phiếu tiếp đón & kiểm tra thông tin khám',
+            statusBadge: 'ĐÃ THANH TOÁN & XÁC NHẬN',
+            highlight: {
+              label: 'MÃ LỊCH HẸN',
+              value: selectedAppointment.appointmentCode || selectedAppointment.id || '—',
+              isCode: true,
+              sub: `${selectedAppointment.appointmentDate ? new Date(selectedAppointment.appointmentDate).toLocaleDateString('vi-VN') : '—'} • ${selectedAppointment.slotTime || (selectedAppointment.appointmentTime ? String(selectedAppointment.appointmentTime).slice(0, 5) : '08:00')}`,
+            },
+            sections: [
+              {
+                title: 'Thông tin lịch khám',
+                rows: [
+                  { label: 'Bệnh nhân', value: selectedAppointment.patientName || user?.fullName || '—' },
+                  { label: 'Bác sĩ phụ trách', value: resolveDoctorDisplay(selectedAppointment) },
+                  { label: 'Phòng khám', value: selectedAppointment.roomName || 'Phòng khám chuyên khoa BMS' },
+                  { label: 'Gói dịch vụ', value: selectedAppointment.testPackageName || selectedAppointment.packageName || 'Xét nghiệm theo lịch hẹn' },
+                  {
+                    label: 'Hình thức',
+                    value: String(selectedAppointment.appointmentType || '').toLowerCase().includes('home')
+                      ? 'Lấy mẫu tại nhà'
+                      : 'Khám & lấy mẫu tại phòng khám',
+                  },
+                ],
+              },
+            ],
+            notice: {
+              title: 'Hướng dẫn tiếp đón',
+              lines: [
+                'Xuất trình phiếu hoặc mã QR này tại quầy Lễ tân để nhận số thứ tự.',
+                'Vui lòng mang theo CCCD/VNeID và có mặt trước giờ hẹn 10 phút.',
+              ],
+            },
+            qr: {
+              value: selectedAppointment.appointmentCode || selectedAppointment.appointmentId || selectedAppointment.id || 'BMS-APT',
+              codeText: selectedAppointment.appointmentCode || selectedAppointment.id,
+              caption: 'Quét mã QR tại quầy Lễ tân để Check-in nhanh',
+              size: 112,
+            },
+            footerNote: 'Phiếu có giá trị tiếp đón theo đúng khung giờ đã đăng ký.',
+          }}
+        />
+      )}
     </div>
   );
 }

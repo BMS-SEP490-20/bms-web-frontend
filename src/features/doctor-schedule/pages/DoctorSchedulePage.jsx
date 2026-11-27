@@ -128,9 +128,11 @@ export default function DoctorSchedulePage() {
   const [loadingStaff, setLoadingStaff] = useState(false);
 
   // WHY: UC35 Create/Update/Delete Shifts are restricted to Manager role per ROLE-PERMISSION-MATRIX §1.
-  // All staff roles (Admin, Manager, Doctor, Lab, Receptionist) can View Shifts.
+  // Admin views all clinic schedules read-only; System Admin accounts are strictly excluded from shift rostering.
   const storedUser = React.useMemo(() => getStoredUser(), []);
-  const canManageShifts = React.useMemo(() => hasRole(storedUser, ROLES.ADMIN, ROLES.MANAGER), [storedUser]);
+  const canViewAllShifts = React.useMemo(() => hasRole(storedUser, ROLES.ADMIN, ROLES.MANAGER), [storedUser]);
+  const canManageShifts = React.useMemo(() => hasRole(storedUser, ROLES.MANAGER), [storedUser]);
+  const isAdminReadOnly = React.useMemo(() => hasRole(storedUser, ROLES.ADMIN) && !canManageShifts, [storedUser, canManageShifts]);
   const currentUserId = React.useMemo(() => {
     return String(storedUser?.id || storedUser?.userId || storedUser?.UserId || '').trim();
   }, [storedUser]);
@@ -143,16 +145,14 @@ export default function DoctorSchedulePage() {
     fetchShiftStaff()
       .then(list => {
         if (Array.isArray(list) && list.length > 0) {
-          setStaffList(list);
+          const nonAdminStaff = list.filter(u => {
+            const id = resolveRoleId(u);
+            return id !== ROLES.ADMIN && id !== ROLES.PATIENT;
+          });
+          setStaffList(nonAdminStaff);
           return null;
         }
-        return userManagementService.getAllUsers({ pageSize: 100 });
-      })
-      .then(res => {
-        if (res?.success && Array.isArray(res.data)) {
-          const staff = res.data.filter(u => { const id = resolveRoleId(u); return id !== null && id !== ROLES.PATIENT; });
-          setStaffList(staff);
-        }
+        return null;
       })
       .catch(() => {
         // Handled silently; error banner shown on shift load if API unreachable
@@ -248,9 +248,9 @@ export default function DoctorSchedulePage() {
   }, [activeRoleTab, doctorShifts, labShifts, receptionistShifts, shifts]);
 
   // Strict personal shift scoping:
-  // Non-manager staff (e.g. Lab tech Hưng) only see shifts assigned to them!
+  // Non-manager/non-admin staff (e.g. Lab tech Hưng) only see shifts assigned to them!
   const myRoleShifts = React.useMemo(() => {
-    if (canManageShifts) {
+    if (canViewAllShifts) {
       return currentRoleShifts;
     }
     const uid = currentUserId.toLowerCase();
@@ -267,24 +267,25 @@ export default function DoctorSchedulePage() {
       }
       return false;
     });
-  }, [canManageShifts, currentRoleShifts, shifts, currentUserId, currentUserName]);
+  }, [canViewAllShifts, currentRoleShifts, shifts, currentUserId, currentUserName]);
 
   // Filter staff list based on active tab
   const displayStaffList = React.useMemo(() => {
     const list = staffList || [];
     if (activeRoleTab === 'doctor') {
-      const docs = list.filter(u => String(u.role || '').toLowerCase() === 'doctor');
+      const docs = list.filter(u => resolveRoleId(u) === ROLES.DOCTOR || String(u.role || '').toLowerCase() === 'doctor');
       return docs.length > 0 ? docs : list;
     }
     if (activeRoleTab === 'lab') {
       const labs = list.filter(u => {
+        const rid = resolveRoleId(u);
         const r = String(u.role || '').toLowerCase();
-        return r === 'lab' || r === 'lab_technician' || r === 'labtech' || r === 'manager' || r === 'labhead';
+        return rid === ROLES.LAB || rid === ROLES.MANAGER || r === 'lab' || r === 'lab_technician' || r === 'labtech' || r === 'manager' || r === 'labhead';
       });
       return labs.length > 0 ? labs : list;
     }
     if (activeRoleTab === 'receptionist') {
-      const recs = list.filter(u => String(u.role || '').toLowerCase() === 'receptionist');
+      const recs = list.filter(u => resolveRoleId(u) === ROLES.RECEPTIONIST || String(u.role || '').toLowerCase() === 'receptionist');
       return recs.length > 0 ? recs : list;
     }
     return list;
@@ -293,10 +294,14 @@ export default function DoctorSchedulePage() {
   // Role-specific room filtering:
   // - Lab: only Lab rooms
   // - Doctor: only Doctor / Clinic exam rooms
-  // - Receptionist: only 1 fixed location (Quầy Tiếp Đón)
+  // - Receptionist: front desk counters (QUAY-01..03) so multiple receptionists can share a shift without room collision
   const availableRoomsForRole = React.useMemo(() => {
     if (activeRoleTab === 'receptionist') {
-      return [{ id: 'QUAY-01', name: 'Quầy Tiếp Đón (Sảnh Tầng 1)', department: 'Bộ Phận Tiếp Đón & Lấy Mẫu', floor: '1' }];
+      return [
+        { id: 'QUAY-01', name: 'Quầy Tiếp Đón 01 (Sảnh Tầng 1)', department: 'Bộ Phận Tiếp Đón', floor: 'Tầng 1' },
+        { id: 'QUAY-02', name: 'Quầy Thu Ngân & Bàn Giao (Sảnh Tầng 1)', department: 'Bộ Phận Tiếp Đón', floor: 'Tầng 1' },
+        { id: 'QUAY-03', name: 'Quầy Điều Phối Hàng Đợi (Sảnh Tầng 1)', department: 'Bộ Phận Tiếp Đón', floor: 'Tầng 1' }
+      ];
     }
     if (activeRoleTab === 'lab') {
       const labRooms = rooms.filter(r => {
@@ -544,6 +549,11 @@ export default function DoctorSchedulePage() {
         </div>
 
         <div className="bms-page-actions">
+          {isAdminReadOnly && (
+            <Badge bg="light" text="secondary" className="border rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-1">
+              <Eye size={13} /> Chế độ Chỉ xem (Admin)
+            </Badge>
+          )}
           <Button
             variant="outline-secondary"
             size="sm"
@@ -637,7 +647,7 @@ export default function DoctorSchedulePage() {
       </Row>
 
       {/* Role Tabs Bar: Bác Sĩ (Doctor) / Xét Nghiệm (Lab) / Lễ Tân (Receptionist) */}
-      {canManageShifts && (
+      {canViewAllShifts && (
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
         <div className="d-flex align-items-center gap-2 p-1 bg-white border rounded-pill shadow-sm">
           <button
@@ -1122,7 +1132,7 @@ export default function DoctorSchedulePage() {
                        (rawRole === 'lab' || rawRole === 'lab_technician' || rawRole === 'manager') ? 'Khoa Xét Nghiệm' : 'Bộ Phận Tiếp Đón');
                     return (
                       <option key={emp.id} value={emp.id}>
-                        {emp.fullName || emp.username} — {dept} ({roleLabel}) [Mã: {emp.id}]
+                        {emp.fullName || emp.username} — {dept} ({roleLabel}) [Mã: {emp.employeeCode || emp.username || emp.id}]
                       </option>
                     );
                   })}
@@ -1189,51 +1199,45 @@ export default function DoctorSchedulePage() {
               
             <Row className="g-3">
               <Col md={6}>
-                {activeRoleTab === 'receptionist' ? (
-                  <div>
-                    <Form.Label className="small fw-semibold text-muted">
-                      Vị Trí Trực (Cố định bộ phận Lễ tân) <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      value="Quầy Tiếp Đón (Sảnh Tầng 1) [Mã: QUAY-01]"
-                      readOnly
-                      className="bg-light fw-bold text-primary"
-                    />
-                    <Form.Text className="text-muted small">
-                      Vị trí duy nhất cố định cho bộ phận lễ tân.
-                    </Form.Text>
-                  </div>
-                ) : (
-                  <div>
-                    <Form.Label className="small fw-semibold">
-                      {activeRoleTab === 'lab' ? 'Phòng Xét Nghiệm (Lab Room)' : 'Phòng Khám Bác Sĩ (Clinic Room)'} <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Select
-                      value={formData.roomId}
-                      onChange={(e) => {
-                        const selId = e.target.value;
-                        const r = availableRoomsForRole.find(item => (item.id || item.roomNumber) === selId);
-                        setFormData(prev => ({
-                          ...prev,
-                          roomId: selId,
-                          department: r?.department ? r.department : prev.department,
-                        }));
-                      }}
-                      required
-                    >
-                      <option value="">{activeRoleTab === 'lab' ? '-- Chọn phòng xét nghiệm Lab --' : '-- Chọn phòng khám bác sĩ --'}</option>
-                      {availableRoomsForRole.map(r => (
-                        <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
-                          {r.name ? `${r.id || r.roomNumber} - ${r.name} (${r.department || (r.floor ? `Tầng ${r.floor}` : '')})` : (r.id || r.roomNumber)}
-                        </option>
-                      ))}
-                      {formData.roomId && !availableRoomsForRole.some(r => (r.id || r.roomNumber) === formData.roomId) && (
-                        <option value={formData.roomId}>{formData.roomId}</option>
-                      )}
-                    </Form.Select>
-                  </div>
-                )}
+                <div>
+                  <Form.Label className="small fw-semibold">
+                    {activeRoleTab === 'receptionist'
+                      ? 'Quầy Trực Bộ Phận Lễ Tân'
+                      : activeRoleTab === 'lab'
+                        ? 'Phòng Xét Nghiệm (Lab Room)'
+                        : 'Phòng Khám Bác Sĩ (Clinic Room)'}{' '}
+                    <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Select
+                    value={formData.roomId}
+                    onChange={(e) => {
+                      const selId = e.target.value;
+                      const r = availableRoomsForRole.find(item => (item.id || item.roomNumber) === selId);
+                      setFormData(prev => ({
+                        ...prev,
+                        roomId: selId,
+                        department: r?.department ? r.department : prev.department,
+                      }));
+                    }}
+                    required
+                  >
+                    <option value="">
+                      {activeRoleTab === 'receptionist'
+                        ? '-- Chọn quầy trực lễ tân --'
+                        : activeRoleTab === 'lab'
+                          ? '-- Chọn phòng xét nghiệm Lab --'
+                          : '-- Chọn phòng khám bác sĩ --'}
+                    </option>
+                    {availableRoomsForRole.map(r => (
+                      <option key={r.id || r.roomNumber} value={r.id || r.roomNumber}>
+                        {r.name ? `${r.id || r.roomNumber} - ${r.name}` : (r.id || r.roomNumber)}
+                      </option>
+                    ))}
+                    {formData.roomId && !availableRoomsForRole.some(r => (r.id || r.roomNumber) === formData.roomId) && (
+                      <option value={formData.roomId}>{formData.roomId}</option>
+                    )}
+                  </Form.Select>
+                </div>
               </Col>
 
               <Col md={4}>

@@ -537,7 +537,7 @@ export default function PatientPaymentHistoryPage() {
                             className="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
                             onClick={() => handleOpenReceipt(item)}
                           >
-                            <LucideReceipt  size="1em"/> Hóa đơn VAT
+                            <LucideReceipt size="1em" /> Hóa đơn thu phí
                           </button>
                         ) : (
                           <button
@@ -609,7 +609,7 @@ export default function PatientPaymentHistoryPage() {
         <div className="d-flex align-items-center gap-2">
           <Info className="text-primary flex-shrink-0"  size="1em"/>
           <span>
-            Hóa đơn điện tử VAT được phát hành theo quy định của Bộ Tài chính. Quý khách có thể xuất trình mã tra cứu CQT khi làm thủ tục tại cơ sở y tế.
+            Hóa đơn thu phí dịch vụ y tế được phát hành ngay sau khi thanh toán thành công. Quý khách có thể xem hoặc in hóa đơn để đối chiếu tại cơ sở y tế.
           </span>
         </div>
         <div>

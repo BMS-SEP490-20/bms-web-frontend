@@ -98,8 +98,7 @@ export default function RevenueReportPage() {
             "Chuyên khoa",
             "Kênh dịch vụ",
             "Doanh thu gộp",
-            "BHYT chi trả",
-            "Giảm trừ",
+            "Miễn giảm / Ưu đãi",
             "Thực thu (Net)",
             "Phương thức",
             "Thu ngân"
@@ -113,8 +112,7 @@ export default function RevenueReportPage() {
             `"${r.category}"`,
             `"${r.serviceType}"`,
             r.grossAmount,
-            r.bhytCoverageAmount,
-            r.discountAmount,
+            r.discountAmount || 0,
             r.netAmount,
             `"${r.paymentMethod}"`,
             `"${r.cashierName}"`
@@ -341,13 +339,13 @@ export default function RevenueReportPage() {
                     </div>
                 </div>
 
-                {/* BHYT Insurance Coverage */}
+                {/* Discounts / Promotions */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
                         <div>
-                            <h6 className="bms-kpi-label">BHYT Chi Trả</h6>
-                            <div className="bms-kpi-value text-dark">{summary.bhytCoverageTotal.toLocaleString("vi-VN")} ₫</div>
-                            <div className="bms-kpi-sub text-muted">Khấu trừ bảo hiểm y tế</div>
+                            <h6 className="bms-kpi-label">Miễn Giảm / Ưu Đãi</h6>
+                            <div className="bms-kpi-value text-dark">{(summary.discountsTotal || 0).toLocaleString("vi-VN")} ₫</div>
+                            <div className="bms-kpi-sub text-muted">Tổng khấu trừ theo gói / ưu đãi</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
                             <UserCheck  size="1em"/>
@@ -649,7 +647,7 @@ export default function RevenueReportPage() {
                                         <th>CHUYÊN KHOA</th>
                                         <th>KÊNH</th>
                                         <th className="text-end">DOANH THU GỘP</th>
-                                        <th className="text-end">BHYT CHI TRẢ</th>
+                                        <th className="text-end">MIỄN GIẢM / ƯU ĐÃI</th>
                                         <th className="text-end">THỰC THU (NET)</th>
                                         <th>PHƯƠNG THỨC</th>
                                         <th className="pe-4">THU NGÂN</th>
@@ -673,7 +671,7 @@ export default function RevenueReportPage() {
                                             </td>
                                             <td className="small text-muted">{row.serviceType}</td>
                                             <td className="text-end fw-semibold text-dark">{row.grossAmount.toLocaleString('vi-VN')} ₫</td>
-                                            <td className="text-end text-info">{row.bhytCoverageAmount > 0 ? `-${row.bhytCoverageAmount.toLocaleString('vi-VN')} ₫` : "0 ₫"}</td>
+                                            <td className="text-end text-info">{(row.discountAmount || 0) > 0 ? `-${(row.discountAmount || 0).toLocaleString('vi-VN')} ₫` : "0 ₫"}</td>
                                             <td className="text-end fw-bold text-success">{row.netAmount.toLocaleString('vi-VN')} ₫</td>
                                             <td>
                                                 <span className="bms-pill-badge bms-pill-stat">

@@ -466,16 +466,32 @@ export default function SampleRerunPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td className="ps-3 fw-semibold text-dark">
-                                                    {sampleDetails.currentResult?.split("=")[0]?.trim() || "—"}
-                                                </td>
-                                                <td className="text-end font-monospace">
-                                                    {sampleDetails.currentResult?.split("=")[1]?.trim() || "—"}
-                                                </td>
-                                                <td className="text-end font-monospace fw-bold">—</td>
-                                                <td className="text-end text-muted small pe-3">Chờ chạy lại</td>
-                                            </tr>
+                                            {(() => {
+                                                const matchedReq = (rerunRequests || []).find((r) =>
+                                                    r.specimenId === sampleDetails.specimenId || r.specimenId === specimenIdInput
+                                                );
+                                                const origStr = matchedReq?.originalValue || sampleDetails.currentResult?.split("=")[1]?.trim() || "—";
+                                                const rerunStr = matchedReq?.rerunValue || "";
+                                                const n1 = parseFloat(String(origStr).replace(",", "."));
+                                                const n2 = parseFloat(String(rerunStr).replace(",", "."));
+                                                const diffText = rerunStr
+                                                    ? (!Number.isNaN(n1) && !Number.isNaN(n2)
+                                                        ? `${(n2 - n1) >= 0 ? "+" : ""}${(n2 - n1).toFixed(2)}`
+                                                        : "Đã đối chiếu")
+                                                    : "Chờ chạy lại";
+                                                return (
+                                                    <tr>
+                                                        <td className="ps-3 fw-semibold text-dark">
+                                                            {matchedReq?.parameter || sampleDetails.currentResult?.split("=")[0]?.trim() || "—"}
+                                                        </td>
+                                                        <td className="text-end font-monospace">{origStr}</td>
+                                                        <td className="text-end font-monospace fw-bold text-primary">
+                                                            {rerunStr || "—"}
+                                                        </td>
+                                                        <td className="text-end text-muted small pe-3 font-monospace">{diffText}</td>
+                                                    </tr>
+                                                );
+                                            })()}
                                         </tbody>
                                     </table>
                                 </div>

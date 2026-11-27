@@ -19,7 +19,7 @@ import {
 
 export default function ConfigureIotThresholdsPage() {
     const navigate = useNavigate();
-    const isAdmin = hasRole(getStoredUser(), ROLES.ADMIN);
+    const canConfigure = hasRole(getStoredUser(), ROLES.ADMIN, ROLES.MANAGER);
 
     const [thresholds, setThresholds] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -62,11 +62,22 @@ export default function ConfigureIotThresholdsPage() {
     };
 
     const handleSaveAll = async () => {
-        setSaving(true);
         setSuccessMessage('');
         setErrorMessage('');
+        const list = Array.isArray(thresholds) ? thresholds : [];
+        const invalidRange = list.find(t => Number(t.lowAlert) >= Number(t.highAlert));
+        if (invalidRange) {
+            setErrorMessage(`Thiết bị ${invalidRange.deviceId}: Ngưỡng dưới (${invalidRange.lowAlert}) phải nhỏ hơn ngưỡng trên (${invalidRange.highAlert}).`);
+            return;
+        }
+        const invalidInterval = list.find(t => Number(t.intervalSeconds) < 5 || Number(t.intervalSeconds) > 3600);
+        if (invalidInterval) {
+            setErrorMessage(`Thiết bị ${invalidInterval.deviceId}: Chu kỳ đo phải nằm trong khoảng 5 – 3600 giây.`);
+            return;
+        }
+        setSaving(true);
         try {
-            const payload = (Array.isArray(thresholds) ? thresholds : []).map(t => ({
+            const payload = list.map(t => ({
                 deviceId: t.deviceId,
                 lowAlert: t.lowAlert,
                 highAlert: t.highAlert,
@@ -83,7 +94,7 @@ export default function ConfigureIotThresholdsPage() {
             }
         } catch (err) {
             console.error('Lỗi khi lưu ngưỡng IoT:', err);
-            setErrorMessage('Lỗi khi cập nhật cấu hình ngưỡng. Vui lòng kiểm tra lại dải giá trị giới hạn.');
+            setErrorMessage(err?.response?.data?.message || 'Lỗi khi cập nhật cấu hình ngưỡng. Vui lòng kiểm tra lại dải giá trị giới hạn.');
         } finally {
             setSaving(false);
         }
@@ -133,7 +144,7 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
 
                 <div className="bms-page-actions">
-                    {isAdmin ? (
+                    {canConfigure ? (
                         <>
                             <button
                                 type="button"
@@ -158,7 +169,7 @@ export default function ConfigureIotThresholdsPage() {
                     ) : (
                         <span className="badge d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style={{ backgroundColor: '#F1F5F9', color: '#475569', fontSize: '12px', fontWeight: 600 }}>
                             <LucideLock size={13} />
-                            Chỉ xem (Chỉ Quản trị viên hệ thống được thay đổi ngưỡng)
+                            Chỉ xem (Chỉ Quản lý Lab &amp; Quản trị viên được thay đổi ngưỡng)
                         </span>
                     )}
                 </div>
@@ -240,7 +251,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
-                                                    disabled={!isAdmin}
+                                                    disabled={!canConfigure}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.lowAlert}
@@ -251,7 +262,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="0.5"
-                                                    disabled={!isAdmin}
+                                                    disabled={!canConfigure}
                                                     className="form-control d-inline-block text-end"
                                                     style={{ width: '80px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.highAlert}
@@ -262,7 +273,7 @@ export default function ConfigureIotThresholdsPage() {
                                                 <input
                                                     type="number"
                                                     step="1"
-                                                    disabled={!isAdmin}
+                                                    disabled={!canConfigure}
                                                     className="form-control d-inline-block text-center"
                                                     style={{ width: '70px', height: '32px', fontSize: '13px', padding: '2px 8px' }}
                                                     value={device.intervalSeconds}

@@ -22,6 +22,7 @@ import useResponsive from '../../../../shared/hooks/useResponsive';
 import TablePagination, { usePagination } from '../../../../components/ui/TablePagination';
 import { useAutoRefresh, dispatchRefreshEvent, setRefreshFlag } from '../../../../shared/hooks/useAutoRefresh';
 import { queueApi } from '../../api/queueApi';
+import { PosThermalModal } from '../../../../shared/components/PosThermalSlip';
 
 const ReceptionistCheckIn = () => {
   // Safe Date & Currency Formatter Helpers to prevent React Render crashes
@@ -164,6 +165,7 @@ const ReceptionistCheckIn = () => {
   const [selectedSlot, setSelectedSlot] = useState('ALL');
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [issuedTicketData, setIssuedTicketData] = useState(null);
+  const [posAppointmentSlip, setPosAppointmentSlip] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -1556,245 +1558,26 @@ const ReceptionistCheckIn = () => {
     let labRoomName = currentLabAssignmentInfo?.labRoom?.roomName
       || currentLabAssignmentInfo?.labRoom?.RoomName
       || currentLabAssignmentInfo?.labRoom?.name
-      || 'Trung tâm Phân tích Tự động Tầng 2 (LAB-201)';
+      || detailAppointment.resolvedRoom
+      || detailAppointment.roomName
+      || 'Phòng Lấy Mẫu 101 • Tầng 1';
 
-    const printHTML = `
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phiếu chỉ định phòng - ${appointmentCode}</title>
-  <style>
-    @media print {
-      @page {
-        size: A4;
-        margin: 15mm;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      .no-print {
-        display: none;
-      }
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: white;
-      color: #333;
-      line-height: 1.6;
-      padding: 20px;
-    }
-    .print-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      border: 2px solid #1E60E6;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    .header {
-      text-align: center;
-      border-bottom: 3px solid #1E60E6;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .header h1 {
-      color: #1E60E6;
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .header .subtitle {
-      color: #666;
-      font-size: 16px;
-      font-weight: 500;
-    }
-    .info-section {
-      margin: 25px 0;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #1E60E6;
-    }
-    .info-section h3 {
-      color: #1E60E6;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .info-section h3::before {
-      content: '';
-      width: 4px;
-      height: 20px;
-      background: #1E60E6;
-      border-radius: 2px;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #555;
-      font-size: 14px;
-    }
-    .info-value {
-      color: #333;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .highlight-box {
-      margin: 25px 0;
-      padding: 25px;
-      background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(102, 16, 242, 0.1) 100%);
-      border-radius: 12px;
-      border: 2px solid #1E60E6;
-      text-align: center;
-    }
-    .highlight-box h4 {
-      color: #1E60E6;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-    .highlight-box .room-info {
-      font-size: 24px;
-      font-weight: 700;
-      color: #198754;
-      margin: 10px 0;
-    }
-    .highlight-box .lab-user-info {
-      font-size: 18px;
-      font-weight: 600;
-      color: #333;
-      margin: 10px 0;
-    }
-    .instructions {
-      margin: 25px 0;
-      padding: 20px;
-      background: #fff3cd;
-      border-radius: 8px;
-      border-left: 4px solid #ffc107;
-    }
-    .instructions h4 {
-      color: #856404;
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    .instructions ol {
-      margin-left: 20px;
-      color: #856404;
-      font-size: 14px;
-    }
-    .instructions li {
-      margin-bottom: 8px;
-      line-height: 1.5;
-    }
-    .footer {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 2px solid #e9ecef;
-      text-align: center;
-      color: #666;
-      font-size: 12px;
-    }
-    .footer strong {
-      color: #1E60E6;
-    }
-    .print-date {
-      text-align: right;
-      color: #999;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-  </style>
-</head>
-<body>
-  <div class="print-container">
-    <div class="print-date">
-      In ngày: ${new Date().toLocaleDateString('vi-VN')} ${new Date().toLocaleTimeString('vi-VN')}
-    </div>
-    <div class="header">
-      <h1>PHIẾU CHỈ ĐỊNH PHÒNG</h1>
-      <div class="subtitle">Hệ thống quản lý phòng xét nghiệm</div>
-    </div>
+    const doctorInfo = resolveDoctorInfo(detailAppointment);
+    const slotText = resolveTimeSlot(detailAppointment);
 
-    <div class="info-section">
-      <h3>Thông tin lịch hẹn</h3>
-      <div class="info-grid">
-        <div class="info-label">Mã lịch hẹn:</div>
-        <div class="info-value"><strong>${appointmentCode}</strong></div>
-        <div class="info-label">Ngày giờ:</div>
-        <div class="info-value">${appointmentDate} - ${appointmentTime}</div>
-        <div class="info-label">Gói dịch vụ:</div>
-        <div class="info-value">${packageInfo.name || 'N/A'}</div>
-      </div>
-    </div>
-
-    <div class="info-section">
-      <h3>Thông tin bệnh nhân</h3>
-      <div class="info-grid">
-        <div class="info-label">Họ và tên:</div>
-        <div class="info-value"><strong>${patientName}</strong></div>
-        <div class="info-label">Số điện thoại:</div>
-        <div class="info-value">${patientPhone}</div>
-        <div class="info-label">Email:</div>
-        <div class="info-value">${patientEmail}</div>
-      </div>
-    </div>
-
-    <div class="highlight-box">
-      <h4>📍 THÔNG TIN PHÒNG VÀ KỸ THUẬT VIÊN</h4>
-      <div class="room-info">
-        <i class="fas fa-door-open"></i> Phòng: ${labRoomName}
-      </div>
-      <div class="lab-user-info">
-        <i class="fas fa-user-md"></i> ${labUserName}
-      </div>
-    </div>
-
-    <div class="instructions">
-      <h4>📋 Hướng dẫn:</h4>
-      <ol>
-        <li>Vui lòng đến đúng phòng được chỉ định ở trên</li>
-        <li>Xuất trình mã lịch hẹn: <strong>${appointmentCode}</strong></li>
-        <li>Liên hệ với kỹ thuật viên được phân công để thực hiện lấy mẫu</li>
-        <li>Vui lòng có mặt đúng giờ hẹn: <strong>${appointmentTime}</strong></li>
-      </ol>
-    </div>
-
-    <div class="footer">
-      <p><strong>Lưu ý:</strong> Phiếu này chỉ có hiệu lực cho lịch hẹn ${appointmentCode}</p>
-      <p>Mọi thắc mắc vui lòng liên hệ: <strong>0123456789</strong></p>
-    </div>
-  </div>
-</body>
-</html>`;
-
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(printHTML);
-    printWindow.document.close();
-
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-    }, 500);
+    setPosAppointmentSlip({
+      appointmentCode,
+      appointmentDate,
+      appointmentTime: slotText || appointmentTime,
+      patientName,
+      patientCode: patient?.patientCode || detailAppointment.patientId || '',
+      patientPhone: patientPhone !== 'N/A' ? patientPhone : '',
+      packageName: packageInfo.name || 'Xét nghiệm theo lịch hẹn',
+      doctorName: doctorInfo?.name && doctorInfo.name !== 'Chưa phân công' ? doctorInfo.name : '',
+      roomName: labRoomName,
+      labUserName,
+      qrValue: generateQRCodeData(detailAppointment),
+    });
   };
 
   const getAppointmentCode = (appointment) => {
@@ -2601,9 +2384,6 @@ const ReceptionistCheckIn = () => {
                             <div className="text-primary small fw-semibold">
                               Chuyên khoa: {docInfo.specialty}
                             </div>
-                            <div className="text-muted small font-monospace" style={{ fontSize: '11px' }}>
-                              Số CCHN: {docInfo.license || 'CCHN-008912/HCM'}
-                            </div>
                           </div>
                           <Badge bg="success" className="px-3 py-2 shadow-sm">
                             Bác sĩ trực chính
@@ -2720,7 +2500,7 @@ const ReceptionistCheckIn = () => {
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
                       <TestTube2 size="1em" className="text-primary me-2" />
-                      Y Lệnh Chỉ Định Xét Nghiệm &amp; Dịch Vụ Đã Đặt
+                      Gói Dịch Vụ Đã Đặt
                     </span>
                     <Badge bg="primary-subtle" className="text-primary border border-primary-subtle">
                       Xét nghiệm máu
@@ -2827,90 +2607,129 @@ const ReceptionistCheckIn = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Cấp STT Tiếp Đón & Lấy Mẫu Máu chuẩn ISO 15189 */}
-      <Modal show={showTicketModal} onHide={() => setShowTicketModal(false)} size="md" centered>
-        <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-            <LucideTicket size="1em" className="text-primary me-2" />
-            Phiếu Tiếp Đón & Số Thứ Tự Lấy Mẫu
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ padding: '24px' }}>
-          {issuedTicketData && (
-            <div id="reception-stt-ticket" style={{ textAlign: 'center', background: '#ffffff', border: '1px dashed #94a3b8', borderRadius: '12px', padding: '20px' }}>
-              <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Hệ Thống Xét Nghiệm BMS MedLab
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '16px' }}>
-                BMS MedLab • Hotline: 1900 6868
-              </div>
+      {/* Unified POS K80 Appointment & Reception Slip Modal */}
+      {posAppointmentSlip && (
+        <PosThermalModal
+          show={Boolean(posAppointmentSlip)}
+          onClose={() => setPosAppointmentSlip(null)}
+          modalTitle="Phiếu Tiếp Đón & Lịch Hẹn"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`Mã lịch hẹn: ${posAppointmentSlip.appointmentCode}`}
+          printTitle={`Phieu_Tiep_Don_POS_${posAppointmentSlip.appointmentCode}`}
+          printButtonLabel="In Phiếu Tiếp Đón (K80)"
+          copyText={posAppointmentSlip.appointmentCode}
+          copyButtonLabel="Sao chép mã hẹn"
+          slipProps={{
+            title: 'PHIẾU XÁC NHẬN LỊCH HẸN',
+            subtitle: 'Phiếu tiếp đón & điều hướng phòng khám',
+            statusBadge: 'ĐÃ XÁC NHẬN',
+            highlight: {
+              label: 'MÃ LỊCH HẸN',
+              value: posAppointmentSlip.appointmentCode,
+              isCode: true,
+              sub: `${posAppointmentSlip.appointmentTime} • ${posAppointmentSlip.appointmentDate}`,
+            },
+            sections: [
+              {
+                title: 'Thông tin bệnh nhân',
+                rows: [
+                  { label: 'Bệnh nhân', value: posAppointmentSlip.patientName },
+                  { label: 'Mã BN', value: posAppointmentSlip.patientCode, mono: true },
+                  { label: 'SĐT liên hệ', value: posAppointmentSlip.patientPhone, mono: true },
+                ],
+              },
+              {
+                title: 'Phân công khám & lấy mẫu',
+                rows: [
+                  { label: 'Gói dịch vụ', value: posAppointmentSlip.packageName },
+                  { label: 'Bác sĩ phụ trách', value: posAppointmentSlip.doctorName },
+                  { label: 'Phòng tiếp nhận', value: posAppointmentSlip.roomName },
+                  { label: 'KTV phụ trách', value: posAppointmentSlip.labUserName },
+                ],
+              },
+            ],
+            notice: {
+              title: 'Hướng dẫn tiếp đón',
+              lines: [
+                'Vui lòng đến đúng phòng được chỉ định và có mặt đúng khung giờ hẹn.',
+                'Xuất trình phiếu này cùng CCCD/VNeID khi vào lấy mẫu.',
+              ],
+            },
+            qr: {
+              value: posAppointmentSlip.qrValue || posAppointmentSlip.appointmentCode,
+              codeText: posAppointmentSlip.appointmentCode,
+              caption: 'Quét mã QR tại quầy Lễ tân / Phòng lấy mẫu',
+              size: 108,
+            },
+            footerNote: `Phiếu có hiệu lực cho lịch hẹn ${posAppointmentSlip.appointmentCode}.`,
+          }}
+        />
+      )}
 
-              {/* Big Ticket Number */}
-              <div style={{ margin: '16px 0', padding: '16px', background: '#eff6ff', borderRadius: '10px', border: '2px solid #bfdbfe' }}>
-                <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: '600' }}>SỐ THỨ TỰ LẤY MẪU</div>
-                <div style={{ fontSize: '3.2rem', fontWeight: '800', color: '#1E60E6', lineHeight: '1.1', margin: '6px 0' }}>
-                  {issuedTicketData.ticketNumber}
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#047857', fontWeight: '600' }}>
-                  <DoorOpen size="1em" className="me-1" /> {issuedTicketData.roomName}
-                </div>
-              </div>
-
-              {/* Patient & Exam Details */}
-              <div style={{ textAlign: 'left', background: '#f8fafc', borderRadius: '8px', padding: '14px', fontSize: '0.9rem', lineHeight: '1.8', color: '#334155' }}>
-                <div><strong>Bệnh nhân:</strong> {issuedTicketData.patientName}</div>
-                <div><strong>Mã bệnh nhân:</strong> <code>{issuedTicketData.patientCode}</code></div>
-                <div><strong>Mã lịch hẹn:</strong> <code>{issuedTicketData.appointmentCode}</code></div>
-                <div><strong>Gói xét nghiệm:</strong> {issuedTicketData.packageName}</div>
-                <div><strong>Khung giờ hẹn:</strong> {issuedTicketData.slotTime}</div>
-                <div><strong>Thời gian check-in:</strong> {issuedTicketData.checkInTime}</div>
-                <div>
-                  <strong>Thanh toán:</strong>{' '}
-                  <span className="badge bg-success" style={{ fontSize: '0.8rem' }}>
-                    <CheckCircle2 size="1em" className="me-1" /> {issuedTicketData.paymentStatus}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                <LucideInfo size="1em" className="me-1" /> Bệnh nhân vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-          <Button variant="outline-secondary" onClick={() => setShowTicketModal(false)}>
-            Đóng
-          </Button>
-          <div className="d-flex gap-2">
-            <Button
-              variant="outline-primary"
-              onClick={() => {
-                const printContent = document.getElementById('reception-stt-ticket');
-                if (printContent) {
-                  const win = window.open('', '_blank');
-                  win.document.write('<html><head><title>Phiếu STT - ' + (issuedTicketData?.ticketNumber || '') + '</title><style>body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; } .ticket { width: 320px; text-align: center; border: 1px dashed #333; padding: 20px; border-radius: 8px; } .stt { font-size: 48px; font-weight: bold; color: #1E60E6; margin: 10px 0; } .info { text-align: left; font-size: 13px; line-height: 1.6; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }</style></head><body><div class="ticket">' + printContent.innerHTML + '</div></body></html>');
-                  win.document.close();
-                  win.focus();
-                  win.print();
-                }
-              }}
-            >
-              <Printer size="1em" className="me-1" /> In Phiếu STT
-            </Button>
-            <Button
-              variant="primary"
+      {/* Unified POS K80 Queue STT Ticket Modal */}
+      {issuedTicketData && (
+        <PosThermalModal
+          show={showTicketModal}
+          onClose={() => setShowTicketModal(false)}
+          modalTitle="Phiếu Số Thứ Tự Lấy Mẫu"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`STT: ${issuedTicketData.ticketNumber} • ${issuedTicketData.roomName || 'Phòng Lấy Mẫu 101'}`}
+          printTitle={`Phieu_STT_POS_${issuedTicketData.ticketNumber}`}
+          printButtonLabel="In Phiếu STT (K80)"
+          copyText={issuedTicketData.appointmentCode || issuedTicketData.ticketNumber}
+          copyButtonLabel="Sao chép mã"
+          extraActions={
+            <button
+              type="button"
+              className="bms-pos-btn bms-pos-btn-outline"
               onClick={() => {
                 setShowTicketModal(false);
                 window.location.href = '/reception/queue';
               }}
-              style={{ backgroundColor: '#1E60E6' }}
             >
-              <Monitor size="1em" className="me-1" /> Đến Bảng Gọi Số
-            </Button>
-          </div>
-        </Modal.Footer>
-      </Modal>
+              <Monitor size={14} />
+              <span>Bảng Gọi Số</span>
+            </button>
+          }
+          slipProps={{
+            title: 'PHIẾU SỐ THỨ TỰ LẤY MẪU',
+            subtitle: 'Phiếu tiếp đón & điều phối hàng đợi',
+            statusBadge: issuedTicketData.paymentStatus || 'ĐÃ TIẾP ĐÓN',
+            highlight: {
+              label: 'SỐ THỨ TỰ',
+              value: issuedTicketData.ticketNumber,
+              sub: issuedTicketData.roomName || 'Phòng Lấy Mẫu 101 • Tầng 1',
+            },
+            sections: [
+              {
+                title: 'Thông tin tiếp đón',
+                rows: [
+                  { label: 'Bệnh nhân', value: issuedTicketData.patientName },
+                  { label: 'Mã BN', value: issuedTicketData.patientCode, mono: true },
+                  { label: 'Mã lịch hẹn', value: issuedTicketData.appointmentCode, mono: true },
+                  { label: 'Gói dịch vụ', value: issuedTicketData.packageName },
+                  { label: 'Khung giờ hẹn', value: issuedTicketData.slotTime },
+                  { label: 'Giờ tiếp đón', value: issuedTicketData.checkInTime },
+                ],
+              },
+            ],
+            notice: {
+              title: 'Hướng dẫn chờ gọi số',
+              lines: [
+                'Vui lòng ngồi tại sảnh chờ tầng 1, theo dõi màn hình gọi số hoặc nghe loa thông báo.',
+                'Chuẩn bị CCCD/VNeID khi vào bàn lấy mẫu.',
+              ],
+            },
+            qr: {
+              value: issuedTicketData.appointmentCode || issuedTicketData.ticketNumber || 'BMS-STT',
+              codeText: `${issuedTicketData.ticketNumber} • ${issuedTicketData.appointmentCode || ''}`,
+              caption: 'Mã QR đối chiếu tại bàn lấy mẫu',
+              size: 104,
+            },
+            footerNote: 'Số thứ tự chỉ có giá trị trong ngày tiếp đón.',
+          }}
+        />
+      )}
     </>
   );
 };

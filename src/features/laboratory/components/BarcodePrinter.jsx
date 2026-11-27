@@ -14,9 +14,10 @@
  * @module features/laboratory/components/BarcodePrinter
  */
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Modal, Button, Card, Row, Col, Badge, Table, Alert, Form } from "react-bootstrap";
 import { Barcode as LucideBarcode, Printer, CheckCircle2, TestTube2, User, LayoutGrid, Download, Info } from 'lucide-react';
+import Code128Barcode from "../../../shared/components/Code128Barcode";
 
 // Định nghĩa chuẩn 3 loại ống lấy máu theo ISO 15189
 export const SPECIMEN_TUBES_CONFIG = [
@@ -70,54 +71,12 @@ export function generateTubeBarcode(patientId, orderCode, tubeIndex, tubeTypeCod
 }
 
 /**
- * Component vẽ Barcode SVG chuẩn Code 128 giả lập sắc nét, không bị lỗi font khi in ấn
+ * Component vẽ Barcode SVG chuẩn Code 128 thật bằng thư viện jsbarcode (quét được bằng máy đọc mã vạch)
  */
-export function SvgBarcode({ value, height = 45, width = "100%" }) {
-  // Tạo pattern vạch barcode dựa trên hash của chuỗi để mỗi barcode có vân sọc độc nhất
-  const bars = useMemo(() => {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-      hash = (hash << 5) - hash + value.charCodeAt(i);
-      hash |= 0;
-    }
-    const pattern = [];
-    let state = Math.abs(hash);
-    for (let i = 0; i < 42; i++) {
-      pattern.push({
-        width: (state % 3) + 1.2,
-        isBlack: (state % 2) === 1
-      });
-      state = (state * 1664525 + 1013904223) | 0;
-    }
-    return pattern;
-  }, [value]);
-
+export function SvgBarcode({ value, height = 42, width = "100%" }) {
   return (
     <div className="d-flex flex-column align-items-center" style={{ width }}>
-      <svg
-        height={height}
-        viewBox="0 0 200 45"
-        style={{ width: "100%", maxWidth: "220px", display: "block" }}
-      >
-        <rect width="200" height="45" fill="#ffffff" />
-        {/* Guard bars */}
-        <rect x="5" y="0" width="2" height="45" fill="#000000" />
-        <rect x="9" y="0" width="2" height="45" fill="#000000" />
-        {/* Dynamic data bars */}
-        {bars.map((bar, idx) => {
-          const x = 15 + idx * 4.1;
-          if (x > 185) return null;
-          return bar.isBlack ? (
-            <rect key={idx} x={x} y="0" width={bar.width} height="40" fill="#000000" />
-          ) : null;
-        })}
-        {/* End guard bars */}
-        <rect x="187" y="0" width="2" height="45" fill="#000000" />
-        <rect x="191" y="0" width="2" height="45" fill="#000000" />
-      </svg>
-      <div className="font-monospace fw-bold small text-dark mt-0.5 tracking-wider" style={{ letterSpacing: "1.5px", fontSize: "11px" }}>
-        *{value}*
-      </div>
+      <Code128Barcode value={value} height={height} width={1.3} showText />
     </div>
   );
 }

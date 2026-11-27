@@ -19,6 +19,7 @@ import {
 import { FlaskConical, AlertTriangle, CheckCircle2, Plus, Trash2, RefreshCw, Search, TestTube2, Wrench, Check, Info, X as LucideX } from 'lucide-react';
 import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { useAuth } from '../../../shared/contexts/AuthContext';
+import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 import { qcFlagService } from '../../../services/qcFlagService';
 import { fetchQcFlags as fetchIqcWestgardFlags } from '../api/qcApi';
 
@@ -26,7 +27,9 @@ import { fetchQcFlags as fetchIqcWestgardFlags } from '../api/qcApi';
 function mapIqcRunToFlag(run) {
   const rules = Array.isArray(run.violatedRules) ? run.violatedRules : [];
   const primaryRule = rules.find((r) => r !== '1_2s') || rules[0] || '1_3s';
-  const isReject = String(run.status || '').startsWith('REJECT') || !!run.isLocked;
+  const isLocked = Boolean(run.isLocked);
+  const isReject = String(run.status || '').startsWith('REJECT') || isLocked;
+  const isWarning = String(run.status || '').includes('WARNING');
   return {
     flagId: run.runId || run.id || `IQC-${run.lotId}-${run.runNumber}`,
     flagCode: run.runId || `IQC-${run.runNumber}`,
@@ -35,7 +38,7 @@ function mapIqcRunToFlag(run) {
     parameter: run.analyteName || run.lotId || 'IQC',
     ruleType: `Westgard_${primaryRule}`,
     severity: isReject ? 'CRITICAL' : 'HIGH',
-    status: isReject ? 'ACTIVE' : (String(run.status || '').includes('WARNING') ? 'ACTIVE' : 'RESOLVED'),
+    status: isLocked ? 'ACTIVE' : (isWarning && !run.resolvedAt ? 'ACTIVE' : 'RESOLVED'),
     observedValue: Number(run.measuredValue ?? 0),
     targetValue: Number(run.targetMean ?? 0),
     lowerLimit: Number(run.lowerLimit ?? 0),
@@ -44,7 +47,10 @@ function mapIqcRunToFlag(run) {
     sampleBarcode: run.lotId || '',
     triggeredAt: run.evaluatedAt,
     triggeredBy: run.operatorName || 'IQC Westgard Engine',
-    resolutionNotes: run.message || null,
+    resolutionNotes: run.correctiveActionNotes || run.message || null,
+    resolvedBy: run.resolvedBy || null,
+    resolvedAt: run.resolvedAt || null,
+    isLocked,
     source: 'iqc-run',
   };
 }
@@ -52,6 +58,9 @@ function mapIqcRunToFlag(run) {
 const QcFlagsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const activeUser = user || getStoredUser();
+  const canWriteManualFlags = hasRole(activeUser, ROLES.LAB);
+  const isManager = hasRole(activeUser, ROLES.MANAGER);
 
   // Live state bound directly to MongoDB collection 'QcFlags' via backend service.
   const [flags, setFlags] = useState([]);
@@ -316,22 +325,24 @@ const QcFlagsPage = () => {
               <Button
                 variant="outline-primary"
                 size="sm"
-                onClick={() => navigate('/laboratory/qc')}
+                onClick={() => navigate(isManager ? '/qc/management' : '/laboratory/qc')}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2"
               >
                 <FlaskConical  size="1em"/>
                 <span>Mở nội kiểm IQC</span>
               </Button>
-              <Button
-                size="sm"
-                onClick={() => setShowCreateModal(true)}
-                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
-                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                title="Chỉ dùng khi ghi tay sự cố — bình thường cờ sinh từ trang IQC"
-              >
-                <Plus  size="1em"/>
-                <span>Ghi tay sự cố</span>
-              </Button>
+              {canWriteManualFlags && (
+                <Button
+                  size="sm"
+                  onClick={() => setShowCreateModal(true)}
+                  className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm"
+                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                  title="Chỉ dùng khi KTV Lab ghi tay sự cố — bình thường cờ sinh từ trang IQC"
+                >
+                  <Plus  size="1em"/>
+                  <span>Ghi tay sự cố</span>
+                </Button>
+              )}
               <Button
                 variant="light"
                 size="sm"
@@ -469,9 +480,11 @@ const QcFlagsPage = () => {
 
         <Form.Select value={analyzerFilter} onChange={(e) => setAnalyzerFilter(e.target.value)} style={{ width: 'auto' }}>
           <option value="ALL">Tất cả máy phân tích</option>
-          <option value="ANL-SYS-01">Sysmex XN-1000</option>
-          <option value="ANL-COB-02">Cobas 6000</option>
-          <option value="ANL-MIN-03">Mindray BC-6800</option>
+          {Array.from(new Map((Array.isArray(flags) ? flags : []).map((f) => [f.analyzerId, f.analyzerName || f.analyzerId])).entries())
+            .filter(([id]) => Boolean(id))
+            .map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
         </Form.Select>
 
         {hasActiveFilters && (
@@ -578,25 +591,43 @@ const QcFlagsPage = () => {
 
                     {/* Action Buttons */}
                     <div className="d-flex align-items-center gap-2">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="rounded-pill px-3 py-2 d-flex align-items-center gap-1"
-                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
-                        onClick={() => openEditModal(flag)}
-                      >
-                        <Wrench  size="1em"/>
-                        <span>Xử lý / Cập nhật</span>
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        className="rounded-circle p-2"
-                        onClick={() => openDeleteModal(flag)}
-                        title="Xóa cờ QC"
-                      >
-                        <Trash2  size="1em"/>
-                      </Button>
+                      {flag.source === 'iqc-run' ? (
+                        <Button
+                          variant={flag.status === 'ACTIVE' && isManager ? 'danger' : 'outline-primary'}
+                          size="sm"
+                          className="rounded-pill px-3 py-2 d-flex align-items-center gap-1 fw-semibold text-nowrap"
+                          onClick={() => navigate(isManager ? '/qc/management' : '/laboratory/qc')}
+                        >
+                          <FlaskConical size="1em" />
+                          <span>{flag.status === 'ACTIVE' && isManager ? 'Mở IQC ký mở khóa →' : 'Xem tại trang IQC'}</span>
+                        </Button>
+                      ) : canWriteManualFlags ? (
+                        <>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="rounded-pill px-3 py-2 d-flex align-items-center gap-1"
+                            style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
+                            onClick={() => openEditModal(flag)}
+                          >
+                            <Wrench  size="1em"/>
+                            <span>Xử lý / Cập nhật</span>
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="rounded-circle p-2"
+                            onClick={() => openDeleteModal(flag)}
+                            title="Xóa cờ QC"
+                          >
+                            <Trash2  size="1em"/>
+                          </Button>
+                        </>
+                      ) : (
+                        <Badge bg="light" text="secondary" className="border rounded-pill px-3 py-2 fw-medium">
+                          Cờ ghi tay (KTV Lab xử lý)
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </Card.Body>

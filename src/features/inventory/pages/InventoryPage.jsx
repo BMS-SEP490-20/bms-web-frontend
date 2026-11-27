@@ -16,7 +16,34 @@ const quantity = (value) => new Intl.NumberFormat('vi-VN').format(value);
 const date = (value) => value ? new Date(value).toLocaleDateString('vi-VN', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Chưa có';
 const moment = (value) => value ? new Date(value).toLocaleString('vi-VN') : '—';
 const money = (value) => value == null ? '—' : `${quantity(value)} đ`;
-const movementLabels = { STOCK_IN: 'Nhập kho', STOCK_OUT: 'Xuất kho', ADJUSTMENT: 'Điều chỉnh', CONSUME_TEST_RUN: 'Tiêu hao xét nghiệm' };
+const movementLabels = {
+  STOCK_IN: 'Nhập kho',
+  STOCK_OUT: 'Xuất kho',
+  ADJUSTMENT: 'Điều chỉnh',
+  CONSUME_TEST_RUN: 'Tiêu hao xét nghiệm',
+  CONSUME_LAB_WORKFLOW: 'Xuất tiêu hao Lab',
+  CREATE: 'Tạo lô mới',
+  UPDATE: 'Cập nhật lô',
+  DELETE: 'Xóa lô'
+};
+
+const formatActor = (name) => {
+  if (!name) return 'Hệ thống';
+  return /^[0-9a-f]{24}$/i.test(String(name).trim()) ? 'KTV Phòng Lab' : name;
+};
+
+const formatCompactDateTime = (value) => {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
 
 function ExpiryBadge({ item }) {
   return <Badge pill bg={item.expiryStatus === 'EXPIRED' ? 'danger' : item.expiryStatus === 'EXPIRING_SOON' ? 'warning' : item.expiryStatus === 'AVAILABLE' ? 'success' : 'secondary'}
@@ -42,6 +69,7 @@ export default function InventoryPage() {
   const [detailError, setDetailError] = useState('');
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailRefresh, setDetailRefresh] = useState(0);
+  const [detailTab, setDetailTab] = useState('changes'); // 'changes' | 'transactions'
   const invalidDates = filters.expiryFrom && filters.expiryTo && filters.expiryFrom > filters.expiryTo;
 
   useEffect(() => {
@@ -200,22 +228,205 @@ export default function InventoryPage() {
       </> : !error && !invalidDates && <div className="text-center text-muted py-4"><Package size={36} className="mb-3" style={{ color: '#1E60E6' }} /><h5>Không có lô hóa chất phù hợp</h5><p className="small">Kho chưa có dữ liệu hoặc không có kết quả theo bộ lọc.</p><Button variant="outline-primary" className="rounded-pill px-3" onClick={clear}>Xóa bộ lọc</Button></div>}
       </div>
     </section>
-    <Modal show={Boolean(selectedId)} onHide={() => setSelectedId(null)} size="xl" scrollable>
-      <Modal.Header closeButton style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}><Modal.Title className="h5 text-dark">Chi tiết lô hóa chất</Modal.Title></Modal.Header><Modal.Body>
-        {detailLoading ? skeleton : detailError ? <Alert variant="danger">{detailError} <Button size="sm" variant="outline-danger" onClick={() => setDetailRefresh((v) => v + 1)}>Thử lại</Button></Alert> : item && <>
-          <h5 className="text-primary">{item.name}</h5><Row className="g-3 mb-4">{[['Mã hóa chất', item.code], ['Số lô', item.lotNumber], ['Hãng sản xuất', item.manufacturer], ['Tồn kho', `${quantity(item.quantity)} ${item.unit}`], ['Mức tối thiểu', `${quantity(item.minimumStock)} ${item.unit}`], ['Hạn dùng', date(item.expiryDate)]].map(([label, value]) => <Col md={4} key={label}><div className="small text-muted">{label}</div><div className="fw-semibold text-break">{value || '—'}</div></Col>)}</Row>
-          <ExpiryBadge item={item} /> {item.isLowStock && <Badge bg="warning" text="dark">Tồn thấp</Badge>}
-          {item.expiryStatus === 'EXPIRED' && <Alert variant="danger" className="mt-3">Lô đã hết hạn sử dụng. Không sử dụng cho xét nghiệm.</Alert>}
-          <h6 className="fw-bold mt-4">Nhật ký quản lý lô</h6>
-          {detail.changes?.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Thao tác / Người thực hiện</th><th className="text-end">Tồn trước / sau</th><th>Lý do</th></tr></thead><tbody>{detail.changes.map((entry, i) => <tr key={i}><td>{moment(entry.at)}</td><td>{movementLabels[entry.action] || entry.action}<div>{entry.actorName}</div></td><td className="text-end">{entry.beforeQuantity == null ? '—' : quantity(entry.beforeQuantity)} <ArrowRight size={10} className="mx-1 text-muted" /> {entry.afterQuantity == null ? '—' : quantity(entry.afterQuantity)}</td><td style={{ whiteSpace: 'pre-wrap' }}>{entry.reason}</td></tr>)}</tbody></Table> : <p className="small text-muted">Chưa có nhật ký quản lý cho dữ liệu cũ.</p>}
-          <h6 className="fw-bold mt-4">Lịch sử nhập / xuất theo mã hóa chất</h6><p className="small text-muted">Giao dịch hiện có không lưu số lô; đây là lịch sử của mã {item.code}, không phải riêng lô này. Hiển thị {detail.transactions.length}/{detail.transactionCount} giao dịch mới nhất.</p>
-          {detail.transactions.length ? <Table responsive size="sm"><thead><tr><th>Thời gian</th><th>Loại</th><th className="text-end">Số lượng</th><th className="text-end">Đơn giá</th><th>Đơn vị thực hiện</th></tr></thead><tbody>{detail.transactions.map((t, i) => <tr key={t.id || i}><td>{moment(t.timestamp)}</td><td>{movementLabels[t.type] || t.type}</td><td className="text-end">{quantity(t.quantity)} {item.unit}</td><td className="text-end">{money(t.unitPrice)}</td><td>{t.department || '—'}</td></tr>)}</tbody></Table> : <p className="text-muted">Chưa có lịch sử giao dịch.</p>}
-        </>}
-      </Modal.Body><Modal.Footer>{canManage && item && !detailLoading && <>
-        <span className="small text-muted me-auto">Chỉ xóa lô có tồn kho bằng 0.</span>
-        <Button variant="outline-danger" className="rounded-pill px-3" disabled={item.quantity !== 0} onClick={() => { setDeleteItem(item); setSelectedId(null); }}>Xóa lô</Button>
-        <Button className="rounded-pill px-3" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setEditItem(item); setSelectedId(null); }}>Chỉnh sửa lô</Button>
-      </>}<Button variant="secondary" className="rounded-pill px-3" onClick={() => setSelectedId(null)}>Đóng</Button></Modal.Footer>
+    <Modal show={Boolean(selectedId)} onHide={() => { setSelectedId(null); setDetailTab('changes'); }} size="lg" centered scrollable>
+      <Modal.Header closeButton style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', padding: '14px 20px' }}>
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <Modal.Title className="h6 fw-bold text-dark mb-0">Chi tiết lô vật tư &amp; hóa chất</Modal.Title>
+          {item && <ExpiryBadge item={item} />}
+          {item?.isLowStock && <Badge pill bg="warning" text="dark" className="px-2 py-1">Tồn thấp</Badge>}
+        </div>
+      </Modal.Header>
+      <Modal.Body style={{ padding: '18px 20px' }}>
+        {detailLoading ? skeleton : detailError ? (
+          <Alert variant="danger" className="rounded-3 small mb-0">
+            {detailError}{' '}
+            <Button size="sm" variant="outline-danger" className="rounded-pill ms-2" onClick={() => setDetailRefresh((v) => v + 1)}>
+              Thử lại
+            </Button>
+          </Alert>
+        ) : item && (
+          <div className="d-flex flex-column gap-3">
+            {/* Compact Flat Header Card */}
+            <div className="p-3 rounded-4 border" style={{ background: '#F8FAFC', borderColor: '#E2E8F0' }}>
+              <div className="d-flex align-items-start justify-content-between gap-2 flex-wrap mb-3">
+                <div>
+                  <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '1.05rem' }}>{item.name}</h5>
+                  <div className="d-flex align-items-center gap-2 flex-wrap small">
+                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-2 py-1 rounded-pill">
+                      {item.code}
+                    </span>
+                    <span className="badge bg-white text-dark border font-monospace px-2 py-1 rounded-pill">
+                      Lô: {item.lotNumber || '—'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <Row className="g-2">
+                {[
+                  ['Tồn kho hiện tại', `${quantity(item.quantity)} ${item.unit}`, item.isLowStock ? '#B45309' : '#1E60E6'],
+                  ['Mức tối thiểu', `${quantity(item.minimumStock)} ${item.unit}`, '#0F172A'],
+                  ['Hạn sử dụng', date(item.expiryDate), item.expiryStatus === 'EXPIRED' ? '#DC2626' : '#0F172A'],
+                  ['Hãng sản xuất', item.manufacturer || '—', '#334155']
+                ].map(([label, value, color]) => (
+                  <Col xs={6} md={3} key={label}>
+                    <div className="p-2.5 rounded-3 bg-white border h-100" style={{ borderColor: '#E2E8F0' }}>
+                      <div className="text-muted" style={{ fontSize: '0.73rem', fontWeight: 600 }}>{label}</div>
+                      <div className="fw-bold mt-0.5 text-truncate" style={{ color, fontSize: '0.92rem' }} title={String(value)}>
+                        {value}
+                      </div>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+
+            {item.expiryStatus === 'EXPIRED' && (
+              <Alert variant="danger" className="py-2 px-3 mb-0 rounded-3 small fw-medium">
+                Lô đã hết hạn sử dụng. Không sử dụng cho xét nghiệm.
+              </Alert>
+            )}
+
+            {/* Clean Segmented Tabs for History */}
+            <div>
+              <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <div className="d-inline-flex p-1 rounded-pill" style={{ background: '#F1F5F9', gap: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setDetailTab('changes')}
+                    className="btn btn-sm rounded-pill px-3 fw-semibold"
+                    style={{
+                      fontSize: '0.78rem',
+                      border: 'none',
+                      background: detailTab === 'changes' ? '#FFFFFF' : 'transparent',
+                      color: detailTab === 'changes' ? '#1E60E6' : '#475569'
+                    }}
+                  >
+                    Nhật ký biến động lô ({detail.changes?.length || 0})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDetailTab('transactions')}
+                    className="btn btn-sm rounded-pill px-3 fw-semibold"
+                    style={{
+                      fontSize: '0.78rem',
+                      border: 'none',
+                      background: detailTab === 'transactions' ? '#FFFFFF' : 'transparent',
+                      color: detailTab === 'transactions' ? '#1E60E6' : '#475569'
+                    }}
+                  >
+                    Lịch sử xuất / nhập mã {item.code} ({detail.transactions?.length || 0})
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-4 border overflow-hidden bg-white" style={{ borderColor: '#E2E8F0' }}>
+                {detailTab === 'changes' ? (
+                  detail.changes?.length ? (
+                    <Table hover size="sm" className="mb-0 align-middle" style={{ tableLayout: 'fixed', width: '100%' }}>
+                      <thead style={{ background: '#F8FAFC' }}>
+                        <tr className="small text-muted text-uppercase" style={{ fontSize: '0.72rem' }}>
+                          <th className="ps-3 py-2" style={{ width: '128px' }}>Thời gian</th>
+                          <th className="py-2" style={{ width: '165px' }}>Thao tác</th>
+                          <th className="py-2 text-center" style={{ width: '100px' }}>Tồn kho</th>
+                          <th className="pe-3 py-2">Chi tiết / Lý do</th>
+                        </tr>
+                      </thead>
+                      <tbody className="small">
+                        {detail.changes.map((entry, i) => {
+                          const decreased = entry.beforeQuantity != null && entry.afterQuantity != null && entry.afterQuantity < entry.beforeQuantity;
+                          return (
+                            <tr key={i}>
+                              <td className="ps-3 py-2 text-muted text-nowrap" style={{ fontSize: '0.76rem' }}>
+                                {formatCompactDateTime(entry.at)}
+                              </td>
+                              <td className="py-2">
+                                <div className="fw-semibold text-dark" style={{ fontSize: '0.8rem' }}>
+                                  {movementLabels[entry.action] || entry.action}
+                                </div>
+                                <div className="text-muted text-truncate" style={{ fontSize: '0.74rem' }} title={formatActor(entry.actorName)}>
+                                  {formatActor(entry.actorName)}
+                                </div>
+                              </td>
+                              <td className="py-2 text-center text-nowrap font-monospace fw-semibold">
+                                <span className="text-muted">{entry.beforeQuantity == null ? '—' : quantity(entry.beforeQuantity)}</span>
+                                <ArrowRight size={11} className="mx-1 text-muted" />
+                                <span className={decreased ? 'text-danger' : 'text-success'}>
+                                  {entry.afterQuantity == null ? '—' : quantity(entry.afterQuantity)}
+                                </span>
+                              </td>
+                              <td className="pe-3 py-2 text-secondary" style={{ wordBreak: 'break-word', lineHeight: 1.4 }}>
+                                {entry.reason || '—'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <div className="text-center py-4 text-muted small">Chưa có nhật ký biến động cho lô này.</div>
+                  )
+                ) : (
+                  detail.transactions?.length ? (
+                    <Table hover size="sm" className="mb-0 align-middle" style={{ tableLayout: 'fixed', width: '100%' }}>
+                      <thead style={{ background: '#F8FAFC' }}>
+                        <tr className="small text-muted text-uppercase" style={{ fontSize: '0.72rem' }}>
+                          <th className="ps-3 py-2" style={{ width: '132px' }}>Thời gian</th>
+                          <th className="py-2" style={{ width: '105px' }}>Loại</th>
+                          <th className="py-2 text-end" style={{ width: '90px' }}>Số lượng</th>
+                          <th className="pe-3 py-2">Đơn vị / Ghi chú thực hiện</th>
+                        </tr>
+                      </thead>
+                      <tbody className="small">
+                        {detail.transactions.map((t, i) => (
+                          <tr key={t.id || i}>
+                            <td className="ps-3 py-2 text-muted text-nowrap" style={{ fontSize: '0.76rem' }}>
+                              {formatCompactDateTime(t.timestamp)}
+                            </td>
+                            <td className="py-2">
+                              <Badge
+                                bg={t.type === 'STOCK_IN' ? 'success-subtle' : 'primary-subtle'}
+                                text={t.type === 'STOCK_IN' ? 'success' : 'primary'}
+                                className="rounded-pill px-2 py-0.5 fw-semibold"
+                              >
+                                {movementLabels[t.type] || t.type}
+                              </Badge>
+                            </td>
+                            <td className="py-2 text-end text-nowrap fw-semibold font-monospace">
+                              {quantity(t.quantity)} {item.unit}
+                            </td>
+                            <td className="pe-3 py-2 text-secondary" style={{ wordBreak: 'break-word', lineHeight: 1.4 }}>
+                              {t.department || '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <div className="text-center py-4 text-muted small">Chưa có lịch sử xuất / nhập kho.</div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal.Body>
+      <Modal.Footer style={{ background: '#F8FAFC', borderTop: '1px solid #E2E8F0', padding: '12px 20px' }}>
+        {canManage && item && !detailLoading && (
+          <>
+            <span className="small text-muted me-auto">Chỉ xóa được lô khi tồn kho bằng 0.</span>
+            <Button variant="outline-danger" size="sm" className="rounded-pill px-3 fw-semibold" disabled={item.quantity !== 0} onClick={() => { setDeleteItem(item); setSelectedId(null); }}>
+              Xóa lô
+            </Button>
+            <Button size="sm" className="rounded-pill px-3 fw-semibold text-white" style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }} onClick={() => { setEditItem(item); setSelectedId(null); }}>
+              Chỉnh sửa lô
+            </Button>
+          </>
+        )}
+        <Button variant="outline-secondary" size="sm" className="rounded-pill px-3 fw-semibold" onClick={() => { setSelectedId(null); setDetailTab('changes'); }}>
+          Đóng
+        </Button>
+      </Modal.Footer>
     </Modal>
     <InventoryFormModal show={showCreate || Boolean(editItem)} item={editItem} onHide={() => { setShowCreate(false); setEditItem(null); }} onSaved={(message) => {
       setShowCreate(false); setEditItem(null); setDetailRefresh((value) => value + 1); setSuccess(message); setFilters((value) => ({ ...value, page: 1 })); setRefresh((value) => value + 1);

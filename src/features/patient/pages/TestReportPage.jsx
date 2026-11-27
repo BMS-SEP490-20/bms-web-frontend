@@ -10,6 +10,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Download, Share2, ArrowLeft, CheckCircle2, AlertCircle, Printer, ShieldCheck, Stethoscope } from 'lucide-react';
 import { fetchReportByOrder } from "../api/testReportApi";
+import { exportResultPdf } from "../api/patientResultApi";
 import { ROLES, hasRole, getStoredUser } from "../../../constants/roles";
 
 export default function TestReportPage() {
@@ -52,7 +53,24 @@ export default function TestReportPage() {
         setTimeout(() => setCopied(false), 3000);
     };
 
-    const handleDownloadPdf = () => {
+    const handleDownloadPdf = async () => {
+        try {
+            const payload = await exportResultPdf(orderId);
+            const htmlDoc = payload?.printableHtml || payload?.PrintableHtml;
+            if (htmlDoc) {
+                const w = window.open("", "_blank");
+                if (w) {
+                    w.document.open();
+                    w.document.write(htmlDoc);
+                    w.document.close();
+                    w.focus();
+                    setTimeout(() => w.print(), 450);
+                    return;
+                }
+            }
+        } catch {
+            // fallback below
+        }
         window.print();
     };
 
@@ -182,7 +200,7 @@ export default function TestReportPage() {
                         >
                             <div><span className="text-muted fw-semibold">Bệnh nhân:</span> <strong className="text-dark">{report.patientName}</strong></div>
                             <div><span className="text-muted fw-semibold">Mã bệnh nhân:</span> <span className="font-monospace text-dark">{report.patientId}</span></div>
-                            <div><span className="text-muted fw-semibold">Ngày sinh / Tuổi / Giới tính:</span> <span className="text-dark">{report.dobAgeSex}</span></div>
+                            <div><span className="text-muted fw-semibold">Ngày sinh / Tuổi / Giới tính:</span> <span className="text-dark">{String(report.dobAgeSex || '—').replace(/\bMale\b/gi, 'Nam').replace(/\bFemale\b/gi, 'Nữ')}</span></div>
                             <div><span className="text-muted fw-semibold">Mã chỉ định:</span> <span className="font-monospace text-dark">{report.orderId}</span></div>
                             <div><span className="text-muted fw-semibold">Gói xét nghiệm:</span> <span className="text-dark">{report.packageName}</span></div>
                             <div><span className="text-muted fw-semibold">Thời gian lấy mẫu:</span> <span className="text-dark">{report.collectionTime}</span></div>

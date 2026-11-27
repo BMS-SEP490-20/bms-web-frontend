@@ -150,11 +150,11 @@ export default function PushNotificationCenterPage() {
             if (activeTab === "FAILED") statusParam = "FAILED";
 
             const result = await getNotificationLogs({
-                search: searchTerm,
-                channel: channelParam,
-                priority: priorityParam,
-                status: statusParam,
-                pageNumber: currentPage,
+                search: searchTerm || undefined,
+                channel: channelParam !== "ALL" ? channelParam : undefined,
+                priority: priorityParam !== "ALL" ? priorityParam : undefined,
+                status: statusParam !== "ALL" ? statusParam : undefined,
+                page: currentPage,
                 pageSize
             });
 
@@ -215,9 +215,10 @@ export default function PushNotificationCenterPage() {
                 setAvailableUsers(list);
                 if (list.length > 0) {
                     const firstId = list[0].id || list[0]._id || "";
+                    const ownId = user?.id || user?._id || user?.sub || "";
                     setFormUserId(prev => prev || firstId);
                     setFormRecipientName(prev => prev || (list[0].fullName || list[0].username || ""));
-                    setDrawerUserId(prev => prev || firstId);
+                    setDrawerUserId(prev => prev || ownId);
                 }
             })
             .catch(() => setAvailableUsers([]));
@@ -252,12 +253,14 @@ export default function PushNotificationCenterPage() {
         try {
             const isCritical = formPriority === "Critical_Panic" || formCategory === "CRITICAL_PANIC";
             const result = await dispatchNotification({
+                recipientUserId: formUserId.trim(),
                 userId: formUserId.trim(),
                 recipientName: formRecipientName.trim(),
                 channel: formChannel,
                 priority: formPriority,
                 category: formCategory,
                 title: formTitle.trim(),
+                message: formBody.trim(),
                 body: formBody.trim(),
                 actionUrl: formActionUrl.trim(),
                 devicePlatform: formPlatform
@@ -685,7 +688,6 @@ export default function PushNotificationCenterPage() {
                                     >
                                         <option value="InApp">In-App</option>
                                         <option value="Push">Push (FCM)</option>
-                                        <option value="SMS">SMS</option>
                                         <option value="Email">Email</option>
                                     </select>
                                 </div>
@@ -839,7 +841,6 @@ export default function PushNotificationCenterPage() {
                             <option value="ALL">Mọi kênh</option>
                             <option value="Push">Push (FCM)</option>
                             <option value="InApp">In-App</option>
-                            <option value="SMS">SMS</option>
                             <option value="Email">Email</option>
                         </select>
 
@@ -926,20 +927,23 @@ export default function PushNotificationCenterPage() {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            logs.map(log => {
+                                            logs.map((log, idx) => {
                                                 const isCritical = log.priority === "Critical_Panic" || log.category === "CRITICAL_PANIC";
+                                                const sentTime = log.dispatchedAt || log.sentAt || log.createdAt;
+                                                const recipientId = log.recipientUserId || log.userId || "—";
+                                                const bodyText = log.message || log.body || "";
                                                 return (
-                                                    <tr key={log.id} className={isCritical ? "table-danger-subtle" : ""}>
+                                                    <tr key={log.notificationId || log.id || idx} className={isCritical ? "table-danger-subtle" : ""}>
                                                         <td className="ps-4 small text-muted">
-                                                            <div className="fw-semibold text-dark">{new Date(log.sentAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</div>
-                                                            <div style={{ fontSize: "11px" }}>{new Date(log.sentAt).toLocaleDateString("vi-VN")}</div>
+                                                            <div className="fw-semibold text-dark">{sentTime ? new Date(sentTime).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "—"}</div>
+                                                            <div style={{ fontSize: "11px" }}>{sentTime ? new Date(sentTime).toLocaleDateString("vi-VN") : ""}</div>
                                                         </td>
                                                         <td>
                                                             <div className="fw-semibold text-dark text-truncate" style={{ maxWidth: "140px" }}>
-                                                                {log.recipientName || log.userId}
+                                                                {log.recipientName || recipientId}
                                                             </div>
                                                             <div className="text-muted font-monospace text-truncate" style={{ fontSize: "11px", maxWidth: "140px" }}>
-                                                                {log.userId}
+                                                                {recipientId}
                                                             </div>
                                                         </td>
                                                         <td>
@@ -952,7 +956,7 @@ export default function PushNotificationCenterPage() {
                                                                 </span>
                                                             </div>
                                                             <div className="text-muted small text-truncate mt-1" style={{ maxWidth: "320px" }}>
-                                                                {log.body}
+                                                                {bodyText}
                                                             </div>
                                                         </td>
                                                         <td>

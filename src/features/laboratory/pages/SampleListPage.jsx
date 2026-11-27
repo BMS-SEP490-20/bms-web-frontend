@@ -161,6 +161,7 @@ export default function SampleListPage() {
 
   // Danh sách lọc với phòng thủ mảng nghiêm ngặt
   const safeAppointments = Array.isArray(appointments) ? appointments : [];
+  const getRowKey = (apt) => apt?.orderId || apt?.orderNumber || apt?.appointmentId || "";
 
   const filteredAppointments = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
@@ -168,8 +169,9 @@ export default function SampleListPage() {
     return safeAppointments.filter((apt) => {
       const pName = String(apt?.patientName || "").toLowerCase();
       const aId = String(apt?.appointmentId || "").toLowerCase();
+      const oNo = String(apt?.orderNumber || "").toLowerCase();
       const pkg = String(apt?.packageName || "").toLowerCase();
-      return pName.includes(term) || aId.includes(term) || pkg.includes(term);
+      return pName.includes(term) || aId.includes(term) || oNo.includes(term) || pkg.includes(term);
     });
   }, [safeAppointments, searchTerm]);
 
@@ -177,6 +179,12 @@ export default function SampleListPage() {
 
   // Chọn / Bỏ chọn từng mục
   const handleToggleSelect = (id) => {
+    if (batchConfirmed) {
+      setBatchConfirmed(false);
+      setBatchCode("");
+      setConfirmedTubeRows([]);
+      setSuccessMessage("");
+    }
     const next = new Set(selectedIds);
     if (next.has(id)) {
       next.delete(id);
@@ -188,16 +196,22 @@ export default function SampleListPage() {
 
   // Chọn / Bỏ chọn tất cả
   const handleToggleSelectAll = () => {
+    if (batchConfirmed) {
+      setBatchConfirmed(false);
+      setBatchCode("");
+      setConfirmedTubeRows([]);
+      setSuccessMessage("");
+    }
     if (selectedIds.size === filteredAppointments.length && filteredAppointments.length > 0) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filteredAppointments.map((a) => a?.appointmentId).filter(Boolean)));
+      setSelectedIds(new Set(filteredAppointments.map((a) => getRowKey(a)).filter(Boolean)));
     }
   };
 
   // Danh sách các chỉ định đã chọn
   const selectedAppointments = useMemo(() => {
-    return safeAppointments.filter((apt) => selectedIds.has(apt?.appointmentId));
+    return safeAppointments.filter((apt) => selectedIds.has(getRowKey(apt)));
   }, [safeAppointments, selectedIds]);
 
   /**
@@ -299,18 +313,28 @@ export default function SampleListPage() {
       setBatchCode(code);
       setBatchConfirmed(true);
       setSuccessMessage(
-        `Đã xác nhận đợt ${code}. In nhãn theo đúng loại ống của y lệnh, rồi quét tiếp nhận.`
+        `Đã xác nhận đợt ${code} và tự động sinh mã Barcode theo đúng loại ống của y lệnh. Dán nhãn lên từng ống nghiệm rồi chuyển sang Bước 2 (Hàng Đợi & Lấy Mẫu).`
       );
 
       try {
         const data = await fetchBatchBarcodes(code);
         if (data?.labels?.length > 0) {
-          labelsFromApi = data.labels.map((lbl) => ({
+          labelsFromApi = data.labels.map((lbl, idx) => ({
             ...lbl,
             barcodeCode128: lbl.barcodeCode128 || lbl.specimenId || lbl.barcode || "",
+            patientId: lbl.patientId || "",
             patientName: lbl.patientName || "Bệnh nhân",
+            patientGender: lbl.patientGender || "",
+            patientBirthYear: lbl.patientBirthYear || "",
+            patientAge: lbl.patientAge ?? null,
+            orderNumber: lbl.orderNumber || "",
+            tubeIndex: lbl.tubeIndex || idx + 1,
+            totalTubes: lbl.totalTubes || data.labels.length,
             tube: lbl.tube || lbl.tubeType || "SST",
-            packageName: lbl.packageName || lbl.testPackageName || "Xét nghiệm máu"
+            tubeLabelVi: lbl.tubeLabelVi || lbl.tube || "SST",
+            testCodes: lbl.testCodes || lbl.packageName || "",
+            packageName: lbl.packageName || lbl.testPackageName || "Xét nghiệm máu",
+            printedAt: lbl.printedAt || ""
           }));
         }
       } catch {
@@ -345,11 +369,20 @@ export default function SampleListPage() {
     });
     setShowBarcodeModal(true);
     setLoadingBarcodes(false);
+
+    // Làm mới danh sách chỉ định chờ tiếp nhận (đơn vừa tiếp nhận sẽ rời Bước 1 và sang Bước 2)
+    try {
+      const refreshed = await fetchCheckedInAppointments();
+      setAppointments(Array.isArray(refreshed) ? refreshed : []);
+      setSelectedIds(new Set());
+    } catch {
+      /* non-fatal */
+    }
   };
 
-  const goToScanCheckIn = () => {
+  const goToSampleCollectionQueue = () => {
     setShowBarcodeModal(false);
-    navigate("/laboratory/checkinsample", {
+    navigate("/lab/queue", {
       state: {
         batchCode: batchCode || undefined,
         fromSampleList: true
@@ -450,12 +483,22 @@ export default function SampleListPage() {
       try {
         const data = await fetchBatchBarcodes(batchCode);
         if (data?.labels?.length > 0) {
-          labels = data.labels.map((lbl) => ({
+          labels = data.labels.map((lbl, idx) => ({
             ...lbl,
             barcodeCode128: lbl.barcodeCode128 || lbl.specimenId || lbl.barcode || '',
+            patientId: lbl.patientId || '',
             patientName: lbl.patientName || 'Bệnh nhân',
+            patientGender: lbl.patientGender || '',
+            patientBirthYear: lbl.patientBirthYear || '',
+            patientAge: lbl.patientAge ?? null,
+            orderNumber: lbl.orderNumber || '',
+            tubeIndex: lbl.tubeIndex || idx + 1,
+            totalTubes: lbl.totalTubes || data.labels.length,
             tube: lbl.tube || lbl.tubeType || 'SST',
-            packageName: lbl.packageName || lbl.testPackageName || 'Xét nghiệm máu'
+            tubeLabelVi: lbl.tubeLabelVi || lbl.tube || 'SST',
+            testCodes: lbl.testCodes || lbl.packageName || '',
+            packageName: lbl.packageName || lbl.testPackageName || 'Xét nghiệm máu',
+            printedAt: lbl.printedAt || ''
           }));
         }
       } catch (apiErr) {
@@ -495,16 +538,35 @@ export default function SampleListPage() {
     }
   };
 
+  const formatTubeLabelVi = (tube) => {
+    switch (String(tube || "").toUpperCase()) {
+      case "EDTA":
+        return "Ống Tím (K2-EDTA)";
+      case "CITRATE":
+        return "Ống Xanh dương (Citrate)";
+      case "NAF":
+        return "Ống Xám (NaF)";
+      case "HEPARIN":
+        return "Ống Xanh lá (Heparin)";
+      case "CULTURE":
+        return "Chai cấy máu";
+      case "SST":
+      case "SERUM":
+      default:
+        return "Ống Vàng (Serum SST)";
+    }
+  };
+
   return (
     <div className="w-100 py-1">
       {/* Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Danh sách lấy mẫu</h1>
+            <h1 className="bms-page-title">Tiếp nhận chỉ định xét nghiệm &amp; Barcode</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Tổng hợp bệnh nhân đã tiếp đón, tạo đợt gom mẫu bệnh phẩm và in nhãn mã vạch.
+            Bước 1: Tiếp nhận đơn chỉ định từ Bác sĩ, xác nhận đợt lấy mẫu để hệ thống tự sinh mã Barcode dán lên từng ống nghiệm (EDTA, SST, Citrate...) trước khi lấy mẫu ở Bước 2.
           </p>
         </div>
         <div className="bms-page-actions">
@@ -559,9 +621,9 @@ export default function SampleListPage() {
             </button>
             <button
               className="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm"
-              onClick={goToScanCheckIn}
+              onClick={goToSampleCollectionQueue}
             >
-              <TestTube2  size="1em"/> Sang quét tiếp nhận ống
+              <TestTube2  size="1em"/> Sang Bước 2: Hàng Đợi &amp; Lấy Mẫu
             </button>
           </div>
         </div>
@@ -581,11 +643,11 @@ export default function SampleListPage() {
           <section className="bms-table-standalone-section m-0 h-100 d-flex flex-column">
             <div className="bms-table-standalone-header">
               <div>
-                <h2 className="bms-table-standalone-title">Bệnh nhân đã tiếp đón hôm nay</h2>
+                <h2 className="bms-table-standalone-title">Đơn chỉ định chờ tiếp nhận từ Bác sĩ</h2>
                 <p className="bms-table-standalone-subtitle">Phụ trách lấy mẫu: {collectorName}</p>
               </div>
               <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
-                {filteredAppointments.length} lượt
+                {filteredAppointments.length} đơn
               </span>
             </div>
 
@@ -601,60 +663,69 @@ export default function SampleListPage() {
                         onChange={handleToggleSelectAll}
                       />
                     </th>
-                    <th>Mã lịch hẹn</th>
+                    <th>Mã chỉ định</th>
                     <th>Họ tên bệnh nhân</th>
-                    <th>Gói xét nghiệm</th>
-                    <th className="text-end pe-3">Giờ hẹn</th>
+                    <th>Xét nghiệm chỉ định</th>
+                    <th className="text-end pe-3">Giờ lập</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-muted">
-                        <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải danh sách tiếp đón...
+                        <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải danh sách chỉ định từ Bác sĩ...
                       </td>
                     </tr>
                   ) : filteredAppointments.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-2 text-muted">
-                        Không có lịch CheckedIn/Confirmed để tạo đợt mới.{' '}
+                      <td colSpan="5" className="text-center py-3 text-muted">
+                        Hiện chưa có đơn chỉ định mới chờ tiếp nhận.{' '}
                         <Link to="/lab/queue" className="fw-semibold">
-                          Mở Hàng Đợi Mẫu (/lab/queue)
+                          Mở Bước 2: Hàng Đợi &amp; Lấy Mẫu
                         </Link>
-                        {' '}nếu ống mẫu đã được tạo.
+                        {' '}để xem các mẫu đã sinh Barcode.
                       </td>
                     </tr>
                   ) : (
                     aptPag.paginatedItems.map((apt) => {
-                      const isSelected = selectedIds.has(apt.appointmentId);
+                      const rowKey = getRowKey(apt);
+                      const isSelected = selectedIds.has(rowKey);
                       return (
                         <tr
-                          key={apt.appointmentId}
+                          key={rowKey}
                           style={{
                             cursor: "pointer",
                             backgroundColor: isSelected ? "rgba(13, 110, 253, 0.08)" : "transparent"
                           }}
-                          onClick={() => handleToggleSelect(apt.appointmentId)}
+                          onClick={() => handleToggleSelect(rowKey)}
                         >
                           <td className="ps-3" onClick={(e) => e.stopPropagation()}>
                             <input
                               type="checkbox"
                               className="form-check-input"
                               checked={isSelected}
-                              onChange={() => handleToggleSelect(apt.appointmentId)}
+                              onChange={() => handleToggleSelect(rowKey)}
                               style={{ cursor: "pointer" }}
                             />
                           </td>
                           <td>
-                            <code className="text-secondary bg-light px-1 py-0.5 rounded small">
-                              {apt.appointmentId}
+                            <code className="text-primary fw-semibold bg-light px-1 py-0.5 rounded small d-block">
+                              {apt.orderNumber || apt.appointmentId}
                             </code>
+                            {apt.orderNumber && apt.appointmentId && apt.appointmentId !== apt.orderNumber && (
+                              <span className="text-muted font-monospace" style={{ fontSize: "10.5px" }}>
+                                {apt.appointmentId}
+                              </span>
+                            )}
                           </td>
-                          <td className="fw-semibold text-dark">
-                            {apt.patientName || "Bệnh nhân"}
+                          <td>
+                            <div className="fw-semibold text-dark">{apt.patientName || "Bệnh nhân"}</div>
+                            {apt.doctorName && (
+                              <div className="text-muted" style={{ fontSize: "11px" }}>BS. {apt.doctorName}</div>
+                            )}
                           </td>
                           <td className="text-secondary small">
-                            {apt.packageName || "Xét nghiệm sinh hóa - huyết học"}
+                            {apt.packageName || "Xét nghiệm theo chỉ định"}
                           </td>
                           <td className="text-end font-monospace small pe-3">
                             {apt.time || "—"}
@@ -691,7 +762,9 @@ export default function SampleListPage() {
                 <p className="bms-table-standalone-subtitle">Các ống mẫu dự kiến tạo mã vạch cho đợt lấy mẫu</p>
               </div>
               <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
-                {selectedAppointments.length} ống mẫu
+                {confirmedTubeRows.length > 0
+                  ? confirmedTubeRows.length
+                  : selectedAppointments.reduce((sum, apt) => sum + resolveTubesForAppointment(apt).length, 0)} ống mẫu
               </span>
             </div>
 
@@ -700,37 +773,39 @@ export default function SampleListPage() {
                 <thead className="table-light text-muted small">
                   <tr>
                     <th style={{ width: "36px" }} className="ps-3">#</th>
-                    <th style={{ width: "30%" }}>Mã ống mẫu</th>
+                    <th style={{ width: "30%" }}>Mã bệnh phẩm (Tube ID)</th>
                     <th style={{ width: "22%" }}>Bệnh nhân</th>
-                    <th style={{ width: "24%" }}>Loại ống</th>
-                    <th style={{ width: "18%" }} className="pe-3">Người lấy mẫu</th>
+                    <th style={{ width: "26%" }}>Loại ống nghiệm</th>
+                    <th style={{ width: "16%" }} className="pe-3">KTV tiếp nhận</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedAppointments.length === 0 ? (
+                  {selectedAppointments.length === 0 && confirmedTubeRows.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-muted">
-                        Chưa có bệnh nhân nào được chọn cho đợt này. Vui lòng chọn từ danh sách bên trái.
+                        Chưa có chỉ định nào được chọn. Chọn đơn từ danh sách bên trái rồi bấm Xác nhận tiếp nhận để cấp mã bệnh phẩm.
                       </td>
                     </tr>
                   ) : (
                     (() => {
-                      // 1 hàng / ống — sau xác nhận dùng barcode thật gắn BN
+                      // 1 hàng / ống — chỉ hiển thị Barcode thật SAU KHI KTV xác nhận tiếp nhận ở Bước 1
                       const rows =
                         confirmedTubeRows.length > 0
                           ? confirmedTubeRows.map((lbl, i) => ({
                               key: lbl.barcodeCode128 || `${lbl.specimenId}-${i}`,
                               index: i + 1,
                               code: lbl.barcodeCode128 || lbl.specimenId,
+                              orderRef: lbl.orderNumber || lbl.appointmentId || "",
                               patientName: lbl.patientName,
                               tubes: [lbl.tube]
                             }))
                           : selectedAppointments.flatMap((apt, aptIdx) => {
                               const tubesList = resolveTubesForAppointment(apt);
                               return tubesList.map((tube, tIdx) => ({
-                                key: `${apt.appointmentId}-${tube}-${tIdx}`,
+                                key: `${getRowKey(apt)}-${tube}-${tIdx}`,
                                 index: aptIdx * 10 + tIdx + 1,
-                                code: `(dự kiến) ${apt.appointmentId || "APT"} · ${tube}`,
+                                code: "",
+                                orderRef: apt.orderNumber || apt.appointmentId || "",
                                 patientName: apt.patientName,
                                 tubes: [tube]
                               }));
@@ -739,9 +814,30 @@ export default function SampleListPage() {
                         <tr key={row.key}>
                           <td className="text-muted small ps-3">{row.index}</td>
                           <td>
-                            <code className="text-primary fw-semibold small bg-light px-1 py-0.5 rounded">
-                              {row.code}
-                            </code>
+                            {confirmedTubeRows.length > 0 ? (
+                              <Code128Barcode value={row.code} height={24} width={1.0} compact align="start" />
+                            ) : (
+                              <div className="d-flex flex-column align-items-start gap-1">
+                                <span
+                                  className="d-inline-flex align-items-center gap-1 fw-semibold"
+                                  style={{
+                                    fontSize: "11px",
+                                    padding: "2px 8px",
+                                    borderRadius: "999px",
+                                    backgroundColor: "#F8FAFC",
+                                    color: "#475569",
+                                    border: "1px dashed #94A3B8"
+                                  }}
+                                >
+                                  <Clock size={11} /> Chờ cấp mã mẫu
+                                </span>
+                                {row.orderRef && (
+                                  <span className="text-muted font-monospace" style={{ fontSize: "10.5px" }}>
+                                    YL: {row.orderRef}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
                           <td className="fw-semibold text-dark">{row.patientName}</td>
                           <td>
@@ -749,10 +845,11 @@ export default function SampleListPage() {
                               {row.tubes.map((tube, tIdx) => (
                                 <span
                                   key={tIdx}
-                                  className={`badge px-2 py-0.5 rounded-pill ${getTubeBadgeClass(tube)}`}
+                                  className={`badge px-2 py-1 rounded-pill ${getTubeBadgeClass(tube)}`}
+                                  style={{ fontSize: "11px" }}
                                 >
-                                  <TestTube2 className="me-1 small"  size="1em"/>
-                                  {tube}
+                                  <TestTube2 className="me-1" size={11} />
+                                  {formatTubeLabelVi(tube)}
                                 </span>
                               ))}
                             </div>
@@ -811,7 +908,7 @@ export default function SampleListPage() {
                     disabled={submitting || selectedAppointments.length === 0}
                     onClick={handleConfirmList}
                   >
-                    <CheckCircle2  size="1em"/> {submitting ? "Đang xác nhận..." : "Xác Nhận Đợt Lấy Mẫu"}
+                    <CheckCircle2  size="1em"/> {submitting ? "Đang xác nhận & sinh Barcode..." : "Xác Nhận Tiếp Nhận & Sinh Barcode"}
                   </button>
                 ) : (
                   <span className="badge bg-success-subtle text-success border border-success-subtle align-self-center px-3 py-2">
@@ -882,35 +979,67 @@ export default function SampleListPage() {
                 ) : (
                   <>
                     <div className="alert alert-light border small mb-3 py-2">
-                      Có <strong>{barcodeData.labels.length}</strong> nhãn ống cần in và dán.
-                      Mỗi nhãn gắn 1 BN + 1 loại ống + mã không trùng.
+                      Có <strong>{barcodeData.labels.length}</strong> tem dán ống chuẩn <strong>ISO 15189 (60×35mm)</strong> theo thứ tự rút máu <strong>CLSI H3-A6</strong>.
+                      Các ống của cùng 1 bệnh nhân dùng chung gốc mã <code>SMP-YYMMDD-XXXX</code> và phân biệt theo đuôi <code>-01, -02, -03</code>.
                     </div>
                     <div className="row g-3 barcode-print-area">
                       {(Array.isArray(barcodeData?.labels) ? barcodeData.labels : []).map((lbl, idx) => {
                         const code = lbl.barcodeCode128 || lbl.specimenId || lbl.barcode || "";
+                        const demoMeta = [
+                          lbl.patientBirthYear || (lbl.patientAge ? `${lbl.patientAge}T` : ""),
+                          lbl.patientGender
+                        ].filter(Boolean).join(" · ");
+                        const tubeOrderText = `Ống ${lbl.tubeIndex || 1}/${lbl.totalTubes || 1}`;
                         return (
-                          <div key={`${code}-${idx}`} className="col-md-4 col-sm-6">
+                          <div key={`${code}-${idx}`} className="col-md-6">
                             <div
-                              className="tube-sticker border border-dark bg-white p-2 text-center"
-                              style={{ minHeight: 168 }}
+                              className="tube-sticker border border-dark bg-white p-2 rounded-2"
+                              style={{ maxWidth: 320, margin: "0 auto" }}
                             >
-                              <div className="d-flex justify-content-between align-items-start mb-1 gap-1">
-                                <span className="fw-bold text-dark text-start small lh-sm">
-                                  {lbl.patientName || "BN"}
+                              {/* Hàng 1: Họ tên IN ĐẬM + Năm sinh/Giới tính + Loại ống */}
+                              <div className="d-flex justify-content-between align-items-start gap-1">
+                                <div className="text-start lh-sm">
+                                  <div className="fw-bold text-dark text-uppercase" style={{ fontSize: "0.78rem" }}>
+                                    {lbl.patientName || "BỆNH NHÂN"}
+                                  </div>
+                                  {demoMeta && (
+                                    <div className="text-muted" style={{ fontSize: "0.66rem" }}>{demoMeta}</div>
+                                  )}
+                                </div>
+                                <span
+                                  className={`badge ${getTubeBadgeClass(lbl.tube)}`}
+                                  style={{ fontSize: "0.65rem", whiteSpace: "nowrap" }}
+                                >
+                                  {lbl.tubeLabelVi || lbl.tube}
                                 </span>
-                                <span className={`badge ${getTubeBadgeClass(lbl.tube)}`}>{lbl.tube}</span>
                               </div>
-                              <div className="text-muted text-truncate mb-1" style={{ fontSize: "0.68rem" }} title={lbl.packageName}>
-                                {lbl.packageName || "XN"}
+
+                              {/* Hàng 2: Mã BN (PID) + Mã Y lệnh & Thứ tự ống (1/3) */}
+                              <div
+                                className="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1 mt-1 font-monospace"
+                                style={{ fontSize: "0.64rem", color: "#334155" }}
+                              >
+                                <span>PID: <strong>{lbl.patientId || "—"}</strong></span>
+                                <span>
+                                  {lbl.orderNumber ? `${lbl.orderNumber} · ` : ""}
+                                  <strong>{tubeOrderText}</strong>
+                                </span>
                               </div>
+
+                              {/* Hàng 3: Mã vạch CODE128 thật + Tube ID chung gốc */}
                               <div className="d-flex justify-content-center bg-white py-1">
-                                <Code128Barcode value={code} height={42} width={1.35} />
+                                <Code128Barcode value={code} height={38} width={1.25} showText />
                               </div>
-                              <div className="font-monospace text-dark mt-1" style={{ fontSize: "0.68rem", wordBreak: "break-all" }}>
-                                {code}
-                              </div>
-                              <div className="text-muted mt-1" style={{ fontSize: "0.62rem" }}>
-                                DÁN LÊN ỐNG · không tái sử dụng nhãn
+
+                              {/* Hàng 4: Mã xét nghiệm + Giờ in tem */}
+                              <div
+                                className="d-flex justify-content-between align-items-center border-top pt-1 mt-1"
+                                style={{ fontSize: "0.63rem", color: "#475569" }}
+                              >
+                                <span className="text-truncate fw-semibold" style={{ maxWidth: "65%" }} title={lbl.testCodes || lbl.packageName}>
+                                  {lbl.testCodes || lbl.packageName || "Xét nghiệm"}
+                                </span>
+                                <span className="font-monospace">{lbl.printedAt || ""}</span>
                               </div>
                             </div>
                           </div>
@@ -922,25 +1051,22 @@ export default function SampleListPage() {
               </div>
               <div className="modal-footer border-top py-2 d-flex justify-content-between flex-wrap gap-2">
                 <span className="small text-muted align-self-center">
-                  Cắt/tách từng nhãn → dán đúng ống {barcodeData?.labels?.[0]?.tube || "EDTA/SST/…"} của đúng BN.
+                  Khổ in tem cuộn nhiệt chuẩn Lab: <strong>60mm × 35mm</strong> (1 tem / 1 trang cuộn).
                 </span>
                 <div className="d-flex gap-2 flex-wrap">
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => {
-                      setShowBarcodeModal(false);
-                      if (batchConfirmed) goToScanCheckIn();
-                    }}
+                    onClick={() => setShowBarcodeModal(false)}
                   >
-                    Đóng &amp; sang quét ống
+                    Đóng
                   </button>
                   <button
                     type="button"
                     className="btn btn-success d-flex align-items-center gap-1"
-                    onClick={goToScanCheckIn}
+                    onClick={goToSampleCollectionQueue}
                   >
-                    <TestTube2  size="1em"/> Tiếp tục: Quét tiếp nhận ống
+                    <TestTube2  size="1em"/> Tiếp tục Bước 2: Lấy Mẫu Bệnh Phẩm
                   </button>
                   <button
                     type="button"
@@ -950,55 +1076,145 @@ export default function SampleListPage() {
                       const raw = Array.isArray(barcodeData?.labels) ? barcodeData.labels : [];
                       if (!raw.length) return;
                       setErrorMessage("");
-                      // Đảm bảo có SVG Code 128 trước khi in (không phụ thuộc popup)
                       const labels = enrichLabelsWithSvg(raw);
+                      const nowFallback = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + " " + new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
                       const stickers = labels
-                        .map((lbl) => {
+                        .map((lbl, idx) => {
                           const code = lbl.barcodeCode128 || lbl.specimenId || lbl.barcode || "";
                           const svg = (lbl.svgBarcode && String(lbl.svgBarcode).includes("<svg"))
                             ? lbl.svgBarcode
-                            : `<div style="font-family:monospace;font-size:11px;padding:8px 0">${code}</div>`;
-                          return `<div class="sticker">
-                            <div class="top"><b>${lbl.patientName || "BN"}</b><span class="tube">${lbl.tube || ""}</span></div>
-                            <div class="pkg">${lbl.packageName || ""}</div>
-                            <div class="bc">${svg}</div>
-                            <div class="code">${code}</div>
-                            <div class="hint">DÁN LÊN ỐNG NGHIỆM</div>
+                            : `<div style="font-family:monospace;font-size:10px;padding:4px 0">${code}</div>`;
+                          const demoMeta = [
+                            lbl.patientBirthYear || (lbl.patientAge ? `${lbl.patientAge}T` : ""),
+                            lbl.patientGender
+                          ].filter(Boolean).join(" · ");
+                          const tubeOrder = `Ống ${lbl.tubeIndex || idx + 1}/${lbl.totalTubes || labels.length}`;
+                          const orderShort = lbl.orderNumber || "";
+                          const testLine = lbl.testCodes || lbl.packageName || "Xét nghiệm";
+                          const printedAt = lbl.printedAt || nowFallback;
+                          const tubeText = lbl.tubeLabelVi || lbl.tube || "";
+                          return `<div class="label-page">
+                            <div class="row-top">
+                              <div class="pt-name">${(lbl.patientName || "BỆNH NHÂN").toUpperCase()}${demoMeta ? ` <span class="pt-meta">(${demoMeta})</span>` : ""}</div>
+                              <div class="tube-tag">${tubeText}</div>
+                            </div>
+                            <div class="row-sub">
+                              <span>PID: <b>${lbl.patientId || "—"}</b></span>
+                              <span>${orderShort ? `${orderShort} · ` : ""}<b>${tubeOrder}</b></span>
+                            </div>
+                            <div class="bc-wrap">${svg}</div>
+                            <div class="bc-code">${code}</div>
+                            <div class="row-foot">
+                              <span class="tests">${testLine}</span>
+                              <span class="ts">${printedAt}</span>
+                            </div>
                           </div>`;
                         })
                         .join("");
-                      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
-                        <title>Nhãn dán ống — ${batchCode || ""}</title>
+                      const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"/>
+                        <title>Tem_Ong_Mau_60x35mm_${batchCode || "BMS"}</title>
                         <style>
-                          @page { margin: 6mm; size: A4; }
-                          body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; padding: 6px; color: #000; }
-                          h1 { font-size: 13px; margin: 0 0 8px; }
-                          .note { font-size: 11px; color: #334155; margin-bottom: 10px; }
-                          .sheet { display: flex; flex-wrap: wrap; gap: 8px; }
-                          .sticker {
-                            width: 62mm; min-height: 32mm; box-sizing: border-box;
-                            border: 1px solid #000; padding: 4px 6px;
-                            page-break-inside: avoid; text-align: center;
+                          @page { size: 60mm 35mm; margin: 0; }
+                          * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                          html, body { margin: 0; padding: 0; background: #fff; color: #000; font-family: "Segoe UI", Arial, sans-serif; }
+                          .label-page {
+                            width: 60mm;
+                            height: 35mm;
+                            padding: 1.8mm 2.2mm;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            overflow: hidden;
+                            page-break-after: always;
+                            break-after: page;
                           }
-                          .top { display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; gap: 4px; }
-                          .tube { border: 1px solid #000; padding: 0 4px; font-size: 10px; white-space: nowrap; }
-                          .pkg { font-size: 9px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0; }
-                          .bc svg { max-width: 100%; height: 38px; }
-                          .code { font-family: ui-monospace, monospace; font-size: 9px; word-break: break-all; margin-top: 2px; }
-                          .hint { font-size: 8px; margin-top: 2px; letter-spacing: 0.04em; }
-                        </style></head><body>
-                        <h1>Nhãn dán ống nghiệm — Đợt ${batchCode || ""} (${labels.length} ống)</h1>
-                        <div class="note">1 nhãn = 1 ống. Dán lên thành ống đúng loại của đúng bệnh nhân.</div>
-                        <div class="sheet">${stickers}</div>
-                      </body></html>`;
+                          .label-page:last-child {
+                            page-break-after: auto;
+                            break-after: auto;
+                          }
+                          .row-top {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 2px;
+                          }
+                          .pt-name {
+                            font-size: 8.2px;
+                            font-weight: 800;
+                            line-height: 1.15;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                          }
+                          .pt-meta {
+                            font-weight: 600;
+                            font-size: 7.2px;
+                          }
+                          .tube-tag {
+                            border: 1px solid #000;
+                            padding: 0.5px 3px;
+                            font-size: 6.8px;
+                            font-weight: 800;
+                            white-space: nowrap;
+                            border-radius: 2px;
+                          }
+                          .row-sub {
+                            display: flex;
+                            justify-content: space-between;
+                            font-family: Consolas, monospace;
+                            font-size: 6.6px;
+                            border-bottom: 0.6px dashed #000;
+                            padding-bottom: 1px;
+                          }
+                          .bc-wrap {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 14mm;
+                            overflow: hidden;
+                          }
+                          .bc-wrap svg {
+                            width: 100%;
+                            max-width: 55mm;
+                            height: 13.5mm;
+                          }
+                          .bc-code {
+                            text-align: center;
+                            font-family: Consolas, monospace;
+                            font-size: 8px;
+                            font-weight: 800;
+                            letter-spacing: 0.3px;
+                            line-height: 1.05;
+                          }
+                          .row-foot {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 4px;
+                            border-top: 0.6px dashed #000;
+                            padding-top: 1px;
+                            font-size: 6.6px;
+                          }
+                          .tests {
+                            font-weight: 700;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            max-width: 39mm;
+                          }
+                          .ts {
+                            font-family: Consolas, monospace;
+                            white-space: nowrap;
+                          }
+                        </style></head><body>${stickers}</body></html>`;
                       try {
                         printHtmlDocument(html);
                       } catch {
-                        setErrorMessage("Không mở được hộp thoại in. Thử lại nút In nhãn dán ống.");
+                        setErrorMessage("Không mở được hộp thoại in. Thử lại nút In tem ống mẫu.");
                       }
                     }}
                   >
-                    <Printer  size="1em"/> In nhãn dán ống ({barcodeData?.labels?.length || 0})
+                    <Printer  size="1em"/> In tem ống mẫu 60×35mm ({barcodeData?.labels?.length || 0})
                   </button>
                 </div>
               </div>

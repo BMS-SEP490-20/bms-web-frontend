@@ -65,10 +65,10 @@ const EnterTestResultsPage = lazy(() => import("./features/test-results/pages/En
 const TraceSampleOriginPage = lazy(() => import("./features/laboratory/pages/TraceSampleOriginPage.jsx"));
 const SpecimenHistoryPage = lazy(() => import("./features/laboratory/pages/SpecimenHistoryPage.jsx"));
 const LookupBiochemicalResultsPage = lazy(() => import("./features/laboratory/pages/LookupBiochemicalResultsPage.jsx"));
+const ReviewBiochemicalResultPage = lazy(() => import("./features/laboratory/pages/ReviewBiochemicalResultPage.jsx"));
 const NotifyTestResultsPage = lazy(() => import("./features/laboratory/pages/NotifyTestResultsPage.jsx"));
 const TestCriteriaPage = lazy(() => import("./features/laboratory/pages/TestCriteriaPage"));
 const ConfigureReferenceIntervalsPage = lazy(() => import("./features/laboratory/pages/ConfigureReferenceIntervalsPage.jsx"));
-const LabProfilesPage = lazy(() => import("./features/lab-profiles/pages/LabProfilesPage.jsx"));
 const LabRoomManagement = lazy(() => import("./features/facilities/pages/LabRoomManagementPage"));
 const ValidateSample = lazy(() => import("./features/lab-user/pages/ValidateSample.jsx"));
 const QcFlagsPage = lazy(() => import("./features/qc/pages/QcFlagsPage.jsx"));
@@ -104,7 +104,6 @@ const InitialMedicalProfileSetup = lazy(() => import("./features/patient/pages/I
 const UserManagementPage = lazy(() => import("./features/users/pages/UserManagementPage.jsx"));
 const RolesManagementPage = lazy(() => import("./features/user-management/pages/RolesManagementPage"));
 const ServicePackagesPage = lazy(() => import("./features/admin/pages/ServicePackagesPage.jsx"));
-const BhytSettingsPage = lazy(() => import("./features/admin/pages/BhytSettingsPage.jsx"));
 const BackupManagementPage = lazy(() => import("./features/backup/pages/BackupManagementPage.jsx"));
 const AuditLogPage = lazy(() => import("./features/audit/pages/AuditLogPage.jsx"));
 const TatStatisticsDashboardPage = lazy(() => import("./features/reports/pages/TatStatisticsDashboardPage.jsx"));
@@ -230,10 +229,13 @@ export default function App() {
                   <Route path="/shifts/view" element={<ViewShiftsPage />} />
                 </Route>
 
-                {/* UC35/UC16 shift schedule view: Manager, Doctor, Lab, Receptionist */}
-                <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, LAB, RECEPTIONIST]} />}>
+                {/* UC35/UC16 shift schedule view: Admin (read-only), Manager, Doctor, Lab, Receptionist */}
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN, DOCTOR, MANAGER, LAB, RECEPTIONIST]} />}>
                   <Route path="/doctor/schedule" element={<DoctorSchedulePage />} />
                   <Route path="/schedule" element={<DoctorSchedulePage />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={[ADMIN]} />}>
+                  <Route path="/admin/schedule" element={<DoctorSchedulePage />} />
                 </Route>
 
                 {/* UC42 view/download report: Patient (own), Doctor, Lab, Manager */}
@@ -285,9 +287,9 @@ export default function App() {
                   <Route path="/billing/invoices" element={<BillingInvoicesPage />} />
                 </Route>
 
-                {/* Patient Payment History & Medical Intake: Patient only */}
+                {/* Patient Payment History & Unified Profile Setup: Patient only */}
                 <Route element={<ProtectedRoute allowedRoles={[PATIENT]} />}>
-                  <Route path="/patient/medical-profile-setup" element={<InitialMedicalProfileSetup />} />
+                  <Route path="/patient/medical-profile-setup" element={<Navigate to="/profile?edit=1" replace />} />
                   <Route path="/patient/payments" element={<PatientPaymentHistoryPage />} />
                   <Route path="/patient/payment-history" element={<PatientPaymentHistoryPage />} />
                 </Route>
@@ -343,7 +345,9 @@ export default function App() {
                 {/* Clinical laboratory result inspection: Doctor, Manager, Lab Tech */}
                 <Route element={<ProtectedRoute allowedRoles={[DOCTOR, MANAGER, LAB]} />}>
                   <Route path="/laboratory/biochemical-results" element={<LookupBiochemicalResultsPage />} />
+                  <Route path="/laboratory/biochemical-results/:resultId" element={<ReviewBiochemicalResultPage />} />
                   <Route path="/laboratory/lookup-results" element={<LookupBiochemicalResultsPage />} />
+                  <Route path="/laboratory/lookup-results/:resultId" element={<ReviewBiochemicalResultPage />} />
                 </Route>
 
                 {/* Internal Laboratory Specimen Operations & Tracking: Lab Technician & Manager ONLY (Doctor denied) */}
@@ -365,11 +369,10 @@ export default function App() {
                   <Route path="/laboratory/reference-intervals" element={<ConfigureReferenceIntervalsPage />} />
                 </Route>
 
-                {/* UC34 lab rooms, UC61 lab profiles: Admin manages master data; Manager views */}
+                {/* UC34 lab & clinical rooms: Admin manages master data; Manager views */}
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
                   <Route path="/laboratory/rooms" element={<LabRoomManagement />} />
                   <Route path="/admin/lab-rooms" element={<LabRoomManagement />} />
-                  <Route path="/laboratory/lab-profiles" element={<LabProfilesPage />} />
                 </Route>
 
                 {/* UC56 inventory: Admin (CRUD) & Manager (read-only) */}
@@ -404,11 +407,6 @@ export default function App() {
                 <Route element={<ProtectedRoute allowedRoles={[ADMIN, LAB, MANAGER]} />}>
                   <Route path="/iot/alerts" element={<AlertThresholdViolationPage />} />
                   <Route path="/laboratory/iot-alerts" element={<AlertThresholdViolationPage />} />
-                </Route>
-
-                {/* Billing BHYT & priority discount settings: Admin & Manager */}
-                <Route element={<ProtectedRoute allowedRoles={[ADMIN, MANAGER]} />}>
-                  <Route path="/admin/bhyt-settings" element={<BhytSettingsPage />} />
                 </Route>
 
                 {/* UC63 TAT, UC78 revenue: Admin & Manager */}
@@ -449,7 +447,7 @@ export default function App() {
                   route's guard decides (no 404 for old bookmarks). */}
               {[["/doctor/feedback", "/feedback"], ["/receptionist/feedback", "/feedback"],
                 ["/admin/invoices", "/invoices"], ["/admin/qc-flags", "/laboratory/qc-flags"], ["/lab-user/lab-rooms", "/laboratory/rooms"],
-                ["/manager/audit-logs", "/admin/audit-logs"], ["/admin/shift-assignment", "/manager/shift-assignment"],
+                ["/manager/audit-logs", "/admin/audit-logs"], ["/admin/shift-assignment", "/admin/schedule"],
                 ["/admin/iot-alerts", "/iot/alerts"],
                 // URLs dropped in 18cf0eb (rewrite of App.jsx); restored as aliases of the current screens.
                 ["/admin/backups", "/admin/backup"], ["/laboratory/backup", "/admin/backup"], ["/billing/receipts", "/invoices"],

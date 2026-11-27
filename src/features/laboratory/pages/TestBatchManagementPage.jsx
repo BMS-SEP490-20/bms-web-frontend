@@ -156,42 +156,41 @@ export default function TestBatchManagementPage() {
       return;
     }
 
-    const positions = [
+    const wells = [
       {
-        coordinate: 'A1',
-        isIqcControl: true,
-        iqcControlLevel: 'Level 1 (Bình thường)',
-        iqcLotNumber: iqcLotNumber
+        wellCoordinate: 'A1',
+        isControlSample: true,
+        controlLevel: 'IQC Level 1 (Bình thường)',
+        barcode: 'CTRL-LV1'
       },
       {
-        coordinate: 'A2',
-        isIqcControl: true,
-        iqcControlLevel: 'Level 2 (Bệnh lý cao)',
-        iqcLotNumber: iqcLotNumber
+        wellCoordinate: 'A2',
+        isControlSample: true,
+        controlLevel: 'IQC Level 2 (Bệnh lý cao)',
+        barcode: 'CTRL-LV2'
       },
       ...wellEntries.map(([coord, sample]) => ({
-        coordinate: coord,
+        wellCoordinate: coord,
+        isControlSample: false,
         sampleId: sample.id || sample._id,
         barcode: sample.barcode,
-        isStat: sample.priority === 'STAT',
         patientName: sample.patientName,
-        testType: sample.sampleType || sample.testCategory
+        priority: sample.priority || 'Normal'
       }))
     ];
 
     const payload = {
       analyzerId: selectedAnalyzer.id,
       analyzerName: selectedAnalyzer.name,
-      testCategory: selectedAnalyzer.category,
-      trayCapacity: selectedAnalyzer.capacity,
-      notes: batchNotes,
-      positions
+      category: selectedAnalyzer.category,
+      capacity: selectedAnalyzer.capacity,
+      wells
     };
 
     setLoading(true);
     try {
       await createBatch(payload);
-      setSuccessMsg(`Tạo mẻ xét nghiệm máy ${selectedAnalyzer.name} thành công với ${positions.length} vị trí!`);
+      setSuccessMsg(`Tạo mẻ xét nghiệm máy ${selectedAnalyzer.name} thành công với ${wellEntries.length} ống mẫu bệnh nhân (+2 giếng IQC)!`);
       setTimeout(() => setSuccessMsg(null), 4000);
       setAssignedWells({});
       setBatchNotes('');
@@ -331,7 +330,7 @@ export default function TestBatchManagementPage() {
               style={{ width: 'auto' }}
             >
               <option value="ALL">Tất cả trạng thái</option>
-              <option value="Draft">Bản nháp</option>
+              <option value="Pending">Chờ chạy máy</option>
               <option value="Running">Đang chạy máy</option>
               <option value="Completed">Hoàn thành</option>
               <option value="Cancelled">Đã hủy</option>
@@ -402,7 +401,8 @@ export default function TestBatchManagementPage() {
                     </tr>
                   ) : (
                     batchPag.paginatedItems.map((b) => {
-                      const totalWells = Array.isArray(b.positions) ? b.positions.length : b.totalPositions || 0;
+                      const batchWells = Array.isArray(b.wells) ? b.wells : (Array.isArray(b.positions) ? b.positions : []);
+                      const totalWells = b.sampleCount ?? batchWells.filter((w) => !w.isControlSample && !w.isIqcControl).length;
                       return (
                         <tr key={b.id || b.batchCode}>
                           <td className="px-3">
@@ -410,11 +410,11 @@ export default function TestBatchManagementPage() {
                           </td>
                           <td>
                             <strong className="text-dark small">{b.analyzerName || b.analyzerId}</strong>
-                            <div className="text-muted" style={{ fontSize: '0.72rem' }}>{b.testCategory}</div>
+                            <div className="text-muted" style={{ fontSize: '0.72rem' }}>{b.category || b.testCategory}</div>
                           </td>
                           <td>
                             <span className="fw-semibold text-dark">{totalWells}</span>
-                            <span className="text-muted"> / {b.trayCapacity || 96} giếng</span>
+                            <span className="text-muted"> / {b.capacity || b.trayCapacity || 96} giếng</span>
                           </td>
                           <td>
                             <Badge
@@ -426,13 +426,13 @@ export default function TestBatchManagementPage() {
                               text={b.status === 'Running' ? 'dark' : undefined}
                               className="px-2.5 py-1 rounded-pill"
                             >
-                              {b.status === 'Draft' ? 'Bản nháp' :
+                              {b.status === 'Pending' || b.status === 'Draft' ? 'Chờ chạy máy' :
                                b.status === 'Running' ? 'Đang chạy máy' :
                                b.status === 'Completed' ? 'Hoàn thành' :
                                b.status === 'Cancelled' ? 'Đã hủy' : b.status}
                             </Badge>
                           </td>
-                          <td className="small text-muted">{b.createdByName || 'Kỹ thuật viên trực ca'}</td>
+                          <td className="small text-muted">{b.technicianName || b.createdByName || 'Kỹ thuật viên trực ca'}</td>
                           <td className="small text-muted font-monospace">
                             {b.createdAt ? new Date(b.createdAt).toLocaleString('vi-VN') : '—'}
                           </td>
@@ -448,7 +448,7 @@ export default function TestBatchManagementPage() {
                                 Chi tiết khay
                               </Button>
 
-                              {b.status === 'Draft' && (
+                              {(b.status === 'Pending' || b.status === 'Draft') && (
                                 <Button
                                   variant="warning"
                                   size="sm"
@@ -790,43 +790,56 @@ export default function TestBatchManagementPage() {
               </Col>
             </Row>
 
-            <h6 className="fw-bold text-dark mb-3">Danh Sách Vị Trí Giếng Trong Mẻ ({Array.isArray(selectedBatch.positions) ? selectedBatch.positions.length : 0})</h6>
-            <div className="table-responsive">
-              <Table hover align="middle" className="mb-0 table-sm">
-                <thead className="table-light small text-uppercase">
-                  <tr>
-                    <th>Tọa Độ Giếng</th>
-                    <th>Loại Vị Trí</th>
-                    <th>Mã Ống Mẫu / Lô QC</th>
-                    <th>Bệnh Nhân / Cấp Độ IQC</th>
-                    <th>Loại Xét Nghiệm</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(Array.isArray(selectedBatch.positions) ? selectedBatch.positions : []).map((pos, idx) => (
-                    <tr key={idx} className={pos.isIqcControl ? 'table-danger' : pos.isStat ? 'table-warning' : undefined}>
-                      <td className="fw-bold font-monospace">{pos.coordinate}</td>
-                      <td>
-                        {pos.isIqcControl ? (
-                          <Badge bg="danger">Mẫu Nội Kiểm IQC</Badge>
-                        ) : pos.isStat ? (
-                          <Badge bg="warning" text="dark">Mẫu Cấp Cứu STAT</Badge>
-                        ) : (
-                          <Badge bg="light" text="dark" className="border">Mẫu Bệnh Nhân</Badge>
-                        )}
-                      </td>
-                      <td className="font-monospace text-primary">
-                        {pos.isIqcControl ? pos.iqcLotNumber : pos.barcode || pos.sampleId}
-                      </td>
-                      <td className="fw-semibold text-dark">
-                        {pos.isIqcControl ? pos.iqcControlLevel : pos.patientName || '—'}
-                      </td>
-                      <td className="small text-muted">{pos.testType || 'Xét nghiệm'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+            {(() => {
+              const detailWells = Array.isArray(selectedBatch.wells)
+                ? selectedBatch.wells
+                : (Array.isArray(selectedBatch.positions) ? selectedBatch.positions : []);
+              return (
+                <>
+                  <h6 className="fw-bold text-dark mb-3">Danh Sách Vị Trí Giếng Trong Mẻ ({detailWells.length})</h6>
+                  <div className="table-responsive">
+                    <Table hover align="middle" className="mb-0 table-sm">
+                      <thead className="table-light small text-uppercase">
+                        <tr>
+                          <th>Tọa Độ Giếng</th>
+                          <th>Loại Vị Trí</th>
+                          <th>Mã Ống Mẫu / Lô QC</th>
+                          <th>Bệnh Nhân / Cấp Độ IQC</th>
+                          <th>Ưu Tiên / Phân Loại</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detailWells.map((pos, idx) => {
+                          const isCtrl = Boolean(pos.isControlSample || pos.isIqcControl);
+                          const isStat = Boolean(pos.isStat || String(pos.priority || '').toUpperCase() === 'STAT');
+                          return (
+                            <tr key={idx} className={isCtrl ? 'table-danger' : isStat ? 'table-warning' : undefined}>
+                              <td className="fw-bold font-monospace">{pos.wellCoordinate || pos.coordinate}</td>
+                              <td>
+                                {isCtrl ? (
+                                  <Badge bg="danger">Mẫu Nội Kiểm IQC</Badge>
+                                ) : isStat ? (
+                                  <Badge bg="warning" text="dark">Mẫu Cấp Cứu STAT</Badge>
+                                ) : (
+                                  <Badge bg="light" text="dark" className="border">Mẫu Bệnh Nhân</Badge>
+                                )}
+                              </td>
+                              <td className="font-monospace text-primary">
+                                {pos.barcode || pos.sampleId || pos.iqcLotNumber || '—'}
+                              </td>
+                              <td className="fw-semibold text-dark">
+                                {isCtrl ? (pos.controlLevel || pos.iqcControlLevel || 'IQC Control') : (pos.patientName || '—')}
+                              </td>
+                              <td className="small text-muted">{pos.priority || pos.testType || selectedBatch.category || 'Xét nghiệm'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  </div>
+                </>
+              );
+            })()}
           </Card.Body>
         </Card>
       )}

@@ -58,11 +58,59 @@ function formatDateTime(val) {
 }
 
 function formatGenderLabel(g) {
-  if (!g) return 'Chưa rõ';
-  const n = String(g).toLowerCase();
-  if (n === 'male' || n === 'nam') return 'Nam (Male)';
-  if (n === 'female' || n === 'nữ' || n === 'nu') return 'Nữ (Female)';
-  return 'Khác (Other)';
+  if (!g) return 'Chưa cập nhật';
+  const n = String(g).trim().toLowerCase();
+  if (n === 'male' || n === 'nam' || n === 'm') return 'Nam';
+  if (n === 'female' || n === 'nữ' || n === 'nu' || n === 'f') return 'Nữ';
+  if (n === 'other' || n === 'khác' || n === 'khac') return 'Khác';
+  if (n === 'unknown' || n === 'chưa rõ') return 'Chưa cập nhật';
+  return String(g);
+}
+
+function formatBloodType(bt) {
+  if (!bt) return 'Chưa xác định';
+  const s = String(bt).trim();
+  if (!s || s.toLowerCase() === 'unknown' || s.toLowerCase() === 'chưa rõ') return 'Chưa xác định';
+  return s;
+}
+
+function isKnownBloodType(bt) {
+  return formatBloodType(bt) !== 'Chưa xác định';
+}
+
+function formatDobAndAge(dob, age) {
+  const dobText = formatDate(dob);
+  const hasAge = age !== null && age !== undefined && age !== '' && !Number.isNaN(Number(age));
+  if (dobText === '—' && !hasAge) return 'Chưa cập nhật';
+  if (dobText === '—') return `${age} tuổi`;
+  return hasAge ? `${dobText} (${age} tuổi)` : dobText;
+}
+
+function formatAppointmentStatusVi(status) {
+  const map = {
+    Pending: 'Chờ xác nhận',
+    Confirmed: 'Đã xác nhận',
+    CheckedIn: 'Đã tiếp đón',
+    InProgress: 'Đang khám / Xét nghiệm',
+    WaitingForSample: 'Chờ lấy mẫu',
+    SampleCollected: 'Đã lấy mẫu',
+    Completed: 'Hoàn tất',
+    Cancelled: 'Đã hủy',
+    NoShow: 'Không đến',
+  };
+  return map[status] || status || 'Chờ xử lý';
+}
+
+function formatPaymentStatusVi(status) {
+  const map = {
+    Paid: 'Đã thanh toán',
+    Unpaid: 'Chưa thanh toán',
+    Pending: 'Chờ thanh toán',
+    PendingPayment: 'Chờ thanh toán',
+    PartiallyPaid: 'Thanh toán một phần',
+    Refunded: 'Đã hoàn tiền',
+  };
+  return map[status] || 'Chưa thanh toán';
 }
 
 export default function CheckInPage() {
@@ -235,7 +283,7 @@ export default function CheckInPage() {
 
   const handleOpenCreateGuestModal = () => {
     if (!canCreateGuest) {
-      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai yêu cầu quyền Lễ Tân (Receptionist). Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
+      setErrorMsg('Chức năng Tạo Hồ Sơ Khách Vãng Lai yêu cầu quyền Lễ Tân. Vui lòng đăng nhập với tài khoản Lễ Tân để thực hiện.');
       return;
     }
     setGuestForm(INITIAL_GUEST_FORM);
@@ -403,7 +451,7 @@ export default function CheckInPage() {
         <Col xs={12} sm={6} md={3}>
           <div className="bms-kpi-quad-card">
             <div>
-              <h6 className="bms-kpi-label">Khách Vãng Lai (Guest)</h6>
+              <h6 className="bms-kpi-label">Khách Vãng Lai</h6>
               <div className="bms-kpi-value text-primary">{guestCount}</div>
               <div className="bms-kpi-sub text-primary">Tiếp nhận tại quầy</div>
             </div>
@@ -415,7 +463,7 @@ export default function CheckInPage() {
             <div>
               <h6 className="bms-kpi-label">Đã Có Tài Khoản BMS</h6>
               <div className="bms-kpi-value text-success">{registeredCount}</div>
-              <div className="bms-kpi-sub text-success">Đồng bộ portal trực tuyến</div>
+              <div className="bms-kpi-sub text-success">Đồng bộ cổng bệnh nhân</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-green"><UserCheck  size="1em"/></div>
           </div>
@@ -423,9 +471,9 @@ export default function CheckInPage() {
         <Col xs={12} sm={6} md={3}>
           <div className="bms-kpi-quad-card">
             <div>
-              <h6 className="bms-kpi-label">Đồng Bộ Hồ Sơ LIS</h6>
-              <div className="bms-kpi-value">100%</div>
-              <div className="bms-kpi-sub text-success">Bảo mật NĐ 13/2023</div>
+              <h6 className="bms-kpi-label">Đã Xác Minh CCCD</h6>
+              <div className="bms-kpi-value">{patients.filter((p) => Boolean(p.citizenId || p.cccd)).length}</div>
+              <div className="bms-kpi-sub text-success">Trên {patients.length} hồ sơ đang hiển thị</div>
             </div>
             <div className="bms-kpi-icon-badge bms-kpi-icon-rose"><ShieldCheck  size="1em"/></div>
           </div>
@@ -551,15 +599,19 @@ export default function CheckInPage() {
                   <tr>
                     <td colSpan="8" className="text-center py-3 text-muted">
                       <User className="fs-2 d-block mx-auto mb-2 opacity-50" style={{ color: '#64748B' }}  size="1em"/>
-                      Không tìm thấy hồ sơ bệnh nhân nào phù hợp. Bạn có thể tạo mới Hồ Sơ Khách Vãng Lai (Guest Profile).
+                      Không tìm thấy hồ sơ bệnh nhân nào phù hợp. Bạn có thể tạo mới Hồ Sơ Khách Vãng Lai.
                     </td>
                   </tr>
                 ) : (
-                  patients.map((pt) => (
+                  patients.map((pt) => {
+                    const knownBlood = isKnownBloodType(pt.bloodType);
+                    const primaryCode = pt.patientCode || pt.id;
+                    const showSubId = pt.id && pt.patientCode && pt.id !== pt.patientCode;
+                    return (
                     <tr key={pt.id || pt.patientCode} style={{ borderBottom: '1px solid #EEF2F6' }}>
                       <td className="ps-4 py-3">
-                        <div className="fw-bold font-monospace" style={{ color: '#1E60E6' }}>{pt.patientCode || pt.id}</div>
-                        <small className="text-muted font-monospace">{pt.id}</small>
+                        <div className="fw-bold font-monospace" style={{ color: '#1E60E6' }}>{primaryCode}</div>
+                        {showSubId && <small className="text-muted font-monospace">{pt.id}</small>}
                       </td>
                       <td className="py-3">
                         <div className="fw-bold text-dark">{pt.fullName}</div>
@@ -568,7 +620,7 @@ export default function CheckInPage() {
                       <td className="py-3">
                         {pt.isGuest ? (
                           <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px', fontWeight: '600' }}>
-                            Khách vãng lai (Guest)
+                            Khách vãng lai
                           </span>
                         ) : (
                           <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px', fontWeight: '600' }}>
@@ -577,15 +629,22 @@ export default function CheckInPage() {
                         )}
                       </td>
                       <td className="py-3">
-                        <div>{formatDate(pt.dateOfBirth)} ({pt.age ?? '—'} tuổi)</div>
+                        <div>{formatDobAndAge(pt.dateOfBirth, pt.age)}</div>
                         <small className="text-muted">{formatGenderLabel(pt.gender)}</small>
                       </td>
                       <td className="font-monospace py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{pt.phoneNumber || '—'}</td>
                       <td className="font-monospace py-3" style={{ fontVariantNumeric: 'tabular-nums' }}>{pt.identityNumber || '—'}</td>
                       <td className="text-center py-3">
-                        <span className="badge px-2.5 py-1.5" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }}>
-                          <Droplet className="me-1"  size="1em"/>
-                          {pt.bloodType || 'Unknown'}
+                        <span
+                          className="badge px-2.5 py-1.5"
+                          style={
+                            knownBlood
+                              ? { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', borderRadius: '9999px' }
+                              : { backgroundColor: '#F1F5F9', color: '#64748B', borderRadius: '9999px', fontWeight: 500 }
+                          }
+                        >
+                          {knownBlood && <Droplet className="me-1" size="1em" />}
+                          {formatBloodType(pt.bloodType)}
                         </span>
                       </td>
                       <td className="text-end pe-4 py-3">
@@ -599,7 +658,8 @@ export default function CheckInPage() {
                         </Button>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </Table>
@@ -644,7 +704,7 @@ export default function CheckInPage() {
 
           <Modal.Body style={{ maxHeight: '78vh', overflowY: 'auto' }}>
             <Alert variant="info" className="py-2 px-3 small mb-3" style={{ borderRadius: '12px' }}>
-              <strong>Hồ sơ khách vãng lai (Guest Profile):</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
+              <strong>Hồ sơ khách vãng lai:</strong> Dành cho bệnh nhân đến trực tiếp phòng khám chưa có tài khoản BMS. Hồ sơ có thể liên kết với tài khoản chính thức sau này.
             </Alert>
 
             {createError && (
@@ -735,9 +795,9 @@ export default function CheckInPage() {
                     value={guestForm.gender}
                     onChange={(e) => handleGuestFieldChange('gender', e.target.value)}
                   >
-                    <option value="Male">Nam (Male)</option>
-                    <option value="Female">Nữ (Female)</option>
-                    <option value="Other">Khác (Other)</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -748,7 +808,7 @@ export default function CheckInPage() {
                     value={guestForm.bloodType}
                     onChange={(e) => handleGuestFieldChange('bloodType', e.target.value)}
                   >
-                    <option value="Unknown">Chưa xác định (Unknown)</option>
+                    <option value="Unknown">Chưa xác định</option>
                     <option value="O+">O+</option>
                     <option value="A+">A+</option>
                     <option value="B+">B+</option>
@@ -982,20 +1042,20 @@ export default function CheckInPage() {
                         <div className="d-flex flex-wrap align-items-center gap-2">
                           <h4 className="fw-bold mb-0 text-white">{selectedPatient.fullName}</h4>
                           {selectedPatient.isGuest ? (
-                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fef08a', borderRadius: '9999px' }}>Khách vãng lai (Guest)</span>
+                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fef08a', borderRadius: '9999px' }}>Khách vãng lai</span>
                           ) : (
-                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.25)', color: '#bbf7d0', borderRadius: '9999px' }}>Bệnh nhân chính thức</span>
+                            <span className="badge px-3 py-1.5" style={{ backgroundColor: 'rgba(145, 222, 131, 0.25)', color: '#bbf7d0', borderRadius: '9999px' }}>Thành viên chính thức</span>
                           )}
                         </div>
                         <div className="small text-white-50 font-monospace mt-1">
                           Mã BN: <strong className="text-white">{selectedPatient.patientCode || selectedPatient.id}</strong>
-                          {' · '}ID: {selectedPatient.id}
+                          {selectedPatient.id && selectedPatient.patientCode && selectedPatient.id !== selectedPatient.patientCode ? ` · ID: ${selectedPatient.id}` : ''}
                           {' · '}{formatGenderLabel(selectedPatient.gender)}
-                          {' · '}{formatDate(selectedPatient.dateOfBirth)} ({selectedPatient.age ?? '—'} tuổi)
+                          {' · '}{formatDobAndAge(selectedPatient.dateOfBirth, selectedPatient.age)}
                         </div>
                         <div className="d-flex flex-wrap gap-2 mt-2">
                           <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', borderRadius: '9999px' }}>
-                            <Droplet className="me-1"  size="1em"/> Nhóm máu: {selectedPatient.bloodType || 'Unknown'}
+                            <Droplet className="me-1"  size="1em"/> Nhóm máu: {formatBloodType(selectedPatient.bloodType)}
                           </span>
                           {selectedPatient.allergies?.length > 0 ? (
                             <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.25)', color: '#fde047', borderRadius: '9999px' }}>
@@ -1081,7 +1141,7 @@ export default function CheckInPage() {
                           <Col xs={7} className="font-monospace">{selectedPatient.patientCode || selectedPatient.id}</Col>
 
                           <Col xs={5} className="text-muted">Ngày sinh / Tuổi:</Col>
-                          <Col xs={7}>{formatDate(selectedPatient.dateOfBirth)} ({selectedPatient.age ?? '—'} tuổi)</Col>
+                          <Col xs={7}>{formatDobAndAge(selectedPatient.dateOfBirth, selectedPatient.age)}</Col>
 
                           <Col xs={5} className="text-muted">Giới tính:</Col>
                           <Col xs={7}>{formatGenderLabel(selectedPatient.gender)}</Col>
@@ -1107,7 +1167,7 @@ export default function CheckInPage() {
 
                   <Col md={6}>
                     <Card className="border shadow-sm rounded-3 h-100">
-                      <Card.Header className="bg-light fw-bold small">Chỉ Số Sinh Hiệu (Vitals) & Tiền Sử</Card.Header>
+                      <Card.Header className="bg-light fw-bold small">Chỉ Số Sinh Hiệu &amp; Tiền Sử Y Khoa</Card.Header>
                       <Card.Body className="small">
                         <Row className="g-2 mb-3 text-center">
                           <Col xs={4}>
@@ -1191,8 +1251,8 @@ export default function CheckInPage() {
                                   ? apt.testPackages.join(', ')
                                   : 'Xét nghiệm lâm sàng')}
                             </td>
-                            <td><Badge bg="info" text="dark">{apt.status}</Badge></td>
-                            <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{apt.paymentStatus || 'Unpaid'}</Badge></td>
+                            <td><Badge bg="info" text="dark">{formatAppointmentStatusVi(apt.status)}</Badge></td>
+                            <td><Badge bg={apt.paymentStatus === 'Paid' ? 'success' : 'secondary'}>{formatPaymentStatusVi(apt.paymentStatus)}</Badge></td>
                             <td className="text-end pe-3 font-monospace">
                               {apt.totalAmount != null ? `${Number(apt.totalAmount).toLocaleString('vi-VN')} ₫` : '—'}
                             </td>

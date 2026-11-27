@@ -167,6 +167,9 @@ export default function BackupManagementPage() {
 
     const handleDeleteBackup = async (item) => {
         const id = item.backupId || item.id;
+        if (!window.confirm(`Bạn có chắc chắn muốn xóa bản sao lưu "${item.backupName || id}"? Thao tác này không thể hoàn tác.`)) {
+            return;
+        }
         try {
             await deleteBackup(id);
             setToastMessage({

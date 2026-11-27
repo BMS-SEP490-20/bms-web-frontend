@@ -13,9 +13,10 @@ import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { getStoredUser } from '../../../constants/roles';
-import { canCreateAliquot, canReceiveSample, canStartTesting, normalizeSampleStatus, pathToTesting } from '../../../shared/workflow/sampleWorkflowGates';
+import { canAliquotTube, canCreateAliquot, canReceiveSample, canStartTesting, normalizeSampleStatus, pathToTesting } from '../../../shared/workflow/sampleWorkflowGates';
 import { formatTubeColorVi, formatSampleTypeVi, matchSuppliesFromInventory } from '../../../shared/workflow/labConsumables';
 import { getInventory, consumeInventory } from '../../inventory/api/inventoryApi';
+import Code128Barcode from '../../../shared/components/Code128Barcode';
 
 const REJECTION_CODES = [
   { code: 'REJ-01', label: 'Tán huyết (Hemolysis) — Khóa phân tích & Lấy lại mẫu', isHemolysis: true },
@@ -278,7 +279,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
           notes: `Bắt đầu phân tích trên máy xét nghiệm (${nextStatus})`
         });
       }
-      setSuccess(`Ống mẫu ${sample.barcode || sample.id} đã chuyển sang Đang xét nghiệm (Testing). Vui lòng sang Bước 3 (Nhập Kết Quả Xét Nghiệm) để nhập chỉ số.`);
+      setSuccess(`Ống mẫu ${sample.barcode || sample.id} đã chuyển sang Đang xét nghiệm (Testing). Vui lòng sang Bước 4 (Nhập Kết Quả Xét Nghiệm) sau khi có kết quả từ máy phân tích.`);
       await loadReceivedSamples();
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Không thể chuyển ống mẫu sang Đang xét nghiệm.');
@@ -377,7 +378,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         if (!active || !s) return;
         const st = normalizeSampleStatus(s.status);
         if (st === 'PendingCollection') {
-          setError('Mẫu đang ở trạng thái Chờ lấy mẫu (PendingCollection). Vui lòng thực hiện Bước 1 (Lấy Mẫu) trước khi Tiếp nhận Lab.');
+          setError('Mẫu đang ở trạng thái Chờ lấy mẫu (PendingCollection). Vui lòng thực hiện Bước 2 (Lấy Mẫu) trước khi Tiếp nhận Lab.');
         } else if (canReceiveSample(st)) {
           setCurrent(s);
           setActiveTab('PENDING');
@@ -456,13 +457,13 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       const s = await sampleApi.lookup(trimmed);
       const st = normalizeSampleStatus(s?.status);
       if (st === 'PendingCollection') {
-        setError(`Mẫu ${s.barcode || trimmed} đang ở trạng thái Chờ lấy mẫu. Vui lòng thực hiện Bước 1 (Lấy Mẫu) trước.`);
+        setError(`Mẫu ${s.barcode || trimmed} đang ở trạng thái Chờ lấy mẫu. Vui lòng thực hiện Bước 2 (Lấy Mẫu) trước.`);
       } else if (canReceiveSample(st)) {
         openCheckInModal(s);
       } else if (canStartTesting(st)) {
         setActiveTab('RECEIVED');
         setListFilter(s.barcode || trimmed);
-        setSuccess(`Ống mẫu ${s.barcode || trimmed} đã tiếp nhận Lab — bạn có thể Chiết mẫu hoặc bấm Bắt đầu XN ngay bên dưới.`);
+        setSuccess(`Ống mẫu ${s.barcode || trimmed} đã tiếp nhận Lab — bấm Bắt đầu XN bên dưới để chuyển sang Bước 4 (Nhập kết quả).`);
       } else {
         setError(`Ống mẫu ${s?.barcode || trimmed} hiện đang ở trạng thái "${formatSampleStatusVi(s?.status).label}".`);
       }
@@ -481,9 +482,9 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const onCheckIn = async (reject = false) => {
     setError(null);
     setSuccess(null);
-    // Bước 2 chỉ tiếp nhận mẫu ĐÃ LẤY MẪU (Collected / InTransit) — không lấy mẫu hộ Bước 1
+    // Bước 3 chỉ tiếp nhận mẫu ĐÃ LẤY MẪU (Collected / InTransit) — không lấy mẫu hộ Bước 2
     if (!reject && current && !canReceiveSample(current.status)) {
-      setError('Chỉ được tiếp nhận các ống mẫu đã hoàn tất Bước 1 (Đã lấy mẫu / Đang vận chuyển). Vui lòng thực hiện Lấy Mẫu tại Hàng Đợi & Lấy Mẫu Bệnh Phẩm trước.');
+      setError('Chỉ được tiếp nhận các ống mẫu đã hoàn tất Bước 2 (Đã lấy mẫu / Đang vận chuyển). Vui lòng thực hiện Lấy Mẫu tại Hàng Đợi & Lấy Mẫu trước.');
       return;
     }
 
@@ -689,7 +690,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             }}
           >
             <FlaskConical size={14} />
-            <span>Đã tiếp nhận — Chiết mẫu &amp; Bắt đầu XN ({receivedSamples.length})</span>
+            <span>Đã tiếp nhận — Sẵn sàng XN ({receivedSamples.length})</span>
           </button>
         </div>
 
@@ -733,7 +734,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
             <div>
               <h2 className="bms-table-standalone-title">Ống mẫu chờ tiếp nhận vào Phòng Lab</h2>
               <p className="bms-table-standalone-subtitle">
-                Các ống mẫu đã hoàn tất Bước 1 (Lấy mẫu). Bấm <strong>Tiếp nhận</strong> hoặc quét barcode để kiểm chuẩn 4 tiêu chí ISO 15189.
+                Các ống mẫu đã hoàn tất Bước 2 (Lấy mẫu). Bấm <strong>Tiếp nhận</strong> hoặc quét barcode để kiểm chuẩn 4 tiêu chí ISO 15189.
               </p>
             </div>
             <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
@@ -765,7 +766,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                       <td colSpan={6} className="text-center text-muted py-5 small">
                         <TestTube2 className="mb-2 opacity-25" size={28} />
                         <div className="fw-semibold text-dark">Không có ống mẫu nào chờ tiếp nhận</div>
-                        <div>Các ống mẫu sau khi lấy mẫu ở Bước 1 sẽ tự động xuất hiện tại đây.</div>
+                        <div>Các ống mẫu sau khi lấy mẫu ở Bước 2 sẽ tự động xuất hiện tại đây.</div>
                       </td>
                     </tr>
                   ) : (
@@ -775,7 +776,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                       return (
                         <tr key={key}>
                           <td className="ps-3">
-                            <code className="fw-bold text-primary small">{p.barcode || key}</code>
+                            <Code128Barcode value={p.barcode || key} height={24} width={1.0} compact align="start" />
                           </td>
                           <td>
                             <div className="fw-semibold small text-dark">{p.patientName || '—'}</div>
@@ -830,9 +831,9 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         <section className="bms-table-standalone-section">
           <div className="bms-table-standalone-header">
             <div>
-              <h2 className="bms-table-standalone-title">Ống mẫu đã tiếp nhận Lab — Chiết mẫu &amp; Bắt đầu XN</h2>
+              <h2 className="bms-table-standalone-title">Ống mẫu đã tiếp nhận Lab — Sẵn sàng phân tích</h2>
               <p className="bms-table-standalone-subtitle">
-                Chiết mẫu phụ (Aliquot) nếu cần chạy nhiều máy, sau đó bấm <strong>Bắt đầu XN</strong> để chuyển ống mẫu sang Bước 3 (Nhập kết quả).
+                Bấm <strong>Bắt đầu XN</strong> để đưa ống mẫu vào phân tích và chuyển sang Bước 4 (Nhập kết quả). Nút <em>Chiết mẫu</em> (tùy chọn) chỉ hiển thị với ống huyết thanh/huyết tương cần chia nhiều máy.
               </p>
             </div>
             <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
@@ -864,7 +865,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                       <td colSpan={6} className="text-center text-muted py-5 small">
                         <FlaskConical className="mb-2 opacity-25" size={28} />
                         <div className="fw-semibold text-dark">Chưa có ống mẫu nào ở trạng thái Đã tiếp nhận Lab</div>
-                        <div>Hãy tiếp nhận mẫu ở tab "Chờ tiếp nhận Lab" trước khi chiết mẫu hoặc chạy máy.</div>
+                        <div>Hãy tiếp nhận mẫu ở tab "Chờ tiếp nhận Lab" trước khi bắt đầu xét nghiệm.</div>
                       </td>
                     </tr>
                   ) : (
@@ -875,8 +876,8 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                       return (
                         <tr key={s.id || s.barcode}>
                           <td className="ps-3">
-                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                              <code className="fw-bold text-primary small">{s.barcode || s.id}</code>
+                            <div className="d-flex flex-column align-items-start gap-1">
+                              <Code128Barcode value={s.barcode || s.id} height={24} width={1.0} compact align="start" />
                               {s.isAliquot && (
                                 <span className="badge bg-info text-white" style={{ fontSize: '0.68rem' }}>Aliquot</span>
                               )}
@@ -896,12 +897,12 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                           </td>
                           <td className="text-end pe-3">
                             <div className="d-inline-flex align-items-center gap-1.5">
-                              {!s.isAliquot && canCreateAliquot(s.status) && (
+                              {canAliquotTube(s) && (
                                 <button
                                   type="button"
-                                  className="btn btn-sm btn-outline-info rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
+                                  className="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
                                   disabled={Boolean(actionBusyId)}
-                                  title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích trước khi chạy XN"
+                                  title="Tùy chọn: Chiết mẫu phụ (Aliquot) cho ống huyết thanh/huyết tương cần chạy nhiều máy"
                                   onClick={() => void handleCreateAliquot(s)}
                                 >
                                   {isBusyAliquot ? <Loader2 className="fa-spin" size={12} /> : <TestTube2 size={12} />}
@@ -913,7 +914,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                                 className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-white shadow-sm"
                                 style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                                 disabled={Boolean(actionBusyId)}
-                                title="Đưa ống mẫu vào máy phân tích (chuyển sang Bước 3: Nhập kết quả)"
+                                title="Đưa ống mẫu vào máy phân tích và chuyển sang Bước 4 (Nhập kết quả)"
                                 onClick={() => void handleStartTesting(s)}
                               >
                                 {isBusyTesting ? <Loader2 className="fa-spin" size={12} /> : <FlaskConical size={12} />}

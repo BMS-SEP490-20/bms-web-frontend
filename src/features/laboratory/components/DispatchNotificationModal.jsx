@@ -11,9 +11,8 @@ import { fetchCompletedTestPatients } from "../api/testResultNotificationApi";
 
 const CHANNELS = [
     { value: 3, label: "Thư Điện Tử (Email) - Trực Tiếp Qua SMTP" },
-    { value: 5, label: "Tất Cả Kênh (Email + In-App + SMS + Push)" },
+    { value: 5, label: "Tất Cả Kênh (Email + In-App + Push)" },
     { value: 1, label: "Thông Báo Ứng Dụng (In-App)" },
-    { value: 2, label: "Tin Nhắn Điện Thoại (SMS)" },
     { value: 4, label: "Thông Báo Đẩy (Mobile Push Notification)" }
 ];
 

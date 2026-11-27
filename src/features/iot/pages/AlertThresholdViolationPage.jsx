@@ -20,6 +20,7 @@ import {
     evaluateTelemetry,
     simulateAlert
 } from "../api/iotAlertApi";
+import { subscribeIotRealtime } from "../services/iotSignalRClient";
 
 export default function AlertThresholdViolationPage() {
     // Alert state
@@ -113,6 +114,16 @@ export default function AlertThresholdViolationPage() {
         loadData();
     }, [loadData]);
 
+    // Real-time SignalR subscription so new violations, recovery flags, and CAPA updates appear immediately
+    useEffect(() => {
+        const unsubscribe = subscribeIotRealtime({
+            onAlertUpdated: () => {
+                loadData();
+            }
+        });
+        return () => unsubscribe();
+    }, [loadData]);
+
     // Filter by search query
     const filteredAlerts = useMemo(() => {
         if (!searchQuery.trim()) return alerts;
@@ -152,21 +163,20 @@ export default function AlertThresholdViolationPage() {
     // Handle Resolve submit
     const handleResolve = async () => {
         if (!selectedAlertForAction) return;
-        if (!actionNotes.trim()) {
-            setActionFeedback({ variant: "warning", text: "Vui lòng ghi rõ biện pháp khắc phục sự cố trước khi xác nhận." });
+        if (!actionNotes.trim() || actionNotes.trim().length < 10) {
+            setActionFeedback({ variant: "warning", text: "Theo ISO 15189, vui lòng ghi rõ đánh giá tác động mẫu máu & biện pháp khắc phục CAPA (tối thiểu 10 ký tự)." });
             return;
         }
         setIsSubmitting(true);
         setActionFeedback(null);
         try {
             await resolveAlert(selectedAlertForAction.id, {
-                operatorName,
-                resolutionNotes: actionNotes
+                resolutionNotes: actionNotes.trim()
             });
             setSelectedAlertForAction(null);
             setActionType(null);
             setActionNotes("");
-            setActionFeedback({ variant: "success", text: "Đã ghi nhận biện pháp khắc phục sự cố thành công." });
+            setActionFeedback({ variant: "success", text: "Đã ký xác nhận biên bản CAPA và đóng cảnh báo thành công." });
             await loadData();
         } catch (err) {
             setActionFeedback({ variant: "danger", text: err?.response?.data?.message || err?.message || "Không thể cập nhật trạng thái khắc phục." });
@@ -199,7 +209,7 @@ export default function AlertThresholdViolationPage() {
     const isAdminUser = currentRoleId === ROLES.ADMIN;
     const canSimulateAlert = currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER;
     const canAcknowledgeAlert = currentRoleId === ROLES.LAB || currentRoleId === ROLES.MANAGER;
-    const canResolveAlert = currentRoleId === ROLES.MANAGER || currentRoleId === ROLES.LAB;
+    const canResolveAlert = currentRoleId === ROLES.MANAGER;
 
     const isCriticalHealth = summary.systemHealthStatus === "CRITICAL";
     const isWarningHealth = summary.systemHealthStatus === "WARNING";
@@ -520,21 +530,41 @@ export default function AlertThresholdViolationPage() {
                                                     </span>
                                                 </td>
                                                 <td className="text-center">
-                                                    {isAct && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px' }}>
-                                                            KÍCH HOẠT
-                                                        </span>
-                                                    )}
-                                                    {isAck && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
-                                                            ĐÃ TIẾP NHẬN
-                                                        </span>
-                                                    )}
-                                                    {isRes && (
-                                                        <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
-                                                            ĐÃ KHẮC PHỤC
-                                                        </span>
-                                                    )}
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        {isAct && (
+                                                            <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#dc2626', borderRadius: '9999px' }}>
+                                                                KÍCH HOẠT
+                                                            </span>
+                                                        )}
+                                                        {isAck && (
+                                                            <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(231, 188, 76, 0.15)', color: '#b48316', borderRadius: '9999px' }}>
+                                                                ĐÃ TIẾP NHẬN
+                                                            </span>
+                                                        )}
+                                                        {isRes && (
+                                                            <span className="badge px-3 py-1" style={{ backgroundColor: 'rgba(145, 222, 131, 0.2)', color: '#2b8a3e', borderRadius: '9999px' }}>
+                                                                ĐÃ ĐÓNG CAPA
+                                                            </span>
+                                                        )}
+                                                        {!isRes && alert.temperatureRecovered && (
+                                                            <span
+                                                                className="badge px-2 py-1"
+                                                                style={{ backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: '9999px', fontSize: '10.5px' }}
+                                                                title={`Cảm biến đã về ngưỡng an toàn (${alert.recoveredValue ?? ''}${alert.unit}). Cần Manager đánh giá mẫu máu & đóng CAPA theo ISO 15189.`}
+                                                            >
+                                                                Đã hồi phục · Chờ CAPA
+                                                            </span>
+                                                        )}
+                                                        {Array.isArray(alert.notificationChannelsDispatched) && alert.notificationChannelsDispatched.length > 0 && (
+                                                            <div className="d-flex flex-wrap justify-content-center gap-1 mt-1">
+                                                                {alert.notificationChannelsDispatched.map((ch) => (
+                                                                    <span key={ch} style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '999px', background: '#f1f5f9', color: '#475569' }}>
+                                                                        {ch}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="small text-muted">
                                                     <div>{new Date(alert.triggeredAt).toLocaleString('vi-VN')}</div>
@@ -632,15 +662,16 @@ export default function AlertThresholdViolationPage() {
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label small fw-bold text-muted text-uppercase">Họ tên nhân viên phụ trách:</label>
+                                    <label className="form-label small fw-bold text-muted text-uppercase">Nhân sự thực hiện (Xác thực tự động từ JWT):</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        style={{ backgroundColor: '#EEF2F6', borderRadius: '12px' }}
-                                        value={operatorName}
-                                        onChange={e => setOperatorName(e.target.value)}
-                                        required
+                                        style={{ backgroundColor: '#E2E8F0', borderRadius: '12px', color: '#334155', fontWeight: 600 }}
+                                        value={operatorName || "Tài khoản đăng nhập hiện tại"}
+                                        readOnly
+                                        disabled
                                     />
+                                    <div className="form-text small">Danh tính người ký được hệ thống trích xuất trực tiếp từ phiên đăng nhập (không thể sửa tay).</div>
                                 </div>
 
                                 <div className="mb-3">

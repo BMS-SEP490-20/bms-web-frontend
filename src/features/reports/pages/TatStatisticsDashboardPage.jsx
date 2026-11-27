@@ -71,7 +71,9 @@ export default function TatStatisticsDashboardPage() {
         try {
             const tf = TIMEFRAMES.find(t => t.key === selectedTimeframe);
             const days = tf ? tf.days : 30;
-            const fromDate = days > 0 ? new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString() : new Date().toISOString();
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            const fromDate = days > 0 ? new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString() : startOfToday.toISOString();
 
             const data = await fetchTatReport({
                 fromDate,
@@ -95,7 +97,15 @@ export default function TatStatisticsDashboardPage() {
     const handleExportCsv = async () => {
         setIsExporting(true);
         try {
+            const tf = TIMEFRAMES.find(t => t.key === selectedTimeframe);
+            const days = tf ? tf.days : 30;
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            const fromDate = days > 0 ? new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString() : startOfToday.toISOString();
+
             const blob = await exportTatCsv({
+                fromDate,
+                toDate: new Date().toISOString(),
                 department: selectedDepartment,
                 priority: selectedPriority
             });
@@ -189,7 +199,7 @@ export default function TatStatisticsDashboardPage() {
                     <option value="ALL">Tất cả ưu tiên</option>
                     <option value="Stat">Cấp cứu (STAT &le; 60m)</option>
                     <option value="Urgent">Khẩn cấp (Urgent &le; 120m)</option>
-                    <option value="Normal">Thường quy (Normal &le; 120m)</option>
+                    <option value="Normal">Thường quy (Normal &le; 240m)</option>
                 </select>
 
                 {(selectedDepartment !== "ALL" || selectedPriority !== "ALL" || selectedTimeframe !== "MONTH") && (
@@ -230,7 +240,7 @@ export default function TatStatisticsDashboardPage() {
                     <div className="bms-kpi-quad-card">
                         <div>
                             <h6 className="bms-kpi-label">Tỷ Lệ Đạt Chuẩn SLA</h6>
-                            <div className="bms-kpi-value text-success">{summary.targetComplianceRate || 100}%</div>
+                            <div className="bms-kpi-value text-success">{summary.targetComplianceRate ?? 100}%</div>
                             <div className="bms-kpi-sub text-muted">Hoàn tất trong thời gian mục tiêu</div>
                         </div>
                         <div className="bms-kpi-icon-badge bms-kpi-icon-green">

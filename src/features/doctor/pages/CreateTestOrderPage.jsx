@@ -26,21 +26,44 @@ import { getAppointments } from "../../appointment/api/appointmentApi";
 import { medicalRecordApi } from "../api/medicalRecordApi";
 import { getPatientById } from "../../../services/patientService";
 
-// Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế
+// Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế (tối ưu cho Phòng Xét Nghiệm Máu)
 const CLINICAL_ICD10_LIST = [
   { code: "E11.9", name: "Đái tháo đường typ 2 không biến chứng" },
+  { code: "E10.9", name: "Đái tháo đường typ 1 không biến chứng" },
   { code: "I10", name: "Tăng huyết áp vô căn (nguyên phát)" },
   { code: "E78.5", name: "Rối loạn chuyển hóa lipid máu (Tăng mỡ máu)" },
   { code: "D50.9", name: "Thiếu máu do thiếu sắt không đặc hiệu" },
+  { code: "D64.9", name: "Thiếu máu không đặc hiệu (Đánh giá công thức máu)" },
+  { code: "D68.9", name: "Rối loạn đông máu không đặc hiệu (PT/INR, aPTT)" },
+  { code: "D69.6", name: "Giảm tiểu cầu không đặc hiệu" },
+  { code: "B18.1", name: "Viêm gan siêu vi B mạn không có tác nhân Delta" },
+  { code: "B18.2", name: "Viêm gan siêu vi C mạn" },
+  { code: "K76.0", name: "Gan nhiễm mỡ / Tăng men gan (AST, ALT, GGT)" },
+  { code: "K74.6", name: "Xơ gan / Theo dõi chức năng gan" },
   { code: "K29.7", name: "Viêm dạ dày tá tràng" },
-  { code: "K76.0", name: "Gan nhiễm mỡ / Tăng men gan" },
-  { code: "E03.9", name: "Suy giáp không đặc hiệu (Tầm soát tuyến giáp)" },
-  { code: "M10.9", name: "Bệnh Gút (Gout) / Tăng Acid Uric" },
-  { code: "N18.9", name: "Bệnh thận mạn / Đánh giá chức năng thận" },
-  { code: "J20.9", name: "Viêm phế quản cấp / Nhiễm trùng hô hấp" },
+  { code: "E03.9", name: "Suy giáp không đặc hiệu (TSH, FT4)" },
+  { code: "E05.9", name: "Cường giáp / Nhiễm độc giáp (Tầm soát tuyến giáp)" },
+  { code: "M10.9", name: "Bệnh Gút (Gout) / Tăng Acid Uric máu" },
+  { code: "N18.9", name: "Bệnh thận mạn / Đánh giá Ure, Creatinine, eGFR" },
   { code: "N39.0", name: "Nhiễm trùng đường tiết niệu" },
-  { code: "Z00.0", name: "Khám sức khỏe tổng quát định kỳ" }
+  { code: "J20.9", name: "Viêm phế quản cấp / Nhiễm trùng hô hấp" },
+  { code: "R73.9", name: "Tăng đường huyết không đặc hiệu (Glucose, HbA1c)" },
+  { code: "R74.0", name: "Tăng nồng độ transaminase (men gan) không đặc hiệu" },
+  { code: "Z00.0", name: "Khám sức khỏe tổng quát định kỳ" },
+  { code: "Z01.7", name: "Khám xét nghiệm cận lâm sàng" },
+  { code: "Z34.9", name: "Theo dõi thai kỳ bình thường (Xét nghiệm tiền sản)" }
 ];
+
+const ICD10_BY_CODE = Object.fromEntries(CLINICAL_ICD10_LIST.map((x) => [x.code, x.name]));
+
+const normalizeViText = (str) =>
+  String(str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .trim();
 
 const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
 
@@ -141,6 +164,7 @@ export default function CreateTestOrderPage() {
   const [saveToEmr, setSaveToEmr] = useState(true);
   const [selectedIcdCodes, setSelectedIcdCodes] = useState(["E11.9"]);
   const [customIcdInput, setCustomIcdInput] = useState("");
+  const [icdDropdownOpen, setIcdDropdownOpen] = useState(false);
   const [icdError, setIcdError] = useState("");
   const [clinicalIndication, setClinicalIndication] = useState("");
   const [priority, setPriority] = useState("Routine");
@@ -672,10 +696,21 @@ export default function CreateTestOrderPage() {
     };
   }, [activeModalEncounter, modalPatientDetail]);
 
+  const filteredIcdOptions = useMemo(() => {
+    const q = normalizeViText(customIcdInput);
+    const available = CLINICAL_ICD10_LIST.filter((x) => !selectedIcdCodes.includes(x.code));
+    if (!q) return available;
+    return available.filter(
+      (x) =>
+        normalizeViText(x.code).includes(q) ||
+        normalizeViText(x.name).includes(q)
+    );
+  }, [customIcdInput, selectedIcdCodes]);
+
   const handleAddIcd = (code) => {
-    const upper = code.trim().toUpperCase();
+    const upper = String(code || "").trim().toUpperCase();
     if (!ICD10_REGEX.test(upper)) {
-      setIcdError(`Mã ICD-10 "${upper}" sai định dạng chuẩn WHO (VD: E11.9, I10, Z00.0).`);
+      setIcdError(`Mã ICD-10 "${upper}" sai định dạng chuẩn WHO (VD: E11.9, I10, B18.1, Z00.0).`);
       return;
     }
     setIcdError("");
@@ -683,6 +718,22 @@ export default function CreateTestOrderPage() {
       setSelectedIcdCodes([...selectedIcdCodes, upper]);
     }
     setCustomIcdInput("");
+    setIcdDropdownOpen(false);
+  };
+
+  const handleSubmitIcdSearch = () => {
+    const raw = customIcdInput.trim();
+    if (!raw) return;
+    const upper = raw.toUpperCase();
+    if (ICD10_REGEX.test(upper)) {
+      handleAddIcd(upper);
+      return;
+    }
+    if (filteredIcdOptions.length > 0) {
+      handleAddIcd(filteredIcdOptions[0].code);
+      return;
+    }
+    setIcdError(`Không tìm thấy bệnh phù hợp với "${raw}". Hãy nhập mã chuẩn WHO ICD-10 (VD: E11.9, I10).`);
   };
 
   const handleRemoveIcd = (code) => {
@@ -1474,30 +1525,246 @@ export default function CreateTestOrderPage() {
                   </div>
                 )}
 
-                {/* Mã bệnh ICD-10 */}
+                {/* Chẩn đoán mã bệnh ICD-10 */}
                 <div style={{ marginBottom: "14px" }}>
-                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1.5">
-                    <label style={{ fontSize: "12px", fontWeight: 700, color: "#334155", margin: 0 }}>
-                      Mã bệnh ICD-10 <span className="text-danger">*</span>
+                  {/* Hàng 1: Label */}
+                  <div className="d-flex justify-content-between align-items-baseline flex-wrap gap-1 mb-1.5">
+                    <label style={{ fontSize: "12.5px", fontWeight: 700, color: "#1E293B", margin: 0 }}>
+                      Chẩn đoán mã bệnh ICD-10 <span className="text-danger">*</span>
                     </label>
-                    <div className="d-flex flex-wrap gap-1.5">
-                      {selectedIcdCodes.map((code) => (
-                        <span
-                          key={code}
+                  </div>
+
+                  {/* Hàng 2: 1 ô Searchable Combobox duy nhất */}
+                  {!dispatchedOrderResult && (
+                    <div style={{ position: "relative", marginBottom: "8px" }}>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <div style={{ position: "relative", flex: 1 }}>
+                          <Search
+                            size={14}
+                            style={{
+                              position: "absolute",
+                              left: "12px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              color: "#94A3B8",
+                              pointerEvents: "none",
+                            }}
+                          />
+                          <input
+                            type="text"
+                            className="form-control"
+                            style={{
+                              height: "38px",
+                              paddingLeft: "34px",
+                              paddingRight: customIcdInput ? "30px" : "12px",
+                              fontSize: "13px",
+                              borderRadius: "10px",
+                              borderColor: icdDropdownOpen ? "#1E60E6" : "#CBD5E1",
+                            }}
+                            placeholder="Tìm theo mã (E11, D50, B18.1...) hoặc tên bệnh (tiểu đường, thiếu máu, viêm gan)..."
+                            value={customIcdInput}
+                            onFocus={() => setIcdDropdownOpen(true)}
+                            onBlur={() => setTimeout(() => setIcdDropdownOpen(false), 160)}
+                            onChange={(e) => {
+                              setCustomIcdInput(e.target.value);
+                              setIcdDropdownOpen(true);
+                              if (icdError) setIcdError("");
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSubmitIcdSearch();
+                              } else if (e.key === "Escape") {
+                                setIcdDropdownOpen(false);
+                              }
+                            }}
+                          />
+                          {customIcdInput && (
+                            <button
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => setCustomIcdInput("")}
+                              style={{
+                                position: "absolute",
+                                right: "8px",
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                border: "none",
+                                background: "transparent",
+                                color: "#94A3B8",
+                                padding: "2px",
+                                cursor: "pointer",
+                                display: "inline-flex",
+                              }}
+                              aria-label="Xóa từ khóa tìm kiếm"
+                            >
+                              <LucideX size={13} />
+                            </button>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={handleSubmitIcdSearch}
+                          disabled={!customIcdInput.trim()}
                           style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "5px",
-                            padding: "2px 9px",
-                            borderRadius: "999px",
-                            backgroundColor: "#EFF6FF",
-                            color: "#1E60E6",
+                            height: "38px",
+                            padding: "0 14px",
+                            borderRadius: "10px",
                             border: "1px solid #BFDBFE",
-                            fontSize: "12px",
-                            fontWeight: 700,
+                            backgroundColor: customIcdInput.trim() ? "#1E60E6" : "#EFF6FF",
+                            color: customIcdInput.trim() ? "#FFFFFF" : "#1E60E6",
+                            fontWeight: 600,
+                            fontSize: "12.5px",
+                            whiteSpace: "nowrap",
+                            cursor: customIcdInput.trim() ? "pointer" : "not-allowed",
                           }}
                         >
-                          <span className="font-monospace">{code}</span>
+                          + Thêm mã
+                        </button>
+                      </div>
+
+                      {icdDropdownOpen && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "42px",
+                            left: 0,
+                            right: 0,
+                            zIndex: 40,
+                            backgroundColor: "#FFFFFF",
+                            border: "1px solid #CBD5E1",
+                            borderRadius: "12px",
+                            boxShadow: "0 10px 28px rgba(15, 23, 42, 0.14)",
+                            maxHeight: "220px",
+                            overflowY: "auto",
+                            padding: "4px",
+                          }}
+                        >
+                          {filteredIcdOptions.length > 0 ? (
+                            filteredIcdOptions.map((icd) => (
+                              <button
+                                key={icd.code}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  handleAddIcd(icd.code);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  textAlign: "left",
+                                  border: "none",
+                                  background: "transparent",
+                                  padding: "7px 10px",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                  fontSize: "12.5px",
+                                  cursor: "pointer",
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#EFF6FF"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                              >
+                                <span
+                                  className="font-monospace fw-bold"
+                                  style={{
+                                    color: "#1E60E6",
+                                    backgroundColor: "#EFF6FF",
+                                    border: "1px solid #DBEAFE",
+                                    padding: "1px 7px",
+                                    borderRadius: "6px",
+                                    fontSize: "11.5px",
+                                    minWidth: "56px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {icd.code}
+                                </span>
+                                <span style={{ color: "#1E293B", fontWeight: 500 }}>{icd.name}</span>
+                              </button>
+                            ))
+                          ) : ICD10_REGEX.test(customIcdInput.trim().toUpperCase()) ? (
+                            <button
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleAddIcd(customIcdInput.trim().toUpperCase());
+                              }}
+                              style={{
+                                width: "100%",
+                                textAlign: "left",
+                                border: "none",
+                                background: "#F0FDF4",
+                                color: "#166534",
+                                padding: "8px 10px",
+                                borderRadius: "8px",
+                                fontSize: "12.5px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              + Thêm mã ICD-10 ngoài danh mục: <span className="font-monospace">{customIcdInput.trim().toUpperCase()}</span>
+                            </button>
+                          ) : (
+                            <div style={{ padding: "10px 12px", fontSize: "12px", color: "#64748B" }}>
+                              Không có bệnh khớp từ khóa. Nhập đúng mã chuẩn WHO ICD-10 (VD: <code>A09</code>, <code>E11.9</code>) rồi bấm <strong>Enter</strong>.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {icdError && <div className="text-danger small mb-1.5 fw-medium">{icdError}</div>}
+
+                  {/* Hàng 3: Danh sách mã đã chọn (mã ICD-10 + tên bệnh đầy đủ) */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {selectedIcdCodes.map((code) => {
+                      const diseaseName = ICD10_BY_CODE[code] || "Mã chẩn đoán ICD-10 bổ sung";
+                      return (
+                        <div
+                          key={code}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "8px",
+                            padding: "7px 10px",
+                            borderRadius: "10px",
+                            backgroundColor: "#F8FAFC",
+                            border: "1px solid #E2E8F0",
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, flex: 1 }}>
+                            <span
+                              className="font-monospace fw-bold"
+                              style={{
+                                fontSize: "12px",
+                                color: "#1E60E6",
+                                backgroundColor: "#EFF6FF",
+                                border: "1px solid #DBEAFE",
+                                padding: "1px 8px",
+                                borderRadius: "6px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {code}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "12.5px",
+                                color: "#334155",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                              title={`${code} — ${diseaseName}`}
+                            >
+                              — {diseaseName}
+                            </span>
+                          </div>
+
                           {!dispatchedOrderResult && (
                             <button
                               type="button"
@@ -1505,68 +1772,22 @@ export default function CreateTestOrderPage() {
                               style={{
                                 border: "none",
                                 background: "transparent",
-                                padding: 0,
+                                padding: "2px",
                                 display: "inline-flex",
-                                color: "#1E60E6",
+                                color: "#64748B",
                                 cursor: "pointer",
+                                flexShrink: 0,
                               }}
                               aria-label={`Xóa mã ${code}`}
+                              title={`Xóa mã ${code}`}
                             >
-                              <LucideX size={12} />
+                              <LucideX size={14} />
                             </button>
                           )}
-                        </span>
-                      ))}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {icdError && <div className="text-danger small mb-1.5">{icdError}</div>}
-                  {!dispatchedOrderResult && (
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <select
-                        className="form-select"
-                        style={{ flex: 1, minWidth: 0, height: "36px", fontSize: "13px" }}
-                        value=""
-                        onChange={(e) => {
-                          if (e.target.value) handleAddIcd(e.target.value);
-                        }}
-                      >
-                        <option value="">+ Chọn nhanh mã bệnh ICD-10...</option>
-                        {CLINICAL_ICD10_LIST.map((icd) => (
-                          <option key={icd.code} value={icd.code} disabled={selectedIcdCodes.includes(icd.code)}>
-                            {icd.code} — {icd.name}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        className="form-control"
-                        style={{ width: "108px", height: "36px", fontSize: "13px" }}
-                        placeholder="Mã khác..."
-                        value={customIcdInput}
-                        onChange={(e) => setCustomIcdInput(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => customIcdInput && handleAddIcd(customIcdInput)}
-                        style={{
-                          height: "36px",
-                          width: "36px",
-                          minWidth: "36px",
-                          borderRadius: "10px",
-                          border: "1px solid #BFDBFE",
-                          backgroundColor: "#EFF6FF",
-                          color: "#1E60E6",
-                          fontWeight: 700,
-                          fontSize: "16px",
-                          lineHeight: 1,
-                          cursor: "pointer",
-                        }}
-                        title="Thêm mã ICD-10"
-                      >
-                        +
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 {/* Triệu chứng & Chẩn đoán lâm sàng */}

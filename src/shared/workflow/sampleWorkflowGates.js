@@ -96,6 +96,37 @@ export function canCreateAliquot(status) {
 }
 
 /**
+ * Chuẩn chuyên môn xét nghiệm: chỉ chiết mẫu phụ (Aliquot) đối với ống Huyết thanh / Huyết tương
+ * (SST/Vàng, Đỏ, Xanh dương Citrate, Xanh lá Heparin, Xám NaF).
+ * Ống Tím K2-EDTA (máu toàn phần chạy huyết học) và ống đã là Aliquot không chiết mẫu.
+ */
+export function canAliquotTube(sample) {
+  if (!sample || sample.isAliquot) return false;
+  if (!canCreateAliquot(sample.status)) return false;
+  const tubeMeta = `${sample.tubeColor || ''} ${sample.anticoagulant || ''} ${sample.sampleType || ''}`.toUpperCase();
+  if (tubeMeta.includes('PURPLE') || tubeMeta.includes('TÍM') || tubeMeta.includes('EDTA')) {
+    return false;
+  }
+  return (
+    tubeMeta.includes('SERUM') ||
+    tubeMeta.includes('PLASMA') ||
+    tubeMeta.includes('GOLD') ||
+    tubeMeta.includes('YELLOW') ||
+    tubeMeta.includes('RED') ||
+    tubeMeta.includes('BLUE') ||
+    tubeMeta.includes('GREEN') ||
+    tubeMeta.includes('GRAY') ||
+    tubeMeta.includes('SST') ||
+    tubeMeta.includes('CITRATE') ||
+    tubeMeta.includes('HEPARIN') ||
+    tubeMeta.includes('NAF') ||
+    tubeMeta.includes('VÀNG') ||
+    tubeMeta.includes('ĐỎ') ||
+    tubeMeta.includes('XANH')
+  );
+}
+
+/**
  * Enter / edit results: chỉ khi mẫu đã vào bước Đang xét nghiệm (Testing) hoặc Yêu cầu chạy lại (RerunRequested).
  * Completed / WaitingReview / Rejected → chỉ xem (không nhập lại).
  */

@@ -351,7 +351,6 @@ export default function NotifyTestResultsPage() {
                 >
                     <option value="">Tất cả kênh</option>
                     <option value="InApp">Trong ứng dụng</option>
-                    <option value="Sms">Tin nhắn SMS</option>
                     <option value="Email">Email</option>
                     <option value="Push">Thông báo đẩy</option>
                 </select>

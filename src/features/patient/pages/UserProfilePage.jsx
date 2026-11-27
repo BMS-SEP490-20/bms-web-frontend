@@ -11,9 +11,9 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Card, Row, Col, Badge, Button, Alert, Form, Table, Spinner, ProgressBar } from 'react-bootstrap';
-import { User, IdCard, HeartPulse, Droplet, AlertCircle, Pill, Phone, SquarePen, Save, X as LucideX, CheckCircle2, AlertTriangle, Calendar, FileText, ShieldCheck, Receipt, ClipboardList } from 'lucide-react';
+import { User, IdCard, HeartPulse, Droplet, AlertCircle, Pill, Phone, SquarePen, Save, X as LucideX, CheckCircle2, AlertTriangle, Calendar, FileText, ShieldCheck, Receipt } from 'lucide-react';
 
 function profilePhoto(value) {
   const src = typeof value === 'string' ? value.trim() : '';
@@ -133,7 +133,8 @@ const safeFormatDisplayDate = (dateVal) => {
 };
 
 export const UserProfilePage = () => {
-  const { user, userRole, userRoleName } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user, userRole, userRoleName, updateUser } = useAuth();
   const isStaff = Boolean(userRole && userRole.toLowerCase() !== 'patient');
   const [profile, setProfile] = useState(null);
   const [patientRecord, setPatientRecord] = useState(null);
@@ -141,7 +142,7 @@ export const UserProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(() => searchParams.get('edit') === '1' || searchParams.get('setup') === '1');
 
   // Clinical profile form state
   const [formData, setFormData] = useState({
@@ -214,7 +215,7 @@ export const UserProfilePage = () => {
       const vitals = loadedPatient?.vitals || {};
       const allergies = Array.isArray(loadedPatient?.allergies) ? loadedPatient.allergies.join('; ') : '';
 
-      setFormData({
+      const nextForm = {
         fullName: loadedPatient?.fullName || loadedProfile?.fullName || '',
         identityNumber: loadedPatient?.identityNumber || loadedProfile?.identityCardNumber || '',
         dateOfBirth: safeFormatIsoDate(loadedPatient?.dateOfBirth || loadedProfile?.dateOfBirth),
@@ -233,7 +234,23 @@ export const UserProfilePage = () => {
         emergencyContactName: loadedPatient?.emergencyContactName || '',
         emergencyContactPhone: loadedPatient?.emergencyContactPhone || '',
         emergencyContactRelationship: loadedPatient?.emergencyContactRelationship || 'Vợ/Chồng'
-      });
+      };
+      setFormData(nextForm);
+
+      // Unified Khai báo + Chỉnh sửa: auto-open edit mode if basic profile is incomplete or ?edit=1
+      const basicComplete = Boolean(
+        nextForm.fullName?.trim() &&
+        nextForm.identityNumber?.trim()?.length === 12 &&
+        nextForm.phoneNumber?.trim() &&
+        nextForm.dateOfBirth &&
+        parseFloat(nextForm.heightCm) > 0 &&
+        parseFloat(nextForm.weightKg) > 0 &&
+        nextForm.emergencyContactName?.trim() &&
+        nextForm.emergencyContactPhone?.trim()
+      );
+      if (!isStaffUser && (!basicComplete || searchParams.get('edit') === '1' || searchParams.get('setup') === '1')) {
+        setIsEditing(true);
+      }
     } catch (err) {
       console.error('[UserProfilePage] fetchProfile error:', err);
       setErrorMessage('Không thể kết nối đến hệ thống hồ sơ bệnh nhân BMS.');
@@ -394,20 +411,44 @@ export const UserProfilePage = () => {
 
       const updated = await updateMyPatientInformation(payload);
       setPatientRecord(updated);
+      setProfile((prev) => ({
+        ...(prev || {}),
+        fullName: updated.fullName || payload.fullName,
+        phoneNumber: updated.phoneNumber || payload.phoneNumber,
+        email: updated.email || payload.email,
+        address: updated.address || payload.address,
+        bloodType: updated.bloodType || payload.bloodType,
+        identityCardNumber: updated.identityNumber || payload.identityNumber,
+        dateOfBirth: payload.dateOfBirth,
+        gender: payload.gender,
+      }));
       setIsEditing(false);
-      setSuccessMessage('Hồ sơ bệnh án xét nghiệm y tế đã được lưu và cập nhật thành công!');
+      if (searchParams.get('edit') || searchParams.get('setup')) {
+        setSearchParams({}, { replace: true });
+      }
+      setSuccessMessage('Đã lưu và đồng bộ thông tin khai báo hồ sơ cơ bản thành công!');
 
-      // Update user in localStorage
+      // Sync AuthContext + localStorage so all screens (Booking, Header, Profile) stay 100% consistent
+      const syncedFields = {
+        fullName: updated.fullName || payload.fullName,
+        phoneNumber: updated.phoneNumber || payload.phoneNumber,
+        identityNumber: updated.identityNumber || payload.identityNumber,
+        identityCardNumber: updated.identityNumber || payload.identityNumber,
+        bloodType: updated.bloodType || payload.bloodType,
+        email: updated.email || payload.email,
+        address: updated.address || payload.address,
+        dateOfBirth: payload.dateOfBirth,
+        gender: payload.gender,
+        isProfileComplete: true,
+        medicalProfileCompleted: true,
+      };
+      if (typeof updateUser === 'function') {
+        updateUser(syncedFields);
+      }
       try {
         const stored = localStorage.getItem('user') || localStorage.getItem('bms_user');
         if (stored) {
-          const userObj = JSON.parse(stored);
-          userObj.fullName = updated.fullName;
-          userObj.phoneNumber = updated.phoneNumber;
-          userObj.identityNumber = updated.identityNumber;
-          userObj.bloodType = updated.bloodType;
-          userObj.isProfileComplete = isProfileComplete;
-          userObj.medicalProfileCompleted = true;
+          const userObj = { ...JSON.parse(stored), ...syncedFields };
           localStorage.setItem('user', JSON.stringify(userObj));
           localStorage.setItem('bms_user', JSON.stringify(userObj));
         }
@@ -788,29 +829,25 @@ export const UserProfilePage = () => {
             <div className="bms-profile-card">
               <div className="bms-profile-masthead">
                 <div>
-                  <h3 className="bms-profile-main-title">
-                    Hồ sơ bệnh án
+                  <h3 className="bms-profile-main-title mb-1">
+                    Hồ Sơ &amp; Khai Báo Thông Tin Cơ Bản
                   </h3>
+                  <div className="text-muted small">
+                    Thông tin định danh, chỉ số thể trạng và tiền sử y khoa cơ bản do bệnh nhân khai báo &amp; cập nhật đồng bộ.
+                  </div>
                 </div>
                 <div className="d-flex align-items-center gap-2">
-                  <Link
-                    to="/patient/medical-profile-setup"
-                    className="bms-btn-pill-outline text-decoration-none"
-                    title="Mở biểu mẫu khai báo nhanh"
-                  >
-                    <ClipboardList className="me-1" size="1em" /> Khai Báo Nhanh
-                  </Link>
                   {!isEditing ? (
                     <button
                       type="button"
                       className="bms-btn-pill-primary"
                       onClick={() => setIsEditing(true)}
                     >
-                      <SquarePen className="me-1"  size="1em"/> Chỉnh sửa
+                      <SquarePen className="me-1" size="1em" /> Chỉnh sửa
                     </button>
                   ) : (
                     <span className="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">
-                      Chế độ chỉnh sửa
+                      Đang chỉnh sửa
                     </span>
                   )}
                 </div>

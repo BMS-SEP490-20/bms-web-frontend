@@ -163,6 +163,15 @@ export async function fetchIotConnectionStatus(deviceId = "BMS-IOT-001") {
 }
 
 /**
+ * Fetch real-time connection &amp; threshold status across ALL configured IoT devices.
+ * @returns {Promise<Array>}
+ */
+export async function fetchAllIotConnectionStatuses() {
+    const data = unwrap(await api.get("/iot/status/all"));
+    return Array.isArray(data) ? data : [];
+}
+
+/**
  * Fetch connection loss outage windows and buffered data sync counts.
  * @param {string} [deviceId="BMS-IOT-001"]
  * @returns {Promise<Array>}

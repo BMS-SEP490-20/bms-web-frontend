@@ -40,6 +40,7 @@ import {
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { formatTubeColorVi, formatSampleTypeVi, matchSuppliesFromInventory } from '../../../shared/workflow/labConsumables';
 import { getInventory, consumeInventory } from '../../inventory/api/inventoryApi';
+import Code128Barcode from '../../../shared/components/Code128Barcode';
 
 /**
  * Standard Clinical Lab Test Parameters (Clean Human-Operated Routine Entry).
@@ -679,7 +680,7 @@ const SampleQueuePage = () => {
       const consumeRes = await consumeInventory({
         sampleId: collectionForm.barcode.trim() || collectionTargetSample?.barcode || '',
         testPackageCode: collectionTargetSample?.testPackageName || '',
-        stage: 'Lấy mẫu bệnh phẩm (Bước 1)',
+        stage: 'Lấy mẫu bệnh phẩm (Bước 2)',
         notes: collectionForm.notes.trim() || undefined,
         items: checkedSupplies.map((s) => ({
           reagentId: s.id,
@@ -839,14 +840,6 @@ const SampleQueuePage = () => {
     setStatusSubmitting(true);
     try {
       const res = await api.put(`/laboratory/samples/${encodeURIComponent(statusTargetSample.id)}/status`, payload);
-      if (statusForm.status === 'Rejected' && /tán huyết|hemol/i.test(statusForm.rejectionReason)) {
-        try {
-          await api.post(`/laboratory/samples/${encodeURIComponent(statusTargetSample.id)}/rerun`, {
-            reason: `Mẫu tán huyết (Hemolysis) - Khóa phân tích, yêu cầu lấy lại mẫu: ${statusForm.rejectionReason}`,
-            requestedBy: statusForm.technicianName || 'KTV Lab'
-          });
-        } catch { }
-      }
       setSuccessMsg(
         res.data?.message ||
         `Đã chuyển trạng thái mẫu ${statusTargetSample.barcode} sang "${STATUS_META[statusForm.status]?.label || statusForm.status}".`
@@ -938,24 +931,13 @@ const SampleQueuePage = () => {
             <h1 className="bms-page-title">Hàng đợi &amp; Lấy mẫu bệnh phẩm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Ghi nhận thời điểm lấy mẫu bệnh phẩm (Bước 1) và theo dõi trạng thái xử lý tại phòng xét nghiệm.
+            Ghi nhận thời điểm lấy mẫu bệnh phẩm (Bước 2 — sau khi in tem Barcode ở Bước 1) và theo dõi trạng thái xử lý tại phòng xét nghiệm.
           </p>
         </div>
         <div className="bms-page-actions">
           <Button variant="outline-secondary" size="sm" onClick={fetchQueue} disabled={loading} className="rounded-pill px-3 text-nowrap">
             <RefreshCw className={loading ? 'fa-spin me-1' : 'me-1'} size={12} /> Làm mới
           </Button>
-          {canRecordSampleTime && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => openRecordCollectionModal(null)}
-              className="rounded-pill px-3 fw-semibold text-white text-nowrap"
-              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-            >
-              <Clock className="me-1" size="1em" /> Ghi nhận lấy mẫu mới
-            </Button>
-          )}
         </div>
       </div>
 
@@ -1122,11 +1104,8 @@ const SampleQueuePage = () => {
                 <tbody>
                   {queuePag.paginatedItems.map((s) => (
                     <tr key={s.id}>
-                      <td className="ps-3" style={{ wordBreak: 'break-all' }}>
-                        <div className="fw-bold font-monospace text-primary d-flex align-items-start gap-1" style={{ fontSize: '0.75rem', lineHeight: 1.3 }}>
-                          <LucideBarcode size="1em" className="flex-shrink-0" />
-                          <span>{s.barcode}</span>
-                        </div>
+                      <td className="ps-3">
+                        <Code128Barcode value={s.barcode} height={24} width={1.0} compact align="start" />
                         <div className="d-flex align-items-center gap-1 flex-wrap mt-1">
                           {getPriorityBadge(s.priority)}
                           {s.isAliquot && (
@@ -1219,11 +1198,11 @@ const SampleQueuePage = () => {
 
                             const stageHint =
                               st === 'Collected' || st === 'InTransit'
-                                ? 'Chờ Bước 2 (Tiếp nhận)'
+                                ? 'Chờ Bước 3 (Tiếp nhận Lab)'
                                 : st === 'Received' || st === 'Processing'
-                                  ? 'Đang ở Bước 2 (Xử lý Lab)'
+                                  ? 'Đang ở Bước 3 (Xử lý Lab)'
                                   : st === 'Testing' || st === 'RerunRequested'
-                                    ? 'Chờ Bước 3 (Nhập KQ)'
+                                    ? 'Chờ Bước 4 (Nhập KQ)'
                                     : 'Hoàn tất tại Lab';
 
                             return (

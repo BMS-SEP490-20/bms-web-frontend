@@ -5,6 +5,7 @@ import { appointmentService } from '../../../../services/appointmentService';
 import { doctorService } from '../../../../services/doctorService';
 import { useNotificationContext } from '../../../../shared/contexts/NotificationContext';
 import { queueApi } from '../../api/queueApi';
+import { PosThermalModal } from '../../../../shared/components/PosThermalSlip';
 import { Info, CheckCircle2, CheckCheck, DoorOpen, RotateCw, Printer, Eye, AlertCircle, Check as LucideCheck, UserCheck, Plus, Camera as LucideCamera, Image as LucideImage, Keyboard, AlertTriangle, VideoOff, QrCode, Search, Upload } from 'lucide-react';
 
 /**
@@ -49,6 +50,7 @@ const QuickCheckInScan = ({
   const [lastCheckedInPatient, setLastCheckedInPatient] = useState(null);
   const [pendingCheckInPatient, setPendingCheckInPatient] = useState(null);
   const [alreadyCheckedInPatient, setAlreadyCheckedInPatient] = useState(null);
+  const [posSlipPatient, setPosSlipPatient] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const retryCountRef = useRef(0);
@@ -132,71 +134,7 @@ const QuickCheckInScan = ({
 
   const handlePrintK80Slip = (patientData) => {
     if (!patientData) return;
-    const ticketNo = patientData.queueNumber || 'Q-001';
-    const win = window.open('', '_blank');
-    if (!win) {
-      showError('Không thể mở cửa sổ in. Vui lòng cho phép popup trên trình duyệt.');
-      return;
-    }
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <title>Phieu_Tiep_Don_K80_${patientData.appointmentCode || 'BMS'}</title>
-          <style>
-            @page { size: 80mm auto; margin: 0; }
-            body {
-              font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-              margin: 0;
-              padding: 10px;
-              background: #fff;
-              color: #000;
-              display: flex;
-              justify-content: center;
-            }
-            .ticket {
-              width: 76mm;
-              max-width: 100%;
-              text-align: center;
-            }
-            .dashed { border-bottom: 1px dashed #000; margin: 8px 0; }
-          </style>
-        </head>
-        <body>
-          <div class="ticket">
-            <div style="font-weight: 800; font-size: 13px; text-transform: uppercase;">HỆ THỐNG XÉT NGHIỆM BMS MEDLAB</div>
-            <div style="font-size: 10px; color: #555;">BMS MedLab • Hotline: 1900 6868</div>
-            <div class="dashed"></div>
-            <div style="font-size: 11px; font-weight: bold; margin-top: 4px;">PHIẾU TIẾP ĐÓN & SỐ THỨ TỰ LẤY MẪU</div>
-            <div style="margin: 8px 0; padding: 8px; border: 2px solid #000; border-radius: 8px;">
-              <div style="font-size: 10px; text-transform: uppercase;">Số Thứ Tự Lấy Mẫu</div>
-              <div style="font-size: 36px; font-weight: 900; line-height: 1.1; margin: 4px 0;">${ticketNo}</div>
-              <div style="font-size: 10px; font-weight: 600;">Phòng Lấy Mẫu 101 • Tầng 1 Khu B</div>
-            </div>
-            <div style="text-align: left; font-size: 11px; line-height: 1.6;">
-              <div><strong>Bệnh nhân:</strong> ${patientData.name || patientData.patientName}</div>
-              <div><strong>Mã lịch hẹn:</strong> ${patientData.appointmentCode}</div>
-              <div><strong>Ngày khám:</strong> ${formatDisplayDate(patientData.appointmentDate)}</div>
-              <div><strong>Khung giờ:</strong> ${formatDisplayTime(patientData.appointmentTime)}</div>
-              <div><strong>Dịch vụ:</strong> ${patientData.service || 'Tổng phân tích tế bào máu'}</div>
-              <div><strong>Thời gian in:</strong> ${new Date().toLocaleTimeString('vi-VN')} ${new Date().toLocaleDateString('vi-VN')}</div>
-            </div>
-            <div class="dashed"></div>
-            <div style="font-size: 10px; color: #444; line-height: 1.4;">
-              Vui lòng theo dõi bảng điện tử gọi số tại sảnh chờ.<br/>
-              Chuẩn bị CCCD/VNeID khi vào bàn lấy mẫu.
-            </div>
-          </div>
-          <script>
-            window.onload = function() { window.print(); window.close(); }
-          </script>
-        </body>
-      </html>
-    `;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
+    setPosSlipPatient(patientData);
   };
 
   const handleManualSubmit = async (e) => {
@@ -1289,6 +1227,57 @@ const QuickCheckInScan = ({
           <Spinner animation="border" size="sm" className="me-2" />
           Đang xử lý...
         </Alert>
+      )}
+
+      {/* Unified POS K80 Queue STT Slip Modal */}
+      {posSlipPatient && (
+        <PosThermalModal
+          show={Boolean(posSlipPatient)}
+          onClose={() => setPosSlipPatient(null)}
+          modalTitle="Phiếu Số Thứ Tự Lấy Mẫu"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`STT: ${posSlipPatient.queueNumber || 'Q-001'} • Mã hẹn: ${posSlipPatient.appointmentCode || '—'}`}
+          printTitle={`Phieu_STT_POS_${posSlipPatient.queueNumber || 'Q-001'}`}
+          printButtonLabel="In Phiếu STT (K80)"
+          copyText={posSlipPatient.appointmentCode || ''}
+          copyButtonLabel="Sao chép mã hẹn"
+          slipProps={{
+            title: 'PHIẾU SỐ THỨ TỰ LẤY MẪU',
+            subtitle: 'Phiếu tiếp đón & điều phối hàng đợi',
+            statusBadge: 'ĐÃ TIẾP ĐÓN',
+            highlight: {
+              label: 'SỐ THỨ TỰ',
+              value: posSlipPatient.queueNumber || 'Q-001',
+              sub: 'Phòng Lấy Mẫu 101 • Tầng 1',
+            },
+            sections: [
+              {
+                title: 'Thông tin tiếp đón',
+                rows: [
+                  { label: 'Bệnh nhân', value: posSlipPatient.name || posSlipPatient.patientName || '—' },
+                  { label: 'Mã lịch hẹn', value: posSlipPatient.appointmentCode || '—', mono: true },
+                  { label: 'Ngày khám', value: formatDisplayDate(posSlipPatient.appointmentDate) },
+                  { label: 'Khung giờ', value: formatDisplayTime(posSlipPatient.appointmentTime) },
+                  { label: 'Gói dịch vụ', value: posSlipPatient.service || 'Tổng phân tích tế bào máu' },
+                ],
+              },
+            ],
+            notice: {
+              title: 'Hướng dẫn chờ gọi số',
+              lines: [
+                'Vui lòng ngồi tại sảnh chờ tầng 1 và theo dõi bảng điện tử gọi số.',
+                'Chuẩn bị sẵn CCCD/VNeID khi đến lượt vào phòng lấy mẫu.',
+              ],
+            },
+            qr: {
+              value: posSlipPatient.appointmentCode || posSlipPatient.queueNumber || 'BMS-STT',
+              codeText: `${posSlipPatient.queueNumber || 'Q-001'} • ${posSlipPatient.appointmentCode || ''}`,
+              caption: 'Mã QR đối chiếu tại bàn lấy mẫu',
+              size: 104,
+            },
+            footerNote: 'Số thứ tự chỉ có giá trị trong ngày tiếp đón.',
+          }}
+        />
       )}
     </div>
   );

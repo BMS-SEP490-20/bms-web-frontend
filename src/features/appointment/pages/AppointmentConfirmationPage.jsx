@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { CheckCircle2, AlertTriangle, Download, CalendarPlus, QrCode, Mail, Smartphone, MessageSquare, ChevronRight, ArrowLeft, RefreshCw, Lock, Banknote } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Printer, CalendarPlus, QrCode, Mail, Smartphone, MessageSquare, ChevronRight, ArrowLeft, RefreshCw, Lock, Banknote } from 'lucide-react';
 import { appointmentApi } from "../api/appointmentApi";
 import { QRCodeSVG } from "qrcode.react";
 import { ROLES, resolveRoleId, getStoredUser } from "../../../constants/roles";
+import { PosThermalModal } from "../../../shared/components/PosThermalSlip";
 
 const isPaidOrConfirmed = (rawStatus) => {
   if (!rawStatus && rawStatus !== 0) return false;
@@ -27,6 +28,7 @@ export default function AppointmentConfirmationPage() {
   const [data, setData] = useState(null);
   const [resending, setResending] = useState(false);
   const [resendStatus, setResendStatus] = useState(null);
+  const [showPosSlip, setShowPosSlip] = useState(false);
 
   const targetId = id;
 
@@ -78,7 +80,7 @@ export default function AppointmentConfirmationPage() {
   };
 
   const handleDownloadPdf = () => {
-    window.print();
+    setShowPosSlip(true);
   };
 
   const handleAddToCalendar = () => {
@@ -298,7 +300,7 @@ export default function AppointmentConfirmationPage() {
               onClick={handleDownloadPdf}
               className="btn btn-primary rounded-pill px-4 py-2 fw-semibold"
             >
-              <Download className="me-2"  size="1em"/> Tải phiếu hẹn (PDF)
+              <Printer className="me-2" size="1em"/> In phiếu hẹn POS (K80)
             </button>
             <button
               onClick={handleAddToCalendar}
@@ -330,9 +332,6 @@ export default function AppointmentConfirmationPage() {
             <span>
               <Smartphone className="text-success me-1"  size="1em"/> Đã gửi thông báo ứng dụng ·{" "}
               {data?.deliveryStatus?.pushSentAt || "—"}
-            </span>
-            <span>
-              <MessageSquare className="text-muted me-1"  size="1em"/> SMS chưa kích hoạt
             </span>
           </div>
         </div>
@@ -370,6 +369,55 @@ export default function AppointmentConfirmationPage() {
           </div>
         </div>
       )}
+      {/* Unified POS K80 Appointment Confirmation Slip */}
+      <PosThermalModal
+        show={showPosSlip}
+        onClose={() => setShowPosSlip(false)}
+        modalTitle="Phiếu Xác Nhận Lịch Hẹn"
+        modalBadge="Khổ máy POS K80"
+        modalSubtitle={`Mã lịch hẹn: ${data?.appointmentCode || targetId}`}
+        printTitle={`Phieu_Lich_Hen_POS_${data?.appointmentCode || targetId}`}
+        printButtonLabel="In Phiếu Hẹn POS (K80)"
+        copyText={data?.appointmentCode || ''}
+        copyButtonLabel="Sao chép mã hẹn"
+        slipProps={{
+          title: 'PHIẾU XÁC NHẬN LỊCH HẸN',
+          subtitle: 'Xuất trình tại quầy lễ tân khi đến khám',
+          statusBadge: isPaidOrConfirmed(data?.status) ? 'ĐÃ XÁC NHẬN' : (data?.paymentStatus || 'CHỜ THANH TOÁN'),
+          highlight: {
+            label: 'MÃ LỊCH HẸN',
+            value: data?.appointmentCode || targetId || '—',
+            isCode: true,
+            sub: `${data?.dateFormatted || '—'} • ${data?.timeFormatted || '—'}`,
+          },
+          sections: [
+            {
+              title: 'Thông tin lịch khám',
+              rows: [
+                { label: 'Bệnh nhân', value: data?.patientName || '—' },
+                { label: 'Gói dịch vụ', value: data?.packageName || '—' },
+                { label: 'Địa điểm', value: data?.location || 'Phòng khám BMS' },
+                { label: 'Chi phí dự kiến', value: `${Number(data?.price || 0).toLocaleString('vi-VN')} đ`, mono: true },
+                { label: 'Thanh toán', value: data?.paymentStatus || 'Chờ thanh toán' },
+              ],
+            },
+          ],
+          notice: {
+            title: 'Lưu ý trước khi lấy mẫu',
+            lines: [
+              ...(data?.fastingInstructions ? [data.fastingInstructions] : ['Nhịn ăn 8–12 tiếng trước khi lấy mẫu (nếu có xét nghiệm đường huyết/mỡ máu).']),
+              'Vui lòng đến trước giờ hẹn 10 phút và mang theo CCCD/VNeID.',
+            ],
+          },
+          qr: isPaidOrConfirmed(data?.status) && qrCodeText ? {
+            value: qrCodeText,
+            codeText: data?.appointmentCode || targetId,
+            caption: 'Quét mã QR tại quầy Lễ tân để Check-in nhanh',
+            size: 112,
+          } : null,
+          footerNote: 'Phiếu có giá trị tiếp đón theo đúng khung giờ đã đặt.',
+        }}
+      />
     </div>
   );
 }

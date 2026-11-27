@@ -168,20 +168,21 @@ export default function ExportTestResultPdfPage() {
     setSuccessMessage('');
     setErrorMessage('');
     try {
-      const orderTarget = result.OrderId || result.OrderCode || activeOrderId;
+      const orderTarget = result.orderId || result.OrderId || result.orderCode || result.OrderCode || activeOrderId;
       const exportPayload = await exportResultPdf(orderTarget);
 
-      if (exportPayload && exportPayload.printableHtml) {
+      const htmlDoc = exportPayload?.printableHtml || exportPayload?.PrintableHtml;
+      if (htmlDoc) {
         const printWindow = window.open('', '_blank');
         if (printWindow) {
           printWindow.document.open();
-          printWindow.document.write(exportPayload.printableHtml);
+          printWindow.document.write(htmlDoc);
           printWindow.document.close();
           printWindow.focus();
           setTimeout(() => {
             printWindow.print();
-          }, 500);
-          setSuccessMessage('Hệ thống đã chuẩn bị bản in PDF A4. Quý khách vui lòng chọn "Lưu dưới dạng PDF" (Save as PDF) trong hộp thoại in.');
+          }, 450);
+          setSuccessMessage('Hệ thống đã chuẩn bị bản in PDF khổ A4 chuẩn tiếng Việt y tế. Quý khách vui lòng chọn "Lưu dưới dạng PDF" (Save as PDF) trong hộp thoại in.');
         } else {
           window.print();
           setSuccessMessage('Đang mở hộp thoại in phiếu kết quả xét nghiệm A4.');
@@ -204,7 +205,7 @@ export default function ExportTestResultPdfPage() {
     setSharing(true);
     setCopied(false);
     try {
-      const orderTarget = result.OrderId || result.OrderCode || activeOrderId;
+      const orderTarget = result.orderId || result.OrderId || result.orderCode || result.OrderCode || activeOrderId;
       const share = await shareResultWithDoctor(orderTarget);
       if (share) {
         const fullUrl = `${window.location.origin}${share.shareUrl || `/results/share?orderId=${orderTarget}&token=${share.shareToken}`}`;
@@ -236,24 +237,47 @@ export default function ExportTestResultPdfPage() {
     });
   };
 
-  // Normalized display fields conforming to requirements
-  const patientNameDisplay = result?.PatientName || patientProfile?.fullName || storedUser?.fullName || 'Bệnh nhân BMS';
-  const patientIdDisplay = result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || '—';
-  const dobAgeSexDisplay = result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')}${patientProfile.gender ? ` · ${patientProfile.gender}` : ''}` : (patientProfile?.gender || 'Chưa ghi nhận'));
-  const barcodeDisplay = result?.Barcode || result?.barcode || result?.SampleBarcode || (result?.OrderId ? `BC-${result.OrderId.replace(/\D/g, '').slice(-8)}` : '—');
-  const orderingDoctorDisplay = result?.OrderingDoctor || result?.doctorName || result?.ApprovedByDoctor || result?.approvingDoctorName || 'Chưa chỉ định';
-  const performedByDisplay = result?.PerformedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm';
-  const labHeadDisplay = result?.ApprovedByDoctor || result?.approvingDoctorName || result?.labHead || 'Bác sĩ điều trị';
-  const verificationHashDisplay = result?.VerificationHash || result?.digitalSignature || '';
-  const collectionTimeDisplay = result?.CollectionTime ? new Date(result.CollectionTime).toLocaleString('vi-VN') : '—';
-  const releasedDateDisplay = result?.ReleasedDate ? new Date(result.ReleasedDate).toLocaleString('vi-VN') : (result?.approvedAt ? new Date(result.approvedAt).toLocaleString('vi-VN') : '—');
-  const packageNameDisplay = result?.PackageName || result?.packageName || 'Phiếu Kết Quả Xét Nghiệm';
-  const parametersList = Array.isArray(result?.Parameters) ? result.Parameters : Array.isArray(result?.parameters) ? result.parameters : [];
-  const icd10Display = result?.Icd10Code || result?.icd10Code || '';
-  const finalDiagnosisDisplay = result?.FinalDiagnosis || result?.finalDiagnosis || '';
-  const doctorConclusionDisplay = result?.DoctorAssessment || result?.doctorConclusion || result?.conclusionNotes || '';
-  const treatmentAdviceDisplay = result?.TreatmentAdvice || result?.treatmentAdvice || '';
-  const followUpDateDisplay = result?.FollowUpDate || result?.followUpDate || '';
+  // Format helper for Vietnamese date/time & gender
+  const formatVnTime = (raw) => {
+    if (!raw) return '—';
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return String(raw);
+    return d.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+  const translateVnGender = (text) => String(text || '')
+    .replace(/\bMale\b/gi, 'Nam')
+    .replace(/\bFemale\b/gi, 'Nữ')
+    .replace(/\bOther\b/gi, 'Khác');
+
+  // Normalized display fields supporting both camelCase (ASP.NET Core default) and PascalCase
+  const orderCodeDisplay = result?.orderCode || result?.OrderCode || result?.orderId || result?.OrderId || activeOrderId || '—';
+  const appointmentCodeDisplay = result?.appointmentCode || result?.AppointmentCode || orderCodeDisplay;
+  const patientNameDisplay = result?.patientName || result?.PatientName || patientProfile?.fullName || storedUser?.fullName || 'Bệnh nhân BMS';
+  const patientIdDisplay = result?.patientId || result?.PatientId || patientProfile?.patientCode || patientProfile?.id || activePatientId || '—';
+  const rawDobAgeSex = result?.dobAgeSex || result?.DobAgeSex || (patientProfile?.dateOfBirth ? `${new Date(patientProfile.dateOfBirth).toLocaleDateString('vi-VN')}${patientProfile.gender ? ` · ${patientProfile.gender}` : ''}` : (patientProfile?.gender || 'Chưa ghi nhận'));
+  const dobAgeSexDisplay = translateVnGender(rawDobAgeSex);
+  const barcodeDisplay = result?.barcode || result?.Barcode || result?.sampleBarcode || result?.SampleBarcode || result?.specimenId || '—';
+  const sampleTypeDisplay = result?.sampleType || result?.SampleType || 'Mẫu máu tĩnh mạch';
+  const orderingDoctorDisplay = result?.orderingDoctor || result?.OrderingDoctor || result?.referringDoctor || result?.approvedByDoctor || result?.ApprovedByDoctor || 'Bác sĩ điều trị';
+  const performedByDisplay = result?.performedBy || result?.PerformedBy || result?.analysedBy || result?.technicianName || 'KTV Phòng Xét Nghiệm BMS';
+  const labHeadDisplay = result?.approvedByDoctor || result?.ApprovedByDoctor || result?.approvedBy || result?.approvingDoctorName || 'Bác sĩ điều trị';
+  const doctorSpecialtyDisplay = result?.doctorSpecialty || result?.DoctorSpecialty || 'Chuyên khoa Huyết học & Xét nghiệm';
+  const verificationHashDisplay = result?.verificationHash || result?.VerificationHash || result?.digitalSignature || '';
+  const collectionTimeDisplay = formatVnTime(result?.collectionTime || result?.CollectionTime);
+  const releasedDateDisplay = formatVnTime(result?.releasedDate || result?.ReleasedDate || result?.approvedAt || result?.issuedAt);
+  const packageNameDisplay = result?.packageName || result?.PackageName || 'Phiếu Kết Quả Xét Nghiệm';
+  const parametersList = Array.isArray(result?.parameters) ? result.parameters : Array.isArray(result?.Parameters) ? result.Parameters : [];
+  const abnormalCountDisplay = Number(
+    result?.abnormalCount ?? result?.AbnormalCount ?? parametersList.filter((p) => {
+      const f = String(p.flag || p.Flag || 'N').toUpperCase();
+      return p.isAbnormal || p.IsAbnormal || f !== 'N';
+    }).length
+  );
+  const icd10Display = result?.icd10Code || result?.Icd10Code || '';
+  const finalDiagnosisDisplay = result?.finalDiagnosis || result?.FinalDiagnosis || '';
+  const doctorConclusionDisplay = result?.doctorAssessment || result?.DoctorAssessment || result?.clinicalNotes || result?.doctorConclusion || result?.conclusionNotes || '';
+  const treatmentAdviceDisplay = result?.treatmentAdvice || result?.TreatmentAdvice || '';
+  const followUpDateDisplay = result?.followUpDate || result?.FollowUpDate || '';
 
   return (
     <div className="bms-patient-portal-page" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
@@ -290,7 +314,7 @@ export default function ExportTestResultPdfPage() {
                 <div style={{ fontSize: '12.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                   <Link to="/patient/test-history" style={{ color: '#0284c7', textDecoration: 'none' }}>Lịch Sử Xét Nghiệm</Link>
                   <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                  <span style={{ color: '#0f172a', fontWeight: '600' }}>{result.OrderCode || result.OrderId || activeOrderId}</span>
+                  <span style={{ color: '#0f172a', fontWeight: '600' }}>{orderCodeDisplay}</span>
                   <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
                   <span>Phiếu Kết Quả Xét Nghiệm</span>
                 </div>
@@ -298,7 +322,7 @@ export default function ExportTestResultPdfPage() {
                   {packageNameDisplay}
                 </h1>
                 <div style={{ fontSize: '13px', color: '#64748b' }}>
-                  Mã chỉ định: <b>{result.OrderCode || result.OrderId || activeOrderId}</b> · Lấy mẫu: <b>{collectionTimeDisplay}</b> · Phát hành: <b>{releasedDateDisplay}</b>
+                  Mã chỉ định: <b>{appointmentCodeDisplay}</b> · Lấy mẫu: <b>{collectionTimeDisplay}</b> · Phát hành: <b>{releasedDateDisplay}</b>
                 </div>
               </div>
 
@@ -349,7 +373,7 @@ export default function ExportTestResultPdfPage() {
                       <CheckCircle2 className="me-1" size="1em" /> ĐÃ BÁC SĨ PHÊ DUYỆT
                     </span>
                     <div className="text-muted font-monospace small">
-                      Mã phiếu: <b>{result.OrderCode || result.OrderId || activeOrderId}</b>
+                      Mã phiếu: <b>{orderCodeDisplay}</b>
                     </div>
                   </div>
                 </div>
@@ -413,11 +437,11 @@ export default function ExportTestResultPdfPage() {
               <div className="p-3">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
-                    Bảng Chi Tiết Chỉ Số Xét Nghiệm Sinh Học
+                    Bảng Chi Tiết Chỉ Số Xét Nghiệm Sinh Học ({parametersList.length} chỉ số)
                   </h3>
-                  {result.AbnormalCount > 0 ? (
+                  {abnormalCountDisplay > 0 ? (
                     <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                      ● {result.AbnormalCount} chỉ số ngoài khoảng tham chiếu (H/L)
+                      ● {abnormalCountDisplay} chỉ số ngoài khoảng tham chiếu (H/L)
                     </span>
                   ) : (
                     <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
@@ -447,11 +471,11 @@ export default function ExportTestResultPdfPage() {
                         </tr>
                       ) : (
                         parametersList.map((param, index) => {
-                          const flagRaw = String(param.Flag || param.flag || 'N').toUpperCase();
+                          const flagRaw = String(param.flag || param.Flag || 'N').toUpperCase();
                           const isCrit = flagRaw === 'HH' || flagRaw === 'LL';
                           const isHigh = flagRaw === 'H' || flagRaw === 'HH';
                           const isLow = flagRaw === 'L' || flagRaw === 'LL';
-                          const isAbnormal = param.IsAbnormal || isHigh || isLow;
+                          const isAbnormal = param.isAbnormal || param.IsAbnormal || isHigh || isLow;
 
                           // Flag badge styles
                           let flagBg = '#e2e8f0';
@@ -483,17 +507,17 @@ export default function ExportTestResultPdfPage() {
                           return (
                             <tr key={index} style={{ background: isCrit ? '#fef2f2' : (isAbnormal ? '#fffbeb' : undefined) }}>
                               <td style={{ paddingLeft: '12px', fontWeight: isAbnormal ? '600' : '500', color: isCrit ? '#991b1b' : '#1e293b' }}>
-                                {param.ParameterName || param.name || param.code}
+                                {param.parameterName || param.ParameterName || param.name || param.code || '—'}
                               </td>
                               <td className="text-end font-monospace" style={{
                                 fontWeight: isAbnormal ? '700' : '500',
                                 color: isCrit ? '#dc2626' : (isHigh ? '#d97706' : (isLow ? '#1E60E6' : '#0f172a')),
                                 fontSize: '13.5px'
                               }}>
-                                {param.Value ?? param.value ?? '—'}
+                                {param.value ?? param.Value ?? param.resultValue ?? '—'}
                               </td>
-                              <td className="text-secondary">{param.Unit || param.unit || '—'}</td>
-                              <td className="text-secondary">{param.ReferenceRange || param.referenceRange || '—'}</td>
+                              <td className="text-secondary">{param.unit || param.Unit || '—'}</td>
+                              <td className="text-secondary">{param.referenceRange || param.ReferenceRange || '—'}</td>
                               <td className="text-center">
                                 <span style={{
                                   display: 'inline-block',
@@ -508,7 +532,7 @@ export default function ExportTestResultPdfPage() {
                                 </span>
                               </td>
                               <td className="text-end font-monospace text-muted" style={{ fontSize: '12px' }}>
-                                {param.DeltaPrevious || param.deltaPrevious || '—'}
+                                {param.deltaPrevious || param.DeltaPrevious || '—'}
                               </td>
                             </tr>
                           );
@@ -554,7 +578,7 @@ export default function ExportTestResultPdfPage() {
                       Kết luận chuyên môn của bác sĩ
                     </span>
                     <div style={{ whiteSpace: 'pre-wrap' }}>
-                      {doctorConclusionDisplay || 'Các chỉ số xét nghiệm huyết học và sinh hóa đã được phân tích hoàn tất. Khuyến nghị tái khám định kỳ và tham vấn bác sĩ điều trị để được hướng dẫn phác đồ phù hợp.'}
+                      {doctorConclusionDisplay || 'Kết quả xét nghiệm đã được Bác sĩ chuyên khoa thẩm định và phê duyệt.'}
                     </div>
                   </div>
                   {treatmentAdviceDisplay && (
@@ -569,13 +593,13 @@ export default function ExportTestResultPdfPage() {
                     </div>
                   )}
                   <div className="text-secondary small mt-2 pt-2 border-top">
-                    — <b>{labHeadDisplay !== 'Bác sĩ điều trị' ? labHeadDisplay : orderingDoctorDisplay}</b> • Chuyên khoa Nội tổng quát • BMS Medical Center
+                    — <b>{labHeadDisplay !== 'Bác sĩ điều trị' ? labHeadDisplay : orderingDoctorDisplay}</b> • {doctorSpecialtyDisplay} • Hệ Thống Xét Nghiệm Y Khoa BMS MedLab
                   </div>
                 </div>
               </div>
 
               {/* 4. DIGITAL SIGNATURE BLOCK (TRƯỞNG KHOA KÝ SỐ SHA-256) */}
-              <div className="p-2 border-top">
+              <div className="p-3 border-top">
                 <div className="row text-center">
                   <div className="col-6">
                     <div className="text-muted small mb-1">KỸ THUẬT VIÊN XÉT NGHIỆM</div>
@@ -583,11 +607,11 @@ export default function ExportTestResultPdfPage() {
                       <span className="badge bg-light text-secondary border font-monospace">Đã kiểm chuẩn kỹ thuật</span>
                     </div>
                     <strong className="text-dark d-block">{performedByDisplay}</strong>
-                    <small className="text-muted">Cử nhân Xét nghiệm Y học</small>
+                    <small className="text-muted">Khoa Xét Nghiệm — BMS MedLab</small>
                   </div>
 
                   <div className="col-6">
-                    <div className="text-muted small mb-1">BÁC SĨ ĐIỀU TRỊ PHÊ DUYỆT</div>
+                    <div className="text-muted small mb-1">BÁC SĨ CHUYÊN KHOA PHÊ DUYỆT</div>
                     <div style={{ height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
                         <CheckCircle2 className="me-1" size="1em" /> ĐÃ PHÊ DUYỆT: {labHeadDisplay}
@@ -597,9 +621,15 @@ export default function ExportTestResultPdfPage() {
                       </small>
                     </div>
                     <strong className="text-dark d-block">{labHeadDisplay}</strong>
-                    <small className="text-muted">Bác sĩ điều trị — BMS Clinical Lab</small>
+                    <small className="text-muted">{doctorSpecialtyDisplay}</small>
                   </div>
                 </div>
+                {verificationHashDisplay && (
+                  <div className="mt-3 pt-2 border-top text-center text-muted" style={{ fontSize: '11px' }}>
+                    <span className="me-1">Chữ ký số toàn vẹn ISO 15189 (SHA-256):</span>
+                    <span className="font-monospace text-secondary">{verificationHashDisplay}</span>
+                  </div>
+                )}
               </div>
             </div>
           </>

@@ -37,23 +37,21 @@ const MENU_SECTIONS = [
     items: [
       { id: 'admin-packages', path: '/admin/packages', label: 'Danh Mục Gói Dịch Vụ', icon: Package, roles: [ADMIN] },
       { id: 'admin-inventory', path: '/inventory', label: 'Kho Vật Tư Y Tế & Hóa Chất', icon: TestTube2, roles: [ADMIN] },
-      { id: 'admin-rooms', path: '/admin/lab-rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: DoorOpen, roles: [ADMIN] },
-      { id: 'admin-lab-profiles', path: '/laboratory/lab-profiles', label: 'Hồ Sơ Chuyên Môn KTV', icon: Users, roles: [ADMIN] },
+      { id: 'admin-rooms', path: '/admin/lab-rooms', label: 'Phòng Xét Nghiệm & Lâm Sàng', icon: DoorOpen, roles: [ADMIN] },
+      { id: 'admin-schedule', path: '/admin/schedule', label: 'Lịch Ca Trực Toàn Viện', icon: Calendar, roles: [ADMIN] },
       { id: 'admin-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FileText, roles: [ADMIN] },
-      { id: 'admin-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [ADMIN] },
-      { id: 'admin-bhyt', path: '/admin/bhyt-settings', label: 'Cấu Hình Nhóm BHYT', icon: Receipt, roles: [ADMIN] }
+      { id: 'admin-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [ADMIN] }
     ]
   },
   {
-    category: 'Báo Cáo, Phản Hồi & Giám Sát IoT',
+    category: 'Phản Hồi & Hạ Tầng IoT',
     roles: [ADMIN],
     items: [
-      { id: 'admin-feedback', path: '/admin/feedback', label: 'Phản Hồi Khách Hàng (Gói DV)', icon: Star, roles: [ADMIN] },
-      { id: 'admin-revenue', path: '/admin/revenue-report', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [ADMIN] },
-      { id: 'admin-tat', path: '/admin/tat-statistics', label: 'Thống Kê Hiệu Suất TAT', icon: BarChart3, roles: [ADMIN] },
-      { id: 'admin-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Cảm Biến IoT', icon: HeartPulse, roles: [ADMIN] },
-      { id: 'admin-iot-thresholds', path: '/manager/iot-thresholds', label: 'Cấu Hình Ngưỡng An Toàn IoT', icon: ShieldCheck, roles: [ADMIN] },
-      { id: 'admin-iot-alerts', path: '/iot/alerts', label: 'Diễn Tập & Cảnh Báo IoT', icon: AlertTriangle, roles: [ADMIN] }
+      { id: 'admin-feedback', path: '/admin/feedback', label: 'Kiểm Duyệt Phản Hồi KH', icon: Star, roles: [ADMIN] },
+      { id: 'admin-revenue', path: '/admin/revenue-report', label: 'Đối Soát Doanh Thu', icon: Receipt, roles: [ADMIN] },
+      { id: 'admin-iot-monitor', path: '/iot/monitor', label: 'Thiết Bị & MQTT IoT', icon: HeartPulse, roles: [ADMIN] },
+      { id: 'admin-iot-thresholds', path: '/manager/iot-thresholds', label: 'Cấu Hình Ngưỡng IoT', icon: ShieldCheck, roles: [ADMIN] },
+      { id: 'admin-iot-alerts', path: '/iot/alerts', label: 'Diễn Tập Cảnh Báo IoT', icon: AlertTriangle, roles: [ADMIN] }
     ]
   },
 
@@ -89,21 +87,21 @@ const MENU_SECTIONS = [
     roles: [MANAGER],
     items: [
       { id: 'mgr-packages', path: '/packages', label: 'Danh Mục Gói Dịch Vụ', icon: Package, roles: [MANAGER] },
-      { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lấy Mẫu', icon: DoorOpen, roles: [MANAGER] },
+      { id: 'mgr-rooms', path: '/laboratory/rooms', label: 'Phòng Xét Nghiệm & Lâm Sàng', icon: DoorOpen, roles: [MANAGER] },
       { id: 'mgr-criteria', path: '/criteria', label: 'Danh Mục Chỉ Số Xét Nghiệm', icon: FileText, roles: [MANAGER] },
       { id: 'mgr-intervals', path: '/laboratory/reference-intervals', label: 'Khoảng Tham Chiếu Sinh Học', icon: HeartPulse, roles: [MANAGER] }
     ]
   },
 
-  // ================= LAB TECHNICIAN SECTIONS (PHÂN TẦNG THEO MỨC ĐỘ ƯU TIÊN & LUỒNG ISO 15189) =================
+  // ================= LAB TECHNICIAN SECTIONS (PHÂN TẦNG THEO MỨC ĐỘ ƯU TIÊN & LUỒNG CHÍNH) =================
   {
     category: 'Luồng Chính · Xử Lý Mẫu',
-    featured: true,
     roles: [LAB],
     items: [
-      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu', icon: Clock, badge: { text: 'B1', bg: 'primary' }, roles: [LAB] },
-      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Tiếp Nhận & Xử Lý Mẫu', icon: TestTube2, badge: { text: 'B2', bg: 'primary' }, roles: [LAB] },
-      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, badge: { text: 'B3', bg: 'primary' }, roles: [LAB] }
+      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Tiếp Nhận Chỉ Định & Barcode', icon: LucideBarcode, roles: [LAB] },
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu', icon: Clock, roles: [LAB] },
+      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Tiếp Nhận & Xử Lý Ống Mẫu', icon: TestTube2, roles: [LAB] },
+      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, roles: [LAB] }
     ]
   },
   {
@@ -116,17 +114,10 @@ const MENU_SECTIONS = [
     ]
   },
   {
-    category: 'Hỗ Trợ Gom Đợt & Lô Mẫu',
+    category: 'Quản Lý Lô, Truy Vết & Ca Trực',
     roles: [LAB],
     items: [
-      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Gom Đợt & In Barcode', icon: LucideBarcode, roles: [LAB] },
-      { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu (Batch)', icon: ClipboardCheck, roles: [LAB] }
-    ]
-  },
-  {
-    category: 'Truy Vết, Ghi Chú & Ca Trực',
-    roles: [LAB],
-    items: [
+      { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu (Batch)', icon: ClipboardCheck, roles: [LAB] },
       { id: 'lab-specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử & Truy Vết Mẫu', icon: History, roles: [LAB] },
       { id: 'lab-trace-origin', path: '/laboratory/trace', label: 'Truy Xuất Nguồn Gốc Mẫu', icon: Search, roles: [LAB] },
       { id: 'lab-test-notes', path: '/laboratory/test-notes', label: 'Ghi Chú Xét Nghiệm', icon: FileText, roles: [LAB] },
@@ -376,31 +367,15 @@ export default function Sidebar({
         }}
       >
         {filteredSections.map((section, idx) => (
-          <div
-            key={idx}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '3px',
-              ...(!isCollapsed && section.featured
-                ? {
-                    background: '#F4F8FF',
-                    border: '1px solid #DBEAFE',
-                    borderRadius: '16px',
-                    padding: '8px 6px'
-                  }
-                : {})
-            }}
-          >
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
             {!isCollapsed && (
               <div
                 style={{
-                  fontSize: '0.68rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.03em',
-                  textTransform: 'uppercase',
-                  color: section.featured ? '#1E60E6' : '#9CA3AF',
-                  padding: section.featured ? '2px 10px 4px' : '4px 12px',
+                  fontSize: '0.7rem',
+                  fontWeight: 650,
+                  letterSpacing: '0.02em',
+                  color: '#9CA3AF',
+                  padding: '4px 12px',
                   marginBottom: '2px'
                 }}
               >

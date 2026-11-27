@@ -274,10 +274,10 @@ export default function QualityControlManagementPage() {
         return { width, height, padding, lines, coords, polylinePoints, getY };
     }, [ljData]);
 
-    // RÀNG BUỘC NGHIỆP VỤ ISO 15189: Phát hiện vi phạm Westgard 1_3s để cảnh báo khóa máy
+    // RÀNG BUỘC NGHIỆP VỤ ISO 15189: Chỉ cảnh báo khóa máy khi có lượt chạy đang thực sự bị khóa (isLocked === true)
     const has13sViolation = useMemo(() => {
         if (!ljData || !Array.isArray(ljData.points)) return false;
-        return ljData.points.some(p => Math.abs(Number(p.zScore)) >= 3 || String(p.status || '').includes('1_3S') || String(p.status || '').includes('REJECTION'));
+        return ljData.points.some(p => Boolean(p.isLocked));
     }, [ljData]);
 
     return (

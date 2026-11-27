@@ -157,26 +157,7 @@ export default function VerifyTestResultsPage() {
             const res = await verifyTestResult(selectedSpecimenId, {
                 verifierComment: verifierComment.trim()
             });
-
-            // Chỉ báo bàn khám BS — không báo Cổng BN ở bước này.
-            try {
-                await dispatchNotification({
-                    testOrderId: verificationData?.orderId || selectedSpecimenId,
-                    specimenBarcode: selectedSpecimenId,
-                    patientId: verificationData?.patientId || "",
-                    patientName: verificationData?.patientName || "Bệnh nhân",
-                    patientPhone: "",
-                    title: `[CHỜ BS] Mẫu ${selectedSpecimenId} đã thẩm định kỹ thuật`,
-                    message: `Trưởng Khoa đã ký kỹ thuật [${verificationData?.packageName || "Xét nghiệm lâm sàng"}] của bệnh nhân ${verificationData?.patientName || ""}. Bác sĩ vào /doctor/console → Thẩm Định & Tư Vấn → Ký Số & Trả Kết Quả Cho Bệnh Nhân.`,
-                    channel: "IN_APP",
-                    priority: verificationData?.isPanic ? "CRITICAL" : "HIGH",
-                    testPackageName: verificationData?.packageName || "Xét nghiệm tổng quát",
-                    requiresImmediateAction: Boolean(verificationData?.isPanic),
-                    clinicalRecommendation: verifierComment.trim()
-                });
-            } catch (notifyErr) {
-                console.warn("Lỗi phát thông báo BS (vẫn ghi nhận thẩm định kỹ thuật):", notifyErr);
-            }
+            // Thông báo tới Bác sĩ đã được Backend ghi nhận vào collection `notifications` (ROLE_DOCTOR) & phát SignalR — không gọi /notifications/test-results/dispatch vì bệnh nhân chưa được trả KQ trước khi BS duyệt.
 
             if (typeof window !== "undefined") {
                 const eventPayload = {

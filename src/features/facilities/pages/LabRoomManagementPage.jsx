@@ -12,6 +12,8 @@ import TablePagination, { usePagination } from '../../../components/ui/TablePagi
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { testOrderService } from '../../../services/testOrderService';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
+import api from '../../../config/api';
+import { ROLES, resolveRoleId } from '../../../constants/roles';
 
 const LabRoomManagementPage = () => {
     const { user, userRoleId, userRole } = useAuth();
@@ -21,6 +23,7 @@ const LabRoomManagementPage = () => {
     const isManagerOrAdmin = isAdmin;
 
     const [rooms, setRooms] = useState([]);
+    const [staffAccounts, setStaffAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
@@ -38,7 +41,48 @@ const LabRoomManagementPage = () => {
 
     useEffect(() => {
         fetchRooms();
+        fetchStaffAccounts();
     }, []);
+
+    const fetchStaffAccounts = async () => {
+        try {
+            let list = [];
+            if (isAdmin) {
+                const res = await api.get('/v1/users', { params: { pageSize: 100 } }).catch(() => null);
+                const raw = res?.data?.data || res?.data?.items || res?.data || [];
+                if (Array.isArray(raw)) list = raw;
+            }
+            if (list.length === 0) {
+                const res = await api.get('/shifts/staff').catch(() => null);
+                const raw = res?.data?.data || res?.data || [];
+                if (Array.isArray(raw)) list = raw;
+            }
+
+            const normalized = list
+                .map((u) => {
+                    const rId = resolveRoleId(u.roleId ?? u.role ?? u.roleName);
+                    const fullName = String(u.fullName || u.full_name || u.name || u.username || '').trim();
+                    const empCode = String(u.employeeCode || u.employee_code || '').trim();
+                    const label = empCode && !fullName.toLowerCase().includes(empCode.toLowerCase())
+                        ? `${fullName} (${empCode})`
+                        : fullName;
+                    return {
+                        id: u.id || u._id || u.userId || label,
+                        fullName,
+                        employeeCode: empCode,
+                        label,
+                        roleId: rId,
+                        assignedRoom: u.assignedRoom || u.assigned_room || '',
+                        isActive: u.isActive !== false
+                    };
+                })
+                .filter((u) => u.fullName && u.isActive && [ROLES.DOCTOR, ROLES.LAB, ROLES.MANAGER].includes(u.roleId));
+
+            setStaffAccounts(normalized);
+        } catch (err) {
+            console.warn('Không thể tải danh sách nhân sự BS/KTV từ DB:', err);
+        }
+    };
 
     const fetchRooms = async () => {
         setLoading(true);
@@ -273,10 +317,10 @@ const LabRoomManagementPage = () => {
                             <Table hover className="align-middle mb-0">
                                 <thead>
                                     <tr>
-                                        <th className="ps-4">Tên Phòng Xét Nghiệm</th>
+                                        <th className="ps-4">Tên Phòng Chức Năng</th>
                                         <th>Vị Trí</th>
                                         <th>Chức Năng Phòng</th>
-                                        <th>Thiết Bị Phân Tích Cố Định</th>
+                                        <th>Thiết Bị Cố Định</th>
                                         <th>Nhân Sự Phụ Trách</th>
                                         <th>Trạng Thái Vận Hành</th>
                                         <th className="text-end pe-4">Thao Tác</th>
@@ -291,9 +335,19 @@ const LabRoomManagementPage = () => {
                                                 <td className="ps-4 fw-bold text-primary">{room.roomName || room.room_name || room.name}</td>
                                                 <td>{room.roomLocation || room.room_location || room.floor || '-'}</td>
                                                 <td>
-                                                    <Badge bg="info-subtle" text="info" className="border border-info-subtle px-2 py-1 rounded-pill">
-                                                        {room.roomType || room.room_type || room.accessLevel || 'Xét nghiệm'}
-                                                    </Badge>
+                                                    {(() => {
+                                                        const typeLabel = room.roomType || room.room_type || room.accessLevel || 'Xét nghiệm';
+                                                        const isClinic = String(typeLabel).toLowerCase().includes('khám') || String(typeLabel).toLowerCase().includes('lâm sàng');
+                                                        return (
+                                                            <Badge
+                                                                bg={isClinic ? 'primary-subtle' : 'info-subtle'}
+                                                                text={isClinic ? 'primary' : 'info'}
+                                                                className={`border ${isClinic ? 'border-primary-subtle' : 'border-info-subtle'} px-2 py-1 rounded-pill`}
+                                                            >
+                                                                {typeLabel}
+                                                            </Badge>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td>{room.assignedEquipment || room.assigned_equipment || '-'}</td>
                                                 <td>{room.technicianInCharge || room.technician_in_charge || '-'}</td>
@@ -394,7 +448,7 @@ const LabRoomManagementPage = () => {
                                         disabled={!isManagerOrAdmin}
                                     >
                                         <option value="Xét nghiệm">Phòng Xét Nghiệm</option>
-                                        <option value="Khám">Phòng Khám Lâm Sàng</option>
+                                        <option value="Khám lâm sàng">Phòng Khám Lâm Sàng</option>
                                         <option value="Lấy mẫu">Phòng Thu Thập Mẫu</option>
                                         <option value="Hành chính">Phòng Quản Lý / Hành Chính</option>
                                     </Form.Select>
@@ -428,15 +482,52 @@ const LabRoomManagementPage = () => {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold">Nhân Sự Phụ Trách (KTV / Bác Sĩ)</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="technicianInCharge"
-                                value={formData.technicianInCharge}
-                                onChange={handleChange}
-                                readOnly={!isManagerOrAdmin}
-                                placeholder="VD: KTV. Phạm Quốc Hưng / BSCKII. Lê Lan Anh"
-                            />
+                            <Form.Label className="fw-semibold">Nhân Sự Phụ Trách (Bác Sĩ / KTV Lab)</Form.Label>
+                            {(() => {
+                                const doctors = staffAccounts.filter((s) => s.roleId === ROLES.DOCTOR);
+                                const labStaff = staffAccounts.filter((s) => s.roleId === ROLES.LAB);
+                                const managers = staffAccounts.filter((s) => s.roleId === ROLES.MANAGER);
+                                const isClinicType = String(formData.roomType || '').toLowerCase().includes('khám')
+                                    || String(formData.roomType || '').toLowerCase().includes('lâm sàng');
+                                const currentVal = String(formData.technicianInCharge || '').trim();
+                                const hasExactOption = !currentVal || staffAccounts.some((s) => s.label === currentVal);
+                                const orderedGroups = isClinicType
+                                    ? [
+                                        { label: 'Bác sĩ lâm sàng', items: doctors },
+                                        { label: 'Kỹ thuật viên Xét nghiệm (Lab)', items: labStaff },
+                                        { label: 'Quản lý phòng xét nghiệm', items: managers }
+                                    ]
+                                    : [
+                                        { label: 'Kỹ thuật viên Xét nghiệm (Lab)', items: labStaff },
+                                        { label: 'Bác sĩ lâm sàng', items: doctors },
+                                        { label: 'Quản lý phòng xét nghiệm', items: managers }
+                                    ];
+
+                                return (
+                                    <Form.Select
+                                        name="technicianInCharge"
+                                        value={formData.technicianInCharge}
+                                        onChange={handleChange}
+                                        disabled={!isManagerOrAdmin}
+                                    >
+                                        <option value="">-- Chọn nhân sự phụ trách từ hệ thống --</option>
+                                        {!hasExactOption && (
+                                            <option value={currentVal}>{currentVal}</option>
+                                        )}
+                                        {orderedGroups.map((group) =>
+                                            group.items.length > 0 ? (
+                                                <optgroup key={group.label} label={group.label}>
+                                                    {group.items.map((s) => (
+                                                        <option key={s.id} value={s.label}>
+                                                            {s.label}{s.assignedRoom ? ` · ${s.assignedRoom}` : ''}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            ) : null
+                                        )}
+                                    </Form.Select>
+                                );
+                            })()}
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer className="bg-light">

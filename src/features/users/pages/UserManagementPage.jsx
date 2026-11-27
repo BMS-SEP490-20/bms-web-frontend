@@ -17,7 +17,7 @@ import { UserCog, Key, Lock as LucideLock, Unlock as LucideUnlock, Trash2, Plus,
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
 import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { userManagementService } from '../../../services/userManagementService';
-import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../../constants/roles';
+import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
 // Vietnamese standardized clinical and administrative role names
 const VIETNAMESE_ROLES = Object.freeze({
@@ -56,6 +56,8 @@ function countClinicalStaff(byRole, users) {
  * @returns {JSX.Element} Rendered user management dashboard.
  */
 export default function UserManagementPage() {
+  const currentActor = useMemo(() => getStoredUser(), []);
+  const currentActorId = String(currentActor?.id || currentActor?.userId || currentActor?._id || '').trim();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -184,6 +186,7 @@ export default function UserManagementPage() {
     try {
       const detailed = await userManagementService.getUserById(user.id);
       if (detailed) {
+        setSelectedUser(detailed);
         setProfileData(detailed.doctorProfile || detailed.labProfile || detailed.patientProfile || detailed);
       }
     } catch {
@@ -197,7 +200,10 @@ export default function UserManagementPage() {
   const handleSaveAccount = async (updatedData) => {
     const res = await userManagementService.updateUser(updatedData.id, updatedData);
     if (res.success) {
-      setSuccess('Cập nhật thông tin tài khoản thành công.');
+      setSuccess('Cập nhật hồ sơ tài khoản & thông tin chuyên môn y tế thành công.');
+      if (res.data?.data) {
+        setSelectedUser((prev) => ({ ...prev, ...updatedData }));
+      }
       loadData();
     } else {
       throw new Error(res.message || 'Cập nhật thất bại.');
@@ -282,8 +288,9 @@ export default function UserManagementPage() {
       setSuccess(`Tài khoản "${userToToggle.fullName}" đã được ${newStatus ? 'kích hoạt hoạt động' : 'tạm khóa thành công'}.`);
       setUserToToggle(null);
       loadData();
-    } catch {
-      setError('Thao tác thay đổi trạng thái tài khoản thất bại.');
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Thao tác thay đổi trạng thái tài khoản thất bại.');
+      setUserToToggle(null);
     } finally {
       setToggleLoading(false);
     }
@@ -298,8 +305,9 @@ export default function UserManagementPage() {
       setSuccess(`Đã xóa tài khoản "${userToDelete.fullName}" khỏi hệ thống.`);
       setUserToDelete(null);
       loadData();
-    } catch {
-      setError('Không thể xóa tài khoản. Vui lòng thử lại sau.');
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Không thể xóa tài khoản. Vui lòng thử lại sau.');
+      setUserToDelete(null);
     } finally {
       setDeleteLoading(false);
     }
@@ -484,8 +492,20 @@ export default function UserManagementPage() {
                   {usersPag.paginatedItems.map(user => (
                     <tr key={user.id}>
                       <td className="ps-4">
-                        <div className="fw-semibold text-dark">{user.fullName || '—'}</div>
+                        <div className="fw-semibold text-dark d-flex align-items-center gap-2 flex-wrap">
+                          <span>{user.fullName || '—'}</span>
+                          {user.employeeCode && (
+                            <span className="badge bg-light text-secondary border font-monospace" style={{ fontSize: '11px' }}>
+                              {user.employeeCode}
+                            </span>
+                          )}
+                        </div>
                         <small className="font-monospace text-primary">{user.username}</small>
+                        {(user.department || user.licenseNumber) && (
+                          <div className="text-muted" style={{ fontSize: '11.5px' }}>
+                            {[user.department, user.licenseNumber ? `CCHN: ${user.licenseNumber}` : ''].filter(Boolean).join(' · ')}
+                          </div>
+                        )}
                       </td>
                       <td>
                         <div className="text-dark small">{user.email || '—'}</div>
@@ -504,38 +524,45 @@ export default function UserManagementPage() {
                         )}
                       </td>
                       <td className="text-end pe-4">
-                        <div className="d-flex justify-content-end gap-1">
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            title="Xem chi tiết & Phân quyền chuyên môn"
-                            onClick={() => handleOpenUserDetail(user)}
-                            className="rounded-pill px-3 py-1 fw-semibold"
-                            style={{ fontSize: '12px' }}
-                          >
-                            Chi tiết
-                          </Button>
-                          <Button
-                            variant={user.isActive ? "outline-warning" : "outline-success"}
-                            size="sm"
-                            title={user.isActive ? "Tạm khóa tài khoản" : "Mở khóa tài khoản"}
-                            onClick={() => setUserToToggle(user)}
-                            className="rounded-pill px-2.5 py-1"
-                            style={{ fontSize: '12px' }}
-                          >
-                            {user.isActive ? <LucideLock size={12} /> : <LucideUnlock size={12} />}
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            title="Xóa tài khoản khỏi hệ thống"
-                            onClick={() => setUserToDelete(user)}
-                            className="rounded-pill px-2.5 py-1"
-                            style={{ fontSize: '12px' }}
-                          >
-                            <Trash2 size={12} />
-                          </Button>
-                        </div>
+                        {(() => {
+                          const isOwnAccount = currentActorId && String(user.id || '').trim() === currentActorId;
+                          return (
+                            <div className="d-flex justify-content-end gap-1">
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                title="Xem chi tiết & Phân quyền chuyên môn"
+                                onClick={() => handleOpenUserDetail(user)}
+                                className="rounded-pill px-3 py-1 fw-semibold"
+                                style={{ fontSize: '12px' }}
+                              >
+                                Chi tiết
+                              </Button>
+                              <Button
+                                variant={user.isActive ? "outline-warning" : "outline-success"}
+                                size="sm"
+                                disabled={isOwnAccount}
+                                title={isOwnAccount ? "Không thể tự khóa tài khoản Quản trị viên đang đăng nhập" : (user.isActive ? "Tạm khóa tài khoản" : "Mở khóa tài khoản")}
+                                onClick={() => setUserToToggle(user)}
+                                className="rounded-pill px-2.5 py-1"
+                                style={{ fontSize: '12px' }}
+                              >
+                                {user.isActive ? <LucideLock size={12} /> : <LucideUnlock size={12} />}
+                              </Button>
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                disabled={isOwnAccount}
+                                title={isOwnAccount ? "Không thể tự xóa tài khoản Quản trị viên đang đăng nhập" : "Xóa tài khoản khỏi hệ thống"}
+                                onClick={() => setUserToDelete(user)}
+                                className="rounded-pill px-2.5 py-1"
+                                style={{ fontSize: '12px' }}
+                              >
+                                <Trash2 size={12} />
+                              </Button>
+                            </div>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}
@@ -561,6 +588,7 @@ export default function UserManagementPage() {
           show={showDetailModal}
           onHide={() => { setShowDetailModal(false); setSelectedUser(null); }}
           user={selectedUser}
+          labRooms={labRooms}
           onSaveAccount={handleSaveAccount}
           onSavePassword={handleSavePassword}
         />

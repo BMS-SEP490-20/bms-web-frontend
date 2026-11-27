@@ -20,7 +20,7 @@ import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 export default function ConfigureReferenceIntervalsPage() {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
-  const canConfigureIntervals = hasRole(currentUser, ROLES.ADMIN, ROLES.LAB);
+  const canConfigureIntervals = hasRole(currentUser, ROLES.ADMIN, ROLES.MANAGER);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCriterionParam = searchParams.get('criterion') || '';
 

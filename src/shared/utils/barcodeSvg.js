@@ -13,12 +13,10 @@ export function buildCode128Svg(value, options = {}) {
   try {
     JsBarcode(svg, text, {
       format: 'CODE128',
-      displayValue: true,
-      fontSize: 12,
-      height: options.height ?? 48,
-      width: options.width ?? 1.6,
-      margin: 4,
-      textMargin: 4,
+      displayValue: false,
+      height: options.height ?? 42,
+      width: options.width ?? 1.4,
+      margin: 3,
       background: '#ffffff',
       lineColor: '#000000',
       ...options

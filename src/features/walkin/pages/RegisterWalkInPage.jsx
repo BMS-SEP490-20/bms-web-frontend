@@ -7,6 +7,7 @@ import { IdCard, User, Phone as LucidePhone, Calendar, CheckCircle2, Search, Use
 import { useRegisterWalkIn } from '../hooks/useRegisterWalkIn';
 import { walkInApi } from '../api/walkInApi';
 import { queueApi } from '../../reception/api/queueApi';
+import { PosThermalModal } from '../../../shared/components/PosThermalSlip';
 
 const emptyForm = {
   fullName: '',
@@ -435,49 +436,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   };
 
-  // In nhiệt K80
-  const handlePrintK80 = () => {
-    const printContent = document.getElementById('walkin-k80-slip');
-    if (printContent) {
-      const win = window.open('', '_blank');
-      win.document.write(`
-        <html>
-          <head>
-            <title>Phieu_Tiep_Don_K80_${issuedTicket?.ticketNumber || 'BMS'}</title>
-            <style>
-              @page { size: 80mm auto; margin: 0; }
-              body {
-                font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-                margin: 0;
-                padding: 12px;
-                background: #fff;
-                color: #000;
-                display: flex;
-                justify-content: center;
-              }
-              .ticket {
-                width: 76mm;
-                max-width: 100%;
-                text-align: center;
-              }
-              .border-dashed { border-bottom: 1px dashed #000; margin: 8px 0; }
-            </style>
-          </head>
-          <body>
-            <div class="ticket">
-              ${printContent.innerHTML}
-            </div>
-            <script>
-              window.onload = function() { window.print(); window.close(); }
-            </script>
-          </body>
-        </html>
-      `);
-      win.document.close();
-      win.focus();
-    }
-  };
-
   // Reset toàn bộ để tiếp nhận người tiếp theo
   const handleResetAll = () => {
     reset();
@@ -686,133 +644,61 @@ export function RegisterWalkInPage({ onSuccess }) {
           </Card>
         </div>
 
-        {/* Modal Xem Trước & In Phiếu K80 */}
-        <Modal show={showK80Modal} onHide={() => setShowK80Modal(false)} size="md" centered>
-          <Modal.Header closeButton style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-            <Modal.Title style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
-              <Printer className="text-primary me-2"  size="1em"/> Xem Trước &amp; In Phiếu Tiếp Đón K80
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body style={{ padding: '24px' }}>
-            <div
-              id="walkin-k80-slip"
-              style={{
-                textAlign: 'center',
-                background: '#ffffff',
-                border: '1px dashed #94a3b8',
-                borderRadius: '12px',
-                padding: '20px',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.85rem',
-                  color: '#1e293b',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                HỆ THỐNG XÉT NGHIỆM BMS MEDLAB
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '8px' }}>
-                BMS MedLab • Hotline: 1900 6868
-              </div>
-              <div style={{ borderBottom: '1px dashed #cbd5e1', margin: '8px 0' }} />
-
-              <div style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: '700', textTransform: 'uppercase' }}>
-                PHIẾU TIẾP ĐÓN &amp; SỐ THỨ TỰ LẤY MẪU
-              </div>
-
-              {/* Big Ticket */}
-              <div
-                style={{
-                  margin: '12px 0',
-                  padding: '12px',
-                  background: '#f0fdf4',
-                  borderRadius: '10px',
-                  border: '2px solid #86efac',
-                }}
-              >
-                <div style={{ fontSize: '0.8rem', color: '#047857', fontWeight: '600' }}>SỐ THỨ TỰ LẤY MẪU</div>
-                <div
-                  style={{
-                    fontSize: '3.2rem',
-                    fontWeight: '900',
-                    color: '#059669',
-                    lineHeight: '1.1',
-                    margin: '4px 0',
-                  }}
-                >
-                  {issuedTicket?.ticketNumber || 'B01'}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#047857', fontWeight: '600' }}>
-                  <DoorOpen className="me-1"  size="1em"/> Phòng Lấy Mẫu 101 (Tầng 1)
-                </div>
-              </div>
-
-              {/* Mã Barcode / QR Code Chống Nhầm Lẫn Chuẩn ISO 15189 */}
-              <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0' }}>
-                <QRCodeSVG value={pt?.patientId || 'PAT-WALKIN'} size={110} level="M" />
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#64748b', fontFamily: 'monospace' }}>
-                MÃ BN: <strong>{pt?.patientId}</strong>
-              </div>
-
-              {/* Thông tin hành chính */}
-              <div
-                style={{
-                  textAlign: 'left',
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  fontSize: '0.85rem',
-                  lineHeight: '1.7',
-                  color: '#334155',
-                  marginTop: '12px',
-                }}
-              >
-                <div>
-                  <strong>Bệnh nhân:</strong> {pt?.fullName}
-                </div>
-                <div>
-                  <strong>CCCD/VNeID:</strong> <code>{pt?.identityNumber}</code>
-                </div>
-                <div>
-                  <strong>SĐT:</strong> {pt?.phone || 'Chưa có'}
-                </div>
-                <div>
-                  <strong>Độ ưu tiên:</strong>{' '}
-                  <span className={`badge ${pt?.priority === 'HIGH' ? 'bg-danger' : 'bg-primary'}`}>
-                    {pt?.priority === 'HIGH' ? 'Ưu tiên' : 'Tiêu chuẩn'}
-                  </span>
-                </div>
-                <div>
-                  <strong>Thời gian tiếp nhận:</strong> {new Date().toLocaleTimeString('vi-VN')} ({todayStr})
-                </div>
-              </div>
-
-              <div className="mt-3 text-muted" style={{ fontSize: '0.75rem', fontStyle: 'italic' }}>
-                * Bệnh nhân vui lòng ngồi tại sảnh chờ, theo dõi màn hình hiển thị số thứ tự hoặc nghe loa thông báo.
-              </div>
-            </div>
-          </Modal.Body>
-          <Modal.Footer
-            style={{
-              background: '#f8fafc',
-              borderTop: '1px solid #e2e8f0',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Button variant="outline-secondary" onClick={() => setShowK80Modal(false)}>
-              Đóng
-            </Button>
-            <Button variant="success" className="px-4 fw-bold" onClick={handlePrintK80}>
-              <Printer className="me-2"  size="1em"/> In Phiếu K80
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        {/* Unified POS K80 Walk-in STT Slip Modal */}
+        <PosThermalModal
+          show={showK80Modal}
+          onClose={() => setShowK80Modal(false)}
+          modalTitle="Phiếu Tiếp Đón & Số Thứ Tự (Walk-in)"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`STT: ${issuedTicket?.ticketNumber || 'B01'} • Mã BN: ${pt?.patientId || '—'}`}
+          printTitle={`Phieu_STT_WalkIn_POS_${issuedTicket?.ticketNumber || 'BMS'}`}
+          printButtonLabel="In Phiếu STT (K80)"
+          copyText={pt?.patientId || ''}
+          copyButtonLabel="Sao chép mã BN"
+          slipProps={{
+            title: 'PHIẾU SỐ THỨ TỰ LẤY MẪU',
+            subtitle: 'Tiếp nhận khách vãng lai tại quầy',
+            statusBadge: pt?.priority === 'HIGH' ? 'LUỒNG ƯU TIÊN' : 'ĐÃ TIẾP ĐÓN',
+            highlight: {
+              label: 'SỐ THỨ TỰ',
+              value: issuedTicket?.ticketNumber || 'B01',
+              sub: 'Phòng Lấy Mẫu 101 • Tầng 1',
+            },
+            sections: [
+              {
+                title: 'Thông tin bệnh nhân',
+                rows: [
+                  { label: 'Bệnh nhân', value: pt?.fullName || '—' },
+                  { label: 'Mã bệnh nhân', value: pt?.patientId || '—', mono: true },
+                  { label: 'CCCD / VNeID', value: pt?.identityNumber || '', mono: true },
+                  { label: 'Số điện thoại', value: pt?.phone || '', mono: true },
+                  { label: 'Ngày tiếp nhận', value: todayStr },
+                ],
+              },
+              ...(pt?.portalUsername ? [{
+                title: 'Tài khoản tra cứu kết quả',
+                rows: [
+                  { label: 'Đăng nhập', value: pt.portalUsername, mono: true },
+                  { label: 'Mật khẩu tạm', value: pt.temporaryPassword || '(Tài khoản hiện có)', mono: true },
+                ],
+              }] : []),
+            ],
+            notice: {
+              title: 'Hướng dẫn chờ gọi số',
+              lines: [
+                'Vui lòng ngồi tại sảnh chờ và theo dõi bảng điện tử gọi số.',
+                'Giữ phiếu để đối chiếu tại bàn lấy mẫu và tra cứu kết quả.',
+              ],
+            },
+            qr: {
+              value: pt?.patientId || issuedTicket?.ticketNumber || 'PAT-WALKIN',
+              codeText: `${issuedTicket?.ticketNumber || 'B01'} • ${pt?.patientId || ''}`,
+              caption: 'Mã QR định danh bệnh nhân tại phòng Lab',
+              size: 108,
+            },
+            footerNote: 'Số thứ tự chỉ có giá trị trong ngày tiếp nhận.',
+          }}
+        />
       </div>
     );
   }

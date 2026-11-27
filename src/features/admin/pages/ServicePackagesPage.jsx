@@ -406,12 +406,16 @@ export default function ServicePackagesPage({ onBack }) {
                                                 </div>
                                             </td>
                                             <td className="bms-align-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                                <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
-                                                {pkg.discountPrice ? (
-                                                    <small className="text-muted text-decoration-line-through d-block">
-                                                        {formatMoney(pkg.discountPrice)}
-                                                    </small>
-                                                ) : null}
+                                                {pkg.discountPrice && pkg.discountPrice < pkg.price ? (
+                                                    <>
+                                                        <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.discountPrice)}</div>
+                                                        <small className="text-muted text-decoration-line-through d-block">
+                                                            {formatMoney(pkg.price)}
+                                                        </small>
+                                                    </>
+                                                ) : (
+                                                    <div className="fw-bold" style={{ color: '#1E60E6', fontSize: 15 }}>{formatMoney(pkg.price)}</div>
+                                                )}
                                             </td>
                                             <td className="bms-align-center">
                                                 <span className={`bms-status-pill ${pkg.isActive ? "active" : "inactive"}`}>

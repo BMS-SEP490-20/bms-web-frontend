@@ -501,10 +501,17 @@ export default function IotMonitorPage() {
   const [savingConfig, setSavingConfig] = useState(false);
   const [mqttForm, setMqttForm] = useState({
     brokerHost: 'broker.emqx.io',
-    brokerPort: 1883,
+    brokerPort: 8883,
+    useTls: true,
+    username: '',
+    password: '',
+    hasPassword: false,
+    requireDeviceAuth: true,
+    deviceKeyConfigured: false,
     topicPrefix: 'bms/sep490/iot/hkd-lab01',
     defaultDeviceId: 'BMS-IOT-001',
-    isBridgeConnected: false
+    isBridgeConnected: false,
+    activeUseTls: false
   });
   const [newDeviceForm, setNewDeviceForm] = useState({
     deviceId: '',
@@ -523,10 +530,17 @@ export default function IotMonitorPage() {
       if (cfg) {
         setMqttForm({
           brokerHost: cfg.brokerHost || 'broker.emqx.io',
-          brokerPort: cfg.brokerPort || 1883,
+          brokerPort: cfg.brokerPort || 8883,
+          useTls: cfg.useTls !== false,
+          username: cfg.username || '',
+          password: '',
+          hasPassword: Boolean(cfg.hasPassword),
+          requireDeviceAuth: cfg.requireDeviceAuth !== false,
+          deviceKeyConfigured: Boolean(cfg.deviceKeyConfigured),
           topicPrefix: cfg.topicPrefix || 'bms/sep490/iot/hkd-lab01',
           defaultDeviceId: cfg.defaultDeviceId || selectedDeviceId || 'BMS-IOT-001',
-          isBridgeConnected: Boolean(cfg.isBridgeConnected)
+          isBridgeConnected: Boolean(cfg.isBridgeConnected),
+          activeUseTls: Boolean(cfg.activeUseTls)
         });
       }
     } catch {
@@ -540,7 +554,11 @@ export default function IotMonitorPage() {
     try {
       await updateIotMqttConfig({
         brokerHost: mqttForm.brokerHost,
-        brokerPort: Number(mqttForm.brokerPort) || 1883,
+        brokerPort: Number(mqttForm.brokerPort) || (mqttForm.useTls ? 8883 : 1883),
+        useTls: Boolean(mqttForm.useTls),
+        username: mqttForm.username?.trim() || null,
+        password: mqttForm.password ? mqttForm.password : null,
+        requireDeviceAuth: Boolean(mqttForm.requireDeviceAuth),
         topicPrefix: mqttForm.topicPrefix,
         defaultDeviceId: mqttForm.defaultDeviceId
       });
@@ -1783,9 +1801,62 @@ export default function IotMonitorPage() {
                   />
                 </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      MQTT Username (ACL)
+                    </label>
+                    <input
+                      type="text"
+                      value={mqttForm.username}
+                      onChange={(e) => setMqttForm({ ...mqttForm, username: e.target.value })}
+                      placeholder="VD: bms_lab_device"
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      MQTT Password {mqttForm.hasPassword ? '(Đã lưu · để trống nếu giữ nguyên)' : ''}
+                    </label>
+                    <input
+                      type="password"
+                      value={mqttForm.password}
+                      onChange={(e) => setMqttForm({ ...mqttForm, password: e.target.value })}
+                      placeholder={mqttForm.hasPassword ? '••••••••' : 'Nhập mật khẩu broker'}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12.5px', color: '#334155' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(mqttForm.useTls)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setMqttForm({
+                          ...mqttForm,
+                          useTls: checked,
+                          brokerPort: checked && Number(mqttForm.brokerPort) === 1883 ? 8883 : (!checked && Number(mqttForm.brokerPort) === 8883 ? 1883 : mqttForm.brokerPort)
+                        });
+                      }}
+                    />
+                    Mã hóa TLS/SSL (MQTTS · khuyến nghị cổng 8883)
+                  </label>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(mqttForm.requireDeviceAuth)}
+                      onChange={(e) => setMqttForm({ ...mqttForm, requireDeviceAuth: e.target.checked })}
+                    />
+                    Xác thực DeviceKey / HMAC payload
+                  </label>
+                </div>
+
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#334155' }}>
                   <div style={{ fontWeight: 700, marginBottom: '4px' }}>
-                    Topic đồng bộ với mạch ESP32 ({mqttForm.isBridgeConnected ? 'Đang kết nối Broker' : 'Đang chờ kết nối'}):
+                    Topic đồng bộ với mạch ESP32 ({mqttForm.isBridgeConnected ? (mqttForm.activeUseTls ? 'Đang kết nối MQTTS (TLS)' : 'Đang kết nối MQTT') : 'Đang chờ kết nối'}):
                   </div>
                   <div style={{ fontFamily: 'monospace', color: '#0369a1' }}>{mqttForm.topicPrefix}/{selectedDeviceId || mqttForm.defaultDeviceId}/telemetry</div>
                   <div style={{ fontFamily: 'monospace', color: '#0369a1' }}>{mqttForm.topicPrefix}/{selectedDeviceId || mqttForm.defaultDeviceId}/status</div>

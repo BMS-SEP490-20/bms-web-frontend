@@ -47,6 +47,19 @@ export const normalizeUser = (item = {}) => {
     roleId,
     isActive,
     status: isActive ? 'active' : 'inactive',
+    employeeCode: item.employeeCode || '',
+    identityCardNumber: item.identityCardNumber || '',
+    gender: item.gender || '',
+    dateOfBirth: item.dateOfBirth || '',
+    licenseNumber: item.licenseNumber || '',
+    licenseIssuedBy: item.licenseIssuedBy || '',
+    licenseExpiryDate: item.licenseExpiryDate || '',
+    qualification: item.qualification || '',
+    specialty: item.specialty || '',
+    department: item.department || '',
+    assignedRoom: item.assignedRoom || '',
+    biosafetyLevel: item.biosafetyLevel || '',
+    digitalSignatureCode: item.digitalSignatureCode || '',
     createdAt: item.createdAt || null,
     doctorProfile: item.doctorProfile || null,
     labProfile: item.labProfile || null,
@@ -118,6 +131,19 @@ export const userManagementService = {
       // No default: the backend rejects a missing/out-of-range RoleId with 400 (must be 1–6).
       roleId: Number(userData.roleId),
       isActive: Boolean(userData.isActive),
+      employeeCode: userData.employeeCode || '',
+      identityCardNumber: userData.identityCardNumber || '',
+      gender: userData.gender || '',
+      dateOfBirth: userData.dateOfBirth || '',
+      licenseNumber: userData.licenseNumber || '',
+      licenseIssuedBy: userData.licenseIssuedBy || '',
+      licenseExpiryDate: userData.licenseExpiryDate || '',
+      qualification: userData.qualification || '',
+      specialty: userData.specialty || '',
+      department: userData.department || '',
+      assignedRoom: userData.assignedRoom || '',
+      biosafetyLevel: userData.biosafetyLevel || '',
+      digitalSignatureCode: userData.digitalSignatureCode || '',
     };
 
     const response = await api.post('/v1/users', payload);
@@ -136,13 +162,31 @@ export const userManagementService = {
    * @returns {Promise<{ success: boolean, data?: object, message: string }>} Operation result.
    */
   updateUser: async (id, userData) => {
+    const resolvedRoleId =
+      Number(userData.roleId) ||
+      resolveRoleId(userData.role) ||
+      0;
+
     const payload = {
       username: userData.username,
       email: userData.email,
       phoneNumber: userData.phone || userData.phoneNumber,
       fullName: userData.fullName,
-      roleId: Number(userData.roleId),
+      roleId: resolvedRoleId,
       isActive: userData.isActive !== undefined ? Boolean(userData.isActive) : undefined,
+      employeeCode: userData.employeeCode ?? '',
+      identityCardNumber: userData.identityCardNumber ?? '',
+      gender: userData.gender ?? '',
+      dateOfBirth: userData.dateOfBirth ?? '',
+      licenseNumber: userData.licenseNumber ?? '',
+      licenseIssuedBy: userData.licenseIssuedBy ?? '',
+      licenseExpiryDate: userData.licenseExpiryDate ?? '',
+      qualification: userData.qualification ?? '',
+      specialty: userData.specialty ?? '',
+      department: userData.department ?? '',
+      assignedRoom: userData.assignedRoom ?? '',
+      biosafetyLevel: userData.biosafetyLevel ?? '',
+      digitalSignatureCode: userData.digitalSignatureCode ?? '',
     };
 
     const response = await api.put(`/v1/users/${id}`, payload);

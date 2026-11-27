@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Printer, Megaphone, Check, Clock, UserCheck, AlertCircle, PlusCircle, Hospital, ShieldCheck, ListOrdered } from 'lucide-react';
 import { queueApi } from "../api/queueApi";
 import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
+import { PosThermalModal } from "../../../shared/components/PosThermalSlip";
 
 export default function QueueBoardPage() {
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ export default function QueueBoardPage() {
 
   const [issuing, setIssuing] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
+  const [posTicketSlip, setPosTicketSlip] = useState(null);
 
   const [boardError, setBoardError] = useState(null);
   const queuePag = usePagination(data.currentQueue || [], 10);
@@ -112,6 +114,15 @@ export default function QueueBoardPage() {
 
       const issuedCode = res?.data?.ticketNumber || nextNum;
       setActionMessage({ type: 'success', text: `✅ Đã cấp số thứ tự vãng lai ${issuedCode} thành công!` });
+      setPosTicketSlip({
+        ticketNumber: issuedCode,
+        patientName: res?.data?.patientName || `Khách vãng lai (${issuedCode})`,
+        patientCode: res?.data?.patientCode || `WLK-${Date.now().toString().slice(-4)}`,
+        packageName: res?.data?.packageName || "Tổng phân tích tế bào máu",
+        roomName: selectedCounter || "Phòng Lấy Mẫu 101 • Tầng 1",
+        isWalkIn: true,
+        checkedInTime: new Date().toLocaleTimeString('vi-VN'),
+      });
     } catch (err) {
       setActionMessage({ type: 'danger', text: `❌ Lỗi cấp số: ${err?.message || "Không thể cấp số lúc này"}` });
     } finally {
@@ -322,7 +333,28 @@ export default function QueueBoardPage() {
                           {ticket.packageName}
                         </td>
                         <td>
-                          <div>{getStatusBadge(ticket.status)}</div>
+                          <div className="d-flex align-items-center justify-content-between gap-2">
+                            <div>{getStatusBadge(ticket.status)}</div>
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary btn-sm rounded-pill px-2 py-0 d-inline-flex align-items-center gap-1"
+                              style={{ fontSize: '11px', lineHeight: '22px' }}
+                              title="In phiếu số thứ tự khổ POS K80"
+                              onClick={() => setPosTicketSlip({
+                                ticketNumber: ticket.ticketNumber,
+                                patientName: (!ticket.patientName || ticket.patientName.startsWith('PAT-') || ticket.patientName.startsWith('USR-'))
+                                  ? (ticket.isWalkIn ? `Khách vãng lai (${ticket.ticketNumber})` : `Bệnh nhân (${ticket.ticketNumber})`)
+                                  : ticket.patientName,
+                                patientCode: ticket.patientCode || ticket.ticketNumber,
+                                packageName: ticket.packageName || 'Tổng phân tích tế bào máu',
+                                roomName: ticket.counterName || 'Phòng Lấy Mẫu 101 • Tầng 1',
+                                isWalkIn: ticket.isWalkIn,
+                                checkedInTime: ticket.checkedInTime || new Date().toLocaleTimeString('vi-VN'),
+                              })}
+                            >
+                              <Printer size={11} /> In STT
+                            </button>
+                          </div>
                           <div className="font-monospace text-muted mt-1" style={{ fontSize: '11.5px', fontVariantNumeric: 'tabular-nums' }}>
                             {ticket.checkedInTime} · Chờ {ticket.waitTimeMinutes}p
                             {ticket.counterName ? ` · ${ticket.counterName}` : ''}
@@ -453,6 +485,56 @@ export default function QueueBoardPage() {
           </div>
         </div>
       </div>
+
+      {/* Unified POS K80 Queue STT Slip Modal */}
+      {posTicketSlip && (
+        <PosThermalModal
+          show={Boolean(posTicketSlip)}
+          onClose={() => setPosTicketSlip(null)}
+          modalTitle="Phiếu Số Thứ Tự Lấy Mẫu"
+          modalBadge="Khổ máy POS K80"
+          modalSubtitle={`STT: ${posTicketSlip.ticketNumber} • ${posTicketSlip.roomName}`}
+          printTitle={`Phieu_STT_POS_${posTicketSlip.ticketNumber}`}
+          printButtonLabel="In Phiếu STT (K80)"
+          copyText={posTicketSlip.ticketNumber}
+          copyButtonLabel="Sao chép STT"
+          slipProps={{
+            title: 'PHIẾU SỐ THỨ TỰ LẤY MẪU',
+            subtitle: posTicketSlip.isWalkIn ? 'Tiếp nhận khách vãng lai tại quầy' : 'Phiếu tiếp đón & điều phối hàng đợi',
+            statusBadge: 'ĐANG CHỜ GỌI SỐ',
+            highlight: {
+              label: 'SỐ THỨ TỰ',
+              value: posTicketSlip.ticketNumber,
+              sub: posTicketSlip.roomName,
+            },
+            sections: [
+              {
+                title: 'Thông tin tiếp đón',
+                rows: [
+                  { label: 'Bệnh nhân', value: posTicketSlip.patientName },
+                  { label: 'Mã tiếp nhận', value: posTicketSlip.patientCode, mono: true },
+                  { label: 'Gói dịch vụ', value: posTicketSlip.packageName },
+                  { label: 'Giờ cấp số', value: posTicketSlip.checkedInTime },
+                ],
+              },
+            ],
+            notice: {
+              title: 'Hướng dẫn chờ gọi số',
+              lines: [
+                'Vui lòng ngồi tại sảnh chờ và theo dõi bảng điện tử gọi số.',
+                'Chuẩn bị CCCD/VNeID khi đến lượt vào bàn lấy mẫu.',
+              ],
+            },
+            qr: {
+              value: posTicketSlip.patientCode || posTicketSlip.ticketNumber,
+              codeText: `${posTicketSlip.ticketNumber} • ${posTicketSlip.patientCode || ''}`,
+              caption: 'Mã QR đối chiếu tại bàn lấy mẫu',
+              size: 104,
+            },
+            footerNote: 'Số thứ tự chỉ có giá trị trong ngày tiếp đón.',
+          }}
+        />
+      )}
     </div>
   );
 }

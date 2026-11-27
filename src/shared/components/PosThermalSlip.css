@@ -1,0 +1,544 @@
+/* ============================================================================
+   UNIFIED 80mm POS THERMAL SLIP DESIGN SYSTEM (KHỔ GIẤY MÁY IN NHIỆT K80)
+   Used identically for:
+   1. Hóa đơn thu phí dịch vụ y tế (Billing / Payment Receipt)
+   2. Phiếu xác nhận lịch hẹn & tiếp đón (Appointment / Reception Slip)
+   3. Phiếu số thứ tự lấy mẫu (Queue STT Ticket)
+   ============================================================================ */
+
+.bms-pos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Top dark floating action bar (hidden in print) */
+.bms-pos-modal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.bms-pos-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bms-pos-modal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(30, 96, 230, 0.2);
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bms-pos-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bms-pos-modal-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.bms-pos-modal-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: 'Consolas', 'Courier New', monospace;
+  margin-top: 2px;
+}
+
+.bms-pos-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bms-pos-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.bms-pos-btn-primary {
+  background: #1E60E6;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(30, 96, 230, 0.35);
+}
+
+.bms-pos-btn-primary:hover {
+  background: #174ec0;
+}
+
+.bms-pos-btn-outline {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bms-pos-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.bms-pos-btn-close {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  justify-content: center;
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.bms-pos-btn-close:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+/* Scrollable preview stage */
+.bms-pos-modal-stage {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 16px 40px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================================================
+   THE 80mm THERMAL PAPER ROLL CARD (SCREEN PREVIEW + PRINT)
+   ============================================================================ */
+.bms-pos-paper {
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 22px 18px 24px 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(15, 23, 42, 0.06);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.42;
+  text-align: left;
+}
+
+/* Authentic perforated / serrated thermal paper edge top & bottom (screen only) */
+.bms-pos-paper::before,
+.bms-pos-paper::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background-size: 14px 7px;
+  background-repeat: repeat-x;
+}
+
+.bms-pos-paper::before {
+  top: -7px;
+  background-image: linear-gradient(135deg, transparent 50%, #ffffff 50%),
+    linear-gradient(225deg, transparent 50%, #ffffff 50%);
+}
+
+.bms-pos-paper::after {
+  bottom: -7px;
+  background-image: linear-gradient(45deg, transparent 50%, #ffffff 50%),
+    linear-gradient(315deg, transparent 50%, #ffffff 50%);
+}
+
+/* Reprint warning strip */
+.bms-pos-reprint-banner {
+  border: 1.5px dashed #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 5px 8px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+/* Unified clinic header */
+.bms-pos-clinic-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.bms-pos-clinic-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.bms-pos-clinic-sub {
+  font-size: 10.5px;
+  color: #475569;
+  margin-top: 2px;
+  line-height: 1.38;
+}
+
+/* Dashed thermal separators */
+.bms-pos-divider {
+  border: 0;
+  border-top: 1px dashed #64748b;
+  margin: 10px 0;
+  opacity: 0.85;
+}
+
+.bms-pos-divider-double {
+  border: 0;
+  border-top: 1.5px solid #0f172a;
+  margin: 10px 0;
+}
+
+/* Slip Title */
+.bms-pos-title-block {
+  text-align: center;
+  margin: 6px 0;
+}
+
+.bms-pos-title {
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #0f172a;
+  margin: 0;
+}
+
+.bms-pos-subtitle {
+  font-size: 10.8px;
+  color: #475569;
+  margin-top: 2px;
+}
+
+/* Highlight Box (STT Number / Appointment Code / Paid Status) */
+.bms-pos-highlight {
+  border: 2px solid #0f172a;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 8px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.bms-pos-highlight-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #334155;
+}
+
+.bms-pos-highlight-value {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 4px 0;
+  letter-spacing: 0.5px;
+  color: #0f172a;
+}
+
+.bms-pos-highlight-value.is-code {
+  font-size: 19px;
+  letter-spacing: 0.7px;
+}
+
+.bms-pos-highlight-sub {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 2px;
+}
+
+.bms-pos-status-pill {
+  display: inline-block;
+  border: 1.5px solid #0f172a;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 5px;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+/* Section Heading */
+.bms-pos-section-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #334155;
+  margin: 8px 0 5px 0;
+}
+
+/* Key-Value Metadata Rows */
+.bms-pos-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bms-pos-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.bms-pos-kv-label {
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.bms-pos-kv-value {
+  text-align: right;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.bms-pos-kv-value.is-mono {
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+/* Itemized Service Lines (2-line POS format so long medical names never clip) */
+.bms-pos-items-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #334155;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #64748b;
+  margin-bottom: 6px;
+}
+
+.bms-pos-item-row {
+  padding: 5px 0;
+  border-bottom: 1px dotted #cbd5e1;
+}
+
+.bms-pos-item-row:last-child {
+  border-bottom: none;
+}
+
+.bms-pos-item-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.bms-pos-item-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  margin-top: 2px;
+  color: #334155;
+}
+
+.bms-pos-item-total {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Totals Block */
+.bms-pos-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bms-pos-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #334155;
+}
+
+.bms-pos-grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  padding-top: 6px;
+  margin-top: 4px;
+  border-top: 1px dashed #0f172a;
+}
+
+.bms-pos-grand-total-val {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bms-pos-words {
+  font-size: 10.5px;
+  font-style: italic;
+  color: #334155;
+  margin-top: 4px;
+  line-height: 1.38;
+}
+
+/* Dashed Notice / Instructions Box */
+.bms-pos-notice {
+  border: 1px dashed #64748b;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 7px 9px;
+  margin: 10px 0;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: #334155;
+  text-align: left;
+}
+
+.bms-pos-notice-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+
+/* QR Block */
+.bms-pos-qr-block {
+  text-align: center;
+  margin: 10px 0 4px 0;
+}
+
+.bms-pos-qr-frame {
+  display: inline-flex;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.bms-pos-qr-caption {
+  font-size: 10.2px;
+  color: #475569;
+  margin-top: 5px;
+}
+
+.bms-pos-qr-code-text {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 2px;
+  letter-spacing: 0.4px;
+}
+
+/* Unified Footer */
+.bms-pos-footer {
+  text-align: center;
+  font-size: 10.2px;
+  line-height: 1.42;
+  color: #475569;
+  margin-top: 8px;
+}
+
+.bms-pos-footer-thanks {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.bms-pos-footer-time {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 9.8px;
+  color: #64748b;
+  margin-top: 5px;
+}
+
+/* Paper format hint chip below the roll on screen */
+.bms-pos-stage-hint {
+  margin-top: 18px;
+  font-size: 11.5px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Fallback browser Ctrl+P print isolation */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .bms-pos-paper,
+  .bms-pos-paper * {
+    visibility: visible !important;
+  }
+  .bms-pos-paper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 4mm !important;
+    box-shadow: none !important;
+  }
+  .bms-pos-paper::before,
+  .bms-pos-paper::after,
+  .bms-pos-modal-toolbar,
+  .bms-pos-stage-hint {
+    display: none !important;
+  }
+}

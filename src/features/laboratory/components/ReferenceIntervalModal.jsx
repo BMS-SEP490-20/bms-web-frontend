@@ -126,8 +126,12 @@ export default function ReferenceIntervalModal({
 
   useEffect(() => {
     if (interval && mode === 'edit') {
-      const g = interval.gender || 'Male';
-      const normalizedG = (g.toUpperCase() === 'FEMALE' || g.toUpperCase() === 'NU' || g.toUpperCase() === 'NỮ') ? 'Female' : 'Male';
+      const g = (interval.gender || 'All').toUpperCase();
+      const normalizedG = (g === 'FEMALE' || g === 'NU' || g === 'NỮ')
+        ? 'Female'
+        : (g === 'MALE' || g === 'NAM')
+          ? 'Male'
+          : 'All';
       setFormData({
         criterionCode: interval.criterionCode || '',
         criterionName: interval.criterionName || '',
@@ -225,21 +229,11 @@ export default function ReferenceIntervalModal({
   const currentGenderInfo = criterionGenderMap[currentCode] || { hasMale: false, hasFemale: false, count: 0 };
   const hasMale = currentGenderInfo.hasMale;
   const hasFemale = currentGenderInfo.hasFemale;
-  const isFullyConfigured = hasMale && hasFemale;
-
-  // Lỗi tạo trùng giới tính khi tạo mới
-  const isDuplicateGenderOnCreate = mode === 'create' && (
-    (formData.gender === 'Male' && hasMale) ||
-    (formData.gender === 'Female' && hasFemale)
-  );
-
-  // Lỗi đổi sang giới tính đã có khi sửa
-  const isDuplicateGenderOnEdit = mode === 'edit' && (
-    (formData.gender === 'Male' && interval?.gender !== 'Male' && hasMale) ||
-    (formData.gender === 'Female' && interval?.gender !== 'Female' && hasFemale)
-  );
-
-  const isDuplicate = isFullyConfigured || isDuplicateGenderOnCreate || isDuplicateGenderOnEdit;
+  // Cho phép phân tầng nhiều nhóm tuổi cho cùng giới tính; kiểm tra chồng lấn tuổi+giới thực hiện chuẩn ở Backend
+  const isFullyConfigured = false;
+  const isDuplicateGenderOnCreate = false;
+  const isDuplicateGenderOnEdit = false;
+  const isDuplicate = false;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
